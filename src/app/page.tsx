@@ -1,0 +1,3 @@
+import { requireUser } from "@/lib/auth";import { admin } from "@/lib/supabase/admin";import { Desk } from "@/components/Desk";import { Header } from "@/components/Header";
+export const dynamic="force-dynamic";
+export default async function Page(){await requireUser();const today=new Date().toISOString().slice(0,10),{data,error}=await admin().from("cards").select("*,accounts(*),people(*),signals(*)").eq("surfaced_on",today).in("status",["new","approved","edited","sent","replied","positive"]).order("score",{ascending:false});if(error)throw error;return <div className="shell"><Header/><Desk initialCards={data??[]}/></div>}

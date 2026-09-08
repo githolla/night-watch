@@ -1,0 +1,9 @@
+export type Owner = "josh" | "jenna";
+export type SignalType = "job_post"|"job_cluster"|"exec_post"|"new_leader"|"funding"|"event"|"stack_change"|"other";
+export type PersonLevel = "owner"|"influencer"|"adjacent"|"unknown";
+export type CardStatus = "new"|"approved"|"edited"|"snoozed"|"dismissed"|"sent"|"replied"|"positive"|"meeting"|"archived";
+export type Channel = "linkedin_first"|"email_first"|"intro"|"linkedin_only";
+export interface Account { id:string; name:string; domain:string; vertical:string|null; employee_range:string|null; target_titles:string[]; linkedin_url:string|null; careers_url:string|null; news_query:string|null; status:"active"|"paused"|"client"|"do_not_contact"; last_scouted_at:string|null; email_pattern:string|null; pattern_confidence:number|null }
+export interface Person { id:string; account_id:string; full_name:string; first_name:string; last_name:string; title:string; level:PersonLevel; linkedin_url:string|null; email:string|null; email_status:"verified"|"unverified"|"catch_all"|"none"; connection_status:"none"|"requested"|"connected"; connection_owner:Owner|null; path_score:number; do_not_contact:boolean }
+export interface Signal { id:string; account_id:string; person_id:string|null; type:SignalType; summary:string; source_url:string; source_domain:string|null; observed_at:string; found_at:string; raw:Record<string,unknown>; hash:string; strength:number; modifiers:Record<string,unknown> }
+export interface Card { id:string; signal_id:string; person_id:string; account_id:string; score:number; score_breakdown:Record<string,number>; brief:string; why_now:string; channel:Channel; linkedin_comment:string|null; linkedin_note:string|null; email_subject:string|null; email_body:string|null; status:CardStatus; dismiss_reason:string|null; snooze_until:string|null; assigned_to:Owner; surfaced_on:string|null; account?:Account; person?:Person; signal?:Signal }

@@ -1,0 +1,3 @@
+import { z } from "zod";
+export const sendSchema=z.object({cardId:z.uuid(),subject:z.string().max(120),body:z.string().min(1).max(2000)});
+export function validateEmail(body:string,emailStatus:string,dailyCount:number){const urls=body.match(/https?:\/\/\S+/g)??[];const errors:string[]=[];if(emailStatus!=="verified")errors.push("Recipient email is not verified");if(dailyCount>=15)errors.push("Daily sender cap of 15 reached");if(urls.length>1)errors.push("Email may contain at most one link");if(/<[^>]+>|data:image|tracking pixel/i.test(body))errors.push("Email must be plain text without images or tracking");return errors}

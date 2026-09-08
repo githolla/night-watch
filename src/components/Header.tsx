@@ -1,0 +1,1 @@
+import Link from "next/link";export function Header(){return <header className="topbar"><div className="brand">Night <span>Watch</span></div><div className="eyebrow">Nine-67 outbound desk</div><nav className="nav"><Link href="/">Desk</Link><Link href="/stats">Stats</Link><Link href="/settings">Settings</Link></nav></header>}
