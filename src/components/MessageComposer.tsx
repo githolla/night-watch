@@ -1,11 +1,13 @@
 "use client";
 
-import { Check, Copy, ExternalLink, Mail, MessageCircle, Send } from "lucide-react";
+import { Check, Copy, ExternalLink, FlaskConical, Mail, MessageCircle, Send } from "lucide-react";
 import { useState } from "react";
+import { MessageLab } from "./MessageLab";
 
 type DraftView = "comment" | "connection" | "email";
 
 type Props = {
+  cardId: string;
   personName: string;
   title: string;
   company: string;
@@ -13,6 +15,8 @@ type Props = {
   emailVerified: boolean;
   linkedinUrl: string | null;
   channel: string;
+  signalSummary: string;
+  initialContext: string;
   linkedinComment: string;
   linkedinNote: string;
   emailSubject: string;
@@ -29,6 +33,7 @@ type Props = {
 export function MessageComposer(props: Props) {
   const [view, setView] = useState<DraftView>(() => preferredView(props.channel, Boolean(props.linkedinComment)));
   const [copied, setCopied] = useState(false);
+  const [labOpen, setLabOpen] = useState(false);
   const currentSocialCopy = view === "comment" ? props.linkedinComment : props.linkedinNote;
 
   async function copyForLinkedIn() {
@@ -50,7 +55,10 @@ export function MessageComposer(props: Props) {
           <h3>Message to send</h3>
           <p>One prospect, three coordinated surfaces.</p>
         </div>
-        <span className="composer-control"><i /> Human approved</span>
+        <div className="composer-head-actions">
+          <button type="button" className="open-lab" onClick={() => setLabOpen(true)}><FlaskConical /> Simulate A/B</button>
+          <span className="composer-control"><i /> Human approved</span>
+        </div>
       </header>
 
       <div className="draft-tabs" role="tablist" aria-label="Message channel">
@@ -110,6 +118,27 @@ export function MessageComposer(props: Props) {
           </div>
         )}
       </footer>
+      {labOpen && <MessageLab
+        cardId={props.cardId}
+        demo={props.demo}
+        channel={view}
+        personName={props.personName}
+        company={props.company}
+        signalSummary={props.signalSummary}
+        initialContext={props.initialContext}
+        controlSubject={view === "email" ? props.emailSubject : ""}
+        controlBody={view === "comment" ? props.linkedinComment : view === "connection" ? props.linkedinNote : props.emailBody}
+        onApply={(variant) => {
+          if (view === "email") {
+            props.onEdit("email_subject", variant.subject);
+            props.onEdit("email_body", variant.body);
+          } else {
+            props.onEdit(view === "comment" ? "linkedin_comment" : "linkedin_note", variant.body);
+          }
+        }}
+        onClose={() => setLabOpen(false)}
+        onNotice={props.onNotice}
+      />}
     </section>
   );
 }

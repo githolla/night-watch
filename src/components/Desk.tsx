@@ -172,6 +172,7 @@ export function Desk({
             <div className="outreach-workspace">
               <MessageComposer
                 key={card.id}
+                cardId={card.id}
                 personName={card.people.full_name}
                 title={card.people.title}
                 company={card.accounts.name}
@@ -179,6 +180,8 @@ export function Desk({
                 emailVerified={card.people.email_status === "verified"}
                 linkedinUrl={card.people.linkedin_url}
                 channel={card.channel}
+                signalSummary={card.signals.summary}
+                initialContext={`${card.brief}\n\n${card.why_now}`}
                 linkedinComment={card.linkedin_comment ?? ""}
                 linkedinNote={card.linkedin_note ?? ""}
                 emailSubject={card.email_subject ?? ""}
