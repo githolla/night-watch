@@ -9,8 +9,8 @@ export function Dashboard({data,cards,demo=false}:{data:DashboardData;cards:Card
   const date=new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric"}).format(new Date());
   return <main className="overview">
     <section className="precision-hero">
-      <Image className="architecture-image" src="/nine67-architecture.png" alt="Warm stone architecture in early morning light" fill priority sizes="100vw"/>
-      <div className="architecture-wash"/>
+      <Image className="nightscape-image" src="/night-watch-los-angeles.png" alt="Los Angeles glowing at night beneath a charcoal sky" fill priority sizes="100vw"/>
+      <div className="nightscape-wash"/>
       <aside className="hero-index">
         <span className="micro-label">INTELLIGENCE INDEX</span>
         <nav aria-label="Dashboard sections">
