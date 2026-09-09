@@ -1,3 +1,14 @@
-import { createServerClient } from "@supabase/ssr";import { NextResponse,type NextRequest } from "next/server";
-export async function proxy(request:NextRequest){const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;if(!url||!key){if(request.nextUrl.pathname.startsWith("/setup")||request.nextUrl.pathname.startsWith("/_next"))return NextResponse.next();const setup=request.nextUrl.clone();setup.pathname="/setup";return NextResponse.redirect(setup)}let response=NextResponse.next({request});const supabase=createServerClient(url,key,{cookies:{getAll:()=>request.cookies.getAll(),setAll(items){items.forEach(({name,value})=>request.cookies.set(name,value));response=NextResponse.next({request});items.forEach(({name,value,options})=>response.cookies.set(name,value,options))}}});const {data:{user}}=await supabase.auth.getUser();if(!user&&!request.nextUrl.pathname.startsWith("/login")&&!request.nextUrl.pathname.startsWith("/api/cron")&&!request.nextUrl.pathname.startsWith("/api/gmail/callback")){const login=request.nextUrl.clone();login.pathname="/login";return NextResponse.redirect(login)}return response}
-export const config={matcher:["/((?!_next/static|_next/image|favicon.ico).*)"]};
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+
+export async function proxy(request: NextRequest) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return NextResponse.next();
+  let response = NextResponse.next({ request });
+  const supabase = createServerClient(url, key, { cookies: { getAll: () => request.cookies.getAll(), setAll(items) { items.forEach(({ name, value }) => request.cookies.set(name, value)); response = NextResponse.next({ request }); items.forEach(({ name, value, options }) => response.cookies.set(name, value, options)); } } });
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user && !request.nextUrl.pathname.startsWith("/login") && !request.nextUrl.pathname.startsWith("/api/cron") && !request.nextUrl.pathname.startsWith("/api/gmail/callback")) { const login = request.nextUrl.clone(); login.pathname = "/login"; return NextResponse.redirect(login); }
+  return response;
+}
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };
