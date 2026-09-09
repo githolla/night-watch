@@ -5,6 +5,17 @@ export const demoCards = [
   {id:"demo-4",status:"positive",channel:"linkedin_only",score:72,score_breakdown:{signal_strength:29,person_fit:26,recency:14,relationship_path:3},why_now:"The speaker is reachable through a public event page, but no verified email is available.",brief:"Leo is speaking next week about scaling customer operations without adding support tiers.",assigned_to:"jenna",linkedin_comment:"",linkedin_note:"Your upcoming session on scaling support without more tiers caught my eye. Curious how you’re treating exception ownership.",email_subject:null,email_body:null,accounts:{name:"Aperture Cloud",domain:"aperturecloud.example",vertical:"Cloud infrastructure",employee_range:"250–500"},people:{full_name:"Leo Martins",title:"Director, Customer Experience",email:null,email_status:"none",path_score:0,connection_status:"requested",linkedin_url:"https://www.linkedin.com"},signals:{type:"event",summary:"Leo is listed as a speaker for an operations summit session on AI-assisted customer support.",source_url:"https://example.com/events",source_domain:"ops-summit.example",strength:76,observed_at:"2026-09-06",raw:{event:{name:"Operations Systems Summit",date:"September 16",topic:"Scaling AI-assisted customer support without adding management tiers"}}},supporting_signals:[{label:"Public appearance",detail:"Leo is presenting an operating model for AI-assisted support next week.",age:"3d"},{label:"Topic match",detail:"The session names scale, exception handling, and team structure.",age:"3d"},{label:"Reachability limit",detail:"A public profile is available, but no verified business email was found.",age:"now"}]}
 ];
 export const demoStats={sent:46,replyRate:13,positiveShare:50,meetings:3,cost:38.42,groups:[{name:"job cluster",sent:18,replyRate:17,positiveShare:67},{name:"executive post",sent:14,replyRate:14,positiveShare:50},{name:"new leader",sent:8,replyRate:13,positiveShare:50},{name:"event",sent:6,replyRate:0,positiveShare:0}]};
+export const demoExperimentStats={
+  total:18,selected:15,sent:12,replied:5,positive:3,averageLift:9,confidence:78,winnerA:5,winnerB:13,
+  dimensions:{relevance:86,specificity:79,trust:88,replyEase:82},
+  channels:[{name:"Email",tests:9,averageLift:11,positive:3},{name:"Post reply",tests:5,averageLift:7,positive:0},{name:"Connection note",tests:4,averageLift:8,positive:0}],
+  recent:[
+    {id:"exp-1",person:"Maya Chen",company:"Northstar Health",channel:"Email",winner:"B",scoreA:78,scoreB:89,status:"Positive reply",date:"Today · 08:42"},
+    {id:"exp-2",person:"Andre Walker",company:"Harbor Systems",channel:"Email",winner:"B",scoreA:74,scoreB:84,status:"Sent · awaiting reply",date:"Today · 08:18"},
+    {id:"exp-3",person:"Priya Raman",company:"Meridian Foods",channel:"Connection note",winner:"A",scoreA:87,scoreB:82,status:"Selected",date:"Yesterday · 16:05"},
+    {id:"exp-4",person:"Leo Martins",company:"Aperture Cloud",channel:"Post reply",winner:"B",scoreA:71,scoreB:79,status:"Neutral reply",date:"Sep 7 · 14:31"},
+  ]
+};
 
 export const demoDashboard = {
   metrics: { newSignals: 28, surfacedCards: 10, highPriority: 4, positiveReplies: 2 },

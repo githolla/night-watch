@@ -55,11 +55,15 @@ export function MessageComposer(props: Props) {
           <h3>Message to send</h3>
           <p>One prospect, three coordinated surfaces.</p>
         </div>
-        <div className="composer-head-actions">
-          <button type="button" className="open-lab" onClick={() => setLabOpen(true)}><FlaskConical /> Simulate A/B</button>
-          <span className="composer-control"><i /> Human approved</span>
-        </div>
+        <span className="composer-control"><i /> Human approved</span>
       </header>
+
+      <button type="button" className="simulation-launch" onClick={() => setLabOpen(true)}>
+        <span className="simulation-icon"><FlaskConical /></span>
+        <span><small>MESSAGE LAB · PRE-SEND TEST</small><strong>Compare this draft against a challenger</strong></span>
+        <span className="simulation-proof">4 perspectives<br />5 scoring lenses</span>
+        <b>Run A/B simulation →</b>
+      </button>
 
       <div className="draft-tabs" role="tablist" aria-label="Message channel">
         <button type="button" role="tab" aria-selected={view === "comment"} className={view === "comment" ? "active" : ""} onClick={() => setView("comment")}>
