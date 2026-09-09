@@ -5,3 +5,42 @@ export const demoCards = [
   {id:"demo-4",status:"positive",channel:"linkedin_only",score:72,why_now:"The speaker is reachable through a public event page, but no verified email is available.",brief:"Leo is speaking next week about scaling customer operations without adding support tiers.",assigned_to:"jenna",linkedin_comment:"",linkedin_note:"Your upcoming session on scaling support without more tiers caught my eye. Curious how you’re treating exception ownership.",email_subject:null,email_body:null,accounts:{name:"Aperture Cloud"},people:{full_name:"Leo Martins",title:"Director, Customer Experience",email:null,email_status:"none",path_score:0,connection_status:"requested",linkedin_url:"https://www.linkedin.com"},signals:{type:"event",summary:"Leo is listed as a speaker for an operations summit session on AI-assisted customer support.",source_url:"https://example.com/events",observed_at:"2026-09-06",raw:{}}}
 ];
 export const demoStats={sent:46,replyRate:13,positiveShare:50,meetings:3,cost:38.42,groups:[{name:"job cluster",sent:18,replyRate:17,positiveShare:67},{name:"executive post",sent:14,replyRate:14,positiveShare:50},{name:"new leader",sent:8,replyRate:13,positiveShare:50},{name:"event",sent:6,replyRate:0,positiveShare:0}]};
+
+export const demoDashboard = {
+  metrics: { newSignals: 28, surfacedCards: 10, highPriority: 4, positiveReplies: 2 },
+  run: { status: "Complete", finishedAt: "06:18", accounts: 286, signals: 28, cards: 10, cost: 4.82, duration: "18m 42s" },
+  sources: [
+    { name: "Careers", count: 14, share: 50, detail: "8 target roles · 2 clusters", filter: "jobs" },
+    { name: "Executive posts", count: 7, share: 25, detail: "4 AI · 2 efficiency · 1 scale", filter: "posts" },
+    { name: "Company news", count: 5, share: 18, detail: "2 leaders · 2 funding · 1 market", filter: "news" },
+    { name: "Events", count: 2, share: 7, detail: "2 reachable speakers", filter: "events" }
+  ],
+  pipeline: [
+    { name: "Signals found", count: 28, note: "past 48 hours", href: "/?view=signals" },
+    { name: "People matched", count: 22, note: "79% match rate", href: "/desk" },
+    { name: "Above threshold", count: 13, note: "score 60+", href: "/desk?status=new" },
+    { name: "Surfaced today", count: 10, note: "morning queue", href: "/desk" },
+    { name: "Approved", count: 3, note: "ready for action", href: "/desk?status=approved" }
+  ],
+  recentSignals: [
+    { id:"s1", type:"Executive post", account:"Northstar Health", summary:"VP Operations outlined an AI-assisted intake redesign with human exception handling.", age:"42m", source:"LinkedIn", sourceUrl:"https://www.linkedin.com", cardId:"demo-1", isNew:true },
+    { id:"s2", type:"Job cluster", account:"Harbor Systems", summary:"Three related RevOps and CRM roles opened within fourteen days.", age:"1h", source:"Careers", sourceUrl:"https://example.com/careers", cardId:"demo-2", isNew:true },
+    { id:"s3", type:"New leader", account:"Meridian Foods", summary:"First Chief Data Officer appointed to lead the modernization roadmap.", age:"2h", source:"Company news", sourceUrl:"https://example.com/news", cardId:"demo-3", isNew:true },
+    { id:"s4", type:"Event", account:"Aperture Cloud", summary:"Customer Experience director announced as an AI support operations speaker.", age:"3h", source:"Event page", sourceUrl:"https://example.com/events", cardId:"demo-4", isNew:true },
+    { id:"s5", type:"Funding", account:"Willow Commerce", summary:"Raised a Series B to expand its automation and data teams.", age:"5h", source:"Company news", sourceUrl:"https://example.com/news", cardId:null, isNew:true }
+  ],
+  accounts: [
+    {name:"Northstar Health",signalCount:3,topSignal:"Executive post",score:94,owner:"Josh"},
+    {name:"Harbor Systems",signalCount:4,topSignal:"Job cluster",score:85,owner:"Jenna"},
+    {name:"Meridian Foods",signalCount:2,topSignal:"New leader",score:80,owner:"Josh"},
+    {name:"Aperture Cloud",signalCount:2,topSignal:"Event",score:72,owner:"Jenna"},
+    {name:"Willow Commerce",signalCount:1,topSignal:"Funding",score:68,owner:"Josh"}
+  ],
+  activity: [
+    {time:"08:14",label:"Card approved",detail:"Jenna · Harbor Systems"},
+    {time:"08:06",label:"Positive reply",detail:"Josh · Northstar Health"},
+    {time:"07:58",label:"Card edited",detail:"Josh · Meridian Foods"},
+    {time:"07:44",label:"Signal dismissed",detail:"Jenna · wrong person"},
+    {time:"07:31",label:"Intro requested",detail:"Josh · Priya Raman"}
+  ]
+};
