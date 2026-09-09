@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CadencePlanner } from "./CadencePlanner";
+import { MessageComposer } from "./MessageComposer";
 import { SignalInsight, type InsightCard } from "./SignalInsight";
 
 type Card = InsightCard & {
@@ -169,29 +170,27 @@ export function Desk({
             </div>
 
             <div className="outreach-workspace">
-              <div>
-                <div className="panel copybox message-composer">
-                  <div className="copybox-head">
-                    <div><span className="eyebrow">Ready to review</span><h2>Message to send</h2><p>Edit the approved working copy here.</p></div>
-                    <span>YOU CONTROL SEND</span>
-                  </div>
-                  {card.linkedin_comment && <><label>LinkedIn comment</label><textarea value={card.linkedin_comment} onChange={(event) => edit("linkedin_comment", event.target.value)} rows={3} /></>}
-                  <label>LinkedIn connection note</label>
-                  <textarea value={card.linkedin_note ?? ""} onChange={(event) => edit("linkedin_note", event.target.value)} rows={3} />
-                  <label>Email subject</label>
-                  <input value={card.email_subject ?? ""} onChange={(event) => edit("email_subject", event.target.value)} />
-                  <label>Email body</label>
-                  <textarea value={card.email_body ?? ""} onChange={(event) => edit("email_body", event.target.value)} rows={9} />
-                  <div className="composer-status">
-                    <span>{card.people.email_status === "verified" ? "VERIFIED RECIPIENT" : "EMAIL NEEDS REVIEW"}</span>
-                    <span>{(card.email_body ?? "").length} CHARACTERS</span>
-                  </div>
-                </div>
-                <div className="actions message-actions">
-                  <button disabled={busy} className="btn" onClick={() => patch({ status: "edited", email_subject: card.email_subject, email_body: card.email_body, linkedin_note: card.linkedin_note, linkedin_comment: card.linkedin_comment })}>Save edits</button>
-                  <button disabled={busy || (!demo && (!["approved", "edited"].includes(card.status) || card.people.email_status !== "verified"))} className="btn primary send-now" onClick={send}>{demo ? "Simulate send now" : "Send email now"}<span>→</span></button>
-                </div>
-              </div>
+              <MessageComposer
+                key={card.id}
+                personName={card.people.full_name}
+                title={card.people.title}
+                company={card.accounts.name}
+                email={card.people.email}
+                emailVerified={card.people.email_status === "verified"}
+                linkedinUrl={card.people.linkedin_url}
+                channel={card.channel}
+                linkedinComment={card.linkedin_comment ?? ""}
+                linkedinNote={card.linkedin_note ?? ""}
+                emailSubject={card.email_subject ?? ""}
+                emailBody={card.email_body ?? ""}
+                busy={busy}
+                demo={demo}
+                sendReady={["approved", "edited"].includes(card.status)}
+                onEdit={edit}
+                onSave={() => patch({ status: "edited", email_subject: card.email_subject, email_body: card.email_body, linkedin_note: card.linkedin_note, linkedin_comment: card.linkedin_comment })}
+                onSend={send}
+                onNotice={setNotice}
+              />
 
               <CadencePlanner
                 cardId={card.id}
