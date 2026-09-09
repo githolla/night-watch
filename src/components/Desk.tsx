@@ -1,19 +1,224 @@
 "use client";
 
 import { useState } from "react";
+import { CadencePlanner } from "./CadencePlanner";
 import { SignalInsight, type InsightCard } from "./SignalInsight";
 
-type Card=InsightCard&{id:string;status:string;brief:string;assigned_to:string;email_subject:string|null;email_body:string|null;linkedin_note:string|null;linkedin_comment?:string|null;people:InsightCard["people"]&{email:string|null;email_status:string;linkedin_url:string|null}};
+type Card = InsightCard & {
+  id: string;
+  status: string;
+  brief: string;
+  assigned_to: string;
+  email_subject: string | null;
+  email_body: string | null;
+  linkedin_note: string | null;
+  linkedin_comment?: string | null;
+  people: InsightCard["people"] & {
+    email: string | null;
+    email_status: string;
+    linkedin_url: string | null;
+  };
+};
 
-export function Desk({initialCards,selectedId,demo=false}:{initialCards:Card[];selectedId?:string;demo?:boolean}){
-  const [cards,setCards]=useState(initialCards),[selected,setSelected]=useState(selectedId??cards[0]?.id),[busy,setBusy]=useState(false),[notice,setNotice]=useState("");
-  const card=cards.find(c=>c.id===selected)??cards[0],cardIndex=Math.max(0,cards.findIndex(c=>c.id===card?.id));
-  async function patch(values:Record<string,unknown>){if(demo){setCards(v=>v.map(c=>c.id===card.id?{...c,...values}:c));setNotice("Demo updated locally — nothing was saved or sent.");return}setBusy(true);const response=await fetch(`/api/cards/${card.id}`,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify(values)}),json=await response.json();setBusy(false);if(!response.ok)return alert(json.error);setCards(v=>v.map(c=>c.id===card.id?{...c,...json}:c))}
-  async function send(){if(demo){setCards(v=>v.map(c=>c.id===card.id?{...c,status:"sent"}:c));setNotice("Demo send simulated — no email left the app.");return}if(!confirm(`Send this email to ${card.people.email}?`))return;setBusy(true);const response=await fetch(`/api/cards/${card.id}/send`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({subject:card.email_subject,body:card.email_body})}),json=await response.json();setBusy(false);if(!response.ok)return alert(json.error);setCards(v=>v.map(c=>c.id===card.id?{...c,status:"sent"}:c))}
-  const edit=(key:string,value:string)=>setCards(v=>v.map(c=>c.id===card.id?{...c,[key]:value}:c));
-  const choose=(id:string)=>{setSelected(id);setNotice("");document.querySelector(".detail")?.scrollTo({top:0,behavior:"smooth"})};
-  const move=(offset:number)=>{const next=cards[(cardIndex+offset+cards.length)%cards.length];if(next)choose(next.id)};
-  return <main className="desk"><section className="queue"><div className="queue-head"><div className="eyebrow">Morning decision queue</div><h1>{cards.length} people</h1><p>Each dossier combines the trigger, supporting evidence, person fit, timing, risk, and recommended move.</p><div className="queue-summary"><div><strong>{cards.filter(c=>c.score>=80).length}</strong><span>PRIORITY</span></div><div><strong>{cards.reduce((sum,c)=>sum+(c.supporting_signals?.length??1),0)}</strong><span>SIGNALS</span></div><div><strong>{cards.filter(c=>c.people.path_score>0).length}</strong><span>WARM PATHS</span></div></div></div>{cards.map((c,index)=><button key={c.id} className={`queue-card ${c.id===card?.id?"active":""}`} onClick={()=>choose(c.id)}><div className="queue-card-top"><span className="queue-index">0{index+1}</span><span className="badge">{c.signals.type?.replaceAll("_"," ")??c.channel.replaceAll("_"," ")}</span><span className="queue-fresh">{c.signals.observed_at?freshness(c.signals.observed_at):"recent"}</span><span className="score">{c.score}</span></div><h3>{c.people.full_name}</h3><small>{c.people.title} · {c.accounts.name}</small><p>{c.why_now}</p><div className="queue-reason"><span>{c.supporting_signals?.length??1} EVIDENCE POINTS</span><span>{c.channel.replaceAll("_"," ")}</span><span>{c.people.path_score>0?`PATH ${c.people.path_score}/10`:"COLD"}</span></div></button>)}</section><section className="detail">{!card?<div className="detail-inner"><div className="eyebrow">Queue clear</div><h1>No cards match this view.</h1></div>:<div className="detail-inner"><div className="desk-context-bar"><div><span>DOSSIER</span><strong>{String(cardIndex+1).padStart(2,"0")} / {String(cards.length).padStart(2,"0")}</strong></div><div><span>SIGNAL</span><strong>{card.signals.type?.replaceAll("_"," ")??"Market change"}</strong></div><div><span>OWNER</span><strong>{card.assigned_to}</strong></div><div><span>STATUS</span><strong>{card.status}</strong></div><div className="desk-nav"><button onClick={()=>move(-1)} aria-label="Previous person">←</button><button onClick={()=>move(1)} aria-label="Next person">→</button></div></div><div className="person-header"><div><div className="row"><span className="badge">{card.status}</span><span className="owner-label">Human review required</span></div><h1>{card.people.full_name}</h1><p className="subtitle">{card.people.title} at {card.accounts.name}</p></div><div className="person-contact"><span>{card.people.email??"No verified email"}</span><span>{card.people.email_status}</span></div></div>{notice&&<p className="notice">{notice}</p>}<SignalInsight card={card}/><div className="detail-section-head"><div><div className="eyebrow">04 / Human action</div><h2>Review the outreach plan</h2></div><span>{card.channel.replaceAll("_"," ")}</span></div><div className="grid"><div className="panel"><h2>Contact route</h2><dl className="contact-route"><div><dt>Email</dt><dd>{card.people.email??"Not available"} <span className="badge">{card.people.email_status}</span></dd></div><div><dt>Relationship</dt><dd>{card.people.path_score}/10 · {card.people.connection_status}</dd></div><div><dt>Assigned owner</dt><dd>{card.assigned_to}</dd></div></dl>{card.people.linkedin_url&&<a href={card.people.linkedin_url} target="_blank" rel="noreferrer">Inspect public profile ↗</a>}</div><div className="panel"><h2>Analyst research memo</h2><p>{card.brief}</p><p className="memo-note">Use this context to edit the copy. Do not repeat it verbatim to the prospect.</p></div></div><div className="panel copybox"><div className="copybox-head"><div><h2>Drafted copy</h2><p>Editable working copy. Nothing sends without your approval.</p></div><span>HUMAN CONTROLLED</span></div>{card.linkedin_comment&&<><label>LinkedIn comment</label><textarea value={card.linkedin_comment} onChange={e=>edit("linkedin_comment",e.target.value)} rows={3}/></>}<label>LinkedIn note</label><textarea value={card.linkedin_note??""} onChange={e=>edit("linkedin_note",e.target.value)} rows={2}/><label>Email subject</label><input value={card.email_subject??""} onChange={e=>edit("email_subject",e.target.value)}/><label>Email body</label><textarea value={card.email_body??""} onChange={e=>edit("email_body",e.target.value)} rows={6}/></div><div className="actions"><button disabled={busy} className="btn lime" onClick={()=>patch({status:"approved"})}>Approve plan</button><button disabled={busy} className="btn" onClick={()=>patch({status:"edited",email_subject:card.email_subject,email_body:card.email_body,linkedin_note:card.linkedin_note})}>Save edits</button><button disabled={busy||(!demo&&(!["approved","edited"].includes(card.status)||card.people.email_status!=="verified"))} className="btn primary" onClick={send}>{demo?"Simulate send":"Send email"}</button><button disabled={busy} className="btn" onClick={()=>patch({status:"snoozed"})}>Snooze 7d</button><button disabled={busy} className="btn danger" onClick={()=>patch({status:"dismissed"})}>Dismiss</button></div><div className="panel"><h2>Sequence checklist</h2><ul className="steps"><li><input type="checkbox"/> Day 0 · Inspect the original source and public profile</li><li><input type="checkbox"/> Day 0 · Validate the analyst hypothesis</li><li><input type="checkbox"/> Day 1 · Send the evidence-led first touch</li><li><input type="checkbox"/> Day 2–3 · Review and send the approved email</li><li><input type="checkbox"/> Day 7 · Follow up only on the engaged channel</li></ul></div></div>}</section></main>;
+export function Desk({
+  initialCards,
+  selectedId,
+  demo = false,
+}: {
+  initialCards: Card[];
+  selectedId?: string;
+  demo?: boolean;
+}) {
+  const [cards, setCards] = useState(initialCards);
+  const [selected, setSelected] = useState(selectedId ?? cards[0]?.id);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState("");
+  const card = cards.find((item) => item.id === selected) ?? cards[0];
+  const cardIndex = Math.max(0, cards.findIndex((item) => item.id === card?.id));
+
+  async function patch(values: Record<string, unknown>) {
+    if (demo) {
+      setCards((current) => current.map((item) => item.id === card.id ? { ...item, ...values } : item));
+      setNotice("Demo updated locally — nothing was saved or sent.");
+      return;
+    }
+    setBusy(true);
+    const response = await fetch(`/api/cards/${card.id}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(values),
+    });
+    const json = await response.json();
+    setBusy(false);
+    if (!response.ok) return alert(json.error);
+    setCards((current) => current.map((item) => item.id === card.id ? { ...item, ...json } : item));
+  }
+
+  async function send() {
+    if (demo) {
+      setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
+      setNotice("Demo send simulated — no email left the app.");
+      return;
+    }
+    if (!confirm(`Send this email to ${card.people.email}?`)) return;
+    setBusy(true);
+    const response = await fetch(`/api/cards/${card.id}/send`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ subject: card.email_subject, body: card.email_body }),
+    });
+    const json = await response.json();
+    setBusy(false);
+    if (!response.ok) return alert(json.error);
+    setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
+    setNotice("Message sent. The activity record and reply watch are now active.");
+  }
+
+  const edit = (key: string, value: string) => setCards((current) => current.map((item) => item.id === card.id ? { ...item, [key]: value } : item));
+  const choose = (id: string) => {
+    setSelected(id);
+    setNotice("");
+    document.querySelector(".detail")?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const move = (offset: number) => {
+    const next = cards[(cardIndex + offset + cards.length) % cards.length];
+    if (next) choose(next.id);
+  };
+
+  return (
+    <main className="desk">
+      <section className="queue">
+        <div className="queue-head">
+          <div className="eyebrow">Morning decision queue</div>
+          <h1>{cards.length} people</h1>
+          <p>Each dossier combines the trigger, supporting evidence, person fit, timing, risk, and recommended move.</p>
+          <div className="queue-summary">
+            <div><strong>{cards.filter((item) => item.score >= 80).length}</strong><span>PRIORITY</span></div>
+            <div><strong>{cards.reduce((sum, item) => sum + (item.supporting_signals?.length ?? 1), 0)}</strong><span>SIGNALS</span></div>
+            <div><strong>{cards.filter((item) => item.people.path_score > 0).length}</strong><span>WARM PATHS</span></div>
+          </div>
+        </div>
+        {cards.map((item, index) => (
+          <button key={item.id} className={`queue-card ${item.id === card?.id ? "active" : ""}`} onClick={() => choose(item.id)}>
+            <div className="queue-card-top">
+              <span className="queue-index">0{index + 1}</span>
+              <span className="badge">{item.signals.type?.replaceAll("_", " ") ?? item.channel.replaceAll("_", " ")}</span>
+              <span className="queue-fresh">{item.signals.observed_at ? freshness(item.signals.observed_at) : "recent"}</span>
+              <span className="score">{item.score}</span>
+            </div>
+            <h3>{item.people.full_name}</h3>
+            <small>{item.people.title} · {item.accounts.name}</small>
+            <p>{item.why_now}</p>
+            <div className="queue-reason">
+              <span>{item.supporting_signals?.length ?? 1} EVIDENCE POINTS</span>
+              <span>{item.channel.replaceAll("_", " ")}</span>
+              <span>{item.people.path_score > 0 ? `PATH ${item.people.path_score}/10` : "COLD"}</span>
+            </div>
+          </button>
+        ))}
+      </section>
+
+      <section className="detail">
+        {!card ? (
+          <div className="detail-inner"><div className="eyebrow">Queue clear</div><h1>No cards match this view.</h1></div>
+        ) : (
+          <div className="detail-inner">
+            <div className="desk-context-bar">
+              <div><span>DOSSIER</span><strong>{String(cardIndex + 1).padStart(2, "0")} / {String(cards.length).padStart(2, "0")}</strong></div>
+              <div><span>SIGNAL</span><strong>{card.signals.type?.replaceAll("_", " ") ?? "Market change"}</strong></div>
+              <div><span>OWNER</span><strong>{card.assigned_to}</strong></div>
+              <div><span>STATUS</span><strong>{card.status}</strong></div>
+              <div className="desk-nav">
+                <button onClick={() => move(-1)} aria-label="Previous person">←</button>
+                <button onClick={() => move(1)} aria-label="Next person">→</button>
+              </div>
+            </div>
+
+            <div className="person-header">
+              <div>
+                <div className="row"><span className="badge">{card.status}</span><span className="owner-label">Human review required</span></div>
+                <h1>{card.people.full_name}</h1>
+                <p className="subtitle">{card.people.title} at {card.accounts.name}</p>
+              </div>
+              <div className="person-contact"><span>{card.people.email ?? "No verified email"}</span><span>{card.people.email_status}</span></div>
+            </div>
+
+            {notice && <p className="notice">{notice}</p>}
+            <SignalInsight card={card} />
+
+            <div className="detail-section-head outreach-section-head">
+              <div><div className="eyebrow">04 / Outreach control</div><h2>Message and follow-through</h2></div>
+              <span>{card.channel.replaceAll("_", " ")}</span>
+            </div>
+
+            <div className="grid route-grid">
+              <div className="panel">
+                <h2>Contact route</h2>
+                <dl className="contact-route">
+                  <div><dt>Email</dt><dd>{card.people.email ?? "Not available"} <span className="badge">{card.people.email_status}</span></dd></div>
+                  <div><dt>Relationship</dt><dd>{card.people.path_score}/10 · {card.people.connection_status}</dd></div>
+                  <div><dt>Assigned owner</dt><dd>{card.assigned_to}</dd></div>
+                </dl>
+                {card.people.linkedin_url && <a href={card.people.linkedin_url} target="_blank" rel="noreferrer">Inspect public profile ↗</a>}
+              </div>
+              <div className="panel">
+                <h2>Analyst research memo</h2>
+                <p>{card.brief}</p>
+                <p className="memo-note">Use this context to edit the copy. Do not repeat it verbatim to the prospect.</p>
+              </div>
+            </div>
+
+            <div className="outreach-workspace">
+              <div>
+                <div className="panel copybox message-composer">
+                  <div className="copybox-head">
+                    <div><span className="eyebrow">Ready to review</span><h2>Message to send</h2><p>Edit the approved working copy here.</p></div>
+                    <span>YOU CONTROL SEND</span>
+                  </div>
+                  {card.linkedin_comment && <><label>LinkedIn comment</label><textarea value={card.linkedin_comment} onChange={(event) => edit("linkedin_comment", event.target.value)} rows={3} /></>}
+                  <label>LinkedIn connection note</label>
+                  <textarea value={card.linkedin_note ?? ""} onChange={(event) => edit("linkedin_note", event.target.value)} rows={3} />
+                  <label>Email subject</label>
+                  <input value={card.email_subject ?? ""} onChange={(event) => edit("email_subject", event.target.value)} />
+                  <label>Email body</label>
+                  <textarea value={card.email_body ?? ""} onChange={(event) => edit("email_body", event.target.value)} rows={9} />
+                  <div className="composer-status">
+                    <span>{card.people.email_status === "verified" ? "VERIFIED RECIPIENT" : "EMAIL NEEDS REVIEW"}</span>
+                    <span>{(card.email_body ?? "").length} CHARACTERS</span>
+                  </div>
+                </div>
+                <div className="actions message-actions">
+                  <button disabled={busy} className="btn" onClick={() => patch({ status: "edited", email_subject: card.email_subject, email_body: card.email_body, linkedin_note: card.linkedin_note, linkedin_comment: card.linkedin_comment })}>Save edits</button>
+                  <button disabled={busy || (!demo && (!["approved", "edited"].includes(card.status) || card.people.email_status !== "verified"))} className="btn primary send-now" onClick={send}>{demo ? "Simulate send now" : "Send email now"}<span>→</span></button>
+                </div>
+              </div>
+
+              <CadencePlanner
+                cardId={card.id}
+                demo={demo}
+                channel={card.channel}
+                personName={card.people.full_name}
+                company={card.accounts.name}
+                emailVerified={card.people.email_status === "verified"}
+                subject={card.email_subject ?? ""}
+                body={card.email_body ?? ""}
+                linkedinNote={card.linkedin_note ?? ""}
+                onActivated={setNotice}
+              />
+            </div>
+
+            <div className="actions dossier-actions">
+              <button disabled={busy} className="btn" onClick={() => patch({ status: "approved" })}>Approve dossier</button>
+              <button disabled={busy} className="btn" onClick={() => patch({ status: "snoozed" })}>Snooze 7d</button>
+              <button disabled={busy} className="btn danger" onClick={() => patch({ status: "dismissed" })}>Dismiss</button>
+            </div>
+          </div>
+        )}
+      </section>
+    </main>
+  );
 }
 
-function freshness(value:string){return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric"}).format(new Date(`${value}T12:00:00`))}
+function freshness(value: string) {
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date(`${value}T12:00:00`));
+}
