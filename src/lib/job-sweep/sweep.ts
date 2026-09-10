@@ -1,0 +1,305 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { ScoutSignal } from "../agents.ts";
+import { searchPeopleByTitle } from "../apollo-search.ts";
+import {
+  accountIdsInOpenRuns, ensureAccountsLoaded, finalizeRun, persistSignal, refreshRunAggregates, summarize, sweepStaleRuns,
+  type AccountOutcome, type RunNightlyResult, type StopReason,
+} from "../pipeline.ts";
+import { classifyResearchError, ResearchError, researchPreflight } from "../research-errors.ts";
+import { runBudgetUsd, sweepAccountLimit, sweepConcurrency, sweepCooldownMs, timeBudgetMs } from "../run-config.ts";
+import { admin } from "../supabase/admin.ts";
+import { targetAccountByDomain } from "../target-accounts.ts";
+import type { Account } from "../types.ts";
+import { CAREERS_PATHS, careersLinkFromHomepage, detectAts, fetchPostings, fetchText, postingsFromHtml, type AtsRef, type Fetcher, type Posting } from "./ats.ts";
+import { classifyTitle, FAMILY_LABEL, operatingNeedFor, type JobFamily } from "./classify.ts";
+
+type Db = SupabaseClient;
+
+export type SweepSource = "sweep" | "sweep_manual";
+
+export type SweepOptions = {
+  source: SweepSource;
+  runId?: string;
+  accountLimit?: number;
+  accountIds?: string[];
+  timeBudgetMs?: number;
+  concurrency?: number;
+  fetcher?: Fetcher;
+  now?: () => number;
+};
+
+type CareersStatus = "found" | "listings" | "none" | "error";
+
+export type SweepAccountResult = {
+  careersUrl: string | null;
+  ats: AtsRef | null;
+  status: CareersStatus;
+  note: string;
+  postings: Array<Posting & { family: JobFamily | null }>;
+  targetPostings: Array<Posting & { family: JobFamily }>;
+};
+
+function looksLikeCareersPage(html: string) {
+  return /career|job|opening|position|join (us|our team)|hiring|apply/i.test(html);
+}
+
+/**
+ * Find the company's careers page and read its postings. Order: a board we
+ * recorded last time, the homepage's careers link, then common paths.
+ */
+export async function sweepAccount(account: Account & { ats_provider?: string | null; ats_ref?: string | null }, fetcher: Fetcher, now = new Date()): Promise<SweepAccountResult> {
+  const classify = (postings: Posting[]) => postings.map((posting) => ({ ...posting, family: classifyTitle(posting.title) }));
+  const finish = (careersUrl: string | null, ats: AtsRef | null, status: CareersStatus, note: string, postings: Array<Posting & { family: JobFamily | null }>): SweepAccountResult => ({
+    careersUrl, ats, status, note, postings, targetPostings: postings.filter((posting): posting is Posting & { family: JobFamily } => posting.family !== null),
+  });
+
+  if (account.ats_provider && account.ats_ref) {
+    const ats = { provider: account.ats_provider as AtsRef["provider"], ref: account.ats_ref };
+    const postings = classify(await fetchPostings(fetcher, ats, now));
+    if (postings.length) return finish(account.careers_url, ats, "listings", `${postings.length} postings on ${ats.provider}`, postings);
+  }
+
+  const candidates: string[] = [];
+  if (account.careers_url) candidates.push(account.careers_url);
+  let homepageHtml = "";
+  for (const home of [`https://www.${account.domain}/`, `https://${account.domain}/`]) {
+    try {
+      const page = await fetchText(fetcher, home);
+      if (page.ok) {
+        homepageHtml = page.body;
+        const link = careersLinkFromHomepage(page.body, home);
+        if (link) candidates.push(link);
+        const ats = detectAts(page.body, home);
+        if (ats) {
+          const postings = classify(await fetchPostings(fetcher, ats, now));
+          return finish(link ?? home, ats, postings.length ? "listings" : "found", `${postings.length} postings on ${ats.provider}`, postings);
+        }
+        break;
+      }
+    } catch {
+      // Try the next form of the homepage.
+    }
+  }
+  for (const path of CAREERS_PATHS) candidates.push(`https://www.${account.domain}${path}`, `https://${account.domain}${path}`);
+
+  const tried = new Set<string>();
+  let firstCareersPage: { url: string; html: string } | null = null;
+  for (const candidate of candidates) {
+    if (tried.has(candidate)) continue;
+    tried.add(candidate);
+    let page: { ok: boolean; status: number; body: string };
+    try {
+      page = await fetchText(fetcher, candidate);
+    } catch {
+      continue;
+    }
+    if (!page.ok) continue;
+    const ats = detectAts(page.body, candidate);
+    if (ats) {
+      const postings = classify(await fetchPostings(fetcher, ats, now));
+      return finish(candidate, ats, postings.length ? "listings" : "found", `${postings.length} postings on ${ats.provider}`, postings);
+    }
+    if (!firstCareersPage && looksLikeCareersPage(page.body)) firstCareersPage = { url: candidate, html: page.body };
+    if (firstCareersPage && tried.size >= 6) break;
+  }
+
+  if (firstCareersPage) {
+    const postings = classify(postingsFromHtml(firstCareersPage.html, firstCareersPage.url));
+    return finish(firstCareersPage.url, null, postings.length ? "listings" : "found", postings.length ? `${postings.length} postings read from the page` : "Careers page found; listings are rendered by script and not readable", postings);
+  }
+  const ats = homepageHtml ? detectAts(homepageHtml, `https://${account.domain}/`) : null;
+  if (ats) {
+    const postings = classify(await fetchPostings(fetcher, ats, now));
+    return finish(null, ats, postings.length ? "listings" : "found", `${postings.length} postings on ${ats.provider}`, postings);
+  }
+  return finish(null, null, "none", "No careers page found at the homepage link or common paths", []);
+}
+
+function daysBetween(from: string, to: Date) {
+  return Math.max(0, Math.floor((to.getTime() - Date.parse(from)) / 86_400_000));
+}
+
+/** Turn the target postings into one hiring signal, with the buyer from the target file or Apollo. */
+export async function hiringSignal(account: Account, result: SweepAccountResult, rows: Array<{ url: string; first_seen_at: string; posted_at: string | null }>, now: Date): Promise<ScoutSignal | null> {
+  const target = result.targetPostings;
+  if (!target.length) return null;
+  const firstSeen = new Map(rows.map((row) => [row.url, row]));
+  const observed = target
+    .map((posting) => posting.postedAt ?? firstSeen.get(posting.url)?.first_seen_at?.slice(0, 10) ?? now.toISOString().slice(0, 10))
+    .sort()
+    .at(-1)!;
+  const oldest = target
+    .map((posting) => posting.postedAt ?? firstSeen.get(posting.url)?.first_seen_at ?? now.toISOString())
+    .map((date) => daysBetween(date, now))
+    .sort((left, right) => right - left)[0] ?? 0;
+  const families = [...new Set(target.map((posting) => posting.family))];
+  const titles = [...new Set(target.map((posting) => posting.title))];
+  const context = targetAccountByDomain.get(account.domain);
+  const people: ScoutSignal["people"] = [];
+  if (context?.ceo) people.push({ name: context.ceo, title: "CEO", role_in_signal: "budget owner from the target file" });
+  else {
+    try {
+      const found = await searchPeopleByTitle(account.domain, context?.targetTitles ?? account.target_titles ?? []);
+      if (found) people.push({ name: found.name, title: found.title, role_in_signal: "likely buyer by title" });
+    } catch (error) {
+      console.warn(`[night-watch] Apollo title search failed for ${account.domain}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  const lead = target[0];
+  return {
+    type: target.length >= 2 ? "job_cluster" : "job_post",
+    summary: `${target.length} open ${families.map((family) => FAMILY_LABEL[family].toLowerCase()).join(" and ")} role${target.length === 1 ? "" : "s"}: ${titles.slice(0, 4).join(", ")}${titles.length > 4 ? ` and ${titles.length - 4} more` : ""}.`,
+    source_url: result.careersUrl ?? lead.url,
+    observed_at: observed,
+    operating_need: operatingNeedFor(target),
+    evidence_kind: "hiring",
+    people,
+    job: {
+      title: target.length === 1 ? lead.title : `${target.length} roles: ${titles.slice(0, 3).join(", ")}`,
+      department: lead.department ?? FAMILY_LABEL[lead.family],
+      days_open: oldest,
+      reposted: false,
+      salary_max: 0,
+      tools_named: [],
+      responsibilities: titles.slice(0, 8),
+    },
+    confidence: 0.9,
+  };
+}
+
+async function selectAccounts(db: Db, options: SweepOptions, now: number) {
+  const busy = await accountIdsInOpenRuns(db);
+  if (options.accountIds?.length) {
+    const { data } = await db.from("accounts").select("id,name,domain").in("id", options.accountIds).eq("status", "active");
+    return (data ?? []).filter((account) => !busy.has(account.id));
+  }
+  const limit = Math.max(1, Math.min(2000, Math.floor(options.accountLimit ?? sweepAccountLimit())));
+  const cutoff = new Date(now - sweepCooldownMs()).toISOString();
+  const { data, error } = await db.from("accounts").select("id,name,domain").eq("status", "active").not("domain", "like", "%.example")
+    .or(`careers_checked_at.is.null,careers_checked_at.lt.${cutoff}`).order("careers_checked_at", { ascending: true, nullsFirst: true }).order("name").limit(limit + busy.size);
+  if (error) throw error;
+  return (data ?? []).filter((account) => !busy.has(account.id)).slice(0, limit);
+}
+
+async function createSweepRun(db: Db, options: SweepOptions, now: number) {
+  const batch = await selectAccounts(db, options, now);
+  const { data: run, error } = await db.from("runs").insert({ started_at: new Date(now).toISOString(), heartbeat_at: new Date(now).toISOString(), status: "open", source: options.source, requested_accounts: batch.length }).select("id").single();
+  if (error) throw error;
+  if (batch.length) {
+    const { error: rowsError } = await db.from("run_accounts").insert(batch.map((account, index) => ({ run_id: run.id, account_id: account.id, position: index + 1, domain: account.domain, name: account.name })));
+    if (rowsError) throw rowsError;
+  }
+  return run.id as string;
+}
+
+/**
+ * Read careers pages for a batch of companies with a small concurrency pool,
+ * record every posting, and raise hiring signals. Same run record, time
+ * budget, cost budget and stop handling as the research run.
+ */
+export async function runSweep(options: SweepOptions): Promise<RunNightlyResult> {
+  researchPreflight();
+  const db = admin();
+  const clock = options.now ?? Date.now;
+  const fetcher: Fetcher = options.fetcher ?? ((url, init) => fetch(url, init));
+  const started = clock();
+  const budget = options.timeBudgetMs ?? timeBudgetMs(options.source === "sweep" ? "scheduled" : "manual");
+  const costBudget = runBudgetUsd();
+  const concurrency = Math.max(1, Math.min(12, options.concurrency ?? sweepConcurrency()));
+
+  await sweepStaleRuns(db, started);
+  await ensureAccountsLoaded(db);
+
+  let runId = options.runId ?? null;
+  if (runId) {
+    const { data: run } = await db.from("runs").select("id,status").eq("id", runId).maybeSingle();
+    if (!run) throw new ResearchError("unknown", "That sweep does not exist.");
+    if (run.status !== "open") return summarize(db, runId, "already_closed", 0, 0);
+  } else if (options.source === "sweep" && !options.accountIds?.length) {
+    const idleCutoff = new Date(started - 2 * 60_000).toISOString();
+    const { data: idle } = await db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false).in("source", ["sweep", "sweep_manual"])
+      .or(`heartbeat_at.is.null,heartbeat_at.lt.${idleCutoff}`).order("started_at", { ascending: false }).limit(1).maybeSingle();
+    if (idle) {
+      const { count } = await db.from("run_accounts").select("*", { count: "exact", head: true }).eq("run_id", idle.id).eq("status", "queued");
+      if ((count ?? 0) > 0) runId = idle.id;
+    }
+  }
+  if (!runId) runId = await createSweepRun(db, options, started);
+  const id = runId;
+
+  let processed = 0;
+  let invocationCost = 0;
+  // Workers assign these inside closures, so keep them on an object TypeScript cannot narrow.
+  const state: { stopped: StopReason; halt: boolean } = { stopped: "finished", halt: false };
+
+  const worker = async () => {
+    while (!state.halt) {
+      const now = clock();
+      if (now - started >= budget) { state.stopped = "time_budget"; state.halt = true; break; }
+      if (invocationCost >= costBudget) { state.stopped = "cost_budget"; state.halt = true; break; }
+      const { data: fresh } = await db.from("runs").select("cancel_requested,status").eq("id", id).single();
+      if (fresh?.status !== "open") { state.stopped = "already_closed"; state.halt = true; break; }
+      if (fresh.cancel_requested) { state.stopped = "cancelled"; state.halt = true; break; }
+      const { data: next } = await db.from("run_accounts").select("id,account_id,domain").eq("run_id", id).eq("status", "queued").order("position").limit(1).maybeSingle();
+      if (!next) break;
+      const { data: claimed } = await db.from("run_accounts").update({ status: "running", started_at: new Date(now).toISOString() }).eq("id", next.id).eq("status", "queued").select("id").maybeSingle();
+      if (!claimed) continue;
+      const rowStart = clock();
+      let update: Record<string, unknown>;
+      try {
+        const { data: account } = await db.from("accounts").select("*").eq("id", next.account_id).maybeSingle();
+        if (!account) throw new ResearchError("db_error", `Account ${next.domain} no longer exists.`);
+        const sweepStart = new Date(rowStart).toISOString();
+        const result = await sweepAccount(account as Account, fetcher, new Date(rowStart));
+        for (const posting of result.postings) {
+          const { error } = await db.from("job_postings").upsert({
+            account_id: account.id, external_id: posting.externalId, title: posting.title, url: posting.url, location: posting.location, department: posting.department,
+            family: posting.family, posted_at: posting.postedAt, last_seen_at: sweepStart, active: true, raw: posting.raw ?? {},
+          }, { onConflict: "account_id,url" });
+          if (error) throw error;
+        }
+        if (result.status === "listings") {
+          await db.from("job_postings").update({ active: false }).eq("account_id", account.id).eq("active", true).lt("last_seen_at", sweepStart);
+        }
+        await db.from("accounts").update({
+          careers_url: result.careersUrl ?? account.careers_url, ats_provider: result.ats?.provider ?? null, ats_ref: result.ats?.ref ?? null,
+          careers_checked_at: sweepStart, careers_status: result.status, careers_note: result.note,
+        }).eq("id", account.id);
+
+        const outcome: AccountOutcome = { signalsFound: result.postings.length, signalsKept: result.targetPostings.length, signalsNew: 0, cardsCreated: 0, costUsd: 0, model: null };
+        if (result.targetPostings.length) {
+          const { data: rows } = await db.from("job_postings").select("url,first_seen_at,posted_at").eq("account_id", account.id).eq("active", true).not("family", "is", null);
+          const signal = await hiringSignal(account as Account, result, rows ?? [], new Date(rowStart));
+          if (signal) await persistSignal(account as Account, signal, outcome, (cost) => { outcome.costUsd += cost; invocationCost += cost; });
+        }
+        const families = [...new Set(result.targetPostings.map((posting) => FAMILY_LABEL[posting.family]))];
+        update = {
+          status: result.targetPostings.length ? "ok" : "no_signal",
+          signals_found: outcome.signalsFound, signals_kept: outcome.signalsKept, signals_new: outcome.signalsNew, cards_created: outcome.cardsCreated,
+          cost_usd: Number(outcome.costUsd.toFixed(6)), model: null, error_code: null, error_message: null,
+          note: result.targetPostings.length ? `${result.targetPostings.length} of ${result.postings.length} postings in ${families.join(", ")}` : result.note,
+        };
+      } catch (error) {
+        const classified = classifyResearchError(error);
+        console.error(`[night-watch] sweep failed for ${next.domain} (${classified.code}): ${classified.message}`);
+        update = { status: "error", error_code: classified.code, error_message: classified.message };
+      }
+      const finishedAt = clock();
+      await db.from("run_accounts").update({ ...update, finished_at: new Date(finishedAt).toISOString(), duration_ms: finishedAt - rowStart }).eq("id", next.id);
+      processed += 1;
+      await refreshRunAggregates(db, id, finishedAt);
+    }
+  };
+  await Promise.all(Array.from({ length: concurrency }, () => worker()));
+
+  const ended = clock();
+  const { stopped } = state;
+  if (stopped === "finished" || stopped === "cancelled") {
+    await finalizeRun(db, id, stopped === "cancelled" ? "cancelled" : "complete", ended);
+  } else if (stopped !== "already_closed") {
+    await refreshRunAggregates(db, id, ended);
+  }
+  const { data: current } = await db.from("runs").select("invocations").eq("id", id).single();
+  await db.from("runs").update({ invocations: Number(current?.invocations ?? 0) + 1 }).eq("id", id);
+  return summarize(db, id, stopped, processed, invocationCost);
+}

@@ -1,4 +1,4 @@
-import { decrypt } from "./crypto";import { admin } from "./supabase/admin";import type { Owner } from "./types";
+import { decrypt } from "./crypto.ts";import { admin } from "./supabase/admin.ts";import type { Owner } from "./types.ts";
 function config(){return {client_id:process.env.GOOGLE_CLIENT_ID!,client_secret:process.env.GOOGLE_CLIENT_SECRET!,redirect_uri:process.env.GOOGLE_REDIRECT_URI!}}
 export function oauthUrl(owner:Owner){const q=new URLSearchParams({...config(),response_type:"code",scope:"https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly",access_type:"offline",prompt:"consent",state:owner});return `https://accounts.google.com/o/oauth2/v2/auth?${q}`}
 export async function exchangeCode(code:string){const response=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:new URLSearchParams({...config(),code,grant_type:"authorization_code"})});if(!response.ok)throw new Error("Google OAuth exchange failed");return response.json() as Promise<{access_token:string;refresh_token:string}>}

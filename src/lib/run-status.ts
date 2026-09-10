@@ -2,6 +2,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type RunAccountStatus = "queued" | "running" | "ok" | "no_signal" | "error" | "cancelled";
 export type RunStatus = "open" | "complete" | "cancelled";
+export type RunSource = "scheduled" | "manual" | "sweep" | "sweep_manual";
+export const SWEEP_SOURCES: RunSource[] = ["sweep", "sweep_manual"];
+export const RESEARCH_SOURCES: RunSource[] = ["scheduled", "manual"];
 
 export type RunAccountRow = {
   id: string;
@@ -12,6 +15,7 @@ export type RunAccountRow = {
   status: RunAccountStatus;
   errorCode: string | null;
   errorMessage: string | null;
+  note: string | null;
   signalsFound: number;
   signalsKept: number;
   signalsNew: number;
@@ -38,7 +42,7 @@ export type RunCounts = {
 export type RunSummary = {
   id: string;
   status: RunStatus;
-  source: "scheduled" | "manual";
+  source: RunSource;
   startedAt: string;
   finishedAt: string | null;
   heartbeatAt: string | null;
@@ -64,6 +68,7 @@ function rowFrom(record: Record<string, unknown>): RunAccountRow {
     status: (record.status as RunAccountStatus) ?? "queued",
     errorCode: (record.error_code as string | null) ?? null,
     errorMessage: (record.error_message as string | null) ?? null,
+    note: (record.note as string | null) ?? null,
     signalsFound: Number(record.signals_found ?? 0),
     signalsKept: Number(record.signals_kept ?? 0),
     signalsNew: Number(record.signals_new ?? 0),
@@ -103,7 +108,7 @@ export async function loadRunSummary(db: Db, runId: string): Promise<RunSummary 
   return {
     id: run.id,
     status: (run.status as RunStatus) ?? (run.finished_at ? "complete" : "open"),
-    source: run.source === "manual" ? "manual" : "scheduled",
+    source: (["manual", "sweep", "sweep_manual"].includes(run.source) ? run.source : "scheduled") as RunSource,
     startedAt: run.started_at,
     finishedAt: run.finished_at ?? null,
     heartbeatAt: run.heartbeat_at ?? null,
@@ -118,9 +123,9 @@ export async function loadRunSummary(db: Db, runId: string): Promise<RunSummary 
   };
 }
 
-/** The newest run of any source, for the desk. */
-export async function latestRunSummary(db: Db) {
-  const { data } = await db.from("runs").select("id").order("started_at", { ascending: false }).limit(1).maybeSingle();
+/** The newest run of the given sources (research runs by default), for the desk. */
+export async function latestRunSummary(db: Db, sources: RunSource[] = RESEARCH_SOURCES) {
+  const { data } = await db.from("runs").select("id").in("source", sources).order("started_at", { ascending: false }).limit(1).maybeSingle();
   return data ? loadRunSummary(db, data.id) : null;
 }
 

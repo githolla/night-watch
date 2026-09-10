@@ -17,7 +17,22 @@ function decimal(name: string, fallback: number, min: number) {
 
 /** Companies enqueued per run, scheduled or manual. `NIGHTLY_ACCOUNT_LIMIT`. */
 export function nightlyBatchSize() {
-  return integer("NIGHTLY_ACCOUNT_LIMIT", 10, 1, 300);
+  return integer("NIGHTLY_ACCOUNT_LIMIT", 25, 1, 300);
+}
+
+/** Companies whose careers page the sweep reads per run. `SWEEP_ACCOUNT_LIMIT`. */
+export function sweepAccountLimit() {
+  return integer("SWEEP_ACCOUNT_LIMIT", 300, 1, 2000);
+}
+
+/** Hours before a company's careers page is read again. `SWEEP_COOLDOWN_HOURS`. */
+export function sweepCooldownMs() {
+  return integer("SWEEP_COOLDOWN_HOURS", 24, 1, 720) * 3600_000;
+}
+
+/** Careers pages read in parallel by one sweep invocation. `SWEEP_CONCURRENCY`. */
+export function sweepConcurrency() {
+  return integer("SWEEP_CONCURRENCY", 6, 1, 12);
 }
 
 /**
@@ -31,7 +46,7 @@ export function researchCooldownMs() {
 
 /** Measured Anthropic spend at which one invocation stops and defers the rest. `NIGHTLY_RUN_BUDGET_USD`. */
 export function runBudgetUsd() {
-  return decimal("NIGHTLY_RUN_BUDGET_USD", 1.25, 0.01);
+  return decimal("NIGHTLY_RUN_BUDGET_USD", 2.5, 0.01);
 }
 
 /** Planning figure for one company; caps how many are enqueued per invocation. `NIGHTLY_MAX_COST_PER_ACCOUNT_USD`. */

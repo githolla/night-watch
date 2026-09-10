@@ -419,3 +419,7 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:12px;color:var(--ink-soft)}.
 .operating-need{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:baseline;padding:14px 18px;border-bottom:1px solid var(--line-strong);background:var(--ok-soft)}
 .operating-need span{font:700 11px/1.4 var(--mono);letter-spacing:.1em;color:var(--ok);white-space:nowrap}
 .operating-need p{margin:0;font-size:15px;line-height:1.45;color:var(--ink)}
+.run-kind{display:grid;gap:12px;padding:18px 0 22px;border-top:1px solid var(--line-strong)}
+.run-kind>header{display:grid;gap:6px;max-width:760px}
+.run-kind>header h2{font-size:20px;line-height:1.2;letter-spacing:-.02em;margin:0}
+.run-kind>header p{margin:0;font-size:13px;line-height:1.5;color:var(--muted)}

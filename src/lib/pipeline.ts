@@ -1,15 +1,15 @@
 import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { findPerson, scout, type ScoutSignal, writeAngle } from "./agents";
-import { matchPerson } from "./apollo";
-import { classifyResearchError, ResearchError, researchPreflight } from "./research-errors";
-import { priorityBand, selectResearchBatch } from "./research-rotation";
-import { maxCostPerAccountUsd, nightlyBatchSize, researchCooldownMs, runBudgetUsd, STALE_HEARTBEAT_MS, timeBudgetMs } from "./run-config";
-import { countRows, loadRunSummary, type RunSummary } from "./run-status";
-import { ARCHIVE_THRESHOLD, CARD_THRESHOLD, score, strength } from "./scoring";
-import { admin } from "./supabase/admin";
-import { targetAccountByDomain, targetAccountRowBatches } from "./target-accounts";
-import type { Account, Owner, PersonLevel } from "./types";
+import { findPerson, scout, type ScoutSignal, writeAngle } from "./agents.ts";
+import { matchPerson } from "./apollo.ts";
+import { classifyResearchError, ResearchError, researchPreflight } from "./research-errors.ts";
+import { priorityBand, selectResearchBatch } from "./research-rotation.ts";
+import { maxCostPerAccountUsd, nightlyBatchSize, researchCooldownMs, runBudgetUsd, STALE_HEARTBEAT_MS, timeBudgetMs } from "./run-config.ts";
+import { countRows, loadRunSummary, type RunSummary } from "./run-status.ts";
+import { ARCHIVE_THRESHOLD, CARD_THRESHOLD, score, strength } from "./scoring.ts";
+import { admin } from "./supabase/admin.ts";
+import { targetAccountByDomain, targetAccountRowBatches } from "./target-accounts.ts";
+import type { Account, Owner, PersonLevel } from "./types.ts";
 
 type Db = SupabaseClient;
 
@@ -116,7 +116,6 @@ export type AccountOutcome = {
  * that on success only, so a failed company stays eligible for retry.
  */
 export async function processAccount(account: Account): Promise<AccountOutcome> {
-  const db = admin();
   const outcome: AccountOutcome = { signalsFound: 0, signalsKept: 0, signalsNew: 0, cardsCreated: 0, costUsd: 0, model: null };
   const recordCost = (costUsd: number) => { outcome.costUsd += costUsd; };
   const context = targetAccountByDomain.get(account.domain);
@@ -134,59 +133,67 @@ export async function processAccount(account: Account): Promise<AccountOutcome> 
   outcome.signalsFound = found.found;
   outcome.signalsKept = found.kept;
   outcome.model = found.model;
-
-  for (const item of found.signals) {
-    const hash = signalHash(item.type, item.source_url);
-    const { data: existing } = await db.from("signals").select("id,person_id").eq("account_id", account.id).eq("hash", hash).maybeSingle();
-    const person = await mapPerson(account, item, recordCost);
-    const signalPayload = {
-      account_id: account.id,
-      person_id: person?.id ?? null,
-      type: item.type,
-      summary: item.summary,
-      source_url: normalized(item.source_url),
-      source_domain: new URL(item.source_url).hostname,
-      observed_at: item.observed_at,
-      raw: item,
-      hash,
-      strength: strength(item.type, item.job),
-      modifiers: item.job ?? {},
-    };
-
-    let storedId: string;
-    if (existing) {
-      const { error } = await db.from("signals").update(signalPayload).eq("id", existing.id);
-      if (error) throw error;
-      storedId = existing.id;
-    } else {
-      const { data: stored, error } = await db.from("signals").insert(signalPayload).select("id").single();
-      if (error) throw error;
-      storedId = stored.id;
-      outcome.signalsNew += 1;
-    }
-
-    if (!person || person.level === "unknown") continue;
-    const scored = score({ type: item.type, level: person.level, observedAt: item.observed_at, pathScore: person.path_score, item: item.job } as never);
-    const breakdown = storedBreakdown(scored);
-    if (scored.score < CARD_THRESHOLD) continue;
-
-    const { data: existingCard } = await db.from("cards").select("id,status").eq("signal_id", storedId).eq("person_id", person.id).maybeSingle();
-    if (existingCard) {
-      await db.from("cards").update({ score: scored.score, score_breakdown: breakdown, ...(existingCard.status === "archived" ? { status: "new" } : {}) }).eq("id", existingCard.id);
-      continue;
-    }
-
-    const draft = await writeAngle({ account, signal: item, person, score: scored }, recordCost);
-    const { count } = await db.from("cards").select("*", { count: "exact", head: true });
-    const assigned: Owner = person.connection_owner ?? ((count ?? 0) % 2 === 0 ? "josh" : "jenna");
-    const inserted = await db.from("cards").insert({ signal_id: storedId, person_id: person.id, account_id: account.id, score: scored.score, score_breakdown: breakdown, assigned_to: assigned, ...draft }).select("id").single();
-    if (inserted.error) throw inserted.error;
-    outcome.cardsCreated += 1;
-  }
+  for (const item of found.signals) await persistSignal(account, item, outcome, recordCost);
   return outcome;
 }
 
-async function ensureAccountsLoaded(db: Db) {
+/**
+ * Store one qualified signal: upsert the signal row, map the person, score,
+ * and create or refresh the card with drafted outreach when it clears the
+ * threshold. Shared by the LLM research leg and the job sweep.
+ */
+export async function persistSignal(account: Account, item: ScoutSignal, outcome: AccountOutcome, recordCost: (costUsd: number) => void) {
+  const db = admin();
+  const hash = signalHash(item.type, item.source_url);
+  const { data: existing } = await db.from("signals").select("id,person_id").eq("account_id", account.id).eq("hash", hash).maybeSingle();
+  const person = await mapPerson(account, item, recordCost);
+  const signalPayload = {
+    account_id: account.id,
+    person_id: person?.id ?? null,
+    type: item.type,
+    summary: item.summary,
+    source_url: normalized(item.source_url),
+    source_domain: new URL(item.source_url).hostname,
+    observed_at: item.observed_at,
+    raw: item,
+    hash,
+    strength: strength(item.type, item.job),
+    modifiers: item.job ?? {},
+  };
+
+  let storedId: string;
+  if (existing) {
+    const { error } = await db.from("signals").update(signalPayload).eq("id", existing.id);
+    if (error) throw error;
+    storedId = existing.id;
+  } else {
+    const { data: stored, error } = await db.from("signals").insert(signalPayload).select("id").single();
+    if (error) throw error;
+    storedId = stored.id;
+    outcome.signalsNew += 1;
+  }
+
+  if (!person || person.level === "unknown") return { storedId, cardId: null };
+  const scored = score({ type: item.type, level: person.level, observedAt: item.observed_at, pathScore: person.path_score, item: item.job } as never);
+  const breakdown = storedBreakdown(scored);
+  if (scored.score < CARD_THRESHOLD) return { storedId, cardId: null };
+
+  const { data: existingCard } = await db.from("cards").select("id,status").eq("signal_id", storedId).eq("person_id", person.id).maybeSingle();
+  if (existingCard) {
+    await db.from("cards").update({ score: scored.score, score_breakdown: breakdown, ...(existingCard.status === "archived" ? { status: "new" } : {}) }).eq("id", existingCard.id);
+    return { storedId, cardId: existingCard.id as string };
+  }
+
+  const draft = await writeAngle({ account, signal: item, person, score: scored }, recordCost);
+  const { count } = await db.from("cards").select("*", { count: "exact", head: true });
+  const assigned: Owner = person.connection_owner ?? ((count ?? 0) % 2 === 0 ? "josh" : "jenna");
+  const inserted = await db.from("cards").insert({ signal_id: storedId, person_id: person.id, account_id: account.id, score: scored.score, score_breakdown: breakdown, assigned_to: assigned, ...draft }).select("id").single();
+  if (inserted.error) throw inserted.error;
+  outcome.cardsCreated += 1;
+  return { storedId, cardId: inserted.data.id as string };
+}
+
+export async function ensureAccountsLoaded(db: Db) {
   const { count: realAccounts } = await db.from("accounts").select("*", { count: "exact", head: true }).not("domain", "like", "%.example");
   if ((realAccounts ?? 0) > 0) return;
   await db.from("accounts").delete().like("domain", "%.example");
@@ -212,7 +219,7 @@ async function allActiveAccounts(db: Db) {
  * Companies already queued or running in an open run are not enqueued again,
  * so a manual run and the scheduled run never research the same company twice.
  */
-async function accountIdsInOpenRuns(db: Db) {
+export async function accountIdsInOpenRuns(db: Db) {
   const { data: openRuns } = await db.from("runs").select("id").eq("status", "open");
   const ids = (openRuns ?? []).map((run) => run.id);
   if (!ids.length) return new Set<string>();
@@ -226,7 +233,7 @@ async function accountIdsInOpenRuns(db: Db) {
  * queued for the next invocation, and a run with nothing left is closed.
  * A run with a fresh heartbeat is never touched: it belongs to someone else.
  */
-async function sweepStaleRuns(db: Db, now: number) {
+export async function sweepStaleRuns(db: Db, now: number) {
   const cutoff = new Date(now - STALE_HEARTBEAT_MS).toISOString();
   const { data: stale } = await db.from("runs").select("id,heartbeat_at,started_at").eq("status", "open").or(`heartbeat_at.is.null,heartbeat_at.lt.${cutoff}`);
   for (const run of stale ?? []) {
@@ -242,7 +249,7 @@ async function sweepStaleRuns(db: Db, now: number) {
   }
 }
 
-async function refreshRunAggregates(db: Db, runId: string, now: number) {
+export async function refreshRunAggregates(db: Db, runId: string, now: number) {
   const { data: rows } = await db.from("run_accounts").select("status,signals_new,cards_created,cost_usd,domain,error_code,error_message").eq("run_id", runId);
   const list = rows ?? [];
   const errors = list
@@ -258,7 +265,7 @@ async function refreshRunAggregates(db: Db, runId: string, now: number) {
   }).eq("id", runId);
 }
 
-async function finalizeRun(db: Db, runId: string, status: "complete" | "cancelled", now: number) {
+export async function finalizeRun(db: Db, runId: string, status: "complete" | "cancelled", now: number) {
   await db.from("run_accounts").update({ status: "cancelled", finished_at: new Date(now).toISOString() }).eq("run_id", runId).eq("status", "queued");
   await refreshRunAggregates(db, runId, now);
   const notes: Array<{ stage: string; message: string }> = [];
@@ -312,9 +319,12 @@ async function createRun(db: Db, options: RunNightlyOptions, now: number) {
     const wanted = new Set(options.accountIds);
     batch = accounts.filter((account) => wanted.has(account.id) && !busy.has(account.id));
   } else {
+    const { data: hiringRows } = await db.from("job_postings").select("account_id").eq("active", true).not("family", "is", null).limit(5000);
+    const hiring = new Set((hiringRows ?? []).map((row) => row.account_id as string));
     batch = selectResearchBatch(
       accounts.filter((account) => !busy.has(account.id)),
-      { limit, cooldownMs: researchCooldownMs(), now, bandOf: (account) => priorityBand(targetAccountByDomain.get(account.domain)) },
+      // Companies with open target roles outrank everything: the sweep found the need, the model finds the person asking.
+      { limit, cooldownMs: researchCooldownMs(), now, bandOf: (account) => (hiring.has(account.id) ? 10 : 0) + priorityBand(targetAccountByDomain.get(account.domain)) },
     );
   }
   const { data: run, error } = await db.from("runs").insert({
@@ -436,7 +446,7 @@ export async function runNightly(options: RunNightlyOptions): Promise<RunNightly
   return summarize(db, runId, stopped, processed, invocationCost);
 }
 
-async function summarize(db: Db, runId: string, stopped: StopReason, processed: number, invocationCost: number): Promise<RunNightlyResult> {
+export async function summarize(db: Db, runId: string, stopped: StopReason, processed: number, invocationCost: number): Promise<RunNightlyResult> {
   const run = await loadRunSummary(db, runId);
   if (!run) throw new ResearchError("db_error", "The run record disappeared while it was being processed.");
   return {

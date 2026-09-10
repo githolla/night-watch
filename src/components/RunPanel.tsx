@@ -32,6 +32,8 @@ export function RunPanel({
   projectedMaxCostUsd,
   disabled = false,
   showHistory = true,
+  endpoint = "/api/nightly/run",
+  kind = "research",
 }: {
   initialRun: RunSummary | null;
   batchSize: number;
@@ -39,6 +41,10 @@ export function RunPanel({
   disabled?: boolean;
   /** Show the last run's log even when nothing is running. */
   showHistory?: boolean;
+  /** POST target that creates or continues the run. */
+  endpoint?: string;
+  /** Research reads the public web with a model; a sweep reads careers pages with no model. */
+  kind?: "research" | "sweep";
 }) {
   const router = useRouter();
   const [run, setRun] = useState<RunSummary | null>(initialRun);
@@ -72,7 +78,7 @@ export function RunPanel({
   }, [running, run?.id]);
 
   async function post(body: Record<string, unknown>): Promise<RunResponse> {
-    const response = await fetch("/api/nightly/run", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
     const json = (await response.json().catch(() => ({}))) as RunResponse;
     if (!response.ok) throw new Error(json.error ?? `Research request failed (${response.status})`);
     return json;
@@ -137,7 +143,7 @@ export function RunPanel({
           </button>
         ) : (
           <button className="btn primary" type="button" disabled={disabled || running} onClick={() => drive({ limit: batchSize })}>
-            {running ? "Research in progress…" : `Research the next ${batchSize} companies`}
+            {running ? (kind === "sweep" ? "Sweep in progress…" : "Research in progress…") : kind === "sweep" ? `Sweep the next ${batchSize} careers pages` : `Research the next ${batchSize} companies`}
           </button>
         )}
         {(running || runOpen) && (
@@ -155,7 +161,7 @@ export function RunPanel({
             Research these {allIds.length} again
           </button>
         )}
-        {!running && !runOpen && <span className="run-panel-estimate">≈ ${projectedMaxCostUsd.toFixed(2)} maximum for {batchSize} companies</span>}
+        {!running && !runOpen && <span className="run-panel-estimate">{kind === "sweep" ? "No model calls until a hiring signal is found; outreach drafting is the only cost" : `≈ $${projectedMaxCostUsd.toFixed(2)} maximum for ${batchSize} companies`}</span>}
       </div>
 
       {error && <p className="notice error">{error}</p>}
@@ -180,12 +186,12 @@ export function RunPanel({
         </div>
       )}
 
-      {showLog && <RunLog rows={run.rows} onRetry={running || disabled ? undefined : (accountId) => drive({ accountIds: [accountId] })} />}
+      {showLog && <RunLog rows={run.rows} kind={kind} onRetry={running || disabled ? undefined : (accountId) => drive({ accountIds: [accountId] })} />}
     </section>
   );
 }
 
-export function RunLog({ rows, onRetry }: { rows: RunAccountRow[]; onRetry?: (accountId: string) => void }) {
+export function RunLog({ rows, onRetry, kind = "research" }: { rows: RunAccountRow[]; onRetry?: (accountId: string) => void; kind?: "research" | "sweep" }) {
   return (
     <div className="run-log-wrap">
       <table className="run-log">
@@ -225,16 +231,18 @@ export function RunLog({ rows, onRetry }: { rows: RunAccountRow[]; onRetry?: (ac
                   </details>
                 ) : row.status === "ok" ? (
                   <span>
-                    {row.signalsKept} signal{row.signalsKept === 1 ? "" : "s"} saved
+                    {kind === "sweep" ? (row.note ?? `${row.signalsKept} target roles open`) : `${row.signalsKept} signal${row.signalsKept === 1 ? "" : "s"} saved`}
                     {row.cardsCreated > 0 ? ` · ${row.cardsCreated} dossier${row.cardsCreated === 1 ? "" : "s"} drafted` : ""}
-                    {row.signalsNew === 0 && row.signalsKept > 0 ? " · already on file" : ""}
+                    {kind !== "sweep" && row.signalsNew === 0 && row.signalsKept > 0 ? " · already on file" : ""}
                   </span>
                 ) : row.status === "no_signal" ? (
                   <span>
-                    {row.signalsFound > 0 ? `${row.signalsFound} found, none qualified (confidence floor or evidence rules)` : "No hiring, request for help, or operating mandate found in 180 days"}
+                    {kind === "sweep"
+                      ? (row.note ?? (row.signalsFound > 0 ? `${row.signalsFound} postings, none in a target family` : "No postings readable"))
+                      : row.signalsFound > 0 ? `${row.signalsFound} found, none qualified (confidence floor or evidence rules)` : "No hiring, request for help, or operating mandate found in 180 days"}
                   </span>
                 ) : row.status === "running" ? (
-                  <span>Searching the public web…</span>
+                  <span>{kind === "sweep" ? "Reading the careers page…" : "Searching the public web…"}</span>
                 ) : (
                   <span>—</span>
                 )}

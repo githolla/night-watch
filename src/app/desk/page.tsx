@@ -1,8 +1,8 @@
 import { Desk, type DeskContext } from "@/components/Desk";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
-import { maxCostPerAccountUsd, nightlyBatchSize } from "@/lib/run-config";
-import { latestRunSummary } from "@/lib/run-status";
+import { maxCostPerAccountUsd, nightlyBatchSize, sweepAccountLimit } from "@/lib/run-config";
+import { latestRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { admin } from "@/lib/supabase/admin";
 import { targetAccounts } from "@/lib/target-accounts";
@@ -49,6 +49,10 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     { count: awaitingReply },
     { data: recentSignalRows },
     lastRun,
+    lastSweep,
+    { count: careersChecked },
+    { count: careersNone },
+    { data: hiringRows },
   ] = await Promise.all([
     query,
     db.from("gmail_connections").select("id").eq("owner", owner).maybeSingle(),
@@ -60,8 +64,14 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     db.from("cards").select("*", { count: "exact", head: true }).eq("status", "sent"),
     db.from("signals").select("type,summary,source_url,observed_at,raw,accounts(name,domain),people(full_name,title)").order("found_at", { ascending: false }).limit(8),
     latestRunSummary(db),
+    latestRunSummary(db, SWEEP_SOURCES),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("careers_checked_at", "is", null),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("careers_status", "none"),
+    db.from("job_postings").select("account_id").eq("active", true).not("family", "is", null).limit(5000),
   ]);
   if (error) throw error;
+  const hiringCompanies = new Set((hiringRows ?? []).map((row) => row.account_id as string)).size;
+  const targetRolesOpen = hiringRows?.length ?? 0;
 
   const recentSignals = (recentSignalRows ?? []).map((signal) => {
     const raw = (signal.raw ?? {}) as {
@@ -100,10 +110,16 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
       signalsFound: signalAccounts,
       dossiersReady: openCards ?? 0,
       failedLastRun: lastRun?.counts.error ?? 0,
+      careersChecked: careersChecked ?? 0,
+      careersNotFound: careersNone ?? 0,
+      hiringCompanies,
+      targetRolesOpen,
     },
     queue: { open: openCards ?? 0, newToday: newToday ?? 0, awaitingReply: awaitingReply ?? 0 },
     recentSignals,
     lastRun,
+    lastSweep,
+    sweepBatchSize: sweepAccountLimit(),
     batchSize,
     projectedMaxCostUsd: Number((batchSize * maxCostPerAccountUsd()).toFixed(2)),
   };

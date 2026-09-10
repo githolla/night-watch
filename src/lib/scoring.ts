@@ -1,4 +1,4 @@
-import type { PersonLevel, SignalType } from "./types";
+import type { PersonLevel, SignalType } from "./types.ts";
 
 /**
  * The three thresholds the whole product reasons about. Import these; never

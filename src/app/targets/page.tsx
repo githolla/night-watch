@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 type Params = { q?: string; industry?: string; ownership?: string; research?: string; page?: string };
-const researchFilters: Record<string, string> = { never: "Never researched", researched: "Researched", quiet: "Checked, no signal", signal: "Signals found" };
+const researchFilters: Record<string, string> = { never: "Never researched", researched: "Researched", quiet: "Checked, no signal", signal: "Signals found", hiring: "Hiring in target roles", nocareers: "Careers page not found" };
 const pageSize = 50;
 
 export default async function TargetsPage({ searchParams }: { searchParams: Promise<Params> }) {
@@ -22,10 +22,12 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
   const research = params.research && params.research in researchFilters ? params.research : "";
   const db = admin();
   // Research state lives in the database; the directory itself is the static target file.
-  const [{ data: liveAccounts }, { data: signalRows }] = await Promise.all([
-    db.from("accounts").select("domain,status,last_scouted_at").not("domain", "like", "%.example").limit(5000),
+  const [{ data: liveAccounts }, { data: signalRows }, { data: hiringRows }] = await Promise.all([
+    db.from("accounts").select("domain,status,last_scouted_at,careers_status").not("domain", "like", "%.example").limit(5000),
     research === "quiet" || research === "signal" ? db.from("signals").select("account_id,accounts(domain)").limit(5000) : Promise.resolve({ data: [] as Array<{ account_id: string; accounts: unknown }> }),
+    research === "hiring" ? db.from("job_postings").select("account_id,accounts(domain)").eq("active", true).not("family", "is", null).limit(5000) : Promise.resolve({ data: [] as Array<{ account_id: string; accounts: unknown }> }),
   ]);
+  const hiringDomains = new Set((hiringRows ?? []).map((row) => (row.accounts as unknown as { domain: string } | null)?.domain).filter(Boolean));
   const liveByDomain = new Map((liveAccounts ?? []).map((account) => [account.domain, account]));
   const signalDomains = new Set((signalRows ?? []).map((row) => (row.accounts as unknown as { domain: string } | null)?.domain).filter(Boolean));
   const matchesResearch = (domain: string) => {
@@ -35,6 +37,8 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
     if (research === "never") return !researched;
     if (research === "researched") return researched;
     if (research === "quiet") return researched && !signalDomains.has(domain);
+    if (research === "hiring") return hiringDomains.has(domain);
+    if (research === "nocareers") return live?.careers_status === "none";
     return signalDomains.has(domain);
   };
   const filtered = targetAccounts.filter((account) =>

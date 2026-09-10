@@ -38,6 +38,10 @@ export type DeskContext = {
     signalsFound: number;
     dossiersReady: number;
     failedLastRun: number;
+    careersChecked: number;
+    careersNotFound: number;
+    hiringCompanies: number;
+    targetRolesOpen: number;
   };
   queue: { open: number; newToday: number; awaitingReply: number };
   recentSignals: Array<{
@@ -54,6 +58,8 @@ export type DeskContext = {
     isPost: boolean;
   }>;
   lastRun: RunSummary | null;
+  lastSweep: RunSummary | null;
+  sweepBatchSize: number;
   batchSize: number;
   projectedMaxCostUsd: number;
 };
@@ -75,7 +81,7 @@ function describeRun(run: RunSummary | null) {
   const counts = run.counts;
   const attempted = counts.ok + counts.noSignal + counts.error;
   const checked = counts.ok + counts.noSignal;
-  const when = run.source === "scheduled" ? "Last night's run" : "The last manual run";
+  const when = run.source === "scheduled" ? "Last night's research run" : "The last manual research run";
   switch (outcome) {
     case "in_progress":
       return { outcome, title: `A research run is in progress. ${counts.done} of ${counts.requested} companies done.`, detail: "Rows appear below as each company completes. Continue the run if it was interrupted, or stop it after the current company." };
@@ -271,10 +277,11 @@ export function Desk({
                   <small>{coverage!.researched.toLocaleString()} of {context.activeAccounts.toLocaleString()} researched · {coveragePercent}%</small>
                   <i className="coverage-bar"><b style={{ width: `${Math.min(100, coveragePercent)}%` }} /></i>
                 </Link>
-                <Link href="/targets?research=quiet" className="coverage-tile">
-                  <span>CHECKED, NO SIGNAL</span>
-                  <strong>{coverage!.checkedNoSignal.toLocaleString()}</strong>
-                  <small>No qualifying public source saved</small>
+                <Link href="/targets?research=hiring" className="coverage-tile is-ok">
+                  <span>HIRING IN TARGET ROLES</span>
+                  <strong>{coverage!.hiringCompanies.toLocaleString()}</strong>
+                  <small>{coverage!.targetRolesOpen.toLocaleString()} open roles · {coverage!.careersChecked.toLocaleString()} careers pages read{coverage!.careersNotFound ? ` · ${coverage!.careersNotFound.toLocaleString()} not found` : ""}</small>
+                  <i className="coverage-bar"><b style={{ width: `${context.activeAccounts ? Math.min(100, Math.round((coverage!.careersChecked / context.activeAccounts) * 100)) : 0}%` }} /></i>
                 </Link>
                 <Link href="/targets?research=signal" className="coverage-tile is-ok">
                   <span>SIGNALS FOUND</span>
@@ -302,7 +309,14 @@ export function Desk({
             )}
 
             <div className="empty-desk-actions">
-              <RunPanel initialRun={context?.lastRun ?? null} batchSize={context?.batchSize ?? 10} projectedMaxCostUsd={context?.projectedMaxCostUsd ?? 0} disabled={!context || !listSynced} />
+              <section className="run-kind">
+                <header><span className="eyebrow">01 / Careers sweep</span><h2>Read every careers page for open roles Nine-67 could do instead</h2><p>No model. Applicant-tracking boards and careers pages are read directly, titles are matched to the target job families, and a company hiring for that work becomes a dossier.</p></header>
+                <RunPanel kind="sweep" endpoint="/api/sweep/run" initialRun={context?.lastSweep ?? null} batchSize={context?.sweepBatchSize ?? 300} projectedMaxCostUsd={0} disabled={!context || !listSynced} />
+              </section>
+              <section className="run-kind">
+                <header><span className="eyebrow">02 / Research</span><h2>Find managers asking for help</h2><p>A model searches the public web for an operator at the company describing a bottleneck or asking for recommendations. Companies the sweep shows are hiring go first.</p></header>
+                <RunPanel initialRun={context?.lastRun ?? null} batchSize={context?.batchSize ?? 10} projectedMaxCostUsd={context?.projectedMaxCostUsd ?? 0} disabled={!context || !listSynced} />
+              </section>
               <Link className="btn" href="/targets">Browse and sync targets</Link>
             </div>
 

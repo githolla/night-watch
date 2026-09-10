@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { SESSION_COOKIE, sharedUser, validSharedSession } from "./shared-auth";
+import { SESSION_COOKIE, sharedUser, validSharedSession } from "./shared-auth.ts";
 
 export async function requireUser() {
   const session = (await cookies()).get(SESSION_COOKIE)?.value;

@@ -30,7 +30,7 @@ If the exit criteria are missed, revise the ICP or signal taxonomy before buildi
 
 1. Sync the maintained 1,859-company target universe from Workspace.
 2. Add Nine-67's current positioning and proof points to `positioning.md`.
-3. Each scheduled run enqueues `NIGHTLY_ACCOUNT_LIMIT` companies (default 10) into a run record, never-researched companies first, then the ones checked longest ago; a company is not eligible again for `RESEARCH_COOLDOWN_DAYS` (default 7). The run works inside a time budget and, if the execution window ends first, the next invocation resumes the same run before starting a new batch. At 10 a night a full pass over 1,859 companies takes 186 nights. Pressing **Research next companies** on the desk creates one run the same way and shows every company's outcome as it lands.
+3. Each scheduled run enqueues `NIGHTLY_ACCOUNT_LIMIT` companies (default 25) into a run record, never-researched companies first, then the ones checked longest ago; a company is not eligible again for `RESEARCH_COOLDOWN_DAYS` (default 7). The run works inside a time budget and, if the execution window ends first, the next invocation resumes the same run before starting a new batch. Companies the sweep shows are hiring go first. At 25 a night a full pass over 1,859 companies takes 75 nights; the sweep covers the whole list daily. Pressing **Research next companies** on the desk creates one run the same way and shows every company's outcome as it lands.
 4. Run `prompts/scout.md` for each account using public web sources from the last 48 hours.
 5. Record qualifying signals in `data/signals.csv`.
 6. Identify the responsible person from public evidence. Optionally enrich their email in Apollo.
@@ -53,8 +53,12 @@ If the exit criteria are missed, revise the ICP or signal taxonomy before buildi
 - Research uses the already compatibility-tested Sonnet 4.5 model by default and automatically falls back to it if an explicitly configured research model is unavailable.
 - Each company uses the supplied source as its first research lead, caps paid web search at three calls, and retains only the strongest verified signal.
 - Anthropic response usage is converted to dollars and stored in `runs.cost_usd`; the manual progress result and Learning dashboard report measured spend.
-- One invocation, scheduled or manual, stops once measured Anthropic spend reaches `NIGHTLY_RUN_BUDGET_USD` (default `$1.25`) and leaves the remaining companies queued. `NIGHTLY_MAX_COST_PER_ACCOUNT_USD` (default `$0.12`) is the planning figure shown as the projected maximum. Override either only deliberately.
+- One invocation, scheduled or manual, stops once measured Anthropic spend reaches `NIGHTLY_RUN_BUDGET_USD` (default `$2.50`) and leaves the remaining companies queued. `NIGHTLY_MAX_COST_PER_ACCOUNT_USD` (default `$0.12`) is the planning figure shown as the projected maximum. Override either only deliberately.
 - Every tunable of the run has exactly one default, in `src/lib/run-config.ts`.
+
+## Careers sweep
+
+Most of what Night Watch is looking for is a job post, and job posts do not need a model to read. Every hour (`/api/cron/sweep`, Pro plan) the sweep takes the next `SWEEP_ACCOUNT_LIMIT` companies whose careers page has not been read in `SWEEP_COOLDOWN_HOURS`, finds the careers page from the homepage or common paths, detects the applicant-tracking board (Greenhouse, Lever, Ashby, SmartRecruiters, Workable, BambooHR, Workday, Recruitee, Breezy, iCIMS, Jobvite) or reads the page's own listings, classifies every title against the target job families with rules in `src/lib/job-sweep/classify.ts`, and stores each posting in `job_postings` with first-seen and last-seen dates. A company with open roles in a target family becomes a `job_post` or `job_cluster` signal whose operating need names the work; the buyer is the CEO from the target file, or a title match from Apollo, and a card is drafted from that. The only model cost is the outreach draft. A careers page whose listings are rendered by script is recorded as found but unreadable, never as a quiet company; those are listed under Accounts → "Careers page not found" and "Hiring in target roles" filters.
 
 ## Research runs
 
