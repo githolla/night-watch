@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { findPerson, scout, type ScoutSignal, writeAngle } from "./agents";
 import { matchPerson } from "./apollo";
+import { classifyResearchError, researchPreflight } from "./research-errors";
 import { score, strength } from "./scoring";
 import { admin } from "./supabase/admin";
 import { targetAccountByDomain, targetAccountRowBatches } from "./target-accounts";
@@ -95,7 +96,7 @@ async function processAccount(account: Account, counter: { cards: number; signal
     } : undefined,
   }, recordCost);
 
-  for (const item of found) {
+  for (const item of found.signals) {
     const hash = signalHash(item.type, item.source_url);
     const { data: existing } = await db.from("signals").select("id,person_id").eq("account_id", account.id).eq("hash", hash).maybeSingle();
     const person = await mapPerson(account, item, recordCost);
@@ -151,6 +152,7 @@ function targetPriority(account: Account) {
 }
 
 export async function runNightly({ accountLimit = Number(process.env.NIGHTLY_ACCOUNT_LIMIT ?? 50) }: { accountLimit?: number } = {}) {
+  researchPreflight();
   const db = admin();
   const safeLimit = Math.max(1, Math.min(300, Math.floor(accountLimit)));
   const staleCutoff = new Date(Date.now() - 10 * 60_000).toISOString();
@@ -203,7 +205,9 @@ export async function runNightly({ accountLimit = Number(process.env.NIGHTLY_ACC
     try {
       await processAccount(account, counter);
     } catch (error) {
-      errors.push({ account: account.domain, message: error instanceof Error ? error.message : String(error) });
+      const classified = classifyResearchError(error);
+      console.error(`[night-watch] research failed for ${account.domain} (${classified.code}): ${classified.message}`);
+      errors.push({ account: account.domain, code: classified.code, message: classified.message });
     } finally {
       accountsProcessed += 1;
       researched.push({ name: account.name, domain: account.domain });
