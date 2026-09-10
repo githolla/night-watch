@@ -27,7 +27,13 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
 
   // An unactioned card must never disappear because a scheduled job failed:
   // query by status and score, and use surfaced_on only as the "new today" badge (F13).
-  let query = db.from("cards").select("*,accounts(*),people(*),signals(*)").order("score", { ascending: false });
+  // signals!inner + the operating_need filter: a card whose signal never named
+  // the work the company needs done was built under the old rules and is not a decision.
+  let query = db
+    .from("cards")
+    .select("*,accounts(*),people(*),signals!inner(*)")
+    .not("signals.raw->>operating_need", "is", null)
+    .order("score", { ascending: false });
   query = params.status ? query.eq("status", params.status) : query.in("status", OPEN_STATUSES);
   if (params.priority === "high") query = query.gte("score", PRIORITY_THRESHOLD);
   if (params.new === "today") query = query.eq("surfaced_on", today);

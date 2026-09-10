@@ -19,7 +19,8 @@ export default async function Overview() {
   const [{ data: cards }, { data: signals }, { data: run }, { data: touches }] = await Promise.all([
     db
       .from("cards")
-      .select("id,score,status,channel,why_now,assigned_to,surfaced_on,accounts(name),people(full_name,title),signals(type,summary,source_url)")
+      .select("id,score,status,channel,why_now,assigned_to,surfaced_on,accounts(name),people(full_name,title),signals!inner(type,summary,source_url)")
+      .not("signals.raw->>operating_need", "is", null)
       .in("status", ["new", "approved", "edited"])
       .order("score", { ascending: false })
       .limit(10),
