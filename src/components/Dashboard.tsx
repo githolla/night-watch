@@ -38,6 +38,8 @@ export function Dashboard({data,cards}:{data:DashboardData;cards:CardSummary[]})
       <div className="system-rail"><span><i/> SYSTEM ONLINE</span><span>{data.run.status.toUpperCase()} / SECURE WORKSPACE</span><span>NINE—67 · NIGHT WATCH</span></div>
     </section>
 
+    <section className="overview-demo"><span>SHAPE YOUR WORKSPACE</span><p>Choose the Night Watch features that match your role and today’s objective.</p><Link href="/settings">Open feature guide →</Link></section>
+
     <section className="overview-metrics" aria-label="Morning overview">
       <Link href="/?view=signals" className="overview-metric"><span>01 / New signals</span><strong>{data.metrics.newSignals}</strong><small>found in the last 48 hours</small><b>Explore →</b></Link>
       <Link href="/desk" className="overview-metric"><span>02 / Surfaced cards</span><strong>{data.metrics.surfacedCards}</strong><small>ranked for this morning</small><b>Review →</b></Link>

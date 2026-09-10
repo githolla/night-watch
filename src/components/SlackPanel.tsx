@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export function SlackPanel({ connected, channelId }: { connected: boolean; channelId: string }) {
+export function SlackPanel({ connected, channelId, embedded = false }: { connected: boolean; channelId: string; embedded?: boolean }) {
   const [state, setState] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
@@ -23,12 +23,12 @@ export function SlackPanel({ connected, channelId }: { connected: boolean; chann
   return <section className="panel slack-panel">
     <div className="integration-head">
       <div>
-        <span className="eyebrow">Primary operating surface</span>
-        <h2>Slack command center</h2>
+        <span className="eyebrow">{embedded ? "Connection" : "Primary operating surface"}</span>
+        <h2>{embedded ? connected ? "Slack is connected" : "Connect your Slack workspace" : "Slack command center"}</h2>
       </div>
-      <span className={`integration-state ${connected ? "connected" : "pending"}`}>{connected ? "connected" : "setup required"}</span>
+      {!embedded && <span className={`integration-state ${connected ? "connected" : "pending"}`}>{connected ? "connected" : "setup required"}</span>}
     </div>
-    <p>Receive the morning desk in one channel, inspect source-backed dossiers, approve or snooze them, track manual email and LinkedIn outreach, and record outcomes without leaving Slack.</p>
+    <p>{embedded ? "Use one Slack channel for the morning brief and human decisions. Night Watch still keeps the complete evidence and message workspace here." : "Receive the morning desk in one channel, inspect source-backed dossiers, approve or snooze them, track manual email and LinkedIn outreach, and record outcomes without leaving Slack."}</p>
     <div className="slack-capabilities">
       <span>Morning brief</span><span>Approve / snooze / dismiss</span><span>Manual send tracking</span><span>Outcome capture</span><span>/night-watch</span>
     </div>
