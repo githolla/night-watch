@@ -12,7 +12,7 @@ export default async function Settings() {
   const today = new Date().toISOString().slice(0, 10);
   const [{ data: connections }, { count: accountCount }, { count: cardsToday }, { count: experiments }, { count: outcomes }] = await Promise.all([
     db.from("gmail_connections").select("owner,email"),
-    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").in("domain", targetAccounts.map(account => account.domain)),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example"),
     db.from("cards").select("*", { count: "exact", head: true }).eq("surfaced_on", today),
     db.from("message_experiments").select("*", { count: "exact", head: true }),
     db.from("touches").select("*", { count: "exact", head: true }).not("reply_at", "is", null),
@@ -20,6 +20,6 @@ export default async function Settings() {
   const slackConnected = Boolean(process.env.SLACK_BOT_TOKEN && process.env.SLACK_SIGNING_SECRET && process.env.SLACK_CHANNEL_ID);
   return <div>
     <Header />
-    <main className="workspace-page"><FeatureControlCenter targetCount={accountCount ?? 0} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} /></main>
+    <main className="workspace-page"><FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={targetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} /></main>
   </div>;
 }

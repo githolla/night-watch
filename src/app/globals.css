@@ -226,3 +226,4 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:10px;color:var(--ink-soft)}.
 .feature-detail .slack-panel .integration-head .eyebrow{display:none}.feature-detail .slack-panel .integration-head h2{font-size:24px}
 .workspace-page{padding-top:28px}.workspace-builder-copy{padding:30px 36px}.workspace-builder-copy h1{font-size:clamp(38px,4vw,54px);line-height:.96;max-width:640px;margin:13px 0 17px}.workspace-builder-copy p{font-size:13px}.workspace-profile{padding:24px 28px}
 .feature-open:focus-visible,.feature-pin:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}.feature-detail .slack-panel .integration-head .eyebrow{display:block}.feature-detail .slack-panel .integration-head h2{font-size:22px}
+.target-source{font:700 8px/1.4 var(--mono);letter-spacing:.08em;color:var(--muted)}

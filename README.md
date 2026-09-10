@@ -10,9 +10,9 @@ See `docs/DEPLOYMENT.md` to configure Supabase, Anthropic, and Vercel. Gmail and
 
 ## Target universe
 
-Night Watch ships with 100 active U.S. upper-mid-market target companies. Each has reported annual revenue between $3.19B and $4.81B, comfortably above the $50M qualification floor. The source list, domains, headquarters, employee bands, verticals, and role priorities live in `src/lib/target-accounts.ts`.
+Night Watch ships with the 1,859-company Nine67 outbound target universe. Every company is qualified above $50M in annual revenue by a reported estimate or revenue band. The source CSV lives in `data/Nine67_Outbound_Targets_50M_plus.csv`; the generated runtime data lives in `src/lib/target-accounts.generated.ts`.
 
-Open Settings and choose **Load 100 companies** to sync them immediately. If the live account table is empty, the nightly run also loads the list automatically before research starts.
+Open Workspace → Signal research and choose **Load 1,859 companies** to sync them immediately. If the live account table is empty, the nightly run also loads the list automatically before research starts. After replacing the source CSV, run `npm run targets:generate` before deploying.
 
 ## Manual proof assets
 
@@ -28,7 +28,7 @@ If the exit criteria are missed, revise the ICP or signal taxonomy before buildi
 
 ## Phase 0 workflow
 
-1. Sync the maintained 100-company target universe from Settings.
+1. Sync the maintained 1,859-company target universe from Workspace.
 2. Add Nine-67's current positioning and proof points to `positioning.md`.
 3. Each night, select 20 active accounts not researched in the previous 20 hours.
 4. Run `prompts/scout.md` for each account using public web sources from the last 48 hours.

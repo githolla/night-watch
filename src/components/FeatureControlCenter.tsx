@@ -75,6 +75,7 @@ function savePreferences(value: typeof defaultPreferences) {
 
 interface Props {
   targetCount: number;
+  targetTotal: number;
   slackConnected: boolean;
   slackChannelId: string;
   gmailConnections: Array<{ owner: string; email: string }>;
@@ -144,11 +145,11 @@ function Actions({ primaryHref, primary, secondaryHref, secondary }: { primaryHr
 }
 
 function renderFeature(id: FeatureId, props: Props) {
-  if (id === "research") return <FeatureFrame index="01" title="Signal research" description="Define where Night Watch looks and keep the target universe current." status={props.targetCount === 100 ? "ready" : "attention"}>
+  if (id === "research") return <FeatureFrame index="01" title="Signal research" description="Define where Night Watch looks and keep the target universe current." status={props.targetCount === props.targetTotal ? "ready" : "attention"}>
     <Facts items={[["Target universe", `${props.targetCount} active companies`, "Revenue-qualified account list"], ["Nightly scan", "06:00 UTC", "Public web research"], ["Evidence sources", "Careers · executives · news · events", "Every signal links to its origin"], ["Cost guard", "$10 per run", "Stops before over-spending"]]} />
     <div className="feature-how"><span>HOW TO USE IT</span><ol><li>Keep the companies you want watched active.</li><li>Night Watch checks each source overnight.</li><li>Open the overview to inspect every new signal.</li></ol></div>
     <Actions primaryHref="/" primary="Review live signals" />
-    <TargetAccountsPanel initialCount={props.targetCount} />
+    <TargetAccountsPanel initialCount={props.targetCount} targetTotal={props.targetTotal} />
   </FeatureFrame>;
 
   if (id === "desk") return <FeatureFrame index="02" title="Morning desk" description="Turn overnight evidence into a short, ranked decision queue for human review." status={`${props.cardsToday} today`}>
