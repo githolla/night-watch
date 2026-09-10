@@ -1,4 +1,4 @@
-import { ModelOutputError } from "./model-output";
+import { ModelOutputError } from "./model-output.ts";
 
 /**
  * Error codes stored on run_accounts rows and shown on the desk. A missing

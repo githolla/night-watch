@@ -1,70 +1,69 @@
-import { Desk, type EmptyDeskState } from "@/components/Desk";
+import { Desk, type DeskContext } from "@/components/Desk";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
+import { maxCostPerAccountUsd, nightlyBatchSize } from "@/lib/run-config";
+import { latestRunSummary } from "@/lib/run-status";
+import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { admin } from "@/lib/supabase/admin";
 import { targetAccounts } from "@/lib/target-accounts";
 import { redirect } from "next/navigation";
+
 export const dynamic = "force-dynamic";
-type Params = { card?: string; status?: string; priority?: string; source?: string };
+
+type Params = { card?: string; status?: string; priority?: string; new?: string; source?: string };
+
+/** Card statuses a salesperson still has to decide on. */
+const OPEN_STATUSES = ["new", "approved", "edited"];
+
 export default async function DeskPage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
-  if (
-    !(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) ||
-    !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)
-  )
+  if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) {
     redirect("/setup");
+  }
   const user = await requireUser();
-  const db = admin(),
-    today = new Date().toISOString().slice(0, 10),
-    owner = user.email?.startsWith("jenna") ? "jenna" : "josh";
-  let query = db.from("cards").select("*,accounts(*),people(*),signals(*)").eq("surfaced_on", today).order("score", { ascending: false });
-  if (params.status) query = query.eq("status", params.status);
-  if (params.priority === "high") query = query.gte("score", 75);
+  const db = admin();
+  const today = new Date().toISOString().slice(0, 10);
+  const owner = user.email?.startsWith("jenna") ? "jenna" : "josh";
+
+  // An unactioned card must never disappear because a scheduled job failed:
+  // query by status and score, and use surfaced_on only as the "new today" badge (F13).
+  let query = db.from("cards").select("*,accounts(*),people(*),signals(*)").order("score", { ascending: false });
+  query = params.status ? query.eq("status", params.status) : query.in("status", OPEN_STATUSES);
+  if (params.priority === "high") query = query.gte("score", PRIORITY_THRESHOLD);
+  if (params.new === "today") query = query.eq("surfaced_on", today);
+
   const [
-    { data, error },
+    { data: cardRows, error },
     { data: gmail },
     { count: activeAccounts },
     { count: researchedAccounts },
-    { data: lastRun },
+    { data: signalAccountRows },
+    { count: openCards },
+    { count: newToday },
+    { count: awaitingReply },
     { data: recentSignalRows },
-    { data: recentScanRows },
+    lastRun,
   ] = await Promise.all([
     query,
     db.from("gmail_connections").select("id").eq("owner", owner).maybeSingle(),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example"),
-    db
-      .from("accounts")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "active")
-      .not("domain", "like", "%.example")
-      .not("last_scouted_at", "is", null),
-    db
-      .from("runs")
-      .select("started_at,finished_at,accounts_scouted,signals_new,cards_created,errors")
-      .order("started_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-    db
-      .from("signals")
-      .select("type,summary,source_url,observed_at,raw,accounts(name,domain),people(full_name,title)")
-      .order("found_at", { ascending: false })
-      .limit(8),
-    db
-      .from("accounts")
-      .select("name,domain,last_scouted_at")
-      .not("domain", "like", "%.example")
-      .not("last_scouted_at", "is", null)
-      .order("last_scouted_at", { ascending: false })
-      .limit(10),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example").not("last_scouted_at", "is", null),
+    db.from("signals").select("account_id").limit(5000),
+    db.from("cards").select("*", { count: "exact", head: true }).in("status", OPEN_STATUSES),
+    db.from("cards").select("*", { count: "exact", head: true }).in("status", OPEN_STATUSES).eq("surfaced_on", today),
+    db.from("cards").select("*", { count: "exact", head: true }).eq("status", "sent"),
+    db.from("signals").select("type,summary,source_url,observed_at,raw,accounts(name,domain),people(full_name,title)").order("found_at", { ascending: false }).limit(8),
+    latestRunSummary(db),
   ]);
   if (error) throw error;
+
   const recentSignals = (recentSignalRows ?? []).map((signal) => {
     const raw = (signal.raw ?? {}) as {
-        post?: { text?: string; author_name?: string; author_title?: string; published_at?: string };
-        source?: { excerpt?: string; author_name?: string | null; published_at?: string };
-      },
-      account = signal.accounts as unknown as { name: string; domain: string },
-      person = signal.people as unknown as { full_name: string; title: string } | null;
+      post?: { text?: string; author_name?: string; author_title?: string; published_at?: string };
+      source?: { excerpt?: string; author_name?: string | null; published_at?: string };
+    };
+    const account = signal.accounts as unknown as { name: string; domain: string };
+    const person = signal.people as unknown as { full_name: string; title: string } | null;
     return {
       company: account.name,
       domain: account.domain,
@@ -79,36 +78,35 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
       isPost: Boolean(raw.post),
     };
   });
-  const recentScans = (recentScanRows ?? []).map((account) => ({
-    name: account.name,
-    domain: account.domain,
-    lastScoutedAt: account.last_scouted_at!,
-  }));
-  const runErrors = Array.isArray(lastRun?.errors) ? (lastRun.errors as Array<{ message?: string }>) : [];
-  const emptyState: EmptyDeskState = {
+
+  const signalAccounts = new Set((signalAccountRows ?? []).map((row) => row.account_id as string)).size;
+  const active = activeAccounts ?? 0;
+  const researched = researchedAccounts ?? 0;
+  const batchSize = nightlyBatchSize();
+  const context: DeskContext = {
+    today,
     targetTotal: targetAccounts.length,
-    activeAccounts: activeAccounts ?? 0,
-    researchedAccounts: researchedAccounts ?? 0,
+    activeAccounts: active,
+    coverage: {
+      neverResearched: Math.max(0, active - researched),
+      researched,
+      checkedNoSignal: Math.max(0, researched - signalAccounts),
+      signalsFound: signalAccounts,
+      dossiersReady: openCards ?? 0,
+      failedLastRun: lastRun?.counts.error ?? 0,
+    },
+    queue: { open: openCards ?? 0, newToday: newToday ?? 0, awaitingReply: awaitingReply ?? 0 },
     recentSignals,
-    recentScans,
-    lastRun: lastRun
-      ? {
-          status: lastRun.finished_at ? "Complete" : "Interrupted — safe to continue",
-          startedAt: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(
-            new Date(lastRun.started_at),
-          ),
-          accounts: lastRun.accounts_scouted ?? 0,
-          signals: lastRun.signals_new ?? 0,
-          cards: lastRun.cards_created ?? 0,
-          errors: runErrors.length,
-          errorMessages: [...new Set(runErrors.map((item) => item.message).filter((message): message is string => Boolean(message)))].slice(0, 3),
-        }
-      : null,
+    lastRun,
+    batchSize,
+    projectedMaxCostUsd: Number((batchSize * maxCostPerAccountUsd()).toFixed(2)),
   };
+  const cards = (cardRows ?? []).map((card) => ({ ...card, isNew: card.surfaced_on === today }));
+
   return (
     <div className="shell">
       <Header />
-      <Desk initialCards={data ?? []} selectedId={params.card} gmailConnected={Boolean(gmail)} emptyState={emptyState} />
+      <Desk initialCards={cards} selectedId={params.card} gmailConnected={Boolean(gmail)} context={context} />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { Dashboard, type DashboardData } from "@/components/Dashboard";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
+import { PRIORITY_THRESHOLD, CARD_THRESHOLD } from "@/lib/scoring";
 import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 export default async function Overview() {
@@ -18,8 +19,8 @@ export default async function Overview() {
   const [{ data: cards }, { data: signals }, { data: run }, { data: touches }] = await Promise.all([
     db
       .from("cards")
-      .select("id,score,status,channel,why_now,assigned_to,accounts(name),people(full_name,title),signals(type,summary,source_url)")
-      .eq("surfaced_on", today)
+      .select("id,score,status,channel,why_now,assigned_to,surfaced_on,accounts(name),people(full_name,title),signals(type,summary,source_url)")
+      .in("status", ["new", "approved", "edited"])
       .order("score", { ascending: false })
       .limit(10),
     db
@@ -47,8 +48,8 @@ export default async function Overview() {
   const data: DashboardData = {
     metrics: {
       newSignals: signals?.length ?? 0,
-      surfacedCards: cards?.length ?? 0,
-      highPriority: (cards ?? []).filter((c) => c.score >= 75).length,
+      surfacedCards: (cards ?? []).filter((c) => c.surfaced_on === today).length,
+      highPriority: (cards ?? []).filter((c) => c.score >= PRIORITY_THRESHOLD).length,
       positiveReplies,
     },
     run: {
@@ -93,8 +94,8 @@ export default async function Overview() {
     pipeline: [
       { name: "Signals found", count: signals?.length ?? 0, note: "past 48 hours", href: "/?view=signals" },
       { name: "People matched", count: cards?.length ?? 0, note: "mapped signal owners", href: "/desk" },
-      { name: "Above threshold", count: (cards ?? []).filter((c) => c.score >= 60).length, note: "score 60+", href: "/desk?status=new" },
-      { name: "Surfaced today", count: cards?.length ?? 0, note: "morning queue", href: "/desk" },
+      { name: "Above threshold", count: (cards ?? []).filter((c) => c.score >= CARD_THRESHOLD).length, note: `score ${CARD_THRESHOLD}+`, href: "/desk?status=new" },
+      { name: "Surfaced today", count: (cards ?? []).filter((c) => c.surfaced_on === today).length, note: "new this morning", href: "/desk?new=today" },
       {
         name: "Approved",
         count: (cards ?? []).filter((c) => c.status === "approved").length,
@@ -110,7 +111,7 @@ export default async function Overview() {
         account: (s.accounts as unknown as { name: string })?.name ?? "Unknown",
         summary: s.summary,
         age: relativeAge(s.found_at, now.getTime()),
-        source: new URL(s.source_url).hostname.replace(/^www\./, ""),
+        source: hostnameOf(s.source_url),
         sourceUrl: s.source_url,
         cardId: (s.cards as unknown as Array<{ id: string }>)?.[0]?.id ?? null,
         isNew: true,
@@ -138,6 +139,13 @@ export default async function Overview() {
       <Dashboard data={data} cards={priority} />
     </div>
   );
+}
+function hostnameOf(url: string) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "public source";
+  }
 }
 function relativeAge(value: string, now: number) {
   const minutes = Math.max(1, Math.round((now - new Date(value).getTime()) / 60000));
