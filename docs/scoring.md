@@ -2,7 +2,7 @@
 
 `score = strength + person fit + recency + path`
 
-A score of 60 or more creates an actionable card.
+A score of 60 or more creates an actionable card (`CARD_THRESHOLD`). A card at 75 or more is shown as priority (`PRIORITY_THRESHOLD`). An open card is archived once recency decay takes it below 45 (`ARCHIVE_THRESHOLD`); the gap between 60 and 45 keeps a card on the desk for a few days after it stops being fresh instead of dropping it the morning after. All three live in `src/lib/scoring.ts` and are imported everywhere they are displayed.
 
 ## Signal strength (maximum 40)
 

@@ -30,7 +30,7 @@ If the exit criteria are missed, revise the ICP or signal taxonomy before buildi
 
 1. Sync the maintained 1,859-company target universe from Workspace.
 2. Add Nine-67's current positioning and proof points to `positioning.md`.
-3. Each scheduled run selects three active accounts not researched in the previous 20 hours. Manual research runs as ten recoverable one-company requests. Set `NIGHTLY_ACCOUNT_LIMIT` only after reviewing observed cost and execution time.
+3. Each scheduled run enqueues `NIGHTLY_ACCOUNT_LIMIT` companies (default 10) into a run record, never-researched companies first, then the ones checked longest ago; a company is not eligible again for `RESEARCH_COOLDOWN_DAYS` (default 7). The run works inside a time budget and, if the execution window ends first, the next invocation resumes the same run before starting a new batch. At 10 a night a full pass over 1,859 companies takes 186 nights. Pressing **Research next companies** on the desk creates one run the same way and shows every company's outcome as it lands.
 4. Run `prompts/scout.md` for each account using public web sources from the last 48 hours.
 5. Record qualifying signals in `data/signals.csv`.
 6. Identify the responsible person from public evidence. Optionally enrich their email in Apollo.
@@ -53,7 +53,14 @@ If the exit criteria are missed, revise the ICP or signal taxonomy before buildi
 - Research uses the already compatibility-tested Sonnet 4.5 model by default and automatically falls back to it if an explicitly configured research model is unavailable.
 - Each company uses the supplied source as its first research lead, caps paid web search at three calls, and retains only the strongest verified signal.
 - Anthropic response usage is converted to dollars and stored in `runs.cost_usd`; the manual progress result and Learning dashboard report measured spend.
-- Defaults cap projected exposure at `$0.12` per account and `$1.25` per scheduled run. Override these with `NIGHTLY_MAX_COST_PER_ACCOUNT_USD` and `NIGHTLY_RUN_BUDGET_USD` only deliberately.
-- A manual ten-company batch also stops automatically once measured Anthropic spend reaches `$1.00`.
+- One invocation, scheduled or manual, stops once measured Anthropic spend reaches `NIGHTLY_RUN_BUDGET_USD` (default `$1.25`) and leaves the remaining companies queued. `NIGHTLY_MAX_COST_PER_ACCOUNT_USD` (default `$0.12`) is the planning figure shown as the projected maximum. Override either only deliberately.
+- Every tunable of the run has exactly one default, in `src/lib/run-config.ts`.
+
+## Research runs
+
+- A run is one row in `runs` plus one row per company in `run_accounts`, which records the status (`queued`, `running`, `ok`, `no_signal`, `error`, `cancelled`), an error code and message, signals found and kept, cost and duration. The desk, the run panel and the history all read from that table.
+- A company is marked researched only when its research succeeds. A failed company keeps its place in the rotation and can be retried at once.
+- Error codes: `config` (a missing key or a disabled web search tool), `upstream_auth`, `upstream_rate_limit`, `upstream_error`, `truncated` (the model ran out of output tokens), `parse` (the reply was not JSON), `validation` (the JSON did not match the schema), `db_constraint`, `db_error`, `timeout`, `unknown`.
+- Score thresholds are named constants in `src/lib/scoring.ts`: a card is created at 60, shown as priority at 75, and archived when recency decay takes it below 45.
 
 The source specification for this project is the attached “Night Watch: Build Brief” (version 1.0, September 2026). Phase-specific decisions and implementation notes will be preserved under `docs/` as the project advances.

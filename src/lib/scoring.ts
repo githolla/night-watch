@@ -1,14 +1,18 @@
 import type { PersonLevel, SignalType } from "./types";
-const bases: Record<SignalType, number> = {
-  job_cluster: 40,
-  exec_post: 35,
-  new_leader: 30,
-  job_post: 25,
-  funding: 20,
-  event: 20,
-  stack_change: 15,
-  other: 10,
-};
+
+/**
+ * The three thresholds the whole product reasons about. Import these; never
+ * write the numbers inline. See docs/scoring.md for the rationale.
+ */
+/** A signal scoring at least this creates a card and drafts outreach. */
+export const CARD_THRESHOLD = 60;
+/** A card at or above this is shown as priority on the desk, overview and Slack. */
+export const PRIORITY_THRESHOLD = 75;
+/** An open card whose recency-decayed score falls below this is archived. */
+export const ARCHIVE_THRESHOLD = 45;
+
+const bases: Record<SignalType, number> = { job_cluster: 40, exec_post: 35, new_leader: 30, job_post: 25, funding: 20, event: 20, stack_change: 15, other: 10 };
+
 export function strength(type: SignalType, job?: { days_open?: number; reposted?: boolean; salary_max?: number }) {
   let value = bases[type];
   if (type === "job_post") {
@@ -18,10 +22,12 @@ export function strength(type: SignalType, job?: { days_open?: number; reposted?
   }
   return Math.min(40, value);
 }
+
 export function recency(observedAt: string, now = new Date()) {
   const days = Math.max(0, Math.floor((Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - Date.parse(observedAt)) / 864e5));
   return Math.max(0, 20 - Math.max(0, days - 1) * 3);
 }
+
 export function score(input: {
   type: SignalType;
   level: PersonLevel;

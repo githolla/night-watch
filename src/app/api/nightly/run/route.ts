@@ -1,18 +1,32 @@
 import { requireUser } from "@/lib/auth";
 import { runNightly } from "@/lib/pipeline";
+import { classifyResearchError } from "@/lib/research-errors";
+import { nightlyBatchSize } from "@/lib/run-config";
 
 export const maxDuration = 300;
 
-export async function POST() {
+type Body = { runId?: string; accountIds?: string[]; limit?: number };
+
+/**
+ * Start a manual research run, or continue one. The first call creates the
+ * run and returns its id; the run panel calls again with that id until the
+ * run closes, polling GET /api/nightly/run/[runId] for live rows meanwhile.
+ */
+export async function POST(request: Request) {
   try {
     await requireUser();
-    // Keep each request inside a serverless execution window. The client runs a
-    // visible sequence of these one-company jobs and persists every result.
-    return Response.json(await runNightly({ accountLimit: 1 }));
+    const body = (await request.json().catch(() => ({}))) as Body;
+    const accountIds = Array.isArray(body.accountIds) ? body.accountIds.filter((id): id is string => typeof id === "string") : undefined;
+    const result = await runNightly({
+      source: "manual",
+      runId: typeof body.runId === "string" ? body.runId : undefined,
+      accountIds: accountIds?.length ? accountIds : undefined,
+      accountLimit: typeof body.limit === "number" ? body.limit : nightlyBatchSize(),
+    });
+    return Response.json(result);
   } catch (error) {
-    return Response.json(
-      { error: error instanceof Error ? error.message : "Research run failed" },
-      { status: 500 },
-    );
+    const classified = classifyResearchError(error);
+    console.error(`[night-watch] manual run failed (${classified.code}): ${classified.message}`);
+    return Response.json({ error: classified.message, code: classified.code }, { status: classified.code === "config" ? 503 : 500 });
   }
 }
