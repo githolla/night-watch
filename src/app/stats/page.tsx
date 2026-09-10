@@ -37,7 +37,7 @@ function StatsView({ stats, experiments, demo = false }: { stats: StatsData; exp
       </> : <div className="empty-experiments"><span>00</span><div><h3>No simulations recorded yet</h3><p>Open a person in the Morning Desk and choose “Run A/B simulation” in the message composer.</p></div><Link href="/desk">Open Morning Desk →</Link></div>}
     </section>
 
-    <section id="signals" className="signal-analytics"><div className="analytics-section-head"><div><span className="eyebrow">Last 30 runs</span><h2>Signal performance</h2></div><span>OBSERVED OUTCOMES</span></div><div className="metrics"><div className="metric">Approved sends<strong>{stats.sent}</strong></div><div className="metric">Reply rate<strong>{stats.replyRate}%</strong></div><div className="metric">Positive share<strong>{stats.positiveShare}%</strong></div><div className="metric">Meetings<strong>{stats.meetings}</strong></div></div><table><thead><tr><th>Signal type</th><th>Sends</th><th>Reply rate</th><th>Positive share</th></tr></thead><tbody>{stats.groups.map((group) => <tr key={group.name}><td>{group.name}</td><td>{group.sent}</td><td>{group.replyRate}%</td><td>{group.positiveShare}%</td></tr>)}</tbody></table><p className="model-spend">Estimated model spend: ${stats.cost.toFixed(2)}</p></section>
+    <section id="signals" className="signal-analytics"><div className="analytics-section-head"><div><span className="eyebrow">Last 30 runs</span><h2>Signal performance</h2></div><span>EMAIL + MANUAL OUTREACH</span></div><div className="metrics"><div className="metric">Recorded touches<strong>{stats.sent}</strong></div><div className="metric">Reply rate<strong>{stats.replyRate}%</strong></div><div className="metric">Positive share<strong>{stats.positiveShare}%</strong></div><div className="metric">Meetings<strong>{stats.meetings}</strong></div></div><table><thead><tr><th>Signal type</th><th>Touches</th><th>Reply rate</th><th>Positive share</th></tr></thead><tbody>{stats.groups.map((group) => <tr key={group.name}><td>{group.name}</td><td>{group.sent}</td><td>{group.replyRate}%</td><td>{group.positiveShare}%</td></tr>)}</tbody></table><p className="model-spend">Estimated model spend: ${stats.cost.toFixed(2)}</p></section>
   </main></div>;
 }
 
@@ -45,7 +45,7 @@ export default async function Stats() {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return <StatsView stats={demoStats} experiments={demoExperimentStats} demo />;
   await requireUser();
   const db = admin();
-  const { data: touches } = await db.from("touches").select("reply_classification,channel,cards(signals(type),people(level))").eq("channel", "email");
+  const { data: touches } = await db.from("touches").select("reply_classification,channel,cards(signals(type),people(level))");
   const { count: meetings } = await db.from("cards").select("*", { count: "exact", head: true }).eq("status", "meeting");
   const { data: runs } = await db.from("runs").select("cost_usd").order("started_at", { ascending: false }).limit(30);
   const sent = touches?.length ?? 0, replied = touches?.filter((touch) => touch.reply_classification !== "none").length ?? 0, positive = touches?.filter((touch) => ["positive", "referral"].includes(touch.reply_classification)).length ?? 0;

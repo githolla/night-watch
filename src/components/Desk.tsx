@@ -25,15 +25,18 @@ export function Desk({
   initialCards,
   selectedId,
   demo = false,
+  gmailConnected = false,
 }: {
   initialCards: Card[];
   selectedId?: string;
   demo?: boolean;
+  gmailConnected?: boolean;
 }) {
   const [cards, setCards] = useState(initialCards);
   const [selected, setSelected] = useState(selectedId ?? cards[0]?.id);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  const [outcome, setOutcome] = useState("positive");
   const card = cards.find((item) => item.id === selected) ?? cards[0];
   const cardIndex = Math.max(0, cards.findIndex((item) => item.id === card?.id));
 
@@ -73,6 +76,40 @@ export function Desk({
     if (!response.ok) return alert(json.error);
     setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
     setNotice("Message sent. The activity record and reply watch are now active.");
+  }
+
+  async function recordTouch(view: "comment" | "connection" | "email", body: string) {
+    const label = view === "email" ? "manual email" : view === "comment" ? "LinkedIn reply" : "LinkedIn connection request";
+    if (!demo && !confirm(`Record this ${label} as sent?`)) return;
+    if (demo) {
+      setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
+      setNotice(`${label} recorded in demo mode.`);
+      return;
+    }
+    setBusy(true);
+    const channel = view === "email" ? "email" : view === "comment" ? "linkedin_comment" : "linkedin_request";
+    const response = await fetch(`/api/cards/${card.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body }) });
+    const result = await response.json();
+    setBusy(false);
+    if (!response.ok) return setNotice(result.error ?? "Unable to record outreach.");
+    setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
+    setNotice(`${label} recorded. Learning will now include this touch.`);
+  }
+
+  async function recordOutcome() {
+    if (demo) {
+      const status = outcome === "meeting" ? "meeting" : ["positive", "referral"].includes(outcome) ? "positive" : "replied";
+      setCards((current) => current.map((item) => item.id === card.id ? { ...item, status } : item));
+      setNotice("Outcome recorded in demo mode.");
+      return;
+    }
+    setBusy(true);
+    const response = await fetch(`/api/cards/${card.id}/outcome`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ outcome }) });
+    const result = await response.json();
+    setBusy(false);
+    if (!response.ok) return setNotice(result.error ?? "Unable to record outcome.");
+    setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: result.status } : item));
+    setNotice("Outcome recorded. Signal and message analytics have been updated.");
   }
 
   const edit = (key: string, value: string) => setCards((current) => current.map((item) => item.id === card.id ? { ...item, [key]: value } : item));
@@ -188,10 +225,12 @@ export function Desk({
                 emailBody={card.email_body ?? ""}
                 busy={busy}
                 demo={demo}
+                gmailConnected={gmailConnected}
                 sendReady={["approved", "edited"].includes(card.status)}
                 onEdit={edit}
                 onSave={() => patch({ status: "edited", email_subject: card.email_subject, email_body: card.email_body, linkedin_note: card.linkedin_note, linkedin_comment: card.linkedin_comment })}
                 onSend={send}
+                onRecordTouch={recordTouch}
                 onNotice={setNotice}
               />
 
@@ -208,6 +247,12 @@ export function Desk({
                 onActivated={setNotice}
               />
             </div>
+
+            {["sent", "replied", "positive", "meeting"].includes(card.status) && <section className="outcome-recorder">
+              <div><span className="eyebrow">Observed outcome</span><h3>What happened after the touch?</h3><p>Record the real response so Night Watch learns which signals and messages perform.</p></div>
+              <label><span>Outcome</span><select value={outcome} onChange={(event) => setOutcome(event.target.value)}><option value="positive">Positive reply</option><option value="meeting">Meeting booked</option><option value="referral">Referred onward</option><option value="neutral">Neutral reply</option><option value="objection">Objection</option><option value="ooo">Out of office</option><option value="negative">Not interested</option></select></label>
+              <button type="button" disabled={busy} onClick={recordOutcome}>Record outcome <span>→</span></button>
+            </section>}
 
             <div className="actions dossier-actions">
               <button disabled={busy} className="btn" onClick={() => patch({ status: "approved" })}>Approve dossier</button>

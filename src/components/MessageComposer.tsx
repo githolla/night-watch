@@ -23,10 +23,12 @@ type Props = {
   emailBody: string;
   busy: boolean;
   demo: boolean;
+  gmailConnected: boolean;
   sendReady: boolean;
   onEdit: (key: string, value: string) => void;
   onSave: () => void;
   onSend: () => void;
+  onRecordTouch: (view: DraftView, body: string) => void;
   onNotice: (message: string) => void;
 };
 
@@ -44,6 +46,17 @@ export function MessageComposer(props: Props) {
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
       props.onNotice("Copy was blocked by the browser. Select the draft text and copy it manually.");
+    }
+  }
+
+  async function copyEmail() {
+    try {
+      await navigator.clipboard.writeText(`Subject: ${props.emailSubject}\n\n${props.emailBody}`);
+      setCopied(true);
+      props.onNotice("Email copied. Send it from your preferred inbox, then record the touch here.");
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      props.onNotice("Copy was blocked by the browser. Select the message and copy it manually.");
     }
   }
 
@@ -79,6 +92,7 @@ export function MessageComposer(props: Props) {
 
       {view === "email" ? (
         <div className="email-compose" role="tabpanel">
+          {!props.gmailConnected && <div className="manual-mode-strip"><span>MANUAL MODE</span><p>No Gmail connection required. Copy the draft, send it yourself, then record the touch.</p></div>}
           <div className="compose-recipient">
             <div className="recipient-avatar">{initials(props.personName)}</div>
             <div><span>To</span><strong>{props.personName}</strong><small>{props.email ?? "No email available"}</small></div>
@@ -112,13 +126,17 @@ export function MessageComposer(props: Props) {
       <footer className="composer-actions">
         <button type="button" className="save-draft" disabled={props.busy} onClick={props.onSave}>Save draft</button>
         {view === "email" ? (
-          <button type="button" className="composer-primary" disabled={props.busy || (!props.demo && (!props.emailVerified || !props.sendReady))} onClick={props.onSend}>
+          props.gmailConnected && props.emailVerified ? <button type="button" className="composer-primary" disabled={props.busy || (!props.demo && !props.sendReady)} onClick={props.onSend}>
             <Send /> {props.demo ? "Simulate email" : props.sendReady ? "Send email now" : "Save draft first"}<span>→</span>
-          </button>
+          </button> : <div className="manual-send-actions">
+            <button type="button" onClick={copyEmail}>{copied ? <Check /> : <Copy />}{copied ? "Copied" : "Copy email"}</button>
+            <button type="button" className="composer-primary" disabled={props.busy || !props.emailBody || (!props.demo && !props.sendReady)} onClick={() => props.onRecordTouch("email", props.emailBody)}><Check /> {props.sendReady || props.demo ? "Record sent" : "Save first"}<span>→</span></button>
+          </div>
         ) : (
           <div className="social-actions">
             {props.linkedinUrl && <a href={props.linkedinUrl} target="_blank" rel="noreferrer">Open profile <ExternalLink /></a>}
-            <button type="button" className="composer-primary" onClick={copyForLinkedIn}>{copied ? <Check /> : <Copy />}{copied ? "Copied" : "Copy for LinkedIn"}<span>→</span></button>
+            <button type="button" onClick={copyForLinkedIn}>{copied ? <Check /> : <Copy />}{copied ? "Copied" : "Copy draft"}</button>
+            <button type="button" className="composer-primary" disabled={props.busy || !currentSocialCopy || (!props.demo && !props.sendReady)} onClick={() => props.onRecordTouch(view, currentSocialCopy)}><Check /> {props.sendReady || props.demo ? "Record sent" : "Save first"}<span>→</span></button>
           </div>
         )}
       </footer>

@@ -15,11 +15,11 @@ export default async function DeskPage({searchParams}:{searchParams:Promise<Para
     if(source){const map:Record<string,string[]>={jobs:["job_post","job_cluster"],posts:["exec_post"],news:["new_leader","funding","stack_change"],events:["event"]};cards=cards.filter(c=>map[source]?.includes(c.signals.type))}
     return <div className="shell"><Header/><div className="demo-banner">Demo mode · sample data · no messages can be sent</div><Desk initialCards={cards} selectedId={params.card} demo/></div>;
   }
-  await requireUser();
-  const today=new Date().toISOString().slice(0,10);
-  let query=admin().from("cards").select("*,accounts(*),people(*),signals(*)").eq("surfaced_on",today).order("score",{ascending:false});
+  const user=await requireUser();
+  const db=admin(),today=new Date().toISOString().slice(0,10),owner=user.email?.startsWith("jenna")?"jenna":"josh";
+  let query=db.from("cards").select("*,accounts(*),people(*),signals(*)").eq("surfaced_on",today).order("score",{ascending:false});
   if(params.status)query=query.eq("status",params.status);
   if(params.priority==="high")query=query.gte("score",75);
-  const {data,error}=await query;if(error)throw error;
-  return <div className="shell"><Header/><Desk initialCards={data??[]} selectedId={params.card}/></div>;
+  const [{data,error},{data:gmail}]=await Promise.all([query,db.from("gmail_connections").select("id").eq("owner",owner).maybeSingle()]);if(error)throw error;
+  return <div className="shell"><Header/><Desk initialCards={data??[]} selectedId={params.card} gmailConnected={Boolean(gmail)}/></div>;
 }
