@@ -408,3 +408,11 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:12px;color:var(--ink-soft)}.
 @media(max-width:620px){.coverage-strip{grid-template-columns:1fr}.coverage-tile{border-right:0;border-bottom:1px solid var(--line)}.coverage-tile:last-child{border-bottom:0}.coverage-tile:nth-child(n+4){border-top:0}.run-log th:nth-child(4),.run-log td:nth-child(4){display:none}}
 .manual-mode-strip.is-attention{background:var(--attention-soft)}
 .manual-mode-strip p{font-size:12px}
+/* The recommended move is a light block: every label inside it must read on that ground. */
+.recommended-move{background:#f3f0ea;color:var(--ink)}
+.recommended-move .move-heading span,.recommended-move .move-grid span{color:var(--muted)}
+.recommended-move .move-heading h3,.recommended-move .move-grid strong{color:var(--ink)}
+.recommended-move .move-grid p{color:var(--ink-soft)}
+.recommended-move .move-grid{border-top:1px solid var(--line-strong)}
+.recommended-move .move-grid>div{border-right:1px solid var(--line)}
+.run-log{margin-top:0;border-top:0}
