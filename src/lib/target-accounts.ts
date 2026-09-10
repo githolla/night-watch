@@ -60,6 +60,8 @@ export const targetAccounts: TargetAccount[] = targetAccountData.map((record, in
   };
 });
 
+export const targetAccountByDomain = new Map(targetAccounts.map((account) => [account.domain, account]));
+
 export function employeeRange(employees: number | null) {
   if (employees === null) return "Not reported";
   if (employees < 1000) return "Under 1,000";

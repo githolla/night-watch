@@ -27,6 +27,13 @@ export type EmptyDeskState = {
   targetTotal: number;
   activeAccounts: number;
   researchedAccounts: number;
+  suggestions: Array<{
+    name: string;
+    domain: string;
+    aiSignal: string;
+    sourceUrl: string;
+    buyerTitles: string[];
+  }>;
   lastRun: null | {
     status: string;
     startedAt: string;
@@ -56,6 +63,7 @@ export function Desk({
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
   const card = cards.find((item) => item.id === selected) ?? cards[0];
+  const hasResearch = (emptyState?.researchedAccounts ?? 0) > 0;
   const cardIndex = Math.max(0, cards.findIndex((item) => item.id === card?.id));
 
   async function patch(values: Record<string, unknown>) {
@@ -178,8 +186,8 @@ export function Desk({
         {!card ? (
           <div className="detail-inner empty-desk">
             <div className="eyebrow">Research status</div>
-            <h1>The target list is here. Research still has to run.</h1>
-            <p className="empty-desk-intro">The Morning Desk is not a company directory. It only shows people whose recent public signal passed the 60-point threshold. Browse all targets separately, then run a first scan to create real dossiers.</p>
+            <h1>{hasResearch ? "No qualified cards yet. Start with the evidence already in your list." : "Your target list is ready for its first research pass."}</h1>
+            <p className="empty-desk-intro">{hasResearch ? "The completed scan found no dated signal strong enough for outreach. Night Watch will now prioritize targets with supplied AI clues and search up to 180 days for verifiable evidence." : "The Morning Desk only shows people whose source-backed signal passes the 60-point threshold. Start a priority scan to create real dossiers."}</p>
             <div className="empty-desk-metrics">
               <div><span>SUPPLIED TARGETS</span><strong>{emptyState?.targetTotal.toLocaleString() ?? "—"}</strong><small>Companies in your CSV</small></div>
               <div><span>ACTIVE IN DATABASE</span><strong>{emptyState?.activeAccounts.toLocaleString() ?? "—"}</strong><small>{emptyState && emptyState.activeAccounts === emptyState.targetTotal ? "List is synchronized" : "Open Targets and sync the list"}</small></div>
@@ -192,6 +200,14 @@ export function Desk({
               <RunNightWatchButton disabled={!emptyState || emptyState.activeAccounts !== emptyState.targetTotal} />
             </div>
             {emptyState && emptyState.activeAccounts !== emptyState.targetTotal && <p className="empty-desk-note">Synchronize the complete target list before starting the first scan.</p>}
+            {emptyState?.suggestions.length ? <section className="target-leads">
+              <header><div><span className="eyebrow">Source-backed starting points</span><h2>Strong context already in your target file</h2></div><span>VERIFY BEFORE OUTREACH</span></header>
+              {emptyState.suggestions.map((target, index) => <article key={target.domain}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <div><strong>{target.name}</strong><small>{target.buyerTitles.slice(0, 3).join(" · ")}</small><p>{target.aiSignal}</p></div>
+                <div><a href={target.sourceUrl} target="_blank" rel="noreferrer">Open evidence ↗</a><a href={`https://${target.domain}`} target="_blank" rel="noreferrer">Company ↗</a></div>
+              </article>)}
+            </section> : null}
           </div>
         ) : (
           <div className="detail-inner">

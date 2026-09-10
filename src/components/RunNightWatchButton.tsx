@@ -30,7 +30,7 @@ export function RunNightWatchButton({ disabled = false }: { disabled?: boolean }
 
   return <div className="run-watch-control">
     <button className="btn primary" type="button" disabled={disabled || state === "running"} onClick={run}>
-      {state === "running" ? "Research running…" : "Run a 10-company scan"}
+      {state === "running" ? "Research running…" : "Scan next 10 priority targets"}
     </button>
     {message && <p className={state === "error" ? "notice error" : "notice"} aria-live="polite">{message}</p>}
   </div>;
