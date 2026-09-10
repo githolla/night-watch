@@ -416,3 +416,6 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:12px;color:var(--ink-soft)}.
 .recommended-move .move-grid{border-top:1px solid var(--line-strong)}
 .recommended-move .move-grid>div{border-right:1px solid var(--line)}
 .run-log{margin-top:0;border-top:0}
+.operating-need{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:baseline;padding:14px 18px;border-bottom:1px solid var(--line-strong);background:var(--ok-soft)}
+.operating-need span{font:700 11px/1.4 var(--mono);letter-spacing:.1em;color:var(--ok);white-space:nowrap}
+.operating-need p{margin:0;font-size:15px;line-height:1.45;color:var(--ink)}

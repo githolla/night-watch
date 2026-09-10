@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { scoutOutput } from "./agents.ts";
+import { disqualifySignal, scoutOutput } from "./agents.ts";
 
 const base = {
   type: "exec_post",
   summary: "CEO posted about automating claims intake",
   source_url: "https://www.linkedin.com/posts/example",
   observed_at: "2026-09-06",
+  operating_need: "Automate claims intake triage instead of hiring two intake analysts",
   confidence: 0.8,
 };
 
@@ -36,4 +37,30 @@ test("a non-date observed_at is rejected with a path the desk can show", () => {
 
 test("a non-http source_url is rejected", () => {
   assert.throws(() => scoutOutput.parse({ signals: [{ ...base, source_url: "ftp://example.com/x" }] }));
+});
+
+test("a signal without an operating need does not validate", () => {
+  const { operating_need: _dropped, ...withoutNeed } = base;
+  void _dropped;
+  assert.throws(() => scoutOutput.parse({ signals: [withoutNeed] }));
+  assert.throws(() => scoutOutput.parse({ signals: [{ ...base, operating_need: "   " }] }));
+});
+
+test("an executive opinion piece is dropped even when typed as exec_post", () => {
+  const opEd = scoutOutput.parse({ signals: [{ ...base, source_url: "https://www.forbes.com/sites/example/ai-compute-economics", source: { headline: "The economics of AI", publisher: "Forbes" } }] }).signals[0];
+  assert.match(disqualifySignal(opEd) ?? "", /without the actual post text/);
+  const forbesPost = scoutOutput.parse({ signals: [{ ...base, source_url: "https://www.forbes.com/sites/example/x", post: { text: "…", author_name: "A CEO" } }] }).signals[0];
+  assert.match(disqualifySignal(forbesPost) ?? "", /opinion piece/);
+});
+
+test("an operator asking for help with the real post text qualifies", () => {
+  const item = scoutOutput.parse({ signals: [{ ...base, evidence_kind: "asking_for_help", post: { text: "Anyone found a way to triage 400 intake emails a day without adding headcount?", author_name: "Dana Whitfield", author_title: "Director of Operations" } }] }).signals[0];
+  assert.equal(disqualifySignal(item), null);
+});
+
+test("a job signal must name the role", () => {
+  const cluster = { ...base, type: "job_cluster" as const, source_url: "https://example.com/careers" };
+  assert.match(disqualifySignal(scoutOutput.parse({ signals: [cluster] }).signals[0]) ?? "", /role title/);
+  const named = { ...cluster, job: { title: "RevOps Analyst", department: "Revenue", days_open: 41, reposted: true, salary_max: 95000, tools_named: ["HubSpot"], responsibilities: ["Clean pipeline data"] } };
+  assert.equal(disqualifySignal(scoutOutput.parse({ signals: [named] }).signals[0]), null);
 });

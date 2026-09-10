@@ -225,7 +225,7 @@ export function RunLog({ rows, onRetry }: { rows: RunAccountRow[]; onRetry?: (ac
                   </span>
                 ) : row.status === "no_signal" ? (
                   <span>
-                    {row.signalsFound > 0 ? `${row.signalsFound} found, ${row.signalsFound} below the confidence threshold` : "No dated, source-backed development in 180 days"}
+                    {row.signalsFound > 0 ? `${row.signalsFound} found, none qualified (confidence floor or evidence rules)` : "No hiring, request for help, or operating mandate found in 180 days"}
                   </span>
                 ) : row.status === "running" ? (
                   <span>Searching the public web…</span>

@@ -37,6 +37,9 @@ const signal = z.object({
   summary: z.string(),
   source_url: z.url({ protocol: /^https?$/ }),
   observed_at: isoDate,
+  /** The specific work the company needs done that Nine-67 could build or run instead of a hire. The qualification gate. */
+  operating_need: z.string().trim().min(1),
+  evidence_kind: z.enum(["hiring", "asking_for_help", "new_mandate", "growth_event"]).optional(),
   people: z.array(z.object({ name: z.string(), title: z.string(), role_in_signal: z.string() })).default([]),
   post: z.object({
     text: z.string(), author_name: z.string(), author_title: z.string().default(""), published_at: z.string().nullable().default(null),
@@ -58,6 +61,28 @@ const signal = z.object({
 
 export const scoutOutput = z.object({ signals: z.array(signal) });
 export type ScoutSignal = z.infer<typeof signal>;
+
+/** Job families where Nine-67 does the work instead of the company hiring for it. Mirrors docs/scoring.md. */
+export const TARGET_JOB_FAMILIES = [
+  "AI/ML", "automation", "data/analyst", "RevOps", "operations analyst", "volume-driven customer support", "BDR/SDR", "systems/integration", "CRM administration",
+] as const;
+
+/**
+ * Deterministic evidence rules the model cannot talk its way around. An
+ * executive's opinion piece never qualifies: an exec_post must carry the
+ * actual post text from a person at the company, and a job signal must name
+ * the role. Returns the reason a signal is dropped, or null when it stands.
+ */
+export function disqualifySignal(item: ScoutSignal): string | null {
+  if (!item.operating_need.trim()) return "no operating need named";
+  if (item.type === "exec_post") {
+    if (!item.post?.text?.trim()) return "exec_post without the actual post text";
+    if (!item.post.author_name?.trim() && !item.people.length) return "exec_post without a named author";
+    if (/forbes\.com|inc\.com|entrepreneur\.com|hbr\.org|fastcompany\.com|medium\.com|substack\.com/i.test(item.source_url)) return "opinion piece, not an operator post";
+  }
+  if ((item.type === "job_post" || item.type === "job_cluster") && !item.job?.title?.trim()) return "job signal without a role title";
+  return null;
+}
 
 const angle = z.object({
   brief: z.string(), why_now: z.string(),
@@ -137,7 +162,17 @@ export async function scout(account: {
   const maxSearches = Math.max(1, Math.min(5, Number(process.env.ANTHROPIC_MAX_SEARCHES_PER_COMPANY ?? 3)));
   const prompt = `Research ${account.name} (${account.domain}), a ${account.vertical ?? "target"} company with ${account.employee_range ?? "unknown"} employees.
 
-Find the single strongest verifiable public development that creates a credible reason for an operations, automation, data, or AI conversation. Use the supplied starting URL as the first research lead, then use web search only as needed to verify it or find a better attributable source. Look for a public LinkedIn post, article, interview, or conference comment from a named executive in the likely buyer group, then company news, ${account.careers_url ?? "the careers page"}, leadership changes, hiring clusters, acquisitions, funding, and technology changes. Prioritize the last 30 days. If nothing qualifies in 30 days, use the strongest relevant development from the last 180 days.
+Nine-67 builds and runs AI and automation for operating teams so a company does not have to hire for that work. You are looking for one thing: public evidence that ${account.name} has work of that kind it needs done right now. Use the supplied starting URL as the first lead, then web search only as needed to verify it or find something better. Prioritize the last 30 days; if nothing qualifies in 30 days, use the strongest qualifying development from the last 180 days.
+
+A development qualifies only if it shows a concrete operating need inside ${account.name}. Look for these, in this order:
+1. hiring (type job_post or job_cluster): open roles on ${account.careers_url ?? "the careers page"} or job boards in these families: ${TARGET_JOB_FAMILIES.join(", ")}. Clusters of related roles, reposted roles, and roles open 30+ days are the strongest. Capture the exact title, department, days open, whether reposted, salary maximum if shown, tools named, and the responsibilities as written.
+2. asking_for_help (type exec_post): a manager, director or VP at ${account.name} publicly asking for recommendations, vendors, tools, or describing a bottleneck in their own team they are trying to fix, in a LinkedIn post, community thread, or conference Q&A. The post must be about their own team's work. Quote the actual visible post text and name the author.
+3. new_mandate (type new_leader): a newly appointed leader whose stated mandate is operations, data, automation, AI, RevOps or support at ${account.name}.
+4. growth_event (type funding): funding, an acquisition, or an expansion that creates integration, scaling or back-office work at ${account.name}.
+
+Do not return: opinion pieces, op-eds, columns in Forbes or trade press, interviews or podcasts about industry trends, thought leadership about AI, product launches, press releases, awards, or anything about the market rather than the company's own operations. A CEO's view on AI economics is not a signal. If the strongest thing you found is commentary, return {"signals":[]}.
+
+Every signal must state operating_need: one sentence naming the specific work ${account.name} needs done that Nine-67 could build or run instead of a hire. If you cannot name it from the source, the signal does not qualify.
 
 Known context from the supplied target file (treat as a research lead, not proof):
 - Segment: ${context?.subSegment || "not supplied"}
@@ -151,7 +186,7 @@ Verify every returned claim with a public URL and an exact observed or publicati
 
 For an executive post, include post with the actual visible text, author name, author title, exact published date/time, visible engagement counts or null, hashtags actually present, and is_excerpt=true when only a verified excerpt is available. Put that same individual first in people. For other evidence, include source with its exact headline, publisher, author if shown, date, and a faithful excerpt. Omit post or source instead of filling it with invented content.
 
-Return JSON only as {"signals":[{"type":"exec_post","summary":"why this matters","source_url":"https://...","observed_at":"YYYY-MM-DD","people":[{"name":"Full name","title":"Exact title","role_in_signal":"Author and operating owner"}],"post":{"text":"actual visible post text","author_name":"Full name","author_title":"Exact title","published_at":"ISO date or date","reactions":null,"comments":null,"reposts":null,"hashtags":[],"is_excerpt":true},"confidence":0.0}]}. Return an empty array only when no dated, source-backed development exists within 180 days.`;
+Return JSON only as {"signals":[{"type":"job_cluster","evidence_kind":"hiring","operating_need":"the specific work they need done","summary":"why this matters","source_url":"https://...","observed_at":"YYYY-MM-DD","people":[{"name":"Full name","title":"Exact title","role_in_signal":"hiring_manager"}],"job":{"title":"Exact role title","department":"","days_open":0,"reposted":false,"salary_max":0,"tools_named":[],"responsibilities":[]},"confidence":0.0}]} or, for a post asking for help, {"signals":[{"type":"exec_post","evidence_kind":"asking_for_help","operating_need":"...","summary":"...","source_url":"https://...","observed_at":"YYYY-MM-DD","people":[{"name":"Full name","title":"Exact title","role_in_signal":"posted"}],"post":{"text":"actual visible post text","author_name":"Full name","author_title":"Exact title","published_at":"ISO date or date","reactions":null,"comments":null,"reposts":null,"hashtags":[],"is_excerpt":true},"confidence":0.0}]}. Return an empty array when no dated, source-backed operating need exists within 180 days.`;
   const tools = [webSearchTool(maxSearches)];
   const create = (selectedModel: string) => completeTurn({ model: selectedModel, max_tokens: SCOUT_MAX_TOKENS, tools }, prompt, recordUsage);
   let selectedModel = model;
@@ -168,6 +203,11 @@ Return JSON only as {"signals":[{"type":"exec_post","summary":"why this matters"
   const parsed = scoutOutput.parse(jsonFrom(response));
   const kept = parsed.signals
     .filter((item) => item.confidence >= SCOUT_CONFIDENCE_FLOOR)
+    .filter((item) => {
+      const reason = disqualifySignal(item);
+      if (reason) console.warn(`[night-watch] dropped ${item.type} for ${account.domain}: ${reason}`);
+      return !reason;
+    })
     .sort((left, right) => right.confidence - left.confidence);
   return { signals: kept.slice(0, 1), found: parsed.signals.length, kept: kept.length, model: selectedModel, stopReason: response.stop_reason };
 }
@@ -189,7 +229,7 @@ export async function writeAngle(input: unknown, recordUsage?: UsageRecorder) {
   const model = writingModel();
   const response = await client().messages.create({
     model, max_tokens: 900,
-    messages: [{ role: "user", content: `Draft outreach from this source-backed dossier: ${JSON.stringify(input)}. Ground every line in the supplied post or source. Name the specific public claim or operating change naturally; never invent familiarity, results, budget, or intent. Produce both LinkedIn and email copy even when contact details are unavailable. LinkedIn comment: two useful sentences replying to the actual post, with no pitch; leave empty only when the source is not a post. LinkedIn connection note: under 200 characters, specific to the source, no link. Email subject: under 6 words, lowercase. Email body: under 80 words, plain text, one low-friction question, no meeting request, one link maximum. For job signals, offer a free one-page JD teardown. Channel: intro for path 10; linkedin_only without verified email; linkedin_first for LinkedIn signals; otherwise email_first. Return JSON only: {"brief":"","why_now":"","channel":"email_first","linkedin_comment":"","linkedin_note":"","email_subject":"","email_body":""}.` }],
+    messages: [{ role: "user", content: `Draft outreach from this source-backed dossier: ${JSON.stringify(input)}. Ground every line in the supplied post or source. The dossier's signal.operating_need is the work this company needs done; Nine-67 builds and runs AI and automation so an operating team does not have to hire for that work. Lead with that need in their words, then offer the specific alternative to the hire or the specific answer to their question. Never invent familiarity, results, budget, or intent, and never comment on industry trends. Produce both LinkedIn and email copy even when contact details are unavailable. LinkedIn comment: two useful sentences replying to the actual post, with no pitch; leave empty only when the source is not a post. LinkedIn connection note: under 200 characters, specific to the source, no link. Email subject: under 6 words, lowercase. Email body: under 80 words, plain text, one low-friction question, no meeting request, one link maximum. For job signals, offer a free one-page JD teardown. Channel: intro for path 10; linkedin_only without verified email; linkedin_first for LinkedIn signals; otherwise email_first. Return JSON only: {"brief":"","why_now":"","channel":"email_first","linkedin_comment":"","linkedin_note":"","email_subject":"","email_body":""}.` }],
   });
   recordAnthropicUsage(response, model, recordUsage);
   return angle.parse(jsonFrom(response));
