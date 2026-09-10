@@ -1,14 +1,20 @@
-import { createServerClient } from "@supabase/ssr";
+import { SESSION_COOKIE, validSharedSession } from "@/lib/shared-auth";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function proxy(request: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return NextResponse.next();
-  let response = NextResponse.next({ request });
-  const supabase = createServerClient(url, key, { cookies: { getAll: () => request.cookies.getAll(), setAll(items) { items.forEach(({ name, value }) => request.cookies.set(name, value)); response = NextResponse.next({ request }); items.forEach(({ name, value, options }) => response.cookies.set(name, value, options)); } } });
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user && !request.nextUrl.pathname.startsWith("/login") && !request.nextUrl.pathname.startsWith("/api/cron") && !request.nextUrl.pathname.startsWith("/api/gmail/callback")) { const login = request.nextUrl.clone(); login.pathname = "/login"; return NextResponse.redirect(login); }
-  return response;
+function isPublicPath(pathname: string) {
+  return pathname === "/setup" || pathname.startsWith("/api/auth/") || pathname.startsWith("/api/cron/") || pathname.startsWith("/api/slack/") || pathname.startsWith("/api/gmail/callback") || /\.[a-z0-9]+$/i.test(pathname);
+}
+
+export function proxy(request: NextRequest) {
+  const authenticated = validSharedSession(request.cookies.get(SESSION_COOKIE)?.value);
+  if (request.nextUrl.pathname === "/login") {
+    return authenticated ? NextResponse.redirect(new URL("/", request.url)) : NextResponse.next();
+  }
+  if (!authenticated && !isPublicPath(request.nextUrl.pathname)) {
+    const login = new URL("/login", request.url);
+    login.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
+    return NextResponse.redirect(login);
+  }
+  return NextResponse.next();
 }
 export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };

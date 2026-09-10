@@ -1,3 +1,9 @@
-import { serverClient } from "./supabase/server";
-export async function requireUser(){const supabase=await serverClient();const {data:{user}}=await supabase.auth.getUser();if(!user)throw new Error("Unauthorized");const allowed=(process.env.ALLOWED_EMAILS??"josh@nine-67.com,jenna@nine-67.com").split(",").map(x=>x.trim().toLowerCase());if(!user.email||!allowed.includes(user.email.toLowerCase()))throw new Error("Forbidden");return user}
+import { cookies } from "next/headers";
+import { SESSION_COOKIE, sharedUser, validSharedSession } from "./shared-auth";
+
+export async function requireUser() {
+  const session = (await cookies()).get(SESSION_COOKIE)?.value;
+  if (!validSharedSession(session)) throw new Error("Unauthorized");
+  return sharedUser();
+}
 export function cronAuthorized(request:Request){const secret=process.env.CRON_SECRET;return Boolean(secret&&request.headers.get("authorization")===`Bearer ${secret}`)}
