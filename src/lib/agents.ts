@@ -43,7 +43,7 @@ function client() {
 }
 
 function researchModel() {
-  return process.env.ANTHROPIC_RESEARCH_MODEL ?? "claude-haiku-4-5";
+  return process.env.ANTHROPIC_RESEARCH_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
 }
 
 function writingModel() {
@@ -51,7 +51,7 @@ function writingModel() {
 }
 
 function utilityModel() {
-  return process.env.ANTHROPIC_UTILITY_MODEL ?? "claude-haiku-4-5";
+  return process.env.ANTHROPIC_UTILITY_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
 }
 
 function text(blocks: Anthropic.Messages.ContentBlock[]) {
@@ -73,7 +73,7 @@ export async function scout(account: {
   const maxSearches = Math.max(1, Math.min(5, Number(process.env.ANTHROPIC_MAX_SEARCHES_PER_COMPANY ?? 3)));
   const prompt = `Research ${account.name} (${account.domain}), a ${account.vertical ?? "target"} company with ${account.employee_range ?? "unknown"} employees.
 
-Find the single strongest verifiable public development that creates a credible reason for an operations, automation, data, or AI conversation. FIRST inspect the supplied starting source with web_fetch when that tool is available. Only use web search if that source is inaccessible, stale, or does not identify a useful development. Look for a public LinkedIn post, article, interview, or conference comment from a named executive in the likely buyer group, then company news, ${account.careers_url ?? "the careers page"}, leadership changes, hiring clusters, acquisitions, funding, and technology changes. Prioritize the last 30 days. If nothing qualifies in 30 days, use the strongest relevant development from the last 180 days.
+Find the single strongest verifiable public development that creates a credible reason for an operations, automation, data, or AI conversation. Use the supplied starting URL as the first research lead, then use web search only as needed to verify it or find a better attributable source. Look for a public LinkedIn post, article, interview, or conference comment from a named executive in the likely buyer group, then company news, ${account.careers_url ?? "the careers page"}, leadership changes, hiring clusters, acquisitions, funding, and technology changes. Prioritize the last 30 days. If nothing qualifies in 30 days, use the strongest relevant development from the last 180 days.
 
 Known context from the supplied target file (treat as a research lead, not proof):
 - Segment: ${context?.subSegment || "not supplied"}
@@ -88,17 +88,22 @@ Verify every returned claim with a public URL and an exact observed or publicati
 For an executive post, include post with the actual visible text, author name, author title, exact published date/time, visible engagement counts or null, hashtags actually present, and is_excerpt=true when only a verified excerpt is available. Put that same individual first in people. For other evidence, include source with its exact headline, publisher, author if shown, date, and a faithful excerpt. Omit post or source instead of filling it with invented content.
 
 Return JSON only as {"signals":[{"type":"exec_post","summary":"why this matters","source_url":"https://...","observed_at":"YYYY-MM-DD","people":[{"name":"Full name","title":"Exact title","role_in_signal":"Author and operating owner"}],"post":{"text":"actual visible post text","author_name":"Full name","author_title":"Exact title","published_at":"ISO date or date","reactions":null,"comments":null,"reposts":null,"hashtags":[],"is_excerpt":true},"confidence":0.0}]}. Return an empty array only when no dated, source-backed development exists within 180 days.`;
-  const tools: Anthropic.Messages.Tool[] = [];
-  const sourceIsPdf = /\.pdf(?:$|[?#])/i.test(context?.sourceUrl ?? "");
-  if (context?.sourceUrl && !sourceIsPdf) tools.push({
-    type: "web_fetch_20250910", name: "web_fetch", max_uses: 1, max_content_tokens: 3_000,
-    citations: { enabled: true },
-  } as unknown as Anthropic.Messages.Tool);
-  tools.push({ type: "web_search_20250305", name: "web_search", max_uses: maxSearches } as unknown as Anthropic.Messages.Tool);
-  const response = await client().messages.create({
-    model, max_tokens: 2_200, messages: [{ role: "user", content: prompt }], tools,
+  const tools = [{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches } as unknown as Anthropic.Messages.Tool];
+  const create = (selectedModel: string) => client().messages.create({
+    model: selectedModel, max_tokens: 2_200, messages: [{ role: "user" as const, content: prompt }], tools,
   });
-  recordAnthropicUsage(response, model, recordUsage);
+  let selectedModel = model;
+  let response;
+  try {
+    response = await create(selectedModel);
+  } catch (error) {
+    const fallbackModel = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
+    const status = (error as { status?: number }).status;
+    if (selectedModel === fallbackModel || ![400, 404].includes(status ?? 0)) throw error;
+    selectedModel = fallbackModel;
+    response = await create(selectedModel);
+  }
+  recordAnthropicUsage(response, selectedModel, recordUsage);
   return scoutOutput.parse(jsonFrom(text(response.content))).signals.filter((item) => item.confidence >= 0.6).slice(0, 1);
 }
 

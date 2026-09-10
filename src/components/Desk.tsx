@@ -48,6 +48,7 @@ export type EmptyDeskState = {
     signals: number;
     cards: number;
     errors: number;
+    errorMessages: string[];
   };
 };
 
@@ -203,7 +204,7 @@ export function Desk({
               <div><span>RESEARCHED</span><strong>{emptyState?.researchedAccounts.toLocaleString() ?? "—"}</strong><small>Companies checked at least once</small></div>
               <div><span>DESK CARDS</span><strong>0</strong><small>No signal has cleared the threshold today</small></div>
             </div>
-            {emptyState?.lastRun ? <section className="last-run-card"><div><span>LAST RESEARCH RUN</span><strong>{emptyState.lastRun.status} · {emptyState.lastRun.startedAt}</strong></div><dl><div><dt>Companies</dt><dd>{emptyState.lastRun.accounts}</dd></div><div><dt>Signals</dt><dd>{emptyState.lastRun.signals}</dd></div><div><dt>Cards</dt><dd>{emptyState.lastRun.cards}</dd></div><div><dt>Errors</dt><dd>{emptyState.lastRun.errors}</dd></div></dl></section> : <p className="empty-desk-alert">No research run has been recorded yet.</p>}
+            {emptyState?.lastRun ? <><section className="last-run-card"><div><span>LAST RESEARCH RUN</span><strong>{emptyState.lastRun.status} · {emptyState.lastRun.startedAt}</strong></div><dl><div><dt>Companies</dt><dd>{emptyState.lastRun.accounts}</dd></div><div><dt>Signals</dt><dd>{emptyState.lastRun.signals}</dd></div><div><dt>Cards</dt><dd>{emptyState.lastRun.cards}</dd></div><div><dt>Errors</dt><dd>{emptyState.lastRun.errors}</dd></div></dl></section>{emptyState.lastRun.errorMessages.length>0&&<div className="run-error-detail"><strong>WHY THE RUN FAILED</strong>{emptyState.lastRun.errorMessages.map((message,index)=><p key={`${index}-${message}`}>{message}</p>)}</div>}</> : <p className="empty-desk-alert">No research run has been recorded yet.</p>}
             <div className="empty-desk-actions">
               <Link className="btn" href="/targets">Browse and sync targets</Link>
               <RunNightWatchButton disabled={!emptyState || emptyState.activeAccounts !== emptyState.targetTotal} />

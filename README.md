@@ -50,9 +50,8 @@ If the exit criteria are missed, revise the ICP or signal taxonomy before buildi
 
 ## Cost controls
 
-- High-volume research, person lookup, reply classification, and message simulations use Claude Haiku 4.5 by default. Sonnet is reserved for the final outreach draft after a signal qualifies.
-- Each company checks the supplied source first, caps paid web search at three calls, and retains only the strongest verified signal.
-- PDF sources are not fetched directly because binary documents can create unexpectedly large token inputs.
+- Research uses the already compatibility-tested Sonnet 4.5 model by default and automatically falls back to it if an explicitly configured research model is unavailable.
+- Each company uses the supplied source as its first research lead, caps paid web search at three calls, and retains only the strongest verified signal.
 - Anthropic response usage is converted to dollars and stored in `runs.cost_usd`; the manual progress result and Learning dashboard report measured spend.
 - Defaults cap projected exposure at `$0.12` per account and `$1.25` per scheduled run. Override these with `NIGHTLY_MAX_COST_PER_ACCOUNT_USD` and `NIGHTLY_RUN_BUDGET_USD` only deliberately.
 - A manual ten-company batch also stops automatically once measured Anthropic spend reaches `$1.00`.

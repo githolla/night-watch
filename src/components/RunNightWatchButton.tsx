@@ -7,7 +7,7 @@ type Result = {
   signals: number;
   cards: number;
   cost: number;
-  errors: unknown[];
+  errors: Array<{ message?: string }>;
   researched: Array<{ name: string; domain: string }>;
 };
 
@@ -53,8 +53,9 @@ export function RunNightWatchButton({ disabled = false }: { disabled?: boolean }
       totals.errors += result.errors.length;
       totals.cost += result.cost;
       const company = result.researched[0]?.name ?? "No eligible company";
+      const providerError = result.errors[0]?.message?.replace(/^Error:\s*/i, "").slice(0, 140);
       const outcome = result.errors.length > 0
-        ? `${company} — research error logged`
+        ? `${company} — ${providerError ?? "research error logged"}`
         : result.cards > 0
         ? `${company} — outreach dossier ready`
         : result.signals > 0

@@ -335,4 +335,5 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:10px;color:var(--ink-soft)}.
 .run-watch-progress li{display:grid;grid-template-columns:30px 1fr;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:10px;line-height:1.35}
 .run-watch-progress li:last-child{border:0}
 .run-watch-progress span{font:700 8px/1.4 var(--mono);color:#95703d}
+.run-error-detail{border:1px solid #b98078;border-top:0;background:#fff7f5;padding:14px 18px}.run-error-detail>strong{font:700 8px/1 var(--mono);letter-spacing:.1em;color:#7b3e35}.run-error-detail p{margin:8px 0 0;font:500 10px/1.5 var(--mono);color:#5f312c;overflow-wrap:anywhere}
 @media(max-width:700px){.run-watch-control{min-width:0}}
