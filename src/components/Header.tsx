@@ -1,3 +1,38 @@
 import Link from "next/link";
 
-export function Header(){return <header className="topbar"><Link href="/" className="brand"><strong>NINE—67</strong><span>NIGHT WATCH / SIGNAL INTELLIGENCE</span></Link><nav className="nav"><Link href="/"><span>01</span>Overview</Link><Link href="/targets"><span>02</span>Targets</Link><Link href="/desk"><span>03</span>Morning desk</Link><Link href="/stats"><span>04</span>Learning</Link><Link href="/settings"><span>05</span>Workspace</Link><form action="/api/auth/logout" method="post"><button className="nav-logout" type="submit"><span>06</span>Lock</button></form></nav><div className="system-mark"><i/>ONLINE</div></header>}
+export function Header() {
+  return (
+    <header className="topbar">
+      <Link href="/" className="brand">
+        <strong>NINE—67</strong>
+        <span>NIGHT WATCH / SIGNAL INTELLIGENCE</span>
+      </Link>
+      <nav className="nav">
+        <Link href="/">
+          <span>01</span>Overview
+        </Link>
+        <Link href="/targets">
+          <span>02</span>Targets
+        </Link>
+        <Link href="/desk">
+          <span>03</span>Morning desk
+        </Link>
+        <Link href="/stats">
+          <span>04</span>Learning
+        </Link>
+        <Link href="/settings">
+          <span>05</span>Workspace
+        </Link>
+        <form action="/api/auth/logout" method="post">
+          <button className="nav-logout" type="submit">
+            <span>06</span>Lock
+          </button>
+        </form>
+      </nav>
+      <div className="system-mark">
+        <i />
+        ONLINE
+      </div>
+    </header>
+  );
+}
