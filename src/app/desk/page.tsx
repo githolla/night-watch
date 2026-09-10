@@ -1,7 +1,8 @@
-import { Desk } from "@/components/Desk";
+import { Desk, type EmptyDeskState } from "@/components/Desk";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
+import { targetAccounts } from "@/lib/target-accounts";
 import { redirect } from "next/navigation";
 export const dynamic="force-dynamic";
 type Params={card?:string;status?:string;priority?:string;source?:string};
@@ -13,6 +14,13 @@ export default async function DeskPage({searchParams}:{searchParams:Promise<Para
   let query=db.from("cards").select("*,accounts(*),people(*),signals(*)").eq("surfaced_on",today).order("score",{ascending:false});
   if(params.status)query=query.eq("status",params.status);
   if(params.priority==="high")query=query.gte("score",75);
-  const [{data,error},{data:gmail}]=await Promise.all([query,db.from("gmail_connections").select("id").eq("owner",owner).maybeSingle()]);if(error)throw error;
-  return <div className="shell"><Header/><Desk initialCards={data??[]} selectedId={params.card} gmailConnected={Boolean(gmail)}/></div>;
+  const [{data,error},{data:gmail},{count:activeAccounts},{count:researchedAccounts},{data:lastRun}]=await Promise.all([
+    query,
+    db.from("gmail_connections").select("id").eq("owner",owner).maybeSingle(),
+    db.from("accounts").select("*",{count:"exact",head:true}).eq("status","active").not("domain","like","%.example"),
+    db.from("accounts").select("*",{count:"exact",head:true}).eq("status","active").not("domain","like","%.example").not("last_scouted_at","is",null),
+    db.from("runs").select("started_at,finished_at,accounts_scouted,signals_new,cards_created,errors").order("started_at",{ascending:false}).limit(1).maybeSingle(),
+  ]);if(error)throw error;
+  const emptyState:EmptyDeskState={targetTotal:targetAccounts.length,activeAccounts:activeAccounts??0,researchedAccounts:researchedAccounts??0,lastRun:lastRun?{status:lastRun.finished_at?"Complete":"Running",startedAt:new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(lastRun.started_at)),accounts:lastRun.accounts_scouted??0,signals:lastRun.signals_new??0,cards:lastRun.cards_created??0,errors:Array.isArray(lastRun.errors)?lastRun.errors.length:0}:null};
+  return <div className="shell"><Header/><Desk initialCards={data??[]} selectedId={params.card} gmailConnected={Boolean(gmail)} emptyState={emptyState}/></div>;
 }

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { CadencePlanner } from "./CadencePlanner";
 import { MessageComposer } from "./MessageComposer";
+import { RunNightWatchButton } from "./RunNightWatchButton";
 import { SignalInsight, type InsightCard } from "./SignalInsight";
 
 type Card = InsightCard & {
@@ -21,16 +23,32 @@ type Card = InsightCard & {
   };
 };
 
+export type EmptyDeskState = {
+  targetTotal: number;
+  activeAccounts: number;
+  researchedAccounts: number;
+  lastRun: null | {
+    status: string;
+    startedAt: string;
+    accounts: number;
+    signals: number;
+    cards: number;
+    errors: number;
+  };
+};
+
 export function Desk({
   initialCards,
   selectedId,
   demo = false,
   gmailConnected = false,
+  emptyState,
 }: {
   initialCards: Card[];
   selectedId?: string;
   demo?: boolean;
   gmailConnected?: boolean;
+  emptyState?: EmptyDeskState;
 }) {
   const [cards, setCards] = useState(initialCards);
   const [selected, setSelected] = useState(selectedId ?? cards[0]?.id);
@@ -158,7 +176,23 @@ export function Desk({
 
       <section className="detail">
         {!card ? (
-          <div className="detail-inner"><div className="eyebrow">Queue clear</div><h1>No cards match this view.</h1></div>
+          <div className="detail-inner empty-desk">
+            <div className="eyebrow">Research status</div>
+            <h1>The target list is here. Research still has to run.</h1>
+            <p className="empty-desk-intro">The Morning Desk is not a company directory. It only shows people whose recent public signal passed the 60-point threshold. Browse all targets separately, then run a first scan to create real dossiers.</p>
+            <div className="empty-desk-metrics">
+              <div><span>SUPPLIED TARGETS</span><strong>{emptyState?.targetTotal.toLocaleString() ?? "—"}</strong><small>Companies in your CSV</small></div>
+              <div><span>ACTIVE IN DATABASE</span><strong>{emptyState?.activeAccounts.toLocaleString() ?? "—"}</strong><small>{emptyState && emptyState.activeAccounts === emptyState.targetTotal ? "List is synchronized" : "Open Targets and sync the list"}</small></div>
+              <div><span>RESEARCHED</span><strong>{emptyState?.researchedAccounts.toLocaleString() ?? "—"}</strong><small>Companies checked at least once</small></div>
+              <div><span>DESK CARDS</span><strong>0</strong><small>No signal has cleared the threshold today</small></div>
+            </div>
+            {emptyState?.lastRun ? <section className="last-run-card"><div><span>LAST RESEARCH RUN</span><strong>{emptyState.lastRun.status} · {emptyState.lastRun.startedAt}</strong></div><dl><div><dt>Companies</dt><dd>{emptyState.lastRun.accounts}</dd></div><div><dt>Signals</dt><dd>{emptyState.lastRun.signals}</dd></div><div><dt>Cards</dt><dd>{emptyState.lastRun.cards}</dd></div><div><dt>Errors</dt><dd>{emptyState.lastRun.errors}</dd></div></dl></section> : <p className="empty-desk-alert">No research run has been recorded yet.</p>}
+            <div className="empty-desk-actions">
+              <Link className="btn" href="/targets">Browse and sync targets</Link>
+              <RunNightWatchButton disabled={!emptyState || emptyState.activeAccounts !== emptyState.targetTotal} />
+            </div>
+            {emptyState && emptyState.activeAccounts !== emptyState.targetTotal && <p className="empty-desk-note">Synchronize the complete target list before starting the first scan.</p>}
+          </div>
         ) : (
           <div className="detail-inner">
             <div className="desk-context-bar">

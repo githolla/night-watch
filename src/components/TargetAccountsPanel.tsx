@@ -20,6 +20,7 @@ export function TargetAccountsPanel({ initialCount, targetTotal }: { initialCoun
     setCount(result.total);
     setState("success");
     setMessage(`${result.total} target companies are active and ready for nightly research.`);
+    window.setTimeout(() => window.location.reload(), 1400);
   }
 
   return <section className="panel target-control">

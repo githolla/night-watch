@@ -30,7 +30,7 @@ If the exit criteria are missed, revise the ICP or signal taxonomy before buildi
 
 1. Sync the maintained 1,859-company target universe from Workspace.
 2. Add Nine-67's current positioning and proof points to `positioning.md`.
-3. Each night, select 20 active accounts not researched in the previous 20 hours.
+3. Each night, select up to 50 active accounts not researched in the previous 20 hours. Set `NIGHTLY_ACCOUNT_LIMIT` to tune the batch without exceeding the 300-account safety ceiling.
 4. Run `prompts/scout.md` for each account using public web sources from the last 48 hours.
 5. Record qualifying signals in `data/signals.csv`.
 6. Identify the responsible person from public evidence. Optionally enrich their email in Apollo.
