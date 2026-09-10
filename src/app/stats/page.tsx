@@ -43,7 +43,7 @@ function StatsView({ stats, experiments }: { stats: StatsData; experiments: Expe
 }
 
 export default async function Stats() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) redirect("/setup");
+  if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   await requireUser();
   const db = admin();
   const { data: touches } = await db.from("touches").select("reply_classification,channel,cards(signals(type),people(level))");

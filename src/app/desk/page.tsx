@@ -7,7 +7,7 @@ export const dynamic="force-dynamic";
 type Params={card?:string;status?:string;priority?:string;source?:string};
 export default async function DeskPage({searchParams}:{searchParams:Promise<Params>}){
   const params=await searchParams;
-  if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!process.env.SUPABASE_SERVICE_ROLE_KEY)redirect("/setup");
+  if(!(process.env.NEXT_PUBLIC_SUPABASE_URL??process.env.SUPABASE_URL)||!(process.env.SUPABASE_SERVICE_ROLE_KEY??process.env.SUPABASE_SECRET_KEY))redirect("/setup");
   const user=await requireUser();
   const db=admin(),today=new Date().toISOString().slice(0,10),owner=user.email?.startsWith("jenna")?"jenna":"josh";
   let query=db.from("cards").select("*,accounts(*),people(*),signals(*)").eq("surfaced_on",today).order("score",{ascending:false});

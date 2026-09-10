@@ -6,7 +6,7 @@ import { targetAccounts } from "@/lib/target-accounts";
 import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 export default async function Settings() {
-  if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!process.env.SUPABASE_SERVICE_ROLE_KEY)redirect("/setup");
+  if(!(process.env.NEXT_PUBLIC_SUPABASE_URL??process.env.SUPABASE_URL)||!(process.env.SUPABASE_SERVICE_ROLE_KEY??process.env.SUPABASE_SECRET_KEY))redirect("/setup");
   await requireUser();
   const db=admin();
   const [{data:connections},{count:accountCount}]=await Promise.all([

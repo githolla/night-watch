@@ -5,7 +5,7 @@ import { admin } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 export const dynamic="force-dynamic";
 export default async function Overview(){
-  if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!process.env.SUPABASE_SERVICE_ROLE_KEY)redirect("/setup");
+  if(!(process.env.NEXT_PUBLIC_SUPABASE_URL??process.env.SUPABASE_URL)||!(process.env.SUPABASE_SERVICE_ROLE_KEY??process.env.SUPABASE_SECRET_KEY))redirect("/setup");
   await requireUser();
   const db=admin(),now=new Date(),today=now.toISOString().slice(0,10),cutoff=new Date(now.getTime()-48*3600_000).toISOString();
   const [{data:cards},{data:signals},{data:run},{data:touches}]=await Promise.all([db.from("cards").select("id,score,status,channel,why_now,assigned_to,accounts(name),people(full_name,title),signals(type,summary,source_url)").eq("surfaced_on",today).order("score",{ascending:false}).limit(10),db.from("signals").select("id,type,summary,source_url,found_at,accounts(name),cards(id)").gte("found_at",cutoff).order("found_at",{ascending:false}).limit(50),db.from("runs").select("*").order("started_at",{ascending:false}).limit(1).maybeSingle(),db.from("touches").select("sent_at,reply_classification,sent_by,cards(accounts(name))").order("created_at",{ascending:false}).limit(10)]);

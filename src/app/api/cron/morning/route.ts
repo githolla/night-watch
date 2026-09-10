@@ -27,7 +27,8 @@ export async function GET(request: Request) {
         `${index + 1}. ${(card.accounts as unknown as { name: string }).name} — ${(card.people as unknown as { full_name: string }).full_name} (${card.score})`,
     )
     .join("\n");
-  const body = `${cards?.length ?? 0} cards are ready in Night Watch.\n\n${top}\n\nReview: ${process.env.APP_URL}`;
+  const reviewUrl = process.env.APP_URL ?? new URL(request.url).origin;
+  const body = `${cards?.length ?? 0} cards are ready in Night Watch.\n\n${top}\n\nReview: ${reviewUrl}`;
 
   const errors: string[] = [];
   let delivered = 0;
