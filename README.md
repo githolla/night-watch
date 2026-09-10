@@ -30,7 +30,7 @@ If the exit criteria are missed, revise the ICP or signal taxonomy before buildi
 
 1. Sync the maintained 1,859-company target universe from Workspace.
 2. Add Nine-67's current positioning and proof points to `positioning.md`.
-3. Each night, select up to 50 active accounts not researched in the previous 20 hours. Set `NIGHTLY_ACCOUNT_LIMIT` to tune the batch without exceeding the 300-account safety ceiling.
+3. Each scheduled run selects three active accounts not researched in the previous 20 hours. Manual research runs as ten recoverable one-company requests. Set `NIGHTLY_ACCOUNT_LIMIT` only after reviewing observed cost and execution time.
 4. Run `prompts/scout.md` for each account using public web sources from the last 48 hours.
 5. Record qualifying signals in `data/signals.csv`.
 6. Identify the responsible person from public evidence. Optionally enrich their email in Apollo.
@@ -47,5 +47,14 @@ If the exit criteria are missed, revise the ICP or signal taxonomy before buildi
 - Plain text, no tracking pixels, no images, no more than one link.
 - LinkedIn actions are manual; never scrape behind login.
 - Exclude clients, do-not-contact accounts, and do-not-contact people.
+
+## Cost controls
+
+- High-volume research, person lookup, reply classification, and message simulations use Claude Haiku 4.5 by default. Sonnet is reserved for the final outreach draft after a signal qualifies.
+- Each company checks the supplied source first, caps paid web search at three calls, and retains only the strongest verified signal.
+- PDF sources are not fetched directly because binary documents can create unexpectedly large token inputs.
+- Anthropic response usage is converted to dollars and stored in `runs.cost_usd`; the manual progress result and Learning dashboard report measured spend.
+- Defaults cap projected exposure at `$0.12` per account and `$1.25` per scheduled run. Override these with `NIGHTLY_MAX_COST_PER_ACCOUNT_USD` and `NIGHTLY_RUN_BUDGET_USD` only deliberately.
+- A manual ten-company batch also stops automatically once measured Anthropic spend reaches `$1.00`.
 
 The source specification for this project is the attached “Night Watch: Build Brief” (version 1.0, September 2026). Phase-specific decisions and implementation notes will be preserved under `docs/` as the project advances.

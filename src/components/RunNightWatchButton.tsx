@@ -6,6 +6,7 @@ type Result = {
   accounts: number;
   signals: number;
   cards: number;
+  cost: number;
   errors: unknown[];
   researched: Array<{ name: string; domain: string }>;
 };
@@ -19,7 +20,8 @@ export function RunNightWatchButton({ disabled = false }: { disabled?: boolean }
     setState("running");
     setProgress([]);
     const total = 10;
-    const totals = { accounts: 0, signals: 0, cards: 0, errors: 0 };
+    const batchBudget = 1;
+    const totals = { accounts: 0, signals: 0, cards: 0, errors: 0, cost: 0 };
 
     for (let index = 0; index < total; index += 1) {
       setMessage(`Researching priority company ${index + 1} of ${total}. Completed evidence is saved after every company.`);
@@ -49,6 +51,7 @@ export function RunNightWatchButton({ disabled = false }: { disabled?: boolean }
       totals.signals += result.signals;
       totals.cards += result.cards;
       totals.errors += result.errors.length;
+      totals.cost += result.cost;
       const company = result.researched[0]?.name ?? "No eligible company";
       const outcome = result.errors.length > 0
         ? `${company} — research error logged`
@@ -59,11 +62,17 @@ export function RunNightWatchButton({ disabled = false }: { disabled?: boolean }
           : `${company} — no attributable source found`;
       setProgress((current) => [...current, outcome]);
 
+      if (totals.cost >= batchBudget) {
+        setState("done");
+        setMessage(`Cost stop reached after ${totals.accounts} companies. Results are saved. Anthropic cost: $${totals.cost.toFixed(3)}; the batch will not spend further.`);
+        window.setTimeout(() => window.location.reload(), 1600);
+        return;
+      }
       if (result.accounts === 0) break;
     }
 
     setState("done");
-    setMessage(`Complete: ${totals.accounts} companies checked, ${totals.signals} sources saved, ${totals.cards} outreach dossiers created, ${totals.errors} errors.`);
+    setMessage(`Complete: ${totals.accounts} companies checked, ${totals.signals} sources saved, ${totals.cards} outreach dossiers created, ${totals.errors} errors. Anthropic cost: $${totals.cost.toFixed(3)}.`);
     window.setTimeout(() => window.location.reload(), 1200);
   }
 

@@ -40,13 +40,13 @@ function storedBreakdown(scored: ReturnType<typeof score>): StoredBreakdown {
   };
 }
 
-async function mapPerson(account: Account, signal: ScoutSignal) {
+async function mapPerson(account: Account, signal: ScoutSignal, recordCost: (costUsd: number) => void) {
   const named = signal.people[0] ?? (signal.post?.author_name
     ? { name: signal.post.author_name, title: signal.post.author_title, role_in_signal: "Post author" }
     : null);
   const candidate = named
     ? { name: named.name, title: named.title, linkedin_url: null as string | null }
-    : await findPerson(account.name, signal);
+    : await findPerson(account.name, signal, recordCost);
   if (!candidate.name) return null;
 
   const apollo = await matchPerson(candidate.name, account.domain);
@@ -77,8 +77,9 @@ async function mapPerson(account: Account, signal: ScoutSignal) {
   return data;
 }
 
-async function processAccount(account: Account, counter: { cards: number; signals: number }) {
+async function processAccount(account: Account, counter: { cards: number; signals: number; cost: number }) {
   const db = admin();
+  const recordCost = (costUsd: number) => { counter.cost += costUsd; };
   const { error: attemptError } = await db.from("accounts").update({ last_scouted_at: new Date().toISOString() }).eq("id", account.id);
   if (attemptError) throw attemptError;
   const context = targetAccountByDomain.get(account.domain);
@@ -92,12 +93,12 @@ async function processAccount(account: Account, counter: { cards: number; signal
       revenueBand: context.revenueBand,
       subSegment: context.subSegment,
     } : undefined,
-  });
+  }, recordCost);
 
   for (const item of found) {
     const hash = signalHash(item.type, item.source_url);
     const { data: existing } = await db.from("signals").select("id,person_id").eq("account_id", account.id).eq("hash", hash).maybeSingle();
-    const person = await mapPerson(account, item);
+    const person = await mapPerson(account, item, recordCost);
     const signalPayload = {
       account_id: account.id,
       person_id: person?.id ?? null,
@@ -135,7 +136,7 @@ async function processAccount(account: Account, counter: { cards: number; signal
       continue;
     }
 
-    const draft = await writeAngle({ account, signal: item, person, score: scored });
+    const draft = await writeAngle({ account, signal: item, person, score: scored }, recordCost);
     const { count } = await db.from("cards").select("*", { count: "exact", head: true });
     const assigned: Owner = person.connection_owner ?? ((count ?? 0) % 2 === 0 ? "josh" : "jenna");
     const inserted = await db.from("cards").insert({ signal_id: storedId, person_id: person.id, account_id: account.id, score: scored.score, score_breakdown: breakdown, assigned_to: assigned, ...draft }).select("id").single();
@@ -182,17 +183,23 @@ export async function runNightly({ accountLimit = Number(process.env.NIGHTLY_ACC
     if ((page?.length ?? 0) < pageSize) break;
   }
   const accounts = candidates.sort((a, b) => targetPriority(b) - targetPriority(a) || a.name.localeCompare(b.name)).slice(0, safeLimit);
-  const projected = accounts.length * 0.03;
-  if (projected > 10) {
-    await db.from("runs").update({ finished_at: new Date().toISOString(), errors: [{ message: "Projected cost exceeds $10", projected }] }).eq("id", run.id);
-    throw new Error("Nightly cost guard stopped the run");
+  const maximumPerAccount = Number(process.env.NIGHTLY_MAX_COST_PER_ACCOUNT_USD ?? 0.12);
+  const runBudget = Number(process.env.NIGHTLY_RUN_BUDGET_USD ?? 1.25);
+  const maximumProjected = accounts.length * maximumPerAccount;
+  if (maximumProjected > runBudget) {
+    await db.from("runs").update({ finished_at: new Date().toISOString(), errors: [{ message: "Configured run budget would be exceeded", maximumProjected, runBudget }] }).eq("id", run.id);
+    throw new Error(`Research budget guard stopped the run before spending more than $${runBudget.toFixed(2)}`);
   }
 
-  const counter = { cards: 0, signals: 0 };
+  const counter = { cards: 0, signals: 0, cost: 0 };
   const errors: unknown[] = [];
   let accountsProcessed = 0;
   const researched: Array<{ name: string; domain: string }> = [];
   for (const account of accounts) {
+    if (counter.cost >= runBudget) {
+      errors.push({ stage: "budget", message: `Actual run cost reached the $${runBudget.toFixed(2)} limit; remaining companies were deferred.` });
+      break;
+    }
     try {
       await processAccount(account, counter);
     } catch (error) {
@@ -204,6 +211,7 @@ export async function runNightly({ accountLimit = Number(process.env.NIGHTLY_ACC
         accounts_scouted: accountsProcessed,
         signals_new: counter.signals,
         cards_created: counter.cards,
+        cost_usd: Number(counter.cost.toFixed(6)),
         errors,
       }).eq("id", run.id);
     }
@@ -213,8 +221,8 @@ export async function runNightly({ accountLimit = Number(process.env.NIGHTLY_ACC
   } catch (error) {
     errors.push({ stage: "surface", message: error instanceof Error ? error.message : String(error) });
   }
-  await db.from("runs").update({ finished_at: new Date().toISOString(), accounts_scouted: accountsProcessed, signals_new: counter.signals, cards_created: counter.cards, cost_usd: projected, errors }).eq("id", run.id);
-  return { ...counter, accounts: accountsProcessed, errors, researched };
+  await db.from("runs").update({ finished_at: new Date().toISOString(), accounts_scouted: accountsProcessed, signals_new: counter.signals, cards_created: counter.cards, cost_usd: Number(counter.cost.toFixed(6)), errors }).eq("id", run.id);
+  return { cards: counter.cards, signals: counter.signals, cost: Number(counter.cost.toFixed(6)), accounts: accountsProcessed, errors, researched };
 }
 
 function normalizeStoredBreakdown(value: unknown): StoredBreakdown {
