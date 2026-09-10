@@ -117,6 +117,7 @@ export function RunPanel({
   }
 
   const failedIds = run?.rows.filter((row) => row.status === "error").map((row) => row.accountId) ?? [];
+  const allIds = run?.rows.map((row) => row.accountId) ?? [];
   const started = run ? Date.parse(run.startedAt) : 0;
   const ended = run?.finishedAt ? Date.parse(run.finishedAt) : clock;
   const elapsed = run ? formatDuration(Math.max(0, ended - started)) : null;
@@ -147,6 +148,11 @@ export function RunPanel({
         {!running && failedIds.length > 0 && (
           <button className="btn" type="button" disabled={disabled} onClick={() => drive({ accountIds: failedIds })}>
             Retry the {failedIds.length} that failed
+          </button>
+        )}
+        {!running && !runOpen && allIds.length > 0 && (
+          <button className="btn" type="button" disabled={disabled} title="Ignores the research cooldown so the same companies are checked again under the current rules" onClick={() => drive({ accountIds: allIds })}>
+            Research these {allIds.length} again
           </button>
         )}
         {!running && !runOpen && <span className="run-panel-estimate">≈ ${projectedMaxCostUsd.toFixed(2)} maximum for {batchSize} companies</span>}

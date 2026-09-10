@@ -478,9 +478,16 @@ function normalizeStoredBreakdown(value: unknown): StoredBreakdown {
  */
 export async function recomputeAndSurface() {
   const db = admin();
-  const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(observed_at)").in("status", ["new", "approved", "edited", "snoozed"]);
+  const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(observed_at,raw)").in("status", ["new", "approved", "edited", "snoozed"]);
   for (const card of cards ?? []) {
-    const observedAt = (card.signals as unknown as { observed_at: string }).observed_at;
+    const signal = card.signals as unknown as { observed_at: string; raw?: { operating_need?: unknown } | null };
+    // A card whose signal never named an operating need was created under the
+    // old rules, when an executive's opinion piece could qualify. Retire it.
+    if (!signal.raw || typeof signal.raw.operating_need !== "string" || !signal.raw.operating_need.trim()) {
+      await db.from("cards").update({ status: "archived", dismiss_reason: "Created before the operating-need rule; the source was commentary, not work Nine-67 could do." }).eq("id", card.id);
+      continue;
+    }
+    const observedAt = signal.observed_at;
     const prior = normalizeStoredBreakdown(card.score_breakdown);
     const nextRecency = score({ type: "other", level: "unknown", observedAt, pathScore: 0 }).breakdown.recency;
     const nextBreakdown = { ...prior, recency: nextRecency };
