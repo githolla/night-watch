@@ -126,6 +126,13 @@ export function parseModelJson(blocks: ReadonlyArray<TextLike>, stopReason: stri
       reason,
     );
   }
+  if (reason === "pause_turn") {
+    throw new ModelOutputError(
+      "truncated",
+      `Model paused its search loop before answering (stop_reason=pause_turn) and the continuation limit was reached. Last text: ${preview(text ?? "")}`,
+      reason,
+    );
+  }
   if (text === null) {
     throw new ModelOutputError("empty", `Model returned no text block to parse (stop_reason=${reason ?? "unknown"}).`, reason);
   }

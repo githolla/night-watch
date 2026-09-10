@@ -1,10 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import type { SimulationInput, SimulationResult } from "@/lib/message-simulation";
-import { recordAnthropicUsage, type UsageRecorder } from "./anthropic-cost";
-import { parseModelJson } from "./model-output";
+import { recordAnthropicUsage, type UsageRecorder } from "./anthropic-cost.ts";
+import { parseModelJson } from "./model-output.ts";
 
-export { parseModelJson } from "./model-output";
+export { parseModelJson } from "./model-output.ts";
 
 /** Signals below this confidence are not stored. Shown on the run log as "found, below threshold". */
 export const SCOUT_CONFIDENCE_FLOOR = 0.6;
@@ -15,6 +15,13 @@ export const SCOUT_CONFIDENCE_FLOOR = 0.6;
  * by stop_reason and reported as truncation, never as bad JSON.
  */
 export const SCOUT_MAX_TOKENS = 8_000;
+
+/**
+ * A server-tool turn pauses with stop_reason=pause_turn after the API's own
+ * search-loop limit. The turn is resumed by re-sending the conversation with
+ * the assistant content appended; this caps how many times that happens.
+ */
+export const MAX_TURN_CONTINUATIONS = 5;
 
 /** `YYYY-MM-DD`; an ISO datetime is trimmed to its date part first. */
 const isoDate = z.preprocess(
@@ -32,15 +39,15 @@ const signal = z.object({
   observed_at: isoDate,
   people: z.array(z.object({ name: z.string(), title: z.string(), role_in_signal: z.string() })).default([]),
   post: z.object({
-    text: z.string(), author_name: z.string(), author_title: z.string(), published_at: z.string(),
+    text: z.string(), author_name: z.string(), author_title: z.string().default(""), published_at: z.string().nullable().default(null),
     reactions: z.number().int().nonnegative().nullable().default(null),
     comments: z.number().int().nonnegative().nullable().default(null),
     reposts: z.number().int().nonnegative().nullable().default(null),
     hashtags: z.array(z.string()).default([]), is_excerpt: z.boolean().default(false),
   }).optional(),
   source: z.object({
-    headline: z.string(), publisher: z.string(), author_name: z.string().nullable().default(null),
-    published_at: z.string(), excerpt: z.string(),
+    headline: z.string().default(""), publisher: z.string().default(""), author_name: z.string().nullable().default(null),
+    published_at: z.string().nullable().default(null), excerpt: z.string().default(""),
   }).optional(),
   job: z.object({
     title: z.string(), department: z.string(), days_open: z.number(), reposted: z.boolean(),
@@ -88,6 +95,27 @@ function webSearchTool(maxUses: number): Anthropic.Messages.ToolUnion {
   return { type: "web_search_20250305", name: "web_search", max_uses: maxUses };
 }
 
+/**
+ * Run one request to completion. When the server-side search loop pauses the
+ * turn, re-send the conversation with the assistant content appended so the
+ * API resumes where it left off; usage is recorded for every round.
+ */
+async function completeTurn(
+  params: Omit<Anthropic.Messages.MessageCreateParamsNonStreaming, "messages">,
+  prompt: string,
+  recordUsage?: UsageRecorder,
+) {
+  const messages: Anthropic.Messages.MessageParam[] = [{ role: "user", content: prompt }];
+  let response = await client().messages.create({ ...params, messages });
+  recordAnthropicUsage(response, params.model, recordUsage);
+  for (let round = 0; round < MAX_TURN_CONTINUATIONS && response.stop_reason === "pause_turn"; round += 1) {
+    messages.push({ role: "assistant", content: response.content });
+    response = await client().messages.create({ ...params, messages });
+    recordAnthropicUsage(response, params.model, recordUsage);
+  }
+  return response;
+}
+
 export type ScoutResult = {
   /** Signals at or above the confidence floor, strongest first, capped to one. */
   signals: ScoutSignal[];
@@ -125,9 +153,7 @@ For an executive post, include post with the actual visible text, author name, a
 
 Return JSON only as {"signals":[{"type":"exec_post","summary":"why this matters","source_url":"https://...","observed_at":"YYYY-MM-DD","people":[{"name":"Full name","title":"Exact title","role_in_signal":"Author and operating owner"}],"post":{"text":"actual visible post text","author_name":"Full name","author_title":"Exact title","published_at":"ISO date or date","reactions":null,"comments":null,"reposts":null,"hashtags":[],"is_excerpt":true},"confidence":0.0}]}. Return an empty array only when no dated, source-backed development exists within 180 days.`;
   const tools = [webSearchTool(maxSearches)];
-  const create = (selectedModel: string) => client().messages.create({
-    model: selectedModel, max_tokens: SCOUT_MAX_TOKENS, messages: [{ role: "user" as const, content: prompt }], tools,
-  });
+  const create = (selectedModel: string) => completeTurn({ model: selectedModel, max_tokens: SCOUT_MAX_TOKENS, tools }, prompt, recordUsage);
   let selectedModel = model;
   let response;
   try {
@@ -139,7 +165,6 @@ Return JSON only as {"signals":[{"type":"exec_post","summary":"why this matters"
     selectedModel = fallbackModel;
     response = await create(selectedModel);
   }
-  recordAnthropicUsage(response, selectedModel, recordUsage);
   const parsed = scoutOutput.parse(jsonFrom(response));
   const kept = parsed.signals
     .filter((item) => item.confidence >= SCOUT_CONFIDENCE_FLOOR)
@@ -149,12 +174,11 @@ Return JSON only as {"signals":[{"type":"exec_post","summary":"why this matters"
 
 export async function findPerson(account: string, signal: ScoutSignal, recordUsage?: UsageRecorder) {
   const model = utilityModel();
-  const response = await client().messages.create({
-    model, max_tokens: 600,
-    messages: [{ role: "user", content: `Using public web search only, identify the most likely budget owner for this signal at ${account}: ${signal.summary}. Prefer a person directly named in the source or a publicly verified executive who owns the affected function. Return JSON only: {"name":"","title":"","linkedin_url":null,"alternates":[{"title":""}]}. Do not guess a name without public evidence.` }],
-    tools: [webSearchTool(2)],
-  });
-  recordAnthropicUsage(response, model, recordUsage);
+  const response = await completeTurn(
+    { model, max_tokens: 1_500, tools: [webSearchTool(2)] },
+    `Using public web search only, identify the most likely budget owner for this signal at ${account}: ${signal.summary}. Prefer a person directly named in the source or a publicly verified executive who owns the affected function. Return JSON only: {"name":"","title":"","linkedin_url":null,"alternates":[{"title":""}]}. Do not guess a name without public evidence.`,
+    recordUsage,
+  );
   return z.object({
     name: z.string(), title: z.string(), linkedin_url: z.string().nullable(),
     alternates: z.array(z.object({ title: z.string() })),

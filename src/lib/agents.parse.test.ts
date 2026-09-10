@@ -68,3 +68,11 @@ test("braces inside JSON strings do not break span detection", () => {
   const value = { summary: "Post says {hiring} is up", n: 1 };
   assert.deepEqual(extractJson(`Note {not json} then ${JSON.stringify(value)}`), value);
 });
+
+test("a turn still paused after the continuation limit reports as truncation, not bad JSON", () => {
+  const blocks = searchBlocks("Let me continue researching in a new turn.");
+  assert.throws(
+    () => parseModelJson(blocks, "pause_turn"),
+    (error: unknown) => error instanceof ModelOutputError && error.code === "truncated" && /pause_turn/.test(error.message),
+  );
+});
