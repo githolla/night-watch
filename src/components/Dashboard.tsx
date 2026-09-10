@@ -5,7 +5,7 @@ import { SystemClock } from "@/components/SystemClock";
 type CardSummary={id:string;score:number;status:string;channel:string;why_now:string;assigned_to:string;accounts:{name:string};people:{full_name:string;title:string};signals:{type?:string;summary:string;source_url:string}};
 export type DashboardData={metrics:{newSignals:number;surfacedCards:number;highPriority:number;positiveReplies:number};run:{status:string;finishedAt:string;accounts:number;signals:number;cards:number;cost:number;duration:string};sources:Array<{name:string;count:number;share:number;detail:string;filter:string}>;pipeline:Array<{name:string;count:number;note:string;href:string}>;recentSignals:Array<{id:string;type:string;account:string;summary:string;age:string;source:string;sourceUrl:string;cardId:string|null;isNew:boolean}>;accounts:Array<{name:string;signalCount:number;topSignal:string;score:number;owner:string}>;activity:Array<{time:string;label:string;detail:string}>};
 
-export function Dashboard({data,cards,demo=false}:{data:DashboardData;cards:CardSummary[];demo?:boolean}){
+export function Dashboard({data,cards}:{data:DashboardData;cards:CardSummary[]}){
   const date=new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric"}).format(new Date());
   return <main className="overview">
     <section className="precision-hero">
@@ -37,8 +37,6 @@ export function Dashboard({data,cards,demo=false}:{data:DashboardData;cards:Card
       </aside>
       <div className="system-rail"><span><i/> SYSTEM ONLINE</span><span>{data.run.status.toUpperCase()} / SECURE WORKSPACE</span><span>NINE—67 · NIGHT WATCH</span></div>
     </section>
-
-    {demo&&<div className="overview-demo"><span>DEMONSTRATION WORKSPACE</span><p>Every view is open. Connect live sources whenever you are ready.</p><Link href="/settings">Connection controls →</Link></div>}
 
     <section className="overview-metrics" aria-label="Morning overview">
       <Link href="/?view=signals" className="overview-metric"><span>01 / New signals</span><strong>{data.metrics.newSignals}</strong><small>found in the last 48 hours</small><b>Explore →</b></Link>

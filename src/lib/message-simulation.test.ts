@@ -4,7 +4,7 @@ import { createChallenger, simulateHeuristically, type SimulationInput } from ".
 
 const base = {
   personName: "Maya Chen",
-  company: "Northstar Health",
+  company: "CrowdStrike Holdings",
   signalSummary: "Maya described an effort to automate patient intake while keeping exception handling human-led.",
 };
 

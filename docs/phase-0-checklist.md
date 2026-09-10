@@ -2,7 +2,7 @@
 
 ## Before night one
 
-- [ ] Add 300 ICP accounts to `data/accounts.csv`.
+- [ ] Sync the maintained 100-company target universe from Settings.
 - [ ] Complete `positioning.md` and approve the three proof points.
 - [ ] Confirm Josh and Jenna's Gmail senders.
 - [ ] Confirm Apollo access and use only verified results.

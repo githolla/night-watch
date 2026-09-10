@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
-import { demoExperimentStats, demoStats } from "@/lib/demo";
 import { admin } from "@/lib/supabase/admin";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
-type StatsData = typeof demoStats;
-type ExperimentStats = typeof demoExperimentStats;
+type StatsData = { sent: number; replyRate: number; positiveShare: number; meetings: number; cost: number; groups: Array<{ name: string; sent: number; replyRate: number; positiveShare: number }> };
+type ExperimentStats = { total: number; selected: number; sent: number; replied: number; positive: number; averageLift: number; confidence: number; winnerA: number; winnerB: number; dimensions: { relevance: number; specificity: number; trust: number; replyEase: number }; channels: Array<{ name: string; tests: number; averageLift: number; positive: number }>; recent: Array<{ id: string; person: string; company: string; channel: string; winner: string; scoreA: number; scoreB: number; status: string; date: string }> };
 type Dimension = keyof ExperimentStats["dimensions"];
+const emptyExperimentStats: ExperimentStats = { total: 0, selected: 0, sent: 0, replied: 0, positive: 0, averageLift: 0, confidence: 0, winnerA: 0, winnerB: 0, dimensions: { relevance: 0, specificity: 0, trust: 0, replyEase: 0 }, channels: [], recent: [] };
 
-function StatsView({ stats, experiments, demo = false }: { stats: StatsData; experiments: ExperimentStats; demo?: boolean }) {
+function StatsView({ stats, experiments }: { stats: StatsData; experiments: ExperimentStats }) {
   const completionRate = experiments.sent ? Math.round(experiments.replied / experiments.sent * 100) : 0;
   const positiveRate = experiments.replied ? Math.round(experiments.positive / experiments.replied * 100) : 0;
-  return <div><Header />{demo && <div className="demo-banner">Demo mode · illustrative performance and experiment data</div>}<main className="stats learning-page">
+  return <div><Header /><main className="stats learning-page">
     <header className="learning-head"><div><div className="eyebrow">Learning system · message optimization</div><h1>What improves response</h1><p>Pre-send simulation and observed outcomes in one place. Predictions stay separate from real-world results.</p></div><Link href="/desk" className="learning-cta">Run a message test <span>→</span></Link></header>
     <nav className="learning-nav"><a href="#experiments"><span>01</span>Message experiments</a><a href="#signals"><span>02</span>Signal performance</a></nav>
 
@@ -42,7 +43,7 @@ function StatsView({ stats, experiments, demo = false }: { stats: StatsData; exp
 }
 
 export default async function Stats() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return <StatsView stats={demoStats} experiments={demoExperimentStats} demo />;
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) redirect("/setup");
   await requireUser();
   const db = admin();
   const { data: touches } = await db.from("touches").select("reply_classification,channel,cards(signals(type),people(level))");
@@ -57,7 +58,7 @@ export default async function Stats() {
 
 async function loadExperimentStats(db: ReturnType<typeof admin>): Promise<ExperimentStats> {
   const { data: experiments } = await db.from("message_experiments").select("id,created_at,channel,status,predicted_winner,selected_label,confidence,cards(people(full_name),accounts(name))").order("created_at", { ascending: false }).limit(100);
-  if (!experiments?.length) return { ...demoExperimentStats, total: 0, selected: 0, sent: 0, replied: 0, positive: 0, averageLift: 0, confidence: 0, winnerA: 0, winnerB: 0, dimensions: { relevance: 0, specificity: 0, trust: 0, replyEase: 0 }, channels: [], recent: [] };
+  if (!experiments?.length) return emptyExperimentStats;
   const ids = experiments.map((experiment) => experiment.id);
   const { data: variants } = await db.from("message_variants").select("id,experiment_id,label,simulation_score,dimensions,selected").in("experiment_id", ids);
   const variantIds = (variants ?? []).map((variant) => variant.id);
