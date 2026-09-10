@@ -1,5 +1,6 @@
 import { cronAuthorized } from "@/lib/auth";
 import { sendEmail } from "@/lib/gmail";
+import { sendMorningSlack, type SlackDeskCard } from "@/lib/slack";
 import { admin } from "@/lib/supabase/admin";
 
 type ConnectedOwner = "josh" | "jenna";
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   const [{ data: cards }, { data: connections }] = await Promise.all([
     db
       .from("cards")
-      .select("score,accounts(name),people(full_name)")
+      .select("id,score,status,channel,why_now,brief,assigned_to,accounts(name),people(full_name,title),signals(summary,source_url,type)")
       .eq("surfaced_on", today)
       .order("score", { ascending: false }),
     db.from("gmail_connections").select("owner,email"),
@@ -32,6 +33,15 @@ export async function GET(request: Request) {
 
   const errors: string[] = [];
   let delivered = 0;
+
+  let slack: Awaited<ReturnType<typeof sendMorningSlack>>;
+  try {
+    slack = await sendMorningSlack((cards ?? []) as unknown as SlackDeskCard[]);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Slack delivery failed";
+    errors.push(`slack: ${message}`);
+    slack = { delivered: false, reason: message };
+  }
 
   for (const connection of connections ?? []) {
     try {
@@ -54,6 +64,7 @@ export async function GET(request: Request) {
   return Response.json({
     cards: cards?.length ?? 0,
     delivered,
+    slack,
     skipped: Math.max(0, 2 - (connections?.length ?? 0)),
     errors,
   });
