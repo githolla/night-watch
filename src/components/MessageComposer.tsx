@@ -33,7 +33,7 @@ type Props = {
 };
 
 export function MessageComposer(props: Props) {
-  const [view, setView] = useState<DraftView>(() => preferredView(props.channel, Boolean(props.linkedinComment)));
+  const [view, setView] = useState<DraftView>(() => preferredView(props.channel, Boolean(props.linkedinComment), props.emailVerified));
   const [copied, setCopied] = useState(false);
   const [labOpen, setLabOpen] = useState(false);
   const currentSocialCopy = view === "comment" ? props.linkedinComment : props.linkedinNote;
@@ -43,6 +43,21 @@ export function MessageComposer(props: Props) {
       await navigator.clipboard.writeText(currentSocialCopy);
       setCopied(true);
       props.onNotice("LinkedIn draft copied. Open the profile and review it once more before posting.");
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      props.onNotice("Copy was blocked by the browser. Select the draft text and copy it manually.");
+    }
+  }
+
+  /** The channel-aware primary action when the email cannot be sent: take the LinkedIn draft instead. */
+  async function switchToLinkedIn() {
+    const target: DraftView = props.linkedinComment ? "comment" : "connection";
+    const draft = target === "comment" ? props.linkedinComment : props.linkedinNote;
+    setView(target);
+    try {
+      await navigator.clipboard.writeText(draft);
+      setCopied(true);
+      props.onNotice("LinkedIn draft copied. The email address is unverified, so LinkedIn is the first touch.");
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
       props.onNotice("Copy was blocked by the browser. Select the draft text and copy it manually.");
@@ -86,17 +101,18 @@ export function MessageComposer(props: Props) {
           <span>02</span><strong>Connection note</strong><small>{props.linkedinNote ? "Ready" : "Empty"}</small>
         </button>
         <button type="button" role="tab" aria-selected={view === "email"} className={view === "email" ? "active" : ""} onClick={() => setView("email")}>
-          <span>03</span><strong>Email</strong><small>{props.emailVerified ? "Verified" : "Review"}</small>
+          <span>03</span><strong>Email</strong><small>{props.emailVerified ? "Verified" : props.email ? "Unverified" : "No email"}</small>
         </button>
       </div>
 
       {view === "email" ? (
         <div className="email-compose" role="tabpanel">
-          {!props.gmailConnected && <div className="manual-mode-strip"><span>MANUAL MODE</span><p>No Gmail connection required. Copy the draft, send it yourself, then record the touch.</p></div>}
+          {!props.emailVerified && <div className="manual-mode-strip is-attention"><span>UNVERIFIED ADDRESS</span><p>{props.email ? "This address is not verified, so Night Watch will not send to it. Start on LinkedIn, or send it yourself and record the touch." : "No email address is on file. Start on LinkedIn."}</p></div>}
+          {props.emailVerified && !props.gmailConnected && <div className="manual-mode-strip"><span>MANUAL MODE</span><p>No Gmail connection required. Copy the draft, send it yourself, then record the touch.</p></div>}
           <div className="compose-recipient">
             <div className="recipient-avatar">{initials(props.personName)}</div>
             <div><span>To</span><strong>{props.personName}</strong><small>{props.email ?? "No email available"}</small></div>
-            <span className="recipient-state">{props.emailVerified ? <><Check /> Verified</> : "Needs review"}</span>
+            <span className="recipient-state">{props.emailVerified ? <><Check /> Verified address</> : props.email ? "Unverified · send blocked" : "No address"}</span>
           </div>
           <label className="subject-line"><span>Subject</span><input value={props.emailSubject} onChange={(event) => props.onEdit("email_subject", event.target.value)} /></label>
           <textarea className="compose-body" aria-label="Email body" value={props.emailBody} onChange={(event) => props.onEdit("email_body", event.target.value)} rows={9} />
@@ -127,10 +143,14 @@ export function MessageComposer(props: Props) {
         <button type="button" className="save-draft" disabled={props.busy} onClick={props.onSave}>Save draft</button>
         {view === "email" ? (
           props.gmailConnected && props.emailVerified ? <button type="button" className="composer-primary" disabled={props.busy || (!props.demo && !props.sendReady)} onClick={props.onSend}>
-            <Send /> {props.demo ? "Simulate email" : props.sendReady ? "Send email now" : "Save draft first"}<span>→</span>
-          </button> : <div className="manual-send-actions">
+            <Send /> {props.demo ? `Simulate email to ${props.personName}` : props.sendReady ? `Send email to ${props.personName}` : "Save draft first"}<span>→</span>
+          </button> : !props.emailVerified ? <div className="manual-send-actions">
+            {props.email && <button type="button" onClick={copyEmail}>{copied ? <Check /> : <Copy />}{copied ? "Copied" : "Copy email anyway"}</button>}
+            {props.email && <button type="button" disabled={props.busy || !props.emailBody || (!props.demo && !props.sendReady)} onClick={() => props.onRecordTouch("email", props.emailBody)}><Check /> Record a manual send</button>}
+            <button type="button" className="composer-primary" disabled={props.busy || (!props.linkedinComment && !props.linkedinNote)} onClick={switchToLinkedIn}><Copy /> Copy for LinkedIn<span>→</span></button>
+          </div> : <div className="manual-send-actions">
             <button type="button" onClick={copyEmail}>{copied ? <Check /> : <Copy />}{copied ? "Copied" : "Copy email"}</button>
-            <button type="button" className="composer-primary" disabled={props.busy || !props.emailBody || (!props.demo && !props.sendReady)} onClick={() => props.onRecordTouch("email", props.emailBody)}><Check /> {props.sendReady || props.demo ? "Record sent" : "Save first"}<span>→</span></button>
+            <button type="button" className="composer-primary" disabled={props.busy || !props.emailBody || (!props.demo && !props.sendReady)} onClick={() => props.onRecordTouch("email", props.emailBody)}><Check /> {props.sendReady || props.demo ? `Record email to ${props.personName} as sent` : "Save first"}<span>→</span></button>
           </div>
         ) : (
           <div className="social-actions">
@@ -165,8 +185,8 @@ export function MessageComposer(props: Props) {
   );
 }
 
-function preferredView(channel: string, hasComment: boolean): DraftView {
-  if (channel === "email_first") return "email";
+function preferredView(channel: string, hasComment: boolean, emailVerified: boolean): DraftView {
+  if (channel === "email_first" && emailVerified) return "email";
   if (hasComment) return "comment";
   return "connection";
 }

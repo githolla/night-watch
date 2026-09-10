@@ -1,5 +1,14 @@
 import Link from "next/link";
 
+/** Navigation named for the task, not the brand: Today, Accounts, Desk, Results, Settings, Lock. */
+const items = [
+  { href: "/", label: "Today" },
+  { href: "/targets", label: "Accounts" },
+  { href: "/desk", label: "Desk" },
+  { href: "/stats", label: "Results" },
+  { href: "/settings", label: "Settings" },
+];
+
 export function Header() {
   return (
     <header className="topbar">
@@ -8,24 +17,15 @@ export function Header() {
         <span>NIGHT WATCH / SIGNAL INTELLIGENCE</span>
       </Link>
       <nav className="nav">
-        <Link href="/">
-          <span>01</span>Overview
-        </Link>
-        <Link href="/targets">
-          <span>02</span>Targets
-        </Link>
-        <Link href="/desk">
-          <span>03</span>Morning desk
-        </Link>
-        <Link href="/stats">
-          <span>04</span>Learning
-        </Link>
-        <Link href="/settings">
-          <span>05</span>Workspace
-        </Link>
+        {items.map((item, index) => (
+          <Link key={item.href} href={item.href}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            {item.label}
+          </Link>
+        ))}
         <form action="/api/auth/logout" method="post">
           <button className="nav-logout" type="submit">
-            <span>06</span>Lock
+            <span>{String(items.length + 1).padStart(2, "0")}</span>Lock
           </button>
         </form>
       </nav>
