@@ -77,8 +77,10 @@ async function mapPerson(account: Account, signal: ScoutSignal) {
   return data;
 }
 
-async function processAccount(account: Account, runId: string, counter: { cards: number; signals: number }) {
+async function processAccount(account: Account, counter: { cards: number; signals: number }) {
   const db = admin();
+  const { error: attemptError } = await db.from("accounts").update({ last_scouted_at: new Date().toISOString() }).eq("id", account.id);
+  if (attemptError) throw attemptError;
   const context = targetAccountByDomain.get(account.domain);
   const found = await scout({
     ...account,
@@ -140,9 +142,6 @@ async function processAccount(account: Account, runId: string, counter: { cards:
     if (inserted.error) throw inserted.error;
     counter.cards += 1;
   }
-
-  await db.from("accounts").update({ last_scouted_at: new Date().toISOString() }).eq("id", account.id);
-  await db.from("runs").update({ signals_new: counter.signals, cards_created: counter.cards }).eq("id", runId);
 }
 
 function targetPriority(account: Account) {
@@ -153,6 +152,15 @@ function targetPriority(account: Account) {
 export async function runNightly({ accountLimit = Number(process.env.NIGHTLY_ACCOUNT_LIMIT ?? 50) }: { accountLimit?: number } = {}) {
   const db = admin();
   const safeLimit = Math.max(1, Math.min(300, Math.floor(accountLimit)));
+  const staleCutoff = new Date(Date.now() - 10 * 60_000).toISOString();
+  await db
+    .from("runs")
+    .update({
+      finished_at: new Date().toISOString(),
+      errors: [{ message: "Execution window ended before the run completed. Completed company results were preserved." }],
+    })
+    .is("finished_at", null)
+    .lt("started_at", staleCutoff);
   const { count: realAccounts } = await db.from("accounts").select("*", { count: "exact", head: true }).not("domain", "like", "%.example");
   if ((realAccounts ?? 0) === 0) {
     await db.from("accounts").delete().like("domain", "%.example");
@@ -182,12 +190,31 @@ export async function runNightly({ accountLimit = Number(process.env.NIGHTLY_ACC
 
   const counter = { cards: 0, signals: 0 };
   const errors: unknown[] = [];
-  for (let index = 0; index < accounts.length; index += 5) {
-    await Promise.all(accounts.slice(index, index + 5).map((account) => processAccount(account, run.id, counter).catch((error) => errors.push({ account: account.domain, message: error instanceof Error ? error.message : String(error) }))));
+  let accountsProcessed = 0;
+  const researched: Array<{ name: string; domain: string }> = [];
+  for (const account of accounts) {
+    try {
+      await processAccount(account, counter);
+    } catch (error) {
+      errors.push({ account: account.domain, message: error instanceof Error ? error.message : String(error) });
+    } finally {
+      accountsProcessed += 1;
+      researched.push({ name: account.name, domain: account.domain });
+      await db.from("runs").update({
+        accounts_scouted: accountsProcessed,
+        signals_new: counter.signals,
+        cards_created: counter.cards,
+        errors,
+      }).eq("id", run.id);
+    }
   }
-  await recomputeAndSurface();
-  await db.from("runs").update({ finished_at: new Date().toISOString(), accounts_scouted: accounts.length, signals_new: counter.signals, cards_created: counter.cards, cost_usd: projected, errors }).eq("id", run.id);
-  return { ...counter, accounts: accounts.length, errors };
+  try {
+    await recomputeAndSurface();
+  } catch (error) {
+    errors.push({ stage: "surface", message: error instanceof Error ? error.message : String(error) });
+  }
+  await db.from("runs").update({ finished_at: new Date().toISOString(), accounts_scouted: accountsProcessed, signals_new: counter.signals, cards_created: counter.cards, cost_usd: projected, errors }).eq("id", run.id);
+  return { ...counter, accounts: accountsProcessed, errors, researched };
 }
 
 function normalizeStoredBreakdown(value: unknown): StoredBreakdown {

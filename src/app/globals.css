@@ -327,3 +327,12 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:10px;color:var(--ink-soft)}.
 .recent-scan-results article:last-child{border:0}.recent-scan-results article>span{font:700 8px/1 var(--mono);color:var(--muted)}.recent-scan-results article>div{display:grid;gap:4px}.recent-scan-results article strong{font-size:12px}.recent-scan-results article small{font-size:9px;color:var(--muted)}.recent-scan-results time{font:600 8px/1.4 var(--mono);color:var(--muted)}.recent-scan-results article>b{font:700 8px/1 var(--mono);text-align:right;color:#795d33}
 @media(max-width:980px){.desk{grid-template-columns:350px minmax(0,1fr)}.decision-grid{grid-template-columns:1fr}.source-preview{border-right:0;border-bottom:1px solid var(--line)}.unqualified-sources>div{grid-template-columns:1fr}}
 @media(max-width:760px){.desk{display:block}.queue{border-right:0;border-bottom:1px solid var(--line-strong)}.detail{padding:30px 20px 60px}.recent-scan-results article{grid-template-columns:28px 1fr}.recent-scan-results time,.recent-scan-results article>b{grid-column:2;text-align:left}.unqualified-sources>header,.recent-scan-results>header{align-items:flex-start;flex-direction:column}}
+
+/* A live research run should read like a progress console, not a frozen button. */
+.run-watch-control{min-width:360px}
+.run-watch-control .notice{margin:0;max-width:680px;background:#fff;border:1px solid var(--line-strong);border-left:3px solid #9a7846;padding:13px 15px;font-size:11px;line-height:1.5}
+.run-watch-progress{list-style:none;margin:0;padding:0;border:1px solid var(--line-strong);background:#fff;max-height:235px;overflow:auto}
+.run-watch-progress li{display:grid;grid-template-columns:30px 1fr;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:10px;line-height:1.35}
+.run-watch-progress li:last-child{border:0}
+.run-watch-progress span{font:700 8px/1.4 var(--mono);color:#95703d}
+@media(max-width:700px){.run-watch-control{min-width:0}}
