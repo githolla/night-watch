@@ -5,7 +5,7 @@ import { nightlyBatchSize } from "@/lib/run-config";
 
 export const maxDuration = 300;
 
-type Body = { runId?: string; accountIds?: string[]; limit?: number };
+type Body = { runId?: string; accountIds?: string[]; limit?: number; populate?: boolean };
 
 /**
  * Start a manual research run, or continue one. The first call creates the
@@ -21,7 +21,8 @@ export async function POST(request: Request) {
       source: "manual",
       runId: typeof body.runId === "string" ? body.runId : undefined,
       accountIds: accountIds?.length ? accountIds : undefined,
-      accountLimit: typeof body.limit === "number" ? body.limit : nightlyBatchSize(),
+      accountLimit: typeof body.limit === "number" ? body.limit : body.populate ? undefined : nightlyBatchSize(),
+      populate: body.populate === true,
     });
     return Response.json(result);
   } catch (error) {

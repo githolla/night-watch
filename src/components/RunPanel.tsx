@@ -34,6 +34,7 @@ export function RunPanel({
   showHistory = true,
   endpoint = "/api/nightly/run",
   kind = "research",
+  extraActions,
 }: {
   initialRun: RunSummary | null;
   batchSize: number;
@@ -45,6 +46,8 @@ export function RunPanel({
   endpoint?: string;
   /** Research reads the public web with a model; a sweep reads careers pages with no model. */
   kind?: "research" | "sweep";
+  /** Extra ways to start a run, such as an initial populate pass. */
+  extraActions?: Array<{ label: string; body: Record<string, unknown>; confirm?: string }>;
 }) {
   const router = useRouter();
   const [run, setRun] = useState<RunSummary | null>(initialRun);
@@ -52,6 +55,8 @@ export function RunPanel({
   const [error, setError] = useState<string | null>(null);
   const [clock, setClock] = useState(() => Date.now());
   const active = useRef(false);
+  /** Flags that must travel with every continuation call for the run in progress. */
+  const carried = useRef<Record<string, unknown>>({});
 
   const running = phase !== "idle";
   const runOpen = run?.status === "open";
@@ -90,10 +95,11 @@ export function RunPanel({
     setError(null);
     active.current = true;
     try {
+      carried.current = body.populate ? { populate: true } : {};
       let response = await post(body);
       setRun(response.run);
       while (active.current && response.run.status === "open" && !["cancelled", "already_closed", "busy"].includes(response.stopped)) {
-        response = await post({ runId: response.run.id });
+        response = await post({ runId: response.run.id, ...carried.current });
         setRun(response.run);
       }
     } catch (caught) {
@@ -156,6 +162,11 @@ export function RunPanel({
             Retry the {failedIds.length} that failed
           </button>
         )}
+        {!running && !runOpen && extraActions?.map((action) => (
+          <button key={action.label} className="btn" type="button" disabled={disabled} onClick={() => { if (!action.confirm || window.confirm(action.confirm)) void drive(action.body); }}>
+            {action.label}
+          </button>
+        ))}
         {!running && !runOpen && allIds.length > 0 && (
           <button className="btn" type="button" disabled={disabled} title="Ignores the research cooldown so the same companies are checked again under the current rules" onClick={() => drive({ accountIds: allIds })}>
             Research these {allIds.length} again

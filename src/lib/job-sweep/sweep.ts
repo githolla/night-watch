@@ -24,6 +24,8 @@ export type SweepOptions = {
   accountIds?: string[];
   timeBudgetMs?: number;
   concurrency?: number;
+  /** Initial populate: read every careers page now, cooldown or not. */
+  ignoreCooldown?: boolean;
   fetcher?: Fetcher;
   now?: () => number;
 };
@@ -175,8 +177,9 @@ async function selectAccounts(db: Db, options: SweepOptions, now: number) {
   }
   const limit = Math.max(1, Math.min(2000, Math.floor(options.accountLimit ?? sweepAccountLimit())));
   const cutoff = new Date(now - sweepCooldownMs()).toISOString();
-  const { data, error } = await db.from("accounts").select("id,name,domain").eq("status", "active").not("domain", "like", "%.example")
-    .or(`careers_checked_at.is.null,careers_checked_at.lt.${cutoff}`).order("careers_checked_at", { ascending: true, nullsFirst: true }).order("name").limit(limit + busy.size);
+  let query = db.from("accounts").select("id,name,domain").eq("status", "active").not("domain", "like", "%.example");
+  if (!options.ignoreCooldown) query = query.or(`careers_checked_at.is.null,careers_checked_at.lt.${cutoff}`);
+  const { data, error } = await query.order("careers_checked_at", { ascending: true, nullsFirst: true }).order("name").limit(limit + busy.size);
   if (error) throw error;
   return (data ?? []).filter((account) => !busy.has(account.id)).slice(0, limit);
 }

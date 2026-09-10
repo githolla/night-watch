@@ -1,7 +1,7 @@
 import { Desk, type DeskContext } from "@/components/Desk";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
-import { maxCostPerAccountUsd, nightlyBatchSize, sweepAccountLimit } from "@/lib/run-config";
+import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, sweepAccountLimit } from "@/lib/run-config";
 import { latestRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { admin } from "@/lib/supabase/admin";
@@ -120,6 +120,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     lastRun,
     lastSweep,
     sweepBatchSize: sweepAccountLimit(),
+    populate: populateConfig(),
     batchSize,
     projectedMaxCostUsd: Number((batchSize * maxCostPerAccountUsd()).toFixed(2)),
   };

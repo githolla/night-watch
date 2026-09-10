@@ -65,5 +65,18 @@ export function timeBudgetMs(kind: "scheduled" | "manual") {
     : integer("MANUAL_RUN_TIME_BUDGET_SECONDS", 90, 15, 290) * 1000;
 }
 
+/**
+ * Initial populate: one pass that sweeps the whole list and researches every
+ * hiring company with more searches and a larger budget than a nightly run.
+ * `POPULATE_MAX_SEARCHES`, `POPULATE_ACCOUNT_LIMIT`, `POPULATE_RUN_BUDGET_USD`.
+ */
+export function populateConfig() {
+  return {
+    maxSearches: integer("POPULATE_MAX_SEARCHES", 5, 1, 10),
+    accountLimit: integer("POPULATE_ACCOUNT_LIMIT", 300, 1, 2000),
+    budgetUsd: decimal("POPULATE_RUN_BUDGET_USD", 25, 0.01),
+  };
+}
+
 /** A run whose heartbeat is older than this is treated as interrupted. */
 export const STALE_HEARTBEAT_MS = 10 * 60_000;

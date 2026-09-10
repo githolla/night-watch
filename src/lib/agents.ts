@@ -156,10 +156,10 @@ export async function scout(account: {
   name: string; domain: string; vertical?: string | null; employee_range?: string | null;
   careers_url?: string | null; news_query?: string | null;
   researchContext?: { aiSignal: string; sourceUrl: string; ceo: string; buyerTitles: string[]; revenueBand: string; subSegment: string };
-}, recordUsage?: UsageRecorder): Promise<ScoutResult> {
+}, recordUsage?: UsageRecorder, options: { maxSearches?: number } = {}): Promise<ScoutResult> {
   const context = account.researchContext;
   const model = researchModel();
-  const maxSearches = Math.max(1, Math.min(5, Number(process.env.ANTHROPIC_MAX_SEARCHES_PER_COMPANY ?? 3)));
+  const maxSearches = Math.max(1, Math.min(10, Math.floor(options.maxSearches ?? Number(process.env.ANTHROPIC_MAX_SEARCHES_PER_COMPANY ?? 3))));
   const prompt = `Research ${account.name} (${account.domain}), a ${account.vertical ?? "target"} company with ${account.employee_range ?? "unknown"} employees.
 
 Nine-67 builds and runs AI and automation for operating teams so a company does not have to hire for that work. You are looking for one thing: public evidence that ${account.name} has work of that kind it needs done right now. The context below is background, not a source: do not spend a search on the starting URL unless it is a careers page or a post by someone at the company. Spend searches on the company's careers page, job boards, and posts by its managers. Prioritize the last 30 days; if nothing qualifies in 30 days, use the strongest qualifying development from the last 180 days.

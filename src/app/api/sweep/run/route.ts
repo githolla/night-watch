@@ -4,7 +4,7 @@ import { classifyResearchError } from "@/lib/research-errors";
 
 export const maxDuration = 300;
 
-type Body = { runId?: string; accountIds?: string[]; limit?: number };
+type Body = { runId?: string; accountIds?: string[]; limit?: number; all?: boolean };
 
 /** Manual careers sweep from the desk; the run panel continues it by runId until it closes. */
 export async function POST(request: Request) {
@@ -16,7 +16,8 @@ export async function POST(request: Request) {
       source: "sweep_manual",
       runId: typeof body.runId === "string" ? body.runId : undefined,
       accountIds: accountIds?.length ? accountIds : undefined,
-      accountLimit: typeof body.limit === "number" ? body.limit : undefined,
+      accountLimit: typeof body.limit === "number" ? body.limit : body.all ? 2000 : undefined,
+      ignoreCooldown: body.all === true,
     }));
   } catch (error) {
     const classified = classifyResearchError(error);

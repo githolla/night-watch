@@ -4,7 +4,7 @@ import { findPerson, scout, type ScoutSignal, writeAngle } from "./agents.ts";
 import { matchPerson } from "./apollo.ts";
 import { classifyResearchError, ResearchError, researchPreflight } from "./research-errors.ts";
 import { priorityBand, selectResearchBatch } from "./research-rotation.ts";
-import { maxCostPerAccountUsd, nightlyBatchSize, researchCooldownMs, runBudgetUsd, STALE_HEARTBEAT_MS, timeBudgetMs } from "./run-config.ts";
+import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, researchCooldownMs, runBudgetUsd, STALE_HEARTBEAT_MS, timeBudgetMs } from "./run-config.ts";
 import { countRows, loadRunSummary, type RunSummary } from "./run-status.ts";
 import { ARCHIVE_THRESHOLD, CARD_THRESHOLD, score, strength } from "./scoring.ts";
 import { admin } from "./supabase/admin.ts";
@@ -115,7 +115,7 @@ export type AccountOutcome = {
  * Research one company. Never stamps last_scouted_at itself; the caller does
  * that on success only, so a failed company stays eligible for retry.
  */
-export async function processAccount(account: Account): Promise<AccountOutcome> {
+export async function processAccount(account: Account, options: { maxSearches?: number } = {}): Promise<AccountOutcome> {
   const outcome: AccountOutcome = { signalsFound: 0, signalsKept: 0, signalsNew: 0, cardsCreated: 0, costUsd: 0, model: null };
   const recordCost = (costUsd: number) => { outcome.costUsd += costUsd; };
   const context = targetAccountByDomain.get(account.domain);
@@ -129,7 +129,7 @@ export async function processAccount(account: Account): Promise<AccountOutcome> 
       revenueBand: context.revenueBand,
       subSegment: context.subSegment,
     } : undefined,
-  }, recordCost);
+  }, recordCost, { maxSearches: options.maxSearches });
   outcome.signalsFound = found.found;
   outcome.signalsKept = found.kept;
   outcome.model = found.model;
@@ -295,6 +295,12 @@ export type RunNightlyOptions = {
   accountIds?: string[];
   /** Milliseconds this invocation may spend before returning with the run still open. */
   timeBudgetMs?: number;
+  /**
+   * Initial populate: ignore the research cooldown, take the populate batch
+   * size and budget, and give the model more searches per company. Passed on
+   * every continuation call, since it is not stored on the run.
+   */
+  populate?: boolean;
   now?: () => number;
 };
 
@@ -311,7 +317,8 @@ export type RunNightlyResult = {
 };
 
 async function createRun(db: Db, options: RunNightlyOptions, now: number) {
-  const limit = Math.max(1, Math.min(300, Math.floor(options.accountLimit ?? nightlyBatchSize())));
+  const populate = options.populate ? populateConfig() : null;
+  const limit = Math.max(1, Math.min(2000, Math.floor(options.accountLimit ?? populate?.accountLimit ?? nightlyBatchSize())));
   const accounts = await allActiveAccounts(db);
   const busy = await accountIdsInOpenRuns(db);
   let batch: Account[];
@@ -324,7 +331,7 @@ async function createRun(db: Db, options: RunNightlyOptions, now: number) {
     batch = selectResearchBatch(
       accounts.filter((account) => !busy.has(account.id)),
       // Companies with open target roles outrank everything: the sweep found the need, the model finds the person asking.
-      { limit, cooldownMs: researchCooldownMs(), now, bandOf: (account) => (hiring.has(account.id) ? 10 : 0) + priorityBand(targetAccountByDomain.get(account.domain)) },
+      { limit, cooldownMs: populate ? 0 : researchCooldownMs(), now, bandOf: (account) => (hiring.has(account.id) ? 10 : 0) + priorityBand(targetAccountByDomain.get(account.domain)) },
     );
   }
   const { data: run, error } = await db.from("runs").insert({
@@ -360,7 +367,8 @@ export async function runNightly(options: RunNightlyOptions): Promise<RunNightly
   const clock = options.now ?? Date.now;
   const started = clock();
   const budget = options.timeBudgetMs ?? timeBudgetMs(options.source);
-  const costBudget = runBudgetUsd();
+  const populate = options.populate ? populateConfig() : null;
+  const costBudget = populate?.budgetUsd ?? runBudgetUsd();
 
   await sweepStaleRuns(db, started);
   await ensureAccountsLoaded(db);
@@ -409,7 +417,7 @@ export async function runNightly(options: RunNightlyOptions): Promise<RunNightly
     let update: Record<string, unknown>;
     try {
       if (!account) throw new ResearchError("db_error", `Account ${next.domain} no longer exists.`);
-      const outcome = await processAccount(account as Account);
+      const outcome = await processAccount(account as Account, { maxSearches: populate?.maxSearches });
       invocationCost += outcome.costUsd;
       const { error: stampError } = await db.from("accounts").update({ last_scouted_at: new Date(clock()).toISOString() }).eq("id", account.id);
       if (stampError) throw stampError;
