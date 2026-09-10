@@ -27,26 +27,20 @@ export type EmptyDeskState = {
   targetTotal: number;
   activeAccounts: number;
   researchedAccounts: number;
-  suggestions: Array<{
-    name: string;
+  recentSignals: Array<{
+    company: string;
     domain: string;
-    aiSignal: string;
+    type: string;
+    summary: string;
     sourceUrl: string;
-    buyerTitles: string[];
-    revenueEstimateUsdM: number | null;
-    revenueBand: string;
-    employees: number | null;
-    vertical: string;
-    subSegment: string;
-    hqCity: string;
-    hqState: string;
-    ownership: string;
-    peSponsor: string;
-    ceo: string;
-    notes: string;
-    alsoIn: string;
-    lastResearchedAt: string | null;
+    observedAt: string;
+    authorName: string | null;
+    authorTitle: string | null;
+    sourceText: string;
+    publishedAt: string;
+    isPost: boolean;
   }>;
+  recentScans: Array<{name:string;domain:string;lastScoutedAt:string}>;
   lastRun: null | {
     status: string;
     startedAt: string;
@@ -77,6 +71,7 @@ export function Desk({
   const [outcome, setOutcome] = useState("positive");
   const card = cards.find((item) => item.id === selected) ?? cards[0];
   const hasResearch = (emptyState?.researchedAccounts ?? 0) > 0;
+  const hasSourceResults = (emptyState?.recentSignals.length ?? 0) > 0;
   const cardIndex = Math.max(0, cards.findIndex((item) => item.id === card?.id));
 
   async function patch(values: Record<string, unknown>) {
@@ -185,7 +180,8 @@ export function Desk({
             </div>
             <h3>{item.people.full_name}</h3>
             <small>{item.people.title} · {item.accounts.name}</small>
-            <p>{item.why_now}</p>
+            <div className="queue-source-snippet"><span>{item.signals.raw?.post ? "PUBLIC POST" : "PUBLIC SOURCE"} · {item.signals.observed_at ? new Date(`${item.signals.observed_at}T12:00:00`).toLocaleDateString() : "DATE UNAVAILABLE"}</span><strong>{item.signals.raw?.post?.author_name ?? item.people.full_name}</strong><p>{item.signals.raw?.post?.text ?? item.signals.summary}</p></div>
+            <div className="queue-message-snippet"><span>OUTREACH READY</span><p>{item.linkedin_note || item.email_body || item.why_now}</p></div>
             <div className="queue-reason">
               <span>{item.supporting_signals?.length ?? 1} EVIDENCE POINTS</span>
               <span>{item.channel.replaceAll("_", " ")}</span>
@@ -199,8 +195,8 @@ export function Desk({
         {!card ? (
           <div className="detail-inner empty-desk">
             <div className="eyebrow">Research status</div>
-            <h1>{hasResearch ? "No qualified cards yet. Start with the evidence already in your list." : "Your target list is ready for its first research pass."}</h1>
-            <p className="empty-desk-intro">{hasResearch ? "The completed scan found no dated signal strong enough for outreach. Night Watch will now prioritize targets with supplied AI clues and search up to 180 days for verifiable evidence." : "The Morning Desk only shows people whose source-backed signal passes the 60-point threshold. Start a priority scan to create real dossiers."}</p>
+            <h1>{hasSourceResults ? "Public sources found. No complete outreach dossier yet." : hasResearch ? "Research ran. It did not find an attributable post or strong public signal." : "Run the first person-first research scan."}</h1>
+            <p className="empty-desk-intro">{hasSourceResults ? "The sources below are real, but Night Watch could not yet verify both the right person and a useful message. Open the evidence or scan the next priority targets." : hasResearch ? "The companies below were checked, recently. Night Watch will now look first for a named buyer's public post, preserve the author and publication date, and only create LinkedIn and email copy when the source supports it." : "Night Watch looks for a named executive's post or another dated public source, identifies who made it, and drafts both LinkedIn and email outreach from that exact evidence."}</p>
             <div className="empty-desk-metrics">
               <div><span>SUPPLIED TARGETS</span><strong>{emptyState?.targetTotal.toLocaleString() ?? "—"}</strong><small>Companies in your CSV</small></div>
               <div><span>ACTIVE IN DATABASE</span><strong>{emptyState?.activeAccounts.toLocaleString() ?? "—"}</strong><small>{emptyState && emptyState.activeAccounts === emptyState.targetTotal ? "List is synchronized" : "Open Targets and sync the list"}</small></div>
@@ -213,29 +209,7 @@ export function Desk({
               <RunNightWatchButton disabled={!emptyState || emptyState.activeAccounts !== emptyState.targetTotal} />
             </div>
             {emptyState && emptyState.activeAccounts !== emptyState.targetTotal && <p className="empty-desk-note">Synchronize the complete target list before starting the first scan.</p>}
-            {emptyState?.suggestions.length ? <section className="target-leads">
-              <header><div><span className="eyebrow">Priority intelligence</span><h2>Open a company to inspect the complete targeting case.</h2></div><Link href="/targets">View all {emptyState.targetTotal.toLocaleString()} targets →</Link></header>
-              <div className="target-intel-grid">{emptyState.suggestions.map((target, index) => <details className="target-intel-card" key={target.domain}>
-                <summary>
-                  <div className="target-intel-top"><span>TARGET {String(index + 1).padStart(2, "0")}</span><span className={target.lastResearchedAt ? "researched" : "queued"}>{target.lastResearchedAt ? `RESEARCHED ${new Date(target.lastResearchedAt).toLocaleDateString()}` : "PRIORITY QUEUE"}</span></div>
-                  <div className="target-intel-title"><h3>{target.name}</h3><span>View intel <i>↘</i></span></div>
-                  <p className="target-intel-subtitle">{target.subSegment} · {target.hqCity}, {target.hqState}</p>
-                  <div className="target-intel-facts"><span>{target.revenueEstimateUsdM ? `$${target.revenueEstimateUsdM.toLocaleString()}M est.` : target.revenueBand}</span><span>{target.employees ? `${target.employees.toLocaleString()} employees` : "Employee count unreported"}</span><span>{target.ownership}</span></div>
-                  <div className="target-intel-signal"><span>WHY NIGHT WATCH FLAGGED IT</span><p>{target.aiSignal}</p></div>
-                  <div className="target-intel-buyers"><span>LIKELY BUYERS</span><p>{target.buyerTitles.slice(0, 4).join(" · ")}</p></div>
-                </summary>
-                <div className="target-intel-expanded">
-                  <dl>
-                    <div><dt>Industry</dt><dd>{target.vertical}</dd></div>
-                    <div><dt>Revenue band</dt><dd>{target.revenueBand}</dd></div>
-                    <div><dt>Chief executive</dt><dd>{target.ceo || "Not identified"}</dd></div>
-                    <div><dt>Ownership detail</dt><dd>{target.peSponsor || target.ownership}</dd></div>
-                  </dl>
-                  <div className="target-intel-brief"><span>RESEARCH BRIEF</span><p>{target.notes || "Validate the supplied operating signal against current public evidence before outreach."}</p>{target.alsoIn && <small>Also classified in: {target.alsoIn}</small>}</div>
-                  <div className="target-intel-actions"><a className="btn primary" href={target.sourceUrl} target="_blank" rel="noreferrer">Inspect source ↗</a><a className="btn" href={`https://${target.domain}`} target="_blank" rel="noreferrer">Company site ↗</a><Link className="btn" href={`/targets?q=${encodeURIComponent(target.name)}`}>Full target record →</Link></div>
-                </div>
-              </details>)}</div>
-            </section> : null}
+            {hasSourceResults ? <section className="unqualified-sources"><header><div><span className="eyebrow">Actual source feed</span><h2>Evidence found, awaiting a complete person-and-message match</h2></div><span>{emptyState!.recentSignals.length} SOURCES</span></header><div>{emptyState!.recentSignals.map((signal,index)=><a href={signal.sourceUrl} target="_blank" rel="noreferrer" key={`${signal.domain}-${signal.sourceUrl}`} className="unqualified-source-card"><div className="source-card-meta"><span>0{index+1} · {signal.isPost?"PUBLIC POST":signal.type.replaceAll("_"," ")}</span><time>{new Date(signal.publishedAt).toLocaleDateString()}</time></div><h3>{signal.company}</h3><div className="source-card-author"><strong>{signal.authorName??"Publisher not named"}</strong><span>{signal.authorTitle??signal.domain}</span></div><blockquote>{signal.sourceText}</blockquote><footer><span>Not messaged — person or priority still needs verification</span><b>Open actual source ↗</b></footer></a>)}</div></section> : emptyState?.recentScans.length ? <section className="recent-scan-results"><header><div><span className="eyebrow">Recent research attempts</span><h2>Checked, with no qualifying public source saved</h2></div><span>HONEST ZERO-RESULT LOG</span></header><div>{emptyState.recentScans.map((account,index)=><article key={account.domain}><span>0{index+1}</span><div><strong>{account.name}</strong><small>{account.domain}</small></div><time>{new Date(account.lastScoutedAt).toLocaleString()}</time><b>NO ATTRIBUTABLE POST</b></article>)}</div></section> : null}
           </div>
         ) : (
           <div className="detail-inner">
@@ -262,7 +236,7 @@ export function Desk({
             {notice && <p className="notice">{notice}</p>}
             <SignalInsight card={card} />
 
-            <div className="detail-section-head outreach-section-head">
+            <div className="detail-section-head outreach-section-head" id="outreach-message">
               <div><div className="eyebrow">04 / Outreach control</div><h2>Message and follow-through</h2></div>
               <span>{card.channel.replaceAll("_", " ")}</span>
             </div>
