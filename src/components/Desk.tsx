@@ -33,6 +33,19 @@ export type EmptyDeskState = {
     aiSignal: string;
     sourceUrl: string;
     buyerTitles: string[];
+    revenueEstimateUsdM: number | null;
+    revenueBand: string;
+    employees: number | null;
+    vertical: string;
+    subSegment: string;
+    hqCity: string;
+    hqState: string;
+    ownership: string;
+    peSponsor: string;
+    ceo: string;
+    notes: string;
+    alsoIn: string;
+    lastResearchedAt: string | null;
   }>;
   lastRun: null | {
     status: string;
@@ -201,12 +214,27 @@ export function Desk({
             </div>
             {emptyState && emptyState.activeAccounts !== emptyState.targetTotal && <p className="empty-desk-note">Synchronize the complete target list before starting the first scan.</p>}
             {emptyState?.suggestions.length ? <section className="target-leads">
-              <header><div><span className="eyebrow">Source-backed starting points</span><h2>Strong context already in your target file</h2></div><span>VERIFY BEFORE OUTREACH</span></header>
-              {emptyState.suggestions.map((target, index) => <article key={target.domain}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <div><strong>{target.name}</strong><small>{target.buyerTitles.slice(0, 3).join(" · ")}</small><p>{target.aiSignal}</p></div>
-                <div><a href={target.sourceUrl} target="_blank" rel="noreferrer">Open evidence ↗</a><a href={`https://${target.domain}`} target="_blank" rel="noreferrer">Company ↗</a></div>
-              </article>)}
+              <header><div><span className="eyebrow">Priority intelligence</span><h2>Open a company to inspect the complete targeting case.</h2></div><Link href="/targets">View all {emptyState.targetTotal.toLocaleString()} targets →</Link></header>
+              <div className="target-intel-grid">{emptyState.suggestions.map((target, index) => <details className="target-intel-card" key={target.domain}>
+                <summary>
+                  <div className="target-intel-top"><span>TARGET {String(index + 1).padStart(2, "0")}</span><span className={target.lastResearchedAt ? "researched" : "queued"}>{target.lastResearchedAt ? `RESEARCHED ${new Date(target.lastResearchedAt).toLocaleDateString()}` : "PRIORITY QUEUE"}</span></div>
+                  <div className="target-intel-title"><h3>{target.name}</h3><span>View intel <i>↘</i></span></div>
+                  <p className="target-intel-subtitle">{target.subSegment} · {target.hqCity}, {target.hqState}</p>
+                  <div className="target-intel-facts"><span>{target.revenueEstimateUsdM ? `$${target.revenueEstimateUsdM.toLocaleString()}M est.` : target.revenueBand}</span><span>{target.employees ? `${target.employees.toLocaleString()} employees` : "Employee count unreported"}</span><span>{target.ownership}</span></div>
+                  <div className="target-intel-signal"><span>WHY NIGHT WATCH FLAGGED IT</span><p>{target.aiSignal}</p></div>
+                  <div className="target-intel-buyers"><span>LIKELY BUYERS</span><p>{target.buyerTitles.slice(0, 4).join(" · ")}</p></div>
+                </summary>
+                <div className="target-intel-expanded">
+                  <dl>
+                    <div><dt>Industry</dt><dd>{target.vertical}</dd></div>
+                    <div><dt>Revenue band</dt><dd>{target.revenueBand}</dd></div>
+                    <div><dt>Chief executive</dt><dd>{target.ceo || "Not identified"}</dd></div>
+                    <div><dt>Ownership detail</dt><dd>{target.peSponsor || target.ownership}</dd></div>
+                  </dl>
+                  <div className="target-intel-brief"><span>RESEARCH BRIEF</span><p>{target.notes || "Validate the supplied operating signal against current public evidence before outreach."}</p>{target.alsoIn && <small>Also classified in: {target.alsoIn}</small>}</div>
+                  <div className="target-intel-actions"><a className="btn primary" href={target.sourceUrl} target="_blank" rel="noreferrer">Inspect source ↗</a><a className="btn" href={`https://${target.domain}`} target="_blank" rel="noreferrer">Company site ↗</a><Link className="btn" href={`/targets?q=${encodeURIComponent(target.name)}`}>Full target record →</Link></div>
+                </div>
+              </details>)}</div>
             </section> : null}
           </div>
         ) : (
