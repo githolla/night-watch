@@ -9,6 +9,7 @@ import { classifyResearchError, ResearchError, researchPreflight } from "../rese
 import { disqualifySignal, searchAiPosts, searchJobBoards } from "../agents.ts";
 import { searchPeopleByTitles } from "../apollo-search.ts";
 import { upsertPerson } from "../pipeline.ts";
+import { recomputeAccountIntel } from "../account-intel.ts";
 import { populateSweepConfig, sweepAccountLimit, sweepAiPosts, sweepBudgetUsd, sweepConcurrency, sweepContacts, sweepCooldownMs, sweepSearchFallback, timeBudgetMs } from "../run-config.ts";
 import { admin } from "../supabase/admin.ts";
 import { targetAccountByDomain } from "../target-accounts.ts";
@@ -439,6 +440,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
       const finishedAt = clock();
       await db.from("run_accounts").update({ ...update, finished_at: new Date(finishedAt).toISOString(), duration_ms: finishedAt - rowStart }).eq("id", next.id);
       processed += 1;
+      await recomputeAccountIntel(db, next.account_id, new Date(finishedAt)).catch((error) => console.warn(`[night-watch] intel refresh failed for ${next.domain}: ${error instanceof Error ? error.message : String(error)}`));
       await refreshRunAggregates(db, id, finishedAt);
     }
   };

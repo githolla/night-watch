@@ -5,7 +5,9 @@ import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, populateSweepCo
 import { latestRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { admin } from "@/lib/supabase/admin";
+import { fetchAll } from "@/lib/supabase/fetch-all";
 import { targetAccounts } from "@/lib/target-accounts";
+import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +25,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   const user = await requireUser();
   const db = admin();
   const today = new Date().toISOString().slice(0, 10);
+  const yesterday = daysAgoIso(1);
   const owner = user.email?.startsWith("jenna") ? "jenna" : "josh";
 
   // An unactioned card must never disappear because a scheduled job failed:
@@ -43,7 +46,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     { data: gmail },
     { count: activeAccounts },
     { count: researchedAccounts },
-    { data: signalAccountRows },
+    signalAccountRows,
     { count: openCards },
     { count: newToday },
     { count: awaitingReply },
@@ -52,13 +55,18 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     lastSweep,
     { count: careersChecked },
     { count: careersNone },
-    { data: hiringRows },
+    hiringRows,
+    { count: newRoles },
+    { count: closedRoles },
+    { count: newPosts },
+    { count: newPeople },
+    { count: changedCompanies },
   ] = await Promise.all([
     query,
     db.from("gmail_connections").select("id").eq("owner", owner).maybeSingle(),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example"),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example").not("last_scouted_at", "is", null),
-    db.from("signals").select("account_id").limit(5000),
+    fetchAll<{ account_id: string }>((from, to) => db.from("signals").select("account_id").range(from, to)),
     db.from("cards").select("id,signals!inner(raw)", { count: "exact", head: true }).not("signals.raw->>operating_need", "is", null).in("status", OPEN_STATUSES),
     db.from("cards").select("id,signals!inner(raw)", { count: "exact", head: true }).not("signals.raw->>operating_need", "is", null).in("status", OPEN_STATUSES).eq("surfaced_on", today),
     db.from("cards").select("*", { count: "exact", head: true }).eq("status", "sent"),
@@ -67,11 +75,16 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     latestRunSummary(db, SWEEP_SOURCES),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("careers_checked_at", "is", null),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("careers_status", "none"),
-    db.from("job_postings").select("account_id").eq("active", true).not("family", "is", null).limit(5000),
+    fetchAll<{ account_id: string }>((from, to) => db.from("job_postings").select("account_id").eq("active", true).not("family", "is", null).range(from, to)),
+    db.from("job_postings").select("*", { count: "exact", head: true }).eq("active", true).not("family", "is", null).gte("first_seen_at", yesterday),
+    db.from("job_postings").select("*", { count: "exact", head: true }).eq("active", false).not("family", "is", null).gte("updated_at", yesterday),
+    db.from("public_posts").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
+    db.from("people").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").gte("last_change_at", yesterday),
   ]);
   if (error) throw error;
-  const hiringCompanies = new Set((hiringRows ?? []).map((row) => row.account_id as string)).size;
-  const targetRolesOpen = hiringRows?.length ?? 0;
+  const hiringCompanies = new Set(hiringRows.map((row) => row.account_id as string)).size;
+  const targetRolesOpen = hiringRows.length;
 
   const recentSignals = (recentSignalRows ?? []).map((signal) => {
     const raw = (signal.raw ?? {}) as {
@@ -95,7 +108,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     };
   });
 
-  const signalAccounts = new Set((signalAccountRows ?? []).map((row) => row.account_id as string)).size;
+  const signalAccounts = new Set(signalAccountRows.map((row) => row.account_id as string)).size;
   const active = activeAccounts ?? 0;
   const researched = researchedAccounts ?? 0;
   const batchSize = nightlyBatchSize();
@@ -116,6 +129,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
       targetRolesOpen,
     },
     queue: { open: openCards ?? 0, newToday: newToday ?? 0, awaitingReply: awaitingReply ?? 0 },
+    changes: { companies: changedCompanies ?? 0, newRoles: newRoles ?? 0, closedRoles: closedRoles ?? 0, newPosts: newPosts ?? 0, newPeople: newPeople ?? 0 },
     recentSignals,
     lastRun,
     lastSweep,

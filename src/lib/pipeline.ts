@@ -7,7 +7,9 @@ import { priorityBand, selectResearchBatch } from "./research-rotation.ts";
 import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, researchCooldownMs, runBudgetUsd, STALE_HEARTBEAT_MS, timeBudgetMs } from "./run-config.ts";
 import { countRows, loadRunSummary, type RunSummary } from "./run-status.ts";
 import { ARCHIVE_THRESHOLD, CARD_THRESHOLD, score, strength } from "./scoring.ts";
+import { recomputeAccountIntel } from "./account-intel.ts";
 import { admin } from "./supabase/admin.ts";
+import { fetchAll } from "./supabase/fetch-all.ts";
 import { targetAccountByDomain, targetAccountRowBatches } from "./target-accounts.ts";
 import type { Account, Owner, PersonLevel } from "./types.ts";
 
@@ -200,6 +202,7 @@ export async function persistSignal(account: Account, item: ScoutSignal, outcome
   const inserted = await db.from("cards").insert({ signal_id: storedId, person_id: person.id, account_id: account.id, score: scored.score, score_breakdown: breakdown, assigned_to: assigned, ...draft }).select("id").single();
   if (inserted.error) throw inserted.error;
   outcome.cardsCreated += 1;
+  await recomputeAccountIntel(db, account.id).catch((error) => console.warn(`[night-watch] intel refresh failed for ${account.domain}: ${error instanceof Error ? error.message : String(error)}`));
   return { storedId, cardId: inserted.data.id as string, personId: person.id as string };
 }
 
@@ -336,12 +339,18 @@ async function createRun(db: Db, options: RunNightlyOptions, now: number) {
     const wanted = new Set(options.accountIds);
     batch = accounts.filter((account) => wanted.has(account.id) && !busy.has(account.id));
   } else {
-    const { data: hiringRows } = await db.from("job_postings").select("account_id").eq("active", true).not("family", "is", null).limit(5000);
-    const hiring = new Set((hiringRows ?? []).map((row) => row.account_id as string));
+    const hiringRows = await fetchAll((from, to) => db.from("job_postings").select("account_id").eq("active", true).not("family", "is", null).range(from, to));
+    const hiring = new Set(hiringRows.map((row) => row.account_id as string));
+    const changedSince = now - 48 * 3600_000;
     batch = selectResearchBatch(
       accounts.filter((account) => !busy.has(account.id)),
-      // Companies with open target roles outrank everything: the sweep found the need, the model finds the person asking.
-      { limit, cooldownMs: populate ? 0 : researchCooldownMs(), now, bandOf: (account) => (hiring.has(account.id) ? 10 : 0) + priorityBand(targetAccountByDomain.get(account.domain)) },
+      // After the baseline, research is the update pass: companies that changed in the last two days
+      // go first, then the hottest by intelligence score, then anyone hiring, then the file's own priority.
+      { limit, cooldownMs: populate ? 0 : researchCooldownMs(), now, bandOf: (account) =>
+        (account.last_change_at && Date.parse(account.last_change_at) >= changedSince ? 30 : 0)
+        + Math.round((account.intel_score ?? 0) / 10)
+        + (hiring.has(account.id) ? 10 : 0)
+        + priorityBand(targetAccountByDomain.get(account.domain)) },
     );
   }
   const { data: run, error } = await db.from("runs").insert({

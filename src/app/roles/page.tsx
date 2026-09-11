@@ -3,11 +3,13 @@ import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { FAMILY_LABEL, type JobFamily } from "@/lib/job-sweep/classify";
 import { admin } from "@/lib/supabase/admin";
+import { fetchAll } from "@/lib/supabase/fetch-all";
+import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-type Params = { family?: string; q?: string; page?: string; all?: string };
+type Params = { family?: string; q?: string; page?: string; all?: string; since?: string };
 
 /** Whole days since a YYYY-MM-DD date; kept out of the component so rendering stays pure. */
 function ageInDays(date: string) {
@@ -25,6 +27,8 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
   const query = params.q?.trim() ?? "";
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const showAll = params.all === "1";
+  const sinceDays = [1, 7, 30].includes(Number(params.since)) ? Number(params.since) : 0;
+  const sinceIso = sinceDays ? daysAgoIso(sinceDays) : null;
 
   let rows = db
     .from("job_postings")
@@ -34,11 +38,12 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
     .range((page - 1) * pageSize, page * pageSize - 1);
   rows = showAll ? rows : rows.not("family", "is", null);
   if (family) rows = rows.eq("family", family);
+  if (sinceIso) rows = rows.gte("first_seen_at", sinceIso);
   if (query) rows = rows.or(`title.ilike.%${query.replace(/[%,]/g, " ")}%,accounts.name.ilike.%${query.replace(/[%,]/g, " ")}%`);
 
-  const [{ data, count, error }, { data: familyRows }, { count: totalActive }] = await Promise.all([
+  const [{ data, count, error }, familyRows, { count: totalActive }] = await Promise.all([
     rows,
-    db.from("job_postings").select("family").eq("active", true).not("family", "is", null).limit(10000),
+    fetchAll((from, to) => db.from("job_postings").select("family").eq("active", true).not("family", "is", null).range(from, to)),
     db.from("job_postings").select("*", { count: "exact", head: true }).eq("active", true),
   ]);
   if (error) throw error;
@@ -53,6 +58,7 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
     if (merged.family) search.set("family", merged.family);
     if (merged.q) search.set("q", merged.q);
     if (merged.all) search.set("all", merged.all);
+    if (merged.since) search.set("since", merged.since);
     if (merged.page && merged.page !== "1") search.set("page", merged.page);
     const string = search.toString();
     return `/roles${string ? `?${string}` : ""}`;
@@ -77,8 +83,9 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
         {family && <input type="hidden" name="family" value={family} />}
         <label><span>Search</span><input name="q" defaultValue={query} placeholder="Title or company" /></label>
         <label><span>Show</span><select name="all" defaultValue={showAll ? "1" : ""}><option value="">Target families only</option><option value="1">Every posting read</option></select></label>
+        <label><span>New since</span><select name="since" defaultValue={sinceDays ? String(sinceDays) : ""}><option value="">Any time</option><option value="1">Yesterday</option><option value="7">This week</option><option value="30">This month</option></select></label>
         <button className="btn primary" type="submit">Apply</button>
-        {(query || family || showAll) && <Link href="/roles">Clear</Link>}
+        {(query || family || showAll || sinceDays) && <Link href="/roles">Clear</Link>}
       </form>
 
       <section className="target-results">

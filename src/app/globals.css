@@ -432,3 +432,11 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:12px;color:var(--ink-soft)}.
 .roles-table td a{text-decoration:none}
 .roles-table td a strong{text-decoration:underline;text-underline-offset:3px}
 .roles-source{font:700 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.changes-strip{display:grid;gap:6px;margin-top:14px;padding:12px 0 0;border-top:1px solid var(--line)}
+.changes-strip a{font-size:12px;line-height:1.5;text-decoration:none;color:var(--ink-soft)}
+.changes-strip a strong{font:600 13px/1 var(--mono);color:var(--ink);margin-right:4px}
+.changes-strip a:last-child{margin-top:4px;font:700 11px/1.4 var(--mono);letter-spacing:.04em;color:var(--accent)}
+.intel-cell{min-width:170px}
+.intel-score{font:500 22px/1 var(--mono);letter-spacing:-.04em;color:var(--muted)}
+.intel-score.is-warm{color:var(--attention)}
+.intel-score.is-hot{color:var(--ok)}

@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
+import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-type Params = { q?: string; page?: string };
+type Params = { q?: string; page?: string; since?: string };
 const pageSize = 60;
 
 /** Every public post the sweep found by someone at a target company about AI or automation in their own work. */
@@ -18,6 +19,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
   const query = params.q?.trim() ?? "";
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const safe = query.replace(/[%,]/g, " ");
+  const sinceDays = [1, 7, 30].includes(Number(params.since)) ? Number(params.since) : 0;
 
   let rows = db
     .from("public_posts")
@@ -26,11 +28,12 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
     .order("created_at", { ascending: false })
     .range((page - 1) * pageSize, page * pageSize - 1);
   if (query) rows = rows.or(`author_name.ilike.%${safe}%,excerpt.ilike.%${safe}%,topic.ilike.%${safe}%,accounts.name.ilike.%${safe}%`);
+  if (sinceDays) rows = rows.gte("created_at", daysAgoIso(sinceDays));
   const { data, count, error } = await rows;
   if (error) throw error;
   const total = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const href = (nextPage: number) => `/posts?${new URLSearchParams({ ...(query ? { q: query } : {}), ...(nextPage > 1 ? { page: String(nextPage) } : {}) }).toString()}`;
+  const href = (nextPage: number) => `/posts?${new URLSearchParams({ ...(query ? { q: query } : {}), ...(sinceDays ? { since: String(sinceDays) } : {}), ...(nextPage > 1 ? { page: String(nextPage) } : {}) }).toString()}`;
 
   return <div className="shell">
     <Header />
@@ -42,8 +45,9 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
 
       <form className="target-filters" action="/posts">
         <label><span>Search</span><input name="q" defaultValue={query} placeholder="Author, company, topic, or words in the post" /></label>
+        <label><span>Found since</span><select name="since" defaultValue={sinceDays ? String(sinceDays) : ""}><option value="">Any time</option><option value="1">Yesterday</option><option value="7">This week</option><option value="30">This month</option></select></label>
         <button className="btn primary" type="submit">Apply</button>
-        {query && <Link href="/posts">Clear</Link>}
+        {(query || sinceDays) && <Link href="/posts">Clear</Link>}
       </form>
 
       <section className="unqualified-sources posts-list">

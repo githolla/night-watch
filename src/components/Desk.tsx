@@ -44,6 +44,8 @@ export type DeskContext = {
     targetRolesOpen: number;
   };
   queue: { open: number; newToday: number; awaitingReply: number };
+  /** What the sweep found in the last 24 hours: the nightly update on top of the baseline. */
+  changes: { companies: number; newRoles: number; closedRoles: number; newPosts: number; newPeople: number };
   recentSignals: Array<{
     company: string;
     domain: string;
@@ -234,6 +236,16 @@ export function Desk({
             <Link href="/desk?new=today"><strong>{queue.newToday}</strong><span>NEW TODAY</span></Link>
             <Link href="/desk?status=sent"><strong>{queue.awaitingReply}</strong><span>AWAITING REPLY</span></Link>
           </div>
+          {context && (
+            <div className="changes-strip">
+              <span className="eyebrow">Since yesterday · {plural(context.changes.companies, "company", "companies")} changed</span>
+              <Link href="/roles?since=1"><strong>{context.changes.newRoles}</strong> new target roles</Link>
+              <Link href="/roles?since=1&all=1"><strong>{context.changes.closedRoles}</strong> roles closed</Link>
+              <Link href="/posts?since=1"><strong>{context.changes.newPosts}</strong> new AI posts</Link>
+              <Link href="/people?since=1"><strong>{context.changes.newPeople}</strong> new contacts</Link>
+              <Link href="/targets?research=changed">All companies that changed this week →</Link>
+            </div>
+          )}
         </div>
         {cards.map((item, index) => (
           <button key={item.id} className={`queue-card ${item.id === card?.id ? "active" : ""}`} onClick={() => choose(item.id)}>

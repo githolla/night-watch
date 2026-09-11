@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
+import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-type Params = { q?: string; level?: string; email?: string; page?: string };
+type Params = { q?: string; level?: string; email?: string; page?: string; since?: string };
 const pageSize = 100;
 
 const LEVEL_LABEL: Record<string, string> = { owner: "Decision owner", influencer: "Influencer", adjacent: "Adjacent", unknown: "Unknown" };
@@ -23,6 +24,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
   const email = params.email && params.email in EMAIL_LABEL ? params.email : "";
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const safe = query.replace(/[%,]/g, " ");
+  const sinceDays = [1, 7, 30].includes(Number(params.since)) ? Number(params.since) : 0;
 
   let rows = db
     .from("people")
@@ -34,6 +36,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
   if (level) rows = rows.eq("level", level);
   if (email) rows = rows.eq("email_status", email);
   if (query) rows = rows.or(`full_name.ilike.%${safe}%,title.ilike.%${safe}%,accounts.name.ilike.%${safe}%`);
+  if (sinceDays) rows = rows.gte("created_at", daysAgoIso(sinceDays));
 
   const [{ data, count, error }, { count: verified }, { count: withLinkedIn }] = await Promise.all([
     rows,
@@ -49,6 +52,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
     if (merged.q) search.set("q", merged.q);
     if (merged.level) search.set("level", merged.level);
     if (merged.email) search.set("email", merged.email);
+    if (merged.since) search.set("since", merged.since);
     if (merged.page && merged.page !== "1") search.set("page", merged.page);
     const string = search.toString();
     return `/people${string ? `?${string}` : ""}`;
@@ -66,8 +70,9 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
         <label><span>Search</span><input name="q" defaultValue={query} placeholder="Name, title, or company" /></label>
         <label><span>Level</span><select name="level" defaultValue={level}><option value="">Any level</option>{Object.entries(LEVEL_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span>Email</span><select name="email" defaultValue={email}><option value="">Any state</option>{Object.entries(EMAIL_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+        <label><span>Added since</span><select name="since" defaultValue={sinceDays ? String(sinceDays) : ""}><option value="">Any time</option><option value="1">Yesterday</option><option value="7">This week</option><option value="30">This month</option></select></label>
         <button className="btn primary" type="submit">Apply</button>
-        {(query || level || email) && <Link href="/people">Clear</Link>}
+        {(query || level || email || sinceDays) && <Link href="/people">Clear</Link>}
       </form>
 
       <section className="target-results">

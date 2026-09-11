@@ -3,13 +3,16 @@ import { Header } from "@/components/Header";
 import { TargetAccountsPanel } from "@/components/TargetAccountsPanel";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
+import { fetchAll } from "@/lib/supabase/fetch-all";
 import { targetAccounts } from "@/lib/target-accounts";
+import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-type Params = { q?: string; industry?: string; ownership?: string; research?: string; page?: string };
-const researchFilters: Record<string, string> = { never: "Never researched", researched: "Researched", quiet: "Checked, no signal", signal: "Signals found", hiring: "Hiring in target roles", nocareers: "Careers page not found" };
+type Params = { q?: string; industry?: string; ownership?: string; research?: string; sort?: string; page?: string };
+const researchFilters: Record<string, string> = { changed: "Changed this week", hiring: "Hiring in target roles", posts: "AI posts found", contacts: "Verified email on file", never: "Never researched", researched: "Researched", quiet: "Checked, no signal", signal: "Signals found", nocareers: "Careers page not found" };
+type LiveAccount = { domain: string; status: string; last_scouted_at: string | null; careers_status: string | null; intel_score: number | null; open_target_roles: number | null; ai_posts: number | null; contacts: number | null; verified_emails: number | null; last_change_at: string | null };
 const pageSize = 50;
 
 export default async function TargetsPage({ searchParams }: { searchParams: Promise<Params> }) {
@@ -22,14 +25,15 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
   const research = params.research && params.research in researchFilters ? params.research : "";
   const db = admin();
   // Research state lives in the database; the directory itself is the static target file.
-  const [{ data: liveAccounts }, { data: signalRows }, { data: hiringRows }] = await Promise.all([
-    db.from("accounts").select("domain,status,last_scouted_at,careers_status").not("domain", "like", "%.example").limit(5000),
-    research === "quiet" || research === "signal" ? db.from("signals").select("account_id,accounts(domain)").limit(5000) : Promise.resolve({ data: [] as Array<{ account_id: string; accounts: unknown }> }),
-    research === "hiring" ? db.from("job_postings").select("account_id,accounts(domain)").eq("active", true).not("family", "is", null).limit(5000) : Promise.resolve({ data: [] as Array<{ account_id: string; accounts: unknown }> }),
+  const [liveAccounts, signalRows] = await Promise.all([
+    fetchAll<LiveAccount>((from, to) => db.from("accounts").select("domain,status,last_scouted_at,careers_status,intel_score,open_target_roles,ai_posts,contacts,verified_emails,last_change_at").not("domain", "like", "%.example").range(from, to)),
+    research === "quiet" || research === "signal" ? fetchAll<{ account_id: string; accounts: unknown }>((from, to) => db.from("signals").select("account_id,accounts(domain)").range(from, to)) : Promise.resolve([] as Array<{ account_id: string; accounts: unknown }>),
   ]);
-  const hiringDomains = new Set((hiringRows ?? []).map((row) => (row.accounts as unknown as { domain: string } | null)?.domain).filter(Boolean));
-  const liveByDomain = new Map((liveAccounts ?? []).map((account) => [account.domain, account]));
-  const signalDomains = new Set((signalRows ?? []).map((row) => (row.accounts as unknown as { domain: string } | null)?.domain).filter(Boolean));
+  const liveByDomain = new Map(liveAccounts.map((account) => [account.domain, account]));
+  const signalDomains = new Set(signalRows.map((row) => (row.accounts as unknown as { domain: string } | null)?.domain).filter(Boolean));
+  const weekAgo = Date.parse(daysAgoIso(7));
+  const hasIntel = liveAccounts.some((account) => (account.intel_score ?? 0) > 0);
+  const sort = params.sort === "name" || (!hasIntel && !params.sort) ? "name" : "intel";
   const matchesResearch = (domain: string) => {
     if (!research) return true;
     const live = liveByDomain.get(domain);
@@ -37,7 +41,10 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
     if (research === "never") return !researched;
     if (research === "researched") return researched;
     if (research === "quiet") return researched && !signalDomains.has(domain);
-    if (research === "hiring") return hiringDomains.has(domain);
+    if (research === "hiring") return (live?.open_target_roles ?? 0) > 0;
+    if (research === "posts") return (live?.ai_posts ?? 0) > 0;
+    if (research === "contacts") return (live?.verified_emails ?? 0) > 0;
+    if (research === "changed") return Boolean(live?.last_change_at && Date.parse(live.last_change_at) >= weekAgo);
     if (research === "nocareers") return live?.careers_status === "none";
     return signalDomains.has(domain);
   };
@@ -47,10 +54,18 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
     (!ownership || account.ownership === ownership) &&
     matchesResearch(account.domain),
   );
+  if (sort === "intel") {
+    filtered.sort((left, right) => {
+      const a = liveByDomain.get(left.domain), b = liveByDomain.get(right.domain);
+      return (b?.intel_score ?? 0) - (a?.intel_score ?? 0)
+        || Date.parse(b?.last_change_at ?? "1970-01-01") - Date.parse(a?.last_change_at ?? "1970-01-01")
+        || left.name.localeCompare(right.name);
+    });
+  }
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const page = Math.min(totalPages, Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1));
   const visible = filtered.slice((page - 1) * pageSize, page * pageSize);
-  const activeCount = (liveAccounts ?? []).filter((account) => account.status === "active").length;
+  const activeCount = liveAccounts.filter((account) => account.status === "active").length;
   const industries = [...new Set(targetAccounts.map((account) => account.vertical))].sort();
   const ownerships = [...new Set(targetAccounts.map((account) => account.ownership))].sort();
 
@@ -69,18 +84,19 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
         <label><span>Industry</span><select name="industry" defaultValue={industry}><option value="">All industries</option>{industries.map((item) => <option key={item}>{item}</option>)}</select></label>
         <label><span>Ownership</span><select name="ownership" defaultValue={ownership}><option value="">All ownership</option>{ownerships.map((item) => <option key={item}>{item}</option>)}</select></label>
         <label><span>Research</span><select name="research" defaultValue={research}><option value="">Any state</option>{Object.entries(researchFilters).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+        <label><span>Sort</span><select name="sort" defaultValue={sort}><option value="intel">Intelligence score</option><option value="name">Name</option></select></label>
         <button className="btn primary" type="submit">Apply filters</button>
-        {(query || industry || ownership || research) && <Link href="/targets">Clear</Link>}
+        {(query || industry || ownership || research || params.sort) && <Link href="/targets">Clear</Link>}
       </form>
 
       <section className="target-results">
         <header><div><span className="eyebrow">Company directory{research ? ` · ${researchFilters[research]}` : ""}</span><h2>{filtered.length.toLocaleString()} companies</h2></div><span>PAGE {page} / {totalPages}</span></header>
-        <div className="target-table-wrap"><table className="target-directory-table"><thead><tr><th>Company</th><th>Profile</th><th>Revenue</th><th>Likely buyers</th><th>Research status</th></tr></thead><tbody>{visible.map((account) => {
+        <div className="target-table-wrap"><table className="target-directory-table"><thead><tr><th>Company</th><th>Profile</th><th>Intelligence</th><th>Likely buyers</th><th>Research status</th></tr></thead><tbody>{visible.map((account) => {
           const live = liveByDomain.get(account.domain);
           return <tr key={account.domain}>
             <td><strong>{account.name}</strong><a href={`https://${account.domain}`} target="_blank" rel="noreferrer">{account.domain} ↗</a><small>{account.hqCity}, {account.hqState}</small></td>
             <td><span>{account.vertical}</span><small>{account.subSegment}</small><em>{account.ownership}{account.peSponsor ? ` · ${account.peSponsor}` : ""}</em></td>
-            <td><strong>{account.revenueEstimateUsdM ? `$${account.revenueEstimateUsdM.toLocaleString()}M` : account.revenueBand}</strong><small>{account.revenueEstimateUsdM ? account.revenueBand : "Estimated band"}</small></td>
+            <td className="intel-cell"><strong className={`intel-score ${(live?.intel_score ?? 0) >= 60 ? "is-hot" : (live?.intel_score ?? 0) >= 30 ? "is-warm" : ""}`}>{live?.intel_score ?? 0}</strong><small>{[live?.open_target_roles ? `${live.open_target_roles} roles` : null, live?.ai_posts ? `${live.ai_posts} posts` : null, live?.contacts ? `${live.contacts} contacts${live.verified_emails ? ` (${live.verified_emails} verified)` : ""}` : null].filter(Boolean).join(" · ") || "no data yet"}</small><small>{live?.last_change_at ? `changed ${new Date(live.last_change_at).toLocaleDateString()}` : account.revenueEstimateUsdM ? `$${account.revenueEstimateUsdM.toLocaleString()}M` : account.revenueBand}</small></td>
             <td><span>{account.targetTitles.slice(0, 3).join(" · ")}</span>{account.aiSignal && <small>{account.aiSignal}</small>}</td>
             <td><span className={`target-record-state ${live?.last_scouted_at ? "researched" : live ? "queued" : "unsynced"}`}>{live?.last_scouted_at ? "Researched" : live ? "Queued" : "Not synced"}</span><small>{live?.last_scouted_at ? new Date(live.last_scouted_at).toLocaleDateString() : live?.status ?? "—"}</small></td>
           </tr>;
@@ -101,6 +117,7 @@ function pageHref(params: Params, page: number) {
   if (params.industry) query.set("industry", params.industry);
   if (params.ownership) query.set("ownership", params.ownership);
   if (params.research) query.set("research", params.research);
+  if (params.sort) query.set("sort", params.sort);
   query.set("page", String(page));
   return `/targets?${query.toString()}`;
 }
