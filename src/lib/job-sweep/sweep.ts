@@ -7,11 +7,11 @@ import {
 } from "../pipeline.ts";
 import { classifyResearchError, ResearchError, researchPreflight } from "../research-errors.ts";
 import { disqualifySignal, searchAiPosts, searchJobBoards, searchPeopleWeb } from "../agents.ts";
-import { searchPeopleByTitles } from "../apollo-search.ts";
+import { searchLeadership, searchPeopleByTitles } from "../apollo-search.ts";
 import { upsertPerson } from "../pipeline.ts";
 import { recomputeAccountIntel } from "../account-intel.ts";
 import { scopeCondition, type RunScope } from "../run-scope.ts";
-import { populateSweepConfig, sweepAccountLimit, sweepAiPosts, sweepBudgetUsd, sweepConcurrency, sweepContacts, sweepCooldownMs, sweepSearchFallback, timeBudgetMs } from "../run-config.ts";
+import { searchQueries, populateSweepConfig, sweepAccountLimit, sweepAiPosts, sweepBudgetUsd, sweepConcurrency, sweepContacts, sweepCooldownMs, sweepSearchFallback, timeBudgetMs } from "../run-config.ts";
 import { requireSchema } from "../schema-check.ts";
 import { admin } from "../supabase/admin.ts";
 import { targetAccountByDomain } from "../target-accounts.ts";
@@ -19,6 +19,8 @@ import type { Account } from "../types.ts";
 import { CAREERS_PATHS, careersLinkFromHomepage, detectAts, fetchPostings, fetchText, postingsFromHtml, type AtsRef, type Fetcher, type Posting } from "./ats.ts";
 import { classifyTitle, FAMILY_LABEL, operatingNeedFor, RETIRED_FAMILIES, type JobFamily } from "./classify.ts";
 import { scrapeTeamPeople } from "./team-page.ts";
+import { aboutAi, discoverLinkedIn } from "../linkedin-discovery.ts";
+import { searchProvider } from "../web-search.ts";
 import { fillEmailsFromPattern } from "../email-fill.ts";
 import { jsonLdPostings, sitemapPostings } from "./discover.ts";
 
@@ -380,8 +382,44 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           const signal = await hiringSignal(account as Account, result, rows ?? [], new Date(rowStart));
           if (signal) await persistSignal(account as Account, signal, outcome, recordCost);
         }
-        // Anyone at the company posting publicly about AI in their own work.
+        // LinkedIn, from public search results by URL pattern: profiles by the titles that matter, posts and
+        // articles that mention the company, and posts by people already on file. No model, no LinkedIn automation.
         let postsFound = 0;
+        let linkedinNote: string | null = null;
+        const linkedin: { people: Array<{ name: string; title: string; url: string }>; posts: Array<{ author: string; excerpt: string; url: string; kind: string; date: string | null }> } = { people: [], posts: [] };
+        if (searchProvider()) {
+          try {
+            const context = targetAccountByDomain.get(account.domain);
+            const { data: known } = await db.from("people").select("full_name").eq("account_id", account.id).limit(12);
+            const found = await discoverLinkedIn(account.name, [...new Set([...(context?.targetTitles ?? account.target_titles ?? []), ...result.targetPostings.flatMap((posting) => BUYER_TITLES[posting.family] ?? [])])].slice(0, 24), (known ?? []).map((row) => row.full_name as string), undefined, extensive ? searchQueries() : Math.min(12, searchQueries()));
+            linkedin.people = found.people;
+            linkedin.posts = found.posts;
+            for (const post of found.posts) {
+              const { error } = await db.from("public_posts").upsert({
+                account_id: account.id, author_name: post.author, author_title: "", url: post.url, platform: post.platform, topic: aboutAi(post.excerpt) ? "AI or automation" : "",
+                excerpt: post.excerpt, posted_at: post.date, found_by: `search:${found.provider}`, raw: post,
+              }, { onConflict: "account_id,url" });
+              if (error) throw error;
+              postsFound += 1;
+              if (aboutAi(post.excerpt) && post.author !== "Unknown") {
+                const signal: ScoutSignal = {
+                  type: "exec_post", evidence_kind: "ai_post",
+                  summary: `${post.author} posted on LinkedIn about AI or automation.`,
+                  source_url: post.url, observed_at: post.date ?? sweepStart.slice(0, 10),
+                  operating_need: `${post.author} at ${account.name} is talking publicly about AI and automation in their work; Nine-67 could build or run that work with them.`,
+                  people: [{ name: post.author, title: "", role_in_signal: "posted" }],
+                  post: { text: post.excerpt, author_name: post.author, author_title: "", published_at: post.date, reactions: null, comments: null, reposts: null, hashtags: [], is_excerpt: true },
+                  confidence: 0.6,
+                };
+                if (!disqualifySignal(signal)) await persistSignal(account as Account, signal, outcome, recordCost).catch(() => undefined);
+              }
+            }
+            linkedinNote = `LinkedIn search: ${found.people.length} profiles, ${found.posts.length} posts`;
+          } catch (error) {
+            linkedinNote = `LinkedIn search failed: ${error instanceof Error ? error.message : String(error)}`;
+          }
+        }
+        // Anyone at the company posting publicly about AI in their own work.
         const postsDue = !account.ai_posts_checked_at || Date.parse(account.ai_posts_checked_at) < rowStart - posts.cooldownMs;
         if (posts.enabled && postsDue) {
           try {
@@ -439,9 +477,11 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           const problems: string[] = [];
           try {
             candidates.push(...(await searchPeopleByTitles(account.domain, wantedTitles, contacts.perCompany)).map((person) => ({ ...person, source: "apollo" })));
+            candidates.push(...(await searchLeadership(account.domain, extensive ? 25 : 10)).map((person) => ({ ...person, source: "apollo" })));
           } catch (error) {
             problems.push(`Apollo: ${error instanceof Error ? error.message : String(error)}`);
           }
+          candidates.push(...linkedin.people.map((person) => ({ name: person.name, title: person.title, linkedin_url: person.url, source: "linkedin_search" })));
           try {
             const team = await scrapeTeamPeople(account.domain, fetcher);
             candidates.push(...team.people.map((person) => ({ name: person.name, title: person.title, linkedin_url: person.linkedin_url, source: "team_page" })));
@@ -461,7 +501,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           }
           if (context?.ceo) candidates.push({ name: context.ceo, title: "CEO", linkedin_url: null, source: "file" });
           const seen = new Set<string>();
-          const cap = extensive ? Math.max(contacts.perCompany, 25) : contacts.perCompany;
+          const cap = extensive ? Math.max(contacts.perCompany, 40) : contacts.perCompany;
           for (const candidate of candidates) {
             const key = candidate.name.toLowerCase().replace(/[^a-z]/g, "");
             if (!key || seen.has(key) || seen.size >= cap) continue;
@@ -490,6 +530,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           postsFound ? `${postsFound} AI post${postsFound === 1 ? "" : "s"}` : null,
           contactsFound ? `${contactsFound} contact${contactsFound === 1 ? "" : "s"}${emailsBuilt ? ` (${emailsBuilt} addresses built)` : ""}` : null,
           contactsNote,
+          linkedinNote,
         ].filter(Boolean);
         update = {
           status: result.targetPostings.length || postsFound ? "ok" : "no_signal",

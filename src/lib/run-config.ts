@@ -59,31 +59,36 @@ export function sweepAiPosts() {
 /**
  * Contact enrichment inside the sweep. `SWEEP_CONTACTS`: "hiring" (default)
  * enriches companies with open target roles or AI posts, "all" every company,
- * "off" none. `SWEEP_CONTACTS_COOLDOWN_DAYS` (30), `SWEEP_CONTACTS_PER_COMPANY` (6).
+ * "off" none. `SWEEP_CONTACTS_COOLDOWN_DAYS` (30), `SWEEP_CONTACTS_PER_COMPANY` (12).
  */
 export function sweepContacts() {
   const mode = (process.env.SWEEP_CONTACTS ?? "hiring").toLowerCase();
   return {
     mode: (mode === "all" || mode === "off" ? mode : "hiring") as "hiring" | "all" | "off",
     cooldownMs: integer("SWEEP_CONTACTS_COOLDOWN_DAYS", 30, 1, 365) * 24 * 3600_000,
-    perCompany: integer("SWEEP_CONTACTS_PER_COMPANY", 6, 1, 15),
+    perCompany: integer("SWEEP_CONTACTS_PER_COMPANY", 12, 1, 40),
   };
 }
 
 /**
  * Deep analysis: four search agents and a synthesizer per company.
- * `ANALYSIS_MODEL` (the research model), `ANALYSIS_SEARCHES` per agent (6),
+ * `ANALYSIS_MODEL` (the research model), `ANALYSIS_SEARCHES` per agent (10),
  * `ANALYSIS_RUN_BUDGET_USD` per press (100), `ANALYSIS_COOLDOWN_DAYS` (14),
  * `ANALYSIS_CONCURRENCY` (2).
  */
 export function analysisConfig() {
   return {
     model: process.env.ANALYSIS_MODEL ?? process.env.ANTHROPIC_RESEARCH_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5",
-    searches: integer("ANALYSIS_SEARCHES", 6, 1, 10),
+    searches: integer("ANALYSIS_SEARCHES", 10, 1, 10),
     budgetUsd: decimal("ANALYSIS_RUN_BUDGET_USD", 100, 0.01),
     cooldownMs: integer("ANALYSIS_COOLDOWN_DAYS", 14, 1, 365) * 24 * 3600_000,
     concurrency: integer("ANALYSIS_CONCURRENCY", 2, 1, 6),
   };
+}
+
+/** Plain web-search queries per company on the extensive pass (LinkedIn profiles and posts by department and angle). `SWEEP_SEARCH_QUERIES` (40). */
+export function searchQueries() {
+  return integer("SWEEP_SEARCH_QUERIES", 40, 4, 80);
 }
 
 /** Measured spend at which one sweep invocation stops; the board search is the only cost. `SWEEP_RUN_BUDGET_USD`. */
@@ -148,7 +153,7 @@ export function populateConfig() {
 export function populateSweepConfig() {
   return {
     budgetUsd: decimal("POPULATE_SWEEP_BUDGET_USD", 200, 0.01),
-    searches: integer("POPULATE_SWEEP_SEARCHES", 5, 1, 10),
+    searches: integer("POPULATE_SWEEP_SEARCHES", 10, 1, 10),
     model: process.env.POPULATE_SWEEP_MODEL ?? process.env.ANTHROPIC_RESEARCH_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5",
   };
 }

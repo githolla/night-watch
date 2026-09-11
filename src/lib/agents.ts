@@ -306,7 +306,7 @@ const peopleSearchOutput = z.object({
  */
 export async function searchPeopleWeb(account: { name: string; domain: string }, wantedTitles: string[], recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string } = {}) {
   const model = options.model ?? searchModel();
-  const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 3));
+  const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 6));
   const titles = wantedTitles.slice(0, 12).join(", ") || "executives and operations, technology, data and finance leaders";
   const response = await completeTurn(
     { model, max_tokens: 6_000, tools: [webSearchTool(maxSearches)] },
