@@ -752,3 +752,43 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:12px;color:var(--ink-soft)}.
 .account-crumbs{margin-bottom:12px}
 .account-history summary{padding:12px 22px}
 .coverage-note{font-size:13px}
+
+/* Home: a slim hero, the company to contact first, then everyone in order. */
+.targets-page>.targets-head.has-hero.hero-slim{min-height:0;grid-template-columns:1fr;margin-bottom:16px}
+.hero-slim>div:first-child{padding:22px 40px 22px max(40px,calc(50vw - 740px));gap:6px}
+.hero-slim .eyebrow{letter-spacing:.12em}
+.hero-slim .scan-control{margin-top:6px;max-width:none}
+.next-up{display:grid;grid-template-columns:110px minmax(0,1fr) 90px;align-items:stretch;border:1px solid var(--ink);background:#fff;text-decoration:none;color:inherit;margin:0 auto 14px;max-width:1480px}
+.next-up:hover{background:var(--soft)}
+.next-up-rank{display:grid;align-content:center;justify-items:center;gap:8px;padding:22px 12px;background:var(--ink);color:#fff}
+.next-up-rank span{font:700 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;text-align:center;opacity:.8}
+.next-up-rank strong{font:500 40px/1 var(--mono);letter-spacing:-.05em}
+.next-up-body{padding:22px 28px;display:grid;gap:12px;min-width:0}
+.next-up-title{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline}
+.next-up-title h1{font-size:32px;line-height:1;letter-spacing:-.04em;margin:0}
+.next-up-meta{font-size:13px;color:var(--ink-soft)}
+.next-up-why{margin:0;padding-left:18px;display:grid;gap:5px;font-size:15px;line-height:1.5}
+.next-up-foot{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13px;color:var(--ink-soft)}
+.next-up-foot b{color:var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-right:4px}
+.next-up-go{display:grid;place-items:center;border-left:1px solid var(--line);font:700 13px/1 var(--mono);letter-spacing:.06em;color:var(--accent)}
+.rank-list{list-style:none;margin:0;padding:0}
+.rank-list li{display:grid;grid-template-columns:44px minmax(220px,.9fr) minmax(0,1.6fr) minmax(150px,.55fr) 32px;gap:16px;align-items:center;padding:14px 22px;border-bottom:1px solid var(--line);cursor:pointer}
+.rank-list li:last-child{border-bottom:0}
+.rank-list li:hover{background:var(--soft)}
+.rank-list li.is-closed{opacity:.55}
+.rank-num{font:500 16px/1 var(--mono);color:var(--muted)}
+.rank-company{display:grid;gap:4px;min-width:0}
+.rank-company strong{font-size:15px}
+.rank-company small{font-size:12px;color:var(--ink-soft)}
+.rank-company .outreach-chips{margin-top:2px}
+.rank-why{display:grid;gap:4px;min-width:0}
+.rank-why p{margin:0;font-size:14px;line-height:1.45;color:var(--ink)}
+.rank-why small{font-size:12px;color:var(--ink-soft)}
+.rank-status{display:grid;gap:4px}
+.rank-status span{font-size:13px}
+.rank-status small{font-size:12px;color:var(--muted)}
+.rank-go{font:700 16px/1 var(--mono);color:var(--muted);text-align:right}
+.rank-list li:hover .rank-go{color:var(--accent)}
+.tier-chip.tier-draft{background:var(--ink);color:#fff;border-color:var(--ink)}
+.rank-list .outreach-empty{grid-template-columns:1fr;cursor:default}
+@media(max-width:1000px){.rank-list li{grid-template-columns:36px minmax(0,1fr) 28px;gap:10px 12px}.rank-why{grid-column:2}.rank-status{grid-column:2}.rank-go{grid-column:3;grid-row:1}.next-up{grid-template-columns:80px minmax(0,1fr)}.next-up-go{display:none}.next-up-title h1{font-size:26px}.hero-slim>div:first-child{padding:18px 22px}}

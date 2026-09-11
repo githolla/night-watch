@@ -48,7 +48,7 @@ export function slackUserAllowed(userId: string) {
   return allowlist.length === 0 || allowlist.includes(userId);
 }
 
-export function ownerForSlackUser(_userId: string, _fallback: "josh" = "josh"): "josh" {
+export function ownerForSlackUser(_userId: string): "josh" {
   // Josh works the list alone; every Slack click is his.
   return "josh";
 }

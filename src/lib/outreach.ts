@@ -66,4 +66,18 @@ export type OutreachRow = {
   stageUpdatedAt: string | null;
   /** True when someone put the company on the list by hand, or kept it there against the cut. */
   manual: boolean;
+  /** Why to contact them now, in one line, from what is on file. */
+  why: string;
+  /** The reasons behind the line, one each. */
+  reasons: string[];
+  /** Who to write to first, and how reachable they are. */
+  who: string;
+  whoTitle: string;
+  whoReach: "verified" | "email" | "linkedin" | "none";
+  /** The best open draft, if one is written. */
+  draftCardId: string | null;
+  draftScore: number;
+  draftWhy: string;
+  /** Contact-first ranking; higher first. */
+  rank: number;
 };
