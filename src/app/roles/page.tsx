@@ -8,6 +8,11 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 type Params = { family?: string; q?: string; page?: string; all?: string };
+
+/** Whole days since a YYYY-MM-DD date; kept out of the component so rendering stays pure. */
+function ageInDays(date: string) {
+  return Math.max(0, Math.floor((Date.now() - Date.parse(date)) / 86_400_000));
+}
 const pageSize = 100;
 
 /** Every open role the sweep has found in a target family, across the whole list. */
@@ -41,7 +46,6 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
   for (const row of familyRows ?? []) byFamily.set(row.family as string, (byFamily.get(row.family as string) ?? 0) + 1);
   const total = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const now = Date.now();
 
   const href = (next: Partial<Params>) => {
     const search = new URLSearchParams();
@@ -83,7 +87,7 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
           {(data ?? []).map((row) => {
             const account = row.accounts as unknown as { name: string; domain: string };
             const posted = row.posted_at ?? (row.first_seen_at as string).slice(0, 10);
-            const days = Math.max(0, Math.floor((now - Date.parse(posted)) / 86_400_000));
+            const days = ageInDays(posted);
             return <tr key={row.id}>
               <td><strong>{account.name}</strong><small>{account.domain}</small></td>
               <td><a href={row.url} target="_blank" rel="noreferrer"><strong>{row.title}</strong></a>{row.department && <small>{row.department}</small>}{row.salary_max && <small>up to ${Number(row.salary_max).toLocaleString()}</small>}</td>
