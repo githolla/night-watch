@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
+import { FilterForm } from "@/components/FilterForm";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { FAMILY_LABEL, type JobFamily } from "@/lib/job-sweep/classify";
@@ -85,14 +86,14 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
         ))}
       </nav>
 
-      <form className="target-filters" action="/roles">
+      <FilterForm action="/roles">
         {family && <input type="hidden" name="family" value={family} />}
         <label><span>Search</span><input name="q" defaultValue={query} placeholder="Title or company" /></label>
         <label><span>Show</span><select name="all" defaultValue={showAll ? "1" : ""}><option value="">Target families only</option><option value="1">Every posting read</option></select></label>
         <label><span>New since</span><select name="since" defaultValue={sinceDays ? String(sinceDays) : ""}><option value="">Any time</option><option value="1">Yesterday</option><option value="7">This week</option><option value="30">This month</option></select></label>
         <button className="btn primary" type="submit">Apply</button>
         {(query || family || showAll || sinceDays) && <Link href="/roles">Clear</Link>}
-      </form>
+      </FilterForm>
 
       <section className="target-results">
         <header><div><span className="eyebrow">Postings{family ? ` · ${FAMILY_LABEL[family]}` : ""}</span><h2>{total.toLocaleString()} roles</h2></div><span>PAGE {page} / {totalPages}</span></header>

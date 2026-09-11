@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
+import { FilterForm } from "@/components/FilterForm";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -49,12 +50,12 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
         <div className="targets-head-count"><span>POSTS FOUND</span><strong>{total.toLocaleString()}</strong><small>Verbatim excerpts, linked to the original</small></div>
       </section>
 
-      <form className="target-filters" action="/posts">
+      <FilterForm action="/posts">
         <label><span>Search</span><input name="q" defaultValue={query} placeholder="Author, company, topic, or words in the post" /></label>
         <label><span>Found since</span><select name="since" defaultValue={sinceDays ? String(sinceDays) : ""}><option value="">Any time</option><option value="1">Yesterday</option><option value="7">This week</option><option value="30">This month</option></select></label>
         <button className="btn primary" type="submit">Apply</button>
         {(query || sinceDays) && <Link href="/posts">Clear</Link>}
-      </form>
+      </FilterForm>
 
       <section className="unqualified-sources posts-list">
         <header><div><span className="eyebrow">Newest first</span><h2>{total.toLocaleString()} posts</h2></div><span>PAGE {page} / {totalPages}</span></header>

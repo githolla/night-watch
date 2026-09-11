@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
+import { FilterForm } from "@/components/FilterForm";
 import { Header } from "@/components/Header";
 import { TargetAccountsPanel } from "@/components/TargetAccountsPanel";
 import { requireUser } from "@/lib/auth";
@@ -87,16 +88,16 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
 
       <TargetAccountsPanel initialCount={activeCount} targetTotal={activeTargetAccounts.length} />
 
-      <form className="target-filters" action="/targets">
+      <FilterForm action="/targets">
         <label><span>Search</span><input name="q" defaultValue={params.q} placeholder="Company, domain, city, or AI signal" /></label>
         <label><span>Industry</span><select name="industry" defaultValue={industry}><option value="">All industries</option>{industries.map((item) => <option key={item}>{item}</option>)}</select></label>
         <label><span>Ownership</span><select name="ownership" defaultValue={ownership}><option value="">All ownership</option>{ownerships.map((item) => <option key={item}>{item}</option>)}</select></label>
         <label><span>Tier</span><select name="tier" defaultValue={tier}><option value="">All tiers</option><option value="A">Reach-out list (A1 + A2)</option><option value="hold">Held (B + C)</option>{Object.entries(TIER_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span>Research</span><select name="research" defaultValue={research}><option value="">Any state</option>{Object.entries(researchFilters).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span>Sort</span><select name="sort" defaultValue={sort}><option value="intel">Intelligence score</option><option value="name">Name</option></select></label>
-        <button className="btn primary" type="submit">Apply filters</button>
+        <button className="btn primary" type="submit">Search</button>
         {(query || industry || ownership || research || tier || params.sort) && <Link href="/targets">Clear</Link>}
-      </form>
+      </FilterForm>
 
       <section className="target-results">
         <header><div><span className="eyebrow">Company directory{research ? ` · ${researchFilters[research]}` : ""}</span><h2>{filtered.length.toLocaleString()} companies</h2></div><span>PAGE {page} / {totalPages}</span></header>

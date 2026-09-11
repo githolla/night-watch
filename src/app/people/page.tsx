@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
+import { FilterForm } from "@/components/FilterForm";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -72,14 +73,14 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
         <div className="targets-head-count"><span>PEOPLE</span><strong>{total.toLocaleString()}</strong><small>{(verified ?? 0).toLocaleString()} verified emails · {(withLinkedIn ?? 0).toLocaleString()} LinkedIn profiles</small></div>
       </section>
 
-      <form className="target-filters" action="/people">
+      <FilterForm action="/people">
         <label><span>Search</span><input name="q" defaultValue={query} placeholder="Name, title, or company" /></label>
         <label><span>Level</span><select name="level" defaultValue={level}><option value="">Any level</option>{Object.entries(LEVEL_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span>Email</span><select name="email" defaultValue={email}><option value="">Any state</option>{Object.entries(EMAIL_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span>Added since</span><select name="since" defaultValue={sinceDays ? String(sinceDays) : ""}><option value="">Any time</option><option value="1">Yesterday</option><option value="7">This week</option><option value="30">This month</option></select></label>
         <button className="btn primary" type="submit">Apply</button>
         {(query || level || email || sinceDays) && <Link href="/people">Clear</Link>}
-      </form>
+      </FilterForm>
 
       <section className="target-results">
         <header><div><span className="eyebrow">Contacts</span><h2>{total.toLocaleString()} people</h2></div><span>PAGE {page} / {totalPages}</span></header>
