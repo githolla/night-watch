@@ -669,3 +669,16 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:12px;color:var(--ink-soft)}.
 .reach-company{font-size:15px}
 .reach-list li{padding:18px 24px}
 @media(max-width:900px){.account-nav a{flex:1;text-align:center;padding:12px 8px}}
+
+/* The hero bleeds to the top and both edges; only the words stay on the page grid. */
+.targets-page{overflow-x:clip;padding-top:0}
+.targets-page>.targets-head.has-hero{max-width:none;width:100vw;margin:0 0 24px calc(50% - 50vw);border-left:0;border-right:0;border-top:0;min-height:400px;grid-template-columns:minmax(0,1fr) minmax(300px,clamp(300px,24vw,420px));background-position:center 40%}
+.targets-head.has-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(252,251,248,.96) 0%,rgba(252,251,248,.9) 34%,rgba(252,251,248,.55) 58%,rgba(252,251,248,.12) 100%)}
+.targets-head.has-hero>div:first-child{background:none;padding:54px 40px 54px max(40px,calc(50vw - 740px));display:flex;flex-direction:column;justify-content:center}
+.targets-head.has-hero>.targets-head-count{background:rgba(240,235,227,.82);border-left:1px solid rgba(40,36,31,.18);padding:28px max(28px,calc(50vw - 740px)) 28px 28px}
+.targets-head.has-hero h1{max-width:820px}
+.account-crumbs{margin:0 0 18px}
+.account-page .targets-head.has-hero{min-height:360px}
+.targets-page>.notice,.targets-page>.target-results,.targets-page>.reach-results,.targets-page>.account-nav,.targets-page>.account-bar,.targets-page>.account-sections,.targets-page>.run-kind,.targets-page>.coverage-note,.targets-page>.target-control,.targets-page>.target-filters,.targets-page>.migration-sql,.targets-page>.migration-detail,.targets-page>.reach-held{max-width:1480px}
+@media(max-width:1100px){.targets-page>.targets-head.has-hero{grid-template-columns:minmax(0,1fr) 260px;min-height:340px}}
+@media(max-width:700px){.targets-page>.targets-head.has-hero{grid-template-columns:1fr;min-height:0}.targets-head.has-hero::before{background:linear-gradient(180deg,rgba(252,251,248,.95) 0%,rgba(252,251,248,.85) 100%)}.targets-head.has-hero>div:first-child{padding:36px 22px}.targets-head.has-hero>.targets-head-count{padding:22px;border-left:0;border-top:1px solid rgba(40,36,31,.18)}}

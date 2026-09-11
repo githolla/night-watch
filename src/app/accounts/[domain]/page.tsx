@@ -75,10 +75,9 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
   return <div className="shell">
     <Header />
     <main className="targets-page account-page">
-      <p className="account-crumbs"><Link href="/outreach">← Reach-out list</Link></p>
-
       <section className="targets-head has-hero account-head">
         <div>
+          <p className="account-crumbs"><Link href="/outreach">← Reach-out list</Link></p>
           <span className="eyebrow">{tier ? `Tier ${tier}` : "Not on the file"}{!outreach ? " · held, not contacted" : ""}{live?.outreach_manual === true ? " · added by hand" : ""}</span>
           <h1>{name}</h1>
           <p className="account-line">
