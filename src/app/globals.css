@@ -988,3 +988,65 @@ div.stat{cursor:default}
 .run-log-wrap{border-radius:var(--radius)}
 @media(max-width:1100px){.stat-row{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:800px){.stat-row{grid-template-columns:1fr 1fr}.page-head{flex-direction:column}.next-card{grid-template-columns:minmax(0,1fr)}.next-card-tag{writing-mode:horizontal-tb;transform:none}.toolbar input{width:100%}.data-table{min-width:820px}}
+
+/* Company record: header card, main column (why, people, draft, evidence), side column (manage, activity, facts). */
+.crumbs{display:flex;gap:8px;font-size:13px;color:var(--muted);margin:0 auto 12px}
+.crumbs a{text-decoration:none;color:var(--ink-soft);font-weight:500}
+.record-head{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:center;padding:20px 24px}
+.record-id{display:flex;gap:14px;align-items:center;flex:1 1 380px;min-width:0}
+.avatar-lg{width:48px;height:48px;border-radius:12px;font-size:15px;flex-basis:48px}
+.record-head h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:0 0 4px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.record-meta{margin:0;display:flex;flex-wrap:wrap;gap:4px 0;font-size:13px;color:var(--ink-soft)}
+.record-meta>*+*::before{content:"·";margin:0 8px;color:var(--muted)}
+.record-meta a{text-decoration:none;font-weight:600;color:var(--ink)}
+.record-stats{display:flex;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.record-stats>div{display:grid;gap:2px;padding:10px 16px;border-right:1px solid var(--line);min-width:88px}
+.record-stats>div:last-child{border-right:0}
+.record-stats span{font-size:11.5px;color:var(--muted);font-weight:500}
+.record-stats strong{font-size:20px;font-weight:700;letter-spacing:-.02em}
+.record-actions{display:flex;gap:8px;align-items:center}
+.record-actions .scan-stop{border-radius:8px;text-transform:none;letter-spacing:0;font-size:13px;font-weight:600;padding:0 14px;height:36px}
+.record-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start;margin:0 auto}
+.record-main,.record-side{display:grid;gap:14px;min-width:0}
+.record-main .card,.record-side .card{margin:0}
+.card.pad{padding:18px 22px}
+.card-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 12px;flex-wrap:wrap}
+.card-title.pad-x{padding:16px 20px 0;margin-bottom:10px}
+.card-title h2{font-size:15px;font-weight:700;margin:0;letter-spacing:-.01em}
+.muted{color:var(--muted);font-size:12.5px}
+.why-list{margin:0;padding-left:18px;display:grid;gap:8px;font-size:14.5px;line-height:1.55}
+.next-step{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--accent-soft);display:grid;gap:4px}
+.next-step span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.next-step p{margin:0;font-size:14.5px;font-weight:600;line-height:1.5}
+.card-empty{margin:0;padding:16px 20px;font-size:13.5px;color:var(--muted)}
+.card.pad .card-empty{padding:0}
+.data-table tr.is-first td{background:#fbf8f1}
+.data-table .cell-company strong em{margin-left:8px;vertical-align:middle;font-size:11px;padding:2px 8px 2px 6px}
+.cell-more{padding:8px 16px!important}
+.cell-more summary{cursor:pointer;font-size:12.5px;color:var(--ink-soft)}
+.cell-more ul{margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.7}
+.draft{display:grid;gap:10px}
+.draft+.draft{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+.draft-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.draft-head strong{display:block;font-size:14px}
+.draft-head small{display:block;font-size:12px;color:var(--muted)}
+.draft-head>div:last-child{display:flex;gap:8px}
+.draft-head .btn{width:auto;height:36px;padding:0 14px;font-size:13px;border-radius:8px}
+.draft-subject{margin:0;font-weight:600}
+.facts{margin:0;display:grid;gap:10px}
+.facts div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;font-size:13px;line-height:1.45}
+.facts dt{color:var(--muted);font-weight:500}
+.facts dd{margin:0}
+.record-side .outreach-form{gap:10px}
+.record-side .outreach-form-grid{grid-template-columns:1fr}
+.record-side .outreach-form textarea{min-height:72px}
+.record-side .outreach-form-actions .btn{height:34px;padding:0 12px;font-size:12.5px;border-radius:8px;width:auto}
+.record-side .data-table th:nth-child(1),.record-side .data-table td:nth-child(1),.record-side .data-table th:nth-child(2),.record-side .data-table td:nth-child(2),.record-side .data-table th:nth-child(3),.record-side .data-table td:nth-child(3),.record-side .data-table th:nth-child(4),.record-side .data-table td:nth-child(4),.record-side .data-table th:nth-child(5),.record-side .data-table td:nth-child(5){display:none}
+.record-side .data-table tbody tr{cursor:default}
+.record-side .data-table td{padding:12px 20px 16px}
+.record-side .data-table th{display:none}
+.record-side .data-table{min-width:0}
+.account-page .targets-head{display:none}
+.account-nav,.account-bar,.brief{display:none}
+#evidence .click-list a,#evidence .click-static{padding:12px 20px}
+@media(max-width:1100px){.record-grid{grid-template-columns:1fr}.record-stats{overflow:auto}}

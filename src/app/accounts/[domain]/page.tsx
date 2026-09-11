@@ -5,9 +5,11 @@ import { MigrationRequired } from "@/components/MigrationRequired";
 import { CopyButton } from "@/components/CopyButton";
 import { OutreachForm } from "@/components/OutreachForm";
 import { RecheckButton } from "@/components/RecheckButton";
+import { EvidenceTabs } from "@/components/EvidenceTabs";
+import { CompanyRows } from "@/components/CompanyRows";
 import { requireUser } from "@/lib/auth";
 import { FAMILY_LABEL, type JobFamily } from "@/lib/job-sweep/classify";
-import { isOutreachStage, type OutreachStage } from "@/lib/outreach";
+import { isOutreachStage, STAGE_LABEL, type OutreachStage } from "@/lib/outreach";
 import { parseStoredAnalysis } from "@/lib/analysis";
 import { buildBrief } from "@/lib/prospect-brief";
 import { pendingMigrations } from "@/lib/schema-check";
@@ -29,12 +31,6 @@ const RUN_LABEL: Record<string, string> = { scheduled: "Nightly research", manua
 const STATUS_LABEL: Record<string, string> = { queued: "Queued", running: "Running", ok: "Found something", no_signal: "Nothing new", error: "Failed", cancelled: "Stopped" };
 const LEVEL_LABEL: Record<string, string> = { owner: "Decision owner", influencer: "Influencer", adjacent: "Adjacent", unknown: "" };
 const EMAIL_LABEL: Record<string, string> = { verified: "verified", catch_all: "catch-all", unverified: "unverified", none: "" };
-const SOURCE_LABEL: Record<string, string> = { apollo: "Apollo", team_page: "company site", web_search: "web search", file: "target file", signal: "a signal", sweep: "lookup", analysis: "agent swarm" };
-function emailNote(person: Person) {
-  if (!person.email) return "no email on file";
-  const status = person.email_source === "pattern" ? "built from the company's address format, unverified" : person.email_source === "web" ? "seen on a public page, unverified" : EMAIL_LABEL[person.email_status] || "";
-  return status ? `${person.email} (${status})` : person.email;
-}
 const OPEN = ["new", "approved", "edited", "snoozed"];
 /** Title fragments that mark the person who owns the budget for a kind of hire. */
 const BUYER_HINTS: Record<string, string[]> = {
@@ -109,158 +105,130 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
       + ([...buyerTitles].some((title) => person.title.toLowerCase().includes(title)) ? 2 : 0);
     return { person, cards: own, posts: theirPosts, touches: theirTouches, score };
   }).sort((a, b) => b.score - a.score).slice(0, 5);
-  const found = [targetPostings.length ? `${targetPostings.length} open ${targetPostings.length === 1 ? "role" : "roles"} Nine-67 could do` : null, people.length ? `${people.length} ${people.length === 1 ? "person" : "people"}` : null, posts.length ? `${posts.length} AI ${posts.length === 1 ? "post" : "posts"}` : null].filter(Boolean).join(" · ");
+
+  const lastSent = touches.filter((touch) => touch.sent_at).sort((a, b) => Date.parse(b.sent_at!) - Date.parse(a.sent_at!))[0];
+  const lastReply = touches.filter((touch) => touch.reply_at).sort((a, b) => Date.parse(b.reply_at!) - Date.parse(a.reply_at!))[0];
+  const stageTone = ["replied", "meeting", "won"].includes(stage) ? "ok" : stage === "contacted" ? "accent" : ["lost", "hold", "untouched"].includes(stage) ? "muted" : "info";
+  const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("");
+  const whyLines = analysis?.brief.whyNow ? [analysis.brief.whyNow, analysis.brief.angle ? `The angle: ${analysis.brief.angle}` : ""].filter(Boolean) : brief.why;
+  const listRow = live ? [{ id: live.id, domain, name, industry: target?.vertical ?? "", subSegment: target?.subSegment ?? "", hq: [target?.hqCity, target?.hqState].filter(Boolean).join(", "), tier: tier ?? "", outreach, manual: live.outreach_manual !== null && live.outreach_manual !== undefined, intel: score, roles: targetPostings.length, posts: posts.length, contacts: people.length, verified: people.filter((person) => person.email_status === "verified").length, stage, owner: live.outreach_owner ?? "", lastChange: live.last_change_at ?? null, scanned: Boolean(live.careers_status || live.last_scouted_at), drafts: openCards.length, dropReason: target?.dropReason ?? "" }] : [];
 
   return <div className="shell">
     <Header />
     <main className="targets-page account-page">
-      <section className="targets-head has-hero account-head">
-        <div>
-          <p className="account-crumbs"><Link href="/outreach">← Reach-out list</Link></p>
-          <span className="eyebrow">{tier ? `Tier ${tier}` : "Not on the file"}{!outreach ? " · held, not contacted" : ""}{live?.outreach_manual === true ? " · added by hand" : ""}</span>
-          <h1>{name}</h1>
-          <p className="account-line">
-            <a href={`https://${domain}`} target="_blank" rel="noreferrer">{domain} ↗</a>
-            {target && <>{target.vertical && <span>{target.vertical}{target.subSegment ? `, ${target.subSegment}` : ""}</span>}{target.hqCity && <span>{target.hqCity}, {target.hqState}</span>}<span>{target.ownership}{target.peSponsor ? ` (${target.peSponsor})` : ""}</span><span>${target.revenueBand}{target.revenueEstimateUsdM ? ` · ≈ $${target.revenueEstimateUsdM.toLocaleString()}M` : ""}</span>{target.employees && <span>{target.employees.toLocaleString()} employees</span>}{target.ceo && <span>CEO {target.ceo}</span>}</>}
-          </p>
-          {analysis && (analysis.company.phone || analysis.company.address || analysis.company.general_email) && <p className="account-line account-line-muted">{analysis.company.phone && <span>Main line {analysis.company.phone}</span>}{analysis.company.address && <span>{analysis.company.address}</span>}{analysis.company.general_email && <span>{analysis.company.general_email}</span>}</p>}
-          {target && (target.aiSignal || target.targetTitles.length > 0) && <p className="account-line account-line-muted">{target.aiSignal && <span>AI on file: {target.aiSignal}</span>}{target.targetTitles.length > 0 && <span>Likely buyers: {target.targetTitles.join(", ")}</span>}</p>}
+      <p className="crumbs"><Link href="/outreach">Reach-out list</Link><span>/</span><span>{name}</span></p>
+
+      <header className="card record-head">
+        <div className="record-id">
+          <span className="avatar avatar-lg">{initials}</span>
+          <div>
+            <h1>{name} <span className={`pill pill-${outreach ? "ink" : "muted"}`}><i />{tier ? `Tier ${tier}` : "Not on file"}{!outreach ? " · held" : ""}</span></h1>
+            <p className="record-meta">
+              <a href={`https://${domain}`} target="_blank" rel="noreferrer">{domain} ↗</a>
+              {target?.vertical && <span>{target.vertical}{target.subSegment ? `, ${target.subSegment}` : ""}</span>}
+              {target?.hqCity && <span>{target.hqCity}, {target.hqState}</span>}
+              {target?.ownership && <span>{target.ownership}{target.peSponsor ? ` (${target.peSponsor})` : ""}</span>}
+              {target?.revenueBand && <span>${target.revenueBand}{target.revenueEstimateUsdM ? ` · ≈ $${target.revenueEstimateUsdM.toLocaleString()}M` : ""}</span>}
+              {target?.employees && <span>{target.employees.toLocaleString()} employees</span>}
+            </p>
+          </div>
         </div>
-        <div className="targets-head-count">
-          <span>FOUND SO FAR</span>
-          <strong className={`intel-score ${score >= 60 ? "is-hot" : score >= 30 ? "is-warm" : ""}`}>{score}</strong>
-          <small>{found || (live?.careers_status || live?.last_scouted_at ? "Nothing yet" : "Not scanned yet")}</small>
-          {live?.last_change_at && <small>Last change {date(live.last_change_at)}</small>}
+        <div className="record-stats">
+          <div><span>Score</span><strong className={`score ${score >= 60 ? "is-hot" : score >= 30 ? "is-warm" : ""}`}>{score}</strong></div>
+          <div><span>Target roles</span><strong>{targetPostings.length}</strong></div>
+          <div><span>People</span><strong>{people.length}</strong></div>
+          <div><span>AI posts</span><strong>{posts.length}</strong></div>
+          <div><span>Drafts</span><strong>{openCards.length}</strong></div>
         </div>
-      </section>
+        {live && <div className="record-actions"><RecheckButton accountId={live.id} name={name} /></div>}
+      </header>
 
       {!live && <p className="notice error">This company is on the file but not in the database yet. Open the <Link href="/outreach">reach-out list</Link> once and it will be written.</p>}
 
-      {live && <nav className="account-nav" aria-label="On this page">
-        <a href="#brief">Brief</a>
-        {analysis && <a href="#happening">What is happening</a>}
-        <a href="#who">Who to reach out to{openCards.length ? ` · ${openCards.length} ${openCards.length === 1 ? "draft" : "drafts"}` : ""}</a>
-        <a href="#hiring">Roles · {targetPostings.length}</a>
-        <a href="#people">People · {people.length}</a>
-        <a href="#posts">AI posts · {posts.length}</a>
-        <a href="#research">Research · {signals.length}</a>
-        <a href="#history">History</a>
-      </nav>}
+      {live && <div className="record-grid">
+        <div className="record-main">
+          <section className="card pad">
+            <div className="card-title"><h2>Why now</h2><span className="pill pill-muted"><i />{analysis?.analyzedAt ? `Agent swarm · ${date(analysis.analyzedAt)}${analysis.brief.fit ? ` · fit ${analysis.brief.fit}/100` : ""}` : "From what is on file"}</span></div>
+            <ul className="why-list">{whyLines.map((line, index) => <li key={index}>{line}</li>)}</ul>
+            {analysis?.brief.opener && <blockquote className="brief-opener">{analysis.brief.opener}</blockquote>}
+            <div className="next-step"><span>Next step</span><p>{analysis?.brief.nextStep || brief.next}</p></div>
+            {analysis && analysis.brief.objections.length > 0 && <details className="brief-objections"><summary>Likely pushback and the answers</summary><ul>{analysis.brief.objections.map((line, index) => <li key={index}>{line}</li>)}</ul></details>}
+          </section>
 
-      {live && <section className="account-bar">
-        <OutreachForm compact accountId={live.id} tier={tier} outreach={outreach} manual={live.outreach_manual ?? null} stage={stage} owner={live.outreach_owner ?? ""} notes={live.outreach_notes ?? ""} owners={owners} />
-        <RecheckButton accountId={live.id} name={name} />
-      </section>}
+          <section className="card" id="who">
+            <div className="card-title pad-x"><h2>People</h2><span className="muted">{people.filter((person) => person.email).length} with an address · {people.filter((person) => person.email_status === "verified").length} verified{live.email_pattern ? ` · format ${live.email_pattern}@${domain}` : ""}</span></div>
+            {people.length ? <div className="table-wrap"><table className="data-table"><thead><tr><th>Person</th><th>Reach</th><th>Last touch</th><th>Draft</th></tr></thead><tbody>
+              {ranked.map(({ person, cards: own, posts: theirPosts, touches: theirTouches }, index) => {
+                const draft = own.filter((card) => OPEN.includes(card.status)).sort((a, b) => b.score - a.score)[0] ?? own[0];
+                const lastTouch = theirTouches.filter((touch) => touch.sent_at).sort((a, b) => Date.parse(b.sent_at!) - Date.parse(a.sent_at!))[0];
+                return <tr key={person.id} className={index === 0 ? "is-first" : ""}>
+                  <td><div className="cell-company"><span className="avatar">{person.full_name.split(/\s+/).slice(0, 2).map((word) => word[0]?.toUpperCase()).join("")}</span><div><strong>{person.full_name}{index === 0 && <em className="pill pill-accent"><i />Write first</em>}</strong><small>{person.title}{LEVEL_LABEL[person.level] ? ` · ${LEVEL_LABEL[person.level]}` : ""}{theirPosts.length ? ` · posted about ${theirPosts[0].topic || "AI"}` : ""}</small></div></div></td>
+                  <td className="cell-who">{person.email ? <a href={`mailto:${person.email}`} onClick={(event) => event.stopPropagation()}>{person.email}</a> : <small>no email</small>}<small>{person.email ? (person.email_source === "pattern" ? "built, unverified" : person.email_source === "web" ? "public page, unverified" : EMAIL_LABEL[person.email_status]) : ""}{person.phone ? ` · ${person.phone}` : ""}{person.linkedin_url ? <> · <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a></> : ""}</small></td>
+                  <td className="cell-time">{lastTouch ? `${lastTouch.channel.replace(/_/g, " ")} · ${date(lastTouch.sent_at)}${lastTouch.reply_at ? ` · replied` : ""}` : "never"}</td>
+                  <td>{draft ? <Link href={`/desk?card=${draft.id}&account=${domain}`} className="btn-secondary">Open draft · {draft.score}</Link> : <small className="muted">none yet</small>}</td>
+                </tr>;
+              })}
+              {people.length > ranked.length && <tr><td colSpan={4} className="cell-more"><details><summary>{people.length - ranked.length} more on file</summary><ul>{people.filter((person) => !ranked.some((item) => item.person.id === person.id)).map((person) => <li key={person.id}><strong>{person.full_name}</strong> · {person.title}{person.email ? ` · ${person.email}` : ""}{person.linkedin_url ? <> · <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a></> : ""}</li>)}</ul></details></td></tr>}
+            </tbody></table></div>
+            : <p className="card-empty">{outreach ? "Nobody found yet. The next scan looks on the company site, LinkedIn results and press." : "Held companies are not enriched."}{!process.env.APOLLO_API_KEY ? " Verified addresses need APOLLO_API_KEY in the deploy." : ""}</p>}
+          </section>
 
-      {live && <section className="brief" id="brief">
-        <div className="brief-col">
-          <span className="eyebrow">For the manager · why this prospect{analysis?.analyzedAt ? ` · agent swarm ${date(analysis.analyzedAt)}${analysis.brief.fit ? ` · fit ${analysis.brief.fit}/100` : ""}` : " · from what is on file"}</span>
-          <h2>{analysis?.brief.whyNow ? (analysis.brief.fit >= 60 ? "Strong prospect" : analysis.brief.fit >= 35 ? "Worth a conversation" : "Weak prospect today") : brief.headline}</h2>
-          {analysis?.brief.whyNow ? <>
-            <p className="brief-text">{analysis.brief.whyNow}</p>
-            {analysis.brief.angle && <p className="brief-text"><b>The angle.</b> {analysis.brief.angle}</p>}
-            {analysis.brief.whoFirst && <p className="brief-text"><b>Write to {analysis.brief.whoFirst}{analysis.brief.whoFirstTitle ? `, ${analysis.brief.whoFirstTitle}` : ""}.</b> {analysis.brief.whoFirstWhy}</p>}
-            {analysis.brief.opener && <blockquote className="brief-opener">{analysis.brief.opener}</blockquote>}
-            {analysis.brief.objections.length > 0 && <details className="brief-objections"><summary>Likely pushback and the answers</summary><ul>{analysis.brief.objections.map((line, index) => <li key={index}>{line}</li>)}</ul></details>}
-            {analysis.brief.fitReason && <small className="brief-fit">{analysis.brief.fitReason}</small>}
-          </> : <ul>{brief.why.map((line, index) => <li key={index}>{line}</li>)}</ul>}
-        </div>
-        <div className="brief-col brief-standing">
-          <span className="eyebrow">Where it stands</span>
-          <ul>{brief.standing.map((line, index) => <li key={index}>{line}</li>)}</ul>
-          <span className="eyebrow">Going forward</span>
-          <p className="brief-next">{analysis?.brief.nextStep || brief.next}</p>
-        </div>
-      </section>}
-
-      {live && analysis && (analysis.overview || analysis.happening.length > 0 || analysis.hiring.read) && <section className="target-results account-section" id="happening">
-        <header><div><span className="eyebrow">What the agents found</span><h2>What is happening at {name}</h2></div>{analysis.tech.length > 0 && <span>Uses {analysis.tech.slice(0, 6).join(", ")}</span>}</header>
-        <div className="happening">
-          {analysis.overview && <p className="happening-overview">{analysis.overview}</p>}
-          {analysis.happening.length > 0 && <ul className="click-list compact">{analysis.happening.map((item, index) => <li key={index}>{item.source_url ? <a href={item.source_url} target="_blank" rel="noreferrer"><div><strong>{item.text}</strong>{item.date && <small>{item.date}</small>}</div><em>Source ↗</em></a> : <span className="click-static"><div><strong>{item.text}</strong>{item.date && <small>{item.date}</small>}</div></span>}</li>)}</ul>}
-          {analysis.painPoints.length > 0 && <div className="happening-block"><span className="eyebrow">Problems they have said out loud</span><ul className="click-list compact">{analysis.painPoints.map((item, index) => <li key={index}>{item.source_url ? <a href={item.source_url} target="_blank" rel="noreferrer"><div><strong>{item.text}</strong></div><em>Source ↗</em></a> : <span className="click-static"><div><strong>{item.text}</strong></div></span>}</li>)}</ul></div>}
-          {analysis.hiring.read && <div className="happening-block"><span className="eyebrow">What the hiring means{analysis.hiring.budgetEstimate ? ` · about ${analysis.hiring.budgetEstimate}` : ""}</span><p className="brief-text">{analysis.hiring.read}</p>{analysis.hiring.buildInstead.length > 0 && <ul className="happening-build">{analysis.hiring.buildInstead.map((line, index) => <li key={index}>{line}</li>)}</ul>}</div>}
-          {analysis.problems.length > 0 && <details className="account-more"><summary>{analysis.problems.length} things the agents could not do</summary><ul>{analysis.problems.map((line, index) => <li key={index}>{line}</li>)}</ul></details>}
-        </div>
-      </section>}
-
-      {live && <section className="target-results account-section" id="who">
-        <header><div><span className="eyebrow">Who to reach out to</span><h2>{ranked.length ? `${ranked.length} ${ranked.length === 1 ? "person" : "people"}, best first` : "Nobody on file yet"}</h2></div><a href="#people" className="outreach-open">Everyone on file ↓</a></header>
-        {ranked.length ? <ol className="who-list">{ranked.map(({ person, cards: own, posts: theirPosts, touches: theirTouches }) => {
-          const draft = own.filter((card) => OPEN.includes(card.status)).sort((a, b) => b.score - a.score)[0] ?? own[0];
-          const lastTouch = theirTouches.filter((touch) => touch.sent_at).sort((a, b) => Date.parse(b.sent_at!) - Date.parse(a.sent_at!))[0];
-          return <li key={person.id} className="who">
-            <div className="who-head">
-              <div><strong>{person.full_name}</strong><span>{person.title}</span>{LEVEL_LABEL[person.level] && <b className="tier-chip">{LEVEL_LABEL[person.level]}</b>}</div>
-              <div className="who-links">
-                {person.email && <a href={`mailto:${person.email}`}>{person.email}{person.email_source === "pattern" ? " · built, unverified" : person.email_status === "verified" ? " · verified" : " · unverified"}</a>}
-                {person.phone && <a href={`tel:${person.phone.replace(/[^+\d]/g, "")}`}>{person.phone}</a>}
-                {person.linkedin_url && <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a>}
-                {!person.email && !person.linkedin_url && !person.phone && <span>No address, number or profile yet</span>}
-              </div>
-              <small>{lastTouch ? `Last reach-out ${lastTouch.channel.replace(/_/g, " ")} ${date(lastTouch.sent_at)}${lastTouch.reply_at ? ` · replied ${lastTouch.reply_classification} ${date(lastTouch.reply_at)}` : " · no reply yet"}` : "Never contacted"}</small>
-            </div>
-            {theirPosts.length > 0 && <div className="who-posts"><span className="eyebrow">What they posted</span>{theirPosts.slice(0, 2).map((post) => <a key={post.id} href={post.url} target="_blank" rel="noreferrer"><p>“{post.excerpt}”</p><small>{[post.platform || host(post.url), date(post.posted_at ?? post.created_at), post.topic].filter(Boolean).join(" · ")} ↗</small></a>)}</div>}
-            {draft ? <div className="who-draft">
-              <div className="who-draft-head"><span className="eyebrow">The draft · score {draft.score} · {draft.status}</span><div><CopyButton text={draft.channel === "linkedin_first" || draft.channel === "linkedin_only" ? (draft.linkedin_note ?? draft.email_body ?? "") : `${draft.email_subject ?? ""}\n\n${draft.email_body ?? ""}`} label="Copy" /><Link href={`/desk?card=${draft.id}&account=${domain}`} className="btn primary">Open on the desk</Link></div></div>
-              <p className="who-why">{draft.why_now}</p>
-              {draft.email_subject && <p className="who-subject">Subject: {draft.email_subject}</p>}
+          {ranked.some(({ cards: own }) => own.some((card) => OPEN.includes(card.status))) && <section className="card pad" id="drafts">
+            <div className="card-title"><h2>The draft</h2></div>
+            {ranked.flatMap(({ person, cards: own }) => own.filter((card) => OPEN.includes(card.status)).slice(0, 1).map((draft) => <div key={draft.id} className="draft">
+              <div className="draft-head"><div><strong>To {person.full_name}</strong><small>{person.title} · score {draft.score} · {draft.status}</small></div><div><CopyButton text={draft.channel === "linkedin_first" || draft.channel === "linkedin_only" ? (draft.linkedin_note ?? draft.email_body ?? "") : `${draft.email_subject ?? ""}\n\n${draft.email_body ?? ""}`} label="Copy" /><Link href={`/desk?card=${draft.id}&account=${domain}`} className="btn-primary">Open on the desk</Link></div></div>
+              <p className="muted">{draft.why_now}</p>
+              {draft.email_subject && <p className="draft-subject">Subject: {draft.email_subject}</p>}
               {draft.email_body && <pre className="who-body">{draft.email_body}</pre>}
-              {draft.linkedin_note && <p className="who-note"><b>LinkedIn note:</b> {draft.linkedin_note}</p>}
-              {draft.linkedin_comment && <p className="who-note"><b>Comment on their post:</b> {draft.linkedin_comment}</p>}
-            </div> : <p className="who-nodraft">No draft for {person.full_name.split(" ")[0]} yet{outreach ? "; the next research pass writes one when a signal names work Nine-67 could do" : ""}.</p>}
-          </li>; })}</ol>
-        : <p className="account-empty">The next scan looks for people on the company site, LinkedIn results and press.</p>}
-      </section>}
+              {draft.linkedin_note && <p><b>LinkedIn note:</b> {draft.linkedin_note}</p>}
+            </div>))}
+          </section>}
 
-      {live && <div className="account-sections">
-        <section className="target-results account-section" id="hiring">
-          <header><div><span className="eyebrow">Hiring</span><h2>{targetPostings.length ? `${targetPostings.length} open ${targetPostings.length === 1 ? "role" : "roles"} Nine-67 could do instead` : "No open target roles"}</h2></div>{live.careers_url && <a href={live.careers_url} target="_blank" rel="noreferrer" className="outreach-open">Careers page ↗</a>}</header>
-          {targetPostings.length ? <ul className="click-list">{targetPostings.map((posting) => <li key={posting.id}><a href={posting.url} target="_blank" rel="noreferrer">
-            <b className="click-tag">{FAMILY_LABEL[posting.family as JobFamily] ?? posting.family}</b>
-            <div><strong>{posting.title}</strong><small>{[posting.department, posting.location, posting.posted_at ? `posted ${date(posting.posted_at)}` : `seen ${date(posting.first_seen_at)}`, posting.source ?? host(posting.url)].filter(Boolean).join(" · ")}</small></div>
-            <em>Open ↗</em>
-          </a></li>)}</ul>
-          : <p className="account-empty">{live.careers_status === "none" ? "No careers page could be found for this company." : live.careers_status ? "The careers page was read; nothing in a target family is open." : "The careers page has not been read yet."}</p>}
-          {otherPostings.length > 0 && <details className="account-more"><summary>{otherPostings.length} other postings read (not a target family, or closed)</summary><ul className="click-list compact">{otherPostings.slice(0, 40).map((posting) => <li key={posting.id}><a href={posting.url} target="_blank" rel="noreferrer"><div><strong>{posting.title}</strong><small>{[posting.active ? null : "closed", posting.family ? FAMILY_LABEL[posting.family as JobFamily] : null, posting.location].filter(Boolean).join(" · ")}</small></div><em>Open ↗</em></a></li>)}</ul></details>}
-        </section>
+          <EvidenceTabs tabs={[
+            { id: "roles", label: "Roles", count: targetPostings.length, content: targetPostings.length ? <ul className="click-list">{targetPostings.map((posting) => <li key={posting.id}><a href={posting.url} target="_blank" rel="noreferrer"><b className="click-tag">{FAMILY_LABEL[posting.family as JobFamily] ?? posting.family}</b><div><strong>{posting.title}</strong><small>{[posting.department, posting.location, posting.posted_at ? `posted ${date(posting.posted_at)}` : `seen ${date(posting.first_seen_at)}`, posting.source ?? host(posting.url)].filter(Boolean).join(" · ")}</small></div><em>Open ↗</em></a></li>)}{otherPostings.length > 0 && <li><details className="account-more"><summary>{otherPostings.length} other postings read (not a target family, or closed)</summary><ul>{otherPostings.slice(0, 40).map((posting) => <li key={posting.id}><a href={posting.url} target="_blank" rel="noreferrer">{posting.title}</a>{!posting.active && <small> · closed</small>}</li>)}</ul></details></li>}</ul> : <p className="card-empty">{live.careers_status === "none" ? "No careers page could be found." : live.careers_status ? "Careers page read; nothing in a target family is open." : "Careers page not read yet."}</p> },
+            { id: "posts", label: "AI posts", count: posts.length, content: posts.length ? <ul className="click-list">{posts.map((post) => <li key={post.id}><a href={post.url} target="_blank" rel="noreferrer"><b className="click-tag">{post.platform || host(post.url)}</b><div><strong>{post.author_name}{post.author_title ? `, ${post.author_title}` : ""}</strong><p>{post.excerpt}</p><small>{[date(post.posted_at ?? post.created_at), post.topic].filter(Boolean).join(" · ")}</small></div><em>Read ↗</em></a></li>)}</ul> : <p className="card-empty">Nothing found yet.</p> },
+            { id: "research", label: "Research", count: signals.length, content: signals.length ? <ul className="click-list">{signals.map((signal) => <li key={signal.id}><a href={signal.source_url} target="_blank" rel="noreferrer"><b className="click-tag">{(signal.raw?.evidence_kind ?? signal.type).replace(/_/g, " ")}</b><div><strong>{signal.summary}</strong>{signal.raw?.operating_need && <p>Need: {signal.raw.operating_need}</p>}<small>{[date(signal.observed_at), signal.people ? `${signal.people.full_name}, ${signal.people.title}` : null, host(signal.source_url)].filter(Boolean).join(" · ")}</small></div><em>Source ↗</em></a></li>)}</ul> : <p className="card-empty">{live.last_scouted_at ? `Researched ${date(live.last_scouted_at)}; nothing qualified.` : "The research model has not looked yet."}</p> },
+            { id: "happening", label: "What is happening", count: analysis ? analysis.happening.length + analysis.painPoints.length + (analysis.hiring.read ? 1 : 0) : 0, content: analysis && (analysis.overview || analysis.happening.length || analysis.hiring.read) ? <div className="happening">{analysis.overview && <p className="happening-overview">{analysis.overview}</p>}{analysis.happening.length > 0 && <ul className="click-list compact">{analysis.happening.map((item, index) => <li key={index}>{item.source_url ? <a href={item.source_url} target="_blank" rel="noreferrer"><div><strong>{item.text}</strong>{item.date && <small>{item.date}</small>}</div><em>Source ↗</em></a> : <span className="click-static"><div><strong>{item.text}</strong>{item.date && <small>{item.date}</small>}</div></span>}</li>)}</ul>}{analysis.painPoints.length > 0 && <div className="happening-block"><span className="eyebrow">Problems they have said out loud</span><ul className="click-list compact">{analysis.painPoints.map((item, index) => <li key={index}>{item.source_url ? <a href={item.source_url} target="_blank" rel="noreferrer"><div><strong>{item.text}</strong></div><em>Source ↗</em></a> : <span className="click-static"><div><strong>{item.text}</strong></div></span>}</li>)}</ul></div>}{analysis.hiring.read && <div className="happening-block"><span className="eyebrow">What the hiring means{analysis.hiring.budgetEstimate ? ` · about ${analysis.hiring.budgetEstimate}` : ""}</span><p className="brief-text">{analysis.hiring.read}</p>{analysis.hiring.buildInstead.length > 0 && <ul className="happening-build">{analysis.hiring.buildInstead.map((line, index) => <li key={index}>{line}</li>)}</ul>}</div>}{analysis.tech.length > 0 && <p className="happening-block muted">Uses {analysis.tech.slice(0, 8).join(", ")}</p>}{analysis.problems.length > 0 && <details className="account-more"><summary>{analysis.problems.length} things the agents could not do</summary><ul>{analysis.problems.map((line, index) => <li key={index}>{line}</li>)}</ul></details>}</div> : <p className="card-empty">The agent swarm has not analysed this company yet. Use Analyse again now.</p> },
+            { id: "history", label: "History", count: history.length + touches.length + pastCards.length, content: <div>{touches.length > 0 && <ul className="click-list compact">{touches.map((touch) => { const card = cards.find((item) => item.id === touch.card_id); return <li key={touch.id}><Link href={`/desk?card=${touch.card_id}&account=${domain}`}><div><strong>{card?.people?.full_name ?? "Unknown"} · {touch.channel.replace(/_/g, " ")}</strong><small>{touch.sent_at ? `sent ${date(touch.sent_at)} by ${touch.sent_by}` : "drafted, not sent"}{touch.reply_at ? ` · reply ${touch.reply_classification} ${date(touch.reply_at)}` : ""}</small></div><em>Open →</em></Link></li>; })}</ul>}{pastCards.length > 0 && <ul className="click-list compact">{pastCards.map((card) => <li key={card.id}><Link href={`/desk?card=${card.id}&account=${domain}`}><div><strong>{card.people?.full_name ?? "Unknown"} · {card.status}</strong><small>{card.why_now}</small></div><em>Open →</em></Link></li>)}</ul>}{history.length > 0 ? <ul className="click-list compact static">{history.map((row, index) => <li key={index}><span className="click-static"><b className="click-tag">{STATUS_LABEL[row.status] ?? row.status}</b><div><strong>{RUN_LABEL[row.runs?.source ?? ""] ?? "Run"} · {date(row.started_at ?? row.runs?.started_at ?? null)}</strong><small>{row.status === "error" ? `${row.error_code ?? "error"}: ${row.error_message?.split(/\r?\n/)[0] ?? ""}` : (row.note ?? [row.signals_kept ? `${row.signals_kept} signals` : null, row.cards_created ? `${row.cards_created} drafts` : null].filter(Boolean).join(" · ")) || "—"}</small></div></span></li>)}</ul> : <p className="card-empty">No run has reached this company yet.</p>}</div> },
+          ]} />
+        </div>
 
-        <section className="target-results account-section" id="people">
-          <header><div><span className="eyebrow">People</span><h2>{people.length ? `${people.length} ${people.length === 1 ? "person" : "people"} on file` : "No contacts yet"}</h2></div><span>{people.filter((person) => person.email).length} with an address · {people.filter((person) => person.email_status === "verified").length} verified{live?.email_pattern ? ` · format ${live.email_pattern}@${domain}` : ""}</span></header>
-          {people.length ? <ul className="click-list">{people.map((person) => { const href = person.linkedin_url ?? (person.email ? `mailto:${person.email}` : null); const inner = <>
-            <b className="click-tag">{LEVEL_LABEL[person.level] || "Contact"}</b>
-            <div><strong>{person.full_name}</strong><small>{person.title}{person.source ? ` · from ${SOURCE_LABEL[person.source] ?? person.source}` : ""}</small><small>{emailNote(person)}{person.phone ? ` · ${person.phone}` : ""}</small>{person.contact_notes && <small>{person.contact_notes}</small>}</div>
-            <em>{person.linkedin_url ? "LinkedIn ↗" : person.email ? "Email →" : ""}</em></>;
-            return <li key={person.id}>{href ? <a href={href} target={person.linkedin_url ? "_blank" : undefined} rel="noreferrer">{inner}</a> : <span className="click-static">{inner}</span>}</li>; })}</ul>
-          : <p className="account-empty">{outreach ? "Nobody found yet on the company site, LinkedIn results or press. The next scan looks again." : "Held companies are not enriched."}</p>}
-          {!process.env.APOLLO_API_KEY && <p className="account-empty">Verified addresses need APOLLO_API_KEY in the deploy; without it, addresses are built from the company&apos;s format and stay unverified until someone checks them.</p>}
-        </section>
-
-        <section className="target-results account-section" id="posts">
-          <header><div><span className="eyebrow">Talking about AI</span><h2>{posts.length ? `${posts.length} ${posts.length === 1 ? "post" : "posts"} by people here` : "No AI posts found"}</h2></div></header>
-          {posts.length ? <ul className="click-list">{posts.map((post) => <li key={post.id}><a href={post.url} target="_blank" rel="noreferrer">
-            <b className="click-tag">{post.platform || host(post.url)}</b>
-            <div><strong>{post.author_name}{post.author_title ? `, ${post.author_title}` : ""}</strong><p>{post.excerpt}</p><small>{[date(post.posted_at ?? post.created_at), post.topic].filter(Boolean).join(" · ")}</small></div>
-            <em>Read ↗</em>
-          </a></li>)}</ul> : <p className="account-empty">Nothing found yet.</p>}
-        </section>
-
-        <section className="target-results account-section" id="research">
-          <header><div><span className="eyebrow">What the research found</span><h2>{signals.length ? `${signals.length} ${signals.length === 1 ? "signal" : "signals"}` : "No signal yet"}</h2></div></header>
-          {signals.length ? <ul className="click-list">{signals.map((signal) => <li key={signal.id}><a href={signal.source_url} target="_blank" rel="noreferrer">
-            <b className="click-tag">{(signal.raw?.evidence_kind ?? signal.type).replace(/_/g, " ")}</b>
-            <div><strong>{signal.summary}</strong>{signal.raw?.operating_need && <p>Need: {signal.raw.operating_need}</p>}<small>{[date(signal.observed_at), signal.people ? `${signal.people.full_name}, ${signal.people.title}` : null, host(signal.source_url)].filter(Boolean).join(" · ")}</small></div>
-            <em>Source ↗</em>
-          </a></li>)}</ul> : <p className="account-empty">{live.last_scouted_at ? `Researched ${date(live.last_scouted_at)}; nothing qualified.` : "The research model has not looked at this company yet."}</p>}
-        </section>
-
-        <details className="account-more account-history" id="history">
-          <summary>History: {touches.filter((touch) => touch.sent_at).length} sent · {touches.filter((touch) => touch.reply_at).length} replied · {pastCards.length} past drafts · {history.length} runs{target?.sourceUrl ? " · where the company came from" : ""}</summary>
-          {touches.length > 0 && <ul className="click-list compact">{touches.map((touch) => { const card = cards.find((item) => item.id === touch.card_id); return <li key={touch.id}><Link href={`/desk?card=${touch.card_id}&account=${domain}`}><div><strong>{card?.people?.full_name ?? "Unknown"} · {touch.channel.replace(/_/g, " ")}</strong><small>{touch.sent_at ? `sent ${date(touch.sent_at)} by ${touch.sent_by}` : "drafted, not sent"}{touch.reply_at ? ` · reply ${touch.reply_classification} ${date(touch.reply_at)}` : ""}</small></div><em>Open →</em></Link></li>; })}</ul>}
-          {pastCards.length > 0 && <ul className="click-list compact">{pastCards.map((card) => <li key={card.id}><Link href={`/desk?card=${card.id}&account=${domain}`}><div><strong>{card.people?.full_name ?? "Unknown"} · {card.status}</strong><small>{card.why_now}</small></div><em>Open →</em></Link></li>)}</ul>}
-          {history.length > 0 && <ul className="click-list compact static">{history.map((row, index) => <li key={index}><span className="click-static"><b className="click-tag">{STATUS_LABEL[row.status] ?? row.status}</b><div><strong>{RUN_LABEL[row.runs?.source ?? ""] ?? "Run"} · {date(row.started_at ?? row.runs?.started_at ?? null)}</strong><small>{row.status === "error" ? `${row.error_code ?? "error"}: ${row.error_message?.split(/\r?\n/)[0] ?? ""}` : (row.note ?? [row.signals_kept ? `${row.signals_kept} signals` : null, row.cards_created ? `${row.cards_created} drafts` : null].filter(Boolean).join(" · ")) || "—"}</small></div></span></li>)}</ul>}
-          {target && <p className="account-empty">{tier ? `${TIER_DEFINITION[tier]}. ` : ""}{target.notes ? `${target.notes}. ` : ""}{target.dropReason ? `Removed: ${target.dropReason}. ` : ""}{target.sourceUrl && <a href={target.sourceUrl} target="_blank" rel="noreferrer">Source: {host(target.sourceUrl)} ↗</a>}</p>}
-        </details>
+        <aside className="record-side">
+          <section className="card pad">
+            <div className="card-title"><h2>Manage</h2><span className={`pill pill-${stageTone}`}><i />{STAGE_LABEL[stage]}</span></div>
+            <OutreachForm accountId={live.id} tier={tier} outreach={outreach} manual={live.outreach_manual ?? null} stage={stage} owner={live.outreach_owner ?? ""} notes={live.outreach_notes ?? ""} owners={owners} />
+          </section>
+          <section className="card">
+            <div className="card-title pad-x"><h2>Reach-out list</h2></div>
+            <CompanyRows rows={listRow} />
+          </section>
+          <section className="card pad">
+            <div className="card-title"><h2>Activity</h2></div>
+            <dl className="facts">
+              <div><dt>Last reach-out</dt><dd>{lastSent ? `${lastSent.channel.replace(/_/g, " ")} · ${date(lastSent.sent_at)}` : "none yet"}</dd></div>
+              <div><dt>Last reply</dt><dd>{lastReply ? `${lastReply.reply_classification} · ${date(lastReply.reply_at)}` : lastSent ? "no reply yet" : "—"}</dd></div>
+              <div><dt>Sent</dt><dd>{touches.filter((touch) => touch.sent_at).length}</dd></div>
+              <div><dt>Careers page</dt><dd>{live.careers_status ?? "not read yet"}</dd></div>
+              <div><dt>Researched</dt><dd>{date(live.last_scouted_at) || "not yet"}</dd></div>
+              <div><dt>Analysed</dt><dd>{date(live.analysis_at) || "not yet"}</dd></div>
+              <div><dt>Last change</dt><dd>{date(live.last_change_at) || "—"}</dd></div>
+            </dl>
+          </section>
+          {target && <section className="card pad">
+            <div className="card-title"><h2>On file</h2></div>
+            <dl className="facts">
+              {target.ceo && <div><dt>CEO</dt><dd>{target.ceo}</dd></div>}
+              {target.targetTitles.length > 0 && <div><dt>Likely buyers</dt><dd>{target.targetTitles.join(", ")}</dd></div>}
+              {target.aiSignal && <div><dt>AI note</dt><dd>{target.aiSignal}</dd></div>}
+              {target.notes && <div><dt>Notes</dt><dd>{target.notes}</dd></div>}
+              {analysis?.company.phone && <div><dt>Main line</dt><dd>{analysis.company.phone}</dd></div>}
+              {analysis?.company.address && <div><dt>Address</dt><dd>{analysis.company.address}</dd></div>}
+              {tier && <div><dt>Tier rule</dt><dd>{TIER_DEFINITION[tier]}</dd></div>}
+              {target.dropReason && <div><dt>Removed</dt><dd>{target.dropReason}</dd></div>}
+              {target.sourceUrl && <div><dt>Source</dt><dd><a href={target.sourceUrl} target="_blank" rel="noreferrer">{host(target.sourceUrl)} ↗</a></dd></div>}
+            </dl>
+          </section>}
+        </aside>
       </div>}
     </main>
   </div>;

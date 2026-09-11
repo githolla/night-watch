@@ -59,7 +59,8 @@ export function buildBrief(input: BriefInput): Brief {
     const authors = [...new Set(input.posts.map((post) => post.author))];
     why.push(`${list(authors, 2)} ${authors.length === 1 ? "has" : "have"} posted publicly about ${list([...new Set(input.posts.map((post) => post.topic).filter(Boolean))], 3) || "AI and automation"}: they are thinking about this out loud, which makes a first message easy to write.`);
   }
-  const needs = input.signals.filter((signal) => signal.need).slice(0, 2);
+  // A hiring signal repeats the roles line above; keep the ones that add something.
+  const needs = input.signals.filter((signal) => signal.need && !(input.roles.length && signal.kind === "hiring")).slice(0, 2);
   for (const signal of needs) why.push(`${signal.kind.replace(/_/g, " ")} (${ago(signal.observedAt, input.now)}): ${signal.need}`);
   if (input.aiSignalOnFile) why.push(`The target file already noted: ${input.aiSignalOnFile}.`);
   if (input.tier === "A1") why.push("Tier A1: first wave of the cut, so this company was already judged a fit on revenue, AI signal and ownership.");
