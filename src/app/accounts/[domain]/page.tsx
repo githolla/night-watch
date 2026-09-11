@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 type Posting = { id: string; title: string; url: string; location: string | null; department: string | null; family: string | null; source: string | null; posted_at: string | null; first_seen_at: string; active: boolean };
 type Post = { id: string; person_id: string | null; author_name: string; author_title: string; url: string; platform: string; topic: string; excerpt: string; posted_at: string | null; created_at: string };
-type Person = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; email_source: string | null; linkedin_url: string | null; source: string; enriched_at: string | null };
+type Person = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; email_source: string | null; phone: string | null; contact_notes: string | null; linkedin_url: string | null; source: string; enriched_at: string | null };
 type SignalRow = { id: string; type: string; summary: string; source_url: string; observed_at: string; raw: { operating_need?: string; evidence_kind?: string } | null; people: { full_name: string; title: string } | null };
 type CardRow = { id: string; person_id: string; status: string; score: number; channel: string; why_now: string; brief: string; email_subject: string | null; email_body: string | null; linkedin_note: string | null; linkedin_comment: string | null; assigned_to: string; created_at: string; people: { full_name: string; title: string } | null };
 type TouchRow = { id: string; person_id: string; channel: string; sent_at: string | null; sent_by: string; reply_at: string | null; reply_classification: string; card_id: string };
@@ -29,10 +29,10 @@ const RUN_LABEL: Record<string, string> = { scheduled: "Nightly research", manua
 const STATUS_LABEL: Record<string, string> = { queued: "Queued", running: "Running", ok: "Found something", no_signal: "Nothing new", error: "Failed", cancelled: "Stopped" };
 const LEVEL_LABEL: Record<string, string> = { owner: "Decision owner", influencer: "Influencer", adjacent: "Adjacent", unknown: "" };
 const EMAIL_LABEL: Record<string, string> = { verified: "verified", catch_all: "catch-all", unverified: "unverified", none: "" };
-const SOURCE_LABEL: Record<string, string> = { apollo: "Apollo", team_page: "company site", web_search: "web search", file: "target file", signal: "a signal", sweep: "lookup" };
+const SOURCE_LABEL: Record<string, string> = { apollo: "Apollo", team_page: "company site", web_search: "web search", file: "target file", signal: "a signal", sweep: "lookup", analysis: "agent swarm" };
 function emailNote(person: Person) {
   if (!person.email) return "no email on file";
-  const status = person.email_source === "pattern" ? "built from the company's address format, unverified" : EMAIL_LABEL[person.email_status] || "";
+  const status = person.email_source === "pattern" ? "built from the company's address format, unverified" : person.email_source === "web" ? "seen on a public page, unverified" : EMAIL_LABEL[person.email_status] || "";
   return status ? `${person.email} (${status})` : person.email;
 }
 const OPEN = ["new", "approved", "edited", "snoozed"];
@@ -72,7 +72,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
   const [postings, posts, people, signals, cards, history, ownerRows] = live ? await Promise.all([
     db.from("job_postings").select("id,title,url,location,department,family,source,posted_at,first_seen_at,active").eq("account_id", live.id).order("active", { ascending: false }).order("family", { ascending: true, nullsFirst: false }).order("first_seen_at", { ascending: false }).limit(80).then((result) => (result.data ?? []) as Posting[]),
     db.from("public_posts").select("id,person_id,author_name,author_title,url,platform,topic,excerpt,posted_at,created_at").eq("account_id", live.id).order("posted_at", { ascending: false, nullsFirst: false }).limit(30).then((result) => (result.data ?? []) as Post[]),
-    db.from("people").select("id,full_name,title,level,email,email_status,email_source,linkedin_url,source,enriched_at").eq("account_id", live.id).eq("do_not_contact", false).order("level").order("full_name").limit(60).then((result) => (result.data ?? []) as Person[]),
+    db.from("people").select("id,full_name,title,level,email,email_status,email_source,phone,contact_notes,linkedin_url,source,enriched_at").eq("account_id", live.id).eq("do_not_contact", false).order("level").order("full_name").limit(60).then((result) => (result.data ?? []) as Person[]),
     db.from("signals").select("id,type,summary,source_url,observed_at,raw,people(full_name,title)").eq("account_id", live.id).order("observed_at", { ascending: false }).limit(30).then((result) => (result.data ?? []) as unknown as SignalRow[]),
     db.from("cards").select("id,person_id,status,score,channel,why_now,brief,email_subject,email_body,linkedin_note,linkedin_comment,assigned_to,created_at,people(full_name,title)").eq("account_id", live.id).order("score", { ascending: false }).limit(20).then((result) => (result.data ?? []) as unknown as CardRow[]),
     db.from("run_accounts").select("status,note,error_code,error_message,signals_kept,cards_created,started_at,runs(source,started_at)").eq("account_id", live.id).order("created_at", { ascending: false }).limit(12).then((result) => (result.data ?? []) as unknown as HistoryRow[]),
@@ -123,6 +123,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
             <a href={`https://${domain}`} target="_blank" rel="noreferrer">{domain} ↗</a>
             {target && <>{target.vertical && <span>{target.vertical}{target.subSegment ? `, ${target.subSegment}` : ""}</span>}{target.hqCity && <span>{target.hqCity}, {target.hqState}</span>}<span>{target.ownership}{target.peSponsor ? ` (${target.peSponsor})` : ""}</span><span>${target.revenueBand}{target.revenueEstimateUsdM ? ` · ≈ $${target.revenueEstimateUsdM.toLocaleString()}M` : ""}</span>{target.employees && <span>{target.employees.toLocaleString()} employees</span>}{target.ceo && <span>CEO {target.ceo}</span>}</>}
           </p>
+          {analysis && (analysis.company.phone || analysis.company.address || analysis.company.general_email) && <p className="account-line account-line-muted">{analysis.company.phone && <span>Main line {analysis.company.phone}</span>}{analysis.company.address && <span>{analysis.company.address}</span>}{analysis.company.general_email && <span>{analysis.company.general_email}</span>}</p>}
           {target && (target.aiSignal || target.targetTitles.length > 0) && <p className="account-line account-line-muted">{target.aiSignal && <span>AI on file: {target.aiSignal}</span>}{target.targetTitles.length > 0 && <span>Likely buyers: {target.targetTitles.join(", ")}</span>}</p>}
         </div>
         <div className="targets-head-count">
@@ -193,8 +194,9 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
               <div><strong>{person.full_name}</strong><span>{person.title}</span>{LEVEL_LABEL[person.level] && <b className="tier-chip">{LEVEL_LABEL[person.level]}</b>}</div>
               <div className="who-links">
                 {person.email && <a href={`mailto:${person.email}`}>{person.email}{person.email_source === "pattern" ? " · built, unverified" : person.email_status === "verified" ? " · verified" : " · unverified"}</a>}
+                {person.phone && <a href={`tel:${person.phone.replace(/[^+\d]/g, "")}`}>{person.phone}</a>}
                 {person.linkedin_url && <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a>}
-                {!person.email && !person.linkedin_url && <span>No address or profile yet</span>}
+                {!person.email && !person.linkedin_url && !person.phone && <span>No address, number or profile yet</span>}
               </div>
               <small>{lastTouch ? `Last reach-out ${lastTouch.channel.replace(/_/g, " ")} ${date(lastTouch.sent_at)}${lastTouch.reply_at ? ` · replied ${lastTouch.reply_classification} ${date(lastTouch.reply_at)}` : " · no reply yet"}` : "Never contacted"}</small>
             </div>
@@ -227,7 +229,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
           <header><div><span className="eyebrow">People</span><h2>{people.length ? `${people.length} ${people.length === 1 ? "person" : "people"} on file` : "No contacts yet"}</h2></div><span>{people.filter((person) => person.email).length} with an address · {people.filter((person) => person.email_status === "verified").length} verified{live?.email_pattern ? ` · format ${live.email_pattern}@${domain}` : ""}</span></header>
           {people.length ? <ul className="click-list">{people.map((person) => { const href = person.linkedin_url ?? (person.email ? `mailto:${person.email}` : null); const inner = <>
             <b className="click-tag">{LEVEL_LABEL[person.level] || "Contact"}</b>
-            <div><strong>{person.full_name}</strong><small>{person.title}{person.source ? ` · from ${SOURCE_LABEL[person.source] ?? person.source}` : ""}</small><small>{emailNote(person)}</small></div>
+            <div><strong>{person.full_name}</strong><small>{person.title}{person.source ? ` · from ${SOURCE_LABEL[person.source] ?? person.source}` : ""}</small><small>{emailNote(person)}{person.phone ? ` · ${person.phone}` : ""}</small>{person.contact_notes && <small>{person.contact_notes}</small>}</div>
             <em>{person.linkedin_url ? "LinkedIn ↗" : person.email ? "Email →" : ""}</em></>;
             return <li key={person.id}>{href ? <a href={href} target={person.linkedin_url ? "_blank" : undefined} rel="noreferrer">{inner}</a> : <span className="click-static">{inner}</span>}</li>; })}</ul>
           : <p className="account-empty">{outreach ? "Nobody found yet on the company site, LinkedIn results or press. The next scan looks again." : "Held companies are not enriched."}</p>}

@@ -26,6 +26,14 @@ const peopleOutput = z.object({
   email_examples: z.array(z.string()).default([]),
   org_notes: z.string().default(""),
 });
+const contactOutput = z.object({
+  contacts: z.array(z.object({
+    name: z.string().min(3), title: z.string().default(""), email: z.string().nullable().default(null), phone: z.string().nullable().default(null),
+    linkedin_url: url, source_url: url, notes: z.string().default(""),
+  })).default([]),
+  company: z.object({ phone: z.string().nullable().default(null), address: z.string().nullable().default(null), general_email: z.string().nullable().default(null) }).default({ phone: null, address: null, general_email: null }),
+  email_examples: z.array(z.string()).default([]),
+});
 const voicesOutput = z.object({
   voices: z.array(z.object({ author: z.string().min(3), title: z.string().default(""), quote: z.string().min(15), url: z.string(), date: z.string().nullable().default(null), platform: z.string().default(""), topic: z.string().default("") })).default([]),
 });
@@ -57,6 +65,8 @@ export type CompanyAnalysis = {
   hiring: { read: string; buildInstead: string[]; budgetEstimate: string | null; roles: Array<{ title: string; url: string | null; posted_at: string | null; why: string }> };
   people: Array<{ name: string; title: string; linkedin_url: string | null; why: string; source_url: string | null; tenure: string | null }>;
   orgNotes: string;
+  contacts: Array<{ name: string; title: string; email: string | null; phone: string | null; linkedin_url: string | null; source_url: string | null; notes: string }>;
+  company: { phone: string | null; address: string | null; general_email: string | null };
   voices: Array<{ author: string; title: string; quote: string; url: string; date: string | null; platform: string; topic: string }>;
   brief: { whyNow: string; angle: string; whoFirst: string; whoFirstTitle: string; whoFirstWhy: string; opener: string; objections: string[]; nextStep: string; fit: number; fitReason: string };
   emailExamples: string[];
@@ -101,23 +111,32 @@ export async function analyzeCompany(input: AnalysisInput, options: { model: str
   const rolesText = input.rolesOnFile.length ? input.rolesOnFile.map((role) => `- ${role.title} (${role.family}) ${role.url}`).join("\n") : "- none on file yet";
   const peopleText = input.peopleOnFile.length ? input.peopleOnFile.map((person) => `- ${person.name}, ${person.title}`).join("\n") : "- none on file yet";
 
-  const [happening, hiring, people, voices] = await Promise.all([
+  const [happening, hiring, peopleAndContacts, voices] = await Promise.all([
     settle("company", runSearchAgent(
       `${facts(input)}\n\nToday is ${today()}. Find what is happening at ${input.name} in the last 6 months: acquisitions, funding, new leaders, new offices or products, layoffs or restructuring, technology and AI initiatives, system rollouts (ERP, CRM, data platforms), and any public statement about operational problems, growth strain, manual work, or efficiency. Search news, press releases, the company site, earnings or investor material, trade press, and podcasts. Give each item a date when shown and the URL you saw it at. Then, in two sentences, say what the company does and how it makes money. List named technologies you saw them use. Return JSON only: {"overview":"","happening":[{"text":"","date":null,"source_url":null}],"pain_points":[{"text":"","source_url":null}],"tech":[]}.`,
       agent, recordUsage).then((json) => happeningOutput.parse(json)), happeningOutput.parse({})),
     settle("hiring", runSearchAgent(
       `${facts(input)}\n\n${POSITIONING}\n\nOpen roles already on file at ${input.name}:\n${rolesText}\n\nSearch LinkedIn Jobs, Indeed, Glassdoor, the company careers page and ZipRecruiter for ${input.name}'s current openings in operations, data, analytics, systems, IT, automation, AI, RevOps, CRM, finance operations and process improvement. Read the postings you find. Then explain, as a sales strategist, what problem the company is trying to solve by hiring, which of these roles are work Nine-67 would build a system for instead of the company hiring a person (and why), and a rough annual budget the hires represent. Return JSON only: {"read":"","build_instead":[""],"budget_estimate":null,"roles":[{"title":"","url":null,"posted_at":null,"why":""}]}. Only list roles you actually saw.`,
       agent, recordUsage).then((json) => hiringOutput.parse(json)), hiringOutput.parse({})),
-    settle("people", runSearchAgent(
+    (async () => {
+      const found = await settle("people", runSearchAgent(
       `${facts(input)}\n\nPeople already on file at ${input.name}:\n${peopleText}\n\nOpen roles on file (the hiring managers behind these are the buyers):\n${rolesText}\n\nBuild the buying map for ${input.name}. Find the people who decide on operations, technology, data, finance and revenue systems: ${input.buyerTitles.join(", ") || "COO, CIO, CTO, CFO, CRO"}, VP or Director of Operations, IT, Data, Analytics, Business Systems, RevOps, Transformation, and the managers whose teams the open roles sit in. Search LinkedIn profile results (site:linkedin.com/in "${input.name}"), the company leadership page, press releases and conference bios. For each person give name, exact title, LinkedIn URL when seen, how long they have been there if shown, the page you saw them on, and one line on why they matter for this sale. Also record every work email address at @${input.domain} you see on public pages so the address format can be learned; never invent one. Up to 20 people. Return JSON only: {"people":[{"name":"","title":"","linkedin_url":null,"why":"","source_url":null,"tenure":null}],"email_examples":[],"org_notes":""}.`,
-      agent, recordUsage).then((json) => peopleOutput.parse(json)), peopleOutput.parse({})),
+      agent, recordUsage).then((json) => peopleOutput.parse(json)), peopleOutput.parse({}));
+      const names = [...new Map([...found.people.map((person) => [person.name.toLowerCase(), { name: person.name, title: person.title }] as const), ...input.peopleOnFile.map((person) => [person.name.toLowerCase(), person] as const)]).values()].slice(0, 25);
+      const contacts = names.length ? await settle("contacts", runSearchAgent(
+        `${facts(input)}\n\nThese people work at ${input.name}:\n${names.map((person) => `- ${person.name}, ${person.title}`).join("\n")}\n\nYou are the contact-details agent. For each person, find direct contact details that are published publicly: a work email address (author bios, press releases, conference speaker pages, PDF filings, event listings, company directory pages, professional-association listings), a direct or mobile phone number when it is published, and their LinkedIn URL. Search "${input.name}" with each name and with @${input.domain}. Also find the company's main phone number, headquarters address, and any general mailbox such as info@ or press@. Record every @${input.domain} address you see so the address format can be learned. Never guess or construct an address or number: only what you actually saw, with the page you saw it on. Return JSON only: {"contacts":[{"name":"","title":"","email":null,"phone":null,"linkedin_url":null,"source_url":null,"notes":""}],"company":{"phone":null,"address":null,"general_email":null},"email_examples":[]}.`,
+        agent, recordUsage).then((json) => contactOutput.parse(json)), contactOutput.parse({})) : contactOutput.parse({});
+      return { found, contacts };
+    })(),
     settle("voices", runSearchAgent(
       `${facts(input)}\n\nFind what people who work at ${input.name} have said publicly in the last 12 months about AI, automation, data, systems, operations, efficiency, hiring difficulty, or problems in their own work: LinkedIn posts (site:linkedin.com/posts "${input.name}"), LinkedIn articles (site:linkedin.com/pulse "${input.name}"), podcast and webinar appearances, conference talks, interviews where they are quoted, and X posts. Only count a named person who works at ${input.name}; a company press release is not a voice. For each, give the author, their title, a verbatim quote of up to 400 characters, the URL, the date when shown, the platform, and a three-to-six-word topic. Up to 12. Return JSON only: {"voices":[{"author":"","title":"","quote":"","url":"","date":null,"platform":"","topic":""}]}.`,
       agent, recordUsage).then((json) => voicesOutput.parse(json)), voicesOutput.parse({})),
   ]);
 
+  const people = peopleAndContacts.found;
+  const contacts = peopleAndContacts.contacts;
   const evidence = JSON.stringify({
-    company: happening, hiring, people: people.people.slice(0, 20), org_notes: people.org_notes, voices: voices.voices,
+    company: happening, hiring, people: people.people.slice(0, 20), org_notes: people.org_notes, contacts: contacts.contacts.slice(0, 25), company_contact: contacts.company, voices: voices.voices,
     posts_on_file: input.postsOnFile.slice(0, 10), roles_on_file: input.rolesOnFile.slice(0, 20),
   }).slice(0, 60_000);
 
@@ -136,12 +155,12 @@ export async function analyzeCompany(input: AnalysisInput, options: { model: str
     version: 1, analyzedAt: new Date().toISOString(), model: options.model, costUsd: 0,
     overview: happening.overview, happening: happening.happening, painPoints: happening.pain_points, tech: happening.tech,
     hiring: { read: hiring.read, buildInstead: hiring.build_instead, budgetEstimate: hiring.budget_estimate, roles: hiring.roles },
-    people: people.people, orgNotes: people.org_notes, voices: voices.voices,
+    people: people.people, orgNotes: people.org_notes, contacts: contacts.contacts, company: contacts.company, voices: voices.voices,
     brief: {
       whyNow: synthesized.brief.why_now, angle: synthesized.brief.angle, whoFirst: synthesized.brief.who_first, whoFirstTitle: synthesized.brief.who_first_title, whoFirstWhy: synthesized.brief.who_first_why,
       opener: synthesized.brief.opener, objections: synthesized.brief.objections, nextStep: synthesized.brief.next_step, fit: synthesized.brief.fit, fitReason: synthesized.brief.fit_reason,
     },
-    emailExamples: people.email_examples.filter((email) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)),
+    emailExamples: [...people.email_examples, ...contacts.email_examples, ...contacts.contacts.map((contact) => contact.email ?? "")].filter((email) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)),
     signals, problems,
   };
 }
@@ -155,7 +174,7 @@ export function parseStoredAnalysis(value: unknown): CompanyAnalysis | null {
     version: 1, analyzedAt: record.analyzedAt ?? "", model: record.model ?? "", costUsd: Number(record.costUsd ?? 0),
     overview: record.overview ?? "", happening: record.happening ?? [], painPoints: record.painPoints ?? [], tech: record.tech ?? [],
     hiring: record.hiring ?? { read: "", buildInstead: [], budgetEstimate: null, roles: [] },
-    people: record.people ?? [], orgNotes: record.orgNotes ?? "", voices: record.voices ?? [],
+    people: record.people ?? [], orgNotes: record.orgNotes ?? "", contacts: record.contacts ?? [], company: record.company ?? { phone: null, address: null, general_email: null }, voices: record.voices ?? [],
     brief: { ...{ whyNow: "", angle: "", whoFirst: "", whoFirstTitle: "", whoFirstWhy: "", opener: "", objections: [], nextStep: "", fit: 0, fitReason: "" }, ...record.brief },
     emailExamples: record.emailExamples ?? [], signals: record.signals ?? [], problems: record.problems ?? [],
   };

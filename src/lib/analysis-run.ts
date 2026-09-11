@@ -55,6 +55,19 @@ export async function analyzeAndStore(db: Db, account: Account, recordCost: (cos
     try { await upsertPerson(account, { name: person.name, title: person.title, linkedin_url: person.linkedin_url }, "analysis"); }
     catch (error) { analysis.problems.push(`could not store ${person.name}: ${error instanceof Error ? error.message : String(error)}`); }
   }
+  // Direct details the contact agent saw on public pages: only fill blanks or replace built guesses, never overwrite a verified address.
+  for (const contact of analysis.contacts) {
+    const email = contact.email && /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(contact.email) ? contact.email.toLowerCase() : null;
+    if (!email && !contact.phone && !contact.linkedin_url) continue;
+    try {
+      const person = await upsertPerson(account, { name: contact.name, title: contact.title || "Contact", linkedin_url: contact.linkedin_url }, "analysis");
+      const patch: Record<string, unknown> = {};
+      if (email && (!person.email || person.email_source === "pattern") && person.email_status !== "verified") { patch.email = email; patch.email_status = "unverified"; patch.email_source = "web"; }
+      if (contact.phone && !person.phone) patch.phone = contact.phone;
+      if (contact.notes || contact.source_url) patch.contact_notes = [contact.notes, contact.source_url ? `seen at ${contact.source_url}` : null].filter(Boolean).join(" · ");
+      if (Object.keys(patch).length) await db.from("people").update(patch).eq("id", person.id);
+    } catch (error) { analysis.problems.push(`could not store details for ${contact.name}: ${error instanceof Error ? error.message : String(error)}`); }
+  }
   for (const voice of analysis.voices) {
     if (!/^https?:\/\//.test(voice.url)) continue;
     const postedAt = voice.date && /^\d{4}-\d{2}-\d{2}/.test(voice.date) ? voice.date.slice(0, 10) : null;
@@ -162,6 +175,7 @@ export async function runAnalysis(options: AnalysisOptions): Promise<RunNightlyR
         const parts = [
           `fit ${analysis.brief.fit}`,
           analysis.people.length ? `${analysis.people.length} people` : null,
+          analysis.contacts.filter((contact) => contact.email || contact.phone).length ? `${analysis.contacts.filter((contact) => contact.email || contact.phone).length} with direct details` : null,
           analysis.voices.length ? `${analysis.voices.length} quotes` : null,
           analysis.hiring.roles.length ? `${analysis.hiring.roles.length} roles read` : null,
           outcome.signalsKept ? `${outcome.signalsKept} signals` : null,
