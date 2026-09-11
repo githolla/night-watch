@@ -11,8 +11,9 @@ import { recomputeAccountIntel } from "./account-intel.ts";
 import { requireSchema } from "./schema-check.ts";
 import { admin } from "./supabase/admin.ts";
 import { scopeCondition, type RunScope } from "./run-scope.ts";
+import { syncTargetAccounts, targetsNeedSync } from "./sync-targets.ts";
 import { fetchAll } from "./supabase/fetch-all.ts";
-import { targetAccountByDomain, targetAccountRowBatches } from "./target-accounts.ts";
+import { targetAccountByDomain } from "./target-accounts.ts";
 import type { Account, Owner, PersonLevel } from "./types.ts";
 
 type Db = SupabaseClient;
@@ -212,13 +213,8 @@ export async function persistSignal(account: Account, item: ScoutSignal, outcome
 }
 
 export async function ensureAccountsLoaded(db: Db) {
-  const { count: realAccounts } = await db.from("accounts").select("*", { count: "exact", head: true }).not("domain", "like", "%.example");
-  if ((realAccounts ?? 0) > 0) return;
-  await db.from("accounts").delete().like("domain", "%.example");
-  for (const batch of targetAccountRowBatches()) {
-    const { error } = await db.from("accounts").upsert(batch, { onConflict: "domain" });
-    if (error) throw error;
-  }
+  // The file is the source of truth; if the database is behind it (empty, or tiers not written), write it now.
+  if (await targetsNeedSync(db)) await syncTargetAccounts(db);
 }
 
 async function allActiveAccounts(db: Db, scope: RunScope = "outreach") {

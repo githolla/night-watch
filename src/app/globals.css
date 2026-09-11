@@ -553,3 +553,39 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:12px;color:var(--ink-soft)}.
 .targets-head.has-hero>.targets-head-count{position:relative;background:rgba(240,235,227,.92);backdrop-filter:blur(6px)}
 .targets-head.has-hero h1{max-width:760px}
 @media(max-width:700px){.targets-head.has-hero>div:first-child{background:linear-gradient(180deg,rgba(252,251,248,.97) 0%,rgba(252,251,248,.9) 100%)}}
+
+/* Simple front door: scan button in the head, results first, everything else below. */
+.nav-more{position:relative;height:100%}
+.nav-more summary{list-style:none;cursor:pointer;min-width:88px;height:100%;border-left:1px solid var(--line);display:grid;align-content:center;gap:6px;padding:0 18px;font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+.nav-more summary::-webkit-details-marker{display:none}
+.nav-more summary span{font-size:11px;color:var(--muted)}
+.nav-more summary:hover{background:rgba(126,109,87,.08)}
+.nav-more>div{position:absolute;top:100%;right:0;z-index:30;min-width:200px;background:#fff;border:1px solid var(--line-strong);box-shadow:0 12px 30px rgba(40,36,31,.12);display:grid}
+.nav-more>div a{min-width:0;height:auto;border:0;border-bottom:1px solid var(--line);padding:12px 16px;display:block}
+.nav-more>div a:last-child{border-bottom:0}
+.scan-control{display:grid;gap:10px;margin-top:22px;max-width:760px}
+.scan-actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.scan-actions .btn{width:auto;min-width:0}
+.scan-button{height:48px;padding:0 26px;font-size:13px}
+.scan-note{font-size:12px;line-height:1.5;color:var(--ink-soft);max-width:520px}
+.scan-control .notice{margin:0}
+.reach-results{margin-top:20px}
+.reach-list{list-style:none;margin:0;padding:0;counter-reset:reach}
+.reach-list li{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:18px;align-items:center;padding:16px 24px;border-bottom:1px solid var(--line)}
+.reach-list li:last-child{border-bottom:0}
+.reach-score{display:grid;place-items:center}
+.reach-score .intel-score{font-size:30px}
+.reach-body{display:grid;gap:5px;min-width:0}
+.reach-body>div{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.reach-company{font-weight:700;font-size:14px;text-decoration:none}
+.reach-person{font-size:12px;color:var(--ink-soft)}
+.reach-body p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-soft)}
+.reach-body small{font:600 11px/1.4 var(--mono);letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
+.reach-open{width:auto;white-space:nowrap;text-decoration:none}
+.migration-sql{border:1px solid var(--line-strong);background:#fff;margin-top:20px}
+.migration-sql header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:20px 24px;border-bottom:1px solid var(--line)}
+.migration-sql header h2{font-size:20px;letter-spacing:-.03em;margin:8px 0 0}
+.migration-sql header .btn{width:auto;white-space:nowrap}
+.migration-sql textarea{display:block;width:100%;border:0;padding:16px 24px;font:500 12px/1.5 var(--mono);background:#faf9f6;resize:vertical}
+.migration-detail{margin-top:14px;border:1px solid var(--line);background:#fff}
+@media(max-width:850px){.nav-more{flex:1}.nav-more summary{min-width:auto;height:48px;padding:0 10px}.nav-more summary span{display:none}.reach-list li{grid-template-columns:48px minmax(0,1fr)}.reach-open{grid-column:2}}

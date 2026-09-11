@@ -1,10 +1,13 @@
 import { Header } from "@/components/Header";
 import { MigrationRequired } from "@/components/MigrationRequired";
-import { OutreachBoard, type BoardFilters } from "@/components/OutreachBoard";
+import { OutreachBoard, type BoardFilters, type ReachOutResult } from "@/components/OutreachBoard";
+import { ScanControl } from "@/components/ScanControl";
 import { requireUser } from "@/lib/auth";
 import { type OutreachRow, type OutreachStage, isOutreachStage } from "@/lib/outreach";
 import { pendingMigrations } from "@/lib/schema-check";
+import { loadRunSummary } from "@/lib/run-status";
 import { admin } from "@/lib/supabase/admin";
+import { syncTargetAccounts, targetsNeedSync } from "@/lib/sync-targets";
 import { fetchAll } from "@/lib/supabase/fetch-all";
 import { outreachAccounts, TARGET_CUT_SOURCE, targetAccountByDomain, type TargetAccount } from "@/lib/target-accounts";
 import { redirect } from "next/navigation";
@@ -17,7 +20,7 @@ type LiveAccount = {
   intel_score: number | null; open_target_roles: number | null; ai_posts: number | null; contacts: number | null; verified_emails: number | null;
   last_change_at: string | null; last_scouted_at: string | null; careers_status: string | null; vertical: string | null; hq_city: string | null; hq_state: string | null; target_titles: string[] | null;
 };
-type CardRow = { account_id: string; status: string; score: number };
+type CardRow = { id: string; account_id: string; status: string; score: number; why_now: string; channel: string; people: { full_name: string; title: string } | { full_name: string; title: string }[] | null };
 type TouchRow = { sent_at: string | null; reply_at: string | null; reply_classification: string; cards: { account_id: string } | { account_id: string }[] | null };
 type Params = { q?: string; priority?: string; industry?: string; ownership?: string; state?: string; stage?: string; owner?: string; data?: string; sort?: string };
 
@@ -84,12 +87,17 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   if (pending.length) return <MigrationRequired pending={pending} />;
   const params = await searchParams;
 
-  const [live, cards, touches, holdRows] = await Promise.all([
+  // The file is the source of truth. If the database is behind it, write it now rather than asking anyone to press a sync button.
+  if (await targetsNeedSync(db)) await syncTargetAccounts(db);
+
+  const [live, cards, touches, holdRows, openRunRow] = await Promise.all([
     fetchAll<LiveAccount>((from, to) => db.from("accounts").select(LIVE_COLUMNS).eq("outreach", true).not("domain", "like", "%.example").range(from, to)),
-    fetchAll<CardRow>((from, to) => db.from("cards").select("account_id,status,score").range(from, to)),
+    fetchAll<CardRow>((from, to) => db.from("cards").select("id,account_id,status,score,why_now,channel,people(full_name,title)").range(from, to)),
     fetchAll<TouchRow>((from, to) => db.from("touches").select("sent_at,reply_at,reply_classification,cards(account_id)").range(from, to)),
     db.from("accounts").select(LIVE_COLUMNS).eq("status", "active").eq("outreach", false).not("domain", "like", "%.example").gt("intel_score", 0).order("intel_score", { ascending: false }).limit(40),
+    db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false).order("started_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
+  const openRun = openRunRow.data ? await loadRunSummary(db, openRunRow.data.id as string) : null;
 
   const dossiers = new Map<string, { open: number; top: number; sent: number; replied: number; meetings: number }>();
   const stat = (accountId: string) => {
@@ -123,6 +131,16 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     if (seen.has(account.domain) || account.status !== "active") continue;
     rows.push(buildRow(targetAccountByDomain.get(account.domain) ?? blankTarget(account), account, dossiers));
   }
+  const liveById = new Map(live.map((account) => [account.id, account]));
+  // What to act on: every open dossier for a reach-out company, strongest first.
+  const results: ReachOutResult[] = cards
+    .filter((card) => ["new", "approved", "edited"].includes(card.status) && liveById.has(card.account_id))
+    .sort((a, b) => b.score - a.score)
+    .map((card) => {
+      const account = liveById.get(card.account_id)!;
+      const person = Array.isArray(card.people) ? card.people[0] : card.people;
+      return { cardId: card.id, domain: account.domain, company: account.name, tier: account.tier ?? "", score: card.score, whyNow: card.why_now, channel: card.channel, person: person?.full_name ?? "", title: person?.title ?? "", stage: isOutreachStage(account.outreach_stage) ? account.outreach_stage : "untouched", owner: account.outreach_owner ?? "" };
+    });
   const holdCandidates: OutreachRow[] = ((holdRows.data ?? []) as LiveAccount[]).map((account) => buildRow(targetAccountByDomain.get(account.domain) ?? blankTarget(account), account, dossiers));
 
   const initial: BoardFilters = {
@@ -140,7 +158,8 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   return <div className="shell">
     <Header />
     <main className="targets-page">
-      <OutreachBoard rows={rows} holdCandidates={holdCandidates} initial={initial} cut={TARGET_CUT_SOURCE} unsynced={rows.filter((row) => !row.synced).length} />
+      <OutreachBoard rows={rows} results={results} holdCandidates={holdCandidates} initial={initial} cut={TARGET_CUT_SOURCE} unsynced={rows.filter((row) => !row.synced).length}
+        scan={<ScanControl listSize={live.filter((account) => account.status === "active").length} firstPass={!live.some((account) => account.careers_status) && !live.some((account) => account.last_scouted_at)} openRun={openRun} />} />
     </main>
   </div>;
 }

@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CLOSED_STAGES, OUTREACH_STAGES, STAGE_LABEL, type OutreachRow, type OutreachStage } from "@/lib/outreach";
+
+export type ReachOutResult = { cardId: string; domain: string; company: string; tier: string; score: number; whyNow: string; channel: string; person: string; title: string; stage: OutreachStage; owner: string };
 
 export type BoardFilters = { q: string; priority: string; industry: string; ownership: string; state: string; stage: string; owner: string; data: string; sort: string };
 
@@ -60,7 +62,7 @@ function csvCell(value: unknown) {
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, "\"\"")}"` : text;
 }
 
-export function OutreachBoard({ rows: initialRows, holdCandidates, initial, cut, unsynced }: { rows: OutreachRow[]; holdCandidates: OutreachRow[]; initial: BoardFilters; cut: { label: string; file: string; importedAt: string }; unsynced: number }) {
+export function OutreachBoard({ rows: initialRows, results, holdCandidates, initial, cut, unsynced, scan }: { rows: OutreachRow[]; results: ReachOutResult[]; holdCandidates: OutreachRow[]; initial: BoardFilters; cut: { label: string; file: string; importedAt: string }; unsynced: number; scan: ReactNode }) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
   const [filters, setFilters] = useState<BoardFilters>(initial);
@@ -213,15 +215,31 @@ export function OutreachBoard({ rows: initialRows, holdCandidates, initial, cut,
   return <>
     <section className="targets-head has-hero">
       <div>
-        <span className="eyebrow">Reach-out list</span>
-        <h1>Tier A is the list. Nothing else gets a dossier.</h1>
-        <p>{cut.label}, applied {cut.importedAt}: {totals.a1} first-wave (A1) and {totals.a2} second-wave (A2) companies{totals.manual ? `, plus ${totals.manual} added by hand` : ""}. Every sweep, research run and dossier goes to these companies. Search, narrow, assign an owner, move the stage, and open any company for everything on file.</p>
+        <span className="eyebrow">Reach-out list · {cut.label}</span>
+        <h1>{results.length ? `${results.length} ${results.length === 1 ? "reason" : "reasons"} to reach out.` : totals.careersRead ? "Scanned. Nothing ready to send yet." : "Your list is in. Scan it."}</h1>
+        <p>{totals.all} Tier A companies ({totals.a1} first wave, {totals.a2} second wave{totals.manual ? `, ${totals.manual} added by hand` : ""}). Night Watch scans only these: careers pages and job boards for roles Nine-67 could do instead, people posting about AI, contacts, and the public web for managers asking for help. What it finds lands below, strongest first, with the outreach drafted.</p>
+        {scan}
       </div>
-      <div className="targets-head-count"><span>ON THE LIST</span><strong>{totals.all.toLocaleString()}</strong><small>{totals.working} in progress · {totals.contacted} contacted · {totals.replied} replied · {totals.meetings} meetings</small></div>
+      <div className="targets-head-count"><span>SCANNED SO FAR</span><strong>{totals.careersRead.toLocaleString()} / {totals.all.toLocaleString()}</strong><small>{totals.researched} researched by the model · {totals.hiring} hiring in target roles · {totals.posts} posting about AI · {totals.verified} verified emails</small><small>{totals.contacted} contacted · {totals.replied} replied · {totals.meetings} meetings</small></div>
     </section>
 
-    {unsynced > 0 && <p className="notice error">{unsynced} of the reach-out companies are not in the database yet. <Link href="/targets">Sync the target list on the Accounts page</Link> so runs and edits can reach them.</p>}
+    {unsynced > 0 && <p className="notice error">{unsynced} of the reach-out companies could not be written to the database. Reload once; if it persists, the error page will say why.</p>}
     {error && <p className="notice error">{error}</p>}
+
+    <section className="target-results reach-results">
+      <header><div><span className="eyebrow">Reach out now</span><h2>{results.length ? `${results.length} drafted and waiting` : "Nothing drafted yet"}</h2></div>{results.length > 0 && <Link href="/desk" className="outreach-open">Work them on the desk →</Link>}</header>
+      {results.length ? <ol className="reach-list">{results.slice(0, 25).map((result) => <li key={result.cardId}>
+        <div className="reach-score"><strong className={`intel-score ${result.score >= 75 ? "is-hot" : "is-warm"}`}>{result.score}</strong></div>
+        <div className="reach-body">
+          <div><Link href={`/accounts/${result.domain}`} className="reach-company">{result.company}</Link><span className={`tier-chip tier-${result.tier}`}>{result.tier}</span>{result.person && <span className="reach-person">{result.person}{result.title ? `, ${result.title}` : ""}</span>}</div>
+          <p>{result.whyNow}</p>
+          <small>{STAGE_LABEL[result.stage]}{result.owner ? ` · ${result.owner}` : ""} · {result.channel.replace(/_/g, " ")}</small>
+        </div>
+        <Link href={`/desk?card=${result.cardId}&account=${result.domain}`} className="btn primary reach-open">Open the draft</Link>
+      </li>)}</ol>
+      : <p className="coverage-note account-empty">{totals.careersRead ? "The scan found no company with a signal worth a draft yet. Companies with roles, posts or contacts on file are ranked in the list below." : "Press Scan above. Results appear here as they are found; you do not need to wait for the whole pass."}</p>}
+      {results.length > 25 && <p className="coverage-note account-empty">{results.length - 25} more on the <Link href="/desk">desk</Link>.</p>}
+    </section>
 
     <div className="outreach-tiles">
       {tile("unresearched", "Baseline coverage", totals.careersRead, `${totals.careersRead} careers pages read · ${totals.researched} researched by the model`, totals.careersRead === totals.all ? "is-ok" : "")}

@@ -16,6 +16,8 @@ Open Workspace → Signal research and choose **Load 1,859 companies** to sync t
 
 ## Reach-out list (Tier A)
 
+The home page. Open it, press **Scan**, read the results. The page writes the target file and its tiers to the database on its own; the only manual step is the one-time SQL paste the app shows you (with a copy button) when the database is behind the code.
+
 The cut in `data/Nine67_Outbound_Targets_Cut.xlsx` decides who is contacted. Every company on the file carries a tier: **A1** (first wave) and **A2** (second wave) are the reach-out list; **B** and **C** are held and watched; **Removed** companies are paused. Only reach-out companies get research runs, contact enrichment, dossiers, and a place on the desk. Held companies are swept for a promotion signal only when asked (Runs → *Sweep the held companies*), and anything found shows up as a promotion candidate.
 
 - **Reach-out page** (`/outreach`): the list, searchable and filterable by priority, industry, ownership, state, stage, owner, and evidence (hiring, AI posts, verified emails, dossiers, contacted, changed this week). Tiles and breakdown bars are clickable filters; filters live in the address bar so a view can be sent as a link. Stage, owner, and notes are edited inline; **Export to CSV** downloads the current view.

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ResearchError } from "./research-errors.ts";
 
@@ -15,7 +17,15 @@ const MIGRATIONS: Array<{ file: string; table: string; column: string; adds: str
   { file: "0009_outreach_tiers.sql", table: "accounts", column: "outreach", adds: "the reach-out tiers and the Tier A list" },
 ];
 
-export type PendingMigration = { file: string; adds: string; reason: string };
+export type PendingMigration = { file: string; adds: string; reason: string; sql: string };
+
+function migrationSql(file: string) {
+  try {
+    return readFileSync(join(process.cwd(), "supabase", "migrations", file), "utf8");
+  } catch {
+    return `-- supabase/migrations/${file} (not readable from this deploy; copy it from the repository)`;
+  }
+}
 
 let cached: { at: number; pending: PendingMigration[] } | null = null;
 
@@ -25,7 +35,7 @@ export async function pendingMigrations(db: SupabaseClient, now = Date.now()): P
   const pending: PendingMigration[] = [];
   for (const migration of MIGRATIONS) {
     const { error } = await db.from(migration.table).select(migration.column).limit(1);
-    if (error) pending.push({ file: migration.file, adds: migration.adds, reason: error.message });
+    if (error) pending.push({ file: migration.file, adds: migration.adds, reason: error.message, sql: migrationSql(migration.file) });
   }
   cached = { at: now, pending };
   return pending;
