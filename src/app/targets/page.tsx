@@ -90,34 +90,31 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
   return <div className="shell">
     <Header />
     <main className="targets-page">
-      <section className="targets-head has-hero hero-slim">
-        <div>
-          <span className="eyebrow">All companies on the file</span>
-          <p className="hero-line">{all.length.toLocaleString()} companies. {counts.list} are on the reach-out list and get scanned and drafted; {counts.hold} are held and only swept when asked; {counts.removed} were removed by the cut. Click a company for everything on file, or use the button to put it on or off the list.</p>
-        </div>
+      <header className="page-head">
+        <div><h1>All companies</h1><p>{all.length.toLocaleString()} on the file. {counts.list} on the reach-out list get scanned and drafted; {counts.hold} held are swept only when asked; {counts.removed} removed by the cut. Click a company for everything on file, or use the switch to put it on or off the list.</p></div>
+      </header>
+
+      <section className="stat-row">
+        {TABS.slice(1).map((item) => <Link key={item.value} href={href({ tier: item.value, page: undefined })} className={`stat ${tab.value === item.value ? "is-active" : ""}`} title={item.value === "A1" || item.value === "A2" || item.value === "removed" ? TIER_DEFINITION[item.value as TargetTier] : item.value === "hold" ? `${TIER_DEFINITION.B} / ${TIER_DEFINITION.C}` : undefined}><span>{item.label}</span><strong>{counts[item.value].toLocaleString()}</strong></Link>)}
       </section>
 
-      <nav className="tier-tabs" aria-label="Tiers">
-        {TABS.map((item) => <Link key={item.value} href={href({ tier: item.value || undefined, page: undefined })} className={tab.value === item.value ? "is-active" : ""} title={item.value === "A1" || item.value === "A2" || item.value === "removed" ? TIER_DEFINITION[item.value as TargetTier] : item.value === "hold" ? `${TIER_DEFINITION.B} / ${TIER_DEFINITION.C}` : undefined}>{item.label}<b>{counts[item.value].toLocaleString()}</b></Link>)}
-      </nav>
-
-      <section className="target-results">
-        <FilterForm action="/targets">
-          <input type="hidden" name="tier" value={tab.value} />
-          <label><span>Search</span><input name="q" defaultValue={params.q} placeholder="Company, industry, city, owner…" /></label>
-          <label><span>Industry</span><select name="industry" defaultValue={industry}><option value="">All industries</option>{industries.map((item) => <option key={item}>{item}</option>)}</select></label>
-          <label><span>Show</span><select name="show" defaultValue={show}>{Object.entries(SHOW).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-          <label><span>Sort</span><select name="sort" defaultValue={sort}><option value="intel">Most found first</option><option value="change">Recently changed</option><option value="name">A to Z</option></select></label>
-          <button className="btn primary" type="submit">Search</button>
-          {(query || industry || show || params.sort) && <Link href={href({ q: undefined, industry: undefined, show: undefined, sort: undefined, page: undefined })}>Clear</Link>}
-        </FilterForm>
-        <header><div><span className="eyebrow">{tab.label}{show ? ` · ${SHOW[show]}` : ""}</span><h2>{filtered.length.toLocaleString()} {filtered.length === 1 ? "company" : "companies"}</h2></div><span>PAGE {page} / {totalPages}</span></header>
+      <section className="card">
+        <div className="tabs-row">
+          <nav className="tabs" aria-label="Tiers">{TABS.map((item) => <Link key={item.value} href={href({ tier: item.value || undefined, page: undefined })} className={tab.value === item.value ? "is-active" : ""}>{item.label}<b>{counts[item.value].toLocaleString()}</b></Link>)}</nav>
+          <FilterForm action="/targets" className="toolbar">
+            <input type="hidden" name="tier" value={tab.value} />
+            <input name="q" defaultValue={params.q} placeholder="Search" aria-label="Search" />
+            <select name="industry" defaultValue={industry} aria-label="Industry"><option value="">All industries</option>{industries.map((item) => <option key={item}>{item}</option>)}</select>
+            <select name="show" defaultValue={show} aria-label="Show">{Object.entries(SHOW).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
+            <select name="sort" defaultValue={sort} aria-label="Sort"><option value="intel">Most found first</option><option value="change">Recently changed</option><option value="name">A to Z</option></select>
+            {(query || industry || show || params.sort) && <Link href={href({ q: undefined, industry: undefined, show: undefined, sort: undefined, page: undefined })} className="btn-link">Clear</Link>}
+          </FilterForm>
+        </div>
         <CompanyRows rows={visible} />
-        <nav className="target-pagination" aria-label="Pages">
-          {page > 1 ? <Link href={href({ page: String(page - 1) })}>← Previous</Link> : <span />}
+        <footer className="table-foot">
           <span>{filtered.length ? ((page - 1) * PAGE_SIZE + 1).toLocaleString() : 0}–{Math.min(page * PAGE_SIZE, filtered.length).toLocaleString()} of {filtered.length.toLocaleString()}</span>
-          {page < totalPages ? <Link href={href({ page: String(page + 1) })}>Next →</Link> : <span />}
-        </nav>
+          <div>{page > 1 && <Link href={href({ page: String(page - 1) })} className="btn-secondary">Previous</Link>}{page < totalPages && <Link href={href({ page: String(page + 1) })} className="btn-secondary">Next</Link>}</div>
+        </footer>
       </section>
     </main>
   </div>;

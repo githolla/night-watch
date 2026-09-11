@@ -7,10 +7,10 @@ import type { FormEvent, ReactNode } from "react";
  * so there is nothing to press. The search box still submits on Enter or
  * with the button.
  */
-export function FilterForm({ action, children }: { action: string; children: ReactNode }) {
+export function FilterForm({ action, children, className = "target-filters" }: { action: string; children: ReactNode; className?: string }) {
   function onChange(event: FormEvent<HTMLFormElement>) {
     const target = event.target as HTMLElement;
     if (target.tagName === "SELECT") event.currentTarget.requestSubmit();
   }
-  return <form className="target-filters" action={action} onChange={onChange}>{children}</form>;
+  return <form className={className} action={action} onChange={onChange}>{children}</form>;
 }
