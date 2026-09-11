@@ -21,6 +21,7 @@ export async function POST(request: Request) {
       ignoreCooldown: body.all === true || body.populate === true,
       populate: body.populate === true,
       scope: parseScope(body.scope),
+      resumeIdle: !accountIds?.length,
     }));
   } catch (error) {
     const classified = classifyResearchError(error);

@@ -320,6 +320,8 @@ export type RunNightlyOptions = {
   populate?: boolean;
   /** Companies the run may pick from when no ids are given. Research defaults to the reach-out list. */
   scope?: RunScope;
+  /** Finish an idle open run (one that outlived its window) before creating a new one. Scheduled runs always do. */
+  resumeIdle?: boolean;
   now?: () => number;
 };
 
@@ -405,9 +407,10 @@ export async function runNightly(options: RunNightlyOptions): Promise<RunNightly
     const { data: run } = await db.from("runs").select("id,status,heartbeat_at").eq("id", runId).maybeSingle();
     if (!run) throw new ResearchError("unknown", "That research run does not exist.");
     if (run.status !== "open") return summarize(db, runId, "already_closed", 0, 0);
-  } else if (options.source === "scheduled" && !options.accountIds?.length) {
+  } else if ((options.source === "scheduled" || options.resumeIdle) && !options.accountIds?.length) {
     // Resume an idle open run before starting a new one, so a batch that
-    // outlived last night's window is finished before the list advances.
+    // outlived its window is finished before the list advances. Otherwise its
+    // queued companies stay "busy" and are skipped by every later run.
     const idleCutoff = new Date(started - 2 * 60_000).toISOString();
     const { data: idle } = await db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false)
       .or(`heartbeat_at.is.null,heartbeat_at.lt.${idleCutoff}`).order("started_at", { ascending: false }).limit(1).maybeSingle();

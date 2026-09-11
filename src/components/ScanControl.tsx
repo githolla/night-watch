@@ -13,7 +13,9 @@ const STALE_MS = 20 * 3600_000;
  * The scan runs itself. Opening the page starts it when the list has never
  * been scanned, when companies are still unscanned, when a scan was cut off,
  * or when the last one is older than a day; it then continues each run until
- * it closes. The first pass is the extensive one; later passes are updates.
+ * it closes. The sweep is always the extensive one (roles, AI posts, contacts,
+ * every company); the research pass is extensive on the first pass and then
+ * covers whoever is past the research cooldown.
  * On Production the scheduled runs do the same without anyone opening a page.
  */
 export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinishedAt }: { listSize: number; unscanned: number; firstPass: boolean; openRun: RunSummary | null; lastFinishedAt: string | null }) {
@@ -42,8 +44,10 @@ export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinis
         // The next poll catches up.
       }
     }, 2500);
-    return () => window.clearInterval(poll);
-  }, [running, run?.id]);
+    // The rest of the page (scanned count, results) is server-rendered; refresh it now and then while the scan runs.
+    const refresh = window.setInterval(() => router.refresh(), 30_000);
+    return () => { window.clearInterval(poll); window.clearInterval(refresh); };
+  }, [running, run?.id, router]);
 
   async function post(endpoint: string, body: Record<string, unknown>) {
     const response = await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -53,7 +57,7 @@ export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinis
   }
 
   /** Create or continue one run and work it until it closes, is stopped, or another window has it. */
-  async function drive(endpoint: string, start: Record<string, unknown>, carried: Record<string, unknown>, runId?: string) {
+  async function driveOne(endpoint: string, start: Record<string, unknown>, carried: Record<string, unknown>, runId?: string) {
     let response = await post(endpoint, runId ? { runId, ...carried } : start);
     setRun(response.run);
     while (active.current && response.run.status === "open" && !["cancelled", "already_closed", "busy"].includes(response.stopped)) {
@@ -61,6 +65,21 @@ export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinis
       setRun(response.run);
     }
     setSpent((total) => total + response.run.costUsd);
+    return response;
+  }
+
+  /**
+   * Everything means everything: keep starting runs until one comes back with
+   * nothing to do. Runs left open by an earlier window are finished first,
+   * so no company is skipped as "already queued".
+   */
+  async function drive(endpoint: string, start: Record<string, unknown>, carried: Record<string, unknown>, runId?: string) {
+    let response = await driveOne(endpoint, start, carried, runId);
+    for (let round = 0; round < 12 && active.current && response.run.status !== "open" && response.stopped !== "cancelled"; round += 1) {
+      const next = await driveOne(endpoint, start, carried);
+      if (next.run.counts.requested === 0) break;
+      response = next;
+    }
     return response;
   }
 
@@ -73,11 +92,13 @@ export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinis
       const resumeResearch = openRun && !resumeSweep ? openRun.id : undefined;
       if (!resumeResearch) {
         setPhase("sweep");
-        const sweep = await drive("/api/sweep/run", extensive ? { all: true, populate: true } : { all: true }, extensive ? { populate: true } : {}, resumeSweep);
+        // Every pass is the thorough one for the sweep: careers pages, job boards, AI posts by people at the
+        // company, and contacts, for every company, cooldowns ignored. Only the research pass gets cheaper after the first.
+        const sweep = await drive("/api/sweep/run", { all: true, populate: true }, { populate: true }, resumeSweep);
         if (!active.current || sweep.stopped === "cancelled" || sweep.stopped === "busy") return;
       }
       setPhase("research");
-      await drive("/api/nightly/run", extensive ? { populate: true } : { limit: Math.min(listSize, 100) }, extensive ? { populate: true } : {}, resumeResearch);
+      await drive("/api/nightly/run", extensive ? { populate: true } : { limit: listSize }, extensive ? { populate: true } : {}, resumeResearch);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The scan failed");
     } finally {

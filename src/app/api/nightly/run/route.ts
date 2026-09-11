@@ -25,6 +25,7 @@ export async function POST(request: Request) {
       accountLimit: typeof body.limit === "number" ? body.limit : body.populate ? undefined : nightlyBatchSize(),
       populate: body.populate === true,
       scope: parseScope(body.scope),
+      resumeIdle: !accountIds?.length,
     });
     return Response.json(result);
   } catch (error) {

@@ -37,6 +37,8 @@ export type SweepOptions = {
   populate?: boolean;
   /** Companies the sweep may pick from when no ids are given. Defaults to the reach-out list. */
   scope?: RunScope;
+  /** Finish an idle open sweep before creating a new one. Scheduled sweeps always do. */
+  resumeIdle?: boolean;
   fetcher?: Fetcher;
   now?: () => number;
 };
@@ -289,7 +291,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
     const { data: run } = await db.from("runs").select("id,status").eq("id", runId).maybeSingle();
     if (!run) throw new ResearchError("unknown", "That sweep does not exist.");
     if (run.status !== "open") return summarize(db, runId, "already_closed", 0, 0);
-  } else if (options.source === "sweep" && !options.accountIds?.length) {
+  } else if ((options.source === "sweep" || options.resumeIdle) && !options.accountIds?.length) {
     const idleCutoff = new Date(started - 2 * 60_000).toISOString();
     const { data: idle } = await db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false).in("source", ["sweep", "sweep_manual"])
       .or(`heartbeat_at.is.null,heartbeat_at.lt.${idleCutoff}`).order("started_at", { ascending: false }).limit(1).maybeSingle();
