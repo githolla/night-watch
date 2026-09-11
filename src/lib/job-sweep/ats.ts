@@ -16,7 +16,14 @@ export type AtsProvider =
   | "recruitee"
   | "breezy"
   | "icims"
-  | "jobvite";
+  | "jobvite"
+  | "ukg"
+  | "oracle"
+  | "rippling"
+  | "jazzhr"
+  | "teamtailor";
+
+export type PostingSource = "careers" | "sitemap" | "jsonld" | "web_search";
 
 export type Posting = {
   externalId: string | null;
@@ -25,6 +32,9 @@ export type Posting = {
   location: string | null;
   department: string | null;
   postedAt: string | null;
+  source?: PostingSource;
+  salaryMax?: number | null;
+  description?: string | null;
   raw?: unknown;
 };
 
@@ -87,6 +97,11 @@ export function detectAts(html: string, pageUrl: string): AtsRef | null {
     ["breezy", /([\w-]+)\.breezy\.hr/i, (m) => m[1]],
     ["icims", /(careers-[\w-]+)\.icims\.com/i, (m) => m[1]],
     ["jobvite", /jobs\.jobvite\.com\/([\w-]+)/i, (m) => m[1]],
+    ["ukg", /(recruiting2?\.ultipro\.com)\/([\w-]+)\/JobBoard\/([\w-]+)/i, (m) => `${m[1]}|${m[2]}|${m[3]}`],
+    ["oracle", /https?:\/\/([\w.-]+)\/hcmUI\/CandidateExperience\/[a-z-]+\/sites\/([\w-]+)/i, (m) => `${m[1]}|${m[2]}`],
+    ["rippling", /ats\.rippling\.com\/([\w-]+)/i, (m) => m[1]],
+    ["jazzhr", /([\w-]+)\.applytojob\.com/i, (m) => m[1]],
+    ["teamtailor", /([\w-]+)\.teamtailor\.com/i, (m) => m[1]],
   ];
   for (const [provider, pattern, ref] of patterns) {
     const match = pattern.exec(haystack);
@@ -108,6 +123,9 @@ type BambooJob = { id: number | string; jobOpeningName: string; departmentLabel?
 type WorkdayJob = { title: string; externalPath: string; locationsText?: string; postedOn?: string };
 type RecruiteeJob = { id?: number; title: string; careers_url: string; department?: string; created_at?: string; location?: string };
 type BreezyJob = { id?: string; name: string; url: string; department?: string; published_date?: string; location?: { name?: string } };
+type UkgJob = { Id: string; Title: string; PostedDate?: string; Locations?: Array<{ LocalizedName?: string }> };
+type OracleJob = { Id: string; Title: string; PostedDate?: string; PrimaryLocation?: string };
+type RipplingJob = { uuid?: string; name: string; url: string; department?: { name?: string } | string; workLocation?: { label?: string } | string; createdAt?: string };
 
 export async function fetchPostings(fetcher: Fetcher, ats: AtsRef, now = new Date()): Promise<Posting[]> {
   switch (ats.provider) {
@@ -174,6 +192,48 @@ export async function fetchPostings(fetcher: Fetcher, ats: AtsRef, now = new Dat
       const { ok, body } = await fetchText(fetcher, `https://${ats.ref}.icims.com/jobs/search?ss=1&in_iframe=1`);
       if (!ok) return [];
       return [...body.matchAll(/href="(https?:\/\/[^"]+\/jobs\/(\d+)\/[^"]*)"[^>]*>\s*(?:<h3[^>]*>)?([^<]{3,120})/gi)].map((m) => ({ externalId: m[2], title: decode(m[3]), url: m[1].split("?")[0], location: null, department: null, postedAt: null }));
+    }
+    case "ukg": {
+      const [host, org, board] = ats.ref.split("|");
+      const postings: Posting[] = [];
+      for (let skip = 0; skip < 400; skip += 100) {
+        const { ok, body } = await fetchText(fetcher, `https://${host}/${org}/JobBoard/${board}/JobBoardView/LoadSearchResults`, {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ opportunitySearch: { Top: 100, Skip: skip, QueryString: "", OrderBy: [{ Value: "postedDateDesc", PropertyName: "PostedDate", Ascending: false }], Filters: [] }, matchCriteria: { PreferredJobs: [], Educations: [], LicenseAndCertifications: [], Skills: [], hasNoLicenses: false, SkippedSkills: [] } }),
+        });
+        const json = ok ? parseJson<{ opportunities?: UkgJob[]; totalCount?: number }>(body) : null;
+        const page = json?.opportunities ?? [];
+        postings.push(...page.map((job) => ({ externalId: job.Id, title: job.Title, url: `https://${host}/${org}/JobBoard/${board}/OpportunityDetail?opportunityId=${job.Id}`, location: job.Locations?.[0]?.LocalizedName ?? null, department: null, postedAt: isoDate(job.PostedDate), raw: job })));
+        if (page.length < 100) break;
+      }
+      return postings;
+    }
+    case "oracle": {
+      const [host, site] = ats.ref.split("|");
+      const postings: Posting[] = [];
+      for (let offset = 0; offset < 600; offset += 200) {
+        const { ok, body } = await fetchText(fetcher, `https://${host}/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&finder=findReqs;siteNumber=${site},limit=200,offset=${offset}`);
+        const json = ok ? parseJson<{ items?: Array<{ requisitionList?: OracleJob[]; TotalJobsCount?: number }> }>(body) : null;
+        const page = json?.items?.[0]?.requisitionList ?? [];
+        postings.push(...page.map((job) => ({ externalId: job.Id, title: job.Title, url: `https://${host}/hcmUI/CandidateExperience/en/sites/${site}/job/${job.Id}`, location: job.PrimaryLocation ?? null, department: null, postedAt: isoDate(job.PostedDate), raw: job })));
+        if (page.length < 200) break;
+      }
+      return postings;
+    }
+    case "rippling": {
+      const { ok, body } = await fetchText(fetcher, `https://api.rippling.com/platform/api/ats/v1/board/${ats.ref}/jobs`);
+      const json = ok ? parseJson<RipplingJob[]>(body) : null;
+      return (Array.isArray(json) ? json : []).map((job) => ({ externalId: job.uuid ?? null, title: job.name, url: job.url, location: typeof job.workLocation === "string" ? job.workLocation : job.workLocation?.label ?? null, department: typeof job.department === "string" ? job.department : job.department?.name ?? null, postedAt: isoDate(job.createdAt), raw: job }));
+    }
+    case "jazzhr": {
+      const { ok, body } = await fetchText(fetcher, `https://${ats.ref}.applytojob.com/apply/`);
+      if (!ok) return [];
+      return [...body.matchAll(/href="(https?:\/\/[\w-]+\.applytojob\.com\/apply\/([\w-]+)[^"]*)"[^>]*>([^<]{3,120})</gi)].map((m) => ({ externalId: m[2], title: decode(m[3]), url: m[1], location: null, department: null, postedAt: null }));
+    }
+    case "teamtailor": {
+      const { ok, body } = await fetchText(fetcher, `https://${ats.ref}.teamtailor.com/jobs`);
+      if (!ok) return [];
+      return [...body.matchAll(/href="(https?:\/\/[\w-]+\.teamtailor\.com\/jobs\/(\d+)[^"]*)"[^>]*>[\s\S]*?<span[^>]*>([^<]{3,120})</gi)].map((m) => ({ externalId: m[2], title: decode(m[3]), url: m[1], location: null, department: null, postedAt: null }));
     }
     case "jobvite": {
       const { ok, body } = await fetchText(fetcher, `https://jobs.jobvite.com/${ats.ref}/jobs`);

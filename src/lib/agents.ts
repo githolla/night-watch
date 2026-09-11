@@ -235,6 +235,36 @@ export async function writeAngle(input: unknown, recordUsage?: UsageRecorder) {
   return angle.parse(jsonFrom(response));
 }
 
+const jobSearchOutput = z.object({
+  postings: z.array(z.object({
+    title: z.string().min(2),
+    url: z.url({ protocol: /^https?$/ }),
+    posted_at: z.string().nullable().default(null),
+    location: z.string().nullable().default(null),
+  })).default([]),
+});
+
+function searchModel() {
+  return process.env.ANTHROPIC_SEARCH_MODEL ?? "claude-haiku-4-5";
+}
+
+/**
+ * Last resort for a company whose careers page cannot be read: ask a small
+ * model to list the company's open roles from public job boards. Cheap
+ * (two searches, Haiku) and only used when the direct read found nothing.
+ */
+export async function searchJobBoards(account: { name: string; domain: string }, recordUsage?: UsageRecorder, options: { maxSearches?: number } = {}) {
+  const model = searchModel();
+  const maxSearches = Math.max(1, Math.min(5, options.maxSearches ?? 2));
+  const response = await completeTurn(
+    { model, max_tokens: 4_000, tools: [webSearchTool(maxSearches)] },
+    `List the currently open job postings at ${account.name} (${account.domain}) that appear on public job boards such as LinkedIn Jobs, Indeed, Glassdoor or ZipRecruiter, or on the company's own careers site. Search for "${account.name}" jobs. Return only postings you actually saw, each with the exact title and the URL of the listing, the posting date as YYYY-MM-DD when shown, and the location. Up to 30 postings. Ignore postings at other companies with similar names. Return JSON only: {"postings":[{"title":"","url":"https://...","posted_at":null,"location":null}]}. Return {"postings":[]} if you find none.`,
+    recordUsage,
+  );
+  const parsed = jobSearchOutput.parse(jsonFrom(response));
+  return { postings: parsed.postings, model };
+}
+
 export async function classifyReply(body: string) {
   const model = utilityModel();
   const response = await client().messages.create({

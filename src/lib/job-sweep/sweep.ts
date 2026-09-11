@@ -6,12 +6,14 @@ import {
   type AccountOutcome, type RunNightlyResult, type StopReason,
 } from "../pipeline.ts";
 import { classifyResearchError, ResearchError, researchPreflight } from "../research-errors.ts";
-import { runBudgetUsd, sweepAccountLimit, sweepConcurrency, sweepCooldownMs, timeBudgetMs } from "../run-config.ts";
+import { searchJobBoards } from "../agents.ts";
+import { sweepAccountLimit, sweepBudgetUsd, sweepConcurrency, sweepCooldownMs, sweepSearchFallback, timeBudgetMs } from "../run-config.ts";
 import { admin } from "../supabase/admin.ts";
 import { targetAccountByDomain } from "../target-accounts.ts";
 import type { Account } from "../types.ts";
 import { CAREERS_PATHS, careersLinkFromHomepage, detectAts, fetchPostings, fetchText, postingsFromHtml, type AtsRef, type Fetcher, type Posting } from "./ats.ts";
 import { classifyTitle, FAMILY_LABEL, operatingNeedFor, type JobFamily } from "./classify.ts";
+import { jsonLdPostings, sitemapPostings } from "./discover.ts";
 
 type Db = SupabaseClient;
 
@@ -82,6 +84,7 @@ export async function sweepAccount(account: Account & { ats_provider?: string | 
       // Try the next form of the homepage.
     }
   }
+  candidates.push(`https://careers.${account.domain}/`, `https://jobs.${account.domain}/`);
   for (const path of CAREERS_PATHS) candidates.push(`https://www.${account.domain}${path}`, `https://${account.domain}${path}`);
 
   const tried = new Set<string>();
@@ -102,19 +105,69 @@ export async function sweepAccount(account: Account & { ats_provider?: string | 
       return finish(candidate, ats, postings.length ? "listings" : "found", `${postings.length} postings on ${ats.provider}`, postings);
     }
     if (!firstCareersPage && looksLikeCareersPage(page.body)) firstCareersPage = { url: candidate, html: page.body };
-    if (firstCareersPage && tried.size >= 6) break;
+    if (firstCareersPage && tried.size >= 8) break;
   }
 
+  const hosts = [`www.${account.domain}`, account.domain, `careers.${account.domain}`, `jobs.${account.domain}`];
   if (firstCareersPage) {
-    const postings = classify(postingsFromHtml(firstCareersPage.html, firstCareersPage.url));
-    return finish(firstCareersPage.url, null, postings.length ? "listings" : "found", postings.length ? `${postings.length} postings read from the page` : "Careers page found; listings are rendered by script and not readable", postings);
+    // Structured data first (exact titles and dates), then the page's own links, then the sitemap.
+    const structured = jsonLdPostings(firstCareersPage.html, firstCareersPage.url).map((posting) => ({ ...posting, source: "jsonld" as const }));
+    if (structured.length) return finish(firstCareersPage.url, null, "listings", `${structured.length} postings from structured data`, classify(structured));
+    const linked = classify(postingsFromHtml(firstCareersPage.html, firstCareersPage.url));
+    if (linked.length) return finish(firstCareersPage.url, null, "listings", `${linked.length} postings read from the page`, linked);
+    const mapped = classify((await sitemapPostings(fetcher, hosts)).map((posting) => ({ ...posting, source: "sitemap" as const })));
+    if (mapped.length) return finish(firstCareersPage.url, null, "listings", `${mapped.length} postings from the sitemap (titles read from URLs)`, mapped);
+    return finish(firstCareersPage.url, null, "found", "Careers page found; listings are rendered by script, and no sitemap or structured data lists them", []);
   }
   const ats = homepageHtml ? detectAts(homepageHtml, `https://${account.domain}/`) : null;
   if (ats) {
     const postings = classify(await fetchPostings(fetcher, ats, now));
     return finish(null, ats, postings.length ? "listings" : "found", `${postings.length} postings on ${ats.provider}`, postings);
   }
-  return finish(null, null, "none", "No careers page found at the homepage link or common paths", []);
+  const mapped = classify((await sitemapPostings(fetcher, hosts)).map((posting) => ({ ...posting, source: "sitemap" as const })));
+  if (mapped.length) return finish(null, null, "listings", `${mapped.length} postings from the sitemap (titles read from URLs)`, mapped);
+  return finish(null, null, "none", "No careers page found at the homepage link, careers/jobs subdomains, common paths or sitemap", []);
+}
+
+/**
+ * Read the detail page of each target posting that lacks a date, for the
+ * JobPosting structured data most job pages carry: date, salary, description,
+ * and sometimes a cleaner title than the slug gave us. A few fetches per company.
+ */
+export async function enrichTargetPostings(result: SweepAccountResult, fetcher: Fetcher, limit = 6) {
+  const candidates = result.targetPostings.filter((posting) => !posting.postedAt || posting.source === "sitemap").slice(0, limit);
+  await Promise.all(candidates.map(async (posting) => {
+    try {
+      const page = await fetchText(fetcher, posting.url);
+      if (!page.ok) return;
+      const detail = jsonLdPostings(page.body, posting.url)[0];
+      if (!detail) return;
+      posting.postedAt = posting.postedAt ?? detail.postedAt;
+      posting.salaryMax = posting.salaryMax ?? detail.salaryMax;
+      posting.description = posting.description ?? detail.description;
+      posting.location = posting.location ?? detail.location;
+      if (posting.source === "sitemap" && detail.title) posting.title = detail.title;
+    } catch {
+      // Enrichment is best effort.
+    }
+  }));
+}
+
+/** Ask a small model to list the company's roles from public job boards. Only when nothing could be read directly. */
+export async function searchFallback(account: Account, result: SweepAccountResult, recordCost: (cost: number) => void, maxSearches: number): Promise<SweepAccountResult> {
+  const { postings, model } = await searchJobBoards(account, recordCost, { maxSearches });
+  const classified = postings.map((posting) => ({
+    externalId: null, title: posting.title, url: posting.url, location: posting.location, department: null,
+    postedAt: posting.posted_at && /^\d{4}-\d{2}-\d{2}/.test(posting.posted_at) ? posting.posted_at.slice(0, 10) : null,
+    source: "web_search" as const, family: classifyTitle(posting.title),
+  }));
+  return {
+    ...result,
+    status: classified.length ? "listings" : result.status,
+    note: classified.length ? `${classified.length} postings found on public job boards by ${model}${result.note ? ` (${result.note.toLowerCase()})` : ""}` : `${result.note}; a job-board search by ${model} found nothing either`,
+    postings: [...result.postings, ...classified],
+    targetPostings: [...result.targetPostings, ...classified.filter((posting): posting is typeof posting & { family: JobFamily } => posting.family !== null)],
+  };
 }
 
 function daysBetween(from: string, to: Date) {
@@ -161,7 +214,7 @@ export async function hiringSignal(account: Account, result: SweepAccountResult,
       department: lead.department ?? FAMILY_LABEL[lead.family],
       days_open: oldest,
       reposted: false,
-      salary_max: 0,
+      salary_max: Math.max(0, ...target.map((posting) => posting.salaryMax ?? 0)),
       tools_named: [],
       responsibilities: titles.slice(0, 8),
     },
@@ -207,7 +260,8 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
   const fetcher: Fetcher = options.fetcher ?? ((url, init) => fetch(url, init));
   const started = clock();
   const budget = options.timeBudgetMs ?? timeBudgetMs(options.source === "sweep" ? "scheduled" : "manual");
-  const costBudget = runBudgetUsd();
+  const costBudget = sweepBudgetUsd();
+  const fallback = sweepSearchFallback();
   const concurrency = Math.max(1, Math.min(12, options.concurrency ?? sweepConcurrency()));
 
   await sweepStaleRuns(db, started);
@@ -253,11 +307,26 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
         const { data: account } = await db.from("accounts").select("*").eq("id", next.account_id).maybeSingle();
         if (!account) throw new ResearchError("db_error", `Account ${next.domain} no longer exists.`);
         const sweepStart = new Date(rowStart).toISOString();
-        const result = await sweepAccount(account as Account, fetcher, new Date(rowStart));
+        let result = await sweepAccount(account as Account, fetcher, new Date(rowStart));
+        const outcome: AccountOutcome = { signalsFound: 0, signalsKept: 0, signalsNew: 0, cardsCreated: 0, costUsd: 0, model: null };
+        const recordCost = (cost: number) => { outcome.costUsd += cost; invocationCost += cost; };
+        const searchDue = !account.job_search_checked_at || Date.parse(account.job_search_checked_at) < rowStart - fallback.cooldownMs;
+        if (!result.postings.length && fallback.enabled && searchDue) {
+          try {
+            result = await searchFallback(account as Account, result, recordCost, fallback.maxSearches);
+          } catch (error) {
+            const classified = classifyResearchError(error);
+            console.warn(`[night-watch] job-board search failed for ${next.domain} (${classified.code}): ${classified.message}`);
+            result = { ...result, note: `${result.note}; job-board search failed (${classified.code})` };
+          }
+          await db.from("accounts").update({ job_search_checked_at: sweepStart }).eq("id", account.id);
+        }
+        await enrichTargetPostings(result, fetcher);
         for (const posting of result.postings) {
           const { error } = await db.from("job_postings").upsert({
             account_id: account.id, external_id: posting.externalId, title: posting.title, url: posting.url, location: posting.location, department: posting.department,
             family: posting.family, posted_at: posting.postedAt, last_seen_at: sweepStart, active: true, raw: posting.raw ?? {},
+            source: posting.source ?? "careers", salary_max: posting.salaryMax ?? null, description: posting.description ?? null,
           }, { onConflict: "account_id,url" });
           if (error) throw error;
         }
@@ -269,11 +338,12 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           careers_checked_at: sweepStart, careers_status: result.status, careers_note: result.note,
         }).eq("id", account.id);
 
-        const outcome: AccountOutcome = { signalsFound: result.postings.length, signalsKept: result.targetPostings.length, signalsNew: 0, cardsCreated: 0, costUsd: 0, model: null };
+        outcome.signalsFound = result.postings.length;
+        outcome.signalsKept = result.targetPostings.length;
         if (result.targetPostings.length) {
           const { data: rows } = await db.from("job_postings").select("url,first_seen_at,posted_at").eq("account_id", account.id).eq("active", true).not("family", "is", null);
           const signal = await hiringSignal(account as Account, result, rows ?? [], new Date(rowStart));
-          if (signal) await persistSignal(account as Account, signal, outcome, (cost) => { outcome.costUsd += cost; invocationCost += cost; });
+          if (signal) await persistSignal(account as Account, signal, outcome, recordCost);
         }
         const families = [...new Set(result.targetPostings.map((posting) => FAMILY_LABEL[posting.family]))];
         update = {

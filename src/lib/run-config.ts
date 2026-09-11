@@ -30,6 +30,24 @@ export function sweepCooldownMs() {
   return integer("SWEEP_COOLDOWN_HOURS", 24, 1, 720) * 3600_000;
 }
 
+/**
+ * When a careers page cannot be read, ask a small model to list the company's
+ * roles from public job boards. `SWEEP_SEARCH_FALLBACK` (default on),
+ * `SWEEP_SEARCH_COOLDOWN_DAYS` (7), `SWEEP_SEARCH_MAX_SEARCHES` (2).
+ */
+export function sweepSearchFallback() {
+  return {
+    enabled: (process.env.SWEEP_SEARCH_FALLBACK ?? "true").toLowerCase() !== "false",
+    cooldownMs: integer("SWEEP_SEARCH_COOLDOWN_DAYS", 7, 1, 365) * 24 * 3600_000,
+    maxSearches: integer("SWEEP_SEARCH_MAX_SEARCHES", 2, 1, 5),
+  };
+}
+
+/** Measured spend at which one sweep invocation stops; the board search is the only cost. `SWEEP_RUN_BUDGET_USD`. */
+export function sweepBudgetUsd() {
+  return decimal("SWEEP_RUN_BUDGET_USD", 10, 0.01);
+}
+
 /** Careers pages read in parallel by one sweep invocation. `SWEEP_CONCURRENCY`. */
 export function sweepConcurrency() {
   return integer("SWEEP_CONCURRENCY", 6, 1, 12);

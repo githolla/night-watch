@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { Fetcher } from "./ats.ts";
-import { hiringSignal, sweepAccount } from "./sweep.ts";
+import { enrichTargetPostings, hiringSignal, sweepAccount } from "./sweep.ts";
 import type { Account } from "../types.ts";
 
 const account: Account = {
@@ -53,7 +53,7 @@ test("a careers page rendered by script is reported as found, not as a quiet com
   const result = await sweepAccount(account, fetcher);
   assert.equal(result.status, "found");
   assert.equal(result.careersUrl, "https://www.anchin.com/careers");
-  assert.match(result.note, /not readable/);
+  assert.match(result.note, /rendered by script/);
   assert.equal(result.targetPostings.length, 0);
 });
 
@@ -68,4 +68,26 @@ test("a remembered board is read first without discovery", async () => {
   const result = await sweepAccount({ ...account, ats_provider: "lever", ats_ref: "anchin" }, fetcher);
   assert.equal(result.status, "listings");
   assert.equal(result.targetPostings[0].family, "revops");
+});
+
+test("a script-rendered careers page falls back to structured data, then the sitemap", async () => {
+  const structured = fakeFetch({
+    "https://www.anchin.com/": "<p>Welcome</p>",
+    "https://www.anchin.com/careers": '<div id="app"></div><h1>Careers</h1><script type="application/ld+json">{"@type":"JobPosting","title":"Operations Analyst","url":"https://www.anchin.com/careers/ops-analyst","datePosted":"2026-09-01"}</script>',
+  });
+  const viaJsonLd = await sweepAccount(account, structured);
+  assert.equal(viaJsonLd.status, "listings");
+  assert.deepEqual(viaJsonLd.targetPostings.map((p) => [p.title, p.source, p.postedAt]), [["Operations Analyst", "jsonld", "2026-09-01"]]);
+
+  const sitemap = fakeFetch({
+    "https://www.anchin.com/": "<p>Welcome</p>",
+    "https://www.anchin.com/careers": '<div id="app"></div><h1>Careers</h1>',
+    "https://www.anchin.com/sitemap.xml": "<urlset><url><loc>https://www.anchin.com/careers/jobs/salesforce-administrator-2210</loc></url></urlset>",
+    "https://www.anchin.com/careers/jobs/salesforce-administrator-2210": '<script type="application/ld+json">{"@type":"JobPosting","title":"Salesforce Administrator (Hybrid)","datePosted":"2026-08-28","baseSalary":{"value":{"maxValue":110000}}}</script>',
+  });
+  const viaSitemap = await sweepAccount(account, sitemap);
+  assert.equal(viaSitemap.status, "listings");
+  assert.deepEqual(viaSitemap.targetPostings.map((p) => [p.title, p.source, p.family]), [["Salesforce Administrator", "sitemap", "crm_admin"]]);
+  await enrichTargetPostings(viaSitemap, sitemap);
+  assert.deepEqual(viaSitemap.targetPostings.map((p) => [p.title, p.postedAt, p.salaryMax]), [["Salesforce Administrator (Hybrid)", "2026-08-28", 110000]]);
 });

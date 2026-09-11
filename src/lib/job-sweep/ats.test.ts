@@ -68,3 +68,20 @@ test("finds the careers link on a homepage", () => {
   assert.equal(careersLinkFromHomepage('<nav><a href="/about">About</a><a href="/company/join-our-team">Join our team</a></nav>', "https://acme.com/"), "https://acme.com/company/join-our-team");
   assert.equal(careersLinkFromHomepage('<a href="/contact">Contact</a>', "https://acme.com/"), null);
 });
+
+test("detects and reads UKG, Oracle HCM and Rippling boards", async () => {
+  assert.deepEqual(detectAts('<a href="https://recruiting.ultipro.com/ACM1000ACME/JobBoard/abc-123/">Apply</a>', "https://acme.com/careers"), { provider: "ukg", ref: "recruiting.ultipro.com|ACM1000ACME|abc-123" });
+  assert.deepEqual(detectAts("", "https://efgh.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions"), { provider: "oracle", ref: "efgh.fa.us2.oraclecloud.com|CX_1" });
+  assert.deepEqual(detectAts('<iframe src="https://ats.rippling.com/acme/jobs">', "https://acme.com/jobs"), { provider: "rippling", ref: "acme" });
+  const fetcher = fakeFetch({
+    "https://recruiting.ultipro.com/ACM1000ACME/JobBoard/abc-123/JobBoardView/LoadSearchResults": { opportunities: [{ Id: "r1", Title: "Business Systems Analyst", PostedDate: "2026-09-03T00:00:00Z", Locations: [{ LocalizedName: "Tampa, FL" }] }], totalCount: 1 },
+    "https://efgh.fa.us2.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions": { items: [{ requisitionList: [{ Id: "300001", Title: "Customer Support Specialist", PostedDate: "2026-09-04", PrimaryLocation: "Phoenix, AZ" }] }] },
+    "https://api.rippling.com/platform/api/ats/v1/board/acme/jobs": [{ uuid: "u1", name: "Sales Development Representative", url: "https://ats.rippling.com/acme/jobs/u1", department: { name: "Sales" }, workLocation: { label: "Remote" } }],
+  });
+  const ukg = await fetchPostings(fetcher, { provider: "ukg", ref: "recruiting.ultipro.com|ACM1000ACME|abc-123" });
+  assert.deepEqual(ukg.map((p) => [p.title, p.postedAt, p.location]), [["Business Systems Analyst", "2026-09-03", "Tampa, FL"]]);
+  const oracle = await fetchPostings(fetcher, { provider: "oracle", ref: "efgh.fa.us2.oraclecloud.com|CX_1" });
+  assert.deepEqual(oracle.map((p) => [p.title, p.url]), [["Customer Support Specialist", "https://efgh.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/300001"]]);
+  const rippling = await fetchPostings(fetcher, { provider: "rippling", ref: "acme" });
+  assert.deepEqual(rippling.map((p) => [p.title, p.department, p.location]), [["Sales Development Representative", "Sales", "Remote"]]);
+});
