@@ -41,7 +41,7 @@ const MANDATE_FAMILIES: ReadonlySet<JobFamily> = new Set(["ai_ml", "automation"]
 
 /** Titles that never qualify, however the words fall. */
 const EXCLUDE =
-  /\b(nurse|rn|lpn|cna|physician|pharmac|driver|cdl|warehouse|forklift|mechanic|welder|electrician|plumber|technician|cashier|cook|chef|dishwasher|janitor|custodian|housekeep|security (guard|officer)|lifeguard|teacher|intern(ship)?|apprentice|attorney|paralegal|counsel|surgeon|dental|veterinar|pilot|barista|server|bartender|line cook|merchandiser|stocker|loader|picker|packer)\b/i;
+  /\b(controls?|electrical|mechanical|manufacturing|plant|industrial|hvac|welding|machinist|maintenance|facilities|qa|quality assurance|test automation|sdet|automation engineer|automation technician|process engineer|chemical|packaging|production)\b|\b(nurse|rn|lpn|cna|physician|pharmac|driver|cdl|warehouse|forklift|mechanic|welder|electrician|plumber|technician|cashier|cook|chef|dishwasher|janitor|custodian|housekeep|security (guard|officer)|lifeguard|teacher|intern(ship)?|apprentice|attorney|paralegal|counsel|surgeon|dental|veterinar|pilot|barista|server|bartender|line cook|merchandiser|stocker|loader|picker|packer)\b/i;
 
 /** Ordered: the first family whose pattern matches wins. */
 const RULES: Array<[JobFamily, RegExp]> = [
@@ -49,7 +49,7 @@ const RULES: Array<[JobFamily, RegExp]> = [
   ["revops", /\b(rev ?ops|revenue operations|sales operations|sales ops|marketing operations|marketing ops|gtm operations|go-to-market operations|deal desk|sales enablement)\b/i],
   ["crm_admin", /\b(salesforce|hubspot|dynamics 365|crm)\b.*\b(admin|administrator|manager|specialist|analyst|developer|engineer|architect)\b|\b(crm|salesforce) (admin|administrator)\b/i],
   ["systems_integration", /\b(systems? (analyst|administrator|engineer|integration|specialist)|integration (engineer|specialist|analyst|developer|architect)|erp (analyst|administrator|specialist|manager|consultant)|netsuite|workday (analyst|administrator|consultant|specialist)|sap (analyst|consultant|specialist|administrator)|api (engineer|developer|integration)|it business analyst|business systems|solutions? (engineer|architect|analyst)|middleware|ipaas|boomi|mulesoft|workato)\b/i],
-  ["automation", /\b(automation|rpa|robotic process|process (improvement|engineer|excellence|optimization|analyst)|continuous improvement|workflow|business process|lean|six sigma|operational excellence|transformation (analyst|manager|lead))\b/i],
+  ["automation", /\b(rpa|robotic process|intelligent automation|hyperautomation|workflow automation|business process automation|process automation|automation (analyst|specialist|lead|manager|developer|consultant|architect|program)|process (improvement|excellence|optimization|analyst)|continuous improvement|business process|lean six sigma|six sigma|operational excellence|transformation (analyst|manager|lead))\b/i],
   ["data_analyst", /\b(data (analyst|engineer|analytics|specialist|architect|scientist)|analytics (analyst|engineer|specialist)|business intelligence|bi (analyst|developer|engineer)|reporting analyst|data & analytics|insights analyst|(financial|fp&a|pricing|inventory|supply chain|demand|forecast|revenue|sales|marketing|planning|procurement|logistics|risk|quality|performance) (planning )?analyst|analyst,? (data|analytics|reporting|operations|business intelligence))\b/i],
   ["ops_analyst", /\b(operations? analyst|business analyst|ops analyst|process analyst|business operations analyst|program analyst|project analyst|management analyst)\b/i],
 ];

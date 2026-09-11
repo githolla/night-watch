@@ -3,6 +3,7 @@ import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { FilterForm } from "@/components/FilterForm";
 import { Header } from "@/components/Header";
+import { RowLink } from "@/components/RowLink";
 import { requireUser } from "@/lib/auth";
 import { FAMILY_LABEL, type JobFamily } from "@/lib/job-sweep/classify";
 import { admin } from "@/lib/supabase/admin";
@@ -97,22 +98,20 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
 
       <section className="target-results">
         <header><div><span className="eyebrow">Postings{family ? ` · ${FAMILY_LABEL[family]}` : ""}</span><h2>{total.toLocaleString()} roles</h2></div><span>PAGE {page} / {totalPages}</span></header>
-        <div className="target-table-wrap"><table className="target-directory-table roles-table"><thead><tr><th>Company</th><th>Role</th><th>Family</th><th>Where</th><th>Seen</th><th>Source</th></tr></thead><tbody>
+        <ol className="rank-list roles-list">
           {(data ?? []).map((row) => {
             const account = row.accounts as unknown as { name: string; domain: string };
             const posted = row.posted_at ?? (row.first_seen_at as string).slice(0, 10);
             const days = ageInDays(posted);
-            return <tr key={row.id}>
-              <td><strong>{account.name}</strong><small>{account.domain}</small></td>
-              <td><a href={row.url} target="_blank" rel="noreferrer"><strong>{row.title}</strong></a>{row.department && <small>{row.department}</small>}{row.salary_max && <small>up to ${Number(row.salary_max).toLocaleString()}</small>}</td>
-              <td><span className={`status-chip ${row.family ? "ok" : "queued"}`}>{row.family ? FAMILY_LABEL[row.family as JobFamily] : "Other"}</span></td>
-              <td><span>{row.location ?? "—"}</span></td>
-              <td><span>{row.posted_at ? "Posted" : "First seen"} {posted}</span><small>{days === 0 ? "today" : `${days} day${days === 1 ? "" : "s"} ago`}</small></td>
-              <td><span className="roles-source">{String(row.source ?? "careers").replace("_", " ")}</span></td>
-            </tr>;
+            return <RowLink as="li" key={row.id} href={`/accounts/${account.domain}`}>
+              <div className="rank-company"><strong>{account.name}</strong><small>{account.domain}</small></div>
+              <div className="rank-why"><p><a href={row.url} target="_blank" rel="noreferrer">{row.title} ↗</a></p><small>{[row.family ? FAMILY_LABEL[row.family as JobFamily] : "Other", row.department, row.location, row.salary_max ? `up to $${Number(row.salary_max).toLocaleString()}` : null, String(row.source ?? "careers").replace("_", " ")].filter(Boolean).join(" · ")}</small></div>
+              <div className="rank-status"><span>{row.posted_at ? "Posted" : "First seen"} {posted}</span><small>{days === 0 ? "today" : `${days} day${days === 1 ? "" : "s"} ago`}</small></div>
+              <span className="rank-go">→</span>
+            </RowLink>;
           })}
-          {!data?.length && <tr><td colSpan={6}><em>No roles yet. Run the careers sweep from the desk.</em></td></tr>}
-        </tbody></table></div>
+          {!data?.length && <li className="outreach-empty">No roles yet. The scan reads careers pages and job boards as it runs.</li>}
+        </ol>
         <nav className="target-pagination" aria-label="Role pages">
           {page > 1 ? <Link href={href({ page: String(page - 1) })}>← Previous</Link> : <span />}
           <span>{total ? ((page - 1) * pageSize + 1).toLocaleString() : 0}–{Math.min(page * pageSize, total).toLocaleString()} of {total.toLocaleString()}</span>

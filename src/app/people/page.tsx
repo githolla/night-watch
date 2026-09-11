@@ -3,6 +3,7 @@ import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { FilterForm } from "@/components/FilterForm";
 import { Header } from "@/components/Header";
+import { RowLink } from "@/components/RowLink";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { daysAgoIso } from "@/lib/time";
@@ -35,7 +36,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
 
   let rows = db
     .from("people")
-    .select("id,full_name,title,level,email,email_status,linkedin_url,source,enriched_at,created_at,accounts!inner(name,domain)", { count: "exact" })
+    .select("id,full_name,title,level,email,email_status,email_source,linkedin_url,source,enriched_at,created_at,accounts!inner(name,domain)", { count: "exact" })
     .eq("do_not_contact", false)
     .order("enriched_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
@@ -84,20 +85,19 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
 
       <section className="target-results">
         <header><div><span className="eyebrow">Contacts</span><h2>{total.toLocaleString()} people</h2></div><span>PAGE {page} / {totalPages}</span></header>
-        <div className="target-table-wrap"><table className="target-directory-table"><thead><tr><th>Person</th><th>Company</th><th>Level</th><th>Email</th><th>LinkedIn</th><th>Source</th></tr></thead><tbody>
+        <ol className="rank-list people-list">
           {(data ?? []).map((person) => {
             const account = person.accounts as unknown as { name: string; domain: string };
-            return <tr key={person.id}>
-              <td><strong>{person.full_name}</strong><small>{person.title}</small></td>
-              <td><span>{account.name}</span><small>{account.domain}</small></td>
-              <td><span className={`status-chip ${person.level === "owner" ? "ok" : person.level === "influencer" ? "no_signal" : "queued"}`}>{LEVEL_LABEL[person.level as string] ?? person.level}</span></td>
-              <td>{person.email_status === "verified" && person.email ? <><strong>{person.email}</strong><small>verified</small></> : <span>{EMAIL_LABEL[person.email_status as string] ?? person.email_status}</span>}</td>
-              <td>{person.linkedin_url ? <a href={person.linkedin_url} target="_blank" rel="noreferrer">Profile ↗</a> : <span>—</span>}</td>
-              <td><span className="roles-source">{String(person.source ?? "signal").replace("_", " ")}</span>{person.enriched_at && <small>{(person.enriched_at as string).slice(0, 10)}</small>}</td>
-            </tr>;
+            const email = person.email as string | null;
+            return <RowLink as="li" key={person.id} href={`/accounts/${account.domain}`}>
+              <div className="rank-company"><strong>{person.full_name}</strong><small>{person.title}</small><span className="outreach-chips"><span className={`tier-chip ${person.level === "owner" ? "tier-A1" : person.level === "influencer" ? "tier-A2" : ""}`}>{LEVEL_LABEL[person.level as string] ?? person.level}</span></span></div>
+              <div className="rank-why"><p>{account.name}</p><small>{email ? `${email} · ${person.email_source === "pattern" ? "built, unverified" : EMAIL_LABEL[person.email_status as string] ?? person.email_status}` : "no email on file"}{person.linkedin_url ? " · LinkedIn on file" : ""}</small></div>
+              <div className="rank-status">{person.linkedin_url ? <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a> : <span>—</span>}<small>{String(person.source ?? "signal").replace("_", " ")}{person.enriched_at ? ` · ${(person.enriched_at as string).slice(0, 10)}` : ""}</small></div>
+              <span className="rank-go">→</span>
+            </RowLink>;
           })}
-          {!data?.length && <tr><td colSpan={6}><em>No people yet. The sweep enriches contacts for hiring companies and post authors; set APOLLO_API_KEY for emails.</em></td></tr>}
-        </tbody></table></div>
+          {!data?.length && <li className="outreach-empty">No people yet. The scan finds them on company sites, LinkedIn results and press as it runs.</li>}
+        </ol>
         <nav className="target-pagination" aria-label="People pages">
           {page > 1 ? <Link href={href({ page: String(page - 1) })}>← Previous</Link> : <span />}
           <span>{total ? ((page - 1) * pageSize + 1).toLocaleString() : 0}–{Math.min(page * pageSize, total).toLocaleString()} of {total.toLocaleString()}</span>

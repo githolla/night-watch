@@ -27,6 +27,13 @@ const cases: Array<[string, ReturnType<typeof classifyTitle>]> = [
   ["Head of AI", "ai_ml"],
   ["Director of Process Automation", "automation"],
   ["Operations Manager", null],
+  // Factory, controls and test automation are engineering, not business automation.
+  ["Process Engineer - Leetsdale, PA", null],
+  ["Automation & Electrical Controls Supervisor", null],
+  ["Sr QA Automation Engineer", null],
+  ["Senior Continuous Improvement Engineer", "automation"],
+  ["RPA Developer", "automation"],
+  ["Business Process & Integration, Senior Lead", "automation"],
   ["Operations Coordinator", null],
   ["Data Analyst II", "data_analyst"],
   ["Financial Planning Analyst", "data_analyst"],
