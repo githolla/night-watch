@@ -2,10 +2,11 @@ import { requireUser } from "@/lib/auth";
 import { runNightly } from "@/lib/pipeline";
 import { classifyResearchError } from "@/lib/research-errors";
 import { nightlyBatchSize } from "@/lib/run-config";
+import { parseScope } from "@/lib/run-scope";
 
 export const maxDuration = 300;
 
-type Body = { runId?: string; accountIds?: string[]; limit?: number; populate?: boolean };
+type Body = { runId?: string; accountIds?: string[]; limit?: number; populate?: boolean; scope?: string };
 
 /**
  * Start a manual research run, or continue one. The first call creates the
@@ -23,6 +24,7 @@ export async function POST(request: Request) {
       accountIds: accountIds?.length ? accountIds : undefined,
       accountLimit: typeof body.limit === "number" ? body.limit : body.populate ? undefined : nightlyBatchSize(),
       populate: body.populate === true,
+      scope: parseScope(body.scope),
     });
     return Response.json(result);
   } catch (error) {

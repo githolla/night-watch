@@ -67,7 +67,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
   return <div className="shell">
     <Header />
     <main className="targets-page">
-      <section className="targets-head">
+      <section className="targets-head has-hero">
         <div><span className="eyebrow">People on file</span><h1>Who to contact, and how.</h1><p>The CEO from the target file, buyer-title matches from Apollo, post authors and signal owners, enriched with email and LinkedIn where available. Nothing is sent from here; the desk sends.</p></div>
         <div className="targets-head-count"><span>PEOPLE</span><strong>{total.toLocaleString()}</strong><small>{(verified ?? 0).toLocaleString()} verified emails · {(withLinkedIn ?? 0).toLocaleString()} LinkedIn profiles</small></div>
       </section>

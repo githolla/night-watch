@@ -1,10 +1,11 @@
 import { requireUser } from "@/lib/auth";
 import { runSweep } from "@/lib/job-sweep/sweep";
 import { classifyResearchError } from "@/lib/research-errors";
+import { parseScope } from "@/lib/run-scope";
 
 export const maxDuration = 300;
 
-type Body = { runId?: string; accountIds?: string[]; limit?: number; all?: boolean; populate?: boolean };
+type Body = { runId?: string; accountIds?: string[]; limit?: number; all?: boolean; populate?: boolean; scope?: string };
 
 /** Manual careers sweep from the desk; the run panel continues it by runId until it closes. */
 export async function POST(request: Request) {
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
       accountLimit: typeof body.limit === "number" ? body.limit : body.all || body.populate ? 2000 : undefined,
       ignoreCooldown: body.all === true || body.populate === true,
       populate: body.populate === true,
+      scope: parseScope(body.scope),
     }));
   } catch (error) {
     const classified = classifyResearchError(error);

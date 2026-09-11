@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
-import { TARGET_ACCOUNT_SOURCE, targetAccountRows, targetAccounts } from "@/lib/target-accounts";
+import { activeTargetAccounts, OUTREACH_TIERS, TARGET_ACCOUNT_SOURCE, TARGET_CUT_SOURCE, targetAccountRows, targetAccounts } from "@/lib/target-accounts";
 
 export const maxDuration = 60;
 
@@ -52,6 +52,12 @@ export async function POST() {
       imported += data?.length ?? 0;
     }
 
+    // The reach-out flag follows the tier unless someone set it by hand on the company page.
+    const { error: promoteError } = await db.from("accounts").update({ outreach: true }).in("tier", OUTREACH_TIERS).is("outreach_manual", null).eq("outreach", false);
+    if (promoteError) throw promoteError;
+    const { error: demoteError } = await db.from("accounts").update({ outreach: false }).or(`tier.is.null,tier.not.in.(${OUTREACH_TIERS.join(",")})`).is("outreach_manual", null).eq("outreach", true);
+    if (demoteError) throw demoteError;
+
     const targetDomains = new Set(targetAccounts.map((account) => account.domain));
     const staleDomains = (await activeDomains()).filter(
       (domain) => !domain.endsWith(".example") && !targetDomains.has(domain),
@@ -63,9 +69,12 @@ export async function POST() {
 
     return Response.json({
       imported,
-      total: targetAccounts.length,
+      total: activeTargetAccounts.length,
+      outreach: targetAccounts.filter((account) => account.outreach).length,
+      removed: targetAccounts.length - activeTargetAccounts.length,
       paused: staleDomains.length,
       source: TARGET_ACCOUNT_SOURCE,
+      cut: TARGET_CUT_SOURCE,
     });
   } catch (error) {
     return Response.json(

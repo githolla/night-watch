@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SystemClock } from "@/components/SystemClock";
+import { HERO_ALT, HERO_IMAGE } from "@/lib/hero";
 
 type CardSummary={id:string;score:number;status:string;channel:string;why_now:string;assigned_to:string;accounts:{name:string};people:{full_name:string;title:string};signals:{type?:string;summary:string;source_url:string}};
 export type DashboardData={metrics:{newSignals:number;surfacedCards:number;highPriority:number;positiveReplies:number};run:{status:string;finishedAt:string;accounts:number;signals:number;cards:number;cost:number;duration:string};sources:Array<{name:string;count:number;share:number;detail:string;filter:string}>;pipeline:Array<{name:string;count:number;note:string;href:string}>;recentSignals:Array<{id:string;type:string;account:string;summary:string;age:string;source:string;sourceUrl:string;cardId:string|null;isNew:boolean}>;accounts:Array<{name:string;signalCount:number;topSignal:string;score:number;owner:string}>;activity:Array<{time:string;label:string;detail:string}>};
@@ -9,7 +10,7 @@ export function Dashboard({data,cards}:{data:DashboardData;cards:CardSummary[]})
   const date=new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric"}).format(new Date());
   return <main className="overview">
     <section className="precision-hero">
-      <Image className="nightscape-image" src="/night-watch-los-angeles.png" alt="Los Angeles glowing at night beneath a charcoal sky" fill priority sizes="100vw"/>
+      <Image className="nightscape-image" src={HERO_IMAGE} alt={HERO_ALT} fill priority sizes="100vw"/>
       <div className="nightscape-wash"/>
       <aside className="hero-index">
         <span className="micro-label">INTELLIGENCE INDEX</span>

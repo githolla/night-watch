@@ -6,13 +6,13 @@ import { TargetAccountsPanel } from "@/components/TargetAccountsPanel";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { fetchAll } from "@/lib/supabase/fetch-all";
-import { targetAccounts } from "@/lib/target-accounts";
+import { activeTargetAccounts, targetAccounts, TIER_LABEL, type TargetTier } from "@/lib/target-accounts";
 import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-type Params = { q?: string; industry?: string; ownership?: string; research?: string; sort?: string; page?: string };
+type Params = { q?: string; industry?: string; ownership?: string; research?: string; sort?: string; page?: string; tier?: string };
 const researchFilters: Record<string, string> = { changed: "Changed this week", hiring: "Hiring in target roles", posts: "AI posts found", contacts: "Verified email on file", never: "Never researched", researched: "Researched", quiet: "Checked, no signal", signal: "Signals found", nocareers: "Careers page not found" };
 type LiveAccount = { domain: string; status: string; last_scouted_at: string | null; careers_status: string | null; intel_score: number | null; open_target_roles: number | null; ai_posts: number | null; contacts: number | null; verified_emails: number | null; last_change_at: string | null };
 const pageSize = 50;
@@ -28,6 +28,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
   const query = params.q?.trim().toLowerCase() ?? "";
   const industry = params.industry ?? "";
   const ownership = params.ownership ?? "";
+  const tier = params.tier && params.tier in TIER_LABEL ? (params.tier as TargetTier) : params.tier === "A" ? "A" : "";
   const research = params.research && params.research in researchFilters ? params.research : "";
   const db = admin();
   // Research state lives in the database; the directory itself is the static target file.
@@ -58,6 +59,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
     (!query || [account.name, account.domain, account.hqCity, account.hqState, account.aiSignal].some((value) => value.toLowerCase().includes(query))) &&
     (!industry || account.vertical === industry) &&
     (!ownership || account.ownership === ownership) &&
+    (!tier || (tier === "A" ? account.outreach : account.tier === tier)) &&
     matchesResearch(account.domain),
   );
   if (sort === "intel") {
@@ -78,21 +80,22 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
   return <div className="shell">
     <Header />
     <main className="targets-page">
-      <section className="targets-head">
-        <div><span className="eyebrow">Target universe</span><h1>Every company Night Watch follows.</h1><p>Browse the complete $50M+ list, see what has been researched, and narrow it by sector or ownership.</p></div>
+      <section className="targets-head has-hero">
+        <div><span className="eyebrow">Target universe</span><h1>Every company on the file, tier by tier.</h1><p>The complete $50M+ list with the reach-out cut applied. Only Tier A is contacted; work that list on the <Link href="/outreach">Reach-out page</Link>. Browse here to see what has been found for anyone, held or removed included.</p></div>
         <div className="targets-head-count"><span>SUPPLIED LIST</span><strong>{targetAccounts.length.toLocaleString()}</strong><small>{industries.length} industries · {ownerships.length} ownership types</small></div>
       </section>
 
-      <TargetAccountsPanel initialCount={activeCount} targetTotal={targetAccounts.length} />
+      <TargetAccountsPanel initialCount={activeCount} targetTotal={activeTargetAccounts.length} />
 
       <form className="target-filters" action="/targets">
         <label><span>Search</span><input name="q" defaultValue={params.q} placeholder="Company, domain, city, or AI signal" /></label>
         <label><span>Industry</span><select name="industry" defaultValue={industry}><option value="">All industries</option>{industries.map((item) => <option key={item}>{item}</option>)}</select></label>
         <label><span>Ownership</span><select name="ownership" defaultValue={ownership}><option value="">All ownership</option>{ownerships.map((item) => <option key={item}>{item}</option>)}</select></label>
+        <label><span>Tier</span><select name="tier" defaultValue={tier}><option value="">All tiers</option><option value="A">Reach-out list (A1 + A2)</option>{Object.entries(TIER_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span>Research</span><select name="research" defaultValue={research}><option value="">Any state</option>{Object.entries(researchFilters).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span>Sort</span><select name="sort" defaultValue={sort}><option value="intel">Intelligence score</option><option value="name">Name</option></select></label>
         <button className="btn primary" type="submit">Apply filters</button>
-        {(query || industry || ownership || research || params.sort) && <Link href="/targets">Clear</Link>}
+        {(query || industry || ownership || research || tier || params.sort) && <Link href="/targets">Clear</Link>}
       </form>
 
       <section className="target-results">
@@ -100,7 +103,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
         <div className="target-table-wrap"><table className="target-directory-table"><thead><tr><th>Company</th><th>Profile</th><th>Intelligence</th><th>Likely buyers</th><th>Research status</th></tr></thead><tbody>{visible.map((account) => {
           const live = liveByDomain.get(account.domain);
           return <tr key={account.domain}>
-            <td><strong>{account.name}</strong><a href={`https://${account.domain}`} target="_blank" rel="noreferrer">{account.domain} ↗</a><small>{account.hqCity}, {account.hqState}</small></td>
+            <td><Link href={`/accounts/${account.domain}`}><strong>{account.name}</strong></Link><a href={`https://${account.domain}`} target="_blank" rel="noreferrer">{account.domain} ↗</a><small>{account.hqCity}, {account.hqState}</small><span className="outreach-chips"><span className={`tier-chip tier-${account.tier}`}>{account.tier === "removed" ? "removed" : account.tier}</span></span></td>
             <td><span>{account.vertical}</span><small>{account.subSegment}</small><em>{account.ownership}{account.peSponsor ? ` · ${account.peSponsor}` : ""}</em></td>
             <td className="intel-cell"><strong className={`intel-score ${(live?.intel_score ?? 0) >= 60 ? "is-hot" : (live?.intel_score ?? 0) >= 30 ? "is-warm" : ""}`}>{live?.intel_score ?? 0}</strong><small>{[live?.open_target_roles ? `${live.open_target_roles} roles` : null, live?.ai_posts ? `${live.ai_posts} posts` : null, live?.contacts ? `${live.contacts} contacts${live.verified_emails ? ` (${live.verified_emails} verified)` : ""}` : null].filter(Boolean).join(" · ") || "no data yet"}</small><small>{live?.last_change_at ? `changed ${new Date(live.last_change_at).toLocaleDateString()}` : account.revenueEstimateUsdM ? `$${account.revenueEstimateUsdM.toLocaleString()}M` : account.revenueBand}</small></td>
             <td><span>{account.targetTitles.slice(0, 3).join(" · ")}</span>{account.aiSignal && <small>{account.aiSignal}</small>}</td>
@@ -123,6 +126,7 @@ function pageHref(params: Params, page: number) {
   if (params.industry) query.set("industry", params.industry);
   if (params.ownership) query.set("ownership", params.ownership);
   if (params.research) query.set("research", params.research);
+  if (params.tier) query.set("tier", params.tier);
   if (params.sort) query.set("sort", params.sort);
   query.set("page", String(page));
   return `/targets?${query.toString()}`;

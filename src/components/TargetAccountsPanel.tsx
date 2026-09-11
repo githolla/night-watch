@@ -19,7 +19,7 @@ export function TargetAccountsPanel({ initialCount, targetTotal }: { initialCoun
     }
     setCount(result.total);
     setState("success");
-    setMessage(`${result.total} target companies are active and ready for nightly research.`);
+    setMessage(`${result.total} companies are active; ${result.outreach} are on the reach-out list (Tier A) and ${result.removed} the cut removed are paused.`);
     window.setTimeout(() => window.location.reload(), 1400);
   }
 
@@ -27,7 +27,7 @@ export function TargetAccountsPanel({ initialCount, targetTotal }: { initialCoun
     <div>
       <span className="eyebrow">Target universe</span>
       <h2>{targetTotal.toLocaleString()} qualified companies</h2>
-      <p>Your complete $50M+ target list across accounting, SaaS, financial services, manufacturing, professional services, logistics, and other operating-intensive sectors.</p>
+      <p>Your complete $50M+ target list, with the reach-out cut applied: Tier A is contacted, Tiers B and C are held and watched, and removed companies are paused. Syncing writes the tiers to the database; a company put on or taken off the list by hand keeps that decision.</p>
     </div>
     <div className="target-control-status">
       <span>ACTIVE ACCOUNTS</span>

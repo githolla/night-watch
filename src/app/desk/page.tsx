@@ -8,13 +8,13 @@ import { latestRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { admin } from "@/lib/supabase/admin";
 import { fetchAll } from "@/lib/supabase/fetch-all";
-import { targetAccounts } from "@/lib/target-accounts";
+import { activeTargetAccounts } from "@/lib/target-accounts";
 import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-type Params = { card?: string; status?: string; priority?: string; new?: string; source?: string };
+type Params = { card?: string; status?: string; priority?: string; new?: string; source?: string; account?: string };
 
 /** Card statuses a salesperson still has to decide on. */
 const OPEN_STATUSES = ["new", "approved", "edited"];
@@ -40,12 +40,15 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   // the work the company needs done was built under the old rules and is not a decision.
   let query = db
     .from("cards")
-    .select("*,accounts(*),people(*),signals!inner(*)")
+    .select("*,accounts!inner(*),people(*),signals!inner(*)")
     .not("signals.raw->>operating_need", "is", null)
+    // The desk is the reach-out list only.
+    .eq("accounts.outreach", true)
     .order("score", { ascending: false });
   query = params.status ? query.eq("status", params.status) : query.in("status", OPEN_STATUSES);
   if (params.priority === "high") query = query.gte("score", PRIORITY_THRESHOLD);
   if (params.new === "today") query = query.eq("surfaced_on", today);
+  if (params.account) query = query.eq("accounts.domain", params.account.toLowerCase());
 
   const [
     { data: cardRows, error },
@@ -120,7 +123,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   const batchSize = nightlyBatchSize();
   const context: DeskContext = {
     today,
-    targetTotal: targetAccounts.length,
+    targetTotal: activeTargetAccounts.length,
     activeAccounts: active,
     coverage: {
       neverResearched: Math.max(0, active - researched),

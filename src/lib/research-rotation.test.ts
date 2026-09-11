@@ -71,6 +71,11 @@ test("priority band is coarse", () => {
   assert.equal(priorityBand({ aiSignal: "", ceo: "", ownership: "PE-backed" }), 1);
   assert.equal(priorityBand({ aiSignal: "", ceo: "", ownership: "Private" }), 0);
   assert.equal(priorityBand(null), 0);
+  // The cut's first wave sits above its second, and both above a company the cut holds.
+  assert.equal(priorityBand({ aiSignal: "Hiring an AI lead", ceo: "", ownership: "Public", tier: "A1" }), 4);
+  assert.equal(priorityBand({ aiSignal: "Hiring an AI lead", ceo: "", ownership: "Public", tier: "A2" }), 3);
+  assert.equal(priorityBand({ aiSignal: "", ceo: "", ownership: "Private", tier: "A1" }), 2);
+  assert.equal(priorityBand({ aiSignal: "Hiring an AI lead", ceo: "", ownership: "Public", tier: "B" }), 2);
 });
 
 test("a full pass over 1,859 companies at 10 a night takes 186 nights", () => {

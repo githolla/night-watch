@@ -10,6 +10,7 @@ import { ARCHIVE_THRESHOLD, CARD_THRESHOLD, score, strength } from "./scoring.ts
 import { recomputeAccountIntel } from "./account-intel.ts";
 import { requireSchema } from "./schema-check.ts";
 import { admin } from "./supabase/admin.ts";
+import { scopeCondition, type RunScope } from "./run-scope.ts";
 import { fetchAll } from "./supabase/fetch-all.ts";
 import { targetAccountByDomain, targetAccountRowBatches } from "./target-accounts.ts";
 import type { Account, Owner, PersonLevel } from "./types.ts";
@@ -187,6 +188,9 @@ export async function persistSignal(account: Account, item: ScoutSignal, outcome
   }
 
   if (!person || person.level === "unknown") return { storedId, cardId: null, personId: person?.id ?? null };
+  // Only the reach-out list gets a dossier. A hold-list company keeps the signal and the person as
+  // promotion evidence; nobody is contacted until someone moves it onto the list.
+  if (account.outreach === false) return { storedId, cardId: null, personId: person.id as string };
   const scored = score({ type: item.type, level: person.level, observedAt: item.observed_at, pathScore: person.path_score, item: item.job } as never);
   const breakdown = storedBreakdown(scored);
   if (scored.score < CARD_THRESHOLD) return { storedId, cardId: null, personId: person.id as string };
@@ -217,11 +221,14 @@ export async function ensureAccountsLoaded(db: Db) {
   }
 }
 
-async function allActiveAccounts(db: Db) {
+async function allActiveAccounts(db: Db, scope: RunScope = "outreach") {
   const accounts: Account[] = [];
   const pageSize = 1000;
   for (let from = 0; ; from += pageSize) {
-    const { data: page, error } = await db.from("accounts").select("*").eq("status", "active").not("domain", "like", "%.example").order("name").range(from, from + pageSize - 1);
+    let query = db.from("accounts").select("*").eq("status", "active").not("domain", "like", "%.example");
+    const condition = scopeCondition(scope);
+    if (condition) query = query.eq(condition.column, condition.value);
+    const { data: page, error } = await query.order("name").range(from, from + pageSize - 1);
     if (error) throw error;
     accounts.push(...((page ?? []) as Account[]));
     if ((page?.length ?? 0) < pageSize) break;
@@ -315,6 +322,8 @@ export type RunNightlyOptions = {
    * every continuation call, since it is not stored on the run.
    */
   populate?: boolean;
+  /** Companies the run may pick from when no ids are given. Research defaults to the reach-out list. */
+  scope?: RunScope;
   now?: () => number;
 };
 
@@ -333,7 +342,8 @@ export type RunNightlyResult = {
 async function createRun(db: Db, options: RunNightlyOptions, now: number) {
   const populate = options.populate ? populateConfig() : null;
   const limit = Math.max(1, Math.min(2000, Math.floor(options.accountLimit ?? populate?.accountLimit ?? nightlyBatchSize())));
-  const accounts = await allActiveAccounts(db);
+  // Explicit ids may name any active company, such as a hold-list company researched from its page.
+  const accounts = await allActiveAccounts(db, options.accountIds?.length ? "all" : options.scope ?? "outreach");
   const busy = await accountIdsInOpenRuns(db);
   let batch: Account[];
   if (options.accountIds?.length) {
@@ -517,9 +527,15 @@ function normalizeStoredBreakdown(value: unknown): StoredBreakdown {
  */
 export async function recomputeAndSurface() {
   const db = admin();
-  const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(observed_at,raw)").in("status", ["new", "approved", "edited", "snoozed"]);
+  const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(observed_at,raw),accounts(outreach)").in("status", ["new", "approved", "edited", "snoozed"]);
   for (const card of cards ?? []) {
     const signal = card.signals as unknown as { observed_at: string; raw?: { operating_need?: unknown } | null };
+    const account = card.accounts as unknown as { outreach?: boolean | null } | null;
+    // The reach-out list is Tier A. A dossier for a company the cut holds or removed is retired, not sent.
+    if (account && account.outreach === false) {
+      await db.from("cards").update({ status: "archived", dismiss_reason: "Not on the reach-out list. Promote the company on its page if it belongs there." }).eq("id", card.id);
+      continue;
+    }
     // A card whose signal never named an operating need was created under the
     // old rules, when an executive's opinion piece could qualify. Retire it.
     if (!signal.raw || typeof signal.raw.operating_need !== "string" || !signal.raw.operating_need.trim()) {

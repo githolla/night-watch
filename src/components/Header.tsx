@@ -1,8 +1,9 @@
 import Link from "next/link";
 
-/** Navigation named for the task, not the brand: Today, Accounts, Desk, Results, Settings, Lock. */
+/** Navigation named for the task, not the brand: Today, Reach-out, Accounts, Desk, Results, Settings, Lock. */
 const items = [
   { href: "/", label: "Today" },
+  { href: "/outreach", label: "Reach-out" },
   { href: "/targets", label: "Accounts" },
   { href: "/roles", label: "Roles" },
   { href: "/posts", label: "Posts" },

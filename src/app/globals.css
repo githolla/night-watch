@@ -442,3 +442,114 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:12px;color:var(--ink-soft)}.
 .intel-score.is-hot{color:var(--ok)}
 .runs-link{display:inline-block;margin-top:14px;font:700 11px/1.4 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink);text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:2px}
 .desk-nav-runs{display:inline-grid;place-items:center;padding:0 12px;font:700 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--ink);border:1px solid var(--line-strong);margin-right:6px}
+
+/* Reach-out list: Tier A, worked by hand. */
+.target-filters{grid-template-columns:minmax(240px,1.6fr) repeat(4,minmax(0,.75fr)) auto auto}
+.outreach-filters{grid-template-columns:minmax(240px,1.6fr) repeat(6,minmax(0,.72fr)) auto}
+.outreach-filters .btn{white-space:nowrap}
+.outreach-tiles{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line-strong);background:#fff;margin:20px 0 14px}
+.outreach-tile{border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;text-align:left;font:inherit;cursor:pointer;min-height:124px}
+.outreach-tile:nth-child(4n){border-right:0}
+.outreach-tile:nth-child(n+5){border-bottom:0}
+.outreach-tile.is-active{background:var(--accent-soft);box-shadow:inset 0 -3px 0 var(--accent)}
+.outreach-tile .coverage-bar{margin-top:2px}
+.outreach-facets{border:1px solid var(--line-strong);background:#fff;margin:0 0 14px}
+.outreach-facets summary{cursor:pointer;padding:14px 18px;font-size:13px;color:var(--ink-soft)}
+.outreach-facets summary .eyebrow{margin-right:10px}
+.outreach-facet-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--line)}
+.outreach-facet{padding:14px 16px;border-right:1px solid var(--line);display:grid;gap:4px;align-content:start}
+.outreach-facet:last-child{border-right:0}
+.outreach-facet h3{font:700 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.outreach-facet button{display:grid;grid-template-columns:minmax(0,1fr) 70px 34px;gap:8px;align-items:center;border:0;background:transparent;padding:5px 4px;text-align:left;font-size:12px;line-height:1.3;cursor:pointer}
+.outreach-facet button:hover{background:var(--soft)}
+.outreach-facet button.is-active{background:var(--accent-soft)}
+.outreach-facet button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.outreach-facet button i{display:block;height:6px;background:var(--line)}
+.outreach-facet button b{display:block;height:100%;background:var(--ink)}
+.outreach-facet button strong{font:600 11px/1 var(--mono);text-align:right;color:var(--muted)}
+.outreach-results-actions{display:flex;gap:14px;align-items:center;font:700 11px/1 var(--mono);letter-spacing:.08em;color:var(--muted)}
+.outreach-clear,.outreach-page{border:1px solid var(--line-strong);background:transparent;font:700 11px/1 var(--mono);letter-spacing:.05em;padding:8px 10px;cursor:pointer}
+.target-pagination .outreach-page:last-child{justify-self:end}
+.outreach-table th:nth-child(1){width:19%}.outreach-table th:nth-child(2){width:19%}.outreach-table th:nth-child(3){width:14%}.outreach-table th:nth-child(4){width:11%}.outreach-table th:nth-child(5){width:12%}.outreach-table th:nth-child(6){width:10%}.outreach-table th:nth-child(7){width:15%}
+.outreach-table td>a.outreach-name{font:inherit;margin:0}
+.outreach-table td>a.outreach-name strong{font-size:13px}
+.outreach-table tr.is-closed td{opacity:.55}
+.outreach-table tr.is-unsynced td{background:var(--attention-soft)}
+.outreach-chips{display:flex!important;gap:4px;flex-wrap:wrap;margin-top:6px}
+.tier-chip{display:inline-block;font:700 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 6px;border:1px solid var(--line-strong);color:var(--muted)}
+.tier-chip.tier-A1{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tier-chip.tier-A2{background:var(--ok-soft);color:var(--ok);border-color:rgba(47,111,94,.3)}
+.tier-chip.tier-B,.tier-chip.tier-C{background:#fff}
+.tier-chip.tier-removed{color:var(--failed);border-color:rgba(140,59,49,.3)}
+.tier-chip.tier-manual{background:var(--accent-soft);color:var(--accent);border-color:rgba(154,106,39,.3)}
+.tier-chip.tier-unsynced{background:var(--attention-soft);color:var(--attention)}
+.outreach-signal{color:var(--ink-soft)!important}
+.outreach-changed{color:var(--ok);font-weight:700}
+.outreach-stage,.outreach-owner{width:100%;height:34px;border:1px solid var(--line-strong);background:#faf9f6;padding:0 8px;font:600 11px/1 var(--mono)}
+.outreach-stage.stage-contacted,.outreach-stage.stage-replied,.outreach-stage.stage-meeting,.outreach-stage.stage-won{background:var(--ok-soft);color:var(--ok)}
+.outreach-stage.stage-ready,.outreach-stage.stage-researching{background:var(--accent-soft);color:var(--accent)}
+.outreach-stage.stage-lost,.outreach-stage.stage-hold{color:var(--muted)}
+.outreach-table td>small{margin-top:4px}
+.outreach-notes-toggle{display:block;width:100%;border:1px dashed var(--line-strong);background:transparent;padding:8px;text-align:left;font-size:12px;line-height:1.4;color:var(--ink-soft);cursor:pointer}
+.outreach-notes-toggle:disabled{cursor:default}
+.outreach-open{display:block;margin-top:8px;font:700 11px/1 var(--mono);letter-spacing:.05em;text-decoration:none;color:var(--accent)}
+.outreach-notes-row td{background:var(--soft)}
+.outreach-notes-row textarea{width:100%;border:1px solid var(--line-strong);background:#fff;padding:10px;font-size:13px;line-height:1.5}
+.outreach-notes-row div{display:flex;gap:10px;margin-top:10px}
+.outreach-notes-row .btn{width:auto}
+.outreach-empty{text-align:center;color:var(--muted);padding:40px 16px!important}
+.outreach-hold{margin-top:24px;border:1px solid var(--line-strong);background:#fff}
+.outreach-hold>header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 24px}
+.outreach-hold>header h2{font-size:22px;letter-spacing:-.03em;margin:8px 0 6px}
+.outreach-hold>header p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-soft);max-width:760px}
+.outreach-hold>header .btn{width:auto;white-space:nowrap}
+.outreach-hold .coverage-note{padding:0 24px 22px}
+.outreach-hold-table th:nth-child(1){width:30%}.outreach-hold-table th:nth-child(2){width:10%}.outreach-hold-table th:nth-child(3){width:12%}.outreach-hold-table th:nth-child(4){width:30%}.outreach-hold-table th:nth-child(5){width:18%}
+.outreach-hold-table .btn{width:auto}
+.outreach-form{display:grid;gap:14px}
+.outreach-form label{display:grid;gap:6px}
+.outreach-form label>span{font:700 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.outreach-form input,.outreach-form select,.outreach-form textarea{border:1px solid var(--line-strong);background:#faf9f6;padding:10px 12px;font-size:13px}
+.outreach-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.outreach-form-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.outreach-form-actions .btn{width:auto}
+.outreach-form-actions .notice{margin:0}
+.outreach-form-saved{font:700 11px/1 var(--mono);letter-spacing:.06em;color:var(--ok)}
+/* Company page */
+.account-crumbs{font:600 11px/1 var(--mono);letter-spacing:.05em;color:var(--muted);margin:0 0 14px}
+.account-crumbs a{text-decoration:none}
+.account-page .targets-head h1{font-size:clamp(34px,4vw,54px)}
+.account-page .targets-head-count strong.intel-score{font-size:58px;color:var(--ink)}
+.account-page .targets-head-count strong.intel-score.is-warm{color:var(--attention)}
+.account-page .targets-head-count strong.intel-score.is-hot{color:var(--ok)}
+.account-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 24px;margin:20px 0 0;font-size:13px;line-height:1.5}
+.account-facts div{display:grid;gap:3px}
+.account-facts dt{font:700 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.account-facts dd{margin:0}
+.account-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;margin-top:20px}
+.account-panel{margin:0}
+.account-sections{display:grid;gap:14px;margin-top:14px}
+.account-section>header>span{white-space:nowrap}
+.account-table th{width:auto!important}
+.account-empty{padding:18px 24px;margin:0}
+.account-list{list-style:none;margin:0;padding:0}
+.account-list li{padding:16px 24px;border-bottom:1px solid var(--line);display:grid;gap:6px;font-size:13px;line-height:1.5}
+.account-list li:last-child{border-bottom:0}
+.account-list li small{color:var(--muted)}
+.account-list li p{margin:0;color:var(--ink-soft)}
+.account-list li>a{font:700 11px/1 var(--mono);letter-spacing:.05em;text-decoration:none;color:var(--accent)}
+.account-need b{color:var(--ink)}
+.account-touches{display:block}
+.account-more{padding:14px 24px;border-top:1px solid var(--line);font-size:13px}
+.account-more summary{cursor:pointer;color:var(--ink-soft)}
+.account-more ul{margin:10px 0 0;padding-left:18px;line-height:1.7}
+@media(max-width:1100px){.outreach-tiles{grid-template-columns:1fr 1fr}.outreach-tile:nth-child(2n){border-right:0}.outreach-tile:nth-child(n+5){border-bottom:1px solid var(--line)}.outreach-tile:nth-child(n+7){border-bottom:0}.outreach-facet-grid{grid-template-columns:1fr 1fr 1fr}.outreach-facet:nth-child(n+4){border-top:1px solid var(--line)}.outreach-table{min-width:1180px}.account-grid{grid-template-columns:1fr}.outreach-filters{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.outreach-tiles{grid-template-columns:1fr}.outreach-tile{border-right:0}.outreach-facet-grid{grid-template-columns:1fr}.outreach-facet{border-right:0;border-top:1px solid var(--line)}.outreach-form-grid{grid-template-columns:1fr}.outreach-hold>header{flex-direction:column;align-items:start}.outreach-filters{grid-template-columns:1fr}}
+
+/* One hero throughout: the image sits behind every page head and the login screen, under a paper wash that keeps the type legible. */
+.login{background:linear-gradient(rgba(243,239,231,.72),rgba(243,239,231,.72)),var(--hero,url('/night-watch-los-angeles.png')) center/cover}
+.targets-head.has-hero{position:relative;overflow:hidden;background:var(--hero,url('/night-watch-los-angeles.png')) center/cover}
+.targets-head.has-hero>div:first-child{position:relative;background:linear-gradient(90deg,rgba(252,251,248,.97) 0%,rgba(252,251,248,.94) 48%,rgba(252,251,248,.72) 76%,rgba(252,251,248,.42) 100%)}
+.targets-head.has-hero>.targets-head-count{position:relative;background:rgba(240,235,227,.92);backdrop-filter:blur(6px)}
+.targets-head.has-hero h1{max-width:760px}
+@media(max-width:700px){.targets-head.has-hero>div:first-child{background:linear-gradient(180deg,rgba(252,251,248,.97) 0%,rgba(252,251,248,.9) 100%)}}

@@ -11,11 +11,13 @@
 export type RotationAccount = { domain: string; name: string; last_scouted_at: string | null };
 
 /** Coarse priority band from the supplied target file: 2 for an AI clue, 1 for a named CEO or PE sponsor, 0 otherwise. */
-export function priorityBand(context?: { aiSignal?: string; ceo?: string; ownership?: string } | null) {
+export function priorityBand(context?: { aiSignal?: string; ceo?: string; ownership?: string; tier?: string } | null) {
   if (!context) return 0;
-  if (context.aiSignal) return 2;
-  if (context.ceo || context.ownership === "PE-backed") return 1;
-  return 0;
+  // The cut's first wave outranks its second, before anything the file says about the company.
+  const tier = context.tier === "A1" ? 2 : context.tier === "A2" ? 1 : 0;
+  if (context.aiSignal) return tier + 2;
+  if (context.ceo || context.ownership === "PE-backed") return tier + 1;
+  return tier;
 }
 
 export type SelectionOptions<T> = {

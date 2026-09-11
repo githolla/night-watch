@@ -10,6 +10,7 @@ import { disqualifySignal, searchAiPosts, searchJobBoards } from "../agents.ts";
 import { searchPeopleByTitles } from "../apollo-search.ts";
 import { upsertPerson } from "../pipeline.ts";
 import { recomputeAccountIntel } from "../account-intel.ts";
+import { scopeCondition, type RunScope } from "../run-scope.ts";
 import { populateSweepConfig, sweepAccountLimit, sweepAiPosts, sweepBudgetUsd, sweepConcurrency, sweepContacts, sweepCooldownMs, sweepSearchFallback, timeBudgetMs } from "../run-config.ts";
 import { requireSchema } from "../schema-check.ts";
 import { admin } from "../supabase/admin.ts";
@@ -34,6 +35,8 @@ export type SweepOptions = {
   ignoreCooldown?: boolean;
   /** Extensive first pass: research model, more searches, contacts for every company, no cooldown gating. Passed on every continuation call. */
   populate?: boolean;
+  /** Companies the sweep may pick from when no ids are given. Defaults to the reach-out list. */
+  scope?: RunScope;
   fetcher?: Fetcher;
   now?: () => number;
 };
@@ -231,14 +234,17 @@ export async function hiringSignal(account: Account, result: SweepAccountResult,
 async function selectAccounts(db: Db, options: SweepOptions, now: number) {
   const busy = await accountIdsInOpenRuns(db);
   if (options.accountIds?.length) {
-    const { data } = await db.from("accounts").select("id,name,domain").in("id", options.accountIds).eq("status", "active");
+    const { data } = await db.from("accounts").select("id,name,domain,outreach").in("id", options.accountIds).eq("status", "active");
     return (data ?? []).filter((account) => !busy.has(account.id));
   }
   const limit = Math.max(1, Math.min(2000, Math.floor(options.accountLimit ?? sweepAccountLimit())));
   const cutoff = new Date(now - sweepCooldownMs()).toISOString();
-  let query = db.from("accounts").select("id,name,domain").eq("status", "active").not("domain", "like", "%.example");
+  let query = db.from("accounts").select("id,name,domain,outreach").eq("status", "active").not("domain", "like", "%.example");
+  const condition = scopeCondition(options.scope ?? "outreach");
+  if (condition) query = query.eq(condition.column, condition.value);
   if (!options.ignoreCooldown) query = query.or(`careers_checked_at.is.null,careers_checked_at.lt.${cutoff}`);
-  const { data, error } = await query.order("careers_checked_at", { ascending: true, nullsFirst: true }).order("name").limit(limit + busy.size);
+  // Reach-out companies first, then whoever has waited longest.
+  const { data, error } = await query.order("outreach", { ascending: false }).order("careers_checked_at", { ascending: true, nullsFirst: true }).order("name").limit(limit + busy.size);
   if (error) throw error;
   return (data ?? []).filter((account) => !busy.has(account.id)).slice(0, limit);
 }
@@ -397,7 +403,8 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
         // Contacts: the CEO from the file plus buyer-title matches, enriched through Apollo when a key is set.
         let contactsFound = 0;
         const contactsDue = !account.contacts_checked_at || Date.parse(account.contacts_checked_at) < rowStart - contacts.cooldownMs;
-        const contactsWanted = contacts.mode === "all" || (contacts.mode === "hiring" && (result.targetPostings.length > 0 || postsFound > 0));
+        // Contacts cost credits; a hold-list company earns them only once it is promoted to the reach-out list.
+        const contactsWanted = account.outreach !== false && (contacts.mode === "all" || (contacts.mode === "hiring" && (result.targetPostings.length > 0 || postsFound > 0)));
         if (contactsWanted && contactsDue) {
           const context = targetAccountByDomain.get(account.domain);
           const candidates: Array<{ name: string; title: string; linkedin_url: string | null }> = [];

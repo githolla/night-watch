@@ -7,7 +7,7 @@ export function MigrationRequired({ pending }: { pending: PendingMigration[] }) 
     <div className="shell">
       <Header />
       <main className="targets-page">
-        <section className="targets-head">
+        <section className="targets-head has-hero">
           <div>
             <span className="eyebrow">Database behind the code</span>
             <h1>{pending.length === 1 ? "One migration" : `${pending.length} migrations`} to apply before this page can load.</h1>

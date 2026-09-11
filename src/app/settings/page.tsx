@@ -4,7 +4,7 @@ import { pendingMigrations } from "@/lib/schema-check";
 import { FeatureControlCenter } from "@/components/FeatureControlCenter";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
-import { targetAccounts } from "@/lib/target-accounts";
+import { activeTargetAccounts } from "@/lib/target-accounts";
 import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 export default async function Settings() {
@@ -26,6 +26,6 @@ export default async function Settings() {
   const slackConnected = Boolean(process.env.SLACK_BOT_TOKEN && process.env.SLACK_SIGNING_SECRET && process.env.SLACK_CHANNEL_ID);
   return <div>
     <Header />
-    <main className="workspace-page"><FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={targetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} /></main>
+    <main className="workspace-page"><FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={activeTargetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} /></main>
   </div>;
 }

@@ -14,6 +14,20 @@ Night Watch ships with the 1,859-company Nine67 outbound target universe. Every 
 
 Open Workspace → Signal research and choose **Load 1,859 companies** to sync them immediately. If the live account table is empty, the nightly run also loads the list automatically before research starts. After replacing the source CSV, run `npm run targets:generate` before deploying.
 
+## Reach-out list (Tier A)
+
+The cut in `data/Nine67_Outbound_Targets_Cut.xlsx` decides who is contacted. Every company on the file carries a tier: **A1** (first wave) and **A2** (second wave) are the reach-out list; **B** and **C** are held and watched; **Removed** companies are paused. Only reach-out companies get research runs, contact enrichment, dossiers, and a place on the desk. Held companies are swept for a promotion signal only when asked (Runs → *Sweep the held companies*), and anything found shows up as a promotion candidate.
+
+- **Reach-out page** (`/outreach`): the list, searchable and filterable by priority, industry, ownership, state, stage, owner, and evidence (hiring, AI posts, verified emails, dossiers, contacted, changed this week). Tiles and breakdown bars are clickable filters; filters live in the address bar so a view can be sent as a link. Stage, owner, and notes are edited inline; **Export to CSV** downloads the current view.
+- **Company page** (`/accounts/<domain>`): everything on file for one company (roles, AI posts, people, signals, dossiers, touches, run history), with the reach-out form and buttons to sweep or research it now.
+- **Promotion**: put a held company on the list from its page or from the candidates panel; take one off the same way. A hand decision survives re-syncs. *Follow the tier* clears it.
+
+After replacing the workbook, run `python3 scripts/export-target-cut.py` (needs `openpyxl`) to refresh `data/Nine67_Outbound_Targets_Cut.csv`, then `npm run targets:generate`, then sync on the Accounts page. Migration `supabase/migrations/0009_outreach_tiers.sql` adds the tier and reach-out columns.
+
+## Hero image
+
+One image is used on the Today page, the login screen and every page head. Put it in `public/` as `night-watch-hero.jpg` (or `.png` / `.webp`); until that file exists the earlier nightscape stays in place.
+
 ## Manual proof assets
 
 The build brief requires a five-night manual validation before application development begins.

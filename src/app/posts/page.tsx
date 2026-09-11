@@ -44,7 +44,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
   return <div className="shell">
     <Header />
     <main className="targets-page">
-      <section className="targets-head">
+      <section className="targets-head has-hero">
         <div><span className="eyebrow">Public posts</span><h1>People at target companies talking about AI in their own work.</h1><p>Found by the sweep&apos;s posts scan: LinkedIn, X, blogs and talks by named people who work at these companies. A post by a manager or executive becomes a dossier with them as the person.</p></div>
         <div className="targets-head-count"><span>POSTS FOUND</span><strong>{total.toLocaleString()}</strong><small>Verbatim excerpts, linked to the original</small></div>
       </section>
