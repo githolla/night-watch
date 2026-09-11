@@ -2,8 +2,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type RunAccountStatus = "queued" | "running" | "ok" | "no_signal" | "error" | "cancelled";
 export type RunStatus = "open" | "complete" | "cancelled";
-export type RunSource = "scheduled" | "manual" | "sweep" | "sweep_manual";
+export type RunSource = "scheduled" | "manual" | "sweep" | "sweep_manual" | "analysis" | "analysis_manual";
 export const SWEEP_SOURCES: RunSource[] = ["sweep", "sweep_manual"];
+export const ANALYSIS_SOURCES: RunSource[] = ["analysis", "analysis_manual"];
 export const RESEARCH_SOURCES: RunSource[] = ["scheduled", "manual"];
 
 export type RunAccountRow = {
@@ -108,7 +109,7 @@ export async function loadRunSummary(db: Db, runId: string): Promise<RunSummary 
   return {
     id: run.id,
     status: (run.status as RunStatus) ?? (run.finished_at ? "complete" : "open"),
-    source: (["manual", "sweep", "sweep_manual"].includes(run.source) ? run.source : "scheduled") as RunSource,
+    source: (["manual", "sweep", "sweep_manual", "analysis", "analysis_manual"].includes(run.source) ? run.source : "scheduled") as RunSource,
     startedAt: run.started_at,
     finishedAt: run.finished_at ?? null,
     heartbeatAt: run.heartbeat_at ?? null,

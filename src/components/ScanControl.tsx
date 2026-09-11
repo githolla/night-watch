@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { RunSummary } from "@/lib/run-status";
 
 type RunResponse = { run: RunSummary; stopped: string; error?: string };
-type Phase = "idle" | "sweep" | "research" | "stopping";
+type Phase = "idle" | "sweep" | "research" | "analysis" | "stopping";
 
 const STALE_MS = 20 * 3600_000;
 
@@ -89,16 +89,24 @@ export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinis
     active.current = true;
     try {
       const resumeSweep = openRun && ["sweep", "sweep_manual"].includes(openRun.source) ? openRun.id : undefined;
-      const resumeResearch = openRun && !resumeSweep ? openRun.id : undefined;
-      if (!resumeResearch) {
+      const resumeAnalysis = openRun && ["analysis", "analysis_manual"].includes(openRun.source) ? openRun.id : undefined;
+      const resumeResearch = openRun && !resumeSweep && !resumeAnalysis ? openRun.id : undefined;
+      if (!resumeResearch && !resumeAnalysis) {
         setPhase("sweep");
         // Every pass is the thorough one for the sweep: careers pages, job boards, AI posts by people at the
         // company, and contacts, for every company, cooldowns ignored. Only the research pass gets cheaper after the first.
         const sweep = await drive("/api/sweep/run", { all: true, populate: true }, { populate: true }, resumeSweep);
         if (!active.current || sweep.stopped === "cancelled" || sweep.stopped === "busy") return;
       }
-      setPhase("research");
-      await drive("/api/nightly/run", extensive ? { populate: true } : { limit: listSize }, extensive ? { populate: true } : {}, resumeResearch);
+      if (!resumeAnalysis) {
+        setPhase("research");
+        const research = await drive("/api/nightly/run", extensive ? { populate: true } : { limit: listSize }, extensive ? { populate: true } : {}, resumeResearch);
+        if (!active.current || research.stopped === "cancelled" || research.stopped === "busy") return;
+      }
+      // Then the agent swarm: four search agents and a synthesizer per company, hottest companies first,
+      // everyone on the first pass and whoever is past the analysis cooldown after that.
+      setPhase("analysis");
+      await drive("/api/analysis/run", extensive ? { all: true, force: true } : { all: true }, {}, resumeAnalysis);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The scan failed");
     } finally {
@@ -138,7 +146,7 @@ export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinis
   return <div className="scan-control">
     <div className="scan-actions">
       {running ? <>
-        <span className="scan-live"><i />{phase === "sweep" ? "Reading careers pages, job boards and AI posts" : phase === "research" ? "Researching with the model" : "Stopping after the current company"}{total ? ` · ${done} / ${total}` : ""}{counts ? ` · ${counts.ok} with something found` : ""} · ${(spent + (run?.costUsd ?? 0)).toFixed(2)}</span>
+        <span className="scan-live"><i />{phase === "sweep" ? "Reading careers pages, job boards and AI posts" : phase === "research" ? "Researching with the model" : phase === "analysis" ? "Agent swarm: company, hiring, people, voices, brief" : "Stopping after the current company"}{total ? ` · ${done} / ${total}` : ""}{counts ? ` · ${counts.ok} with something found` : ""} · ${(spent + (run?.costUsd ?? 0)).toFixed(2)}</span>
         <button className="scan-stop" type="button" disabled={phase === "stopping"} onClick={stop}>Stop</button>
       </> : <>
         <span className="scan-note">{error ? "The scan stopped." : lastScan ? `Up to date. Last scan ${lastScan}. Night Watch keeps scanning on its own; leave this page open or let the nightly run do it.` : "Nothing scanned yet."}</span>

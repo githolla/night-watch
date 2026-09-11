@@ -8,6 +8,7 @@ import { RecheckButton } from "@/components/RecheckButton";
 import { requireUser } from "@/lib/auth";
 import { FAMILY_LABEL, type JobFamily } from "@/lib/job-sweep/classify";
 import { isOutreachStage, type OutreachStage } from "@/lib/outreach";
+import { parseStoredAnalysis } from "@/lib/analysis";
 import { buildBrief } from "@/lib/prospect-brief";
 import { pendingMigrations } from "@/lib/schema-check";
 import { admin } from "@/lib/supabase/admin";
@@ -84,6 +85,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
   const openCards = cards.filter((card) => OPEN.includes(card.status));
   const pastCards = cards.filter((card) => !OPEN.includes(card.status));
   const score = live?.intel_score ?? 0;
+  const analysis = parseStoredAnalysis(live?.analysis);
   const brief = buildBrief({
     name, tier, aiSignalOnFile: target?.aiSignal ?? "",
     roles: targetPostings.map((posting) => ({ title: posting.title, family: posting.family ?? "", postedAt: posting.posted_at ?? posting.first_seen_at })),
@@ -135,6 +137,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
 
       {live && <nav className="account-nav" aria-label="On this page">
         <a href="#brief">Brief</a>
+        {analysis && <a href="#happening">What is happening</a>}
         <a href="#who">Who to reach out to{openCards.length ? ` · ${openCards.length} ${openCards.length === 1 ? "draft" : "drafts"}` : ""}</a>
         <a href="#hiring">Roles · {targetPostings.length}</a>
         <a href="#people">People · {people.length}</a>
@@ -150,15 +153,33 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
 
       {live && <section className="brief" id="brief">
         <div className="brief-col">
-          <span className="eyebrow">For the manager · why this prospect</span>
-          <h2>{brief.headline}</h2>
-          <ul>{brief.why.map((line, index) => <li key={index}>{line}</li>)}</ul>
+          <span className="eyebrow">For the manager · why this prospect{analysis?.analyzedAt ? ` · agent swarm ${date(analysis.analyzedAt)}${analysis.brief.fit ? ` · fit ${analysis.brief.fit}/100` : ""}` : " · from what is on file"}</span>
+          <h2>{analysis?.brief.whyNow ? (analysis.brief.fit >= 60 ? "Strong prospect" : analysis.brief.fit >= 35 ? "Worth a conversation" : "Weak prospect today") : brief.headline}</h2>
+          {analysis?.brief.whyNow ? <>
+            <p className="brief-text">{analysis.brief.whyNow}</p>
+            {analysis.brief.angle && <p className="brief-text"><b>The angle.</b> {analysis.brief.angle}</p>}
+            {analysis.brief.whoFirst && <p className="brief-text"><b>Write to {analysis.brief.whoFirst}{analysis.brief.whoFirstTitle ? `, ${analysis.brief.whoFirstTitle}` : ""}.</b> {analysis.brief.whoFirstWhy}</p>}
+            {analysis.brief.opener && <blockquote className="brief-opener">{analysis.brief.opener}</blockquote>}
+            {analysis.brief.objections.length > 0 && <details className="brief-objections"><summary>Likely pushback and the answers</summary><ul>{analysis.brief.objections.map((line, index) => <li key={index}>{line}</li>)}</ul></details>}
+            {analysis.brief.fitReason && <small className="brief-fit">{analysis.brief.fitReason}</small>}
+          </> : <ul>{brief.why.map((line, index) => <li key={index}>{line}</li>)}</ul>}
         </div>
         <div className="brief-col brief-standing">
           <span className="eyebrow">Where it stands</span>
           <ul>{brief.standing.map((line, index) => <li key={index}>{line}</li>)}</ul>
           <span className="eyebrow">Going forward</span>
-          <p className="brief-next">{brief.next}</p>
+          <p className="brief-next">{analysis?.brief.nextStep || brief.next}</p>
+        </div>
+      </section>}
+
+      {live && analysis && (analysis.overview || analysis.happening.length > 0 || analysis.hiring.read) && <section className="target-results account-section" id="happening">
+        <header><div><span className="eyebrow">What the agents found</span><h2>What is happening at {name}</h2></div>{analysis.tech.length > 0 && <span>Uses {analysis.tech.slice(0, 6).join(", ")}</span>}</header>
+        <div className="happening">
+          {analysis.overview && <p className="happening-overview">{analysis.overview}</p>}
+          {analysis.happening.length > 0 && <ul className="click-list compact">{analysis.happening.map((item, index) => <li key={index}>{item.source_url ? <a href={item.source_url} target="_blank" rel="noreferrer"><div><strong>{item.text}</strong>{item.date && <small>{item.date}</small>}</div><em>Source ↗</em></a> : <span className="click-static"><div><strong>{item.text}</strong>{item.date && <small>{item.date}</small>}</div></span>}</li>)}</ul>}
+          {analysis.painPoints.length > 0 && <div className="happening-block"><span className="eyebrow">Problems they have said out loud</span><ul className="click-list compact">{analysis.painPoints.map((item, index) => <li key={index}>{item.source_url ? <a href={item.source_url} target="_blank" rel="noreferrer"><div><strong>{item.text}</strong></div><em>Source ↗</em></a> : <span className="click-static"><div><strong>{item.text}</strong></div></span>}</li>)}</ul></div>}
+          {analysis.hiring.read && <div className="happening-block"><span className="eyebrow">What the hiring means{analysis.hiring.budgetEstimate ? ` · about ${analysis.hiring.budgetEstimate}` : ""}</span><p className="brief-text">{analysis.hiring.read}</p>{analysis.hiring.buildInstead.length > 0 && <ul className="happening-build">{analysis.hiring.buildInstead.map((line, index) => <li key={index}>{line}</li>)}</ul>}</div>}
+          {analysis.problems.length > 0 && <details className="account-more"><summary>{analysis.problems.length} things the agents could not do</summary><ul>{analysis.problems.map((line, index) => <li key={index}>{line}</li>)}</ul></details>}
         </div>
       </section>}
 

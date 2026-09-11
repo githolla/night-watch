@@ -3,6 +3,7 @@ import { MigrationRequired } from "@/components/MigrationRequired";
 import { OutreachBoard, type BoardFilters } from "@/components/OutreachBoard";
 import { ScanControl } from "@/components/ScanControl";
 import { requireUser } from "@/lib/auth";
+import { parseStoredAnalysis } from "@/lib/analysis";
 import { FAMILY_LABEL, type JobFamily } from "@/lib/job-sweep/classify";
 import { CLOSED_STAGES, type OutreachRow, type OutreachStage, isOutreachStage } from "@/lib/outreach";
 import { loadRunSummary } from "@/lib/run-status";
@@ -17,6 +18,7 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 type LiveAccount = {
+  analysis: unknown; analysis_at: string | null;
   id: string; domain: string; name: string; tier: string | null; status: string; outreach: boolean; outreach_manual: boolean | null;
   outreach_stage: string | null; outreach_owner: string | null; outreach_notes: string | null; outreach_updated_at: string | null;
   intel_score: number | null; open_target_roles: number | null; ai_posts: number | null; contacts: number | null; verified_emails: number | null;
@@ -30,7 +32,7 @@ type PersonRow = { id: string; account_id: string; full_name: string; title: str
 type SignalRow = { account_id: string; raw: { operating_need?: string; evidence_kind?: string } | null; observed_at: string };
 type Params = { q?: string; priority?: string; industry?: string; show?: string; sort?: string };
 
-const LIVE_COLUMNS = "id,domain,name,tier,status,outreach,outreach_manual,outreach_stage,outreach_owner,outreach_notes,outreach_updated_at,intel_score,open_target_roles,ai_posts,contacts,verified_emails,last_change_at,last_scouted_at,careers_status,vertical,hq_city,hq_state,target_titles";
+const LIVE_COLUMNS = "analysis,analysis_at,id,domain,name,tier,status,outreach,outreach_manual,outreach_stage,outreach_owner,outreach_notes,outreach_updated_at,intel_score,open_target_roles,ai_posts,contacts,verified_emails,last_change_at,last_scouted_at,careers_status,vertical,hq_city,hq_state,target_titles";
 const OPEN = ["new", "approved", "edited", "snoozed"];
 const WEEK_MS = 7 * 86_400_000;
 
@@ -98,7 +100,9 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     const draft = openCards[0] ?? null;
     const draftPerson = draft ? ownPeople.find((person) => person.id === draft.person_id) : null;
 
+    const analysis = parseStoredAnalysis(account?.analysis);
     const reasons: string[] = [];
+    if (analysis?.brief.whyNow) reasons.push(analysis.brief.whyNow.split(/(?<=\.)\s+/).slice(0, 2).join(" "));
     if (ownRoles.length) {
       const families = [...new Set(ownRoles.map((role) => FAMILY_LABEL[role.family as JobFamily] ?? role.family))];
       reasons.push(`Hiring ${ownRoles.length === 1 ? "a" : ownRoles.length} ${list(ownRoles.map((role) => role.title), 2)}${families.length > 1 ? ` (${families.length} areas)` : ""}: work Nine-67 would build a system for instead.`);
@@ -114,14 +118,15 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     // Who to write to: the drafted person, else the most senior person with the best reach.
     const reachOf = (person: PersonRow | null | undefined): OutreachRow["whoReach"] => !person ? "none" : person.email_status === "verified" ? "verified" : person.email ? "email" : person.linkedin_url ? "linkedin" : "none";
     const reachRank = { verified: 3, email: 2, linkedin: 1, none: 0 };
-    const who = draftPerson ?? [...ownPeople].sort((a, b) => (LEVEL_RANK[b.level] ?? 0) - (LEVEL_RANK[a.level] ?? 0) || reachRank[reachOf(b)] - reachRank[reachOf(a)])[0] ?? null;
+    const suggested = analysis?.brief.whoFirst ? ownPeople.find((person) => person.full_name.toLowerCase() === analysis.brief.whoFirst.toLowerCase()) : null;
+    const who = draftPerson ?? suggested ?? [...ownPeople].sort((a, b) => (LEVEL_RANK[b.level] ?? 0) - (LEVEL_RANK[a.level] ?? 0) || reachRank[reachOf(b)] - reachRank[reachOf(a)])[0] ?? null;
 
     const sent = ownTouches.filter((touch) => touch.sent_at).length;
     const replied = ownTouches.filter((touch) => touch.reply_at).length;
     const changedRecently = Boolean(account?.last_change_at && now - Date.parse(account.last_change_at) <= WEEK_MS);
     const intel = account?.intel_score ?? 0;
     const being = !CLOSED_STAGES.has(stage) && stage !== "untouched";
-    let rank = (draft ? 100 + draft.score : 0) + (ownSignals.length ? 40 : 0) + intel + (target.tier === "A1" ? 8 : 0) + (changedRecently ? 6 : 0) + (who ? reachRank[reachOf(who)] * 4 : 0);
+    let rank = (draft ? 100 + draft.score : 0) + (ownSignals.length ? 40 : 0) + intel + (analysis ? analysis.brief.fit * 0.8 : 0) + (target.tier === "A1" ? 8 : 0) + (changedRecently ? 6 : 0) + (who ? reachRank[reachOf(who)] * 4 : 0);
     if (CLOSED_STAGES.has(stage)) rank -= 1000;
     else if (stage === "replied") rank += 60;
     else if (being) rank -= 25;
@@ -136,7 +141,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       lastChangeAt: account?.last_change_at ?? null, lastResearchedAt: account?.last_scouted_at ?? null, careersStatus: account?.careers_status ?? null,
       openDossiers: openCards.length, topDossierScore: draft?.score ?? 0, sent, replied, meetings: ownCards.filter((card) => card.status === "meeting").length,
       stage, owner: account?.outreach_owner ?? "", ownerNotes: account?.outreach_notes ?? "", stageUpdatedAt: account?.outreach_updated_at ?? null, manual: account?.outreach_manual === true,
-      why, reasons, who: who?.full_name ?? "", whoTitle: who?.title ?? "", whoReach: reachOf(who),
+      why, reasons, who: who?.full_name ?? analysis?.brief.whoFirst ?? "", whoTitle: who?.title ?? analysis?.brief.whoFirstTitle ?? "", whoReach: reachOf(who),
       draftCardId: draft?.id ?? null, draftScore: draft?.score ?? 0, draftWhy: draft?.why_now ?? "", rank,
     };
   }

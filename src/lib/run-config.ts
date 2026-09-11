@@ -70,6 +70,22 @@ export function sweepContacts() {
   };
 }
 
+/**
+ * Deep analysis: four search agents and a synthesizer per company.
+ * `ANALYSIS_MODEL` (the research model), `ANALYSIS_SEARCHES` per agent (6),
+ * `ANALYSIS_RUN_BUDGET_USD` per press (100), `ANALYSIS_COOLDOWN_DAYS` (14),
+ * `ANALYSIS_CONCURRENCY` (2).
+ */
+export function analysisConfig() {
+  return {
+    model: process.env.ANALYSIS_MODEL ?? process.env.ANTHROPIC_RESEARCH_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5",
+    searches: integer("ANALYSIS_SEARCHES", 6, 1, 10),
+    budgetUsd: decimal("ANALYSIS_RUN_BUDGET_USD", 100, 0.01),
+    cooldownMs: integer("ANALYSIS_COOLDOWN_DAYS", 14, 1, 365) * 24 * 3600_000,
+    concurrency: integer("ANALYSIS_CONCURRENCY", 2, 1, 6),
+  };
+}
+
 /** Measured spend at which one sweep invocation stops; the board search is the only cost. `SWEEP_RUN_BUDGET_USD`. */
 export function sweepBudgetUsd() {
   return decimal("SWEEP_RUN_BUDGET_USD", 10, 0.01);

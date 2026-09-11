@@ -141,6 +141,18 @@ async function completeTurn(
   return response;
 }
 
+/** One model turn with web search that must answer in JSON. The analysis agents are built on this. */
+export async function runSearchAgent(prompt: string, options: { model: string; maxSearches: number; maxTokens?: number }, recordUsage?: UsageRecorder): Promise<unknown> {
+  const response = await completeTurn({ model: options.model, max_tokens: options.maxTokens ?? 8_000, tools: [webSearchTool(Math.max(1, Math.min(10, options.maxSearches)))] }, prompt, recordUsage);
+  return jsonFrom(response);
+}
+
+/** One model turn with no tools that must answer in JSON. */
+export async function runWritingAgent(prompt: string, options: { model: string; maxTokens?: number }, recordUsage?: UsageRecorder): Promise<unknown> {
+  const response = await completeTurn({ model: options.model, max_tokens: options.maxTokens ?? 8_000 }, prompt, recordUsage);
+  return jsonFrom(response);
+}
+
 export type ScoutResult = {
   /** Signals at or above the confidence floor, strongest first, capped to one. */
   signals: ScoutSignal[];
