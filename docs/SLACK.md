@@ -25,7 +25,7 @@ In Vercel, open **Project → Settings → Environment Variables** and add these
 Optional controls:
 
 - `SLACK_ALLOWED_USER_IDS`: comma-separated Slack member IDs allowed to change dossiers. Leave blank to allow any member who can use the app in the channel.
-- `SLACK_JOSH_USER_ID` and `SLACK_JENNA_USER_ID`: map Slack clicks to the corresponding Night Watch owner. If no mapping matches, Night Watch uses the dossier's assigned owner.
+- `SLACK_JOSH_USER_ID`: Josh's Slack user id, for the allowlist. Every click is recorded as Josh.
 
 Redeploy after adding the variables.
 

@@ -2,7 +2,7 @@
 
 `score = strength + person fit + recency + path`
 
-A score of 60 or more creates an actionable card.
+A score of 60 or more creates an actionable card (`CARD_THRESHOLD`). A card at 75 or more is shown as priority (`PRIORITY_THRESHOLD`). An open card is archived once recency decay takes it below 45 (`ARCHIVE_THRESHOLD`); the gap between 60 and 45 keeps a card on the desk for a few days after it stops being fresh instead of dropping it the morning after. All three live in `src/lib/scoring.ts` and are imported everywhere they are displayed.
 
 ## Signal strength (maximum 40)
 
@@ -41,4 +41,4 @@ Job-post modifiers: +5 if open at least 30 days; +5 if reposted; +5 if maximum s
 
 ## Target job families
 
-AI/ML, automation, data/analyst, RevOps, operations analyst, volume-driven customer support, BDR/SDR, systems/integration, and CRM administration.
+AI/ML, automation and process, data and reporting, systems/integration, CRM administration, and the analyst seats in RevOps and operations. These are the hires where Nine-67 builds the system instead. Sales reps, support desks and leadership hires do not qualify; the one exception is a leader hired to build AI or automation, which counts as a mandate.

@@ -2,7 +2,7 @@
 
 1. Create a Supabase project owned by Nine-67.
 2. Run `supabase/migrations/0001_night_watch.sql` in the SQL editor.
-3. Create only Josh and Jenna in Supabase Auth and enable email magic links.
+3. Create only Josh in Supabase Auth and enable email magic links.
 4. Optional: create a Google OAuth web client only if in-app Gmail sending is needed.
 5. Create a Vercel project rooted at `night-watch` and copy every variable from `.env.example`.
 6. Generate a long random `CRON_SECRET` and `TOKEN_ENCRYPTION_KEY`.

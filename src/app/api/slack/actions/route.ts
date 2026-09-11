@@ -74,7 +74,7 @@ async function handleAction(payload: SlackPayload, action: SlackAction, channel:
       if (error) throw error;
       confirmation = `Dismissed by ${actor}.`;
     } else if (action.action_id === "record_linkedin" || action.action_id === "record_email") {
-      const owner = ownerForSlackUser(payload.user.id, card.assigned_to as "josh" | "jenna");
+      const owner = ownerForSlackUser();
       await recordManualTouch(cardId, action.action_id === "record_email" ? "email" : "linkedin_message", owner);
       confirmation = `${action.action_id === "record_email" ? "Email" : "LinkedIn outreach"} recorded for ${owner}. Learning analytics are now tracking the result.`;
     } else if (action.action_id === "record_outcome") {

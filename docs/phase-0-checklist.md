@@ -4,7 +4,7 @@
 
 - [ ] Sync the maintained 100-company target universe from Settings.
 - [ ] Complete `positioning.md` and approve the three proof points.
-- [ ] Confirm Josh and Jenna's Gmail senders.
+- [ ] Confirm Josh's Gmail sender.
 - [ ] Confirm Apollo access and use only verified results.
 - [ ] Export team LinkedIn connections for manual path checks.
 - [ ] Confirm nine-67.com SPF, DKIM, and enforced DMARC before the first email.

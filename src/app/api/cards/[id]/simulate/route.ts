@@ -19,13 +19,13 @@ const selectionInput = z.object({ experimentId: z.uuid(), label: z.enum(["A", "B
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const user = await requireUser();
+    await requireUser();
     const { id } = await context.params;
     const input = simulationInput.parse(await request.json());
     const db = admin();
     const { data: ownerCard } = await db.from("cards").select("id,person_id,assigned_to").eq("id", id).single();
     if (!ownerCard) throw new Error("Card not found");
-    const owner = user.email?.startsWith("jenna") ? "jenna" : "josh";
+    const owner = "josh" as const;
     if (owner !== ownerCard.assigned_to) throw new Error("Only the assigned owner may run this simulation");
     const { data: pastTouches } = await db.from("touches").select("body,reply_classification").eq("sent_by", owner).not("experiment_variant_id", "is", null).not("reply_at", "is", null).order("reply_at", { ascending: false }).limit(12);
     const outcomeHistory = (pastTouches ?? []).map((touch) => `${touch.reply_classification}: ${(touch.body ?? "").replace(/\s+/g, " ").slice(0, 220)}`).join("\n");
@@ -71,13 +71,13 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    const user = await requireUser();
+    await requireUser();
     const { id } = await context.params;
     const input = selectionInput.parse(await request.json());
     const db = admin();
     const { data: card } = await db.from("cards").select("id,assigned_to").eq("id", id).single();
     if (!card) throw new Error("Card not found");
-    const owner = user.email?.startsWith("jenna") ? "jenna" : "josh";
+    const owner = "josh" as const;
     if (owner !== card.assigned_to) throw new Error("Only the assigned owner may choose a winner");
     const { data: experiment } = await db.from("message_experiments").select("id,channel").eq("id", input.experimentId).eq("card_id", id).single();
     if (!experiment) throw new Error("Experiment not found");

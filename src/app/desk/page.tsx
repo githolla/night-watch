@@ -1,31 +1,159 @@
-import { Desk, type EmptyDeskState } from "@/components/Desk";
+import { Desk, type DeskContext } from "@/components/Desk";
+import { MigrationRequired } from "@/components/MigrationRequired";
+import { pendingMigrations } from "@/lib/schema-check";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
+import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, populateSweepConfig, sweepAccountLimit } from "@/lib/run-config";
+import { latestRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
+import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { admin } from "@/lib/supabase/admin";
-import { targetAccounts } from "@/lib/target-accounts";
+import { fetchAll } from "@/lib/supabase/fetch-all";
+import { activeTargetAccounts } from "@/lib/target-accounts";
+import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
-export const dynamic="force-dynamic";
-type Params={card?:string;status?:string;priority?:string;source?:string};
-export default async function DeskPage({searchParams}:{searchParams:Promise<Params>}){
-  const params=await searchParams;
-  if(!(process.env.NEXT_PUBLIC_SUPABASE_URL??process.env.SUPABASE_URL)||!(process.env.SUPABASE_SERVICE_ROLE_KEY??process.env.SUPABASE_SECRET_KEY))redirect("/setup");
-  const user=await requireUser();
-  const db=admin(),today=new Date().toISOString().slice(0,10),owner=user.email?.startsWith("jenna")?"jenna":"josh";
-  let query=db.from("cards").select("*,accounts(*),people(*),signals(*)").eq("surfaced_on",today).order("score",{ascending:false});
-  if(params.status)query=query.eq("status",params.status);
-  if(params.priority==="high")query=query.gte("score",75);
-  const [{data,error},{data:gmail},{count:activeAccounts},{count:researchedAccounts},{data:lastRun},{data:recentSignalRows},{data:recentScanRows}]=await Promise.all([
+
+export const dynamic = "force-dynamic";
+
+type Params = { card?: string; status?: string; priority?: string; new?: string; source?: string; account?: string };
+
+/** Card statuses a salesperson still has to decide on. */
+const OPEN_STATUSES = ["new", "approved", "edited"];
+
+export default async function DeskPage({ searchParams }: { searchParams: Promise<Params> }) {
+  const params = await searchParams;
+  if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) {
+    redirect("/setup");
+  }
+  await requireUser();
+  {
+    const pending = await pendingMigrations(admin());
+    if (pending.length) return <MigrationRequired pending={pending} />;
+  }
+  const db = admin();
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = daysAgoIso(1);
+  const owner = "josh" as const;
+
+  // An unactioned card must never disappear because a scheduled job failed:
+  // query by status and score, and use surfaced_on only as the "new today" badge (F13).
+  // signals!inner + the operating_need filter: a card whose signal never named
+  // the work the company needs done was built under the old rules and is not a decision.
+  let query = db
+    .from("cards")
+    .select("*,accounts!inner(*),people(*),signals!inner(*)")
+    .not("signals.raw->>operating_need", "is", null)
+    // The desk is the reach-out list only.
+    .eq("accounts.outreach", true)
+    .order("score", { ascending: false });
+  query = params.status ? query.eq("status", params.status) : query.in("status", OPEN_STATUSES);
+  if (params.priority === "high") query = query.gte("score", PRIORITY_THRESHOLD);
+  if (params.new === "today") query = query.eq("surfaced_on", today);
+  if (params.account) query = query.eq("accounts.domain", params.account.toLowerCase());
+
+  const [
+    { data: cardRows, error },
+    { data: gmail },
+    { count: activeAccounts },
+    { count: researchedAccounts },
+    signalAccountRows,
+    { count: openCards },
+    { count: newToday },
+    { count: awaitingReply },
+    { data: recentSignalRows },
+    lastRun,
+    lastSweep,
+    { count: careersChecked },
+    { count: careersNone },
+    hiringRows,
+    { count: newRoles },
+    { count: closedRoles },
+    { count: newPosts },
+    { count: newPeople },
+    { count: changedCompanies },
+  ] = await Promise.all([
     query,
-    db.from("gmail_connections").select("id").eq("owner",owner).maybeSingle(),
-    db.from("accounts").select("*",{count:"exact",head:true}).eq("status","active").not("domain","like","%.example"),
-    db.from("accounts").select("*",{count:"exact",head:true}).eq("status","active").not("domain","like","%.example").not("last_scouted_at","is",null),
-    db.from("runs").select("started_at,finished_at,accounts_scouted,signals_new,cards_created,errors").order("started_at",{ascending:false}).limit(1).maybeSingle(),
-    db.from("signals").select("type,summary,source_url,observed_at,raw,accounts(name,domain),people(full_name,title)").order("found_at",{ascending:false}).limit(8),
-    db.from("accounts").select("name,domain,last_scouted_at").not("domain","like","%.example").not("last_scouted_at","is",null).order("last_scouted_at",{ascending:false}).limit(10),
-  ]);if(error)throw error;
-  const recentSignals=(recentSignalRows??[]).map(signal=>{const raw=(signal.raw??{}) as {post?:{text?:string;author_name?:string;author_title?:string;published_at?:string};source?:{excerpt?:string;author_name?:string|null;published_at?:string}},account=signal.accounts as unknown as {name:string;domain:string},person=signal.people as unknown as {full_name:string;title:string}|null;return {company:account.name,domain:account.domain,type:signal.type,summary:signal.summary,sourceUrl:signal.source_url,observedAt:signal.observed_at,authorName:raw.post?.author_name??raw.source?.author_name??person?.full_name??null,authorTitle:raw.post?.author_title??person?.title??null,sourceText:raw.post?.text??raw.source?.excerpt??signal.summary,publishedAt:raw.post?.published_at??raw.source?.published_at??signal.observed_at,isPost:Boolean(raw.post)}});
-  const recentScans=(recentScanRows??[]).map(account=>({name:account.name,domain:account.domain,lastScoutedAt:account.last_scouted_at!}));
-  const runErrors=Array.isArray(lastRun?.errors)?lastRun.errors as Array<{message?:string}>:[];
-  const emptyState:EmptyDeskState={targetTotal:targetAccounts.length,activeAccounts:activeAccounts??0,researchedAccounts:researchedAccounts??0,recentSignals,recentScans,lastRun:lastRun?{status:lastRun.finished_at?"Complete":"Interrupted — safe to continue",startedAt:new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(lastRun.started_at)),accounts:lastRun.accounts_scouted??0,signals:lastRun.signals_new??0,cards:lastRun.cards_created??0,errors:runErrors.length,errorMessages:[...new Set(runErrors.map(item=>item.message).filter((message):message is string=>Boolean(message)))].slice(0,3)}:null};
-  return <div className="shell"><Header/><Desk initialCards={data??[]} selectedId={params.card} gmailConnected={Boolean(gmail)} emptyState={emptyState}/></div>;
+    db.from("gmail_connections").select("id").eq("owner", owner).maybeSingle(),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example"),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example").not("last_scouted_at", "is", null),
+    fetchAll<{ account_id: string }>((from, to) => db.from("signals").select("account_id").range(from, to)),
+    db.from("cards").select("id,signals!inner(raw)", { count: "exact", head: true }).not("signals.raw->>operating_need", "is", null).in("status", OPEN_STATUSES),
+    db.from("cards").select("id,signals!inner(raw)", { count: "exact", head: true }).not("signals.raw->>operating_need", "is", null).in("status", OPEN_STATUSES).eq("surfaced_on", today),
+    db.from("cards").select("*", { count: "exact", head: true }).eq("status", "sent"),
+    db.from("signals").select("type,summary,source_url,observed_at,raw,accounts(name,domain),people(full_name,title)").order("found_at", { ascending: false }).limit(8),
+    latestRunSummary(db),
+    latestRunSummary(db, SWEEP_SOURCES),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("careers_checked_at", "is", null),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("careers_status", "none"),
+    fetchAll<{ account_id: string }>((from, to) => db.from("job_postings").select("account_id").eq("active", true).not("family", "is", null).range(from, to)),
+    db.from("job_postings").select("*", { count: "exact", head: true }).eq("active", true).not("family", "is", null).gte("first_seen_at", yesterday),
+    db.from("job_postings").select("*", { count: "exact", head: true }).eq("active", false).not("family", "is", null).gte("updated_at", yesterday),
+    db.from("public_posts").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
+    db.from("people").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").gte("last_change_at", yesterday),
+  ]);
+  if (error) throw error;
+  const hiringCompanies = new Set(hiringRows.map((row) => row.account_id as string)).size;
+  const targetRolesOpen = hiringRows.length;
+
+  const recentSignals = (recentSignalRows ?? []).map((signal) => {
+    const raw = (signal.raw ?? {}) as {
+      post?: { text?: string; author_name?: string; author_title?: string; published_at?: string };
+      source?: { excerpt?: string; author_name?: string | null; published_at?: string };
+    };
+    const account = signal.accounts as unknown as { name: string; domain: string };
+    const person = signal.people as unknown as { full_name: string; title: string } | null;
+    return {
+      company: account.name,
+      domain: account.domain,
+      type: signal.type,
+      summary: signal.summary,
+      sourceUrl: signal.source_url,
+      observedAt: signal.observed_at,
+      authorName: raw.post?.author_name ?? raw.source?.author_name ?? person?.full_name ?? null,
+      authorTitle: raw.post?.author_title ?? person?.title ?? null,
+      sourceText: raw.post?.text ?? raw.source?.excerpt ?? signal.summary,
+      publishedAt: raw.post?.published_at ?? raw.source?.published_at ?? signal.observed_at,
+      isPost: Boolean(raw.post),
+    };
+  });
+
+  const signalAccounts = new Set(signalAccountRows.map((row) => row.account_id as string)).size;
+  const active = activeAccounts ?? 0;
+  const researched = researchedAccounts ?? 0;
+  const batchSize = nightlyBatchSize();
+  const context: DeskContext = {
+    today,
+    targetTotal: activeTargetAccounts.length,
+    activeAccounts: active,
+    coverage: {
+      neverResearched: Math.max(0, active - researched),
+      researched,
+      checkedNoSignal: Math.max(0, researched - signalAccounts),
+      signalsFound: signalAccounts,
+      dossiersReady: openCards ?? 0,
+      failedLastRun: lastRun?.counts.error ?? 0,
+      careersChecked: careersChecked ?? 0,
+      careersNotFound: careersNone ?? 0,
+      hiringCompanies,
+      targetRolesOpen,
+    },
+    queue: { open: openCards ?? 0, newToday: newToday ?? 0, awaitingReply: awaitingReply ?? 0 },
+    changes: { companies: changedCompanies ?? 0, newRoles: newRoles ?? 0, closedRoles: closedRoles ?? 0, newPosts: newPosts ?? 0, newPeople: newPeople ?? 0 },
+    recentSignals,
+    lastRun,
+    lastSweep,
+    sweepBatchSize: sweepAccountLimit(),
+    populate: populateConfig(),
+    populateSweep: populateSweepConfig(),
+    batchSize,
+    projectedMaxCostUsd: Number((batchSize * maxCostPerAccountUsd()).toFixed(2)),
+  };
+  const cards = (cardRows ?? []).map((card) => ({ ...card, isNew: card.surfaced_on === today }));
+
+  return (
+    <div className="shell">
+      <Header />
+      <Desk initialCards={cards} selectedId={params.card} gmailConnected={Boolean(gmail)} context={context} />
+    </div>
+  );
 }

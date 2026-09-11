@@ -1,3 +1,4 @@
+import { PRIORITY_THRESHOLD } from "./scoring.ts";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export type SlackBlock = Record<string, unknown>;
@@ -47,10 +48,9 @@ export function slackUserAllowed(userId: string) {
   return allowlist.length === 0 || allowlist.includes(userId);
 }
 
-export function ownerForSlackUser(userId: string, fallback: "josh" | "jenna") {
-  if (process.env.SLACK_JENNA_USER_ID === userId) return "jenna";
-  if (process.env.SLACK_JOSH_USER_ID === userId) return "josh";
-  return fallback;
+export function ownerForSlackUser(): "josh" {
+  // Josh works the list alone; every Slack click is his.
+  return "josh";
 }
 
 export function verifySlackRequest(request: Request, rawBody: string) {
@@ -90,7 +90,7 @@ export function buildDeskBlocks(cards: SlackDeskCard[], options?: { compact?: bo
       text: {
         type: "mrkdwn",
         text: shown.length
-          ? `*${cards.length} dossier${cards.length === 1 ? "" : "s"} ready* · ${shown.filter((card) => card.score >= 75).length} high priority shown · Review the evidence before reaching out.`
+          ? `*${cards.length} dossier${cards.length === 1 ? "" : "s"} ready* · ${shown.filter((card) => card.score >= PRIORITY_THRESHOLD).length} high priority shown · Review the evidence before reaching out.`
           : "*The desk is clear.* No new dossiers met the score threshold this morning.",
       },
     },
