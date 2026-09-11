@@ -78,7 +78,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
     db.from("accounts").select("outreach_owner").not("outreach_owner", "is", null).limit(200).then((result) => (result.data ?? []) as Array<{ outreach_owner: string }>),
   ]) : [[], [], [], [], [], [], []] as [Posting[], Post[], Person[], SignalRow[], CardRow[], HistoryRow[], Array<{ outreach_owner: string }>];
   const touches = cards.length ? ((await db.from("touches").select("id,person_id,channel,sent_at,sent_by,reply_at,reply_classification,card_id").in("card_id", cards.map((card) => card.id)).order("created_at", { ascending: false })).data ?? []) as TouchRow[] : [];
-  const owners = [...new Set(["Josh", "Jenna", ...ownerRows.map((row) => row.outreach_owner)])].sort((a, b) => a.localeCompare(b));
+  const owners = [...new Set(["Josh", ...ownerRows.map((row) => row.outreach_owner)])].sort((a, b) => a.localeCompare(b));
   const targetPostings = postings.filter((posting) => posting.active && posting.family);
   const otherPostings = postings.filter((posting) => !(posting.active && posting.family));
   const openCards = cards.filter((card) => OPEN.includes(card.status));

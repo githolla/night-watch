@@ -1,4 +1,4 @@
-export type Owner = "josh" | "jenna";
+export type Owner = "josh";
 export type SignalType = "job_post"|"job_cluster"|"exec_post"|"new_leader"|"funding"|"event"|"stack_change"|"other";
 export type PersonLevel = "owner"|"influencer"|"adjacent"|"unknown";
 export type CardStatus = "new"|"approved"|"edited"|"snoozed"|"dismissed"|"sent"|"replied"|"positive"|"meeting"|"archived";

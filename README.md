@@ -52,7 +52,7 @@ If the exit criteria are missed, revise the ICP or signal taxonomy before buildi
 6. Identify the responsible person from public evidence. Optionally enrich their email in Apollo.
 7. Calculate the deterministic score using `docs/scoring.md`.
 8. For scores of 60 or more, draft and review outreach using `prompts/angle-writer.md`; record it in `data/cards.csv`.
-9. Josh or Jenna acts manually through email or LinkedIn and records the touch and outcome in the Morning Desk.
+9. Josh acts manually through email or LinkedIn and records the touch and outcome in the Morning Desk.
 10. Update `data/nightly-runs.csv` at the end of each run.
 
 ## Guardrails

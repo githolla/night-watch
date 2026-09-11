@@ -24,7 +24,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) {
     redirect("/setup");
   }
-  const user = await requireUser();
+  await requireUser();
   {
     const pending = await pendingMigrations(admin());
     if (pending.length) return <MigrationRequired pending={pending} />;
@@ -32,7 +32,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   const db = admin();
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = daysAgoIso(1);
-  const owner = user.email?.startsWith("jenna") ? "jenna" : "josh";
+  const owner = "josh" as const;
 
   // An unactioned card must never disappear because a scheduled job failed:
   // query by status and score, and use surfaced_on only as the "new today" badge (F13).

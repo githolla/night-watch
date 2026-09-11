@@ -3,7 +3,7 @@ import { sendEmail } from "@/lib/gmail";
 import { sendMorningSlack, type SlackDeskCard } from "@/lib/slack";
 import { admin } from "@/lib/supabase/admin";
 
-type ConnectedOwner = "josh" | "jenna";
+type ConnectedOwner = "josh";
 
 export async function GET(request: Request) {
   if (!cronAuthorized(request)) {

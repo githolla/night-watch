@@ -7,10 +7,10 @@ const cadenceInput=z.object({mode:z.enum(["manual","automatic"]),stopOnReply:z.b
 
 export async function POST(request:Request,context:{params:Promise<{id:string}>}){
   try{
-    const user=await requireUser(),{id}=await context.params,input=cadenceInput.parse(await request.json()),db=admin();
+    await requireUser();const {id}=await context.params,input=cadenceInput.parse(await request.json()),db=admin();
     const {data:card}=await db.from("cards").select("id,person_id,assigned_to,people(email_status,do_not_contact),accounts(status)").eq("id",id).single();
     if(!card)throw new Error("Card not found");
-    const owner=user.email?.startsWith("jenna")?"jenna":"josh";
+    const owner="josh" as const;
     if(owner!==card.assigned_to)throw new Error("Only the assigned owner may activate this cadence");
     const person=card.people as unknown as {email_status:string;do_not_contact:boolean},account=card.accounts as unknown as {status:string};
     if(person.do_not_contact||["client","do_not_contact"].includes(account.status))throw new Error("Do-not-contact guard blocked this cadence");
