@@ -97,13 +97,22 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
 
       {!live && <p className="notice error">This company is on the file but not in the database yet. Open the <Link href="/outreach">reach-out list</Link> once and it will be written.</p>}
 
+      {live && <nav className="account-nav" aria-label="On this page">
+        <a href="#reach">Reach out{openCards.length ? ` · ${openCards.length}` : ""}</a>
+        <a href="#hiring">Roles · {targetPostings.length}</a>
+        <a href="#people">People · {people.length}</a>
+        <a href="#posts">AI posts · {posts.length}</a>
+        <a href="#research">Research · {signals.length}</a>
+        <a href="#history">History</a>
+      </nav>}
+
       {live && <section className="account-bar">
         <OutreachForm compact accountId={live.id} tier={tier} outreach={outreach} manual={live.outreach_manual ?? null} stage={stage} owner={live.outreach_owner ?? ""} notes={live.outreach_notes ?? ""} owners={owners} />
         <RecheckButton accountId={live.id} name={name} />
       </section>}
 
       {live && <div className="account-sections">
-        <section className="target-results account-section">
+        <section className="target-results account-section" id="reach">
           <header><div><span className="eyebrow">Reach out</span><h2>{openCards.length ? `${openCards.length} drafted and ready` : "Nothing drafted yet"}</h2></div></header>
           {openCards.length ? <ul className="click-list">{openCards.map((card) => <li key={card.id}><Link href={`/desk?card=${card.id}&account=${domain}`}>
             <b className={`intel-score ${card.score >= 75 ? "is-hot" : "is-warm"}`}>{card.score}</b>
@@ -113,7 +122,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
           : <p className="account-empty">{!outreach ? "Held companies get no draft. Put it on the list above to change that." : signals.length ? "A signal is on file (below) but no decision owner with a path yet, so nothing was drafted." : targetPostings.length || posts.length ? "Roles and posts are on file; the research pass writes the draft once it finds a manager behind them." : "Nothing found to write about yet."}</p>}
         </section>
 
-        <section className="target-results account-section">
+        <section className="target-results account-section" id="hiring">
           <header><div><span className="eyebrow">Hiring</span><h2>{targetPostings.length ? `${targetPostings.length} open ${targetPostings.length === 1 ? "role" : "roles"} Nine-67 could do instead` : "No open target roles"}</h2></div>{live.careers_url && <a href={live.careers_url} target="_blank" rel="noreferrer" className="outreach-open">Careers page ↗</a>}</header>
           {targetPostings.length ? <ul className="click-list">{targetPostings.map((posting) => <li key={posting.id}><a href={posting.url} target="_blank" rel="noreferrer">
             <b className="click-tag">{FAMILY_LABEL[posting.family as JobFamily] ?? posting.family}</b>
@@ -124,17 +133,18 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
           {otherPostings.length > 0 && <details className="account-more"><summary>{otherPostings.length} other postings read (not a target family, or closed)</summary><ul className="click-list compact">{otherPostings.slice(0, 40).map((posting) => <li key={posting.id}><a href={posting.url} target="_blank" rel="noreferrer"><div><strong>{posting.title}</strong><small>{[posting.active ? null : "closed", posting.family ? FAMILY_LABEL[posting.family as JobFamily] : null, posting.location].filter(Boolean).join(" · ")}</small></div><em>Open ↗</em></a></li>)}</ul></details>}
         </section>
 
-        <section className="target-results account-section">
+        <section className="target-results account-section" id="people">
           <header><div><span className="eyebrow">People</span><h2>{people.length ? `${people.length} ${people.length === 1 ? "person" : "people"} on file` : "No contacts yet"}</h2></div><span>{people.filter((person) => person.email_status === "verified").length} verified {people.filter((person) => person.email_status === "verified").length === 1 ? "email" : "emails"}</span></header>
           {people.length ? <ul className="click-list">{people.map((person) => { const href = person.linkedin_url ?? (person.email ? `mailto:${person.email}` : null); const inner = <>
             <b className="click-tag">{LEVEL_LABEL[person.level] || "Contact"}</b>
             <div><strong>{person.full_name}</strong><small>{person.title}</small><small>{person.email ? `${person.email}${EMAIL_LABEL[person.email_status] ? ` (${EMAIL_LABEL[person.email_status]})` : ""}` : "no email on file"}</small></div>
             <em>{person.linkedin_url ? "LinkedIn ↗" : person.email ? "Email →" : ""}</em></>;
             return <li key={person.id}>{href ? <a href={href} target={person.linkedin_url ? "_blank" : undefined} rel="noreferrer">{inner}</a> : <span className="click-static">{inner}</span>}</li>; })}</ul>
-          : <p className="account-empty">{outreach ? "Contacts are looked up during the scan once a reason to reach out exists." : "Held companies are not enriched."}</p>}
+          : <p className="account-empty">{!process.env.APOLLO_API_KEY ? "Contact lookup is off: APOLLO_API_KEY is not set in the deploy, so only names from the file can appear here." : outreach ? "No one matched the buyer titles yet. The next scan looks again." : "Held companies are not enriched."}</p>}
+          {people.length > 0 && !process.env.APOLLO_API_KEY && <p className="account-empty">Contact lookup is off: APOLLO_API_KEY is not set in the deploy, so only names from the file appear.</p>}
         </section>
 
-        <section className="target-results account-section">
+        <section className="target-results account-section" id="posts">
           <header><div><span className="eyebrow">Talking about AI</span><h2>{posts.length ? `${posts.length} ${posts.length === 1 ? "post" : "posts"} by people here` : "No AI posts found"}</h2></div></header>
           {posts.length ? <ul className="click-list">{posts.map((post) => <li key={post.id}><a href={post.url} target="_blank" rel="noreferrer">
             <b className="click-tag">{post.platform || host(post.url)}</b>
@@ -143,7 +153,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
           </a></li>)}</ul> : <p className="account-empty">Nothing found yet.</p>}
         </section>
 
-        <section className="target-results account-section">
+        <section className="target-results account-section" id="research">
           <header><div><span className="eyebrow">What the research found</span><h2>{signals.length ? `${signals.length} ${signals.length === 1 ? "signal" : "signals"}` : "No signal yet"}</h2></div></header>
           {signals.length ? <ul className="click-list">{signals.map((signal) => <li key={signal.id}><a href={signal.source_url} target="_blank" rel="noreferrer">
             <b className="click-tag">{(signal.raw?.evidence_kind ?? signal.type).replace(/_/g, " ")}</b>
@@ -152,7 +162,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
           </a></li>)}</ul> : <p className="account-empty">{live.last_scouted_at ? `Researched ${date(live.last_scouted_at)}; nothing qualified.` : "The research model has not looked at this company yet."}</p>}
         </section>
 
-        <details className="account-more account-history">
+        <details className="account-more account-history" id="history">
           <summary>History: {touches.filter((touch) => touch.sent_at).length} sent · {touches.filter((touch) => touch.reply_at).length} replied · {pastCards.length} past drafts · {history.length} runs{target?.sourceUrl ? " · where the company came from" : ""}</summary>
           {touches.length > 0 && <ul className="click-list compact">{touches.map((touch) => { const card = cards.find((item) => item.id === touch.card_id); return <li key={touch.id}><Link href={`/desk?card=${touch.card_id}&account=${domain}`}><div><strong>{card?.people?.full_name ?? "Unknown"} · {touch.channel.replace(/_/g, " ")}</strong><small>{touch.sent_at ? `sent ${date(touch.sent_at)} by ${touch.sent_by}` : "drafted, not sent"}{touch.reply_at ? ` · reply ${touch.reply_classification} ${date(touch.reply_at)}` : ""}</small></div><em>Open →</em></Link></li>; })}</ul>}
           {pastCards.length > 0 && <ul className="click-list compact">{pastCards.map((card) => <li key={card.id}><Link href={`/desk?card=${card.id}&account=${domain}`}><div><strong>{card.people?.full_name ?? "Unknown"} · {card.status}</strong><small>{card.why_now}</small></div><em>Open →</em></Link></li>)}</ul>}

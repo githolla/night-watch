@@ -59,14 +59,14 @@ export function sweepAiPosts() {
 /**
  * Contact enrichment inside the sweep. `SWEEP_CONTACTS`: "hiring" (default)
  * enriches companies with open target roles or AI posts, "all" every company,
- * "off" none. `SWEEP_CONTACTS_COOLDOWN_DAYS` (30), `SWEEP_CONTACTS_PER_COMPANY` (3).
+ * "off" none. `SWEEP_CONTACTS_COOLDOWN_DAYS` (30), `SWEEP_CONTACTS_PER_COMPANY` (6).
  */
 export function sweepContacts() {
   const mode = (process.env.SWEEP_CONTACTS ?? "hiring").toLowerCase();
   return {
     mode: (mode === "all" || mode === "off" ? mode : "hiring") as "hiring" | "all" | "off",
     cooldownMs: integer("SWEEP_CONTACTS_COOLDOWN_DAYS", 30, 1, 365) * 24 * 3600_000,
-    perCompany: integer("SWEEP_CONTACTS_PER_COMPANY", 3, 1, 10),
+    perCompany: integer("SWEEP_CONTACTS_PER_COMPANY", 6, 1, 15),
   };
 }
 

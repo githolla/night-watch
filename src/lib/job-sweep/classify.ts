@@ -1,7 +1,11 @@
 /**
- * Job-title classification against the families where Nine-67 does the work
- * instead of the company hiring for it. Pure rules, no model, so the whole
- * universe can be classified for free and the result is reproducible.
+ * Job-title classification against the families where Nine-67 builds the
+ * system instead of the company hiring a person to do the work by hand:
+ * AI/ML, automation and process, data and reporting, systems and
+ * integration, CRM administration, and the analyst seats behind RevOps and
+ * operations. Sales reps, support desks and leadership hires are not that
+ * work and never qualify; the one exception is a leader hired to build AI or
+ * automation, which is a mandate worth knowing about. Pure rules, no model.
  * Mirrors the "Target job families" list in docs/scoring.md.
  */
 
@@ -19,14 +23,21 @@ export type JobFamily =
 export const FAMILY_LABEL: Record<JobFamily, string> = {
   ai_ml: "AI / machine learning",
   automation: "Automation and process",
-  data_analyst: "Data and analytics",
+  data_analyst: "Data and reporting",
   revops: "Revenue operations",
   ops_analyst: "Operations analysis",
-  support: "Volume customer support",
-  sdr: "Sales development",
+  support: "Customer support (no longer a target)",
+  sdr: "Sales development (no longer a target)",
   systems_integration: "Systems and integration",
   crm_admin: "CRM administration",
 };
+
+/** Families still stored on old postings that no longer qualify. A sweep clears them. */
+export const RETIRED_FAMILIES: JobFamily[] = ["support", "sdr"];
+
+/** A leader is hired to run people, not to do the work; only an AI or automation mandate is worth a signal. */
+const LEADERSHIP = /\b(chief|cxo|c[a-z]o|president|vice president|vp|svp|evp|avp|head of|head,|director|partner|general manager|gm)\b/i;
+const MANDATE_FAMILIES: ReadonlySet<JobFamily> = new Set(["ai_ml", "automation"]);
 
 /** Titles that never qualify, however the words fall. */
 const EXCLUDE =
@@ -39,17 +50,17 @@ const RULES: Array<[JobFamily, RegExp]> = [
   ["crm_admin", /\b(salesforce|hubspot|dynamics 365|crm)\b.*\b(admin|administrator|manager|specialist|analyst|developer|engineer|architect)\b|\b(crm|salesforce) (admin|administrator)\b/i],
   ["systems_integration", /\b(systems? (analyst|administrator|engineer|integration|specialist)|integration (engineer|specialist|analyst|developer|architect)|erp (analyst|administrator|specialist|manager|consultant)|netsuite|workday (analyst|administrator|consultant|specialist)|sap (analyst|consultant|specialist|administrator)|api (engineer|developer|integration)|it business analyst|business systems|solutions? (engineer|architect|analyst)|middleware|ipaas|boomi|mulesoft|workato)\b/i],
   ["automation", /\b(automation|rpa|robotic process|process (improvement|engineer|excellence|optimization|analyst)|continuous improvement|workflow|business process|lean|six sigma|operational excellence|transformation (analyst|manager|lead))\b/i],
-  ["sdr", /\b(sdr|bdr|sales development|business development (rep|representative|associate|specialist)|inside sales|lead generation|lead gen|appointment setter|outbound (sales|specialist)|demand generation)\b/i],
-  ["support", /\b(customer (support|service|care|success|experience) (rep|representative|specialist|associate|agent|advocate|coordinator|analyst|manager)|support (specialist|agent|representative|associate|analyst|engineer|coordinator)|call center|contact center|help ?desk|service desk|client services? (rep|representative|specialist|associate|coordinator)|technical support|tier [12] support|customer service)\b/i],
-  ["data_analyst", /\b(data (analyst|engineer|analytics|specialist|manager|architect|scientist)|analytics (analyst|engineer|manager|specialist|lead)|business intelligence|bi (analyst|developer|engineer|manager)|reporting analyst|data & analytics|insights analyst|(financial|fp&a|pricing|inventory|supply chain|demand|forecast|revenue|sales|marketing|planning|procurement|logistics|risk|quality|performance) (planning )?analyst|analyst,? (data|analytics|reporting|operations|business intelligence))\b/i],
-  ["ops_analyst", /\b(operations? analyst|business analyst|ops analyst|process analyst|operations (specialist|coordinator|associate)|business operations|operations (manager|lead)|program analyst|project analyst|management analyst)\b/i],
+  ["data_analyst", /\b(data (analyst|engineer|analytics|specialist|architect|scientist)|analytics (analyst|engineer|specialist)|business intelligence|bi (analyst|developer|engineer)|reporting analyst|data & analytics|insights analyst|(financial|fp&a|pricing|inventory|supply chain|demand|forecast|revenue|sales|marketing|planning|procurement|logistics|risk|quality|performance) (planning )?analyst|analyst,? (data|analytics|reporting|operations|business intelligence))\b/i],
+  ["ops_analyst", /\b(operations? analyst|business analyst|ops analyst|process analyst|business operations analyst|program analyst|project analyst|management analyst)\b/i],
 ];
 
 export function classifyTitle(title: string): JobFamily | null {
   const clean = title.replace(/\s+/g, " ").trim();
   if (!clean || EXCLUDE.test(clean)) return null;
   for (const [family, pattern] of RULES) {
-    if (pattern.test(clean)) return family;
+    if (!pattern.test(clean)) continue;
+    if (LEADERSHIP.test(clean) && !MANDATE_FAMILIES.has(family)) return null;
+    return family;
   }
   return null;
 }

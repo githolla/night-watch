@@ -13,11 +13,21 @@ const cases: Array<[string, ReturnType<typeof classifyTitle>]> = [
   ["NetSuite Administrator", "systems_integration"],
   ["Business Process Automation Lead", "automation"],
   ["Continuous Improvement Manager", "automation"],
-  ["Sales Development Representative", "sdr"],
-  ["Inside Sales Associate", "sdr"],
-  ["Customer Support Specialist", "support"],
-  ["Call Center Representative", "support"],
-  ["Customer Service Representative", "support"],
+  // People who sell or answer the phone are not work Nine-67 builds a system for.
+  ["Sales Development Representative", null],
+  ["Business Development Representative", null],
+  ["Inside Sales Associate", null],
+  ["Customer Support Specialist", null],
+  ["Sr. Client Services Associate", null],
+  ["Customer Service Representative", null],
+  // Leaders run people; only an AI or automation mandate is a signal.
+  ["Director, Head of Sales Operations", null],
+  ["VP of Data & Analytics", null],
+  ["Director of Business Systems", null],
+  ["Head of AI", "ai_ml"],
+  ["Director of Process Automation", "automation"],
+  ["Operations Manager", null],
+  ["Operations Coordinator", null],
   ["Data Analyst II", "data_analyst"],
   ["Financial Planning Analyst", "data_analyst"],
   ["Business Intelligence Developer", "data_analyst"],
@@ -41,8 +51,8 @@ test("operating need names the work, not the hire", () => {
   assert.match(one, /hiring a Data Analyst/);
   assert.match(one, /instead of the hire/);
   const many = operatingNeedFor([
-    { title: "Customer Support Specialist", family: "support" },
-    { title: "Customer Service Representative", family: "support" },
+    { title: "Data Analyst", family: "data_analyst" },
+    { title: "Reporting Analyst", family: "data_analyst" },
     { title: "Salesforce Administrator", family: "crm_admin" },
     { title: "Forklift Operator", family: null },
   ]);

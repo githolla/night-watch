@@ -15,7 +15,7 @@ export async function searchPeopleByTitles(domain: string, titles: string[], lim
   const response = await fetch("https://api.apollo.io/api/v1/mixed_people/search", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": process.env.APOLLO_API_KEY },
-    body: JSON.stringify({ q_organization_domains_list: [domain], person_titles: titles, per_page: 5, page: 1 }),
+    body: JSON.stringify({ q_organization_domains_list: [domain], person_titles: titles.slice(0, 30), per_page: Math.max(10, limit * 2), page: 1 }),
     signal: AbortSignal.timeout(15_000),
   });
   if (!response.ok) throw new Error(`Apollo people search failed: ${response.status}`);

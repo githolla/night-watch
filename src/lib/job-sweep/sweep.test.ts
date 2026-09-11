@@ -32,15 +32,16 @@ test("homepage link → careers page → embedded board → classified postings"
   assert.equal(result.status, "listings");
   assert.deepEqual(result.ats, { provider: "greenhouse", ref: "anchin" });
   assert.equal(result.postings.length, 3);
-  assert.deepEqual(result.targetPostings.map((p) => [p.title, p.family]), [["Data Analyst", "data_analyst"], ["Client Service Representative", "support"]]);
+  // The service rep is read and stored, but a person answering clients is not work Nine-67 builds a system for.
+  assert.deepEqual(result.targetPostings.map((p) => [p.title, p.family]), [["Data Analyst", "data_analyst"]]);
 
   const signal = await hiringSignal(account, result, [], new Date("2026-09-10T00:00:00Z"));
   assert.ok(signal);
-  assert.equal(signal.type, "job_cluster");
+  assert.equal(signal.type, "job_post");
   assert.equal(signal.evidence_kind, "hiring");
   assert.equal(signal.observed_at, "2026-09-01");
   assert.equal(signal.job?.days_open, 21);
-  assert.match(signal.operating_need, /hiring 2 roles/);
+  assert.match(signal.operating_need, /hiring a Data Analyst/);
   assert.equal(signal.people[0]?.name, "Russell Shinsky");
   assert.equal(signal.people[0]?.title, "CEO");
 });

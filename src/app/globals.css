@@ -645,3 +645,27 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:12px;color:var(--ink-soft)}.
 .account-history .click-list{border-top:1px solid var(--line)}
 .account-history .account-empty{border-top:1px solid var(--line)}
 @media(max-width:900px){.outreach-form.is-compact{grid-template-columns:1fr 1fr}.click-list a,.click-static{grid-template-columns:minmax(0,1fr) auto}.click-tag{grid-column:1/-1}.click-list a>b.intel-score{grid-column:auto}}
+
+/* Readability pass: bigger type, quieter chrome, a way to jump around the company page. */
+.account-page .targets-head p.account-line{font-size:14px}
+.account-nav{display:flex;flex-wrap:wrap;gap:0;margin-top:14px;border:1px solid var(--line-strong);background:#fff}
+.account-nav a{padding:12px 18px;border-right:1px solid var(--line);font:700 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--ink-soft)}
+.account-nav a:last-child{border-right:0}
+.account-nav a:hover{background:var(--soft);color:var(--ink)}
+.account-section>header{padding:16px 24px!important;align-items:center!important}
+.account-section>header h2{font-size:20px!important;margin:6px 0 0!important;letter-spacing:-.02em!important}
+.account-section>header>span{font:600 12px/1.4 var(--mono);color:var(--muted)}
+.click-list a,.click-static{padding:14px 24px;grid-template-columns:150px minmax(0,1fr) auto}
+.click-list strong{font-size:14px}
+.click-list p{font-size:14px;color:var(--ink)}
+.click-list small{font-size:12px;color:var(--ink-soft)}
+.click-tag{font-size:11px;color:var(--ink-soft)}
+.click-list em{font-size:12px}
+.account-empty{font-size:14px;color:var(--ink-soft)}
+.reach-table td>strong{font-size:14px}
+.reach-table td>span{font-size:13px}
+.reach-table td>small{font-size:12px;color:var(--ink-soft)}
+.reach-body p{font-size:14px;color:var(--ink)}
+.reach-company{font-size:15px}
+.reach-list li{padding:18px 24px}
+@media(max-width:900px){.account-nav a{flex:1;text-align:center;padding:12px 8px}}

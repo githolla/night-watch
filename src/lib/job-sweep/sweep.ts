@@ -17,7 +17,7 @@ import { admin } from "../supabase/admin.ts";
 import { targetAccountByDomain } from "../target-accounts.ts";
 import type { Account } from "../types.ts";
 import { CAREERS_PATHS, careersLinkFromHomepage, detectAts, fetchPostings, fetchText, postingsFromHtml, type AtsRef, type Fetcher, type Posting } from "./ats.ts";
-import { classifyTitle, FAMILY_LABEL, operatingNeedFor, type JobFamily } from "./classify.ts";
+import { classifyTitle, FAMILY_LABEL, operatingNeedFor, RETIRED_FAMILIES, type JobFamily } from "./classify.ts";
 import { jsonLdPostings, sitemapPostings } from "./discover.ts";
 
 type Db = SupabaseClient;
@@ -44,6 +44,18 @@ export type SweepOptions = {
 };
 
 type CareersStatus = "found" | "listings" | "none" | "error";
+
+/** Who owns the budget for each kind of hire: the person to write to. */
+const BUYER_TITLES: Partial<Record<JobFamily, string[]>> = {
+  ai_ml: ["Chief Technology Officer", "CTO", "VP Engineering", "Head of AI", "Chief Data Officer", "VP Data", "Head of Data", "Chief Digital Officer"],
+  automation: ["Chief Operating Officer", "COO", "VP Operations", "Head of Operations", "Director of Operations", "Chief Transformation Officer", "VP Process Improvement", "Chief of Staff"],
+  data_analyst: ["Chief Data Officer", "VP Data", "Head of Analytics", "Director of Analytics", "Chief Financial Officer", "VP Finance", "FP&A Director", "Head of Business Intelligence"],
+  revops: ["Chief Revenue Officer", "CRO", "VP Revenue Operations", "Head of Revenue Operations", "VP Sales Operations", "Director of Sales Operations", "VP Sales"],
+  ops_analyst: ["Chief Operating Officer", "COO", "VP Operations", "Head of Business Operations", "Director of Operations", "Chief of Staff"],
+  systems_integration: ["Chief Information Officer", "CIO", "VP Information Technology", "Director of IT", "Head of Business Systems", "VP Engineering", "Director of Enterprise Applications"],
+  crm_admin: ["VP Revenue Operations", "Head of Revenue Operations", "VP Sales Operations", "Chief Revenue Officer", "VP Marketing Operations", "Director of Business Systems"],
+};
+const GENERAL_BUYER_TITLES = ["Chief Operating Officer", "Chief Information Officer", "Chief Technology Officer", "VP Operations", "Chief of Staff"];
 
 export type SweepAccountResult = {
   careersUrl: string | null;
@@ -285,6 +297,8 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
 
   await sweepStaleRuns(db, started);
   await ensureAccountsLoaded(db);
+  // Postings classified under families that no longer qualify stop counting as target roles.
+  await db.from("job_postings").update({ family: null }).in("family", RETIRED_FAMILIES);
 
   let runId = options.runId ?? null;
   if (runId) {
@@ -402,7 +416,8 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           await db.from("accounts").update({ ai_posts_checked_at: sweepStart }).eq("id", account.id);
         }
 
-        // Contacts: the CEO from the file plus buyer-title matches, enriched through Apollo when a key is set.
+        // Contacts: the managers behind the open roles first (the buyer is whoever is trying to hire), then the
+        // file's likely buyers, then the CEO; enriched through Apollo when a key is set.
         let contactsFound = 0;
         const contactsDue = !account.contacts_checked_at || Date.parse(account.contacts_checked_at) < rowStart - contacts.cooldownMs;
         // Contacts cost credits; a hold-list company earns them only once it is promoted to the reach-out list.
@@ -410,16 +425,21 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
         if (contactsWanted && contactsDue) {
           const context = targetAccountByDomain.get(account.domain);
           const candidates: Array<{ name: string; title: string; linkedin_url: string | null }> = [];
-          if (context?.ceo) candidates.push({ name: context.ceo, title: "CEO", linkedin_url: null });
+          const wantedTitles = [...new Set([
+            ...result.targetPostings.flatMap((posting) => BUYER_TITLES[posting.family] ?? []),
+            ...(context?.targetTitles ?? account.target_titles ?? []),
+            ...GENERAL_BUYER_TITLES,
+          ])];
           try {
-            candidates.push(...(await searchPeopleByTitles(account.domain, context?.targetTitles ?? account.target_titles ?? [], contacts.perCompany)));
+            candidates.push(...(await searchPeopleByTitles(account.domain, wantedTitles, contacts.perCompany)));
           } catch (error) {
             console.warn(`[night-watch] Apollo title search failed for ${next.domain}: ${error instanceof Error ? error.message : String(error)}`);
           }
+          if (context?.ceo) candidates.push({ name: context.ceo, title: "CEO", linkedin_url: null });
           const seen = new Set<string>();
           for (const candidate of candidates) {
             const key = candidate.name.toLowerCase();
-            if (seen.has(key) || seen.size > contacts.perCompany) continue;
+            if (seen.has(key) || seen.size >= contacts.perCompany + 1) continue;
             seen.add(key);
             try {
               await upsertPerson(account as Account, candidate, "sweep");
