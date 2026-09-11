@@ -1,10 +1,11 @@
-import { searchProvider, webSearch, type SearchHit } from "./web-search.ts";
+import { runQueries, searchProvider, type SearchHit } from "./web-search.ts";
 
 /**
  * People and posts on LinkedIn, found the only way that is allowed: from
- * public search results, by URL pattern, with no LinkedIn automation and no
- * model. A profile result reads "Name - Title - Company | LinkedIn"; a post
- * result reads "Name on LinkedIn: the first line of the post".
+ * public search results, by URL pattern, with no LinkedIn automation. The
+ * searches are run by search agents (or a search API when a key is set) and
+ * the results are read here by rule. A profile result reads "Name - Title -
+ * Company | LinkedIn"; a post result reads "Name on LinkedIn: the first line".
  */
 export type FoundProfile = { name: string; title: string; company: string; url: string };
 export type FoundPost = { author: string; excerpt: string; url: string; kind: "post" | "article" | "other"; platform: string; date: string | null };
@@ -103,8 +104,9 @@ const POST_ANGLES = [
  * already on file, and what is said on X, Medium, Substack, YouTube and
  * podcasts. Cheap per query, and free of any model. `maxQueries` caps it.
  */
-export async function discoverLinkedIn(company: string, titles: string[], knownNames: string[] = [], search: (query: string, count?: number) => Promise<SearchHit[]> = webSearch, maxQueries = 40): Promise<{ people: FoundProfile[]; posts: FoundPost[]; queries: number; provider: string | null }> {
-  if (!searchProvider() && search === webSearch) return { people: [], posts: [], queries: 0, provider: null };
+export type QueryRunner = (queries: string[]) => Promise<Record<string, SearchHit[]>>;
+
+export async function discoverLinkedIn(company: string, titles: string[], knownNames: string[] = [], run: QueryRunner = (queries) => runQueries(queries), maxQueries = 40): Promise<{ people: FoundProfile[]; posts: FoundPost[]; queries: number; provider: string }> {
   const people = new Map<string, FoundProfile>();
   const posts = new Map<string, FoundPost>();
   const quoted = `"${company}"`;
@@ -122,10 +124,12 @@ export async function discoverLinkedIn(company: string, titles: string[], knownN
     `${quoted} (podcast OR webinar OR keynote OR "fireside") (AI OR automation OR operations)`,
     `${quoted} site:youtube.com (AI OR automation OR operations)`,
   ].slice(0, maxQueries);
+  const results = await run(queries);
   let ran = 0;
   for (const query of queries) {
-    let hits: SearchHit[] = [];
-    try { hits = await search(query, 10); ran += 1; } catch { continue; }
+    const hits = results[query];
+    if (!hits) continue;
+    ran += 1;
     for (const hit of hits) {
       const profile = parseProfile(hit, company);
       if (profile && !people.has(profile.url)) people.set(profile.url, profile);
@@ -133,5 +137,5 @@ export async function discoverLinkedIn(company: string, titles: string[], knownN
       if (post && !posts.has(post.url)) posts.set(post.url, post);
     }
   }
-  return { people: [...people.values()], posts: [...posts.values()], queries: ran, provider: searchProvider() ?? "custom" };
+  return { people: [...people.values()], posts: [...posts.values()], queries: ran, provider: searchProvider() ?? "search agents" };
 }

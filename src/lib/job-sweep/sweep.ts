@@ -20,7 +20,7 @@ import { CAREERS_PATHS, careersLinkFromHomepage, detectAts, fetchPostings, fetch
 import { classifyTitle, FAMILY_LABEL, operatingNeedFor, RETIRED_FAMILIES, type JobFamily } from "./classify.ts";
 import { scrapeTeamPeople } from "./team-page.ts";
 import { aboutAi, discoverLinkedIn } from "../linkedin-discovery.ts";
-import { searchProvider } from "../web-search.ts";
+import { runQueries } from "../web-search.ts";
 import { fillEmailsFromPattern } from "../email-fill.ts";
 import { jsonLdPostings, sitemapPostings } from "./discover.ts";
 
@@ -382,16 +382,17 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           const signal = await hiringSignal(account as Account, result, rows ?? [], new Date(rowStart));
           if (signal) await persistSignal(account as Account, signal, outcome, recordCost);
         }
-        // LinkedIn, from public search results by URL pattern: profiles by the titles that matter, posts and
-        // articles that mention the company, and posts by people already on file. No model, no LinkedIn automation.
+        // LinkedIn and the rest of the public web, from search results read by URL pattern: profiles by the
+        // titles that matter and by department, posts from several angles, articles, posts by people already on
+        // file, and X, Medium, Substack, YouTube and podcasts. Search agents run the queries; no LinkedIn automation.
         let postsFound = 0;
         let linkedinNote: string | null = null;
         const linkedin: { people: Array<{ name: string; title: string; url: string }>; posts: Array<{ author: string; excerpt: string; url: string; kind: string; date: string | null }> } = { people: [], posts: [] };
-        if (searchProvider()) {
+        {
           try {
             const context = targetAccountByDomain.get(account.domain);
             const { data: known } = await db.from("people").select("full_name").eq("account_id", account.id).limit(12);
-            const found = await discoverLinkedIn(account.name, [...new Set([...(context?.targetTitles ?? account.target_titles ?? []), ...result.targetPostings.flatMap((posting) => BUYER_TITLES[posting.family] ?? [])])].slice(0, 24), (known ?? []).map((row) => row.full_name as string), undefined, extensive ? searchQueries() : Math.min(12, searchQueries()));
+            const found = await discoverLinkedIn(account.name, [...new Set([...(context?.targetTitles ?? account.target_titles ?? []), ...result.targetPostings.flatMap((posting) => BUYER_TITLES[posting.family] ?? [])])].slice(0, 24), (known ?? []).map((row) => row.full_name as string), (queries) => runQueries(queries, { recordUsage: recordCost }), extensive ? searchQueries() : Math.min(12, searchQueries()));
             linkedin.people = found.people;
             linkedin.posts = found.posts;
             for (const post of found.posts) {
@@ -414,7 +415,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
                 if (!disqualifySignal(signal)) await persistSignal(account as Account, signal, outcome, recordCost).catch(() => undefined);
               }
             }
-            linkedinNote = `LinkedIn search: ${found.people.length} profiles, ${found.posts.length} posts`;
+            linkedinNote = `${found.provider}: ${found.queries} searches, ${found.people.length} profiles, ${found.posts.length} posts`;
           } catch (error) {
             linkedinNote = `LinkedIn search failed: ${error instanceof Error ? error.message : String(error)}`;
           }

@@ -25,11 +25,15 @@ test("a post result gives the author and the first lines", () => {
 
 test("discovery runs the queries and merges people and posts", async () => {
   const seen: string[] = [];
-  const fake = async (query: string) => {
-    seen.push(query);
-    if (query.includes("linkedin.com/in")) return [{ title: "Dana Ortiz - CTO - Acquia | LinkedIn", url: "https://www.linkedin.com/in/dana-ortiz", snippet: "", date: null }];
-    if (query.includes("linkedin.com/posts")) return [{ title: "Dana Ortiz on LinkedIn: Automation is finally paying off for our ops team this quarter", url: "https://www.linkedin.com/posts/dana-ortiz_activity-1", snippet: "", date: null }];
-    return [];
+  const fake = async (queries: string[]) => {
+    const out: Record<string, Array<{ title: string; url: string; snippet: string; date: string | null }>> = {};
+    for (const query of queries) {
+      seen.push(query);
+      out[query] = query.includes("linkedin.com/in") ? [{ title: "Dana Ortiz - CTO - Acquia | LinkedIn", url: "https://www.linkedin.com/in/dana-ortiz", snippet: "", date: null }]
+        : query.includes("linkedin.com/posts") ? [{ title: "Dana Ortiz on LinkedIn: Automation is finally paying off for our ops team this quarter", url: "https://www.linkedin.com/posts/dana-ortiz_activity-1", snippet: "", date: null }]
+        : [];
+    }
+    return out;
   };
   const result = await discoverLinkedIn("Acquia", ["CTO", "COO"], ["Dana Ortiz"], fake);
   assert.equal(result.people.length, 1);
