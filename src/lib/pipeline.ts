@@ -60,7 +60,15 @@ async function mapPerson(account: Account, signal: ScoutSignal, recordCost: (cos
     ? { name: named.name, title: named.title, linkedin_url: null as string | null }
     : await findPerson(account.name, signal, recordCost);
   if (!candidate.name) return null;
+  return upsertPerson(account, candidate);
+}
 
+/**
+ * Store or refresh one person at the account, enriched through Apollo when a
+ * key is set. Used by signals and by the sweep's contact enrichment, so the
+ * people table fills up whether or not a card is created.
+ */
+export async function upsertPerson(account: Account, candidate: { name: string; title: string; linkedin_url: string | null }, source = "signal") {
   const apollo = await matchPerson(candidate.name, account.domain);
   const parts = candidate.name.trim().split(/\s+/);
   const title = apollo?.title ?? candidate.title;
@@ -76,6 +84,8 @@ async function mapPerson(account: Account, signal: ScoutSignal, recordCost: (cos
     email_status: apollo?.email_status === "verified" ? "verified" : apollo?.email_status === "catch_all" ? "catch_all" : apollo ? "unverified" : "none",
     email_source: apollo ? "apollo" : null,
     email_verified_at: apollo?.email_status === "verified" ? new Date().toISOString() : null,
+    enriched_at: new Date().toISOString(),
+    source,
   };
   const db = admin();
   // people has a unique index on (account_id, lower(full_name)); take the first
@@ -173,15 +183,15 @@ export async function persistSignal(account: Account, item: ScoutSignal, outcome
     outcome.signalsNew += 1;
   }
 
-  if (!person || person.level === "unknown") return { storedId, cardId: null };
+  if (!person || person.level === "unknown") return { storedId, cardId: null, personId: person?.id ?? null };
   const scored = score({ type: item.type, level: person.level, observedAt: item.observed_at, pathScore: person.path_score, item: item.job } as never);
   const breakdown = storedBreakdown(scored);
-  if (scored.score < CARD_THRESHOLD) return { storedId, cardId: null };
+  if (scored.score < CARD_THRESHOLD) return { storedId, cardId: null, personId: person.id as string };
 
   const { data: existingCard } = await db.from("cards").select("id,status").eq("signal_id", storedId).eq("person_id", person.id).maybeSingle();
   if (existingCard) {
     await db.from("cards").update({ score: scored.score, score_breakdown: breakdown, ...(existingCard.status === "archived" ? { status: "new" } : {}) }).eq("id", existingCard.id);
-    return { storedId, cardId: existingCard.id as string };
+    return { storedId, cardId: existingCard.id as string, personId: person.id as string };
   }
 
   const draft = await writeAngle({ account, signal: item, person, score: scored }, recordCost);
@@ -190,7 +200,7 @@ export async function persistSignal(account: Account, item: ScoutSignal, outcome
   const inserted = await db.from("cards").insert({ signal_id: storedId, person_id: person.id, account_id: account.id, score: scored.score, score_breakdown: breakdown, assigned_to: assigned, ...draft }).select("id").single();
   if (inserted.error) throw inserted.error;
   outcome.cardsCreated += 1;
-  return { storedId, cardId: inserted.data.id as string };
+  return { storedId, cardId: inserted.data.id as string, personId: person.id as string };
 }
 
 export async function ensureAccountsLoaded(db: Db) {

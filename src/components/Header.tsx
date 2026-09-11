@@ -5,6 +5,8 @@ const items = [
   { href: "/", label: "Today" },
   { href: "/targets", label: "Accounts" },
   { href: "/roles", label: "Roles" },
+  { href: "/posts", label: "Posts" },
+  { href: "/people", label: "People" },
   { href: "/desk", label: "Desk" },
   { href: "/stats", label: "Results" },
   { href: "/settings", label: "Settings" },

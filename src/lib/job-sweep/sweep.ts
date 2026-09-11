@@ -6,8 +6,10 @@ import {
   type AccountOutcome, type RunNightlyResult, type StopReason,
 } from "../pipeline.ts";
 import { classifyResearchError, ResearchError, researchPreflight } from "../research-errors.ts";
-import { searchJobBoards } from "../agents.ts";
-import { sweepAccountLimit, sweepBudgetUsd, sweepConcurrency, sweepCooldownMs, sweepSearchFallback, timeBudgetMs } from "../run-config.ts";
+import { disqualifySignal, searchAiPosts, searchJobBoards } from "../agents.ts";
+import { searchPeopleByTitles } from "../apollo-search.ts";
+import { upsertPerson } from "../pipeline.ts";
+import { populateSweepConfig, sweepAccountLimit, sweepAiPosts, sweepBudgetUsd, sweepConcurrency, sweepContacts, sweepCooldownMs, sweepSearchFallback, timeBudgetMs } from "../run-config.ts";
 import { admin } from "../supabase/admin.ts";
 import { targetAccountByDomain } from "../target-accounts.ts";
 import type { Account } from "../types.ts";
@@ -28,6 +30,8 @@ export type SweepOptions = {
   concurrency?: number;
   /** Initial populate: read every careers page now, cooldown or not. */
   ignoreCooldown?: boolean;
+  /** Extensive first pass: research model, more searches, contacts for every company, no cooldown gating. Passed on every continuation call. */
+  populate?: boolean;
   fetcher?: Fetcher;
   now?: () => number;
 };
@@ -154,8 +158,8 @@ export async function enrichTargetPostings(result: SweepAccountResult, fetcher: 
 }
 
 /** Ask a small model to list the company's roles from public job boards. Only when nothing could be read directly. */
-export async function searchFallback(account: Account, result: SweepAccountResult, recordCost: (cost: number) => void, maxSearches: number): Promise<SweepAccountResult> {
-  const { postings, model } = await searchJobBoards(account, recordCost, { maxSearches });
+export async function searchFallback(account: Account, result: SweepAccountResult, recordCost: (cost: number) => void, maxSearches: number, modelOverride?: string): Promise<SweepAccountResult> {
+  const { postings, model } = await searchJobBoards(account, recordCost, { maxSearches, model: modelOverride });
   const classified = postings.map((posting) => ({
     externalId: null, title: posting.title, url: posting.url, location: posting.location, department: null,
     postedAt: posting.posted_at && /^\d{4}-\d{2}-\d{2}/.test(posting.posted_at) ? posting.posted_at.slice(0, 10) : null,
@@ -260,8 +264,12 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
   const fetcher: Fetcher = options.fetcher ?? ((url, init) => fetch(url, init));
   const started = clock();
   const budget = options.timeBudgetMs ?? timeBudgetMs(options.source === "sweep" ? "scheduled" : "manual");
-  const costBudget = sweepBudgetUsd();
-  const fallback = sweepSearchFallback();
+  const extensive = options.populate ? populateSweepConfig() : null;
+  const costBudget = extensive?.budgetUsd ?? sweepBudgetUsd();
+  const fallback = { ...sweepSearchFallback(), ...(extensive ? { enabled: true, cooldownMs: 0, maxSearches: extensive.searches } : {}) };
+  const posts = { ...sweepAiPosts(), ...(extensive ? { enabled: true, cooldownMs: 0, maxSearches: extensive.searches } : {}) };
+  const contacts = { ...sweepContacts(), ...(extensive ? { mode: "all" as const, cooldownMs: 0 } : {}) };
+  const modelOverride = extensive?.model;
   const concurrency = Math.max(1, Math.min(12, options.concurrency ?? sweepConcurrency()));
 
   await sweepStaleRuns(db, started);
@@ -313,7 +321,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
         const searchDue = !account.job_search_checked_at || Date.parse(account.job_search_checked_at) < rowStart - fallback.cooldownMs;
         if (!result.postings.length && fallback.enabled && searchDue) {
           try {
-            result = await searchFallback(account as Account, result, recordCost, fallback.maxSearches);
+            result = await searchFallback(account as Account, result, recordCost, fallback.maxSearches, modelOverride);
           } catch (error) {
             const classified = classifyResearchError(error);
             console.warn(`[night-watch] job-board search failed for ${next.domain} (${classified.code}): ${classified.message}`);
@@ -345,12 +353,83 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           const signal = await hiringSignal(account as Account, result, rows ?? [], new Date(rowStart));
           if (signal) await persistSignal(account as Account, signal, outcome, recordCost);
         }
+        // Anyone at the company posting publicly about AI in their own work.
+        let postsFound = 0;
+        const postsDue = !account.ai_posts_checked_at || Date.parse(account.ai_posts_checked_at) < rowStart - posts.cooldownMs;
+        if (posts.enabled && postsDue) {
+          try {
+            const { posts: found, model } = await searchAiPosts(account as Account, recordCost, { maxSearches: posts.maxSearches, model: modelOverride });
+            for (const post of found) {
+              const postedAt = post.posted_at && /^\d{4}-\d{2}-\d{2}/.test(post.posted_at) ? post.posted_at.slice(0, 10) : null;
+              const signal: ScoutSignal = {
+                type: "exec_post", evidence_kind: "ai_post",
+                summary: `${post.author_name}${post.author_title ? ` (${post.author_title})` : ""} posted about ${post.topic || "AI in their own work"}.`,
+                source_url: post.url, observed_at: postedAt ?? sweepStart.slice(0, 10),
+                operating_need: `${post.author_name} is working on ${post.topic || "AI and automation"} at ${account.name} and said so publicly; Nine-67 could build or run that work with them.`,
+                people: [{ name: post.author_name, title: post.author_title, role_in_signal: "posted" }],
+                post: { text: post.excerpt, author_name: post.author_name, author_title: post.author_title, published_at: postedAt, reactions: null, comments: null, reposts: null, hashtags: [], is_excerpt: true },
+                confidence: 0.8,
+              };
+              if (disqualifySignal(signal)) continue;
+              let personId: string | null = null;
+              try {
+                personId = (await persistSignal(account as Account, signal, outcome, recordCost)).personId;
+              } catch (error) {
+                console.warn(`[night-watch] could not store a post signal for ${next.domain}: ${error instanceof Error ? error.message : String(error)}`);
+              }
+              const { error } = await db.from("public_posts").upsert({
+                account_id: account.id, person_id: personId, author_name: post.author_name, author_title: post.author_title, url: post.url,
+                platform: post.platform, topic: post.topic, excerpt: post.excerpt, posted_at: postedAt, found_by: model, raw: post,
+              }, { onConflict: "account_id,url" });
+              if (error) throw error;
+              postsFound += 1;
+            }
+          } catch (error) {
+            const classified = classifyResearchError(error);
+            console.warn(`[night-watch] AI-posts scan failed for ${next.domain} (${classified.code}): ${classified.message}`);
+          }
+          await db.from("accounts").update({ ai_posts_checked_at: sweepStart }).eq("id", account.id);
+        }
+
+        // Contacts: the CEO from the file plus buyer-title matches, enriched through Apollo when a key is set.
+        let contactsFound = 0;
+        const contactsDue = !account.contacts_checked_at || Date.parse(account.contacts_checked_at) < rowStart - contacts.cooldownMs;
+        const contactsWanted = contacts.mode === "all" || (contacts.mode === "hiring" && (result.targetPostings.length > 0 || postsFound > 0));
+        if (contactsWanted && contactsDue) {
+          const context = targetAccountByDomain.get(account.domain);
+          const candidates: Array<{ name: string; title: string; linkedin_url: string | null }> = [];
+          if (context?.ceo) candidates.push({ name: context.ceo, title: "CEO", linkedin_url: null });
+          try {
+            candidates.push(...(await searchPeopleByTitles(account.domain, context?.targetTitles ?? account.target_titles ?? [], contacts.perCompany)));
+          } catch (error) {
+            console.warn(`[night-watch] Apollo title search failed for ${next.domain}: ${error instanceof Error ? error.message : String(error)}`);
+          }
+          const seen = new Set<string>();
+          for (const candidate of candidates) {
+            const key = candidate.name.toLowerCase();
+            if (seen.has(key) || seen.size > contacts.perCompany) continue;
+            seen.add(key);
+            try {
+              await upsertPerson(account as Account, candidate, "sweep");
+              contactsFound += 1;
+            } catch (error) {
+              console.warn(`[night-watch] could not store ${candidate.name} at ${next.domain}: ${error instanceof Error ? error.message : String(error)}`);
+            }
+          }
+          await db.from("accounts").update({ contacts_checked_at: sweepStart }).eq("id", account.id);
+        }
+
         const families = [...new Set(result.targetPostings.map((posting) => FAMILY_LABEL[posting.family]))];
+        const parts = [
+          result.targetPostings.length ? `${result.targetPostings.length} of ${result.postings.length} postings in ${families.join(", ")}` : result.note,
+          postsFound ? `${postsFound} AI post${postsFound === 1 ? "" : "s"}` : null,
+          contactsFound ? `${contactsFound} contact${contactsFound === 1 ? "" : "s"}` : null,
+        ].filter(Boolean);
         update = {
-          status: result.targetPostings.length ? "ok" : "no_signal",
-          signals_found: outcome.signalsFound, signals_kept: outcome.signalsKept, signals_new: outcome.signalsNew, cards_created: outcome.cardsCreated,
+          status: result.targetPostings.length || postsFound ? "ok" : "no_signal",
+          signals_found: outcome.signalsFound, signals_kept: outcome.signalsKept + postsFound, signals_new: outcome.signalsNew, cards_created: outcome.cardsCreated,
           cost_usd: Number(outcome.costUsd.toFixed(6)), model: null, error_code: null, error_message: null,
-          note: result.targetPostings.length ? `${result.targetPostings.length} of ${result.postings.length} postings in ${families.join(", ")}` : result.note,
+          note: parts.join(" · "),
         };
       } catch (error) {
         const classified = classifyResearchError(error);

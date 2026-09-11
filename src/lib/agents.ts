@@ -39,7 +39,7 @@ const signal = z.object({
   observed_at: isoDate,
   /** The specific work the company needs done that Nine-67 could build or run instead of a hire. The qualification gate. */
   operating_need: z.string().trim().min(1),
-  evidence_kind: z.enum(["hiring", "asking_for_help", "new_mandate", "growth_event"]).optional(),
+  evidence_kind: z.enum(["hiring", "asking_for_help", "ai_post", "new_mandate", "growth_event"]).optional(),
   people: z.array(z.object({ name: z.string(), title: z.string(), role_in_signal: z.string() })).default([]),
   post: z.object({
     text: z.string(), author_name: z.string(), author_title: z.string().default(""), published_at: z.string().nullable().default(null),
@@ -167,8 +167,9 @@ Nine-67 builds and runs AI and automation for operating teams so a company does 
 A development qualifies only if it shows a concrete operating need inside ${account.name}. Look for these, in this order:
 1. hiring (type job_post or job_cluster): open roles on ${account.careers_url ?? "the careers page"} or job boards in these families: ${TARGET_JOB_FAMILIES.join(", ")}. Clusters of related roles, reposted roles, and roles open 30+ days are the strongest. Capture the exact title, department, days open, whether reposted, salary maximum if shown, tools named, and the responsibilities as written.
 2. asking_for_help (type exec_post): a manager, director or VP at ${account.name} publicly asking for recommendations, vendors, tools, or describing a bottleneck in their own team they are trying to fix, in a LinkedIn post, community thread, or conference Q&A. The post must be about their own team's work. Quote the actual visible post text and name the author.
-3. new_mandate (type new_leader): a newly appointed leader whose stated mandate is operations, data, automation, AI, RevOps or support at ${account.name}.
-4. growth_event (type funding): funding, an acquisition, or an expansion that creates integration, scaling or back-office work at ${account.name}.
+3. ai_post (type exec_post): anyone who works at ${account.name} posting publicly, in their own words, about AI, automation, agents or efficiency in their own work or team: what they are trying, what is hard, what they want. LinkedIn posts, X posts, personal blogs, conference talks. Quote the actual visible post text and name the author and their title. A press release, an interview in a publication, or an opinion column is not a post.
+4. new_mandate (type new_leader): a newly appointed leader whose stated mandate is operations, data, automation, AI, RevOps or support at ${account.name}.
+5. growth_event (type funding): funding, an acquisition, or an expansion that creates integration, scaling or back-office work at ${account.name}.
 
 Do not return: opinion pieces, op-eds, columns in Forbes or trade press, interviews or podcasts about industry trends, thought leadership about AI, product launches, press releases, awards, or anything about the market rather than the company's own operations. A CEO's view on AI economics is not a signal. If the strongest thing you found is commentary, return {"signals":[]}.
 
@@ -244,6 +245,34 @@ const jobSearchOutput = z.object({
   })).default([]),
 });
 
+const aiPostsOutput = z.object({
+  posts: z.array(z.object({
+    author_name: z.string().min(2),
+    author_title: z.string().default(""),
+    url: z.url({ protocol: /^https?$/ }),
+    posted_at: z.string().nullable().default(null),
+    excerpt: z.string().min(20),
+    platform: z.string().default(""),
+    topic: z.string().default(""),
+  })).default([]),
+});
+
+/**
+ * Anyone at the company posting publicly about AI or automation in their own
+ * work. Small model, two searches, no opinion columns or press: the post
+ * must be by a named person who works there, in their own words.
+ */
+export async function searchAiPosts(account: { name: string; domain: string }, recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string } = {}) {
+  const model = options.model ?? searchModel();
+  const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 2));
+  const response = await completeTurn(
+    { model, max_tokens: 6_000, tools: [webSearchTool(maxSearches)] },
+    `Find public posts from the last 180 days by people who work at ${account.name} (${account.domain}) about AI, automation, AI agents, or making their own work or team more efficient: what they are trying, what is hard, what they want, what they built. Search LinkedIn posts (site:linkedin.com/posts "${account.name}"), X, personal blogs and conference talks. Only count a post if a named person who works at ${account.name} wrote it in their own words. Do not count press releases, news articles, interviews in publications, opinion columns, or posts by the company page itself. For each post give the author's full name and title as shown, the URL of the post, the date as YYYY-MM-DD when shown, a verbatim excerpt of up to 400 characters, the platform, and a three-to-six-word topic. Up to 10 posts. Return JSON only: {"posts":[{"author_name":"","author_title":"","url":"https://...","posted_at":null,"excerpt":"","platform":"linkedin","topic":""}]}. Return {"posts":[]} if there are none.`,
+    recordUsage,
+  );
+  return { posts: aiPostsOutput.parse(jsonFrom(response)).posts, model };
+}
+
 function searchModel() {
   return process.env.ANTHROPIC_SEARCH_MODEL ?? "claude-haiku-4-5";
 }
@@ -253,11 +282,11 @@ function searchModel() {
  * model to list the company's open roles from public job boards. Cheap
  * (two searches, Haiku) and only used when the direct read found nothing.
  */
-export async function searchJobBoards(account: { name: string; domain: string }, recordUsage?: UsageRecorder, options: { maxSearches?: number } = {}) {
-  const model = searchModel();
-  const maxSearches = Math.max(1, Math.min(5, options.maxSearches ?? 2));
+export async function searchJobBoards(account: { name: string; domain: string }, recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string } = {}) {
+  const model = options.model ?? searchModel();
+  const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 2));
   const response = await completeTurn(
-    { model, max_tokens: 4_000, tools: [webSearchTool(maxSearches)] },
+    { model, max_tokens: 6_000, tools: [webSearchTool(maxSearches)] },
     `List the currently open job postings at ${account.name} (${account.domain}) that appear on public job boards such as LinkedIn Jobs, Indeed, Glassdoor or ZipRecruiter, or on the company's own careers site. Search for "${account.name}" jobs. Return only postings you actually saw, each with the exact title and the URL of the listing, the posting date as YYYY-MM-DD when shown, and the location. Up to 30 postings. Ignore postings at other companies with similar names. Return JSON only: {"postings":[{"title":"","url":"https://...","posted_at":null,"location":null}]}. Return {"postings":[]} if you find none.`,
     recordUsage,
   );

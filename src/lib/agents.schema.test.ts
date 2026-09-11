@@ -64,3 +64,10 @@ test("a job signal must name the role", () => {
   const named = { ...cluster, job: { title: "RevOps Analyst", department: "Revenue", days_open: 41, reposted: true, salary_max: 95000, tools_named: ["HubSpot"], responsibilities: ["Clean pipeline data"] } };
   assert.equal(disqualifySignal(scoutOutput.parse({ signals: [named] }).signals[0]), null);
 });
+
+test("an AI post by a named employee qualifies; the same words in a trade-press column do not", () => {
+  const post = scoutOutput.parse({ signals: [{ ...base, evidence_kind: "ai_post", source_url: "https://www.linkedin.com/posts/jane-doe_ai-activity-1", post: { text: "We put an agent on intake triage last month. It handles 60% of tickets; the rest still need a human.", author_name: "Jane Doe", author_title: "Director of Operations" } }] }).signals[0];
+  assert.equal(disqualifySignal(post), null);
+  const column = scoutOutput.parse({ signals: [{ ...base, evidence_kind: "ai_post", source_url: "https://www.forbes.com/sites/janedoe/ai-triage", post: { text: "We put an agent on intake triage last month.", author_name: "Jane Doe", author_title: "Director of Operations" } }] }).signals[0];
+  assert.match(disqualifySignal(column) ?? "", /opinion piece/);
+});

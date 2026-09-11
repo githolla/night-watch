@@ -61,6 +61,7 @@ export type DeskContext = {
   lastSweep: RunSummary | null;
   sweepBatchSize: number;
   populate: { accountLimit: number; maxSearches: number; budgetUsd: number };
+  populateSweep: { budgetUsd: number; searches: number; model: string };
   batchSize: number;
   projectedMaxCostUsd: number;
 };
@@ -313,12 +314,12 @@ export function Desk({
               <section className="run-kind">
                 <header><span className="eyebrow">01 / Careers sweep</span><h2>Read every careers page for open roles Nine-67 could do instead</h2><p>No model. Applicant-tracking boards and careers pages are read directly, titles are matched to the target job families, and a company hiring for that work becomes a dossier.</p></header>
                 <RunPanel kind="sweep" endpoint="/api/sweep/run" initialRun={context?.lastSweep ?? null} batchSize={context?.sweepBatchSize ?? 300} projectedMaxCostUsd={0} disabled={!context || !listSynced}
-                  extraActions={[{ label: `Initial populate: sweep all ${(context?.activeAccounts ?? 0).toLocaleString()} now`, body: { all: true }, confirm: `Read every careers page for all ${(context?.activeAccounts ?? 0).toLocaleString()} companies now, ignoring the daily cooldown? No model is used; outreach drafts for hiring companies are the only cost.` }]} />
+                  extraActions={[{ label: `Initial populate: extensive sweep of all ${(context?.activeAccounts ?? 0).toLocaleString()}`, body: { all: true, populate: true }, confirm: `Extensive first pass over all ${(context?.activeAccounts ?? 0).toLocaleString()} companies: every careers page, sitemap and job board read; a job-board search and an AI-posts search per company with the research model and ${context?.populateSweep.searches ?? 5} searches each; contacts for every company. This is the thorough pass, not the cheap one: it pauses at $${(context?.populateSweep.budgetUsd ?? 200).toFixed(0)} of measured spend per press and continues on the next.` }]} />
               </section>
               <section className="run-kind">
                 <header><span className="eyebrow">02 / Research</span><h2>Find managers asking for help</h2><p>A model searches the public web for an operator at the company describing a bottleneck or asking for recommendations. Companies the sweep shows are hiring go first.</p></header>
                 <RunPanel initialRun={context?.lastRun ?? null} batchSize={context?.batchSize ?? 10} projectedMaxCostUsd={context?.projectedMaxCostUsd ?? 0} disabled={!context || !listSynced}
-                  extraActions={[{ label: `Initial populate: research ${context?.populate.accountLimit ?? 300} companies, ${context?.populate.maxSearches ?? 5} searches each`, body: { populate: true }, confirm: `Research up to ${context?.populate.accountLimit ?? 300} companies with ${context?.populate.maxSearches ?? 5} web searches each, hiring companies first, ignoring the 7-day cooldown, and stop at $${(context?.populate.budgetUsd ?? 25).toFixed(2)} of measured spend? Companies past the budget stay queued for the next press.` }]} />
+                  extraActions={[{ label: `Initial populate: research every company, ${context?.populate.maxSearches ?? 8} searches each`, body: { populate: true }, confirm: `Research up to ${(context?.populate.accountLimit ?? 2000).toLocaleString()} companies with ${context?.populate.maxSearches ?? 8} web searches each on the research model, hiring companies first, ignoring the 7-day cooldown. Pauses at $${(context?.populate.budgetUsd ?? 150).toFixed(0)} of measured spend per press and continues on the next.` }]} />
               </section>
               <Link className="btn" href="/targets">Browse and sync targets</Link>
             </div>

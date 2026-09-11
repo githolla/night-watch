@@ -43,6 +43,33 @@ export function sweepSearchFallback() {
   };
 }
 
+/**
+ * AI-posts scan inside the sweep: anyone at the company posting publicly about
+ * AI or automation in their own work. `SWEEP_AI_POSTS` (default on),
+ * `SWEEP_AI_POSTS_COOLDOWN_DAYS` (7), `SWEEP_AI_POSTS_MAX_SEARCHES` (2).
+ */
+export function sweepAiPosts() {
+  return {
+    enabled: (process.env.SWEEP_AI_POSTS ?? "true").toLowerCase() !== "false",
+    cooldownMs: integer("SWEEP_AI_POSTS_COOLDOWN_DAYS", 7, 1, 365) * 24 * 3600_000,
+    maxSearches: integer("SWEEP_AI_POSTS_MAX_SEARCHES", 2, 1, 5),
+  };
+}
+
+/**
+ * Contact enrichment inside the sweep. `SWEEP_CONTACTS`: "hiring" (default)
+ * enriches companies with open target roles or AI posts, "all" every company,
+ * "off" none. `SWEEP_CONTACTS_COOLDOWN_DAYS` (30), `SWEEP_CONTACTS_PER_COMPANY` (3).
+ */
+export function sweepContacts() {
+  const mode = (process.env.SWEEP_CONTACTS ?? "hiring").toLowerCase();
+  return {
+    mode: (mode === "all" || mode === "off" ? mode : "hiring") as "hiring" | "all" | "off",
+    cooldownMs: integer("SWEEP_CONTACTS_COOLDOWN_DAYS", 30, 1, 365) * 24 * 3600_000,
+    perCompany: integer("SWEEP_CONTACTS_PER_COMPANY", 3, 1, 10),
+  };
+}
+
 /** Measured spend at which one sweep invocation stops; the board search is the only cost. `SWEEP_RUN_BUDGET_USD`. */
 export function sweepBudgetUsd() {
   return decimal("SWEEP_RUN_BUDGET_USD", 10, 0.01);
@@ -90,9 +117,23 @@ export function timeBudgetMs(kind: "scheduled" | "manual") {
  */
 export function populateConfig() {
   return {
-    maxSearches: integer("POPULATE_MAX_SEARCHES", 5, 1, 10),
-    accountLimit: integer("POPULATE_ACCOUNT_LIMIT", 300, 1, 2000),
-    budgetUsd: decimal("POPULATE_RUN_BUDGET_USD", 25, 0.01),
+    maxSearches: integer("POPULATE_MAX_SEARCHES", 8, 1, 10),
+    accountLimit: integer("POPULATE_ACCOUNT_LIMIT", 2000, 1, 2000),
+    budgetUsd: decimal("POPULATE_RUN_BUDGET_USD", 150, 0.01),
+  };
+}
+
+/**
+ * The extensive first pass of the sweep: the research model instead of the
+ * small one for the posts and job-board searches, more searches, contacts
+ * for every company, no cooldown gating, and a budget that will not
+ * interrupt. `POPULATE_SWEEP_BUDGET_USD`, `POPULATE_SWEEP_SEARCHES`.
+ */
+export function populateSweepConfig() {
+  return {
+    budgetUsd: decimal("POPULATE_SWEEP_BUDGET_USD", 200, 0.01),
+    searches: integer("POPULATE_SWEEP_SEARCHES", 5, 1, 10),
+    model: process.env.POPULATE_SWEEP_MODEL ?? process.env.ANTHROPIC_RESEARCH_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5",
   };
 }
 
