@@ -43,7 +43,7 @@ export function Header() {
   return (
     <aside className={`sidebar ${collapsed ? "is-collapsed" : ""}`} aria-label="Navigation">
       <Link href="/outreach" className="sidebar-brand" title="Night Watch">
-        <strong>N—67</strong>
+        <strong>Nine-67</strong>
         <span>Night Watch</span>
       </Link>
       <nav className="sidebar-nav">

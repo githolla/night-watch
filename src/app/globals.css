@@ -836,3 +836,6 @@ body{font-family:var(--sans);letter-spacing:-.005em;font-variant-numeric:tabular
 .happening-block{padding:0 22px;display:grid;gap:8px}
 .happening-block .click-list{margin:0 -22px}
 .happening-build{margin:0;padding-left:18px;font-size:14px;line-height:1.5;display:grid;gap:4px}
+
+.sidebar-brand strong{font-size:18px;letter-spacing:-.01em}
+.sidebar.is-collapsed .sidebar-brand strong{font-size:11px;letter-spacing:0}
