@@ -35,6 +35,9 @@ export function RunPanel({
   endpoint = "/api/nightly/run",
   kind = "research",
   extraActions,
+  startLabel,
+  startBody,
+  startConfirm,
 }: {
   initialRun: RunSummary | null;
   batchSize: number;
@@ -48,6 +51,10 @@ export function RunPanel({
   kind?: "research" | "sweep";
   /** Extra ways to start a run, such as an initial populate pass. */
   extraActions?: Array<{ label: string; body: Record<string, unknown>; confirm?: string }>;
+  /** Override the primary button: its label, the body it posts, and an optional confirmation. */
+  startLabel?: string;
+  startBody?: Record<string, unknown>;
+  startConfirm?: string;
 }) {
   const router = useRouter();
   const [run, setRun] = useState<RunSummary | null>(initialRun);
@@ -148,8 +155,8 @@ export function RunPanel({
             Continue this run · {remaining} to go
           </button>
         ) : (
-          <button className="btn primary" type="button" disabled={disabled || running} onClick={() => drive({ limit: batchSize })}>
-            {running ? (kind === "sweep" ? "Sweep in progress…" : "Research in progress…") : kind === "sweep" ? `Sweep the next ${batchSize} careers pages` : `Research the next ${batchSize} companies`}
+          <button className="btn primary" type="button" disabled={disabled || running} onClick={() => { if (!startConfirm || window.confirm(startConfirm)) void drive(startBody ?? { limit: batchSize }); }}>
+            {running ? (kind === "sweep" ? "Sweep in progress…" : "Research in progress…") : startLabel ?? (kind === "sweep" ? `Sweep the next ${batchSize} careers pages` : `Research the next ${batchSize} companies`)}
           </button>
         )}
         {(running || runOpen) && (

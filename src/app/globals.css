@@ -440,3 +440,5 @@ body{font-size:15px}.eyebrow,.micro-label{font-size:12px;color:var(--ink-soft)}.
 .intel-score{font:500 22px/1 var(--mono);letter-spacing:-.04em;color:var(--muted)}
 .intel-score.is-warm{color:var(--attention)}
 .intel-score.is-hot{color:var(--ok)}
+.runs-link{display:inline-block;margin-top:14px;font:700 11px/1.4 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink);text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:2px}
+.desk-nav-runs{display:inline-grid;place-items:center;padding:0 12px;font:700 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;color:var(--ink);border:1px solid var(--line-strong);margin-right:6px}

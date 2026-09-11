@@ -236,6 +236,7 @@ export function Desk({
             <Link href="/desk?new=today"><strong>{queue.newToday}</strong><span>NEW TODAY</span></Link>
             <Link href="/desk?status=sent"><strong>{queue.awaitingReply}</strong><span>AWAITING REPLY</span></Link>
           </div>
+          <Link href="/runs" className="runs-link">Start or continue a run →</Link>
           {context && (
             <div className="changes-strip">
               <span className="eyebrow">Since yesterday · {plural(context.changes.companies, "company", "companies")} changed</span>
@@ -361,6 +362,7 @@ export function Desk({
               <div><span>OWNER</span><strong>{card.assigned_to}</strong></div>
               <div><span>STATUS</span><strong>{card.status}</strong></div>
               <div className="desk-nav">
+                <Link href="/runs" className="desk-nav-runs">Runs</Link>
                 <button onClick={() => move(-1)} aria-label="Previous person">←</button>
                 <button onClick={() => move(1)} aria-label="Next person">→</button>
               </div>
