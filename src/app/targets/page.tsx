@@ -28,7 +28,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
   const query = params.q?.trim().toLowerCase() ?? "";
   const industry = params.industry ?? "";
   const ownership = params.ownership ?? "";
-  const tier = params.tier && params.tier in TIER_LABEL ? (params.tier as TargetTier) : params.tier === "A" ? "A" : "";
+  const tier = params.tier && params.tier in TIER_LABEL ? (params.tier as TargetTier) : params.tier === "A" || params.tier === "hold" ? params.tier : "";
   const research = params.research && params.research in researchFilters ? params.research : "";
   const db = admin();
   // Research state lives in the database; the directory itself is the static target file.
@@ -59,7 +59,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
     (!query || [account.name, account.domain, account.hqCity, account.hqState, account.aiSignal].some((value) => value.toLowerCase().includes(query))) &&
     (!industry || account.vertical === industry) &&
     (!ownership || account.ownership === ownership) &&
-    (!tier || (tier === "A" ? account.outreach : account.tier === tier)) &&
+    (!tier || (tier === "A" ? account.outreach : tier === "hold" ? account.tier === "B" || account.tier === "C" : account.tier === tier)) &&
     matchesResearch(account.domain),
   );
   if (sort === "intel") {
@@ -91,7 +91,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
         <label><span>Search</span><input name="q" defaultValue={params.q} placeholder="Company, domain, city, or AI signal" /></label>
         <label><span>Industry</span><select name="industry" defaultValue={industry}><option value="">All industries</option>{industries.map((item) => <option key={item}>{item}</option>)}</select></label>
         <label><span>Ownership</span><select name="ownership" defaultValue={ownership}><option value="">All ownership</option>{ownerships.map((item) => <option key={item}>{item}</option>)}</select></label>
-        <label><span>Tier</span><select name="tier" defaultValue={tier}><option value="">All tiers</option><option value="A">Reach-out list (A1 + A2)</option>{Object.entries(TIER_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+        <label><span>Tier</span><select name="tier" defaultValue={tier}><option value="">All tiers</option><option value="A">Reach-out list (A1 + A2)</option><option value="hold">Held (B + C)</option>{Object.entries(TIER_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span>Research</span><select name="research" defaultValue={research}><option value="">Any state</option>{Object.entries(researchFilters).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span>Sort</span><select name="sort" defaultValue={sort}><option value="intel">Intelligence score</option><option value="name">Name</option></select></label>
         <button className="btn primary" type="submit">Apply filters</button>

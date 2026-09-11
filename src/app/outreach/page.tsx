@@ -9,7 +9,7 @@ import { loadRunSummary } from "@/lib/run-status";
 import { admin } from "@/lib/supabase/admin";
 import { syncTargetAccounts, targetsNeedSync } from "@/lib/sync-targets";
 import { fetchAll } from "@/lib/supabase/fetch-all";
-import { outreachAccounts, TARGET_CUT_SOURCE, targetAccountByDomain, type TargetAccount } from "@/lib/target-accounts";
+import { outreachAccounts, targetAccountByDomain, type TargetAccount } from "@/lib/target-accounts";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ type LiveAccount = {
 };
 type CardRow = { id: string; account_id: string; status: string; score: number; why_now: string; channel: string; people: { full_name: string; title: string } | { full_name: string; title: string }[] | null };
 type TouchRow = { sent_at: string | null; reply_at: string | null; reply_classification: string; cards: { account_id: string } | { account_id: string }[] | null };
-type Params = { q?: string; priority?: string; industry?: string; ownership?: string; state?: string; stage?: string; owner?: string; data?: string; sort?: string };
+type Params = { q?: string; priority?: string; industry?: string; show?: string; sort?: string };
 
 const LIVE_COLUMNS = "id,domain,name,tier,status,outreach,outreach_manual,outreach_stage,outreach_owner,outreach_notes,outreach_updated_at,intel_score,open_target_roles,ai_posts,contacts,verified_emails,last_change_at,last_scouted_at,careers_status,vertical,hq_city,hq_state,target_titles";
 
@@ -94,7 +94,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     fetchAll<LiveAccount>((from, to) => db.from("accounts").select(LIVE_COLUMNS).eq("outreach", true).not("domain", "like", "%.example").range(from, to)),
     fetchAll<CardRow>((from, to) => db.from("cards").select("id,account_id,status,score,why_now,channel,people(full_name,title)").range(from, to)),
     fetchAll<TouchRow>((from, to) => db.from("touches").select("sent_at,reply_at,reply_classification,cards(account_id)").range(from, to)),
-    db.from("accounts").select(LIVE_COLUMNS).eq("status", "active").eq("outreach", false).not("domain", "like", "%.example").gt("intel_score", 0).order("intel_score", { ascending: false }).limit(40),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", false).not("domain", "like", "%.example").gt("intel_score", 0),
     db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false).order("started_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
   const openRun = openRunRow.data ? await loadRunSummary(db, openRunRow.data.id as string) : null;
@@ -141,24 +141,13 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       const person = Array.isArray(card.people) ? card.people[0] : card.people;
       return { cardId: card.id, domain: account.domain, company: account.name, tier: account.tier ?? "", score: card.score, whyNow: card.why_now, channel: card.channel, person: person?.full_name ?? "", title: person?.title ?? "", stage: isOutreachStage(account.outreach_stage) ? account.outreach_stage : "untouched", owner: account.outreach_owner ?? "" };
     });
-  const holdCandidates: OutreachRow[] = ((holdRows.data ?? []) as LiveAccount[]).map((account) => buildRow(targetAccountByDomain.get(account.domain) ?? blankTarget(account), account, dossiers));
 
-  const initial: BoardFilters = {
-    q: params.q ?? "",
-    priority: params.priority ?? "",
-    industry: params.industry ?? "",
-    ownership: params.ownership ?? "",
-    state: params.state ?? "",
-    stage: params.stage ?? "",
-    owner: params.owner ?? "",
-    data: params.data ?? "",
-    sort: params.sort ?? "intel",
-  };
+  const initial: BoardFilters = { q: params.q ?? "", priority: params.priority ?? "", industry: params.industry ?? "", show: params.show ?? "", sort: params.sort ?? "intel" };
 
   return <div className="shell">
     <Header />
     <main className="targets-page">
-      <OutreachBoard rows={rows} results={results} holdCandidates={holdCandidates} initial={initial} cut={TARGET_CUT_SOURCE} unsynced={rows.filter((row) => !row.synced).length}
+      <OutreachBoard rows={rows} results={results} heldWithSignal={holdRows.count ?? 0} initial={initial}
         scan={<ScanControl listSize={live.filter((account) => account.status === "active").length} firstPass={!live.some((account) => account.careers_status) && !live.some((account) => account.last_scouted_at)} openRun={openRun} />} />
     </main>
   </div>;
