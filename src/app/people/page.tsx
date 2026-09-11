@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { MigrationRequired } from "@/components/MigrationRequired";
+import { pendingMigrations } from "@/lib/schema-check";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -17,6 +19,10 @@ const EMAIL_LABEL: Record<string, string> = { verified: "Verified", catch_all: "
 export default async function PeoplePage({ searchParams }: { searchParams: Promise<Params> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   await requireUser();
+  {
+    const pending = await pendingMigrations(admin());
+    if (pending.length) return <MigrationRequired pending={pending} />;
+  }
   const params = await searchParams;
   const db = admin();
   const query = params.q?.trim() ?? "";

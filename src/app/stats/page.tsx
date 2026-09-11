@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { MigrationRequired } from "@/components/MigrationRequired";
+import { pendingMigrations } from "@/lib/schema-check";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -45,6 +47,10 @@ function StatsView({ stats, experiments }: { stats: StatsData; experiments: Expe
 export default async function Stats() {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   await requireUser();
+  {
+    const pending = await pendingMigrations(admin());
+    if (pending.length) return <MigrationRequired pending={pending} />;
+  }
   const db = admin();
   const { data: touches } = await db.from("touches").select("reply_classification,channel,cards(signals(type),people(level))");
   const { count: meetings } = await db.from("cards").select("*", { count: "exact", head: true }).eq("status", "meeting");

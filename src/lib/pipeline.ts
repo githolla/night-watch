@@ -8,6 +8,7 @@ import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, researchCooldow
 import { countRows, loadRunSummary, type RunSummary } from "./run-status.ts";
 import { ARCHIVE_THRESHOLD, CARD_THRESHOLD, score, strength } from "./scoring.ts";
 import { recomputeAccountIntel } from "./account-intel.ts";
+import { requireSchema } from "./schema-check.ts";
 import { admin } from "./supabase/admin.ts";
 import { fetchAll } from "./supabase/fetch-all.ts";
 import { targetAccountByDomain, targetAccountRowBatches } from "./target-accounts.ts";
@@ -383,6 +384,7 @@ async function createRun(db: Db, options: RunNightlyOptions, now: number) {
 export async function runNightly(options: RunNightlyOptions): Promise<RunNightlyResult> {
   researchPreflight();
   const db = admin();
+  await requireSchema(db);
   const clock = options.now ?? Date.now;
   const started = clock();
   const budget = options.timeBudgetMs ?? timeBudgetMs(options.source);

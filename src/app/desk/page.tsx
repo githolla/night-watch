@@ -1,4 +1,6 @@
 import { Desk, type DeskContext } from "@/components/Desk";
+import { MigrationRequired } from "@/components/MigrationRequired";
+import { pendingMigrations } from "@/lib/schema-check";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, populateSweepConfig, sweepAccountLimit } from "@/lib/run-config";
@@ -23,6 +25,10 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     redirect("/setup");
   }
   const user = await requireUser();
+  {
+    const pending = await pendingMigrations(admin());
+    if (pending.length) return <MigrationRequired pending={pending} />;
+  }
   const db = admin();
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = daysAgoIso(1);

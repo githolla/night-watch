@@ -11,6 +11,7 @@ import { searchPeopleByTitles } from "../apollo-search.ts";
 import { upsertPerson } from "../pipeline.ts";
 import { recomputeAccountIntel } from "../account-intel.ts";
 import { populateSweepConfig, sweepAccountLimit, sweepAiPosts, sweepBudgetUsd, sweepConcurrency, sweepContacts, sweepCooldownMs, sweepSearchFallback, timeBudgetMs } from "../run-config.ts";
+import { requireSchema } from "../schema-check.ts";
 import { admin } from "../supabase/admin.ts";
 import { targetAccountByDomain } from "../target-accounts.ts";
 import type { Account } from "../types.ts";
@@ -261,6 +262,7 @@ async function createSweepRun(db: Db, options: SweepOptions, now: number) {
 export async function runSweep(options: SweepOptions): Promise<RunNightlyResult> {
   researchPreflight();
   const db = admin();
+  await requireSchema(db);
   const clock = options.now ?? Date.now;
   const fetcher: Fetcher = options.fetcher ?? ((url, init) => fetch(url, init));
   const started = clock();

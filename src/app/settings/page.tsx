@@ -1,4 +1,6 @@
 import { Header } from "@/components/Header";
+import { MigrationRequired } from "@/components/MigrationRequired";
+import { pendingMigrations } from "@/lib/schema-check";
 import { FeatureControlCenter } from "@/components/FeatureControlCenter";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -8,6 +10,10 @@ export const dynamic = "force-dynamic";
 export default async function Settings() {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   await requireUser();
+  {
+    const pending = await pendingMigrations(admin());
+    if (pending.length) return <MigrationRequired pending={pending} />;
+  }
   const db = admin();
   const today = new Date().toISOString().slice(0, 10);
   const [{ data: connections }, { count: accountCount }, { count: cardsToday }, { count: experiments }, { count: outcomes }] = await Promise.all([

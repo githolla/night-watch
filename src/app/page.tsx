@@ -1,4 +1,6 @@
 import { Dashboard, type DashboardData } from "@/components/Dashboard";
+import { MigrationRequired } from "@/components/MigrationRequired";
+import { pendingMigrations } from "@/lib/schema-check";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -12,6 +14,10 @@ export default async function Overview() {
   )
     redirect("/setup");
   await requireUser();
+  {
+    const pending = await pendingMigrations(admin());
+    if (pending.length) return <MigrationRequired pending={pending} />;
+  }
   const db = admin(),
     now = new Date(),
     today = now.toISOString().slice(0, 10),
