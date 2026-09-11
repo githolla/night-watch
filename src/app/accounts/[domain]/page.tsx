@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 
 type Posting = { id: string; title: string; url: string; location: string | null; department: string | null; family: string | null; source: string | null; posted_at: string | null; first_seen_at: string; active: boolean };
 type Post = { id: string; author_name: string; author_title: string; url: string; platform: string; topic: string; excerpt: string; posted_at: string | null; created_at: string };
-type Person = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; linkedin_url: string | null; source: string; enriched_at: string | null };
+type Person = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; email_source: string | null; linkedin_url: string | null; source: string; enriched_at: string | null };
 type SignalRow = { id: string; type: string; summary: string; source_url: string; observed_at: string; raw: { operating_need?: string; evidence_kind?: string } | null; people: { full_name: string; title: string } | null };
 type CardRow = { id: string; status: string; score: number; channel: string; why_now: string; brief: string; assigned_to: string; created_at: string; people: { full_name: string; title: string } | null };
 type TouchRow = { id: string; channel: string; sent_at: string | null; sent_by: string; reply_at: string | null; reply_classification: string; card_id: string };
@@ -26,6 +26,12 @@ const RUN_LABEL: Record<string, string> = { scheduled: "Nightly research", manua
 const STATUS_LABEL: Record<string, string> = { queued: "Queued", running: "Running", ok: "Found something", no_signal: "Nothing new", error: "Failed", cancelled: "Stopped" };
 const LEVEL_LABEL: Record<string, string> = { owner: "Decision owner", influencer: "Influencer", adjacent: "Adjacent", unknown: "" };
 const EMAIL_LABEL: Record<string, string> = { verified: "verified", catch_all: "catch-all", unverified: "unverified", none: "" };
+const SOURCE_LABEL: Record<string, string> = { apollo: "Apollo", team_page: "company site", web_search: "web search", file: "target file", signal: "a signal", sweep: "lookup" };
+function emailNote(person: Person) {
+  if (!person.email) return "no email on file";
+  const status = person.email_source === "pattern" ? "built from the company's address format, unverified" : EMAIL_LABEL[person.email_status] || "";
+  return status ? `${person.email} (${status})` : person.email;
+}
 const OPEN = ["new", "approved", "edited", "snoozed"];
 
 function date(value: string | null | undefined) {
@@ -57,7 +63,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
   const [postings, posts, people, signals, cards, history, ownerRows] = live ? await Promise.all([
     db.from("job_postings").select("id,title,url,location,department,family,source,posted_at,first_seen_at,active").eq("account_id", live.id).order("active", { ascending: false }).order("family", { ascending: true, nullsFirst: false }).order("first_seen_at", { ascending: false }).limit(80).then((result) => (result.data ?? []) as Posting[]),
     db.from("public_posts").select("id,author_name,author_title,url,platform,topic,excerpt,posted_at,created_at").eq("account_id", live.id).order("posted_at", { ascending: false, nullsFirst: false }).limit(30).then((result) => (result.data ?? []) as Post[]),
-    db.from("people").select("id,full_name,title,level,email,email_status,linkedin_url,source,enriched_at").eq("account_id", live.id).eq("do_not_contact", false).order("level").order("full_name").limit(60).then((result) => (result.data ?? []) as Person[]),
+    db.from("people").select("id,full_name,title,level,email,email_status,email_source,linkedin_url,source,enriched_at").eq("account_id", live.id).eq("do_not_contact", false).order("level").order("full_name").limit(60).then((result) => (result.data ?? []) as Person[]),
     db.from("signals").select("id,type,summary,source_url,observed_at,raw,people(full_name,title)").eq("account_id", live.id).order("observed_at", { ascending: false }).limit(30).then((result) => (result.data ?? []) as unknown as SignalRow[]),
     db.from("cards").select("id,status,score,channel,why_now,brief,assigned_to,created_at,people(full_name,title)").eq("account_id", live.id).order("score", { ascending: false }).limit(20).then((result) => (result.data ?? []) as unknown as CardRow[]),
     db.from("run_accounts").select("status,note,error_code,error_message,signals_kept,cards_created,started_at,runs(source,started_at)").eq("account_id", live.id).order("created_at", { ascending: false }).limit(12).then((result) => (result.data ?? []) as unknown as HistoryRow[]),
@@ -133,14 +139,14 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
         </section>
 
         <section className="target-results account-section" id="people">
-          <header><div><span className="eyebrow">People</span><h2>{people.length ? `${people.length} ${people.length === 1 ? "person" : "people"} on file` : "No contacts yet"}</h2></div><span>{people.filter((person) => person.email_status === "verified").length} verified {people.filter((person) => person.email_status === "verified").length === 1 ? "email" : "emails"}</span></header>
+          <header><div><span className="eyebrow">People</span><h2>{people.length ? `${people.length} ${people.length === 1 ? "person" : "people"} on file` : "No contacts yet"}</h2></div><span>{people.filter((person) => person.email).length} with an address · {people.filter((person) => person.email_status === "verified").length} verified{live?.email_pattern ? ` · format ${live.email_pattern}@${domain}` : ""}</span></header>
           {people.length ? <ul className="click-list">{people.map((person) => { const href = person.linkedin_url ?? (person.email ? `mailto:${person.email}` : null); const inner = <>
             <b className="click-tag">{LEVEL_LABEL[person.level] || "Contact"}</b>
-            <div><strong>{person.full_name}</strong><small>{person.title}</small><small>{person.email ? `${person.email}${EMAIL_LABEL[person.email_status] ? ` (${EMAIL_LABEL[person.email_status]})` : ""}` : "no email on file"}</small></div>
+            <div><strong>{person.full_name}</strong><small>{person.title}{person.source ? ` · from ${SOURCE_LABEL[person.source] ?? person.source}` : ""}</small><small>{emailNote(person)}</small></div>
             <em>{person.linkedin_url ? "LinkedIn ↗" : person.email ? "Email →" : ""}</em></>;
             return <li key={person.id}>{href ? <a href={href} target={person.linkedin_url ? "_blank" : undefined} rel="noreferrer">{inner}</a> : <span className="click-static">{inner}</span>}</li>; })}</ul>
-          : <p className="account-empty">{!process.env.APOLLO_API_KEY ? "Contact lookup is off: APOLLO_API_KEY is not set in the deploy, so only names from the file can appear here." : outreach ? "No one matched the buyer titles yet. The next scan looks again." : "Held companies are not enriched."}</p>}
-          {people.length > 0 && !process.env.APOLLO_API_KEY && <p className="account-empty">Contact lookup is off: APOLLO_API_KEY is not set in the deploy, so only names from the file appear.</p>}
+          : <p className="account-empty">{outreach ? "Nobody found yet on the company site, LinkedIn results or press. The next scan looks again." : "Held companies are not enriched."}</p>}
+          {!process.env.APOLLO_API_KEY && <p className="account-empty">Verified addresses need APOLLO_API_KEY in the deploy; without it, addresses are built from the company&apos;s format and stay unverified until someone checks them.</p>}
         </section>
 
         <section className="target-results account-section" id="posts">

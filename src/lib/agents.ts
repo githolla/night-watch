@@ -267,7 +267,7 @@ export async function searchAiPosts(account: { name: string; domain: string }, r
   const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 2));
   const response = await completeTurn(
     { model, max_tokens: 6_000, tools: [webSearchTool(maxSearches)] },
-    `Find public posts from the last 180 days by people who work at ${account.name} (${account.domain}) about AI, automation, AI agents, or making their own work or team more efficient: what they are trying, what is hard, what they want, what they built. Search LinkedIn posts (site:linkedin.com/posts "${account.name}"), X, personal blogs and conference talks. Only count a post if a named person who works at ${account.name} wrote it in their own words. Do not count press releases, news articles, interviews in publications, opinion columns, or posts by the company page itself. For each post give the author's full name and title as shown, the URL of the post, the date as YYYY-MM-DD when shown, a verbatim excerpt of up to 400 characters, the platform, and a three-to-six-word topic. Up to 10 posts. Return JSON only: {"posts":[{"author_name":"","author_title":"","url":"https://...","posted_at":null,"excerpt":"","platform":"linkedin","topic":""}]}. Return {"posts":[]} if there are none.`,
+    `Find public posts from the last 180 days by people who work at ${account.name} (${account.domain}) about AI, automation, AI agents, data, systems, or making their own work or team more efficient: what they are trying, what is hard, what they want, what they built, or asking for help or recommendations. Run at least two searches on LinkedIn: site:linkedin.com/posts "${account.name}" AI, and site:linkedin.com/pulse "${account.name}"; then X, personal blogs, podcasts and conference talks. Only count a post if a named person who works at ${account.name} wrote it in their own words (a repost with their own comment counts; a company-page post counts only when a named person is quoted as its author). Do not count press releases, news articles, interviews in publications or opinion columns in magazines. For each post give the author's full name and title as shown, the URL of the post, the date as YYYY-MM-DD when shown, a verbatim excerpt of up to 400 characters, the platform, and a three-to-six-word topic. Up to 10 posts. Return JSON only: {"posts":[{"author_name":"","author_title":"","url":"https://...","posted_at":null,"excerpt":"","platform":"linkedin","topic":""}]}. Return {"posts":[]} if there are none.`,
     recordUsage,
   );
   return { posts: aiPostsOutput.parse(jsonFrom(response)).posts, model };
@@ -275,6 +275,34 @@ export async function searchAiPosts(account: { name: string; domain: string }, r
 
 function searchModel() {
   return process.env.ANTHROPIC_SEARCH_MODEL ?? "claude-haiku-4-5";
+}
+
+const peopleSearchOutput = z.object({
+  people: z.array(z.object({
+    name: z.string().min(3),
+    title: z.string().min(2),
+    linkedin_url: z.string().nullable().default(null),
+    source_url: z.string().nullable().default(null),
+  })).default([]),
+  email_examples: z.array(z.string()).default([]),
+});
+
+/**
+ * Who works there, from the public web: LinkedIn profile search results,
+ * the company's own site, press releases and bios. Also any work addresses
+ * seen on public pages, so the company's email format can be learned.
+ */
+export async function searchPeopleWeb(account: { name: string; domain: string }, wantedTitles: string[], recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string } = {}) {
+  const model = options.model ?? searchModel();
+  const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 3));
+  const titles = wantedTitles.slice(0, 12).join(", ") || "executives and operations, technology, data and finance leaders";
+  const response = await completeTurn(
+    { model, max_tokens: 6_000, tools: [webSearchTool(maxSearches)] },
+    `List people who currently work at ${account.name} (${account.domain}), most useful first: ${titles}, then other managers and leaders in operations, technology, data, finance, revenue and customer teams. Search LinkedIn profile results (site:linkedin.com/in "${account.name}"), the company's leadership or team page, press releases and conference bios. Only include people you actually saw named with a title at ${account.name}; skip people who have left. Also record every work email address at @${account.domain} you see on public pages (press contacts, author bios, PDF footers) so the address format can be learned; never invent one. Up to 30 people. Return JSON only: {"people":[{"name":"","title":"","linkedin_url":null,"source_url":null}],"email_examples":[]}.`,
+    recordUsage,
+  );
+  const parsed = peopleSearchOutput.parse(jsonFrom(response));
+  return { people: parsed.people, emailExamples: parsed.email_examples.filter((email) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)), model };
 }
 
 /**

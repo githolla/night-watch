@@ -6,7 +6,7 @@ import {
   type AccountOutcome, type RunNightlyResult, type StopReason,
 } from "../pipeline.ts";
 import { classifyResearchError, ResearchError, researchPreflight } from "../research-errors.ts";
-import { disqualifySignal, searchAiPosts, searchJobBoards } from "../agents.ts";
+import { disqualifySignal, searchAiPosts, searchJobBoards, searchPeopleWeb } from "../agents.ts";
 import { searchPeopleByTitles } from "../apollo-search.ts";
 import { upsertPerson } from "../pipeline.ts";
 import { recomputeAccountIntel } from "../account-intel.ts";
@@ -18,6 +18,8 @@ import { targetAccountByDomain } from "../target-accounts.ts";
 import type { Account } from "../types.ts";
 import { CAREERS_PATHS, careersLinkFromHomepage, detectAts, fetchPostings, fetchText, postingsFromHtml, type AtsRef, type Fetcher, type Posting } from "./ats.ts";
 import { classifyTitle, FAMILY_LABEL, operatingNeedFor, RETIRED_FAMILIES, type JobFamily } from "./classify.ts";
+import { scrapeTeamPeople } from "./team-page.ts";
+import { fillEmailsFromPattern } from "../email-fill.ts";
 import { jsonLdPostings, sitemapPostings } from "./discover.ts";
 
 type Db = SupabaseClient;
@@ -416,38 +418,69 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           await db.from("accounts").update({ ai_posts_checked_at: sweepStart }).eq("id", account.id);
         }
 
-        // Contacts: the managers behind the open roles first (the buyer is whoever is trying to hire), then the
-        // file's likely buyers, then the CEO; enriched through Apollo when a key is set.
+        // Contacts, from every source there is: Apollo when a key is set, the company's own leadership and team
+        // pages, and a web search over LinkedIn profile results and press. The managers behind the open roles come
+        // first, then the file's likely buyers, then the CEO. Then the company's email format is learned from any
+        // address on file and used to build an address for everyone else.
         let contactsFound = 0;
+        let emailsBuilt = 0;
+        let contactsNote: string | null = null;
         const contactsDue = !account.contacts_checked_at || Date.parse(account.contacts_checked_at) < rowStart - contacts.cooldownMs;
         // Contacts cost credits; a hold-list company earns them only once it is promoted to the reach-out list.
         const contactsWanted = account.outreach !== false && (contacts.mode === "all" || (contacts.mode === "hiring" && (result.targetPostings.length > 0 || postsFound > 0)));
         if (contactsWanted && contactsDue) {
           const context = targetAccountByDomain.get(account.domain);
-          const candidates: Array<{ name: string; title: string; linkedin_url: string | null }> = [];
+          const candidates: Array<{ name: string; title: string; linkedin_url: string | null; source: string }> = [];
           const wantedTitles = [...new Set([
             ...result.targetPostings.flatMap((posting) => BUYER_TITLES[posting.family] ?? []),
             ...(context?.targetTitles ?? account.target_titles ?? []),
             ...GENERAL_BUYER_TITLES,
           ])];
+          const problems: string[] = [];
           try {
-            candidates.push(...(await searchPeopleByTitles(account.domain, wantedTitles, contacts.perCompany)));
+            candidates.push(...(await searchPeopleByTitles(account.domain, wantedTitles, contacts.perCompany)).map((person) => ({ ...person, source: "apollo" })));
           } catch (error) {
-            console.warn(`[night-watch] Apollo title search failed for ${next.domain}: ${error instanceof Error ? error.message : String(error)}`);
+            problems.push(`Apollo: ${error instanceof Error ? error.message : String(error)}`);
           }
-          if (context?.ceo) candidates.push({ name: context.ceo, title: "CEO", linkedin_url: null });
+          try {
+            const team = await scrapeTeamPeople(account.domain, fetcher);
+            candidates.push(...team.people.map((person) => ({ name: person.name, title: person.title, linkedin_url: person.linkedin_url, source: "team_page" })));
+          } catch (error) {
+            problems.push(`team page: ${error instanceof Error ? error.message : String(error)}`);
+          }
+          let emailExamples: string[] = [];
+          if (posts.enabled && (extensive || candidates.length < 6)) {
+            try {
+              const web = await searchPeopleWeb(account as Account, wantedTitles, recordCost, { maxSearches: posts.maxSearches, model: modelOverride });
+              candidates.push(...web.people.map((person) => ({ name: person.name, title: person.title, linkedin_url: person.linkedin_url, source: "web_search" })));
+              emailExamples = web.emailExamples;
+            } catch (error) {
+              const classified = classifyResearchError(error);
+              problems.push(`people search (${classified.code})`);
+            }
+          }
+          if (context?.ceo) candidates.push({ name: context.ceo, title: "CEO", linkedin_url: null, source: "file" });
           const seen = new Set<string>();
+          const cap = extensive ? Math.max(contacts.perCompany, 25) : contacts.perCompany;
           for (const candidate of candidates) {
-            const key = candidate.name.toLowerCase();
-            if (seen.has(key) || seen.size >= contacts.perCompany + 1) continue;
+            const key = candidate.name.toLowerCase().replace(/[^a-z]/g, "");
+            if (!key || seen.has(key) || seen.size >= cap) continue;
             seen.add(key);
             try {
-              await upsertPerson(account as Account, candidate, "sweep");
+              await upsertPerson(account as Account, candidate, candidate.source);
               contactsFound += 1;
             } catch (error) {
               console.warn(`[night-watch] could not store ${candidate.name} at ${next.domain}: ${error instanceof Error ? error.message : String(error)}`);
             }
           }
+          try {
+            const filled = await fillEmailsFromPattern(db, account as Account, emailExamples);
+            emailsBuilt = filled.built;
+            if (filled.pattern) contactsNote = `address format ${filled.pattern.key}@ (${Math.round(filled.pattern.confidence * 100)}% sure)`;
+          } catch (error) {
+            problems.push(`email pattern: ${error instanceof Error ? error.message : String(error)}`);
+          }
+          if (problems.length) contactsNote = [contactsNote, `contact lookup problems: ${problems.join("; ")}`].filter(Boolean).join(" · ");
           await db.from("accounts").update({ contacts_checked_at: sweepStart }).eq("id", account.id);
         }
 
@@ -455,7 +488,8 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
         const parts = [
           result.targetPostings.length ? `${result.targetPostings.length} of ${result.postings.length} postings in ${families.join(", ")}` : result.note,
           postsFound ? `${postsFound} AI post${postsFound === 1 ? "" : "s"}` : null,
-          contactsFound ? `${contactsFound} contact${contactsFound === 1 ? "" : "s"}` : null,
+          contactsFound ? `${contactsFound} contact${contactsFound === 1 ? "" : "s"}${emailsBuilt ? ` (${emailsBuilt} addresses built)` : ""}` : null,
+          contactsNote,
         ].filter(Boolean);
         update = {
           status: result.targetPostings.length || postsFound ? "ok" : "no_signal",

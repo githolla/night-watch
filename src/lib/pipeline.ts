@@ -74,24 +74,32 @@ async function mapPerson(account: Account, signal: ScoutSignal, recordCost: (cos
  * people table fills up whether or not a card is created.
  */
 export async function upsertPerson(account: Account, candidate: { name: string; title: string; linkedin_url: string | null }, source = "signal") {
-  const apollo = await matchPerson(candidate.name, account.domain);
+  const apollo = await matchPerson(candidate.name, account.domain).catch((error) => {
+    console.warn(`[night-watch] Apollo match failed for ${candidate.name}: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  });
   const parts = candidate.name.trim().split(/\s+/);
   const title = apollo?.title ?? candidate.title;
-  const payload = {
+  // Only what this call actually learned. An address or profile found earlier
+  // (by Apollo, a team page, or the email pattern) is never wiped by a later miss.
+  const payload: Record<string, unknown> = {
     account_id: account.id,
     full_name: candidate.name,
     first_name: apollo?.first_name ?? parts[0],
     last_name: apollo?.last_name ?? parts.slice(1).join(" "),
     title,
     level: personLevel(title),
-    linkedin_url: apollo?.linkedin_url ?? candidate.linkedin_url,
-    email: apollo?.email ?? null,
-    email_status: apollo?.email_status === "verified" ? "verified" : apollo?.email_status === "catch_all" ? "catch_all" : apollo ? "unverified" : "none",
-    email_source: apollo ? "apollo" : null,
-    email_verified_at: apollo?.email_status === "verified" ? new Date().toISOString() : null,
     enriched_at: new Date().toISOString(),
     source,
   };
+  const linkedin = apollo?.linkedin_url ?? candidate.linkedin_url;
+  if (linkedin) payload.linkedin_url = linkedin;
+  if (apollo?.email) {
+    payload.email = apollo.email;
+    payload.email_status = apollo.email_status === "verified" ? "verified" : apollo.email_status === "catch_all" ? "catch_all" : "unverified";
+    payload.email_source = "apollo";
+    payload.email_verified_at = apollo.email_status === "verified" ? new Date().toISOString() : null;
+  }
   const db = admin();
   // people has a unique index on (account_id, lower(full_name)); take the first
   // match rather than maybeSingle() so an unexpected duplicate cannot fail the company.
