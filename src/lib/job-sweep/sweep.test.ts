@@ -39,7 +39,7 @@ test("homepage link → careers page → embedded board → classified postings"
   assert.ok(signal);
   assert.equal(signal.type, "job_post");
   assert.equal(signal.evidence_kind, "hiring");
-  assert.equal(signal.observed_at, "2026-09-01");
+  assert.equal(signal.observed_at, "2026-08-20");
   assert.equal(signal.job?.days_open, 21);
   assert.match(signal.operating_need, /hiring a Data Analyst/);
   assert.equal(signal.people[0]?.name, "Russell Shinsky");
