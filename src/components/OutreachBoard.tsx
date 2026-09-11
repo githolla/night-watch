@@ -94,8 +94,8 @@ export function OutreachBoard({ rows, results, heldWithSignal, initial, scan }: 
     <section className="targets-head has-hero">
       <div>
         <span className="eyebrow">Reach-out list · Tier A</span>
-        <h1>{results.length ? `${results.length} ${results.length === 1 ? "reason" : "reasons"} to reach out.` : scanned ? "Scanned. Nothing ready to send yet." : "Your list is in. Scan it."}</h1>
-        <p>{rows.length} companies. Night Watch scans only these and drafts the outreach when it finds a real reason. Click any company for everything on file.</p>
+        <h1>{results.length ? `${results.length} ${results.length === 1 ? "reason" : "reasons"} to reach out.` : scanned ? "Nothing ready to send yet." : "Scanning your list."}</h1>
+        <p>{rows.length} companies. Night Watch scans only these, on its own, and drafts the outreach when it finds a real reason. Click any company for everything on file.</p>
         {scan}
       </div>
       <div className="targets-head-count"><span>SCANNED</span><strong>{scanned.toLocaleString()} / {rows.length.toLocaleString()}</strong><small>{rows.filter((row) => row.openRoles > 0).length} hiring in target roles · {rows.filter((row) => row.aiPosts > 0).length} posting about AI · {rows.filter((row) => row.contacts > 0).length} with a contact</small><small>{rows.filter(SHOW.contacted.test).length} contacted · {rows.filter((row) => row.replied > 0 || ["replied", "meeting", "won"].includes(row.stage)).length} replied</small></div>
@@ -112,7 +112,7 @@ export function OutreachBoard({ rows, results, heldWithSignal, initial, scan }: 
         </div>
         <Link href={`/desk?card=${result.cardId}&account=${result.domain}`} className="btn primary reach-open" onClick={(event) => event.stopPropagation()}>Open the draft</Link>
       </li>)}</ol>
-      : <p className="coverage-note account-empty">{scanned ? "No company has a signal worth a draft yet. The list below ranks everyone by what was found." : "Press Scan above. Results appear here as they are found."}</p>}
+      : <p className="coverage-note account-empty">{scanned ? "No company has a signal worth a draft yet. The list below ranks everyone by what was found." : "Results appear here as they are found."}</p>}
       {results.length > 25 && <p className="coverage-note account-empty">{results.length - 25} more on the <Link href="/desk">desk</Link>.</p>}
     </section>
 

@@ -7,21 +7,29 @@ import type { RunSummary } from "@/lib/run-status";
 type RunResponse = { run: RunSummary; stopped: string; error?: string };
 type Phase = "idle" | "sweep" | "research" | "stopping";
 
+const STALE_MS = 20 * 3600_000;
+
 /**
- * One button that scans the reach-out list end to end: the careers sweep
- * first (roles, AI posts, contacts), then the research pass (managers asking
- * for help, mandates, growth events), continuing each run until it closes.
- * The first press is the extensive pass; later presses are updates.
+ * The scan runs itself. Opening the page starts it when the list has never
+ * been scanned, when companies are still unscanned, when a scan was cut off,
+ * or when the last one is older than a day; it then continues each run until
+ * it closes. The first pass is the extensive one; later passes are updates.
+ * On Production the scheduled runs do the same without anyone opening a page.
  */
-export function ScanControl({ listSize, firstPass, openRun, disabled }: { listSize: number; firstPass: boolean; openRun: RunSummary | null; disabled?: boolean }) {
+export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinishedAt }: { listSize: number; unscanned: number; firstPass: boolean; openRun: RunSummary | null; lastFinishedAt: string | null }) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("idle");
   const [run, setRun] = useState<RunSummary | null>(openRun);
   const [spent, setSpent] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [now] = useState(() => Date.now());
   const active = useRef(false);
+  const autoStarted = useRef(false);
 
   const running = phase !== "idle";
+  const resumable = Boolean(openRun && openRun.status === "open");
+  const stale = !lastFinishedAt || now - Date.parse(lastFinishedAt) > STALE_MS;
+  const shouldAutoStart = listSize > 0 && (firstPass || unscanned > 0 || resumable || stale);
 
   useEffect(() => {
     if (!running || !run?.id) return;
@@ -44,23 +52,20 @@ export function ScanControl({ listSize, firstPass, openRun, disabled }: { listSi
     return json;
   }
 
-  /** Create or continue one run and work it until it closes or is stopped. */
+  /** Create or continue one run and work it until it closes, is stopped, or another window has it. */
   async function drive(endpoint: string, start: Record<string, unknown>, carried: Record<string, unknown>, runId?: string) {
     let response = await post(endpoint, runId ? { runId, ...carried } : start);
     setRun(response.run);
-    let cost = response.run.costUsd;
     while (active.current && response.run.status === "open" && !["cancelled", "already_closed", "busy"].includes(response.stopped)) {
       response = await post(endpoint, { runId: response.run.id, ...carried });
       setRun(response.run);
-      cost = response.run.costUsd;
     }
-    setSpent((total) => total + cost);
+    setSpent((total) => total + response.run.costUsd);
     return response;
   }
 
   async function scan() {
     const extensive = firstPass;
-    if (extensive && !window.confirm(`Scan all ${listSize} reach-out companies. This first pass is the thorough one: careers pages, job boards, AI posts, contacts, then the research model on every company. It runs until it is done or you press Stop, and it spends real money while it runs.`)) return;
     setError(null);
     active.current = true;
     try {
@@ -68,8 +73,8 @@ export function ScanControl({ listSize, firstPass, openRun, disabled }: { listSi
       const resumeResearch = openRun && !resumeSweep ? openRun.id : undefined;
       if (!resumeResearch) {
         setPhase("sweep");
-        const sweep = await drive("/api/sweep/run", extensive ? { all: true, populate: true } : { limit: listSize }, extensive ? { populate: true } : {}, resumeSweep);
-        if (!active.current || sweep.stopped === "cancelled") return;
+        const sweep = await drive("/api/sweep/run", extensive ? { all: true, populate: true } : { all: true }, extensive ? { populate: true } : {}, resumeSweep);
+        if (!active.current || sweep.stopped === "cancelled" || sweep.stopped === "busy") return;
       }
       setPhase("research");
       await drive("/api/nightly/run", extensive ? { populate: true } : { limit: Math.min(listSize, 100) }, extensive ? { populate: true } : {}, resumeResearch);
@@ -81,6 +86,15 @@ export function ScanControl({ listSize, firstPass, openRun, disabled }: { listSi
       router.refresh();
     }
   }
+
+  // Start on arrival, once per visit. A page opened while another window is
+  // already driving the run stops on the first "busy" answer and just watches.
+  useEffect(() => {
+    if (autoStarted.current || !shouldAutoStart) return;
+    autoStarted.current = true;
+    void scan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldAutoStart]);
 
   async function stop() {
     if (!run) return;
@@ -98,21 +112,19 @@ export function ScanControl({ listSize, firstPass, openRun, disabled }: { listSi
   const total = counts?.requested ?? 0;
   const done = counts?.done ?? 0;
   const percent = total ? Math.round((done / total) * 100) : 0;
-  const resumable = !running && openRun && openRun.status === "open";
+  const lastScan = lastFinishedAt ? new Date(lastFinishedAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : null;
 
   return <div className="scan-control">
     <div className="scan-actions">
-      {running
-        ? <button className="btn danger" type="button" disabled={phase === "stopping"} onClick={stop}>{phase === "stopping" ? "Stopping…" : "Stop"}</button>
-        : <button className="btn primary scan-button" type="button" disabled={disabled} onClick={scan}>{resumable ? "Continue the scan" : firstPass ? `Scan all ${listSize} companies` : "Scan for updates"}</button>}
-      <span className="scan-note">
-        {running
-          ? phase === "sweep" ? `Reading careers pages, job boards and AI posts… ${done} / ${total}` : phase === "research" ? `Researching with the model… ${done} / ${total}` : "Stopping after the current company…"
-          : resumable ? `A scan was interrupted with ${Math.max(0, openRun.counts.requested - openRun.counts.done)} companies left.` : firstPass ? "First pass: everything, for every company. Runs until done; you can stop it any time and continue later." : "Checks every company for new roles, posts and people, then researches the ones that changed. The scheduled runs do this on their own every night."}
-      </span>
+      {running ? <>
+        <span className="scan-live"><i />{phase === "sweep" ? "Reading careers pages, job boards and AI posts" : phase === "research" ? "Researching with the model" : "Stopping after the current company"}{total ? ` · ${done} / ${total}` : ""}{counts ? ` · ${counts.ok} with something found` : ""} · ${(spent + (run?.costUsd ?? 0)).toFixed(2)}</span>
+        <button className="scan-stop" type="button" disabled={phase === "stopping"} onClick={stop}>Stop</button>
+      </> : <>
+        <span className="scan-note">{error ? "The scan stopped." : lastScan ? `Up to date. Last scan ${lastScan}. Night Watch keeps scanning on its own; leave this page open or let the nightly run do it.` : "Nothing scanned yet."}</span>
+        <button className="scan-stop" type="button" onClick={() => { autoStarted.current = true; void scan(); }}>{error ? "Try again" : "Scan again now"}</button>
+      </>}
     </div>
     {running && <div className="run-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}><span style={{ width: `${percent}%` }} /></div>}
-    {running && counts && <div className="run-panel-line"><span className="is-ok">{counts.ok} with something found</span>{counts.error > 0 && <span className="is-failed">{counts.error} failed</span>}<span>${(spent + (run?.costUsd ?? 0)).toFixed(2)} spent</span></div>}
     {error && <p className="notice error">{error}</p>}
   </div>;
 }

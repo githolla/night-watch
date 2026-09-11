@@ -90,12 +90,13 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   // The file is the source of truth. If the database is behind it, write it now rather than asking anyone to press a sync button.
   if (await targetsNeedSync(db)) await syncTargetAccounts(db);
 
-  const [live, cards, touches, holdRows, openRunRow] = await Promise.all([
+  const [live, cards, touches, holdRows, openRunRow, lastRunRow] = await Promise.all([
     fetchAll<LiveAccount>((from, to) => db.from("accounts").select(LIVE_COLUMNS).eq("outreach", true).not("domain", "like", "%.example").range(from, to)),
     fetchAll<CardRow>((from, to) => db.from("cards").select("id,account_id,status,score,why_now,channel,people(full_name,title)").range(from, to)),
     fetchAll<TouchRow>((from, to) => db.from("touches").select("sent_at,reply_at,reply_classification,cards(account_id)").range(from, to)),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", false).not("domain", "like", "%.example").gt("intel_score", 0),
     db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false).order("started_at", { ascending: false }).limit(1).maybeSingle(),
+    db.from("runs").select("finished_at").eq("status", "complete").not("finished_at", "is", null).order("finished_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
   const openRun = openRunRow.data ? await loadRunSummary(db, openRunRow.data.id as string) : null;
 
@@ -148,7 +149,13 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     <Header />
     <main className="targets-page">
       <OutreachBoard rows={rows} results={results} heldWithSignal={holdRows.count ?? 0} initial={initial}
-        scan={<ScanControl listSize={live.filter((account) => account.status === "active").length} firstPass={!live.some((account) => account.careers_status) && !live.some((account) => account.last_scouted_at)} openRun={openRun} />} />
+        scan={<ScanControl
+          listSize={live.filter((account) => account.status === "active").length}
+          unscanned={live.filter((account) => account.status === "active" && !account.careers_status && !account.last_scouted_at).length}
+          firstPass={!live.some((account) => account.careers_status) && !live.some((account) => account.last_scouted_at)}
+          openRun={openRun}
+          lastFinishedAt={(lastRunRow.data?.finished_at as string | null) ?? null}
+        />} />
     </main>
   </div>;
 }
