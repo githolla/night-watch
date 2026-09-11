@@ -36,7 +36,7 @@ export function Dashboard({data,cards}:{data:DashboardData;cards:CardSummary[]})
         <div className="watch-measures"><div><span>LAST SCAN</span><strong>{data.run.finishedAt}</strong></div><div><span>DURATION</span><strong>{data.run.duration}</strong></div><div><span>RUN COST</span><strong>${data.run.cost.toFixed(2)}</strong></div></div>
         <p>Quiet systems. Clear reasons.<br/>Human decisions before outreach.</p>
       </aside>
-      <div className="system-rail"><span><i/> SYSTEM ONLINE</span><span>{data.run.status.toUpperCase()} / SECURE WORKSPACE</span><span>NINE—67 · NIGHT WATCH</span></div>
+      <div className="system-rail"><span><i/> SYSTEM ONLINE</span><span>{data.run.status.toUpperCase()} / SECURE WORKSPACE</span><span>Nine-67 · Night Watch</span></div>
     </section>
 
     <section className="overview-demo"><span>SHAPE YOUR WORKSPACE</span><p>Choose the Night Watch features that match your role and today’s objective.</p><Link href="/settings">Open feature guide →</Link></section>
