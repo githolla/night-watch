@@ -132,7 +132,8 @@ export function Desk({
   // One-at-a-time by default: the desk opens on the next prospect to work, not a list.
   // `selected` = a full-detail deep dive; `browse` = the searchable list of everyone.
   const [selected, setSelected] = useState<string | undefined>(selectedId);
-  const [browse, setBrowse] = useState(false);
+  // The full list is home; clicking a prospect drops into the one-at-a-time focus view.
+  const [browse, setBrowse] = useState(!selectedId);
   const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? initialCards[0]?.id);
   const [kind, setKind] = useState<"all" | "job" | "social">("all");
   const [query, setQuery] = useState("");
@@ -492,7 +493,6 @@ export function Desk({
           </div>
       ) : browse ? (
         <div className="pipeline-list">
-          <button type="button" className="pipeline-backtofocus" onClick={() => setBrowse(false)}>&larr; Back to the next one to work</button>
           <div className="ask-bar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search prospects by name, title or company" aria-label="Search prospects" /></div>
           <header className="pipeline-head">
             <div><h1>All prospects</h1><p>{plural(cards.length, "prospect")} &middot; {priorityCount} priority &middot; {withDraft} with a draft{needle ? ` \u00b7 ${filtered.length} match` : ""}</p></div>
@@ -518,12 +518,10 @@ export function Desk({
         </div>
       ) : (
         <div className="focus">
+          <button type="button" className="pipeline-backtofocus" onClick={() => setBrowse(true)}>&larr; All prospects</button>
           <header className="pipeline-head">
-            <div><h1>Pipeline</h1><p>{todo.length} to work &middot; {priorityCount} priority &middot; {withDraft} with a draft</p></div>
-            <div className="focus-head-actions">
-              <button type="button" className="btn ghost" onClick={() => setBrowse(true)}>Browse all</button>
-              <Link className="btn primary" href="/runs">Runs</Link>
-            </div>
+            <div><h1>Working next</h1><p>{todo.length} to work &middot; {priorityCount} priority &middot; {withDraft} with a draft</p></div>
+            <Link className="btn primary" href="/runs">Runs</Link>
           </header>
           {focusCard && draft ? (
             <article className="focus-card">

@@ -17,19 +17,25 @@ export async function fillEmailsFromPattern(db: SupabaseClient, account: { id: s
   let guess: PatternGuess | null = detectPattern(samples, account.domain);
   if (!guess) guess = guessFromExamples(webExamples, account.domain);
   if (!guess && account.email_pattern) guess = { key: account.email_pattern as PatternKey, confidence: Number(account.pattern_confidence ?? 0.4), matched: 0, samples: 0 };
-  if (!guess) return { pattern: null as PatternGuess | null, built: 0 };
+  // Last resort: no address and no example anywhere. Fall back to the most common corporate format
+  // (first.last@) as a low-confidence *guess*, so the list has a candidate to check by hand. It is
+  // marked as a guess (not a learned pattern) and never used for an automatic send.
+  const blind = !guess;
+  if (!guess) guess = { key: "first.last", confidence: 0.15, matched: 0, samples: 0 };
 
-  if (guess.key !== account.email_pattern || Number(account.pattern_confidence ?? 0) !== guess.confidence) {
+  // Only remember a format we actually learned; a blind guess must not masquerade as the account's pattern.
+  if (!blind && (guess.key !== account.email_pattern || Number(account.pattern_confidence ?? 0) !== guess.confidence)) {
     await db.from("accounts").update({ email_pattern: guess.key, pattern_confidence: guess.confidence }).eq("id", account.id);
   }
+  const source = blind ? "guess" : "pattern";
   let built = 0;
   for (const person of people) {
-    // Fill the blanks, and refresh earlier guesses when the pattern changed.
-    if (person.email && person.email_source !== "pattern") continue;
+    // Fill the blanks, and refresh earlier built addresses when the pattern changed.
+    if (person.email && person.email_source !== "pattern" && person.email_source !== "guess") continue;
     const email = buildEmail(person.full_name, guess.key, account.domain);
     if (!email || email === person.email) continue;
-    const { error } = await db.from("people").update({ email, email_status: "unverified", email_source: "pattern", email_verified_at: null }).eq("id", person.id);
+    const { error } = await db.from("people").update({ email, email_status: "unverified", email_source: source, email_verified_at: null }).eq("id", person.id);
     if (!error) built += 1;
   }
-  return { pattern: guess, built };
+  return { pattern: blind ? null : guess, built };
 }
