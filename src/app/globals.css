@@ -1229,3 +1229,10 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .sidebar-nav a .nav-count{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font:600 11px/20px var(--sans);text-align:center;opacity:.9}
 .sidebar-nav a.is-active .nav-count{background:rgba(255,255,255,.24)}
 .sidebar.is-collapsed .nav-count{display:none}
+
+/* Company page: prev/next stepper through the reach-out list. */
+.company-topnav{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.company-stepper{display:flex;align-items:center;gap:8px}
+.company-stepper .btn{padding:7px 12px}
+.company-stepper .btn.is-disabled{opacity:.4;pointer-events:none}
+.company-stepper-count{font:600 12px/1 var(--mono);letter-spacing:.04em;color:var(--muted);min-width:64px;text-align:center}

@@ -78,6 +78,13 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
   ]) : [[], [], [], [], [], [], []] as [Posting[], Post[], Person[], SignalRow[], CardRow[], HistoryRow[], Array<{ outreach_owner: string }>];
   const touches = cards.length ? ((await db.from("touches").select("id,person_id,channel,sent_at,sent_by,reply_at,reply_classification,card_id").in("card_id", cards.map((card) => card.id)).order("created_at", { ascending: false })).data ?? []) as TouchRow[] : [];
   const owners = [...new Set(["Josh", ...ownerRows.map((row) => row.outreach_owner)])].sort((a, b) => a.localeCompare(b));
+  // Prev/next through the reach-out list so companies can be walked one by one without going back.
+  const siblings = live && outreach
+    ? (((await db.from("accounts").select("domain,name").eq("status", "active").eq("outreach", true).not("domain", "like", "%.example").order("intel_score", { ascending: false, nullsFirst: false }).order("name")).data ?? []) as Array<{ domain: string; name: string }>)
+    : [];
+  const sibIndex = siblings.findIndex((sibling) => sibling.domain === domain);
+  const prevSib = sibIndex > 0 ? siblings[sibIndex - 1] : null;
+  const nextSib = sibIndex >= 0 && sibIndex < siblings.length - 1 ? siblings[sibIndex + 1] : null;
   const targetPostings = postings.filter((posting) => posting.active && posting.family);
   const otherPostings = postings.filter((posting) => !(posting.active && posting.family));
   const openCards = cards.filter((card) => OPEN.includes(card.status));
@@ -121,7 +128,14 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
   return <div className="shell">
     <Header />
     <main className="targets-page account-page">
-      <p className="crumbs"><Link href="/outreach">Reach-out list</Link><span>/</span><span>{name}</span></p>
+      <div className="company-topnav">
+        <p className="crumbs"><Link href="/outreach">Reach-out list</Link><span>/</span><span>{name}</span></p>
+        {sibIndex >= 0 && siblings.length > 1 && <div className="company-stepper">
+          {prevSib ? <Link href={`/accounts/${prevSib.domain}`} className="btn ghost" title={prevSib.name}>&larr; Prev</Link> : <span className="btn ghost is-disabled">&larr; Prev</span>}
+          <span className="company-stepper-count">{sibIndex + 1} of {siblings.length}</span>
+          {nextSib ? <Link href={`/accounts/${nextSib.domain}`} className="btn ghost" title={nextSib.name}>Next &rarr;</Link> : <span className="btn ghost is-disabled">Next &rarr;</span>}
+        </div>}
+      </div>
 
       <header className="card record-head">
         <div className="record-id">
