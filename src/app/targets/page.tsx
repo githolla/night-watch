@@ -91,7 +91,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
     <Header />
     <main className="targets-page">
       <header className="page-head">
-        <div><h1>All companies</h1><p>{all.length.toLocaleString()} on the file. {counts.list} on the reach-out list get scanned and drafted; {counts.hold} held are swept only when asked; {counts.removed} removed by the cut. Click a company for everything on file, or use the switch to put it on or off the list.</p></div>
+        <div><h1>All companies</h1><p>Every company on the file, held and removed included. The reach-out list is the {counts.list} that get scanned and drafted; use the switch to add or remove one.</p></div>
       </header>
 
       <section className="stat-row">

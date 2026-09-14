@@ -76,7 +76,7 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
     <Header />
     <main className="targets-page">
       <section className="targets-head has-hero">
-        <div><span className="eyebrow">Open roles</span><h1>Every role Nine-67 could do instead of the hire.</h1><p>Read directly from careers pages, job boards, sitemaps and structured data by the sweep. Titles are matched to the target job families by rule; the whole list is re-read daily.</p></div>
+        <div><span className="eyebrow">Open roles</span><h1>Open roles</h1><p>Jobs at the target companies that Nine-67 could build a system for instead of the hire.</p></div>
         <div className="targets-head-count"><span>TARGET ROLES OPEN</span><strong>{(familyRows?.length ?? 0).toLocaleString()}</strong><small>{(totalActive ?? 0).toLocaleString()} postings read in total</small></div>
       </section>
 

@@ -808,13 +808,17 @@ body{font-family:var(--sans);letter-spacing:-.005em;font-variant-numeric:tabular
 .sidebar-brand strong{font-size:17px;font-weight:800;letter-spacing:.04em}
 .sidebar-brand span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
 .sidebar-nav{display:flex;flex-direction:column;padding:12px 10px;gap:2px;flex:1}
-.sidebar-nav a,.sidebar-toggle,.sidebar-lock{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:8px;text-decoration:none;color:inherit;font-size:13.5px;font-weight:500;white-space:nowrap;opacity:.82;border:0;background:transparent;width:100%;cursor:pointer;text-align:left}
-.sidebar-nav a:hover,.sidebar-toggle:hover,.sidebar-lock:hover{background:rgba(255,255,255,.08);opacity:1}
+.sidebar-nav a,.sidebar-more,.sidebar-toggle,.sidebar-lock{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:8px;text-decoration:none;color:inherit;font-size:13.5px;font-weight:500;white-space:nowrap;opacity:.82;border:0;background:transparent;width:100%;cursor:pointer;text-align:left}
+.sidebar-nav a:hover,.sidebar-more:hover,.sidebar-toggle:hover,.sidebar-lock:hover{background:rgba(255,255,255,.08);opacity:1}
 .sidebar-nav a.is-active{background:rgba(255,255,255,.14);opacity:1;font-weight:600}
-.sidebar-nav a svg,.sidebar-toggle svg,.sidebar-lock svg{flex:0 0 18px}
+.sidebar-nav a svg,.sidebar-more svg,.sidebar-toggle svg,.sidebar-lock svg{flex:0 0 18px}
+.sidebar-more{margin-top:6px;font:700 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;opacity:.6}
+.sidebar-more svg{transition:transform .15s ease}
+.sidebar-more.is-open svg{transform:rotate(-180deg)}
+.sidebar-more-list{display:flex;flex-direction:column;gap:2px}
 .sidebar-rule{display:block;height:1px;background:rgba(255,255,255,.1);margin:8px 6px}
 .sidebar-foot{padding:10px;border-top:1px solid rgba(255,255,255,.1);display:grid;gap:2px}
-.sidebar.is-collapsed .sidebar-brand span,.sidebar.is-collapsed .sidebar-nav a span,.sidebar.is-collapsed .sidebar-toggle span,.sidebar.is-collapsed .sidebar-lock span{display:none}
+.sidebar.is-collapsed .sidebar-brand span,.sidebar.is-collapsed .sidebar-nav a span,.sidebar.is-collapsed .sidebar-more span,.sidebar.is-collapsed .sidebar-toggle span,.sidebar.is-collapsed .sidebar-lock span{display:none}
 .sidebar.is-collapsed .sidebar-brand{padding:20px 0 16px;align-items:center}
 .sidebar.is-collapsed .sidebar-nav a,.sidebar.is-collapsed .sidebar-toggle,.sidebar.is-collapsed .sidebar-lock{justify-content:center;padding:10px 0}
 /* Full-bleed heroes now bleed to the content edges, not the viewport. */
@@ -824,7 +828,7 @@ body{font-family:var(--sans);letter-spacing:-.005em;font-variant-numeric:tabular
 .hero-slim>div:first-child{padding-left:clamp(28px,3vw,46px)}
 .next-up{max-width:none}
 .targets-page>*{max-width:none}
-@media(max-width:850px){.shell{flex-direction:column}.sidebar{position:static;height:auto;width:100%;flex:0 0 auto;flex-direction:row;align-items:center;overflow:auto}.sidebar.is-collapsed{--sidebar:100%}.sidebar-brand{border-bottom:0;border-right:1px solid rgba(255,255,255,.1);padding:12px 14px}.sidebar-brand span{display:none}.sidebar-nav{flex-direction:row;padding:6px;gap:0}.sidebar-nav a span,.sidebar-toggle span,.sidebar-lock span{display:none}.sidebar-rule{width:1px;height:auto;margin:6px 4px}.sidebar-foot{border-top:0;display:flex;padding:6px}.sidebar-toggle{display:none}}
+@media(max-width:850px){.shell{flex-direction:column}.sidebar{position:static;height:auto;width:100%;flex:0 0 auto;flex-direction:row;align-items:center;overflow:auto}.sidebar.is-collapsed{--sidebar:100%}.sidebar-brand{border-bottom:0;border-right:1px solid rgba(255,255,255,.1);padding:12px 14px}.sidebar-brand span{display:none}.sidebar-nav{flex-direction:row;padding:6px;gap:0}.sidebar-nav a span,.sidebar-more span,.sidebar-toggle span,.sidebar-lock span{display:none}.sidebar-more{margin-top:0}.sidebar-more-list{flex-direction:row}.sidebar-rule{width:1px;height:auto;margin:6px 4px}.sidebar-foot{border-top:0;display:flex;padding:6px}.sidebar-toggle{display:none}}
 .brief-text{margin:0;font-size:15px;line-height:1.55}
 .brief-text b{font-weight:700}
 .brief-opener{margin:4px 0 0;padding:12px 16px;border-left:3px solid var(--accent);background:var(--accent-soft);font-size:15px;line-height:1.55;font-style:italic}
