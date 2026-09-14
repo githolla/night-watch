@@ -632,7 +632,6 @@ export function Desk({
                 <div className="focus-who-head">
                   <span className="avatar">{initials(focusCard.people.full_name)}</span>
                   <div><strong>{focusCard.people.full_name}</strong><small>{focusCard.people.title || "title unknown"}</small></div>
-                  <em className={`chip level-${focusCard.people.level ?? "unknown"}`}>{levelLabel(focusCard.people.level ?? "unknown")}</em>
                 </div>
                 <p className="focus-who-why">{whoWhy(focusCard)}</p>
                 <div className="focus-who-route">
@@ -731,10 +730,6 @@ function signalEvidence(item: Card): string | null {
 
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
-}
-
-function levelLabel(level: string) {
-  return level === "owner" ? "Decision-maker" : level === "influencer" ? "Key influencer" : level === "adjacent" ? "Warm way in" : "Named contact";
 }
 
 /** A plain sentence on why this person is the one to write to. */

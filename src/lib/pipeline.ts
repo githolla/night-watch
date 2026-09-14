@@ -566,8 +566,18 @@ function normalizeStoredBreakdown(value: unknown): StoredBreakdown {
  * the archive threshold, and stamp today's top ten as surfaced. Runs once per
  * run, when the run closes; never per company.
  */
+/** Remove non-posts that scraping captured — LinkedIn login walls and authorless rows — so the counts are real. */
+export async function purgeJunkPosts() {
+  const db = admin();
+  await db.from("public_posts").delete().or("author_name.is.null,author_name.eq.Unknown");
+  for (const pattern of ["%log in to linkedin%", "%sign in to %", "%keep in touch with people you know%", "%join linkedin%", "%see who you know%", "%create your free account%"]) {
+    await db.from("public_posts").delete().ilike("excerpt", pattern);
+  }
+}
+
 export async function recomputeAndSurface() {
   const db = admin();
+  await purgeJunkPosts().catch(() => undefined);
   const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(type,observed_at,raw),accounts(outreach)").in("status", ["new", "approved", "edited", "snoozed"]);
   for (const card of cards ?? []) {
     const signal = card.signals as unknown as { type?: string; observed_at: string; raw?: { operating_need?: unknown } | null };

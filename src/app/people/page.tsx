@@ -111,7 +111,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
             const account = person.accounts as unknown as { name: string; domain: string };
             const email = person.email as string | null;
             return <RowLink as="li" key={person.id} href={`/accounts/${account.domain}`}>
-              <div className="rank-company"><strong>{person.full_name}</strong><small>{person.title}</small><span className="outreach-chips"><span className={`tier-chip ${person.level === "owner" ? "tier-A1" : person.level === "influencer" ? "tier-A2" : ""}`}>{LEVEL_LABEL[person.level as string] ?? person.level}</span></span></div>
+              <div className="rank-company"><strong>{person.full_name}</strong><small>{person.title || "title unknown"}</small></div>
               <div className="rank-why"><p>{account.name}</p><small>{email ? `${email} · ${person.email_source === "pattern" ? "built, unverified" : EMAIL_LABEL[person.email_status as string] ?? person.email_status}` : "no email on file"}{person.linkedin_url ? " · LinkedIn on file" : ""}</small></div>
               <div className="rank-status">{person.linkedin_url ? <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a> : <span>—</span>}<small>{String(person.source ?? "signal").replace("_", " ")}{person.enriched_at ? ` · ${(person.enriched_at as string).slice(0, 10)}` : ""}</small></div>
               <span className="rank-go">→</span>

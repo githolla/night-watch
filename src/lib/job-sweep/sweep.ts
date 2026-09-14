@@ -28,6 +28,17 @@ import { jsonLdPostings, sitemapPostings } from "./discover.ts";
 
 type Db = SupabaseClient;
 
+/** LinkedIn's login-wall boilerplate and other non-posts that scraping picks up — never store these as posts. */
+const JUNK_POST = /log ?in to linkedin|sign ?in to (view|see|linkedin)|keep in touch with people you know|join linkedin|create your (free )?account|to view .{0,30}(full )?profile|this (content|post|page)( isn'?t| is not) available|register to (see|view)|members? you (may )?know|see who you know/i;
+export function isJunkPost(excerpt: string | null | undefined, author: string | null | undefined): boolean {
+  const text = (excerpt ?? "").trim();
+  if (text.length < 40) return true;
+  if (JUNK_POST.test(text)) return true;
+  const name = (author ?? "").trim();
+  if (!name || /^unknown$/i.test(name)) return true;
+  return false;
+}
+
 export type SweepSource = "sweep" | "sweep_manual";
 
 export type SweepOptions = {
@@ -474,6 +485,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
             linkedin.people = found.people;
             linkedin.posts = found.posts;
             for (const post of found.posts) {
+              if (isJunkPost(post.excerpt, post.author)) continue; // skip login-wall boilerplate and authorless scrapes
               const { error } = await db.from("public_posts").upsert({
                 account_id: account.id, author_name: post.author, author_title: "", url: post.url, platform: post.platform, topic: aboutAi(post.excerpt) ? "AI or automation" : "",
                 excerpt: post.excerpt, posted_at: post.date, found_by: `search:${found.provider}`, raw: post,
@@ -504,6 +516,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           try {
             const { posts: found, model } = await searchAiPosts(account as Account, recordCost, { maxSearches: posts.maxSearches, model: modelOverride });
             for (const post of found) {
+              if (isJunkPost(post.excerpt, post.author_name)) continue; // skip login-wall boilerplate and authorless scrapes
               const postedAt = post.posted_at && /^\d{4}-\d{2}-\d{2}/.test(post.posted_at) ? post.posted_at.slice(0, 10) : null;
               const signal: ScoutSignal = {
                 type: "exec_post", evidence_kind: "ai_post",
