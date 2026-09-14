@@ -126,11 +126,14 @@ export function Desk({
   scan?: import("react").ReactNode;
 }) {
   const [cards, setCards] = useState(initialCards);
-  const [selected, setSelected] = useState(selectedId ?? cards[0]?.id);
+  // No card selected = the pipeline list; a selected card = its detail view. One scroll either way.
+  const [selected, setSelected] = useState<string | undefined>(selectedId);
+  const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
-  const card = cards.find((item) => item.id === selected) ?? cards[0];
+  const active = selected ? cards.find((item) => item.id === selected) : undefined;
+  const card = active ?? cards[0];
   const hasSourceResults = (context?.recentSignals.length ?? 0) > 0;
   const cardIndex = Math.max(0, cards.findIndex((item) => item.id === card?.id));
   const listSynced = !context || context.activeAccounts === context.targetTotal;
@@ -224,85 +227,36 @@ export function Desk({
   // Arrow keys (or j/k) move between prospects, so working the queue never means hunting for a button.
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
+      if (!active) return; // Arrows move between prospects only while reading one; the list scrolls normally.
       const target = event.target as HTMLElement | null;
       if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       if (event.key === "ArrowDown" || event.key === "j") { event.preventDefault(); move(1); }
       else if (event.key === "ArrowUp" || event.key === "k") { event.preventDefault(); move(-1); }
+      else if (event.key === "Escape") { event.preventDefault(); setSelected(undefined); }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cardIndex, cards.length]);
+  }, [cardIndex, cards.length, active]);
 
-  // Keep the selected card visible in the queue as you move.
+  // Jump to the top when you open a prospect or come back to the list.
   useEffect(() => {
-    document.querySelector(".queue-card.active")?.scrollIntoView({ block: "nearest" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [selected]);
 
-  const queue = context?.queue ?? { open: cards.length, newToday: cards.filter((item) => item.isNew).length, awaitingReply: 0 };
   const priorityCount = cards.filter((item) => item.score >= PRIORITY_THRESHOLD).length;
+  const open = (id: string) => { setNotice(""); setSelected(id); };
+  const needle = query.trim().toLowerCase();
+  const filtered = needle ? cards.filter((item) => `${item.people.full_name} ${item.people.title} ${item.accounts.name}`.toLowerCase().includes(needle)) : cards;
+  const hero = filtered[0];
+  const withDraft = cards.filter((item) => item.email_body || item.linkedin_note || item.linkedin_message).length;
+  const nextLine = (item: Card) => item.signals.raw?.operating_need || item.why_now || item.signals.summary;
 
   return (
-    <main className="desk">
-      <section className="queue">
-        {scan && <div className="desk-scan">{scan}</div>}
-        <div className="queue-head">
-          <div className="eyebrow">Morning decision queue</div>
-          <h1>{plural(cards.length, "person", "people")} to decide on</h1>
-          <p>
-            {queue.newToday > 0 ? `${queue.newToday} new since yesterday` : "Nothing new since yesterday"}
-            {queue.awaitingReply > 0 ? ` · ${queue.awaitingReply} waiting on a reply` : ""}
-          </p>
-          <p className="queue-hint">Use ↑ ↓ to move between people, or click one.</p>
-          <div className="queue-summary">
-            <Link href="/desk?priority=high"><strong>{priorityCount}</strong><span>PRIORITY</span></Link>
-            <Link href="/desk?new=today"><strong>{queue.newToday}</strong><span>NEW TODAY</span></Link>
-            <Link href="/desk?status=sent"><strong>{queue.awaitingReply}</strong><span>AWAITING REPLY</span></Link>
-          </div>
-          <Link href="/runs" className="runs-link">Start or continue a run →</Link>
-          {context && (
-            <div className="changes-strip">
-              <span className="eyebrow">Since yesterday · {plural(context.changes.companies, "company", "companies")} changed</span>
-              <Link href="/roles?since=1"><strong>{context.changes.newRoles}</strong> new target roles</Link>
-              <Link href="/roles?since=1&all=1"><strong>{context.changes.closedRoles}</strong> roles closed</Link>
-              <Link href="/posts?since=1"><strong>{context.changes.newPosts}</strong> new AI posts</Link>
-              <Link href="/people?since=1"><strong>{context.changes.newPeople}</strong> new contacts</Link>
-              <Link href="/targets?research=changed">All companies that changed this week →</Link>
-            </div>
-          )}
-        </div>
-        {cards.map((item, index) => (
-          <button key={item.id} className={`queue-card ${item.id === card?.id ? "active" : ""}`} onClick={() => choose(item.id)}>
-            <div className="queue-card-top">
-              <span className="queue-index">{String(index + 1).padStart(2, "0")}</span>
-              {item.isNew && <span className="new-label">New</span>}
-              <span className="badge">{item.signals.type?.replaceAll("_", " ") ?? item.channel.replaceAll("_", " ")}</span>
-              <span className="queue-fresh">{item.signals.observed_at ? freshness(item.signals.observed_at) : "recent"}</span>
-              <span className="score" title={scoreTitle(item)}>{item.score}</span>
-            </div>
-            <h3>{item.people.full_name}</h3>
-            <small>{item.people.title} · {item.accounts.name}</small>
-            <div className="queue-source-snippet"><span>{item.signals.raw?.post ? "PUBLIC POST" : "PUBLIC SOURCE"} · {item.signals.observed_at ? new Date(`${item.signals.observed_at}T12:00:00`).toLocaleDateString() : "DATE UNAVAILABLE"}</span><strong>{item.signals.raw?.post?.author_name ?? item.people.full_name}</strong><p>{item.signals.raw?.post?.text ?? item.signals.summary}</p></div>
-            <div className="queue-message-snippet"><span>OUTREACH READY</span><p>{item.linkedin_note || item.email_body || item.why_now}</p></div>
-            <div className="queue-reason">
-              <span>{item.supporting_signals?.length ?? 1} EVIDENCE POINTS</span>
-              <span>{item.channel.replaceAll("_", " ")}</span>
-              <span>{item.people.path_score > 0 ? `PATH ${item.people.path_score}/10` : "COLD"}</span>
-            </div>
-          </button>
-        ))}
-        {cards.length === 0 && context && (
-          <div className="queue-empty">
-            <strong>Nothing to decide on yet.</strong>
-            <p>{coverage!.neverResearched.toLocaleString()} companies have never been researched. Start a run on the right, or open the target list.</p>
-            <Link href="/targets?research=never">See the {coverage!.neverResearched.toLocaleString()} companies →</Link>
-          </div>
-        )}
-      </section>
-
-      <section className="detail">
-        {!card ? (
+    <main className="pipeline">
+      {scan && <div className="pipeline-scan">{scan}</div>}
+      {cards.length === 0 ? (
           <div className="detail-inner empty-desk">
             <div className="eyebrow">Research status</div>
             <h1 className={`run-outcome-title is-${run.outcome}`}>{run.title}</h1>
@@ -378,8 +332,9 @@ export function Desk({
               </section>
             )}
           </div>
-        ) : (
+      ) : active ? (
           <div className="detail-inner">
+            <button type="button" className="pipeline-back" onClick={() => setSelected(undefined)}>&larr; All prospects</button>
             <div className="desk-context-bar">
               <div><span>DOSSIER</span><strong>{String(cardIndex + 1).padStart(2, "0")} / {String(cards.length).padStart(2, "0")}</strong></div>
               <div><span>SIGNAL</span><strong>{card.signals.type?.replaceAll("_", " ") ?? "Market change"}</strong></div>
@@ -489,15 +444,40 @@ export function Desk({
 
             <p className="send-promise">Nothing leaves Night Watch without a click from you.</p>
           </div>
-        )}
-      </section>
+      ) : (
+        <div className="pipeline-list">
+          <div className="ask-bar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search prospects by name, title or company" aria-label="Search prospects" /></div>
+          <header className="pipeline-head">
+            <div><h1>Pipeline</h1><p>{plural(cards.length, "prospect")} &middot; {priorityCount} priority &middot; {withDraft} with a draft{needle ? ` \u00b7 ${filtered.length} match` : ""}</p></div>
+            <Link className="btn primary" href="/runs">Runs</Link>
+          </header>
+          {hero && (
+            <button type="button" className="hero-card" onClick={() => open(hero.id)}>
+              <span className="eyebrow">Next to contact</span>
+              <h2>{hero.people.full_name}</h2>
+              <p className="hero-sub">{hero.people.title} &middot; {hero.accounts.name} &middot; score {hero.score}</p>
+              <div className="hero-next"><span>Next action</span><p>{nextLine(hero)}</p></div>
+              <span className="hero-cta">Open the draft &rarr;</span>
+            </button>
+          )}
+          <ol className="prospect-list">
+            {filtered.map((item) => (
+              <li key={item.id}>
+                <button type="button" className="prospect" onClick={() => open(item.id)}>
+                  <div className="prospect-id"><strong>{item.people.full_name}{item.isNew && <em className="new-label">New</em>}</strong><small>{item.people.title} &middot; {item.accounts.name}</small></div>
+                  <p className="prospect-next">{nextLine(item)}</p>
+                  <div className="prospect-tags"><span className="badge">{item.signals.type?.replaceAll("_", " ") ?? "signal"}</span><span>{item.channel.replaceAll("_", " ")}</span><span className="score" title={scoreTitle(item)}>{item.score}</span></div>
+                </button>
+              </li>
+            ))}
+            {filtered.length === 0 && <li className="prospect-empty">No prospects match that search.</li>}
+          </ol>
+        </div>
+      )}
     </main>
   );
 }
 
-function freshness(value: string) {
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date(`${value}T12:00:00`));
-}
 
 function emailStateLabel(status: string) {
   switch (status) {
