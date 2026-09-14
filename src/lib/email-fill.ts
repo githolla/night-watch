@@ -17,9 +17,18 @@ export async function fillEmailsFromPattern(db: SupabaseClient, account: { id: s
   let guess: PatternGuess | null = detectPattern(samples, account.domain);
   if (!guess) guess = guessFromExamples(webExamples, account.domain);
   if (!guess && account.email_pattern) guess = { key: account.email_pattern as PatternKey, confidence: Number(account.pattern_confidence ?? 0.4), matched: 0, samples: 0 };
-  // Last resort: no address and no example anywhere. Fall back to the most common corporate format
-  // (first.last@) as a low-confidence *guess*, so the list has a candidate to check by hand. It is
-  // marked as a guess (not a learned pattern) and never used for an automatic send.
+
+  // When a paid verifier (Apollo or Hunter) is connected, do NOT blind-guess addresses: Apollo returns
+  // real verified emails, so a first.last guess just adds noise. Clear any earlier guesses too, so the
+  // list shows Apollo's addresses (or nothing) rather than a wall of "best guess".
+  const hasVerifier = Boolean(process.env.APOLLO_API_KEY || process.env.HUNTER_API_KEY);
+  if (!guess && hasVerifier) {
+    const { data: cleared } = await db.from("people").update({ email: null, email_status: "none", email_source: null, email_verified_at: null }).eq("account_id", account.id).eq("email_source", "guess").select("id");
+    return { pattern: null as PatternGuess | null, built: 0, cleared: cleared?.length ?? 0 };
+  }
+
+  // Last resort (no verifier): no address and no example anywhere. Fall back to the most common corporate
+  // format (first.last@) as a low-confidence *guess*, marked as a guess and never used for an automatic send.
   const blind = !guess;
   if (!guess) guess = { key: "first.last", confidence: 0.15, matched: 0, samples: 0 };
 
