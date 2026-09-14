@@ -298,9 +298,18 @@ export function Desk({
   const newPosts = context?.changes.newPosts ?? 0;
   const fresh = newRoles + newPosts;
   const companiesWatched = context?.listedCompanies ?? 0;
-  const deskDate = context ? new Date(`${context.today}T12:00:00`).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) : "";
+  const deskDateShort = context ? new Date(`${context.today}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "";
   const headline = fresh === 0 ? "A quiet night." : `${fresh.toLocaleString()} new ${fresh === 1 ? "signal" : "signals"} overnight.`;
   const subline = priorityCount > 0 ? `${priorityCount} worth a closer look.` : cards.length ? "A few good leads to work." : "Nothing needs you right now.";
+  // For the analyst's-note rail: how many signals point at manual/reporting work, and the busiest companies.
+  const manualCount = cards.filter((item) => /manual|report|reconcil|spreadsheet|data entry|intake|routing|invoice|dashboard/i.test(`${item.signals.raw?.operating_need ?? ""} ${item.why_now ?? ""}`)).length;
+  const watchlist = Object.values(cards.reduce<Record<string, { domain: string; name: string; count: number; score: number }>>((acc, item) => {
+    const key = item.accounts.domain || item.accounts.name;
+    if (!acc[key]) acc[key] = { domain: item.accounts.domain ?? "", name: item.accounts.name, count: 0, score: 0 };
+    acc[key].count += 1;
+    acc[key].score = Math.max(acc[key].score, item.score);
+    return acc;
+  }, {})).sort((a, b) => b.score - a.score).slice(0, 4);
   const draft = focusCard ? primaryDraft(focusCard) : null;
   const snoozeCurrent = () => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
@@ -503,43 +512,81 @@ export function Desk({
             <p className="send-promise">Nothing leaves Night Watch without a click from you.</p>
           </div>
       ) : browse ? (
-        <div className="pipeline-list">
+        <div className="overview">
+          <header className="overview-head">
+            <div>
+              <span className="overview-kick">Your morning briefing{deskDateShort ? ` · ${deskDateShort}` : ""}</span>
+              <h1>{headline}<span> {subline}</span></h1>
+              <p className="overview-sub">The right signal, the right company, your next conversation.</p>
+            </div>
+            <Link className="btn primary" href="/targets">+ Add company</Link>
+          </header>
+
           {context && (
-            <header className="desk-home">
-              <div className="desk-home-top">
-                <div>
-                  {deskDate && <span className="desk-date">{deskDate}</span>}
-                  <h1 className="desk-headline">{headline}<span> {subline}</span></h1>
-                  <p className="desk-status">Watching {companiesWatched.toLocaleString()} companies &middot; scans again tonight on its own</p>
-                </div>
-                <Link className="btn" href="/targets">+ Add company</Link>
-              </div>
-              <div className="desk-stats">
+            <div className="overview-top">
+              <section className="night-hero">
+                <div className="night-hero-head"><span>Night Watch</span><em className="chip">{fresh.toLocaleString()} {fresh === 1 ? "signal" : "signals"} found</em></div>
+                <h2>While you were offline, opportunity was moving.</h2>
+                <p className="night-hero-line"><b>{companiesWatched.toLocaleString()} companies watched.</b> {fresh.toLocaleString()} new {fresh === 1 ? "signal" : "signals"}. {priorityCount} worth a closer look.</p>
+                <p className="night-hero-meta">Scanned overnight · runs again tonight, on its own</p>
+              </section>
+              <div className="overview-stats">
                 <Link className="desk-stat" href="/outreach"><span>Companies watched</span><strong>{companiesWatched.toLocaleString()}</strong><small>on the reach-out list</small></Link>
                 <Link className="desk-stat" href="/roles"><span>New job signals</span><strong>{newRoles.toLocaleString()}</strong><small>roles Nine-67 could build</small></Link>
                 <Link className="desk-stat" href="/posts"><span>Employee AI posts</span><strong>{newPosts.toLocaleString()}</strong><small>conversations to join</small></Link>
                 <div className="desk-stat is-priority"><span>High-fit{priorityCount ? <em className="pill pill-accent">Priority</em> : null}</span><strong>{priorityCount.toLocaleString()}</strong><small>ready for review</small></div>
               </div>
-            </header>
+            </div>
           )}
-          <div className="ask-bar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search prospects by name, title or company" aria-label="Search prospects" /></div>
-          <div className="list-filters" role="tablist" aria-label="Filter by signal">
-            <button type="button" role="tab" aria-selected={kind === "all"} className={kind === "all" ? "is-on" : ""} onClick={() => setKind("all")}>All <b>{cards.length}</b></button>
-            <button type="button" role="tab" aria-selected={kind === "job"} className={kind === "job" ? "is-on" : ""} onClick={() => setKind("job")}>Job posts <b>{jobCount}</b></button>
-            <button type="button" role="tab" aria-selected={kind === "social"} className={kind === "social" ? "is-on" : ""} onClick={() => setKind("social")}>Social posts <b>{socialCount}</b></button>
+
+          <div className="overview-body">
+            <div className="overview-main">
+              <div className="ask-bar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search prospects by name, title or company" aria-label="Search prospects" /></div>
+              <div className="list-filters" role="tablist" aria-label="Filter by signal">
+                <button type="button" role="tab" aria-selected={kind === "all"} className={kind === "all" ? "is-on" : ""} onClick={() => setKind("all")}>All <b>{cards.length}</b></button>
+                <button type="button" role="tab" aria-selected={kind === "job"} className={kind === "job" ? "is-on" : ""} onClick={() => setKind("job")}>Job posts <b>{jobCount}</b></button>
+                <button type="button" role="tab" aria-selected={kind === "social"} className={kind === "social" ? "is-on" : ""} onClick={() => setKind("social")}>Social posts <b>{socialCount}</b></button>
+              </div>
+              <div className="signal-cards">
+                {filtered.map((item) => (
+                  <button type="button" key={item.id} className="signal-card" onClick={() => pick(item.id)}>
+                    <div className="signal-card-head">
+                      <span className="avatar">{initials(item.accounts.name)}</span>
+                      <div className="signal-card-id"><strong>{item.accounts.name}</strong><small>{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small></div>
+                      {item.score >= PRIORITY_THRESHOLD ? <em className="chip chip-fit">High fit</em> : item.isNew ? <em className="chip chip-new">New</em> : null}
+                    </div>
+                    <p className="signal-card-why">{item.why_now || item.signals.summary}</p>
+                    {item.signals.raw?.operating_need && <div className="signal-card-ai"><span>The AI opportunity</span><p>{item.signals.raw.operating_need}</p></div>}
+                    <div className="signal-card-foot">
+                      <span className="signal-card-src">{signalLabel(item)}{signalWhen(item) ? ` · ${signalWhen(item)}` : ""}</span>
+                      <span className="signal-card-cta">Craft outreach &#8599;</span>
+                    </div>
+                  </button>
+                ))}
+                {filtered.length === 0 && <p className="prospect-empty">No prospects match that search.</p>}
+              </div>
+            </div>
+
+            {context && (
+              <aside className="analyst-note">
+                <span className="analyst-kick">Analyst&apos;s note</span>
+                <h3>The opening is in the workflow.</h3>
+                <p>Look beyond the job title. Repetitive reporting, manual data entry and research tasks are where Nine-67 opens a more useful conversation.</p>
+                <div className="analyst-stat"><strong>{manualCount}</strong><span>signals mention manual or reporting work</span></div>
+                <p className="analyst-caveat">AI fit is a hypothesis to validate, not a claim that a role can be replaced.</p>
+                {watchlist.length > 0 && <div className="analyst-watch">
+                  <div className="analyst-watch-head"><span>On your watchlist</span><Link href="/outreach">View all &#8599;</Link></div>
+                  {watchlist.map((company) => (
+                    <Link key={company.domain || company.name} href={company.domain ? `/accounts/${company.domain}` : "/outreach"} className="analyst-watch-row">
+                      <span className="avatar">{initials(company.name)}</span>
+                      <strong>{company.name}</strong>
+                      <small>{company.count} {company.count === 1 ? "signal" : "signals"}</small>
+                    </Link>
+                  ))}
+                </div>}
+              </aside>
+            )}
           </div>
-          <ol className="prospect-list">
-            {filtered.map((item) => (
-              <li key={item.id}>
-                <button type="button" className="prospect" onClick={() => pick(item.id)}>
-                  <div className="prospect-id"><strong>{item.people.full_name}{item.isNew && <em className="new-label">New</em>}</strong><small>{item.people.title} &middot; {item.accounts.name}</small></div>
-                  <p className="prospect-next">{nextLine(item)}</p>
-                  <div className="prospect-tags"><span className="badge">{item.signals.type?.replaceAll("_", " ") ?? "signal"}</span><span>{item.channel.replaceAll("_", " ")}</span><span className="score" title={scoreTitle(item)}>{item.score}</span></div>
-                </button>
-              </li>
-            ))}
-            {filtered.length === 0 && <li className="prospect-empty">No prospects match that search.</li>}
-          </ol>
         </div>
       ) : (
         <div className="focus">
@@ -670,8 +717,6 @@ function signalEvidence(item: Card): string | null {
   return item.signals.summary || null;
 }
 
-function scoreTitle(item: Card) {
-  const breakdown = item.score_breakdown;
-  if (!breakdown) return `Score ${item.score}`;
-  return `Strength ${breakdown.signal_strength}/40 · Person fit ${breakdown.person_fit}/30 · Recency ${breakdown.recency}/20 · Path ${breakdown.relationship_path}/10`;
+function initials(name: string) {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
 }
