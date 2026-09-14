@@ -134,6 +134,7 @@ export function Desk({
   const [selected, setSelected] = useState<string | undefined>(selectedId);
   const [browse, setBrowse] = useState(false);
   const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? initialCards[0]?.id);
+  const [kind, setKind] = useState<"all" | "job" | "social">("all");
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
@@ -272,7 +273,10 @@ export function Desk({
 
   const priorityCount = cards.filter((item) => item.score >= PRIORITY_THRESHOLD).length;
   const needle = query.trim().toLowerCase();
-  const filtered = needle ? cards.filter((item) => `${item.people.full_name} ${item.people.title} ${item.accounts.name}`.toLowerCase().includes(needle)) : cards;
+  const byKind = kind === "all" ? cards : cards.filter((item) => signalGroup(item) === kind);
+  const filtered = needle ? byKind.filter((item) => `${item.people.full_name} ${item.people.title} ${item.accounts.name}`.toLowerCase().includes(needle)) : byKind;
+  const jobCount = cards.filter((item) => signalGroup(item) === "job").length;
+  const socialCount = cards.filter((item) => signalGroup(item) === "social").length;
   const hero = filtered[0];
   const withDraft = cards.filter((item) => item.email_body || item.linkedin_note || item.linkedin_message).length;
   const nextLine = (item: Card) => item.signals.raw?.operating_need || item.why_now || item.signals.summary;
@@ -495,6 +499,11 @@ export function Desk({
             <div><h1>All prospects</h1><p>{plural(cards.length, "prospect")} &middot; {priorityCount} priority &middot; {withDraft} with a draft{needle ? ` \u00b7 ${filtered.length} match` : ""}</p></div>
             <Link className="btn primary" href="/runs">Runs</Link>
           </header>
+          <div className="list-filters" role="tablist" aria-label="Filter by signal">
+            <button type="button" role="tab" aria-selected={kind === "all"} className={kind === "all" ? "is-on" : ""} onClick={() => setKind("all")}>All <b>{cards.length}</b></button>
+            <button type="button" role="tab" aria-selected={kind === "job"} className={kind === "job" ? "is-on" : ""} onClick={() => setKind("job")}>Job posts <b>{jobCount}</b></button>
+            <button type="button" role="tab" aria-selected={kind === "social"} className={kind === "social" ? "is-on" : ""} onClick={() => setKind("social")}>Social posts <b>{socialCount}</b></button>
+          </div>
           {hero && (
             <button type="button" className="hero-card" onClick={() => pick(hero.id)}>
               <span className="eyebrow">Next to contact</span>
@@ -601,6 +610,14 @@ const SIGNAL_LABELS: Record<string, string> = { exec_post: "Executive post", job
 
 function signalLabel(item: Card) {
   return SIGNAL_LABELS[item.signals.type ?? ""] ?? "Market signal";
+}
+
+/** Group a prospect's signal so the list can be filtered to job-post vs social-post intent. */
+function signalGroup(item: Card): "job" | "social" | "other" {
+  const type = item.signals.type ?? "";
+  if (type === "job_post" || type === "job_cluster") return "job";
+  if (type === "exec_post") return "social";
+  return "other";
 }
 
 function signalStrength(item: Card) {

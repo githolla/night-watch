@@ -1155,4 +1155,10 @@ div.stat{cursor:default}
 .focus-clear h2{margin:0;font-size:22px;font-weight:600}
 .focus-clear p{margin:0;color:var(--muted)}
 .pipeline-backtofocus{border:0;background:transparent;color:var(--accent);font-weight:600;padding:0 0 14px;cursor:pointer;font-size:14px}
+.list-filters{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
+.list-filters button{border:1px solid var(--line-strong);background:var(--paper-bright);color:var(--ink-soft);border-radius:999px;padding:8px 14px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.list-filters button b{font:600 11px/1 var(--mono);color:var(--muted)}
+.list-filters button:hover{border-color:var(--ink-soft)}
+.list-filters button.is-on{background:var(--ink);border-color:var(--ink);color:var(--paper-bright)}
+.list-filters button.is-on b{color:var(--paper-bright)}
 @media(max-width:850px){.pipeline{padding:20px 16px 70px}.pipeline-head{flex-direction:column;align-items:flex-start}.pipeline-head h1{font-size:32px}.focus-card{padding:18px 16px}.focus-name{font-size:26px}}
