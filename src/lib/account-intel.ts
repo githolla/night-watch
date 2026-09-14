@@ -61,7 +61,6 @@ export async function recomputeAccountIntel(db: SupabaseClient, accountId: strin
   ]);
   const roleDates = (roles ?? []).map((row) => (row.posted_at as string | null) ?? (row.first_seen_at as string));
   const postDates = (posts ?? []).map((row) => (row.posted_at as string | null) ?? (row.created_at as string));
-  const peopleDates = (people ?? []).map((row) => (row.enriched_at as string | null) ?? (row.created_at as string));
   const newest = (dates: string[]) => dates.map((date) => Date.parse(date)).filter((time) => !Number.isNaN(time)).sort((a, b) => b - a)[0];
   const input: IntelInputs = {
     openTargetRoles: roles?.length ?? 0,
@@ -74,7 +73,14 @@ export async function recomputeAccountIntel(db: SupabaseClient, accountId: strin
     openCards: openCards ?? 0,
   };
   const score = intelScore(input);
-  const lastChange = [newest(roleDates), newest(postDates), newest(peopleDates)].filter((time): time is number => Boolean(time)).sort((a, b) => b - a)[0];
+  // "When did this company last change" is when a role, post or person entered our
+  // database (detection time), not the content's own date: a role we discover today
+  // but that was posted three weeks ago is new to us, and the nightly analysis must pick
+  // it up. The freshness that feeds the score above still uses the content dates.
+  const roleDetect = (roles ?? []).map((row) => row.first_seen_at as string);
+  const postDetect = (posts ?? []).map((row) => row.created_at as string);
+  const peopleDetect = (people ?? []).map((row) => (row.enriched_at as string | null) ?? (row.created_at as string));
+  const lastChange = [newest(roleDetect), newest(postDetect), newest(peopleDetect)].filter((time): time is number => Boolean(time)).sort((a, b) => b - a)[0];
   await db.from("accounts").update({
     intel_score: score.total,
     intel_breakdown: { ...score, ...input },

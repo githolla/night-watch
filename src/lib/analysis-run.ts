@@ -228,13 +228,34 @@ async function selectAccounts(db: Db, options: AnalysisOptions, now: number) {
     return (data ?? []).filter((account) => !busy.has(account.id));
   }
   const limit = Math.max(1, Math.min(2000, Math.floor(options.accountLimit ?? 2000)));
-  const cutoff = new Date(now - analysisConfig().cooldownMs).toISOString();
-  let query = db.from("accounts").select("id,name,domain").eq("status", "active").eq("outreach", true).not("domain", "like", "%.example");
-  if (!options.force) query = query.or(`analysis_at.is.null,analysis_at.lt.${cutoff}`);
-  // The hottest companies first: most on file, then never analysed, then oldest analysis.
-  const { data, error } = await query.order("intel_score", { ascending: false }).order("analysis_at", { ascending: true, nullsFirst: true }).order("name").limit(limit + busy.size);
+  // force is the baseline pass: analyse every reach-out company that has any signal at all.
+  if (options.force) {
+    const { data, error } = await db.from("accounts").select("id,name,domain")
+      .eq("status", "active").eq("outreach", true).not("domain", "like", "%.example").gt("intel_score", 0)
+      .order("intel_score", { ascending: false }).order("analysis_at", { ascending: true, nullsFirst: true }).order("name").limit(limit + busy.size);
+    if (error) throw error;
+    return (data ?? []).filter((account) => !busy.has(account.id)).slice(0, limit);
+  }
+  // Every night after that is the cheap pass: spend the swarm only where a signal
+  // actually arrived. A company qualifies when it has intel and either has never
+  // been analysed, or something (a role, a post, a person) entered the database since
+  // the last analysis. A company that has not changed is left alone until it does.
+  const cooldownFloor = new Date(now - analysisConfig().cooldownMs).toISOString();
+  const { data, error } = await db.from("accounts")
+    .select("id,name,domain,analysis_at,last_change_at")
+    .eq("status", "active").eq("outreach", true).not("domain", "like", "%.example").gt("intel_score", 0)
+    .order("last_change_at", { ascending: false, nullsFirst: false }).order("intel_score", { ascending: false })
+    .limit((limit + busy.size) * 5 + 50);
   if (error) throw error;
-  return (data ?? []).filter((account) => !busy.has(account.id)).slice(0, limit);
+  const eligible = (data ?? []).filter((account) => {
+    if (busy.has(account.id)) return false;
+    if (!account.analysis_at) return true;
+    if (!account.last_change_at) return false;
+    // Changed since we last analysed. The cooldown is only a floor, so a company that
+    // changes every day is still not re-analysed more than once per cooldown window.
+    return Date.parse(account.last_change_at as string) > Date.parse(account.analysis_at as string) && (account.analysis_at as string) < cooldownFloor;
+  });
+  return eligible.slice(0, limit);
 }
 
 /**

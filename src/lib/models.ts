@@ -4,10 +4,16 @@
  * override or a retired model changes behaviour in one file.
  */
 
-/** Research, analysis and writing: the current Sonnet. `ANTHROPIC_RESEARCH_MODEL` overrides. */
-export const DEFAULT_RESEARCH_MODEL = "claude-sonnet-5";
+/**
+ * The cheapest current Claude runs everything by default: research, the
+ * analysis swarm, the writing and the search agents. One model means one
+ * price and one prompt-cache namespace. Set ANTHROPIC_WRITING_MODEL (or
+ * ANALYSIS_MODEL, etc.) to a larger model only where the extra quality is
+ * worth the extra cents.
+ */
+export const DEFAULT_RESEARCH_MODEL = "claude-haiku-4-5";
 
-/** Cheap verbatim search agents and the job-board and posts scans. `ANTHROPIC_SEARCH_MODEL` overrides. */
+/** The verbatim search agents and the job-board and posts scans. `ANTHROPIC_SEARCH_MODEL` overrides. */
 export const DEFAULT_SEARCH_MODEL = "claude-haiku-4-5";
 
 /** Models known to have been retired or renamed; a request for one is retried on the current default. */
