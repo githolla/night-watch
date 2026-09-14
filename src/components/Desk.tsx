@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
@@ -221,6 +221,25 @@ export function Desk({
     if (next) choose(next.id);
   };
 
+  // Arrow keys (or j/k) move between prospects, so working the queue never means hunting for a button.
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key === "ArrowDown" || event.key === "j") { event.preventDefault(); move(1); }
+      else if (event.key === "ArrowUp" || event.key === "k") { event.preventDefault(); move(-1); }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cardIndex, cards.length]);
+
+  // Keep the selected card visible in the queue as you move.
+  useEffect(() => {
+    document.querySelector(".queue-card.active")?.scrollIntoView({ block: "nearest" });
+  }, [selected]);
+
   const queue = context?.queue ?? { open: cards.length, newToday: cards.filter((item) => item.isNew).length, awaitingReply: 0 };
   const priorityCount = cards.filter((item) => item.score >= PRIORITY_THRESHOLD).length;
 
@@ -235,6 +254,7 @@ export function Desk({
             {queue.newToday > 0 ? `${queue.newToday} new since yesterday` : "Nothing new since yesterday"}
             {queue.awaitingReply > 0 ? ` · ${queue.awaitingReply} waiting on a reply` : ""}
           </p>
+          <p className="queue-hint">Use ↑ ↓ to move between people, or click one.</p>
           <div className="queue-summary">
             <Link href="/desk?priority=high"><strong>{priorityCount}</strong><span>PRIORITY</span></Link>
             <Link href="/desk?new=today"><strong>{queue.newToday}</strong><span>NEW TODAY</span></Link>

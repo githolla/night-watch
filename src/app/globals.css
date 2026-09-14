@@ -1069,3 +1069,5 @@ div.stat{cursor:default}
 
 .desk-scan{padding:12px 16px;border-bottom:1px solid var(--line);background:var(--paper-bright)}
 .desk-scan .scan-control{margin:0}
+
+.queue-hint{margin:2px 0 0;font-size:11px;color:var(--muted)}
