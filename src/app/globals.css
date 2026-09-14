@@ -1346,3 +1346,4 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .focus-who-why{margin:0;font-size:14px;line-height:1.5;color:var(--ink-soft)}
 .focus-who-route{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-soft)}
 .focus-channel{font:600 11px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.overview-head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}

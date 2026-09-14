@@ -6,6 +6,7 @@ import { runOutcome, type RunSummary } from "@/lib/run-status";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { CadencePlanner } from "./CadencePlanner";
 import { MessageComposer } from "./MessageComposer";
+import { RefreshButton } from "./RefreshButton";
 import { RunPanel } from "./RunPanel";
 import { SignalInsight, type InsightCard } from "./SignalInsight";
 
@@ -521,7 +522,7 @@ export function Desk({
               <h1>{headline}<span> {subline}</span></h1>
               <p className="overview-sub">The right signal, the right company, your next conversation.</p>
             </div>
-            <Link className="btn primary" href="/targets">+ Add company</Link>
+            <div className="overview-head-actions"><RefreshButton /><Link className="btn primary" href="/targets">+ Add company</Link></div>
           </header>
 
           {context && (
