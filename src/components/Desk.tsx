@@ -79,6 +79,8 @@ function plural(count: number, singular: string, pluralForm = `${singular}s`) {
 
 /** A card leaves the work queue once it has been snoozed, dismissed or actually contacted. */
 const WORKED_STATUSES = ["snoozed", "dismissed", "sent", "replied", "positive", "meeting", "negative"];
+/** How many prospects the focused worklist shows before you choose to widen it. */
+const SHORTLIST = 15;
 
 /**
  * The headline is read from the run record and distinguishes a failed run
@@ -139,14 +141,18 @@ export function Desk({
   // The full list is home; clicking a prospect drops into the one-at-a-time focus view.
   const [browse, setBrowse] = useState(!selectedId);
   const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? initialCards[0]?.id);
-  // Start focused: when the list is large, lead with the high-fit prospects and let the chips widen it.
-  const [kind, setKind] = useState<"priority" | "all" | "job" | "social">(initialCards.filter((item) => item.score >= PRIORITY_THRESHOLD).length >= 8 ? "priority" : "all");
+  // Start on a tight worklist — the top prospects only — and let the chips widen it when it is cleared.
+  const [kind, setKind] = useState<"top" | "all" | "job" | "social">(initialCards.length > SHORTLIST ? "top" : "all");
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
-  // The work queue: prospects still needing a decision. Snoozed, dismissed or contacted ones drop out.
-  const todo = cards.filter((item) => !WORKED_STATUSES.includes(item.status));
+  // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
+  // only the shortlist, not all 161. Cards arrive sorted by score, so "top" is just the first slice.
+  const actionable = cards.filter((item) => !WORKED_STATUSES.includes(item.status));
+  const byKind = kind === "top" ? actionable.slice(0, SHORTLIST) : kind === "all" ? cards : cards.filter((item) => signalGroup(item) === kind);
+  // The work queue: prospects in the current filter still needing a decision.
+  const todo = byKind.filter((item) => !WORKED_STATUSES.includes(item.status));
   const active = selected ? cards.find((item) => item.id === selected) : undefined;
   const focusCard = todo.find((item) => item.id === focusId) ?? todo[0];
   const card = active ?? focusCard ?? cards[0];
@@ -279,7 +285,6 @@ export function Desk({
 
   const priorityCount = cards.filter((item) => item.score >= PRIORITY_THRESHOLD).length;
   const needle = query.trim().toLowerCase();
-  const byKind = kind === "priority" ? cards.filter((item) => item.score >= PRIORITY_THRESHOLD) : kind === "all" ? cards : cards.filter((item) => signalGroup(item) === kind);
   const filtered = needle ? byKind.filter((item) => `${item.people.full_name} ${item.people.title} ${item.accounts.name}`.toLowerCase().includes(needle)) : byKind;
   const jobCount = cards.filter((item) => signalGroup(item) === "job").length;
   const socialCount = cards.filter((item) => signalGroup(item) === "social").length;
@@ -546,7 +551,7 @@ export function Desk({
             <div className="overview-main">
               <div className="ask-bar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search prospects by name, title or company" aria-label="Search prospects" /></div>
               <div className="list-filters" role="tablist" aria-label="Filter by signal">
-                <button type="button" role="tab" aria-selected={kind === "priority"} className={kind === "priority" ? "is-on" : ""} onClick={() => setKind("priority")}>High-fit <b>{priorityCount}</b></button>
+                <button type="button" role="tab" aria-selected={kind === "top"} className={kind === "top" ? "is-on" : ""} onClick={() => setKind("top")}>Worklist <b>{Math.min(SHORTLIST, actionable.length)}</b></button>
                 <button type="button" role="tab" aria-selected={kind === "all"} className={kind === "all" ? "is-on" : ""} onClick={() => setKind("all")}>All <b>{cards.length}</b></button>
                 <button type="button" role="tab" aria-selected={kind === "job"} className={kind === "job" ? "is-on" : ""} onClick={() => setKind("job")}>Job posts <b>{jobCount}</b></button>
                 <button type="button" role="tab" aria-selected={kind === "social"} className={kind === "social" ? "is-on" : ""} onClick={() => setKind("social")}>Social posts <b>{socialCount}</b></button>
