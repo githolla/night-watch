@@ -59,6 +59,10 @@ export function classifyResearchError(error: unknown): ClassifiedError {
     return { code: "validation", message: zodSummary(record as Parameters<typeof zodSummary>[0]) };
   }
 
+  // The Anthropic workspace hit its spend/usage cap: every call 400s until the limit is raised or resets.
+  if (/usage limit|spend limit|workspace.{0,20}limit|regain access/i.test(message)) {
+    return { code: "budget", message: `This Anthropic workspace has hit its usage limit — every model call is blocked. Raise the workspace's spend limit in the Anthropic Console (Settings → the workspace → Limits), then retry. Original error: ${message}` };
+  }
   const status = typeof record.status === "number" ? record.status : Number.parseInt(/\b(401|403|404|429|5\d\d)\b/.exec(message)?.[1] ?? "", 10);
   // The web-search / web-fetch server tools must be enabled for the org, and the model id must be one this
   // key can use. Both fail every research call, so name them precisely instead of a vague upstream error.
