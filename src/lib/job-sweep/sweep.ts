@@ -317,6 +317,48 @@ export async function reclassifyStoredPostings(db: Db): Promise<number> {
 }
 
 /**
+ * Turn the roles and people already on file into reach-outs: for every
+ * reach-out company that has open target roles and no open dossier yet, pick
+ * the buyer on file and draft to them. No careers re-read, no web search —
+ * one drafting call per company — so the baseline data becomes hundreds of
+ * reach-outs in one press. Idempotent: a company that already has an open
+ * dossier is skipped, so pressing again continues where it stopped.
+ */
+export async function backfillHiringDrafts(recordCost: (cost: number) => void = () => {}, budgetMs = 220_000): Promise<{ considered: number; created: number; skipped: number }> {
+  const db = admin();
+  await requireSchema(db);
+  const started = Date.now();
+  const out = { considered: 0, created: 0, skipped: 0 };
+  const accounts = await fetchAll<Account>((from, to) => db.from("accounts").select("*").eq("status", "active").eq("outreach", true).not("domain", "like", "%.example").order("intel_score", { ascending: false }).range(from, to));
+  for (const account of accounts) {
+    if (Date.now() - started >= budgetMs) break;
+    const { data: postingRows } = await db.from("job_postings").select("url,title,family,posted_at,first_seen_at,department,salary_max").eq("account_id", account.id).eq("active", true).not("family", "is", null);
+    const target = (postingRows ?? []).map((row) => ({
+      externalId: null, title: row.title as string, url: row.url as string, location: null, department: (row.department as string | null),
+      postedAt: (row.posted_at as string | null), salaryMax: (row.salary_max as number | null), family: row.family as JobFamily,
+    }));
+    if (!target.length) continue;
+    out.considered += 1;
+    const { count: open } = await db.from("cards").select("*", { count: "exact", head: true }).eq("account_id", account.id).in("status", ["new", "approved", "edited", "snoozed"]);
+    if ((open ?? 0) > 0) { out.skipped += 1; continue; }
+    const result = { careersUrl: account.careers_url, ats: null, status: "listings" as CareersStatus, note: "", postings: target, targetPostings: target } as unknown as SweepAccountResult;
+    const rows = target.map((posting) => ({ url: posting.url, first_seen_at: posting.postedAt ?? new Date().toISOString(), posted_at: posting.postedAt }));
+    const signal = await hiringSignal(account, result, rows, new Date());
+    if (!signal) continue;
+    const buyer = await pickBuyerOnFile(db, account.id, target);
+    if (buyer) signal.people = [{ name: buyer.full_name, title: buyer.title, role_in_signal: "likely buyer on file" }];
+    const outcome: AccountOutcome = { signalsFound: 0, signalsKept: 0, signalsNew: 0, cardsCreated: 0, costUsd: 0, model: null };
+    try {
+      await persistSignal(account, signal, outcome, recordCost, { alwaysCard: true });
+      if (outcome.cardsCreated) out.created += 1;
+    } catch (error) {
+      console.warn(`[night-watch] backfill draft failed for ${account.domain}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  return out;
+}
+
+/**
  * Read careers pages for a batch of companies with a small concurrency pool,
  * record every posting, and raise hiring signals. Same run record, time
  * budget, cost budget and stop handling as the research run.
@@ -575,7 +617,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
             if (signal) {
               const buyer = await pickBuyerOnFile(db, account.id, result.targetPostings);
               if (buyer) signal.people = [{ name: buyer.full_name, title: buyer.title, role_in_signal: "likely buyer on file" }];
-              await persistSignal(account as Account, signal, outcome, recordCost);
+              await persistSignal(account as Account, signal, outcome, recordCost, { alwaysCard: true });
             }
           } catch (error) {
             console.warn(`[night-watch] hiring draft failed for ${next.domain}: ${error instanceof Error ? error.message : String(error)}`);

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { RunPanel } from "@/components/RunPanel";
+import { BackfillDraftsButton } from "@/components/BackfillDraftsButton";
 import { requireUser } from "@/lib/auth";
 import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, populateSweepConfig, sweepAccountLimit } from "@/lib/run-config";
 import { latestRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
@@ -80,6 +81,11 @@ export default async function RunsPage() {
           startConfirm={`Research up to ${Math.min(populate.accountLimit, listed).toLocaleString()} reach-out companies with ${populate.maxSearches} searches each on the research model, hiring companies first. Pauses at $${populate.budgetUsd.toFixed(0)} per press and continues when pressed again.`}
           extraActions={[{ label: `Research the next ${batchSize} (nightly default)`, body: { limit: batchSize } }]}
         />
+      </section>
+
+      <section className="run-kind">
+        <header><span className="eyebrow">Step 3 · Draft the reach-outs</span><h2>One reach-out per hiring company, to the buyer on file</h2><p>Turns the roles and people already found into drafts without re-reading anything: for every reach-out company with an open target role and nobody drafted yet, it picks the person whose title fits the role and writes the message. Press again to continue if it pauses.</p></header>
+        <BackfillDraftsButton />
       </section>
 
       <p className="coverage-note">Where the data lands: the <Link href="/outreach">Reach-out list</Link>, <Link href="/roles">Roles</Link>, <Link href="/posts">Posts</Link>, <Link href="/people">People</Link>, and <Link href="/targets">Accounts</Link> sorted by intelligence score. Dossiers appear on the <Link href="/desk">Desk</Link>.</p>

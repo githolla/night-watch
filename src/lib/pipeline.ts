@@ -196,7 +196,7 @@ export async function storeSignalRow(account: Account, item: ScoutSignal, person
   return { id: stored.id as string, isNew: true };
 }
 
-export async function persistSignal(account: Account, item: ScoutSignal, outcome: AccountOutcome, recordCost: (costUsd: number) => void) {
+export async function persistSignal(account: Account, item: ScoutSignal, outcome: AccountOutcome, recordCost: (costUsd: number) => void, options: { alwaysCard?: boolean } = {}) {
   const db = admin();
   const person = await mapPerson(account, item, recordCost);
   const { id: storedId, isNew } = await storeSignalRow(account, item, person?.id ?? null);
@@ -208,7 +208,9 @@ export async function persistSignal(account: Account, item: ScoutSignal, outcome
   if (account.outreach === false) return { storedId, cardId: null, personId: person.id as string };
   const scored = score({ type: item.type, level: person.level, observedAt: item.observed_at, pathScore: person.path_score, item: item.job } as never);
   const breakdown = storedBreakdown(scored);
-  if (scored.score < CARD_THRESHOLD) return { storedId, cardId: null, personId: person.id as string };
+  // The score ranks a reach-out; it does not decide whether one exists. The sweep drafts one per hiring
+  // company regardless (alwaysCard). Other callers keep the threshold so a weak lone signal is not a dossier.
+  if (!options.alwaysCard && scored.score < CARD_THRESHOLD) return { storedId, cardId: null, personId: person.id as string };
 
   const { data: existingCard } = await db.from("cards").select("id,status").eq("signal_id", storedId).eq("person_id", person.id).maybeSingle();
   if (existingCard) {
@@ -542,9 +544,9 @@ function normalizeStoredBreakdown(value: unknown): StoredBreakdown {
  */
 export async function recomputeAndSurface() {
   const db = admin();
-  const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(observed_at,raw),accounts(outreach)").in("status", ["new", "approved", "edited", "snoozed"]);
+  const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(type,observed_at,raw),accounts(outreach)").in("status", ["new", "approved", "edited", "snoozed"]);
   for (const card of cards ?? []) {
-    const signal = card.signals as unknown as { observed_at: string; raw?: { operating_need?: unknown } | null };
+    const signal = card.signals as unknown as { type?: string; observed_at: string; raw?: { operating_need?: unknown } | null };
     const account = card.accounts as unknown as { outreach?: boolean | null } | null;
     // The reach-out list is Tier A. A dossier for a company the cut holds or removed is retired, not sent.
     if (account && account.outreach === false) {
@@ -563,7 +565,9 @@ export async function recomputeAndSurface() {
     const nextBreakdown = { ...prior, recency: nextRecency };
     const nextScore = Object.values(nextBreakdown).reduce((sum, value) => sum + value, 0);
     const payload: { score: number; score_breakdown: StoredBreakdown; status?: "archived" } = { score: nextScore, score_breakdown: nextBreakdown };
-    if (nextScore < ARCHIVE_THRESHOLD) payload.status = "archived";
+    // A hiring dossier stays open while the role is open; only non-hiring signals archive on recency decay.
+    const isHiring = signal.type === "job_post" || signal.type === "job_cluster";
+    if (nextScore < ARCHIVE_THRESHOLD && !isHiring) payload.status = "archived";
     await db.from("cards").update(payload).eq("id", card.id);
   }
   const today = new Date().toISOString().slice(0, 10);
