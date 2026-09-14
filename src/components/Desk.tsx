@@ -531,7 +531,31 @@ export function Desk({
               <div className="focus-progress"><span>Next</span> &middot; {focusIndex + 1} of {todo.length}</div>
               <h2 className="focus-name">{focusCard.people.full_name}{focusCard.isNew && <em className="new-label">New</em>}</h2>
               <p className="focus-sub">{focusCard.people.title} &middot; {focusCard.accounts.name} &middot; score {focusCard.score}</p>
-              <p className="focus-reason">{nextLine(focusCard)}</p>
+              <div className="focus-why">
+                <div className="focus-why-meta">
+                  <span className="focus-why-type">{signalLabel(focusCard)}</span>
+                  <span>Signal {signalStrength(focusCard)}/40</span>
+                  {signalWhen(focusCard) && <span>{signalWhen(focusCard)}</span>}
+                  <span>{focusCard.channel.replaceAll("_", " ")}</span>
+                </div>
+                <div className="focus-why-main">
+                  <span className="focus-why-label">Why reach out now</span>
+                  <p>{focusCard.why_now || nextLine(focusCard)}</p>
+                </div>
+                {focusCard.signals.raw?.operating_need && (
+                  <div className="focus-why-need">
+                    <span className="focus-why-label">The work they need done</span>
+                    <p>{focusCard.signals.raw.operating_need}</p>
+                  </div>
+                )}
+                {signalEvidence(focusCard) && (
+                  <div className="focus-why-evidence">
+                    <span className="focus-why-label">The evidence</span>
+                    <p>{signalEvidence(focusCard)}</p>
+                    {focusCard.signals.source_url && <a href={focusCard.signals.source_url} target="_blank" rel="noreferrer">Open the source &#8599;</a>}
+                  </div>
+                )}
+              </div>
               {notice && <p className="notice">{notice}</p>}
 
               <details className="focus-draft">
@@ -571,6 +595,42 @@ function emailStateLabel(status: string) {
     case "unverified": return "Unverified email";
     default: return "No email on file";
   }
+}
+
+const SIGNAL_LABELS: Record<string, string> = { exec_post: "Executive post", job_post: "Job posting", job_cluster: "Hiring cluster", new_leader: "Leadership change", funding: "Funding event", event: "Public event", stack_change: "Technology change", other: "Market signal" };
+
+function signalLabel(item: Card) {
+  return SIGNAL_LABELS[item.signals.type ?? ""] ?? "Market signal";
+}
+
+function signalStrength(item: Card) {
+  return item.signals.strength ?? item.score_breakdown?.signal_strength ?? Math.min(40, Math.round(item.score * 0.4));
+}
+
+/** A short, human "how fresh" for the intent signal — the reason a reach-out is timely. */
+function signalWhen(item: Card) {
+  const raw = item.signals.observed_at;
+  if (!raw) return null;
+  const parsed = new Date(raw.length === 10 ? `${raw}T12:00:00` : raw);
+  if (Number.isNaN(parsed.getTime())) return null;
+  const days = Math.round((Date.now() - parsed.getTime()) / 86_400_000);
+  if (days <= 0) return "spotted today";
+  if (days === 1) return "spotted yesterday";
+  if (days < 30) return `spotted ${days} days ago`;
+  return `spotted ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(parsed)}`;
+}
+
+/** The concrete proof behind the signal: the role and tools, the post, or the source excerpt. */
+function signalEvidence(item: Card): string | null {
+  const raw = item.signals.raw;
+  if (!raw) return item.signals.summary || null;
+  if (raw.job) {
+    const bits = [raw.job.title, raw.job.days_open ? `${raw.job.days_open} days open` : "", ...(raw.job.tools_named ?? [])].filter(Boolean);
+    return bits.join(" · ") || item.signals.summary || null;
+  }
+  if (raw.post?.text) return raw.post.text;
+  if (raw.source?.excerpt) return raw.source.excerpt;
+  return item.signals.summary || null;
 }
 
 function scoreTitle(item: Card) {

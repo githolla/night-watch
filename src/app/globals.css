@@ -1129,6 +1129,16 @@ div.stat{cursor:default}
 .focus-name{font-size:30px;letter-spacing:-.04em;font-weight:600;margin:2px 0 0;display:flex;align-items:center;gap:10px}
 .focus-sub{margin:0;color:var(--muted);font-size:14px}
 .focus-reason{margin:8px 0 4px;font-size:15.5px;line-height:1.55;color:var(--ink-soft)}
+.focus-why{display:grid;gap:13px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;background:var(--soft);padding:15px 18px;margin-top:4px}
+.focus-why-meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font:600 11px/1 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.focus-why-meta>span+span::before{content:"·";margin-right:10px;color:var(--line-strong)}
+.focus-why-type{color:var(--ink);border:1px solid var(--line-strong);padding:4px 8px;border-radius:6px;background:var(--paper-bright)}
+.focus-why-type::before{display:none}
+.focus-why-label{display:block;font:700 10.5px/1 var(--mono);letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.focus-why-main p{margin:0;font-size:17px;line-height:1.5;color:var(--ink);font-weight:500}
+.focus-why-need p,.focus-why-evidence p{margin:0;font-size:14px;line-height:1.55;color:var(--ink-soft)}
+.focus-why-evidence p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.focus-why-evidence a{display:inline-block;margin-top:7px;font:600 12px var(--mono);color:var(--accent)}
 .focus-draft{border:1px solid var(--line);border-radius:12px;background:var(--paper);overflow:hidden;margin-top:4px}
 .focus-draft>summary{cursor:pointer;list-style:none;padding:13px 15px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
 .focus-draft>summary::-webkit-details-marker{display:none}
