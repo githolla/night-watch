@@ -13,12 +13,13 @@ const WEEK_MS = 7 * 86_400_000;
 /** The tabs above the table: where each company stands, from the file's point of view. */
 const TABS: Array<{ value: string; label: string; test: (row: OutreachRow, now: number) => boolean }> = [
   { value: "", label: "All", test: () => true },
+  { value: "untouched", label: "To start", test: (row) => row.stage === "untouched" },
+  { value: "working", label: "Outreach", test: (row) => !CLOSED_STAGES.has(row.stage) && row.stage !== "untouched" },
+  { value: "past", label: "Past", test: (row) => CLOSED_STAGES.has(row.stage) },
   { value: "drafted", label: "Draft ready", test: (row) => row.openDossiers > 0 },
   { value: "hiring", label: "Hiring", test: (row) => row.openRoles > 0 },
   { value: "posts", label: "Posting about AI", test: (row) => row.aiPosts > 0 },
   { value: "reachable", label: "Has a contact", test: (row) => row.whoReach !== "none" },
-  { value: "working", label: "In progress", test: (row) => !CLOSED_STAGES.has(row.stage) && row.stage !== "untouched" },
-  { value: "untouched", label: "Not started", test: (row) => row.stage === "untouched" },
   { value: "changed", label: "Changed this week", test: (row, now) => Boolean(row.lastChangeAt && now - Date.parse(row.lastChangeAt) <= WEEK_MS) },
   { value: "quiet", label: "Nothing found", test: (row) => row.intelScore === 0 && row.reasons.length === 0 },
 ];
@@ -26,6 +27,7 @@ const TABS: Array<{ value: string; label: string; test: (row: OutreachRow, now: 
 const SORTS: Record<string, { label: string; compare: (a: OutreachRow, b: OutreachRow) => number }> = {
   next: { label: "Contact first", compare: (a, b) => b.rank - a.rank || b.intelScore - a.intelScore || a.name.localeCompare(b.name) },
   priority: { label: "A1 first", compare: (a, b) => a.tier.localeCompare(b.tier) || b.rank - a.rank },
+  revenue: { label: "Revenue (high)", compare: (a, b) => (b.revenueEstimateUsdM ?? 0) - (a.revenueEstimateUsdM ?? 0) || b.rank - a.rank },
   change: { label: "Recently changed", compare: (a, b) => time(b.lastChangeAt) - time(a.lastChangeAt) || b.rank - a.rank },
   name: { label: "A to Z", compare: (a, b) => a.name.localeCompare(b.name) },
 };
@@ -145,7 +147,7 @@ export function OutreachBoard({ rows, heldWithSignal, initial, scan }: { rows: O
           <tbody>
             {visible.map((row, index) => <tr key={row.domain} className={`is-clickable ${CLOSED_STAGES.has(row.stage) ? "is-closed" : ""}`} onMouseEnter={() => router.prefetch(`/accounts/${row.domain}`)} onClick={() => router.push(`/accounts/${row.domain}`)}>
               <td className="col-num">{(current - 1) * PAGE_SIZE + index + 1}</td>
-              <td><div className="cell-company"><span className="avatar">{initials(row.name)}</span><div><strong>{row.name}</strong><small>{row.industry}{row.hqState ? ` · ${row.hqCity}, ${row.hqState}` : ""} · {row.tier}</small></div></div></td>
+              <td><div className="cell-company"><span className="avatar">{initials(row.name)}</span><div><strong>{row.name}</strong><small>{row.industry}{row.revenueBand ? ` · ${row.revenueBand}` : ""}{row.hqState ? ` · ${row.hqCity}, ${row.hqState}` : ""} · {row.tier}</small></div></div></td>
               <td className="cell-why"><span>{row.why}</span>{row.draftCardId && <em className="pill pill-ink"><i />Draft {row.draftScore}</em>}</td>
               <td className="cell-who">{row.who ? <><strong>{row.who}</strong><small>{row.whoTitle}{REACH_LABEL[row.whoReach] ? ` · ${REACH_LABEL[row.whoReach]}` : ""}</small></> : <small>{row.contacts ? `${row.contacts} on file, none reachable` : "nobody yet"}</small>}</td>
               <td><span className={`pill pill-${STAGE_TONE[row.stage]}`}><i />{STAGE_LABEL[row.stage]}</span>{row.owner && <small className="cell-sub">{row.owner}</small>}</td>

@@ -14,6 +14,10 @@ export const dynamic = "force-dynamic";
 type Params = { q?: string; level?: string; email?: string; page?: string; since?: string };
 const pageSize = 100;
 
+function peopleInitials(name: string) {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
+}
+
 const LEVEL_LABEL: Record<string, string> = { owner: "Decision owner", influencer: "Influencer", adjacent: "Adjacent", unknown: "Unknown" };
 const EMAIL_LABEL: Record<string, string> = { verified: "Verified", catch_all: "Catch-all", unverified: "Unverified", none: "None" };
 
@@ -46,10 +50,11 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
   if (query) rows = rows.or(`full_name.ilike.%${safe}%,title.ilike.%${safe}%,accounts.name.ilike.%${safe}%`);
   if (sinceDays) rows = rows.gte("created_at", daysAgoIso(sinceDays));
 
-  const [{ data, count, error }, { count: verified }, { count: withLinkedIn }] = await Promise.all([
+  const [{ data, count, error }, { count: verified }, { count: withLinkedIn }, { data: nextCards }] = await Promise.all([
     rows,
     db.from("people").select("*", { count: "exact", head: true }).eq("email_status", "verified"),
     db.from("people").select("*", { count: "exact", head: true }).not("linkedin_url", "is", null),
+    db.from("cards").select("id,score,channel,people!inner(full_name,title),accounts!inner(name,domain,outreach)").eq("accounts.outreach", true).in("status", ["new", "approved", "edited"]).order("score", { ascending: false }).limit(8),
   ]);
   if (error) throw error;
   const total = count ?? 0;
@@ -73,6 +78,22 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
         <div><span className="eyebrow">People on file</span><h1>Who to contact, and how.</h1><p>The CEO from the target file, buyer-title matches from Apollo, post authors and signal owners, enriched with email and LinkedIn where available. Nothing is sent from here; the desk sends.</p></div>
         <div className="targets-head-count"><span>PEOPLE</span><strong>{total.toLocaleString()}</strong><small>{(verified ?? 0).toLocaleString()} verified emails · {(withLinkedIn ?? 0).toLocaleString()} LinkedIn profiles</small></div>
       </section>
+
+      {nextCards && nextCards.length > 0 && <section className="reach-next">
+        <header><span className="eyebrow">Reach out next</span><Link href="/desk">Work the desk →</Link></header>
+        <div className="reach-next-row">
+          {nextCards.map((cardRow) => {
+            const person = cardRow.people as unknown as { full_name: string; title: string } | null;
+            const account = cardRow.accounts as unknown as { name: string; domain: string };
+            if (!person) return null;
+            return <Link key={cardRow.id as string} href={`/desk?card=${cardRow.id}`} className="reach-next-card">
+              <span className="avatar">{peopleInitials(person.full_name)}</span>
+              <div><strong>{person.full_name}</strong><small>{person.title || "title unknown"} · {account.name}</small></div>
+              <span className="reach-next-score">{cardRow.score as number}</span>
+            </Link>;
+          })}
+        </div>
+      </section>}
 
       <FilterForm action="/people">
         <label><span>Search</span><input name="q" defaultValue={query} placeholder="Name, title, or company" /></label>
