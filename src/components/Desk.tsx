@@ -403,29 +403,12 @@ export function Desk({
             </div>
 
             {notice && <p className="notice">{notice}</p>}
-            <SignalInsight card={card} />
 
-            <div className="detail-section-head outreach-section-head" id="outreach-message">
-              <div><div className="eyebrow">04 / The move</div><h2>Message and follow-through</h2></div>
-              <span>{card.channel.replaceAll("_", " ")}</span>
-            </div>
-
-            <div className="grid route-grid">
-              <div className="panel">
-                <h2>What it means for them</h2>
-                <p>{card.brief}</p>
-                <p className="memo-note">Use this context to edit the copy. Do not repeat it verbatim to the prospect.</p>
-              </div>
-              <div className="panel">
-                <h2>Contact route</h2>
-                <dl className="contact-route">
-                  <div><dt>Email</dt><dd>{card.people.email ?? "Not available"} <span className="badge">{emailStateLabel(card.people.email_status)}</span></dd></div>
-                  <div><dt>Relationship</dt><dd>{card.people.path_score}/10 · {card.people.connection_status}</dd></div>
-                  <div><dt>Assigned owner</dt><dd>{card.assigned_to}</dd></div>
-                </dl>
-                {card.people.linkedin_url && <a href={card.people.linkedin_url} target="_blank" rel="noreferrer">Inspect public profile ↗</a>}
-              </div>
-            </div>
+            <section className="why-now-brief">
+              <div><span className="eyebrow">Why now</span><p>{card.why_now}</p></div>
+              {card.signals.raw?.operating_need && <div><span className="eyebrow">The work they need done</span><p>{card.signals.raw.operating_need}</p></div>}
+              {card.accounts.domain && <Link className="why-now-open" href={`/accounts/${card.accounts.domain}`}>Open the full company page ↗</Link>}
+            </section>
 
             <div className="outreach-workspace">
               <MessageComposer
@@ -473,14 +456,37 @@ export function Desk({
             {["sent", "replied", "positive", "meeting"].includes(card.status) && <section className="outcome-recorder">
               <div><span className="eyebrow">Observed outcome</span><h3>What happened after the touch?</h3><p>Record the real response so Night Watch learns which signals and messages perform.</p></div>
               <label><span>Outcome</span><select value={outcome} onChange={(event) => setOutcome(event.target.value)}><option value="positive">Positive reply</option><option value="meeting">Meeting booked</option><option value="referral">Referred onward</option><option value="neutral">Neutral reply</option><option value="objection">Objection</option><option value="ooo">Out of office</option><option value="negative">Not interested</option></select></label>
-              <button type="button" disabled={busy} onClick={recordOutcome}>Record outcome <span>→</span></button>
+              <button type="button" disabled={busy} onClick={recordOutcome}>Record outcome <span>&rarr;</span></button>
             </section>}
 
             <div className="actions dossier-actions">
-              <button disabled={busy} className="btn" onClick={() => patch({ status: "approved" })}>Approve dossier</button>
-              <button disabled={busy} className="btn" onClick={() => patch({ status: "snoozed" })}>Snooze 7d</button>
-              <button disabled={busy} className="btn danger" onClick={() => patch({ status: "dismissed" })}>Dismiss</button>
+              <button disabled={busy} className="btn" onClick={() => patch({ status: "approved" })}>Approve draft</button>
+              <button disabled={busy} className="btn" onClick={() => { void patch({ status: "snoozed" }); move(1); }}>Snooze 7d</button>
+              <button disabled={busy} className="btn danger" onClick={() => { void patch({ status: "dismissed" }); move(1); }}>Dismiss</button>
+              <button disabled={busy} className="btn" onClick={() => move(1)}>Next person &rarr;</button>
             </div>
+
+            <details className="full-dossier">
+              <summary>Full dossier &mdash; why this person, the source, the score breakdown</summary>
+              <div className="grid route-grid">
+                <div className="panel">
+                  <h2>What it means for them</h2>
+                  <p>{card.brief}</p>
+                  <p className="memo-note">Use this context to edit the copy. Do not repeat it verbatim to the prospect.</p>
+                </div>
+                <div className="panel">
+                  <h2>Contact route</h2>
+                  <dl className="contact-route">
+                    <div><dt>Email</dt><dd>{card.people.email ?? "Not available"} <span className="badge">{emailStateLabel(card.people.email_status)}</span></dd></div>
+                    <div><dt>Relationship</dt><dd>{card.people.path_score}/10 &middot; {card.people.connection_status}</dd></div>
+                    <div><dt>Assigned owner</dt><dd>{card.assigned_to}</dd></div>
+                  </dl>
+                  {card.people.linkedin_url && <a href={card.people.linkedin_url} target="_blank" rel="noreferrer">Inspect public profile &uarr;</a>}
+                </div>
+              </div>
+              <SignalInsight card={card} />
+            </details>
+
             <p className="send-promise">Nothing leaves Night Watch without a click from you.</p>
           </div>
         )}

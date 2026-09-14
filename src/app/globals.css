@@ -1071,3 +1071,17 @@ div.stat{cursor:default}
 .desk-scan .scan-control{margin:0}
 
 .queue-hint{margin:2px 0 0;font-size:11px;color:var(--muted)}
+
+/* Action-first desk detail: short why-now, the message, the buttons, then the deep dossier folded away. */
+.why-now-brief{display:grid;gap:12px;padding:16px 0 4px}
+.why-now-brief>div{display:grid;gap:4px}
+.why-now-brief .eyebrow{color:var(--accent)}
+.why-now-brief p{margin:0;font-size:15px;line-height:1.55}
+.why-now-open{font-size:13px;font-weight:600;justify-self:start}
+.dossier-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.dossier-actions .btn{width:auto}
+.full-dossier{margin-top:22px;border-top:1px solid var(--line)}
+.full-dossier>summary{cursor:pointer;padding:14px 0;font:700 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);list-style:none}
+.full-dossier>summary::-webkit-details-marker{display:none}
+.full-dossier>summary::before{content:"▸ ";color:var(--accent)}
+.full-dossier[open]>summary::before{content:"▾ "}
