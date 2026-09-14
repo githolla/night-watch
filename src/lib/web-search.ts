@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { runSearchAgent } from "./agents.ts";
 import type { UsageRecorder } from "./anthropic-cost.ts";
+import { searchModel } from "./models.ts";
 
 /**
  * Web search as a function: a list of queries in, the raw hits out, read by
  * URL pattern afterwards. By default the searching is done by search agents
- * (the model with its web-search tool, ten queries per agent, agents in
+ * (the model with its web-search tool, a few queries per agent, agents in
  * parallel), so nothing beyond the Anthropic key is needed. When
  * SERPER_API_KEY or BRAVE_API_KEY is set, that API is used instead.
  */
@@ -18,16 +19,45 @@ const agentOutput = z.object({
   })).default([]),
 });
 
-/** One search agent runs up to ten queries and reports every result it saw, verbatim. */
+/** Queries per search agent. Fewer per agent keeps the verbatim answer well inside the output limit. */
+export const QUERIES_PER_AGENT = 4;
+/** Results the agent reports per query. */
+const HITS_PER_QUERY = 8;
+
+/** The host a `site:` operator in the query names, so the agent can be told to report only results from there. */
+export function siteOf(query: string): string | null {
+  const hosts = [...query.matchAll(/site:([a-z0-9.-]+\.[a-z]{2,})(?:\/[a-z0-9/_-]*)?/gi)].map((match) => match[1].toLowerCase());
+  return hosts.length ? [...new Set(hosts)].join(" or ") : null;
+}
+
+/** Keep a hit only when it is a real URL and, for a site-scoped query, on that site. */
+export function keepHit(hit: SearchHit, query: string) {
+  if (!/^https?:\/\//i.test(hit.url)) return false;
+  const wanted = [...query.matchAll(/site:([a-z0-9.-]+\.[a-z]{2,})/gi)].map((match) => match[1].toLowerCase());
+  if (!wanted.length) return true;
+  let host = "";
+  try { host = new URL(hit.url).hostname.toLowerCase(); } catch { return false; }
+  return wanted.some((site) => host === site || host.endsWith(`.${site}`));
+}
+
+/**
+ * One search agent runs a few queries and reports every result it saw,
+ * verbatim. The prompt names the site each query is scoped to, so the agent
+ * does not pad the answer with results the reader would drop anyway.
+ */
 async function agentBatch(queries: string[], model: string, recordUsage?: UsageRecorder): Promise<Record<string, SearchHit[]>> {
-  const prompt = `You are a search agent. Run each of the following web searches exactly as written, one search each, and report the results verbatim: for every result give its title, its URL, and the snippet or description shown, plus the date if one is shown (YYYY-MM-DD). Report up to 10 results per query. Do not filter, judge or summarise; do not add results you did not see; keep URLs exactly as shown. Queries:\n${queries.map((query, index) => `${index + 1}. ${query}`).join("\n")}\n\nReturn JSON only: {"results":[{"query":"<the query as written>","hits":[{"title":"","url":"https://...","snippet":"","date":null}]}]}`;
-  const json = await runSearchAgent(prompt, { model, maxSearches: Math.min(10, queries.length), maxTokens: 12_000 }, recordUsage);
+  const lines = queries.map((query, index) => {
+    const site = siteOf(query);
+    return `${index + 1}. ${query}${site ? `  (report only results on ${site})` : ""}`;
+  });
+  const prompt = `You are a search agent. Run each of the following web searches exactly as written, one search each, and report the results verbatim: for every result give its title exactly as shown, its URL exactly as shown, the snippet or description shown, and the date if one is shown (YYYY-MM-DD). Report up to ${HITS_PER_QUERY} results per query. Do not filter by relevance, judge, or summarise; do not add results you did not see; do not shorten or rewrite titles; keep URLs exactly as shown. If a search returns nothing, report an empty hits list for it. Queries:\n${lines.join("\n")}\n\nReturn JSON only: {"results":[{"query":"<the query as written>","hits":[{"title":"","url":"https://...","snippet":"","date":null}]}]}`;
+  const json = await runSearchAgent(prompt, { model, maxSearches: Math.min(10, queries.length), maxTokens: 16_000 }, recordUsage);
   const parsed = agentOutput.parse(json);
   const out: Record<string, SearchHit[]> = {};
   for (const query of queries) out[query] = [];
   for (const result of parsed.results) {
     const key = queries.find((query) => query === result.query) ?? queries.find((query) => query.toLowerCase().includes(result.query.toLowerCase().slice(0, 40))) ?? result.query;
-    out[key] = [...(out[key] ?? []), ...result.hits.filter((hit) => /^https?:\/\//i.test(hit.url))];
+    out[key] = [...(out[key] ?? []), ...result.hits.filter((hit) => keepHit(hit, key))];
   }
   return out;
 }
@@ -46,14 +76,17 @@ export async function runQueries(queries: string[], options: { model?: string; r
     }
     return out;
   }
-  const model = options.model ?? process.env.ANTHROPIC_SEARCH_MODEL ?? "claude-haiku-4-5";
+  const model = options.model ?? searchModel();
   const batches: string[][] = [];
-  for (let index = 0; index < unique.length; index += 10) batches.push(unique.slice(index, index + 10));
+  for (let index = 0; index < unique.length; index += QUERIES_PER_AGENT) batches.push(unique.slice(index, index + QUERIES_PER_AGENT));
   const parallel = Math.max(1, options.parallel ?? 4);
   const out: Record<string, SearchHit[]> = {};
   for (let index = 0; index < batches.length; index += parallel) {
     const settled = await Promise.allSettled(batches.slice(index, index + parallel).map((batch) => agentBatch(batch, model, options.recordUsage)));
-    for (const result of settled) if (result.status === "fulfilled") Object.assign(out, result.value);
+    settled.forEach((result, offset) => {
+      if (result.status === "fulfilled") Object.assign(out, result.value);
+      else console.warn(`[night-watch] search agent batch failed (${batches[index + offset].length} queries): ${result.reason instanceof Error ? result.reason.message : String(result.reason)}`);
+    });
   }
   return out;
 }

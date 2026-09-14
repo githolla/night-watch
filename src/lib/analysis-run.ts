@@ -1,10 +1,12 @@
-import { disqualifySignal } from "./agents.ts";
+import { disqualifySignal, writeOutreachFromBrief, type ScoutSignal } from "./agents.ts";
 import { analyzeCompany, type AnalysisInput, type CompanyAnalysis } from "./analysis.ts";
+import { analysisRolesToPostings, channelFor, DRAFT_FIT_FLOOR, draftBreakdown, pickWhoFirst, scoreOfBreakdown, type DraftCandidate } from "./analysis-draft.ts";
 import { fillEmailsFromPattern } from "./email-fill.ts";
+import { verifierConfigured, verifyAccountEmails } from "./email-verify.ts";
 import { FAMILY_LABEL, type JobFamily } from "./job-sweep/classify.ts";
 import { recomputeAccountIntel } from "./account-intel.ts";
 import {
-  accountIdsInOpenRuns, ensureAccountsLoaded, finalizeRun, persistSignal, refreshRunAggregates, summarize, sweepStaleRuns, upsertPerson,
+  accountIdsInOpenRuns, ensureAccountsLoaded, finalizeRun, persistSignal, refreshRunAggregates, storeSignalRow, summarize, sweepStaleRuns, upsertPerson,
   type AccountOutcome, type RunNightlyResult, type StopReason,
 } from "./pipeline.ts";
 import { classifyResearchError, ResearchError, researchPreflight } from "./research-errors.ts";
@@ -78,16 +80,145 @@ export async function analyzeAndStore(db: Db, account: Account, recordCost: (cos
     if (error) analysis.problems.push(`could not store a quote: ${error.message}`);
   }
   try { await fillEmailsFromPattern(db, account, analysis.emailExamples); } catch (error) { analysis.problems.push(`email pattern: ${error instanceof Error ? error.message : String(error)}`); }
+  if (verifierConfigured()) {
+    try { await verifyAccountEmails(db, account); } catch (error) { analysis.problems.push(`email verification: ${error instanceof Error ? error.message : String(error)}`); }
+  }
+  // Roles the hiring agent read on LinkedIn Jobs, Indeed and the like go into the postings table, so the
+  // Roles tab, the intelligence score and the hiring signal all see them, not only the careers-page sweep.
+  const hiringRead = !analysis.problems.some((problem) => problem.startsWith("hiring:"));
+  for (const posting of analysisRolesToPostings(analysis.hiring.roles)) {
+    const { error } = await db.from("job_postings").upsert({
+      account_id: account.id, title: posting.title, url: posting.url, posted_at: posting.posted_at, family: posting.family, description: posting.description,
+      last_seen_at: analysis.analyzedAt, active: true, source: "analysis", raw: { found_by: `analysis:${config.model}` },
+    }, { onConflict: "account_id,url" });
+    if (error) analysis.problems.push(`could not store role ${posting.title}: ${error.message}`);
+  }
+  // The hiring agent re-reads the boards each time; a role it no longer sees is closed, unless the agent itself failed.
+  if (hiringRead) await db.from("job_postings").update({ active: false }).eq("account_id", account.id).eq("source", "analysis").eq("active", true).lt("last_seen_at", analysis.analyzedAt);
+  const kept: Array<{ signal: ScoutSignal; id: string }> = [];
   for (const signal of analysis.signals) {
     const reason = disqualifySignal(signal);
     if (reason) { analysis.problems.push(`signal not kept: ${reason}`); continue; }
     outcome.signalsFound += 1;
-    try { await persistSignal(account, signal, outcome, record); outcome.signalsKept += 1; }
-    catch (error) { analysis.problems.push(`signal not stored: ${error instanceof Error ? error.message : String(error)}`); }
+    try {
+      const stored = await persistSignal(account, signal, outcome, record);
+      outcome.signalsKept += 1;
+      kept.push({ signal, id: stored.storedId });
+    } catch (error) { analysis.problems.push(`signal not stored: ${error instanceof Error ? error.message : String(error)}`); }
+  }
+  // The draft: written from the brief for the person the synthesizer chose, whatever the signal scoring says.
+  try {
+    analysis.draft = await draftFromAnalysis(db, account, analysis, kept, outcome, record);
+  } catch (error) {
+    analysis.draft = { status: "skipped", person: analysis.brief.whoFirst, cardId: null, reason: `the draft could not be written: ${error instanceof Error ? error.message : String(error)}` };
   }
   const { error } = await db.from("accounts").update({ analysis, analysis_at: analysis.analyzedAt, analysis_model: config.model, analysis_cost_usd: analysis.costUsd }).eq("id", account.id);
   if (error) throw error;
   return analysis;
+}
+
+function nameKey(value: string) {
+  return value.toLowerCase().replace(/[^a-z]/g, "");
+}
+
+/**
+ * The evidence the draft hangs on: the strongest signal the synthesizer
+ * kept; else the person's own post; else the roles on job boards; else the
+ * brief itself. A card needs a signal row, so one is written when none of
+ * the kept signals fits.
+ */
+function evidenceFor(account: Account, analysis: CompanyAnalysis, person: DraftCandidate, quotes: CompanyAnalysis["voices"]): ScoutSignal {
+  const today = analysis.analyzedAt.slice(0, 10);
+  const need = analysis.brief.angle || analysis.hiring.buildInstead[0] || analysis.brief.whyNow || `${account.name} has operating work in ${analysis.tech.length ? analysis.tech.slice(0, 3).join(", ") : "its systems and reporting"} that Nine-67 could build and run instead of a hire.`;
+  const confidence = Math.max(0.6, Math.min(1, analysis.brief.fit / 100));
+  const candidates: ScoutSignal[] = [];
+  const quote = quotes.find((voice) => /^https?:\/\//.test(voice.url));
+  if (quote) {
+    const date = quote.date && /^\d{4}-\d{2}-\d{2}/.test(quote.date) ? quote.date.slice(0, 10) : today;
+    candidates.push({
+      type: "exec_post", evidence_kind: "ai_post", summary: `${person.full_name} said publicly: "${quote.quote.slice(0, 160)}"`, source_url: quote.url, observed_at: date, operating_need: need,
+      people: [{ name: person.full_name, title: person.title, role_in_signal: "posted" }],
+      post: { text: quote.quote, author_name: person.full_name, author_title: person.title, published_at: quote.date, reactions: null, comments: null, reposts: null, hashtags: [], is_excerpt: true },
+      confidence,
+    });
+  }
+  const roles = analysisRolesToPostings(analysis.hiring.roles).filter((role) => role.family);
+  if (roles.length) {
+    const titles = [...new Set(roles.map((role) => role.title))];
+    candidates.push({
+      type: roles.length >= 2 ? "job_cluster" : "job_post", evidence_kind: "hiring",
+      summary: `${roles.length} open role${roles.length === 1 ? "" : "s"} Nine-67 would build a system for instead: ${titles.slice(0, 4).join(", ")}${titles.length > 4 ? ` and ${titles.length - 4} more` : ""}.`,
+      source_url: roles[0].url, observed_at: roles[0].posted_at ?? today, operating_need: need, people: [],
+      job: { title: roles.length === 1 ? roles[0].title : `${roles.length} roles: ${titles.slice(0, 3).join(", ")}`, department: "", days_open: 0, reposted: false, salary_max: 0, tools_named: [], responsibilities: analysis.hiring.buildInstead.slice(0, 8) },
+      confidence,
+    });
+  }
+  const development = analysis.happening.find((item) => item.source_url && /^https?:\/\//.test(item.source_url));
+  candidates.push({
+    type: "other", evidence_kind: "new_mandate", summary: analysis.brief.whyNow.split(/(?<=\.)\s+/)[0] || `${account.name}: analysed ${today}`,
+    source_url: development?.source_url ?? `https://${account.domain}/`, observed_at: today, operating_need: need, people: [], confidence,
+  });
+  return candidates.find((candidate) => !disqualifySignal(candidate)) ?? candidates[candidates.length - 1];
+}
+
+/** Statuses a person has already acted on; a fresh analysis never overwrites those. */
+const SETTLED = new Set(["approved", "edited", "sent", "replied", "positive", "meeting", "snoozed", "dismissed"]);
+
+async function draftFromAnalysis(db: Db, account: Account, analysis: CompanyAnalysis, kept: Array<{ signal: ScoutSignal; id: string }>, outcome: AccountOutcome, recordCost: (cost: number) => void): Promise<CompanyAnalysis["draft"]> {
+  const fit = analysis.brief.fit;
+  const named = analysis.brief.whoFirst.trim();
+  if (account.outreach === false) return { status: "skipped", person: named, cardId: null, reason: "the company is held, not on the reach-out list" };
+  if (fit < DRAFT_FIT_FLOOR) return { status: "skipped", person: named, cardId: null, reason: `fit ${fit}/100 is under the floor of ${DRAFT_FIT_FLOOR}; ${analysis.brief.fitReason || "no reason given"}` };
+
+  const { data } = await db.from("people").select("id,full_name,title,level,email,email_status,linkedin_url,path_score").eq("account_id", account.id).eq("do_not_contact", false).limit(80);
+  const people = (data ?? []) as DraftCandidate[];
+  let { person } = pickWhoFirst(named, people, analysis.voices.map((voice) => voice.author));
+  if (!person && named.split(/\s+/).length >= 2) {
+    // The synthesizer named someone the people agent did not store; store them now.
+    const seen = analysis.people.find((candidate) => nameKey(candidate.name) === nameKey(named));
+    person = (await upsertPerson(account, { name: named, title: analysis.brief.whoFirstTitle || seen?.title || "", linkedin_url: seen?.linkedin_url ?? null }, "analysis")) as DraftCandidate;
+  }
+  if (!person) return { status: "skipped", person: named, cardId: null, reason: "nobody on file to write to yet" };
+
+  const quotes = analysis.voices.filter((voice) => nameKey(voice.author) === nameKey(person.full_name));
+  const own = kept.find((entry) => entry.signal.people.some((who) => nameKey(who.name) === nameKey(person.full_name)) || nameKey(entry.signal.post?.author_name ?? "") === nameKey(person.full_name));
+  const evidence = own ?? { signal: evidenceFor(account, analysis, person, quotes), id: null as string | null };
+  const signalId = evidence.id ?? (await storeSignalRow(account, evidence.signal, person.id)).id;
+
+  const { data: existingCard } = await db.from("cards").select("id,status").eq("signal_id", signalId).eq("person_id", person.id).maybeSingle();
+  if (existingCard && SETTLED.has(existingCard.status as string)) return { status: "kept", person: person.full_name, cardId: existingCard.id as string, reason: `the draft to ${person.full_name} is already ${existingCard.status}; not rewritten` };
+
+  const target = targetAccountByDomain.get(account.domain);
+  const draft = await writeOutreachFromBrief({
+    company: { name: account.name, domain: account.domain, industry: target?.vertical ?? account.vertical ?? "" },
+    person: {
+      name: person.full_name, title: person.title, why: analysis.brief.whoFirstWhy,
+      quotes: quotes.slice(0, 3).map((voice) => ({ quote: voice.quote, url: voice.url, date: voice.date })),
+      emailState: person.email_status === "verified" ? "verified" : person.email ? "unverified" : "none", linkedin: Boolean(person.linkedin_url),
+    },
+    brief: { whyNow: analysis.brief.whyNow, angle: analysis.brief.angle, opener: analysis.brief.opener, objections: analysis.brief.objections },
+    roles: analysis.hiring.roles.slice(0, 8).map((role) => ({ title: role.title, why: role.why })),
+    buildInstead: analysis.hiring.buildInstead.slice(0, 6),
+    happening: analysis.happening.slice(0, 6).map((item) => item.text),
+  }, recordCost);
+  const breakdown = draftBreakdown(fit, person.path_score, evidence.signal.observed_at);
+  const payload = {
+    score: scoreOfBreakdown(breakdown), score_breakdown: breakdown,
+    brief: draft.brief || analysis.brief.whoFirstWhy || analysis.brief.angle, why_now: draft.why_now || analysis.brief.whyNow,
+    channel: channelFor(person, quotes.length > 0),
+    linkedin_comment: quotes.length ? draft.linkedin_comment : "", linkedin_note: draft.linkedin_note.slice(0, 300), linkedin_message: draft.linkedin_message,
+    email_subject: draft.email_subject, email_body: draft.email_body,
+    status: "new", surfaced_on: analysis.analyzedAt.slice(0, 10),
+  };
+  if (existingCard) {
+    const { error } = await db.from("cards").update(payload).eq("id", existingCard.id);
+    if (error) throw error;
+    return { status: "written", person: person.full_name, cardId: existingCard.id as string, reason: "rewritten from the fresh analysis" };
+  }
+  const inserted = await db.from("cards").insert({ signal_id: signalId, person_id: person.id, account_id: account.id, assigned_to: "josh", ...payload }).select("id").single();
+  if (inserted.error) throw inserted.error;
+  outcome.cardsCreated += 1;
+  return { status: "written", person: person.full_name, cardId: inserted.data.id as string, reason: `written for ${person.full_name} from the brief` };
 }
 
 async function selectAccounts(db: Db, options: AnalysisOptions, now: number) {
@@ -179,7 +310,7 @@ export async function runAnalysis(options: AnalysisOptions): Promise<RunNightlyR
           analysis.voices.length ? `${analysis.voices.length} quotes` : null,
           analysis.hiring.roles.length ? `${analysis.hiring.roles.length} roles read` : null,
           outcome.signalsKept ? `${outcome.signalsKept} signals` : null,
-          outcome.cardsCreated ? `${outcome.cardsCreated} drafts` : null,
+          analysis.draft?.status === "written" ? `draft written for ${analysis.draft.person}` : analysis.draft?.status === "kept" ? `draft kept (${analysis.draft.person})` : analysis.draft ? `no draft: ${analysis.draft.reason}` : null,
           analysis.problems.length ? `${analysis.problems.length} problems` : null,
         ].filter(Boolean);
         update = {

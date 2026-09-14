@@ -18,6 +18,7 @@ type Card = InsightCard & {
   email_body: string | null;
   linkedin_note: string | null;
   linkedin_comment?: string | null;
+  linkedin_message?: string | null;
   surfaced_on?: string | null;
   isNew?: boolean;
   people: InsightCard["people"] & {
@@ -173,8 +174,8 @@ export function Desk({
     setNotice(`Sent. The email to ${card.people.full_name} is recorded and replies are being watched.`);
   }
 
-  async function recordTouch(view: "comment" | "connection" | "email", body: string) {
-    const label = view === "email" ? "manual email" : view === "comment" ? "LinkedIn reply" : "LinkedIn connection request";
+  async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string) {
+    const label = view === "email" ? "manual email" : view === "comment" ? "LinkedIn reply" : view === "message" ? "LinkedIn message" : "LinkedIn connection request";
     if (!demo && !confirm(`Record this ${label} as sent?`)) return;
     if (demo) {
       setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
@@ -182,7 +183,7 @@ export function Desk({
       return;
     }
     setBusy(true);
-    const channel = view === "email" ? "email" : view === "comment" ? "linkedin_comment" : "linkedin_request";
+    const channel = view === "email" ? "email" : view === "comment" ? "linkedin_comment" : view === "message" ? "linkedin_message" : "linkedin_request";
     const response = await fetch(`/api/cards/${card.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body }) });
     const result = await response.json();
     setBusy(false);
@@ -418,6 +419,7 @@ export function Desk({
                 initialContext={`${card.brief}\n\n${card.why_now}`}
                 linkedinComment={card.linkedin_comment ?? ""}
                 linkedinNote={card.linkedin_note ?? ""}
+                linkedinMessage={card.linkedin_message ?? ""}
                 emailSubject={card.email_subject ?? ""}
                 emailBody={card.email_body ?? ""}
                 busy={busy}
@@ -425,7 +427,7 @@ export function Desk({
                 gmailConnected={gmailConnected}
                 sendReady={["approved", "edited"].includes(card.status)}
                 onEdit={edit}
-                onSave={() => patch({ status: "edited", email_subject: card.email_subject, email_body: card.email_body, linkedin_note: card.linkedin_note, linkedin_comment: card.linkedin_comment })}
+                onSave={() => patch({ status: "edited", email_subject: card.email_subject, email_body: card.email_body, linkedin_note: card.linkedin_note, linkedin_comment: card.linkedin_comment, linkedin_message: card.linkedin_message ?? "" })}
                 onSend={send}
                 onRecordTouch={recordTouch}
                 onNotice={setNotice}

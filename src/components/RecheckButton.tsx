@@ -44,8 +44,8 @@ export function RecheckButton({ accountId, name }: { accountId: string; name: st
   }
 
   return <span className="recheck">
-    <button type="button" className="scan-stop" disabled={phase !== "idle"} onClick={recheck} title={`Read ${name}'s careers page, job boards and AI posts again, research it, then run the agent swarm: company, hiring, people, voices and a fresh brief`}>
-      {phase === "sweep" ? "Reading careers page and posts…" : phase === "research" ? "Researching…" : phase === "analysis" ? "Agent swarm analysing…" : "Analyse again now"}
+    <button type="button" className="scan-stop" disabled={phase !== "idle"} onClick={recheck} title={`Three passes on ${name}: read the careers page, job boards and LinkedIn posts; research it; then the agent swarm finds roles, people, contact details and quotes, writes the brief and drafts the outreach`}>
+      {phase === "sweep" ? "1/3 Reading careers page and LinkedIn…" : phase === "research" ? "2/3 Researching…" : phase === "analysis" ? "3/3 Finding people, contacts, roles, writing the draft…" : "Research this company now"}
     </button>
     {error && <span className="notice error">{error}</span>}
   </span>;

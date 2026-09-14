@@ -17,6 +17,7 @@ const MIGRATIONS: Array<{ file: string; table: string; column: string; adds: str
   { file: "0009_outreach_tiers.sql", table: "accounts", column: "outreach", adds: "the reach-out tiers and the Tier A list" },
   { file: "0010_analysis.sql", table: "accounts", column: "analysis", adds: "the deep analysis per company" },
   { file: "0011_contact_details.sql", table: "people", column: "phone", adds: "phone numbers and contact notes from the contact agent" },
+  { file: "0012_analysis_drafts.sql", table: "cards", column: "linkedin_message", adds: "drafts written from the analysis, a LinkedIn message on every draft, and roles read from job boards" },
 ];
 
 export type PendingMigration = { file: string; adds: string; reason: string; sql: string };

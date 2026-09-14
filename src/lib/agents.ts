@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { SimulationInput, SimulationResult } from "@/lib/message-simulation";
 import { recordAnthropicUsage, type UsageRecorder } from "./anthropic-cost.ts";
 import { parseModelJson } from "./model-output.ts";
+import { fallbackModelFor, isSupersededModel, researchModel, searchModel, utilityModel, webSearchToolType, writingModel } from "./models.ts";
 
 export { parseModelJson } from "./model-output.ts";
 
@@ -14,7 +15,7 @@ export const SCOUT_CONFIDENCE_FLOOR = 0.6;
  * maxSearches searches, so it needs headroom; a truncated reply is detected
  * by stop_reason and reported as truncation, never as bad JSON.
  */
-export const SCOUT_MAX_TOKENS = 8_000;
+export const SCOUT_MAX_TOKENS = 12_000;
 
 /**
  * A server-tool turn pauses with stop_reason=pause_turn after the API's own
@@ -87,25 +88,15 @@ export function disqualifySignal(item: ScoutSignal): string | null {
 const angle = z.object({
   brief: z.string(), why_now: z.string(),
   channel: z.enum(["linkedin_first", "email_first", "intro", "linkedin_only"]),
-  linkedin_comment: z.string(), linkedin_note: z.string().max(200),
+  linkedin_comment: z.string(), linkedin_note: z.string().transform((value) => value.trim().slice(0, 300)),
+  linkedin_message: z.string().default(""),
   email_subject: z.string(), email_body: z.string(),
 });
+export type OutreachDraft = z.infer<typeof angle>;
 
 function client() {
   if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is missing");
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-}
-
-function researchModel() {
-  return process.env.ANTHROPIC_RESEARCH_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
-}
-
-function writingModel() {
-  return process.env.ANTHROPIC_WRITING_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
-}
-
-function utilityModel() {
-  return process.env.ANTHROPIC_UTILITY_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
 }
 
 function text(blocks: Anthropic.Messages.ContentBlock[]) {
@@ -116,40 +107,69 @@ function jsonFrom(response: Pick<Anthropic.Messages.Message, "content" | "stop_r
   return parseModelJson(response.content, response.stop_reason);
 }
 
-function webSearchTool(maxUses: number): Anthropic.Messages.ToolUnion {
-  return { type: "web_search_20250305", name: "web_search", max_uses: maxUses };
+/** The web-search server tool in the version the model takes; the caller passes the model so the two never drift apart. */
+function webSearchTool(model: string, maxUses: number): Anthropic.Messages.ToolUnion {
+  return { type: webSearchToolType(model), name: "web_search", max_uses: maxUses } as Anthropic.Messages.ToolUnion;
+}
+
+/** A 404 from the Messages API naming the model: the configured id is retired, renamed or mistyped. */
+function isUnknownModelError(error: unknown) {
+  return error instanceof Anthropic.NotFoundError || (error instanceof Anthropic.BadRequestError && /model/i.test(error.message));
+}
+
+/** Run one turn on one model. */
+async function completeTurnOn(
+  model: string,
+  params: Omit<Anthropic.Messages.MessageCreateParamsNonStreaming, "messages" | "model" | "tools"> & { searches?: number },
+  prompt: string,
+  recordUsage?: UsageRecorder,
+) {
+  const { searches, ...rest } = params;
+  const request = { ...rest, model, ...(searches ? { tools: [webSearchTool(model, searches)] } : {}) };
+  const messages: Anthropic.Messages.MessageParam[] = [{ role: "user", content: prompt }];
+  let response = await client().messages.create({ ...request, messages });
+  recordAnthropicUsage(response, model, recordUsage);
+  for (let round = 0; round < MAX_TURN_CONTINUATIONS && response.stop_reason === "pause_turn"; round += 1) {
+    messages.push({ role: "assistant", content: response.content });
+    response = await client().messages.create({ ...request, messages });
+    recordAnthropicUsage(response, model, recordUsage);
+  }
+  return response;
 }
 
 /**
  * Run one request to completion. When the server-side search loop pauses the
  * turn, re-send the conversation with the assistant content appended so the
- * API resumes where it left off; usage is recorded for every round.
+ * API resumes where it left off; usage is recorded for every round. When the
+ * API does not know the configured model, the request is retried once on the
+ * current default so a retired model id stops a run with a clear message
+ * instead of silently failing every company.
  */
 async function completeTurn(
-  params: Omit<Anthropic.Messages.MessageCreateParamsNonStreaming, "messages">,
+  params: Omit<Anthropic.Messages.MessageCreateParamsNonStreaming, "messages" | "tools"> & { searches?: number },
   prompt: string,
   recordUsage?: UsageRecorder,
-) {
-  const messages: Anthropic.Messages.MessageParam[] = [{ role: "user", content: prompt }];
-  let response = await client().messages.create({ ...params, messages });
-  recordAnthropicUsage(response, params.model, recordUsage);
-  for (let round = 0; round < MAX_TURN_CONTINUATIONS && response.stop_reason === "pause_turn"; round += 1) {
-    messages.push({ role: "assistant", content: response.content });
-    response = await client().messages.create({ ...params, messages });
-    recordAnthropicUsage(response, params.model, recordUsage);
+): Promise<{ response: Anthropic.Messages.Message; model: string }> {
+  const { model, ...rest } = params;
+  try {
+    return { response: await completeTurnOn(model, rest, prompt, recordUsage), model };
+  } catch (error) {
+    const fallback = isUnknownModelError(error) ? fallbackModelFor(model) : null;
+    if (!fallback) throw error;
+    console.warn(`[night-watch] model ${model} was rejected (${isSupersededModel(model) ? "retired" : "unknown"}); retrying on ${fallback}. Set ANTHROPIC_RESEARCH_MODEL to a current model.`);
+    return { response: await completeTurnOn(fallback, rest, prompt, recordUsage), model: fallback };
   }
-  return response;
 }
 
 /** One model turn with web search that must answer in JSON. The analysis agents are built on this. */
 export async function runSearchAgent(prompt: string, options: { model: string; maxSearches: number; maxTokens?: number }, recordUsage?: UsageRecorder): Promise<unknown> {
-  const response = await completeTurn({ model: options.model, max_tokens: options.maxTokens ?? 8_000, tools: [webSearchTool(Math.max(1, Math.min(10, options.maxSearches)))] }, prompt, recordUsage);
+  const { response } = await completeTurn({ model: options.model, max_tokens: options.maxTokens ?? 16_000, searches: Math.max(1, Math.min(10, options.maxSearches)) }, prompt, recordUsage);
   return jsonFrom(response);
 }
 
 /** One model turn with no tools that must answer in JSON. */
 export async function runWritingAgent(prompt: string, options: { model: string; maxTokens?: number }, recordUsage?: UsageRecorder): Promise<unknown> {
-  const response = await completeTurn({ model: options.model, max_tokens: options.maxTokens ?? 8_000 }, prompt, recordUsage);
+  const { response } = await completeTurn({ model: options.model, max_tokens: options.maxTokens ?? 8_000 }, prompt, recordUsage);
   return jsonFrom(response);
 }
 
@@ -200,19 +220,7 @@ Verify every returned claim with a public URL and an exact observed or publicati
 For an executive post, include post with the actual visible text, author name, author title, exact published date/time, visible engagement counts or null, hashtags actually present, and is_excerpt=true when only a verified excerpt is available. Put that same individual first in people. For other evidence, include source with its exact headline, publisher, author if shown, date, and a faithful excerpt. Omit post or source instead of filling it with invented content.
 
 Return JSON only as {"signals":[{"type":"job_cluster","evidence_kind":"hiring","operating_need":"the specific work they need done","summary":"why this matters","source_url":"https://...","observed_at":"YYYY-MM-DD","people":[{"name":"Full name","title":"Exact title","role_in_signal":"hiring_manager"}],"job":{"title":"Exact role title","department":"","days_open":0,"reposted":false,"salary_max":0,"tools_named":[],"responsibilities":[]},"confidence":0.0}]} or, for a post asking for help, {"signals":[{"type":"exec_post","evidence_kind":"asking_for_help","operating_need":"...","summary":"...","source_url":"https://...","observed_at":"YYYY-MM-DD","people":[{"name":"Full name","title":"Exact title","role_in_signal":"posted"}],"post":{"text":"actual visible post text","author_name":"Full name","author_title":"Exact title","published_at":"ISO date or date","reactions":null,"comments":null,"reposts":null,"hashtags":[],"is_excerpt":true},"confidence":0.0}]}. Return an empty array when no dated, source-backed operating need exists within 180 days.`;
-  const tools = [webSearchTool(maxSearches)];
-  const create = (selectedModel: string) => completeTurn({ model: selectedModel, max_tokens: SCOUT_MAX_TOKENS, tools }, prompt, recordUsage);
-  let selectedModel = model;
-  let response;
-  try {
-    response = await create(selectedModel);
-  } catch (error) {
-    const fallbackModel = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
-    const status = (error as { status?: number }).status;
-    if (selectedModel === fallbackModel || ![400, 404].includes(status ?? 0)) throw error;
-    selectedModel = fallbackModel;
-    response = await create(selectedModel);
-  }
+  const { response, model: selectedModel } = await completeTurn({ model, max_tokens: SCOUT_MAX_TOKENS, searches: maxSearches }, prompt, recordUsage);
   const parsed = scoutOutput.parse(jsonFrom(response));
   const kept = parsed.signals
     .filter((item) => item.confidence >= SCOUT_CONFIDENCE_FLOOR)
@@ -227,8 +235,8 @@ Return JSON only as {"signals":[{"type":"job_cluster","evidence_kind":"hiring","
 
 export async function findPerson(account: string, signal: ScoutSignal, recordUsage?: UsageRecorder) {
   const model = utilityModel();
-  const response = await completeTurn(
-    { model, max_tokens: 1_500, tools: [webSearchTool(2)] },
+  const { response } = await completeTurn(
+    { model, max_tokens: 4_000, searches: 2 },
     `Using public web search only, identify the most likely budget owner for this signal at ${account}: ${signal.summary}. Prefer a person directly named in the source or a publicly verified executive who owns the affected function. Return JSON only: {"name":"","title":"","linkedin_url":null,"alternates":[{"title":""}]}. Do not guess a name without public evidence.`,
     recordUsage,
   );
@@ -238,13 +246,42 @@ export async function findPerson(account: string, signal: ScoutSignal, recordUsa
   }).parse(jsonFrom(response));
 }
 
-export async function writeAngle(input: unknown, recordUsage?: UsageRecorder) {
-  const model = writingModel();
-  const response = await client().messages.create({
-    model, max_tokens: 900,
-    messages: [{ role: "user", content: `Draft outreach from this source-backed dossier: ${JSON.stringify(input)}. Ground every line in the supplied post or source. The dossier's signal.operating_need is the work this company needs done; Nine-67 builds and runs AI and automation so an operating team does not have to hire for that work. Lead with that need in their words, then offer the specific alternative to the hire or the specific answer to their question. Never invent familiarity, results, budget, or intent, and never comment on industry trends. Produce both LinkedIn and email copy even when contact details are unavailable. LinkedIn comment: two useful sentences replying to the actual post, with no pitch; leave empty only when the source is not a post. LinkedIn connection note: under 200 characters, specific to the source, no link. Email subject: under 6 words, lowercase. Email body: under 80 words, plain text, one low-friction question, no meeting request, one link maximum. For job signals, offer a free one-page JD teardown. Channel: intro for path 10; linkedin_only without verified email; linkedin_first for LinkedIn signals; otherwise email_first. Return JSON only: {"brief":"","why_now":"","channel":"email_first","linkedin_comment":"","linkedin_note":"","email_subject":"","email_body":""}.` }],
-  });
-  recordAnthropicUsage(response, model, recordUsage);
+/**
+ * Output room for the drafting and judging calls. The current models think
+ * before they answer and the thinking counts against max_tokens, so a cap
+ * sized to the visible answer alone cuts the answer off.
+ */
+const WRITING_MAX_TOKENS = 4_000;
+
+/** The rules every draft follows, whichever evidence it is written from. */
+const DRAFT_RULES = `Never invent familiarity, results, budget, or intent, and never comment on industry trends. Produce every piece of copy even when contact details are unavailable. LinkedIn comment: two useful sentences replying to the actual post, with no pitch; leave empty only when the source is not a post. LinkedIn connection note: under 200 characters, specific to the evidence, no link. LinkedIn message (sent after they accept, or as an InMail): 60 to 110 words, plain, opens with the specific thing seen, one low-friction question, no meeting request, no link. Email subject: under 6 words, lowercase. Email body: under 80 words, plain text, one low-friction question, no meeting request, one link maximum. For hiring evidence, offer a free one-page JD teardown of which parts of the role a built system would absorb. Return JSON only: {"brief":"","why_now":"","channel":"email_first","linkedin_comment":"","linkedin_note":"","linkedin_message":"","email_subject":"","email_body":""}.`;
+
+export async function writeAngle(input: unknown, recordUsage?: UsageRecorder): Promise<OutreachDraft> {
+  const { response } = await completeTurn({
+    model: writingModel(), max_tokens: WRITING_MAX_TOKENS,
+  }, `Draft outreach from this source-backed dossier: ${JSON.stringify(input)}. Ground every line in the supplied post or source. The dossier's signal.operating_need is the work this company needs done; Nine-67 builds and runs AI and automation so an operating team does not have to hire for that work. Lead with that need in their words, then offer the specific alternative to the hire or the specific answer to their question. Channel: intro for path 10; linkedin_only without verified email; linkedin_first for LinkedIn signals; otherwise email_first. ${DRAFT_RULES}`, recordUsage);
+  return angle.parse(jsonFrom(response));
+}
+
+export type BriefDraftInput = {
+  company: { name: string; domain: string; industry: string };
+  person: { name: string; title: string; why: string; quotes: Array<{ quote: string; url: string; date: string | null }>; emailState: "verified" | "unverified" | "none"; linkedin: boolean };
+  brief: { whyNow: string; angle: string; opener: string; objections: string[] };
+  roles: Array<{ title: string; why: string }>;
+  buildInstead: string[];
+  happening: string[];
+};
+
+/**
+ * Draft outreach from the agent swarm's brief rather than from a single
+ * signal: the person the synthesizer chose, the angle, their own words when
+ * they have said something publicly, and the roles Nine-67 would build a
+ * system for instead. Everything in the input was found on a public page.
+ */
+export async function writeOutreachFromBrief(input: BriefDraftInput, recordUsage?: UsageRecorder): Promise<OutreachDraft> {
+  const { response } = await completeTurn({
+    model: writingModel(), max_tokens: WRITING_MAX_TOKENS,
+  }, `Draft first-touch outreach for the person below, from a research brief. Everything here was found on public pages; use only what is here. ${JSON.stringify(input)}\n\nNine-67 builds and runs AI and automation for operating teams at $50M-1B companies, so the company gets the work done without hiring a person to do it by hand. Lead with the specific thing seen: their own post or quote when there is one (quote a phrase of it), otherwise the role they are hiring for, otherwise the concrete development in "happening". Then offer the specific alternative: what Nine-67 would build or run instead of the hire, in one sentence. The brief's opener is a starting point, not copy to paste. If person.quotes is empty, linkedin_comment must be empty. Channel: linkedin_only when emailState is none; linkedin_first when emailState is unverified or when the evidence is their own post; otherwise email_first. ${DRAFT_RULES}`, recordUsage);
   return angle.parse(jsonFrom(response));
 }
 
@@ -277,16 +314,12 @@ const aiPostsOutput = z.object({
 export async function searchAiPosts(account: { name: string; domain: string }, recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string } = {}) {
   const model = options.model ?? searchModel();
   const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 2));
-  const response = await completeTurn(
-    { model, max_tokens: 6_000, tools: [webSearchTool(maxSearches)] },
+  const { response } = await completeTurn(
+    { model, max_tokens: 8_000, searches: maxSearches },
     `Find public posts from the last 180 days by people who work at ${account.name} (${account.domain}) about AI, automation, AI agents, data, systems, or making their own work or team more efficient: what they are trying, what is hard, what they want, what they built, or asking for help or recommendations. Run at least two searches on LinkedIn: site:linkedin.com/posts "${account.name}" AI, and site:linkedin.com/pulse "${account.name}"; then X, personal blogs, podcasts and conference talks. Only count a post if a named person who works at ${account.name} wrote it in their own words (a repost with their own comment counts; a company-page post counts only when a named person is quoted as its author). Do not count press releases, news articles, interviews in publications or opinion columns in magazines. For each post give the author's full name and title as shown, the URL of the post, the date as YYYY-MM-DD when shown, a verbatim excerpt of up to 400 characters, the platform, and a three-to-six-word topic. Up to 10 posts. Return JSON only: {"posts":[{"author_name":"","author_title":"","url":"https://...","posted_at":null,"excerpt":"","platform":"linkedin","topic":""}]}. Return {"posts":[]} if there are none.`,
     recordUsage,
   );
   return { posts: aiPostsOutput.parse(jsonFrom(response)).posts, model };
-}
-
-function searchModel() {
-  return process.env.ANTHROPIC_SEARCH_MODEL ?? "claude-haiku-4-5";
 }
 
 const peopleSearchOutput = z.object({
@@ -308,8 +341,8 @@ export async function searchPeopleWeb(account: { name: string; domain: string },
   const model = options.model ?? searchModel();
   const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 6));
   const titles = wantedTitles.slice(0, 12).join(", ") || "executives and operations, technology, data and finance leaders";
-  const response = await completeTurn(
-    { model, max_tokens: 6_000, tools: [webSearchTool(maxSearches)] },
+  const { response } = await completeTurn(
+    { model, max_tokens: 8_000, searches: maxSearches },
     `List people who currently work at ${account.name} (${account.domain}), most useful first: ${titles}, then other managers and leaders in operations, technology, data, finance, revenue and customer teams. Search LinkedIn profile results (site:linkedin.com/in "${account.name}"), the company's leadership or team page, press releases and conference bios. Only include people you actually saw named with a title at ${account.name}; skip people who have left. Also record every work email address at @${account.domain} you see on public pages (press contacts, author bios, PDF footers) so the address format can be learned; never invent one. Up to 30 people. Return JSON only: {"people":[{"name":"","title":"","linkedin_url":null,"source_url":null}],"email_examples":[]}.`,
     recordUsage,
   );
@@ -325,8 +358,8 @@ export async function searchPeopleWeb(account: { name: string; domain: string },
 export async function searchJobBoards(account: { name: string; domain: string }, recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string } = {}) {
   const model = options.model ?? searchModel();
   const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 2));
-  const response = await completeTurn(
-    { model, max_tokens: 6_000, tools: [webSearchTool(maxSearches)] },
+  const { response } = await completeTurn(
+    { model, max_tokens: 8_000, searches: maxSearches },
     `List the currently open job postings at ${account.name} (${account.domain}) that appear on public job boards such as LinkedIn Jobs, Indeed, Glassdoor or ZipRecruiter, or on the company's own careers site. Search for "${account.name}" jobs. Return only postings you actually saw, each with the exact title and the URL of the listing, the posting date as YYYY-MM-DD when shown, and the location. Up to 30 postings. Ignore postings at other companies with similar names. Return JSON only: {"postings":[{"title":"","url":"https://...","posted_at":null,"location":null}]}. Return {"postings":[]} if you find none.`,
     recordUsage,
   );
@@ -335,11 +368,7 @@ export async function searchJobBoards(account: { name: string; domain: string },
 }
 
 export async function classifyReply(body: string) {
-  const model = utilityModel();
-  const response = await client().messages.create({
-    model, max_tokens: 60,
-    messages: [{ role: "user", content: `Classify this email reply as exactly one of positive, neutral, objection, referral, ooo, negative. Return only the label.\n${body.slice(0, 5000)}` }],
-  });
+  const { response } = await completeTurn({ model: utilityModel(), max_tokens: 1_000 }, `Classify this email reply as exactly one of positive, neutral, objection, referral, ooo, negative. Return only the label.\n${body.slice(0, 5000)}`);
   return z.enum(["positive", "neutral", "objection", "referral", "ooo", "negative"]).parse(text(response.content).trim().toLowerCase());
 }
 
@@ -378,8 +407,7 @@ ${JSON.stringify(input.variants)}
 Simulate exactly four perspectives: the operator who owns the work, a busy executive, a skeptical buyer, and a message-quality/filter reviewer. Score each variant 0-100 on relevance, specificity, trust, and replyEase. Prefer concrete signal use, restraint, brevity, and a low-friction reply. Penalize generic praise, manufactured familiarity, hype, repetition, or meeting asks. This is directional qualitative judgment, never a predicted response rate.
 
 Return JSON only: {"variants":[{"label":"A","subject":"","body":"","score":0,"dimensions":{"relevance":0,"specificity":0,"trust":0,"replyEase":0},"summary":""},{"label":"B","subject":"","body":"","score":0,"dimensions":{"relevance":0,"specificity":0,"trust":0,"replyEase":0},"summary":""}],"panel":[{"persona":"The operator","vote":"A","concern":"","suggestion":""},{"persona":"The busy executive","vote":"A","concern":"","suggestion":""},{"persona":"The skeptic","vote":"A","concern":"","suggestion":""},{"persona":"The message filter","vote":"A","concern":"","suggestion":""}],"winner":"A","confidence":0}`;
-  const model = utilityModel();
-  const response = await client().messages.create({ model, max_tokens: 1_400, messages: [{ role: "user", content: prompt }] });
+  const { response, model } = await completeTurn({ model: utilityModel(), max_tokens: WRITING_MAX_TOKENS }, prompt);
   const parsed = simulationOutput.parse(jsonFrom(response));
   const variants = parsed.variants.map((scored) => ({ ...scored, ...input.variants.find((original) => original.label === scored.label)! }));
   return { ...parsed, variants, model };

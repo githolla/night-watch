@@ -4,7 +4,7 @@ import { Check, Copy, ExternalLink, FlaskConical, Mail, MessageCircle, Send } fr
 import { useState } from "react";
 import { MessageLab } from "./MessageLab";
 
-type DraftView = "comment" | "connection" | "email";
+type DraftView = "comment" | "connection" | "message" | "email";
 
 type Props = {
   cardId: string;
@@ -19,6 +19,7 @@ type Props = {
   initialContext: string;
   linkedinComment: string;
   linkedinNote: string;
+  linkedinMessage: string;
   emailSubject: string;
   emailBody: string;
   busy: boolean;
@@ -36,7 +37,8 @@ export function MessageComposer(props: Props) {
   const [view, setView] = useState<DraftView>(() => preferredView(props.channel, Boolean(props.linkedinComment), props.emailVerified));
   const [copied, setCopied] = useState(false);
   const [labOpen, setLabOpen] = useState(false);
-  const currentSocialCopy = view === "comment" ? props.linkedinComment : props.linkedinNote;
+  const currentSocialCopy = view === "comment" ? props.linkedinComment : view === "message" ? props.linkedinMessage : props.linkedinNote;
+  const socialField = view === "comment" ? "linkedin_comment" : view === "message" ? "linkedin_message" : "linkedin_note";
 
   async function copyForLinkedIn() {
     try {
@@ -51,8 +53,8 @@ export function MessageComposer(props: Props) {
 
   /** The channel-aware primary action when the email cannot be sent: take the LinkedIn draft instead. */
   async function switchToLinkedIn() {
-    const target: DraftView = props.linkedinComment ? "comment" : "connection";
-    const draft = target === "comment" ? props.linkedinComment : props.linkedinNote;
+    const target: DraftView = props.linkedinComment ? "comment" : props.linkedinMessage ? "message" : "connection";
+    const draft = target === "comment" ? props.linkedinComment : target === "message" ? props.linkedinMessage : props.linkedinNote;
     setView(target);
     try {
       await navigator.clipboard.writeText(draft);
@@ -100,8 +102,11 @@ export function MessageComposer(props: Props) {
         <button type="button" role="tab" aria-selected={view === "connection"} className={view === "connection" ? "active" : ""} onClick={() => setView("connection")}>
           <span>02</span><strong>Connection note</strong><small>{props.linkedinNote ? "Ready" : "Empty"}</small>
         </button>
+        <button type="button" role="tab" aria-selected={view === "message"} className={view === "message" ? "active" : ""} onClick={() => setView("message")}>
+          <span>03</span><strong>LinkedIn message</strong><small>{props.linkedinMessage ? "Ready" : "Empty"}</small>
+        </button>
         <button type="button" role="tab" aria-selected={view === "email"} className={view === "email" ? "active" : ""} onClick={() => setView("email")}>
-          <span>03</span><strong>Email</strong><small>{props.emailVerified ? "Verified" : props.email ? "Unverified" : "No email"}</small>
+          <span>04</span><strong>Email</strong><small>{props.emailVerified ? "Verified" : props.email ? "Unverified" : "No email"}</small>
         </button>
       </div>
 
@@ -123,17 +128,17 @@ export function MessageComposer(props: Props) {
           <div className="social-compose-head">
             <div className="linkedin-mini">in</div>
             <div><strong>{props.personName}</strong><span>{props.title} at {props.company}</span></div>
-            <span>{view === "comment" ? "PUBLIC REPLY" : "CONNECTION REQUEST"}</span>
+            <span>{view === "comment" ? "PUBLIC REPLY" : view === "message" ? "DIRECT MESSAGE" : "CONNECTION REQUEST"}</span>
           </div>
           <textarea
             className="compose-body"
-            aria-label={view === "comment" ? "LinkedIn post reply" : "LinkedIn connection note"}
+            aria-label={view === "comment" ? "LinkedIn post reply" : view === "message" ? "LinkedIn message" : "LinkedIn connection note"}
             value={currentSocialCopy}
-            onChange={(event) => props.onEdit(view === "comment" ? "linkedin_comment" : "linkedin_note", event.target.value)}
+            onChange={(event) => props.onEdit(socialField, event.target.value)}
             rows={8}
           />
           <div className="compose-meta">
-            <span><MessageCircle /> {view === "comment" ? "Respond to the observed signal" : "Reference the signal, not the pitch"}</span>
+            <span><MessageCircle /> {view === "comment" ? "Respond to the observed signal" : view === "message" ? "Send after they accept, or as an InMail" : "Reference the signal, not the pitch"}</span>
             <span>{currentSocialCopy.length}{view === "connection" ? " / 300" : ""} characters</span>
           </div>
         </div>
@@ -147,7 +152,7 @@ export function MessageComposer(props: Props) {
           </button> : !props.emailVerified ? <div className="manual-send-actions">
             {props.email && <button type="button" onClick={copyEmail}>{copied ? <Check /> : <Copy />}{copied ? "Copied" : "Copy email anyway"}</button>}
             {props.email && <button type="button" disabled={props.busy || !props.emailBody || (!props.demo && !props.sendReady)} onClick={() => props.onRecordTouch("email", props.emailBody)}><Check /> Record a manual send</button>}
-            <button type="button" className="composer-primary" disabled={props.busy || (!props.linkedinComment && !props.linkedinNote)} onClick={switchToLinkedIn}><Copy /> Copy for LinkedIn<span>→</span></button>
+            <button type="button" className="composer-primary" disabled={props.busy || (!props.linkedinComment && !props.linkedinNote && !props.linkedinMessage)} onClick={switchToLinkedIn}><Copy /> Copy for LinkedIn<span>→</span></button>
           </div> : <div className="manual-send-actions">
             <button type="button" onClick={copyEmail}>{copied ? <Check /> : <Copy />}{copied ? "Copied" : "Copy email"}</button>
             <button type="button" className="composer-primary" disabled={props.busy || !props.emailBody || (!props.demo && !props.sendReady)} onClick={() => props.onRecordTouch("email", props.emailBody)}><Check /> {props.sendReady || props.demo ? `Record email to ${props.personName} as sent` : "Save first"}<span>→</span></button>
@@ -169,13 +174,13 @@ export function MessageComposer(props: Props) {
         signalSummary={props.signalSummary}
         initialContext={props.initialContext}
         controlSubject={view === "email" ? props.emailSubject : ""}
-        controlBody={view === "comment" ? props.linkedinComment : view === "connection" ? props.linkedinNote : props.emailBody}
+        controlBody={view === "comment" ? props.linkedinComment : view === "connection" ? props.linkedinNote : view === "message" ? props.linkedinMessage : props.emailBody}
         onApply={(variant) => {
           if (view === "email") {
             props.onEdit("email_subject", variant.subject);
             props.onEdit("email_body", variant.body);
           } else {
-            props.onEdit(view === "comment" ? "linkedin_comment" : "linkedin_note", variant.body);
+            props.onEdit(socialField, variant.body);
           }
         }}
         onClose={() => setLabOpen(false)}

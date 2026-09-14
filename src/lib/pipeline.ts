@@ -37,7 +37,7 @@ function signalHash(type: string, url: string) {
   return createHash("sha256").update(`${type}:${normalized(url)}`).digest("hex");
 }
 
-function personLevel(title: string): PersonLevel {
+export function personLevel(title: string): PersonLevel {
   if (/\b(chief|ceo|coo|cio|cto|president|vice president|vp|head of|founder)\b/i.test(title)) return "owner";
   if (/\b(director|senior manager|sr\. manager)\b/i.test(title)) return "influencer";
   return title ? "adjacent" : "unknown";
@@ -79,7 +79,16 @@ export async function upsertPerson(account: Account, candidate: { name: string; 
     return null;
   });
   const parts = candidate.name.trim().split(/\s+/);
-  const title = apollo?.title ?? candidate.title;
+  const db = admin();
+  // people has a unique index on (account_id, lower(full_name)); take the first
+  // match rather than maybeSingle() so an unexpected duplicate cannot fail the company.
+  const findExisting = () => db.from("people").select("id,title,level,path_score,connection_owner").eq("account_id", account.id).ilike("full_name", likeLiteral(candidate.name)).order("created_at").limit(1);
+  const { data: matches } = await findExisting();
+  const existing = matches?.[0];
+  // A post author or a contact-details hit often arrives with no title, or a
+  // vaguer one; the title already on file wins over a blank or "Contact".
+  const offered = (apollo?.title ?? candidate.title ?? "").trim();
+  const title = offered && !/^(contact|unknown|-)$/i.test(offered) ? offered : (existing?.title as string | undefined) ?? offered;
   // Only what this call actually learned. An address or profile found earlier
   // (by Apollo, a team page, or the email pattern) is never wiped by a later miss.
   const payload: Record<string, unknown> = {
@@ -100,12 +109,6 @@ export async function upsertPerson(account: Account, candidate: { name: string; 
     payload.email_source = "apollo";
     payload.email_verified_at = apollo.email_status === "verified" ? new Date().toISOString() : null;
   }
-  const db = admin();
-  // people has a unique index on (account_id, lower(full_name)); take the first
-  // match rather than maybeSingle() so an unexpected duplicate cannot fail the company.
-  const findExisting = () => db.from("people").select("id,path_score,connection_owner").eq("account_id", account.id).ilike("full_name", likeLiteral(candidate.name)).order("created_at").limit(1);
-  const { data: matches } = await findExisting();
-  const existing = matches?.[0];
   if (existing) {
     const { data, error } = await db.from("people").update(payload).eq("id", existing.id).select().single();
     if (error) throw error;
@@ -165,14 +168,14 @@ export async function processAccount(account: Account, options: { maxSearches?: 
  * and create or refresh the card with drafted outreach when it clears the
  * threshold. Shared by the LLM research leg and the job sweep.
  */
-export async function persistSignal(account: Account, item: ScoutSignal, outcome: AccountOutcome, recordCost: (costUsd: number) => void) {
+/** Insert or refresh the signal row for one piece of evidence. Returns its id and whether it was new. */
+export async function storeSignalRow(account: Account, item: ScoutSignal, personId: string | null): Promise<{ id: string; isNew: boolean }> {
   const db = admin();
   const hash = signalHash(item.type, item.source_url);
   const { data: existing } = await db.from("signals").select("id,person_id").eq("account_id", account.id).eq("hash", hash).maybeSingle();
-  const person = await mapPerson(account, item, recordCost);
   const signalPayload = {
     account_id: account.id,
-    person_id: person?.id ?? null,
+    person_id: personId,
     type: item.type,
     summary: item.summary,
     source_url: normalized(item.source_url),
@@ -183,18 +186,21 @@ export async function persistSignal(account: Account, item: ScoutSignal, outcome
     strength: strength(item.type, item.job),
     modifiers: item.job ?? {},
   };
-
-  let storedId: string;
   if (existing) {
     const { error } = await db.from("signals").update(signalPayload).eq("id", existing.id);
     if (error) throw error;
-    storedId = existing.id;
-  } else {
-    const { data: stored, error } = await db.from("signals").insert(signalPayload).select("id").single();
-    if (error) throw error;
-    storedId = stored.id;
-    outcome.signalsNew += 1;
+    return { id: existing.id as string, isNew: false };
   }
+  const { data: stored, error } = await db.from("signals").insert(signalPayload).select("id").single();
+  if (error) throw error;
+  return { id: stored.id as string, isNew: true };
+}
+
+export async function persistSignal(account: Account, item: ScoutSignal, outcome: AccountOutcome, recordCost: (costUsd: number) => void) {
+  const db = admin();
+  const person = await mapPerson(account, item, recordCost);
+  const { id: storedId, isNew } = await storeSignalRow(account, item, person?.id ?? null);
+  if (isNew) outcome.signalsNew += 1;
 
   if (!person || person.level === "unknown") return { storedId, cardId: null, personId: person?.id ?? null };
   // Only the reach-out list gets a dossier. A hold-list company keeps the signal and the person as

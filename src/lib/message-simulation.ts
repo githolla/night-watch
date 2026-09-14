@@ -12,7 +12,7 @@ export type SimulationResult = {
 };
 
 export type SimulationInput = {
-  channel: "comment" | "connection" | "email";
+  channel: "comment" | "connection" | "message" | "email";
   personName: string;
   company: string;
   signalSummary: string;

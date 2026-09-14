@@ -22,6 +22,7 @@ import { scrapeTeamPeople } from "./team-page.ts";
 import { aboutAi, discoverLinkedIn } from "../linkedin-discovery.ts";
 import { runQueries } from "../web-search.ts";
 import { fillEmailsFromPattern } from "../email-fill.ts";
+import { verifierConfigured, verifyAccountEmails } from "../email-verify.ts";
 import { jsonLdPostings, sitemapPostings } from "./discover.ts";
 
 type Db = SupabaseClient;
@@ -368,7 +369,9 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           if (error) throw error;
         }
         if (result.status === "listings") {
-          await db.from("job_postings").update({ active: false }).eq("account_id", account.id).eq("active", true).lt("last_seen_at", sweepStart);
+          // Only what the sweep itself reads can be closed by the sweep; roles read on job boards by the
+          // analysis or the board search are refreshed by those passes and never appear on the careers page.
+          await db.from("job_postings").update({ active: false }).eq("account_id", account.id).eq("active", true).in("source", ["careers", "sitemap", "jsonld"]).lt("last_seen_at", sweepStart);
         }
         await db.from("accounts").update({
           careers_url: result.careersUrl ?? account.careers_url, ats_provider: result.ats?.provider ?? null, ats_ref: result.ats?.ref ?? null,
@@ -518,6 +521,10 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
             const filled = await fillEmailsFromPattern(db, account as Account, emailExamples);
             emailsBuilt = filled.built;
             if (filled.pattern) contactsNote = `address format ${filled.pattern.key}@ (${Math.round(filled.pattern.confidence * 100)}% sure)`;
+            if (verifierConfigured()) {
+              const checked = await verifyAccountEmails(db, account as Account);
+              if (checked.checked || checked.found) contactsNote = [contactsNote, `${checked.verified} of ${checked.checked} addresses verified${checked.invalid ? `, ${checked.invalid} wrong` : ""}${checked.found ? `, ${checked.found} found` : ""}`].filter(Boolean).join(" · ");
+            }
           } catch (error) {
             problems.push(`email pattern: ${error instanceof Error ? error.message : String(error)}`);
           }

@@ -6,7 +6,7 @@ import { z } from "zod";
 
 const variant = z.object({ label: z.enum(["A", "B"]), subject: z.string().max(120), body: z.string().min(1).max(1000) });
 const simulationInput = z.object({
-  channel: z.enum(["comment", "connection", "email"]),
+  channel: z.enum(["comment", "connection", "message", "email"]),
   personName: z.string().min(1).max(120),
   company: z.string().min(1).max(160),
   signalSummary: z.string().min(1).max(1000),
@@ -86,7 +86,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     await db.from("message_variants").update({ selected: false }).eq("experiment_id", experiment.id);
     await db.from("message_variants").update({ selected: true }).eq("id", selected.id);
     await db.from("message_experiments").update({ status: "selected", selected_label: input.label }).eq("id", experiment.id);
-    const copy = experiment.channel === "email" ? { email_subject: selected.subject, email_body: selected.body } : experiment.channel === "comment" ? { linkedin_comment: selected.body } : { linkedin_note: selected.body };
+    const copy = experiment.channel === "email" ? { email_subject: selected.subject, email_body: selected.body } : experiment.channel === "comment" ? { linkedin_comment: selected.body } : experiment.channel === "message" ? { linkedin_message: selected.body } : { linkedin_note: selected.body };
     await db.from("cards").update({ ...copy, active_variant_id: selected.id, status: "edited" }).eq("id", id);
     return Response.json({ ok: true, variantId: selected.id });
   } catch (error) {

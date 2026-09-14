@@ -1,3 +1,5 @@
+import { DEFAULT_RESEARCH_MODEL } from "./models.ts";
+
 /**
  * Every tunable of the nightly run lives here, read once per call so a
  * deployment can override it with an environment variable. Nothing else in
@@ -78,7 +80,7 @@ export function sweepContacts() {
  */
 export function analysisConfig() {
   return {
-    model: process.env.ANALYSIS_MODEL ?? process.env.ANTHROPIC_RESEARCH_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5",
+    model: process.env.ANALYSIS_MODEL ?? process.env.ANTHROPIC_RESEARCH_MODEL ?? process.env.ANTHROPIC_MODEL ?? DEFAULT_RESEARCH_MODEL,
     searches: integer("ANALYSIS_SEARCHES", 10, 1, 10),
     budgetUsd: decimal("ANALYSIS_RUN_BUDGET_USD", 100, 0.01),
     cooldownMs: integer("ANALYSIS_COOLDOWN_DAYS", 14, 1, 365) * 24 * 3600_000,
@@ -154,7 +156,7 @@ export function populateSweepConfig() {
   return {
     budgetUsd: decimal("POPULATE_SWEEP_BUDGET_USD", 200, 0.01),
     searches: integer("POPULATE_SWEEP_SEARCHES", 10, 1, 10),
-    model: process.env.POPULATE_SWEEP_MODEL ?? process.env.ANTHROPIC_RESEARCH_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5",
+    model: process.env.POPULATE_SWEEP_MODEL ?? process.env.ANTHROPIC_RESEARCH_MODEL ?? process.env.ANTHROPIC_MODEL ?? DEFAULT_RESEARCH_MODEL,
   };
 }
 

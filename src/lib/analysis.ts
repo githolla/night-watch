@@ -72,6 +72,8 @@ export type CompanyAnalysis = {
   emailExamples: string[];
   signals: ScoutSignal[];
   problems: string[];
+  /** What became of the draft: written for someone, or why not. Filled in after the analysis is stored. */
+  draft: { status: "written" | "kept" | "skipped"; person: string; cardId: string | null; reason: string } | null;
 };
 
 export type AnalysisInput = {
@@ -161,7 +163,7 @@ export async function analyzeCompany(input: AnalysisInput, options: { model: str
       opener: synthesized.brief.opener, objections: synthesized.brief.objections, nextStep: synthesized.brief.next_step, fit: synthesized.brief.fit, fitReason: synthesized.brief.fit_reason,
     },
     emailExamples: [...people.email_examples, ...contacts.email_examples, ...contacts.contacts.map((contact) => contact.email ?? "")].filter((email) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)),
-    signals, problems,
+    signals, problems, draft: null,
   };
 }
 
@@ -176,6 +178,6 @@ export function parseStoredAnalysis(value: unknown): CompanyAnalysis | null {
     hiring: record.hiring ?? { read: "", buildInstead: [], budgetEstimate: null, roles: [] },
     people: record.people ?? [], orgNotes: record.orgNotes ?? "", contacts: record.contacts ?? [], company: record.company ?? { phone: null, address: null, general_email: null }, voices: record.voices ?? [],
     brief: { ...{ whyNow: "", angle: "", whoFirst: "", whoFirstTitle: "", whoFirstWhy: "", opener: "", objections: [], nextStep: "", fit: 0, fitReason: "" }, ...record.brief },
-    emailExamples: record.emailExamples ?? [], signals: record.signals ?? [], problems: record.problems ?? [],
+    emailExamples: record.emailExamples ?? [], signals: record.signals ?? [], problems: record.problems ?? [], draft: record.draft ?? null,
   };
 }
