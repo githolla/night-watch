@@ -73,6 +73,9 @@ function plural(count: number, singular: string, pluralForm = `${singular}s`) {
   return `${count} ${count === 1 ? singular : pluralForm}`;
 }
 
+/** A card leaves the work queue once it has been snoozed, dismissed or actually contacted. */
+const WORKED_STATUSES = ["snoozed", "dismissed", "sent", "replied", "positive", "meeting", "negative"];
+
 /**
  * The headline is read from the run record and distinguishes a failed run
  * from a partial one from a genuinely quiet night. A total systems failure
@@ -126,16 +129,23 @@ export function Desk({
   scan?: import("react").ReactNode;
 }) {
   const [cards, setCards] = useState(initialCards);
-  // No card selected = the pipeline list; a selected card = its detail view. One scroll either way.
+  // One-at-a-time by default: the desk opens on the next prospect to work, not a list.
+  // `selected` = a full-detail deep dive; `browse` = the searchable list of everyone.
   const [selected, setSelected] = useState<string | undefined>(selectedId);
+  const [browse, setBrowse] = useState(false);
+  const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? initialCards[0]?.id);
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
+  // The work queue: prospects still needing a decision. Snoozed, dismissed or contacted ones drop out.
+  const todo = cards.filter((item) => !WORKED_STATUSES.includes(item.status));
   const active = selected ? cards.find((item) => item.id === selected) : undefined;
-  const card = active ?? cards[0];
+  const focusCard = todo.find((item) => item.id === focusId) ?? todo[0];
+  const card = active ?? focusCard ?? cards[0];
   const hasSourceResults = (context?.recentSignals.length ?? 0) > 0;
   const cardIndex = Math.max(0, cards.findIndex((item) => item.id === card?.id));
+  const focusIndex = focusCard ? todo.findIndex((item) => item.id === focusCard.id) : -1;
   const listSynced = !context || context.activeAccounts === context.targetTotal;
   const run = describeRun(context?.lastRun ?? null);
   const coverage = context?.coverage;
@@ -219,15 +229,30 @@ export function Desk({
     setNotice("");
     document.querySelector(".detail")?.scrollTo({ top: 0, behavior: "smooth" });
   };
+  // Pick who to work next from the browse list, then drop straight back into the one-at-a-time view.
+  const pick = (id: string) => { setFocusId(id); setBrowse(false); setNotice(""); };
+  // The prospect to land on after the current one leaves the queue.
+  const afterCurrent = () => {
+    if (todo.length <= 1) return undefined;
+    const from = Math.max(0, focusIndex);
+    return todo[(from + 1) % todo.length]?.id;
+  };
   const move = (offset: number) => {
-    const next = cards[(cardIndex + offset + cards.length) % cards.length];
-    if (next) choose(next.id);
+    if (active) {
+      const next = cards[(cardIndex + offset + cards.length) % cards.length];
+      if (next) choose(next.id);
+      return;
+    }
+    if (!todo.length) return;
+    const from = Math.max(0, focusIndex);
+    const next = todo[(from + offset + todo.length) % todo.length];
+    if (next) { setFocusId(next.id); setNotice(""); }
   };
 
   // Arrow keys (or j/k) move between prospects, so working the queue never means hunting for a button.
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
-      if (!active) return; // Arrows move between prospects only while reading one; the list scrolls normally.
+      if (browse) return; // In the browse list the page scrolls normally; arrows drive the detail and focus views.
       const target = event.target as HTMLElement | null;
       if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -238,7 +263,7 @@ export function Desk({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cardIndex, cards.length, active]);
+  }, [cardIndex, cards.length, active, browse, focusIndex, todo.length]);
 
   // Jump to the top when you open a prospect or come back to the list.
   useEffect(() => {
@@ -246,7 +271,6 @@ export function Desk({
   }, [selected]);
 
   const priorityCount = cards.filter((item) => item.score >= PRIORITY_THRESHOLD).length;
-  const open = (id: string) => { setNotice(""); setSelected(id); };
   const needle = query.trim().toLowerCase();
   const filtered = needle ? cards.filter((item) => `${item.people.full_name} ${item.people.title} ${item.accounts.name}`.toLowerCase().includes(needle)) : cards;
   const hero = filtered[0];
@@ -444,26 +468,27 @@ export function Desk({
 
             <p className="send-promise">Nothing leaves Night Watch without a click from you.</p>
           </div>
-      ) : (
+      ) : browse ? (
         <div className="pipeline-list">
+          <button type="button" className="pipeline-backtofocus" onClick={() => setBrowse(false)}>&larr; Back to the next one to work</button>
           <div className="ask-bar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search prospects by name, title or company" aria-label="Search prospects" /></div>
           <header className="pipeline-head">
-            <div><h1>Pipeline</h1><p>{plural(cards.length, "prospect")} &middot; {priorityCount} priority &middot; {withDraft} with a draft{needle ? ` \u00b7 ${filtered.length} match` : ""}</p></div>
+            <div><h1>All prospects</h1><p>{plural(cards.length, "prospect")} &middot; {priorityCount} priority &middot; {withDraft} with a draft{needle ? ` \u00b7 ${filtered.length} match` : ""}</p></div>
             <Link className="btn primary" href="/runs">Runs</Link>
           </header>
           {hero && (
-            <button type="button" className="hero-card" onClick={() => open(hero.id)}>
+            <button type="button" className="hero-card" onClick={() => pick(hero.id)}>
               <span className="eyebrow">Next to contact</span>
               <h2>{hero.people.full_name}</h2>
               <p className="hero-sub">{hero.people.title} &middot; {hero.accounts.name} &middot; score {hero.score}</p>
               <div className="hero-next"><span>Next action</span><p>{nextLine(hero)}</p></div>
-              <span className="hero-cta">Open the draft &rarr;</span>
+              <span className="hero-cta">Work this one &rarr;</span>
             </button>
           )}
           <ol className="prospect-list">
             {filtered.map((item) => (
               <li key={item.id}>
-                <button type="button" className="prospect" onClick={() => open(item.id)}>
+                <button type="button" className="prospect" onClick={() => pick(item.id)}>
                   <div className="prospect-id"><strong>{item.people.full_name}{item.isNew && <em className="new-label">New</em>}</strong><small>{item.people.title} &middot; {item.accounts.name}</small></div>
                   <p className="prospect-next">{nextLine(item)}</p>
                   <div className="prospect-tags"><span className="badge">{item.signals.type?.replaceAll("_", " ") ?? "signal"}</span><span>{item.channel.replaceAll("_", " ")}</span><span className="score" title={scoreTitle(item)}>{item.score}</span></div>
@@ -472,6 +497,65 @@ export function Desk({
             ))}
             {filtered.length === 0 && <li className="prospect-empty">No prospects match that search.</li>}
           </ol>
+        </div>
+      ) : (
+        <div className="focus">
+          <header className="pipeline-head">
+            <div><h1>Pipeline</h1><p>{plural(todo.length, "to work")} &middot; {priorityCount} priority &middot; {withDraft} with a draft</p></div>
+            <div className="focus-head-actions">
+              <button type="button" className="btn ghost" onClick={() => setBrowse(true)}>Browse all</button>
+              <Link className="btn primary" href="/runs">Runs</Link>
+            </div>
+          </header>
+          {focusCard ? (
+            <article className="focus-card">
+              <div className="focus-progress"><span>Next</span> &middot; {focusIndex + 1} of {todo.length}</div>
+              <h2 className="focus-name">{focusCard.people.full_name}{focusCard.isNew && <em className="new-label">New</em>}</h2>
+              <p className="focus-sub">{focusCard.people.title} &middot; {focusCard.accounts.name} &middot; score {focusCard.score}</p>
+              <p className="focus-reason">{nextLine(focusCard)}</p>
+              {notice && <p className="notice">{notice}</p>}
+              <MessageComposer
+                key={focusCard.id}
+                cardId={focusCard.id}
+                personName={focusCard.people.full_name}
+                title={focusCard.people.title}
+                company={focusCard.accounts.name}
+                email={focusCard.people.email}
+                emailVerified={focusCard.people.email_status === "verified"}
+                linkedinUrl={focusCard.people.linkedin_url}
+                channel={focusCard.channel}
+                signalSummary={focusCard.signals.summary}
+                initialContext={`${focusCard.brief}\n\n${focusCard.why_now}`}
+                linkedinComment={focusCard.linkedin_comment ?? ""}
+                linkedinNote={focusCard.linkedin_note ?? ""}
+                linkedinMessage={focusCard.linkedin_message ?? ""}
+                emailSubject={focusCard.email_subject ?? ""}
+                emailBody={focusCard.email_body ?? ""}
+                busy={busy}
+                demo={demo}
+                gmailConnected={gmailConnected}
+                sendReady={["approved", "edited"].includes(focusCard.status)}
+                onEdit={edit}
+                onSave={() => patch({ status: "edited", email_subject: card.email_subject, email_body: card.email_body, linkedin_note: card.linkedin_note, linkedin_comment: card.linkedin_comment, linkedin_message: card.linkedin_message ?? "" })}
+                onSend={send}
+                onRecordTouch={recordTouch}
+                onNotice={setNotice}
+              />
+              <div className="focus-actions">
+                <button type="button" disabled={busy} className="btn" onClick={() => patch({ status: "approved" })}>Approve draft</button>
+                <button type="button" disabled={busy} className="btn" onClick={() => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); }}>Snooze 7d</button>
+                <button type="button" disabled={busy} className="btn danger" onClick={() => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); }}>Dismiss</button>
+                <button type="button" className="btn" onClick={() => move(1)}>Skip &rarr;</button>
+                <button type="button" className="btn ghost" onClick={() => setSelected(focusCard.id)}>Open full details &rarr;</button>
+              </div>
+            </article>
+          ) : (
+            <div className="focus-clear">
+              <h2>All caught up</h2>
+              <p>Every prospect has been actioned. New ones land here after the next scan.</p>
+              <button type="button" className="btn" onClick={() => setBrowse(true)}>Browse all prospects</button>
+            </div>
+          )}
         </div>
       )}
     </main>
