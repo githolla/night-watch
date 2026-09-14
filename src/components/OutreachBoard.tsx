@@ -101,9 +101,13 @@ export function OutreachBoard({ rows, heldWithSignal, initial, scan }: { rows: O
   }
 
   return <>
-    <header className="page-head">
-      <div><h1>Reach-out list</h1><p>{rows.length} Tier A companies · {scanned} scanned · Night Watch scans, researches and drafts on its own. Click a company for everything on file.</p></div>
-      <div className="page-actions">{scan}<button type="button" className="btn-secondary" onClick={exportCsv}>Export</button></div>
+    <header className="page-head briefing-head">
+      <div>
+        <span className="overview-kick">Companies</span>
+        <h1>Keep the right companies in view.</h1>
+        <p>Your watchlist for job postings and employee AI conversations · {rows.length} on the list · {scanned} scanned.</p>
+      </div>
+      <div className="page-actions"><Link className="btn primary" href="/targets">+ Add company</Link><button type="button" className="btn-secondary" onClick={exportCsv}>Export</button>{scan}</div>
     </header>
 
     <section className="stat-row">
