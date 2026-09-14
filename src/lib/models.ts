@@ -51,7 +51,7 @@ export function fallbackModelFor(model: string): string | null {
  * default is not enabled on this key. `ANTHROPIC_FALLBACK_MODEL` goes first.
  */
 export function fallbackChain(model: string): string[] {
-  const chain = [process.env.ANTHROPIC_FALLBACK_MODEL, "claude-sonnet-5", "claude-sonnet-4-5", "claude-opus-4-5"].filter((entry): entry is string => Boolean(entry));
+  const chain = [process.env.ANTHROPIC_FALLBACK_MODEL, "claude-sonnet-4-5", "claude-sonnet-5", "claude-opus-4-5"].filter((entry): entry is string => Boolean(entry));
   return [...new Set(chain)].filter((entry) => entry !== model);
 }
 

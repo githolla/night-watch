@@ -121,9 +121,18 @@ function webSearchTool(model: string, maxUses: number): Anthropic.Messages.ToolU
   return { type: webSearchToolType(model), name: "web_search", max_uses: maxUses } as Anthropic.Messages.ToolUnion;
 }
 
-/** A 404 from the Messages API naming the model: the configured id is retired, renamed or mistyped. */
+/**
+ * The model is rejected for this key — not found (404), no access (403), or an
+ * invalid/unsupported model (400). Any of these means the fallback chain should
+ * try a different model, since retrying the same one will keep failing.
+ */
 function isUnknownModelError(error: unknown) {
-  return error instanceof Anthropic.NotFoundError || (error instanceof Anthropic.BadRequestError && /model/i.test(error.message));
+  if (error instanceof Anthropic.NotFoundError) return true;
+  if (error instanceof Anthropic.PermissionDeniedError) return true;
+  const message = error instanceof Error ? error.message : "";
+  if (error instanceof Anthropic.BadRequestError && /model/i.test(message)) return true;
+  // A 403/404-style access denial that names the model, whatever the SDK class.
+  return /\bmodel\b/i.test(message) && /(not[_ ]?found|does not (exist|have access)|no access|not (available|allowed|permitted|enabled|supported)|permission|unsupported|invalid|unauthori[sz]ed)/i.test(message);
 }
 
 /** Run one turn on one model. */
@@ -166,7 +175,10 @@ async function completeTurn(
     return { response: await completeTurnOn(start, rest, prompt, recordUsage), model: start };
   } catch (error) {
     if (!isUnknownModelError(error)) throw error;
-    // The configured model is not available to this key. Try the safety net until one works, and remember it.
+    // The configured model is not available to this key. Try each safety-net model until one works — whatever
+    // the error on a given candidate (model access, or a web-search tool version the org does not have),
+    // move on to the next — and remember the one that works so later calls skip straight to it.
+    let last: unknown = error;
     for (const candidate of fallbackChain(model)) {
       try {
         const response = await completeTurnOn(candidate, rest, prompt, recordUsage);
@@ -174,10 +186,10 @@ async function completeTurn(
         console.warn(`[night-watch] model ${start} was rejected for this key; using ${candidate} instead. Set ANTHROPIC_RESEARCH_MODEL to a model this key can use.`);
         return { response, model: candidate };
       } catch (inner) {
-        if (!isUnknownModelError(inner)) throw inner;
+        last = inner;
       }
     }
-    throw error;
+    throw last;
   }
 }
 
