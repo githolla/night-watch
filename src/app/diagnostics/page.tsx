@@ -25,6 +25,21 @@ async function probe(client: Anthropic, p: Probe): Promise<Result> {
   }
 }
 
+type ApolloResult = { configured: boolean; ok: boolean; status: string; detail: string };
+
+/** Verify the Apollo key with the auth-health endpoint — confirms the key works without spending an email credit. */
+async function apolloCheck(): Promise<ApolloResult> {
+  if (!process.env.APOLLO_API_KEY) return { configured: false, ok: false, status: "not set", detail: "APOLLO_API_KEY is not set on this deployment." };
+  try {
+    const response = await fetch("https://api.apollo.io/v1/auth/health", { headers: { "x-api-key": process.env.APOLLO_API_KEY, accept: "application/json" }, signal: AbortSignal.timeout(15_000) });
+    const text = await response.text();
+    if (!response.ok) return { configured: true, ok: false, status: String(response.status), detail: `${response.status} — ${text.slice(0, 200)}. Check the key is active and associated with api/v1/people/match and api/v1/mixed_people/search.` };
+    return { configured: true, ok: true, status: "200", detail: `Key is live. ${text.slice(0, 160)}` };
+  } catch (error) {
+    return { configured: true, ok: false, status: "error", detail: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 export default async function DiagnosticsPage() {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL)) redirect("/setup");
   await requireUser();
@@ -38,7 +53,10 @@ export default async function DiagnosticsPage() {
     { label: "Haiku 4.5, no web search", model: "claude-haiku-4-5", search: false },
   ];
   const client = key ? new Anthropic({ apiKey: key }) : null;
-  const results: Result[] = client ? await Promise.all(probes.map((p) => probe(client, p))) : [];
+  const [results, apollo] = await Promise.all([
+    client ? Promise.all(probes.map((p) => probe(client, p))) : Promise.resolve([] as Result[]),
+    apolloCheck(),
+  ]);
 
   return <div className="shell">
     <Header />
@@ -53,6 +71,15 @@ export default async function DiagnosticsPage() {
           <td><small style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{r.detail}</small></td>
         </tr>)}
       </tbody></table></div></section>}
+
+      <section className="targets-head" style={{ marginTop: 32 }}><div><span className="eyebrow">Contact data</span><h2>Apollo</h2><p>Verifies the Apollo key with the auth-health endpoint — no email credit is spent.</p></div></section>
+      <section className="target-results"><div className="table-wrap"><table className="data-table"><thead><tr><th>Test</th><th>Result</th><th>Detail</th></tr></thead><tbody>
+        <tr>
+          <td><strong>Apollo API key</strong></td>
+          <td><span className={`status-chip ${apollo.ok ? "ok" : "error"}`}>{apollo.ok ? "OK" : apollo.configured ? `FAIL ${apollo.status}` : "NOT SET"}</span></td>
+          <td><small style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{apollo.detail}</small></td>
+        </tr>
+      </tbody></table></div></section>
     </main>
   </div>;
 }
