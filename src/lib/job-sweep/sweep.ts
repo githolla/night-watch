@@ -63,6 +63,22 @@ const BUYER_TITLES: Partial<Record<JobFamily, string[]>> = {
 };
 const GENERAL_BUYER_TITLES = ["Chief Operating Officer", "Chief Information Officer", "Chief Technology Officer", "VP Operations", "Chief of Staff"];
 
+/** Rank of a person for a set of roles: a title that matches the roles' buyer titles wins, then seniority. */
+const LEVEL_RANK: Record<string, number> = { owner: 3, influencer: 2, adjacent: 1, unknown: 0 };
+export async function pickBuyerOnFile(db: Db, accountId: string, targetPostings: Array<{ family: JobFamily }>): Promise<{ full_name: string; title: string } | null> {
+  const { data } = await db.from("people").select("full_name,title,level").eq("account_id", accountId).eq("do_not_contact", false);
+  const people = (data ?? []) as Array<{ full_name: string; title: string; level: string }>;
+  if (!people.length) return null;
+  const wanted = [...new Set(targetPostings.flatMap((posting) => BUYER_TITLES[posting.family] ?? []).concat(GENERAL_BUYER_TITLES))].map((title) => title.toLowerCase());
+  const score = (person: { title: string; level: string }) => {
+    const title = person.title.toLowerCase();
+    const titleHit = wanted.some((want) => title.includes(want) || want.includes(title)) ? 5 : 0;
+    return titleHit + (LEVEL_RANK[person.level] ?? 0);
+  };
+  const best = [...people].sort((left, right) => score(right) - score(left))[0];
+  return best ? { full_name: best.full_name, title: best.title } : null;
+}
+
 export type SweepAccountResult = {
   careersUrl: string | null;
   ats: AtsRef | null;
@@ -316,7 +332,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
   const extensive = options.populate ? populateSweepConfig() : null;
   const costBudget = extensive?.budgetUsd ?? sweepBudgetUsd();
   const fallback = { ...sweepSearchFallback(), ...(extensive ? { enabled: true, cooldownMs: 0, maxSearches: extensive.searches } : {}) };
-  const posts = { ...sweepAiPosts(), ...(extensive ? { enabled: true, cooldownMs: 0, maxSearches: extensive.searches } : {}) };
+  const posts = { ...sweepAiPosts(), ...(extensive ? { enabled: true, cooldownMs: 0, maxSearches: Math.min(3, extensive.searches) } : {}) };
   const contacts = { ...sweepContacts(), ...(extensive ? { mode: "all" as const, cooldownMs: 0 } : {}) };
   const modelOverride = extensive?.model;
   const concurrency = Math.max(1, Math.min(12, options.concurrency ?? sweepConcurrency()));
@@ -402,11 +418,6 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
 
         outcome.signalsFound = result.postings.length;
         outcome.signalsKept = result.targetPostings.length;
-        if (result.targetPostings.length) {
-          const { data: rows } = await db.from("job_postings").select("url,first_seen_at,posted_at").eq("account_id", account.id).eq("active", true).not("family", "is", null);
-          const signal = await hiringSignal(account as Account, result, rows ?? [], new Date(rowStart));
-          if (signal) await persistSignal(account as Account, signal, outcome, recordCost);
-        }
         // LinkedIn and the rest of the public web, from search results read by URL pattern: profiles by the
         // titles that matter and by department, posts from several angles, articles, posts by people already on
         // file, and X, Medium, Substack, YouTube and podcasts. Search agents run the queries; no LinkedIn automation.
@@ -417,7 +428,7 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           try {
             const context = targetAccountByDomain.get(account.domain);
             const { data: known } = await db.from("people").select("full_name").eq("account_id", account.id).limit(12);
-            const found = await discoverLinkedIn(account.name, [...new Set([...(context?.targetTitles ?? account.target_titles ?? []), ...result.targetPostings.flatMap((posting) => BUYER_TITLES[posting.family] ?? [])])].slice(0, 24), (known ?? []).map((row) => row.full_name as string), (queries) => runQueries(queries, { recordUsage: recordCost }), extensive ? searchQueries() : Math.min(12, searchQueries()));
+            const found = await discoverLinkedIn(account.name, [...new Set([...(context?.targetTitles ?? account.target_titles ?? []), ...result.targetPostings.flatMap((posting) => BUYER_TITLES[posting.family] ?? [])])].slice(0, 24), (known ?? []).map((row) => row.full_name as string), (queries) => runQueries(queries, { recordUsage: recordCost }), Math.min(extensive ? 14 : 8, searchQueries()));
             linkedin.people = found.people;
             linkedin.posts = found.posts;
             for (const post of found.posts) {
@@ -552,6 +563,23 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           }
           if (problems.length) contactsNote = [contactsNote, `contact lookup problems: ${problems.join("; ")}`].filter(Boolean).join(" · ");
           await db.from("accounts").update({ contacts_checked_at: sweepStart }).eq("id", account.id);
+        }
+
+        // The draft, written now that the people are known: one reach-out per hiring company, to the person
+        // whose title fits the roles (their likely buyer), not the file CEO. Falls back to the CEO only when
+        // nobody better is on file. This runs after contacts so it can pick a real, relevant person.
+        if (result.targetPostings.length) {
+          try {
+            const { data: rows } = await db.from("job_postings").select("url,first_seen_at,posted_at").eq("account_id", account.id).eq("active", true).not("family", "is", null);
+            const signal = await hiringSignal(account as Account, result, rows ?? [], new Date(rowStart));
+            if (signal) {
+              const buyer = await pickBuyerOnFile(db, account.id, result.targetPostings);
+              if (buyer) signal.people = [{ name: buyer.full_name, title: buyer.title, role_in_signal: "likely buyer on file" }];
+              await persistSignal(account as Account, signal, outcome, recordCost);
+            }
+          } catch (error) {
+            console.warn(`[night-watch] hiring draft failed for ${next.domain}: ${error instanceof Error ? error.message : String(error)}`);
+          }
         }
 
         const families = [...new Set(result.targetPostings.map((posting) => FAMILY_LABEL[posting.family]))];

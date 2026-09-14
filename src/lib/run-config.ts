@@ -130,7 +130,7 @@ export function maxCostPerAccountUsd() {
 export function timeBudgetMs(kind: "scheduled" | "manual") {
   return kind === "scheduled"
     ? integer("NIGHTLY_TIME_BUDGET_SECONDS", 240, 30, 290) * 1000
-    : integer("MANUAL_RUN_TIME_BUDGET_SECONDS", 90, 15, 290) * 1000;
+    : integer("MANUAL_RUN_TIME_BUDGET_SECONDS", 240, 15, 290) * 1000;
 }
 
 /**

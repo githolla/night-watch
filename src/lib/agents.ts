@@ -22,7 +22,10 @@ export const SCOUT_MAX_TOKENS = 12_000;
  * search-loop limit. The turn is resumed by re-sending the conversation with
  * the assistant content appended; this caps how many times that happens.
  */
-export const MAX_TURN_CONTINUATIONS = 5;
+export const MAX_TURN_CONTINUATIONS = 3;
+
+/** A single model turn may not run longer than this; a hung web-search call fails fast instead of eating the run window. */
+export const TURN_TIMEOUT_MS = 75_000;
 
 /** `YYYY-MM-DD`; an ISO datetime is trimmed to its date part first. */
 const isoDate = z.preprocess(
@@ -130,11 +133,12 @@ async function completeTurnOn(
   const { searches, ...rest } = params;
   const request = { ...rest, model, ...(searches ? { tools: [webSearchTool(model, searches)] } : {}) };
   const messages: Anthropic.Messages.MessageParam[] = [{ role: "user", content: prompt }];
-  let response = await client().messages.create({ ...request, messages });
+  const options = { timeout: TURN_TIMEOUT_MS, maxRetries: 1 };
+  let response = await client().messages.create({ ...request, messages }, options);
   recordAnthropicUsage(response, model, recordUsage);
   for (let round = 0; round < MAX_TURN_CONTINUATIONS && response.stop_reason === "pause_turn"; round += 1) {
     messages.push({ role: "assistant", content: response.content });
-    response = await client().messages.create({ ...request, messages });
+    response = await client().messages.create({ ...request, messages }, options);
     recordAnthropicUsage(response, model, recordUsage);
   }
   return response;
