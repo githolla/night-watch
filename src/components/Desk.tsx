@@ -277,7 +277,6 @@ export function Desk({
   const filtered = needle ? byKind.filter((item) => `${item.people.full_name} ${item.people.title} ${item.accounts.name}`.toLowerCase().includes(needle)) : byKind;
   const jobCount = cards.filter((item) => signalGroup(item) === "job").length;
   const socialCount = cards.filter((item) => signalGroup(item) === "social").length;
-  const hero = filtered[0];
   const withDraft = cards.filter((item) => item.email_body || item.linkedin_note || item.linkedin_message).length;
   const nextLine = (item: Card) => item.signals.raw?.operating_need || item.why_now || item.signals.summary;
 
@@ -504,15 +503,6 @@ export function Desk({
             <button type="button" role="tab" aria-selected={kind === "job"} className={kind === "job" ? "is-on" : ""} onClick={() => setKind("job")}>Job posts <b>{jobCount}</b></button>
             <button type="button" role="tab" aria-selected={kind === "social"} className={kind === "social" ? "is-on" : ""} onClick={() => setKind("social")}>Social posts <b>{socialCount}</b></button>
           </div>
-          {hero && (
-            <button type="button" className="hero-card" onClick={() => pick(hero.id)}>
-              <span className="eyebrow">Next to contact</span>
-              <h2>{hero.people.full_name}</h2>
-              <p className="hero-sub">{hero.people.title} &middot; {hero.accounts.name} &middot; score {hero.score}</p>
-              <div className="hero-next"><span>Next action</span><p>{nextLine(hero)}</p></div>
-              <span className="hero-cta">Work this one &rarr;</span>
-            </button>
-          )}
           <ol className="prospect-list">
             {filtered.map((item) => (
               <li key={item.id}>
