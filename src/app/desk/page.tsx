@@ -75,6 +75,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     lastFinishedRow,
     { count: unscannedOutreach },
     { count: listedOutreach },
+    { count: totalPosts },
   ] = await Promise.all([
     query,
     db.from("gmail_connections").select("id").eq("owner", owner).maybeSingle(),
@@ -99,6 +100,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     db.from("runs").select("finished_at").eq("status", "complete").not("finished_at", "is", null).order("finished_at", { ascending: false }).limit(1).maybeSingle(),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true).not("domain", "like", "%.example").is("careers_checked_at", null).is("last_scouted_at", null),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true).not("domain", "like", "%.example"),
+    db.from("public_posts").select("*", { count: "exact", head: true }),
   ]);
   if (error) throw error;
   const hiringCompanies = new Set(hiringRows.map((row) => row.account_id as string)).size;
@@ -135,6 +137,8 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     targetTotal: activeTargetAccounts.length,
     activeAccounts: active,
     listedCompanies: listedOutreach ?? 0,
+    totalRoles: targetRolesOpen,
+    totalPosts: totalPosts ?? 0,
     coverage: {
       neverResearched: Math.max(0, active - researched),
       researched,

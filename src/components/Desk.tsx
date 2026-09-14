@@ -36,6 +36,9 @@ export type DeskContext = {
   activeAccounts: number;
   /** Companies on the reach-out list — the desk's own scope, matching the Companies nav count. */
   listedCompanies: number;
+  /** Totals on file (not 24h deltas), so the overview does not overstate a baseline pass as overnight activity. */
+  totalRoles: number;
+  totalPosts: number;
   coverage: {
     neverResearched: number;
     researched: number;
@@ -302,13 +305,14 @@ export function Desk({
   };
   // A calm, plain-English read on the night for the top of the list. "New signals" is exactly the two
   // signal tiles (new roles + new AI posts) so the headline and the stat row always reconcile.
-  const newRoles = context?.changes.newRoles ?? 0;
-  const newPosts = context?.changes.newPosts ?? 0;
-  const fresh = newRoles + newPosts;
+  // Totals on file, not 24h deltas — a baseline pass should not read as overnight activity.
+  const totalRoles = context?.totalRoles ?? 0;
+  const totalPosts = context?.totalPosts ?? 0;
+  const totalSignals = totalRoles + totalPosts;
   const companiesWatched = context?.listedCompanies ?? 0;
   const deskDateShort = context ? new Date(`${context.today}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "";
-  const headline = fresh === 0 ? "A quiet night." : `${fresh.toLocaleString()} new ${fresh === 1 ? "signal" : "signals"} overnight.`;
-  const subline = priorityCount > 0 ? `${priorityCount} worth a closer look.` : cards.length ? "A few good leads to work." : "Nothing needs you right now.";
+  const headline = priorityCount > 0 ? `${priorityCount} high-fit ${priorityCount === 1 ? "prospect" : "prospects"} to work.` : cards.length ? "A clean worklist for today." : "Nothing needs you right now.";
+  const subline = totalSignals > 0 ? `${totalSignals.toLocaleString()} signals tracked across ${companiesWatched.toLocaleString()} companies.` : "";
   // For the analyst's-note rail: how many signals point at manual/reporting work, and the busiest companies.
   const manualCount = cards.filter((item) => /manual|report|reconcil|spreadsheet|data entry|intake|routing|invoice|dashboard/i.test(`${item.signals.raw?.operating_need ?? ""} ${item.why_now ?? ""}`)).length;
   const watchlist = Object.values(cards.reduce<Record<string, { domain: string; name: string; count: number; score: number }>>((acc, item) => {
@@ -533,15 +537,15 @@ export function Desk({
           {context && (
             <div className="overview-top">
               <section className="night-hero">
-                <div className="night-hero-head"><span>Night Watch</span><em className="chip">{fresh.toLocaleString()} {fresh === 1 ? "signal" : "signals"} found</em></div>
-                <h2>While you were offline, opportunity was moving.</h2>
-                <p className="night-hero-line"><b>{companiesWatched.toLocaleString()} companies watched.</b> {fresh.toLocaleString()} new {fresh === 1 ? "signal" : "signals"}. {priorityCount} worth a closer look.</p>
-                <p className="night-hero-meta">Scanned overnight · runs again tonight, on its own</p>
+                <div className="night-hero-head"><span>Night Watch</span><em className="chip">{priorityCount.toLocaleString()} high-fit</em></div>
+                <h2>Night Watch is tracking the work these teams need done.</h2>
+                <p className="night-hero-line"><b>{companiesWatched.toLocaleString()} companies watched.</b> {totalSignals.toLocaleString()} signals on file. {priorityCount} worth a closer look.</p>
+                <p className="night-hero-meta">Scans every night, on its own</p>
               </section>
               <div className="overview-stats">
                 <Link className="desk-stat" href="/outreach"><span>Companies watched</span><strong>{companiesWatched.toLocaleString()}</strong><small>on the reach-out list</small></Link>
-                <Link className="desk-stat" href="/roles"><span>New job signals</span><strong>{newRoles.toLocaleString()}</strong><small>roles Nine-67 could build</small></Link>
-                <Link className="desk-stat" href="/posts"><span>Employee AI posts</span><strong>{newPosts.toLocaleString()}</strong><small>conversations to join</small></Link>
+                <Link className="desk-stat" href="/roles"><span>Job signals</span><strong>{totalRoles.toLocaleString()}</strong><small>roles Nine-67 could build</small></Link>
+                <Link className="desk-stat" href="/posts"><span>Employee AI posts</span><strong>{totalPosts.toLocaleString()}</strong><small>conversations to join</small></Link>
                 <div className="desk-stat is-priority"><span>High-fit{priorityCount ? <em className="pill pill-accent">Priority</em> : null}</span><strong>{priorityCount.toLocaleString()}</strong><small>ready for review</small></div>
               </div>
             </div>
