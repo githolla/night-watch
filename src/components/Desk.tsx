@@ -277,6 +277,25 @@ export function Desk({
   const withDraft = cards.filter((item) => item.email_body || item.linkedin_note || item.linkedin_message).length;
   const nextLine = (item: Card) => item.signals.raw?.operating_need || item.why_now || item.signals.summary;
 
+  // The one draft to show first, picked by the card's chosen channel — email when it is verified, else the readiest LinkedIn surface.
+  const primaryDraft = (item: Card): { view: "email" | "comment" | "message" | "connection"; label: string; text: string } => {
+    if (item.channel === "email_first" && item.people.email_status === "verified" && item.email_body) return { view: "email", label: "Email", text: item.email_body };
+    if (item.linkedin_comment) return { view: "comment", label: "LinkedIn post reply", text: item.linkedin_comment };
+    if (item.linkedin_message) return { view: "message", label: "LinkedIn message", text: item.linkedin_message };
+    if (item.linkedin_note) return { view: "connection", label: "Connection note", text: item.linkedin_note };
+    if (item.email_body) return { view: "email", label: "Email", text: item.email_body };
+    return { view: "connection", label: "Connection note", text: "" };
+  };
+  const draft = focusCard ? primaryDraft(focusCard) : null;
+  const snoozeCurrent = () => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
+  const dismissCurrent = () => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
+  const actOnDraft = async () => {
+    if (!draft) return;
+    if (draft.view === "email") { send(); return; }
+    try { await navigator.clipboard.writeText(draft.text); } catch { /* the record still stands even if copy is blocked */ }
+    recordTouch(draft.view, draft.text);
+  };
+
   return (
     <main className="pipeline">
       {scan && <div className="pipeline-scan">{scan}</div>}
@@ -501,52 +520,34 @@ export function Desk({
       ) : (
         <div className="focus">
           <header className="pipeline-head">
-            <div><h1>Pipeline</h1><p>{plural(todo.length, "to work")} &middot; {priorityCount} priority &middot; {withDraft} with a draft</p></div>
+            <div><h1>Pipeline</h1><p>{todo.length} to work &middot; {priorityCount} priority &middot; {withDraft} with a draft</p></div>
             <div className="focus-head-actions">
               <button type="button" className="btn ghost" onClick={() => setBrowse(true)}>Browse all</button>
               <Link className="btn primary" href="/runs">Runs</Link>
             </div>
           </header>
-          {focusCard ? (
+          {focusCard && draft ? (
             <article className="focus-card">
               <div className="focus-progress"><span>Next</span> &middot; {focusIndex + 1} of {todo.length}</div>
               <h2 className="focus-name">{focusCard.people.full_name}{focusCard.isNew && <em className="new-label">New</em>}</h2>
               <p className="focus-sub">{focusCard.people.title} &middot; {focusCard.accounts.name} &middot; score {focusCard.score}</p>
               <p className="focus-reason">{nextLine(focusCard)}</p>
               {notice && <p className="notice">{notice}</p>}
-              <MessageComposer
-                key={focusCard.id}
-                cardId={focusCard.id}
-                personName={focusCard.people.full_name}
-                title={focusCard.people.title}
-                company={focusCard.accounts.name}
-                email={focusCard.people.email}
-                emailVerified={focusCard.people.email_status === "verified"}
-                linkedinUrl={focusCard.people.linkedin_url}
-                channel={focusCard.channel}
-                signalSummary={focusCard.signals.summary}
-                initialContext={`${focusCard.brief}\n\n${focusCard.why_now}`}
-                linkedinComment={focusCard.linkedin_comment ?? ""}
-                linkedinNote={focusCard.linkedin_note ?? ""}
-                linkedinMessage={focusCard.linkedin_message ?? ""}
-                emailSubject={focusCard.email_subject ?? ""}
-                emailBody={focusCard.email_body ?? ""}
-                busy={busy}
-                demo={demo}
-                gmailConnected={gmailConnected}
-                sendReady={["approved", "edited"].includes(focusCard.status)}
-                onEdit={edit}
-                onSave={() => patch({ status: "edited", email_subject: card.email_subject, email_body: card.email_body, linkedin_note: card.linkedin_note, linkedin_comment: card.linkedin_comment, linkedin_message: card.linkedin_message ?? "" })}
-                onSend={send}
-                onRecordTouch={recordTouch}
-                onNotice={setNotice}
-              />
+
+              <details className="focus-draft">
+                <summary><span className="focus-draft-ch">{draft.label}</span>{draft.text ? " · draft ready — review" : " · no draft yet"}</summary>
+                {draft.view === "email" && focusCard.email_subject && <p className="focus-subject">Subject &middot; {focusCard.email_subject}</p>}
+                <p className="focus-draft-body">{draft.text || "No draft on file for this channel yet — open the studio to write one."}</p>
+              </details>
+
               <div className="focus-actions">
-                <button type="button" disabled={busy} className="btn" onClick={() => patch({ status: "approved" })}>Approve draft</button>
-                <button type="button" disabled={busy} className="btn" onClick={() => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); }}>Snooze 7d</button>
-                <button type="button" disabled={busy} className="btn danger" onClick={() => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); }}>Dismiss</button>
-                <button type="button" className="btn" onClick={() => move(1)}>Skip &rarr;</button>
-                <button type="button" className="btn ghost" onClick={() => setSelected(focusCard.id)}>Open full details &rarr;</button>
+                <button type="button" disabled={busy || (draft.view === "email" && !focusCard.people.email)} className="btn primary" onClick={actOnDraft}>
+                  {draft.view === "email" ? "Send email" : "Copy & mark sent"} &rarr;
+                </button>
+                <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
+                <button type="button" disabled={busy} className="btn ghost danger" onClick={dismissCurrent}>Dismiss</button>
+                <button type="button" className="btn ghost" onClick={() => move(1)}>Skip &rarr;</button>
+                <button type="button" className="btn ghost focus-studio" onClick={() => setSelected(focusCard.id)}>Full studio &rarr;</button>
               </div>
             </article>
           ) : (

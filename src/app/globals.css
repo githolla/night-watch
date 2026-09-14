@@ -1129,6 +1129,16 @@ div.stat{cursor:default}
 .focus-name{font-size:30px;letter-spacing:-.04em;font-weight:600;margin:2px 0 0;display:flex;align-items:center;gap:10px}
 .focus-sub{margin:0;color:var(--muted);font-size:14px}
 .focus-reason{margin:8px 0 4px;font-size:15.5px;line-height:1.55;color:var(--ink-soft)}
+.focus-draft{border:1px solid var(--line);border-radius:12px;background:var(--paper);overflow:hidden;margin-top:4px}
+.focus-draft>summary{cursor:pointer;list-style:none;padding:13px 15px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.focus-draft>summary::-webkit-details-marker{display:none}
+.focus-draft>summary::before{content:"▸";color:var(--muted);font-size:11px}
+.focus-draft[open]>summary::before{content:"▾"}
+.focus-draft[open]>summary{border-bottom:1px solid var(--line)}
+.focus-draft-ch{font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.focus-subject{margin:13px 15px 0;font-size:13px;color:var(--muted)}
+.focus-draft-body{margin:11px 15px 15px;font-size:14.5px;line-height:1.6;white-space:pre-wrap}
+.focus-studio{margin-left:auto}
 .focus-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:16px;border-top:1px solid var(--line)}
 .focus-actions .btn{width:auto}
 .focus-clear{border:1px dashed var(--line-strong);border-radius:18px;padding:44px 24px;text-align:center;display:grid;gap:8px;max-width:820px;margin-top:16px}
