@@ -290,6 +290,12 @@ export function Desk({
     if (item.email_body) return { view: "email", label: "Email", text: item.email_body };
     return { view: "connection", label: "Connection note", text: "" };
   };
+  // A calm, plain-English read on the night for the top of the list.
+  const fresh = (context?.changes.newRoles ?? 0) + (context?.changes.newPosts ?? 0) + (context?.changes.newPeople ?? 0);
+  const deskDate = context ? new Date(`${context.today}T12:00:00`).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) : "";
+  const headline = fresh === 0 ? "A quiet night." : `${fresh} new ${fresh === 1 ? "signal" : "signals"} overnight.`;
+  const subline = priorityCount > 0 ? `${priorityCount} worth a closer look.` : cards.length ? "A few good leads to work." : "Nothing needs you right now.";
+  const scanned = context?.coverage.researched ?? 0;
   const draft = focusCard ? primaryDraft(focusCard) : null;
   const snoozeCurrent = () => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
@@ -493,11 +499,25 @@ export function Desk({
           </div>
       ) : browse ? (
         <div className="pipeline-list">
+          {context && (
+            <header className="desk-home">
+              <div className="desk-home-top">
+                <div>
+                  {deskDate && <span className="desk-date">{deskDate}</span>}
+                  <h1 className="desk-headline">{headline}<span> {subline}</span></h1>
+                  <p className="desk-status">{scanned} of {context.activeAccounts} companies scanned &middot; {fresh} new {fresh === 1 ? "signal" : "signals"} &middot; scans again tonight on its own</p>
+                </div>
+                <Link className="btn" href="/targets">+ Add company</Link>
+              </div>
+              <div className="desk-stats">
+                <div className="desk-stat"><span>Companies watched</span><strong>{context.activeAccounts.toLocaleString()}</strong><small>on the reach-out list</small></div>
+                <Link className="desk-stat" href="/roles"><span>New job signals</span><strong>{context.changes.newRoles.toLocaleString()}</strong><small>roles Nine-67 could build</small></Link>
+                <Link className="desk-stat" href="/posts"><span>Employee AI posts</span><strong>{context.changes.newPosts.toLocaleString()}</strong><small>conversations to join</small></Link>
+                <div className="desk-stat is-priority"><span>High-fit{priorityCount ? <em className="pill pill-accent">Priority</em> : null}</span><strong>{priorityCount.toLocaleString()}</strong><small>ready for review</small></div>
+              </div>
+            </header>
+          )}
           <div className="ask-bar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search prospects by name, title or company" aria-label="Search prospects" /></div>
-          <header className="pipeline-head">
-            <div><h1>All prospects</h1><p>{plural(cards.length, "prospect")} &middot; {priorityCount} priority &middot; {withDraft} with a draft{needle ? ` \u00b7 ${filtered.length} match` : ""}</p></div>
-            <Link className="btn primary" href="/runs">Runs</Link>
-          </header>
           <div className="list-filters" role="tablist" aria-label="Filter by signal">
             <button type="button" role="tab" aria-selected={kind === "all"} className={kind === "all" ? "is-on" : ""} onClick={() => setKind("all")}>All <b>{cards.length}</b></button>
             <button type="button" role="tab" aria-selected={kind === "job"} className={kind === "job" ? "is-on" : ""} onClick={() => setKind("job")}>Job posts <b>{jobCount}</b></button>

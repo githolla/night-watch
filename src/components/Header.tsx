@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Activity, BarChart3, Briefcase, Building2, ChevronDown, ChevronsLeft, ChevronsRight, Inbox, Lock, MessageSquare, Settings, Target, Users } from "lucide-react";
 
 /**
@@ -40,14 +40,24 @@ export function Header() {
   const active = (href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/desk" && pathname === "/");
   // Open "More" on arrival when the current page lives inside it, so nobody lands on a page the nav is hiding.
   const [moreOpen, setMoreOpen] = useState(() => more.some((item) => active(item.href)));
+  // Small state counts for the nav badges, refreshed on each navigation.
+  const [counts, setCounts] = useState<{ today: number; companies: number } | null>(null);
+  useEffect(() => {
+    let live = true;
+    fetch("/api/nav-counts", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((data) => { if (live && data) setCounts(data); }).catch(() => {});
+    return () => { live = false; };
+  }, [pathname]);
+  const countFor = (href: string) => href === "/desk" ? counts?.today : href === "/outreach" ? counts?.companies : undefined;
 
   function toggleCollapsed() {
     try { window.localStorage.setItem("nw-sidebar", collapsed ? "open" : "collapsed"); } catch { /* no storage */ }
     window.dispatchEvent(new Event("nw-sidebar"));
   }
 
-  const link = (item: { href: string; label: string; icon: typeof Inbox }) =>
-    <Link key={item.href} href={item.href} className={active(item.href) ? "is-active" : ""} title={item.label}><item.icon size={18} strokeWidth={1.8} /><span>{item.label}</span></Link>;
+  const link = (item: { href: string; label: string; icon: typeof Inbox }) => {
+    const count = countFor(item.href);
+    return <Link key={item.href} href={item.href} className={active(item.href) ? "is-active" : ""} title={item.label}><item.icon size={18} strokeWidth={1.8} /><span>{item.label}</span>{count ? <b className="nav-count">{count}</b> : null}</Link>;
+  };
 
   return (
     <aside className={`sidebar ${collapsed ? "is-collapsed" : ""}`} aria-label="Navigation">
