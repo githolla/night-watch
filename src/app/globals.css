@@ -1128,6 +1128,10 @@ div.stat{cursor:default}
 .focus-progress span{color:var(--accent)}
 .focus-name{font-size:30px;letter-spacing:-.04em;font-weight:600;margin:2px 0 0;display:flex;align-items:center;gap:10px}
 .focus-sub{margin:0;color:var(--muted);font-size:14px}
+.focus-links{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:2px 0 2px}
+.focus-link{font:600 13px/1 var(--sans,inherit);color:var(--accent);text-decoration:none}
+.focus-link:hover{text-decoration:underline}
+.focus-link.is-muted{color:var(--muted);font-weight:500}
 .focus-reason{margin:8px 0 4px;font-size:15.5px;line-height:1.55;color:var(--ink-soft)}
 .focus-why{display:grid;gap:13px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;background:var(--soft);padding:15px 18px;margin-top:4px}
 .focus-why-meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font:600 11px/1 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}

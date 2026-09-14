@@ -528,6 +528,13 @@ export function Desk({
               <div className="focus-progress"><span>Next</span> &middot; {focusIndex + 1} of {todo.length}</div>
               <h2 className="focus-name">{focusCard.people.full_name}{focusCard.isNew && <em className="new-label">New</em>}</h2>
               <p className="focus-sub">{focusCard.people.title} &middot; {focusCard.accounts.name} &middot; score {focusCard.score}</p>
+              <div className="focus-links">
+                {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">Everything on {focusCard.accounts.name} &rarr;</Link>}
+                {focusCard.people.linkedin_url
+                  ? <a href={focusCard.people.linkedin_url} target="_blank" rel="noreferrer" className="focus-link">LinkedIn profile &#8599;</a>
+                  : <a href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${focusCard.people.full_name} ${focusCard.accounts.name}`)}`} target="_blank" rel="noreferrer" className="focus-link">Find on LinkedIn &#8599;</a>}
+                {focusCard.people.path_score > 0 && <span className="focus-link is-muted">Warm path {focusCard.people.path_score}/10</span>}
+              </div>
               <div className="focus-why">
                 <div className="focus-why-meta">
                   <span className="focus-why-type">{signalLabel(focusCard)}</span>
@@ -547,7 +554,7 @@ export function Desk({
                 )}
                 {signalEvidence(focusCard) && (
                   <div className="focus-why-evidence">
-                    <span className="focus-why-label">The evidence</span>
+                    <span className="focus-why-label">{signalGroup(focusCard) === "social" ? "What they posted" : "The evidence"}</span>
                     <p>{signalEvidence(focusCard)}</p>
                     {focusCard.signals.source_url && <a href={focusCard.signals.source_url} target="_blank" rel="noreferrer">Open the source &#8599;</a>}
                   </div>
