@@ -196,8 +196,32 @@ export async function storeSignalRow(account: Account, item: ScoutSignal, person
   return { id: stored.id as string, isNew: true };
 }
 
+/** A post or article is only a live signal for so long; after this it is history, not a reason to reach out. */
+const SIGNAL_MAX_AGE_DAYS = 180;
+type DatedRaw = { post?: { published_at?: string | null; published?: string | null } | null; source?: { published_at?: string | null } | null };
+
+function rawSourceDate(raw: DatedRaw | null | undefined, fallback: string | null | undefined): Date | null {
+  const value = raw?.post?.published_at ?? raw?.post?.published ?? raw?.source?.published_at ?? fallback ?? null;
+  if (!value) return null;
+  const parsed = new Date(value.length === 10 ? `${value}T12:00:00` : value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+/**
+ * Whether a signal's real source date is too old to act on. Job postings are exempt: an active listing is
+ * current by definition and its recency is governed by the sweep's active flag, not a publish date.
+ */
+function isStaleSource(type: string | undefined, raw: DatedRaw | null | undefined, observedAt: string | null | undefined): boolean {
+  if (type === "job_post" || type === "job_cluster") return false;
+  const date = rawSourceDate(raw, observedAt);
+  if (!date) return false; // the model was told to only use dated sources; an undated one is not assumed stale
+  return Date.now() - date.getTime() > SIGNAL_MAX_AGE_DAYS * 86_400_000;
+}
+
 export async function persistSignal(account: Account, item: ScoutSignal, outcome: AccountOutcome, recordCost: (costUsd: number) => void, options: { alwaysCard?: boolean } = {}) {
   const db = admin();
+  // A post or article older than the window is history — never store or surface it as a live reason to reach out.
+  if (isStaleSource(item.type, item as DatedRaw, item.observed_at)) return { storedId: null, cardId: null, personId: null };
   const person = await mapPerson(account, item, recordCost);
   const { id: storedId, isNew } = await storeSignalRow(account, item, person?.id ?? null);
   if (isNew) outcome.signalsNew += 1;
@@ -557,6 +581,11 @@ export async function recomputeAndSurface() {
     // old rules, when an executive's opinion piece could qualify. Retire it.
     if (!signal.raw || typeof signal.raw.operating_need !== "string" || !signal.raw.operating_need.trim()) {
       await db.from("cards").update({ status: "archived", dismiss_reason: "Created before the operating-need rule; the source was commentary, not work Nine-67 could do." }).eq("id", card.id);
+      continue;
+    }
+    // Retire any card whose real source is older than the window — a years-old post is not a live signal.
+    if (isStaleSource(signal.type, signal.raw as DatedRaw, signal.observed_at)) {
+      await db.from("cards").update({ status: "archived", dismiss_reason: `Source is older than ${SIGNAL_MAX_AGE_DAYS} days — no longer a live signal.` }).eq("id", card.id);
       continue;
     }
     const observedAt = signal.observed_at;

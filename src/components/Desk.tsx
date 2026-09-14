@@ -698,7 +698,8 @@ function signalStrength(item: Card) {
 
 /** A short, human "how fresh" for the intent signal — the reason a reach-out is timely. */
 function signalWhen(item: Card) {
-  const raw = item.signals.observed_at;
+  const r = item.signals.raw as { post?: { published_at?: string | null; published?: string | null }; source?: { published_at?: string | null } } | undefined;
+  const raw = r?.post?.published_at ?? r?.post?.published ?? r?.source?.published_at ?? item.signals.observed_at;
   if (!raw) return null;
   const parsed = new Date(raw.length === 10 ? `${raw}T12:00:00` : raw);
   if (Number.isNaN(parsed.getTime())) return null;

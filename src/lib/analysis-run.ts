@@ -102,6 +102,7 @@ export async function analyzeAndStore(db: Db, account: Account, recordCost: (cos
     outcome.signalsFound += 1;
     try {
       const stored = await persistSignal(account, signal, outcome, record);
+      if (!stored.storedId) { analysis.problems.push("signal not kept: source is older than the freshness window"); continue; }
       outcome.signalsKept += 1;
       kept.push({ signal, id: stored.storedId });
     } catch (error) { analysis.problems.push(`signal not stored: ${error instanceof Error ? error.message : String(error)}`); }
