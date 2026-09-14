@@ -1155,6 +1155,12 @@ div.stat{cursor:default}
 .focus-clear h2{margin:0;font-size:22px;font-weight:600}
 .focus-clear p{margin:0;color:var(--muted)}
 .pipeline-backtofocus{border:0;background:transparent;color:var(--accent);font-weight:600;padding:0 0 14px;cursor:pointer;font-size:14px}
+.loading-main{flex:1 1 auto;min-width:0;padding:36px clamp(18px,4vw,48px)}
+.skeleton-head{height:40px;width:min(280px,60%);border-radius:10px;background:var(--soft);margin:6px 0 24px;position:relative;overflow:hidden}
+.skeleton-row{height:62px;border-radius:12px;background:var(--soft);margin-bottom:12px;position:relative;overflow:hidden}
+.skeleton-head::after,.skeleton-row::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:nw-shimmer 1.15s infinite}
+@keyframes nw-shimmer{100%{transform:translateX(100%)}}
+.table-more{margin:0;padding-top:14px;padding-bottom:14px;font-size:12.5px;color:var(--muted)}
 .list-filters{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
 .list-filters button{border:1px solid var(--line-strong);background:var(--paper-bright);color:var(--ink-soft);border-radius:999px;padding:8px 14px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
 .list-filters button b{font:600 11px/1 var(--mono);color:var(--muted)}
