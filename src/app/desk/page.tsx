@@ -134,6 +134,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     today,
     targetTotal: activeTargetAccounts.length,
     activeAccounts: active,
+    listedCompanies: listedOutreach ?? 0,
     coverage: {
       neverResearched: Math.max(0, active - researched),
       researched,

@@ -32,6 +32,8 @@ export type DeskContext = {
   today: string;
   targetTotal: number;
   activeAccounts: number;
+  /** Companies on the reach-out list — the desk's own scope, matching the Companies nav count. */
+  listedCompanies: number;
   coverage: {
     neverResearched: number;
     researched: number;
@@ -290,12 +292,15 @@ export function Desk({
     if (item.email_body) return { view: "email", label: "Email", text: item.email_body };
     return { view: "connection", label: "Connection note", text: "" };
   };
-  // A calm, plain-English read on the night for the top of the list.
-  const fresh = (context?.changes.newRoles ?? 0) + (context?.changes.newPosts ?? 0) + (context?.changes.newPeople ?? 0);
+  // A calm, plain-English read on the night for the top of the list. "New signals" is exactly the two
+  // signal tiles (new roles + new AI posts) so the headline and the stat row always reconcile.
+  const newRoles = context?.changes.newRoles ?? 0;
+  const newPosts = context?.changes.newPosts ?? 0;
+  const fresh = newRoles + newPosts;
+  const companiesWatched = context?.listedCompanies ?? 0;
   const deskDate = context ? new Date(`${context.today}T12:00:00`).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) : "";
-  const headline = fresh === 0 ? "A quiet night." : `${fresh} new ${fresh === 1 ? "signal" : "signals"} overnight.`;
+  const headline = fresh === 0 ? "A quiet night." : `${fresh.toLocaleString()} new ${fresh === 1 ? "signal" : "signals"} overnight.`;
   const subline = priorityCount > 0 ? `${priorityCount} worth a closer look.` : cards.length ? "A few good leads to work." : "Nothing needs you right now.";
-  const scanned = context?.coverage.researched ?? 0;
   const draft = focusCard ? primaryDraft(focusCard) : null;
   const snoozeCurrent = () => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
@@ -505,14 +510,14 @@ export function Desk({
                 <div>
                   {deskDate && <span className="desk-date">{deskDate}</span>}
                   <h1 className="desk-headline">{headline}<span> {subline}</span></h1>
-                  <p className="desk-status">{scanned} of {context.activeAccounts} companies scanned &middot; {fresh} new {fresh === 1 ? "signal" : "signals"} &middot; scans again tonight on its own</p>
+                  <p className="desk-status">Watching {companiesWatched.toLocaleString()} companies &middot; scans again tonight on its own</p>
                 </div>
                 <Link className="btn" href="/targets">+ Add company</Link>
               </div>
               <div className="desk-stats">
-                <div className="desk-stat"><span>Companies watched</span><strong>{context.activeAccounts.toLocaleString()}</strong><small>on the reach-out list</small></div>
-                <Link className="desk-stat" href="/roles"><span>New job signals</span><strong>{context.changes.newRoles.toLocaleString()}</strong><small>roles Nine-67 could build</small></Link>
-                <Link className="desk-stat" href="/posts"><span>Employee AI posts</span><strong>{context.changes.newPosts.toLocaleString()}</strong><small>conversations to join</small></Link>
+                <Link className="desk-stat" href="/outreach"><span>Companies watched</span><strong>{companiesWatched.toLocaleString()}</strong><small>on the reach-out list</small></Link>
+                <Link className="desk-stat" href="/roles"><span>New job signals</span><strong>{newRoles.toLocaleString()}</strong><small>roles Nine-67 could build</small></Link>
+                <Link className="desk-stat" href="/posts"><span>Employee AI posts</span><strong>{newPosts.toLocaleString()}</strong><small>conversations to join</small></Link>
                 <div className="desk-stat is-priority"><span>High-fit{priorityCount ? <em className="pill pill-accent">Priority</em> : null}</span><strong>{priorityCount.toLocaleString()}</strong><small>ready for review</small></div>
               </div>
             </header>
