@@ -116,12 +116,14 @@ export function Desk({
   demo = false,
   gmailConnected = false,
   context,
+  scan,
 }: {
   initialCards: Card[];
   selectedId?: string;
   demo?: boolean;
   gmailConnected?: boolean;
   context?: DeskContext;
+  scan?: import("react").ReactNode;
 }) {
   const [cards, setCards] = useState(initialCards);
   const [selected, setSelected] = useState(selectedId ?? cards[0]?.id);
@@ -225,6 +227,7 @@ export function Desk({
   return (
     <main className="desk">
       <section className="queue">
+        {scan && <div className="desk-scan">{scan}</div>}
         <div className="queue-head">
           <div className="eyebrow">Morning decision queue</div>
           <h1>{plural(cards.length, "person", "people")} to decide on</h1>

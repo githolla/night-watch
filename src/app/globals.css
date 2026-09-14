@@ -1066,3 +1066,6 @@ div.stat{cursor:default}
 .draft-none span{font:700 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .role-why{margin:4px 0 0;font-size:13px;line-height:1.45;color:var(--ink-soft)}
 .people-table small a{color:inherit}
+
+.desk-scan{padding:12px 16px;border-bottom:1px solid var(--line);background:var(--paper-bright)}
+.desk-scan .scan-control{margin:0}

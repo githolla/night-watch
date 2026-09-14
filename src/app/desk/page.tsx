@@ -1,10 +1,11 @@
 import { Desk, type DeskContext } from "@/components/Desk";
+import { ScanControl } from "@/components/ScanControl";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, populateSweepConfig, sweepAccountLimit } from "@/lib/run-config";
-import { latestRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
+import { latestRunSummary, loadRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { admin } from "@/lib/supabase/admin";
 import { fetchAll } from "@/lib/supabase/fetch-all";
@@ -70,6 +71,10 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     { count: newPosts },
     { count: newPeople },
     { count: changedCompanies },
+    openRunRow,
+    lastFinishedRow,
+    { count: unscannedOutreach },
+    { count: listedOutreach },
   ] = await Promise.all([
     query,
     db.from("gmail_connections").select("id").eq("owner", owner).maybeSingle(),
@@ -90,6 +95,10 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     db.from("public_posts").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
     db.from("people").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").gte("last_change_at", yesterday),
+    db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false).order("started_at", { ascending: false }).limit(1).maybeSingle(),
+    db.from("runs").select("finished_at").eq("status", "complete").not("finished_at", "is", null).order("finished_at", { ascending: false }).limit(1).maybeSingle(),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true).not("domain", "like", "%.example").is("careers_checked_at", null).is("last_scouted_at", null),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true).not("domain", "like", "%.example"),
   ]);
   if (error) throw error;
   const hiringCompanies = new Set(hiringRows.map((row) => row.account_id as string)).size;
@@ -150,10 +159,21 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   };
   const cards = (cardRows ?? []).map((card) => ({ ...card, isNew: card.surfaced_on === today }));
 
+  // The app runs itself: opening the desk starts or continues the scan and shows progress, so nobody has to drive the Runs page.
+  const openRun = openRunRow.data ? await loadRunSummary(db, openRunRow.data.id as string) : null;
+  const listed = listedOutreach ?? 0;
+  const scan = <ScanControl
+    listSize={listed}
+    unscanned={unscannedOutreach ?? 0}
+    firstPass={(careersChecked ?? 0) === 0 && researched === 0}
+    openRun={openRun}
+    lastFinishedAt={(lastFinishedRow.data?.finished_at as string | null) ?? null}
+  />;
+
   return (
     <div className="shell">
       <Header />
-      <Desk initialCards={cards} selectedId={params.card} gmailConnected={Boolean(gmail)} context={context} />
+      <Desk initialCards={cards} selectedId={params.card} gmailConnected={Boolean(gmail)} context={context} scan={scan} />
     </div>
   );
 }
