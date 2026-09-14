@@ -5,6 +5,7 @@ import { MigrationRequired } from "@/components/MigrationRequired";
 import { CopyButton } from "@/components/CopyButton";
 import { OutreachForm } from "@/components/OutreachForm";
 import { RecheckButton } from "@/components/RecheckButton";
+import { EnrichButton } from "@/components/EnrichButton";
 import { EvidenceTabs } from "@/components/EvidenceTabs";
 import { CompanyRows } from "@/components/CompanyRows";
 import { requireUser } from "@/lib/auth";
@@ -160,7 +161,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
           </section>
 
           <section className="card" id="who">
-            <div className="card-title pad-x"><h2>People and contact details</h2><span className="muted">{people.length} on file · {people.filter((person) => person.email).length} with an address · {people.filter((person) => person.email_status === "verified").length} verified · {people.filter((person) => person.phone).length} with a phone{live.email_pattern ? ` · format ${live.email_pattern}@${domain}` : ""}</span></div>
+            <div className="card-title pad-x"><div><h2>People and contact details</h2><span className="muted">{people.length} on file · {people.filter((person) => person.email).length} with an address · {people.filter((person) => person.email_status === "verified").length} verified · {people.filter((person) => person.phone).length} with a phone{live.email_pattern ? ` · format ${live.email_pattern}@${domain}` : ""}</span></div>{process.env.APOLLO_API_KEY && people.length ? <EnrichButton accountId={live.id} /> : null}</div>
             {people.length ? <div className="table-wrap"><table className="data-table people-table"><thead><tr><th>Person</th><th>Email</th><th>Phone · LinkedIn</th><th>Found by</th><th>Draft</th></tr></thead><tbody>
               {ranked.slice(0, 14).map(({ person, cards: own, posts: theirPosts, touches: theirTouches }, index) => {
                 const draft = own.filter((card) => OPEN.includes(card.status)).sort((a, b) => b.score - a.score)[0] ?? own[0];
