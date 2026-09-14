@@ -139,7 +139,7 @@ export function OutreachBoard({ rows, heldWithSignal, initial, scan }: { rows: O
         <table className="data-table">
           <thead><tr><th className="col-num">#</th><th>Company</th><th>Why now</th><th>Write to</th><th>Status</th><th className="col-num">Score</th><th>Changed</th></tr></thead>
           <tbody>
-            {visible.map((row, index) => <tr key={row.domain} className={CLOSED_STAGES.has(row.stage) ? "is-closed" : ""} onClick={() => router.push(`/accounts/${row.domain}`)}>
+            {visible.map((row, index) => <tr key={row.domain} className={`is-clickable ${CLOSED_STAGES.has(row.stage) ? "is-closed" : ""}`} onMouseEnter={() => router.prefetch(`/accounts/${row.domain}`)} onClick={() => router.push(`/accounts/${row.domain}`)}>
               <td className="col-num">{(current - 1) * PAGE_SIZE + index + 1}</td>
               <td><div className="cell-company"><span className="avatar">{initials(row.name)}</span><div><strong>{row.name}</strong><small>{row.industry}{row.hqState ? ` · ${row.hqCity}, ${row.hqState}` : ""} · {row.tier}</small></div></div></td>
               <td className="cell-why"><span>{row.why}</span>{row.draftCardId && <em className="pill pill-ink"><i />Draft {row.draftScore}</em>}</td>
