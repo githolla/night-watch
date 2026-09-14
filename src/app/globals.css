@@ -1321,3 +1321,28 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .briefing-head p{margin:9px 0 0;color:var(--muted);font-size:14px}
 .briefing-head .overview-kick{margin-bottom:9px}
 .briefing-head .page-actions{gap:8px;align-items:center}
+
+/* Focus card, rebuilt: company → why prospect → who to reach out to. */
+.focus-topline{display:flex;justify-content:space-between;align-items:center}
+.focus-score{font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);border:1px solid var(--line-strong);padding:5px 9px;border-radius:999px}
+.focus-company{display:flex;align-items:center;gap:12px;margin-top:4px}
+.focus-company .avatar{flex:0 0 42px;width:42px;height:42px;border-radius:11px;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;font:600 15px/1 var(--sans);color:var(--ink-soft)}
+.focus-company .focus-name{font-size:26px;margin:0}
+.focus-company .focus-sub{margin:3px 0 0;font:600 11px/1.3 var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.focus-block{border:1px solid var(--line);border-radius:var(--radius);background:var(--paper-bright);padding:16px 18px;display:grid;gap:8px}
+.focus-block .focus-why-lead{margin:0;font-size:16px;line-height:1.5;color:var(--ink);font-weight:500}
+.focus-sub-block{margin-top:4px;padding-top:12px;border-top:1px solid var(--line);display:grid;gap:5px}
+.focus-sub-block p{margin:0;font-size:14px;line-height:1.55;color:var(--ink-soft)}
+.focus-evidence-text{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.focus-who{background:var(--soft)}
+.focus-who-head{display:flex;align-items:center;gap:11px}
+.focus-who-head .avatar{flex:0 0 34px;width:34px;height:34px;border-radius:9px;background:var(--paper-bright);border:1px solid var(--line);display:grid;place-items:center;font:600 12px/1 var(--sans);color:var(--ink-soft)}
+.focus-who-head>div{flex:1;min-width:0}
+.focus-who-head strong{display:block;font-size:15px;font-weight:600}
+.focus-who-head small{display:block;font-size:12.5px;color:var(--muted)}
+.chip.level-owner{background:var(--ok-soft);color:var(--ok)}
+.chip.level-influencer{background:var(--accent-soft);color:var(--accent)}
+.chip.level-adjacent,.chip.level-unknown{background:var(--paper-bright);color:var(--muted);border:1px solid var(--line)}
+.focus-who-why{margin:0;font-size:14px;line-height:1.5;color:var(--ink-soft)}
+.focus-who-route{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-soft)}
+.focus-channel{font:600 11px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}

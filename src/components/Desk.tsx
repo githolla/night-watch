@@ -25,6 +25,7 @@ type Card = InsightCard & {
     email: string | null;
     email_status: string;
     linkedin_url: string | null;
+    level?: string;
   };
 };
 
@@ -599,40 +600,42 @@ export function Desk({
           </header>
           {focusCard && draft ? (
             <article className="focus-card">
-              <div className="focus-progress"><span>Next</span> &middot; {focusIndex + 1} of {todo.length}</div>
-              <h2 className="focus-name">{focusCard.people.full_name}{focusCard.isNew && <em className="new-label">New</em>}</h2>
-              <p className="focus-sub">{focusCard.people.title} &middot; {focusCard.accounts.name} &middot; score {focusCard.score}</p>
-              <div className="focus-links">
-                {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">Everything on {focusCard.accounts.name} &rarr;</Link>}
-                {focusCard.people.linkedin_url
-                  ? <a href={focusCard.people.linkedin_url} target="_blank" rel="noreferrer" className="focus-link">LinkedIn profile &#8599;</a>
-                  : <a href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${focusCard.people.full_name} ${focusCard.accounts.name}`)}`} target="_blank" rel="noreferrer" className="focus-link">Find on LinkedIn &#8599;</a>}
-                {focusCard.people.path_score > 0 && <span className="focus-link is-muted">Warm path {focusCard.people.path_score}/10</span>}
+              <div className="focus-topline">
+                <span className="focus-progress"><span>Next</span> &middot; {focusIndex + 1} of {todo.length}</span>
+                <span className="focus-score">Fit {focusCard.score}</span>
               </div>
-              <div className="focus-why">
-                <div className="focus-why-meta">
-                  <span className="focus-why-type">{signalLabel(focusCard)}</span>
-                  <span>Signal {signalStrength(focusCard)}/40</span>
-                  {signalWhen(focusCard) && <span>{signalWhen(focusCard)}</span>}
-                  <span>{focusCard.channel.replaceAll("_", " ")}</span>
+
+              <div className="focus-company">
+                <span className="avatar">{initials(focusCard.accounts.name)}</span>
+                <div>
+                  <h2 className="focus-name">{focusCard.accounts.name}{focusCard.isNew && <em className="new-label">New</em>}</h2>
+                  <p className="focus-sub">{signalLabel(focusCard)} &middot; signal {signalStrength(focusCard)}/40{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p>
                 </div>
-                <div className="focus-why-main">
-                  <span className="focus-why-label">Why reach out now</span>
-                  <p>{focusCard.why_now || nextLine(focusCard)}</p>
+              </div>
+
+              <div className="focus-block">
+                <span className="focus-why-label">Why they&apos;re a good prospect</span>
+                <p className="focus-why-lead">{focusCard.why_now || nextLine(focusCard)}</p>
+                {focusCard.signals.raw?.operating_need && <div className="focus-sub-block"><span className="focus-why-label">What Nine-67 could build</span><p>{focusCard.signals.raw.operating_need}</p></div>}
+                {signalEvidence(focusCard) && <div className="focus-sub-block"><span className="focus-why-label">{signalGroup(focusCard) === "social" ? "What they posted" : "The evidence"}</span><p className="focus-evidence-text">{signalEvidence(focusCard)}</p>{focusCard.signals.source_url && <a href={focusCard.signals.source_url} target="_blank" rel="noreferrer" className="focus-link">Open the source &#8599;</a>}</div>}
+                {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">Everything on {focusCard.accounts.name} &rarr;</Link>}
+              </div>
+
+              <div className="focus-block focus-who">
+                <span className="focus-why-label">Who to reach out to</span>
+                <div className="focus-who-head">
+                  <span className="avatar">{initials(focusCard.people.full_name)}</span>
+                  <div><strong>{focusCard.people.full_name}</strong><small>{focusCard.people.title || "title unknown"}</small></div>
+                  <em className={`chip level-${focusCard.people.level ?? "unknown"}`}>{levelLabel(focusCard.people.level ?? "unknown")}</em>
                 </div>
-                {focusCard.signals.raw?.operating_need && (
-                  <div className="focus-why-need">
-                    <span className="focus-why-label">The work they need done</span>
-                    <p>{focusCard.signals.raw.operating_need}</p>
-                  </div>
-                )}
-                {signalEvidence(focusCard) && (
-                  <div className="focus-why-evidence">
-                    <span className="focus-why-label">{signalGroup(focusCard) === "social" ? "What they posted" : "The evidence"}</span>
-                    <p>{signalEvidence(focusCard)}</p>
-                    {focusCard.signals.source_url && <a href={focusCard.signals.source_url} target="_blank" rel="noreferrer">Open the source &#8599;</a>}
-                  </div>
-                )}
+                <p className="focus-who-why">{whoWhy(focusCard)}</p>
+                <div className="focus-who-route">
+                  <span>{focusCard.people.email ? `${emailStateLabel(focusCard.people.email_status)} · ${focusCard.people.email}` : emailStateLabel(focusCard.people.email_status)}</span>
+                  {focusCard.people.linkedin_url
+                    ? <a href={focusCard.people.linkedin_url} target="_blank" rel="noreferrer" className="focus-link">LinkedIn profile &#8599;</a>
+                    : <a href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${focusCard.people.full_name} ${focusCard.accounts.name}`)}`} target="_blank" rel="noreferrer" className="focus-link">Find on LinkedIn &#8599;</a>}
+                  <span className="focus-channel">Best channel: {focusCard.channel.replaceAll("_", " ")}</span>
+                </div>
               </div>
               {notice && <p className="notice">{notice}</p>}
 
@@ -721,4 +724,21 @@ function signalEvidence(item: Card): string | null {
 
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
+}
+
+function levelLabel(level: string) {
+  return level === "owner" ? "Decision-maker" : level === "influencer" ? "Key influencer" : level === "adjacent" ? "Warm way in" : "Named contact";
+}
+
+/** A plain sentence on why this person is the one to write to. */
+function whoWhy(card: Card) {
+  const first = card.people.full_name.split(/\s+/)[0];
+  const base = card.people.level === "owner"
+    ? `${first} owns the operations and budget this work touches — the decision-maker.`
+    : card.people.level === "influencer"
+    ? `${first} shapes this decision and can bring the buyer in.`
+    : card.people.level === "adjacent"
+    ? `${first} is close to the work — a warm way into the team.`
+    : `${first} is a named contact at ${card.accounts.name}.`;
+  return card.people.path_score > 0 ? `${base} Warm path ${card.people.path_score}/10.` : base;
 }

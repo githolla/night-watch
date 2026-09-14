@@ -69,7 +69,6 @@ export function Header() {
       <div className="workspace-switch">
         <span className="ws-badge">N</span>
         <div><strong>Nine-67 workspace</strong><small>Company intelligence</small></div>
-        <ChevronDown size={15} strokeWidth={1.8} />
       </div>
 
       <nav className="sidebar-nav">
