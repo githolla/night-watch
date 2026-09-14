@@ -115,12 +115,12 @@ export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinis
         setPhase("sweep");
         // Every pass is the thorough one for the sweep: careers pages, job boards, AI posts by people at the
         // company, and contacts, for every company, cooldowns ignored. Only the research pass gets cheaper after the first.
-        const sweep = await drive("/api/sweep/run", { all: true, populate: true }, { populate: true }, resumeSweep);
+        const sweep = await drive("/api/sweep/run", extensive ? { all: true, populate: true } : {}, extensive ? { populate: true } : {}, resumeSweep);
         if (!active.current || sweep.stopped === "cancelled" || sweep.stopped === "busy") return;
       }
       if (!resumeAnalysis) {
         setPhase("research");
-        const research = await drive("/api/nightly/run", extensive ? { populate: true } : { limit: listSize }, extensive ? { populate: true } : {}, resumeResearch);
+        const research = await drive("/api/nightly/run", extensive ? { populate: true } : {}, extensive ? { populate: true } : {}, resumeResearch);
         if (!active.current || research.stopped === "cancelled" || research.stopped === "busy") return;
       }
       // Then the agent swarm: four search agents and a synthesizer per company, hottest companies first,
