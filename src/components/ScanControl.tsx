@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { RunSummary } from "@/lib/run-status";
 
 type RunResponse = { run: RunSummary; stopped: string; error?: string };
-type Phase = "idle" | "sweep" | "research" | "analysis" | "stopping";
+type Phase = "idle" | "drafting" | "sweep" | "research" | "analysis" | "stopping";
 
 const STALE_MS = 20 * 3600_000;
 
@@ -18,7 +18,7 @@ const STALE_MS = 20 * 3600_000;
  * covers whoever is past the research cooldown.
  * On Production the scheduled runs do the same without anyone opening a page.
  */
-export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinishedAt }: { listSize: number; unscanned: number; firstPass: boolean; openRun: RunSummary | null; lastFinishedAt: string | null }) {
+export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinishedAt, pendingReachOuts = false }: { listSize: number; unscanned: number; firstPass: boolean; openRun: RunSummary | null; lastFinishedAt: string | null; pendingReachOuts?: boolean }) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("idle");
   const [run, setRun] = useState<RunSummary | null>(openRun);
@@ -31,7 +31,7 @@ export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinis
   const running = phase !== "idle";
   const resumable = Boolean(openRun && openRun.status === "open");
   const stale = !lastFinishedAt || now - Date.parse(lastFinishedAt) > STALE_MS;
-  const shouldAutoStart = listSize > 0 && (firstPass || unscanned > 0 || resumable || stale);
+  const shouldAutoStart = listSize > 0 && (firstPass || unscanned > 0 || resumable || stale || pendingReachOuts);
 
   useEffect(() => {
     if (!running || !run?.id) return;
@@ -83,11 +83,31 @@ export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinis
     return response;
   }
 
+  /** Draft a reach-out for every hiring company from the roles and people already on file. Idempotent; loop until nothing new. */
+  async function driveBackfill() {
+    for (let round = 0; round < 20 && active.current; round += 1) {
+      let json: { created?: number } = {};
+      try {
+        const response = await fetch("/api/drafts/backfill", { method: "POST" });
+        json = (await response.json().catch(() => ({}))) as { created?: number };
+        if (!response.ok) break;
+      } catch {
+        break; // A backfill hiccup must not stop the rest of the scan.
+      }
+      router.refresh();
+      if ((json.created ?? 0) === 0) break;
+    }
+  }
+
   async function scan() {
     const extensive = firstPass;
     setError(null);
     active.current = true;
     try {
+      // First, turn what is already on file into reach-outs, so the desk fills immediately without waiting for a full sweep.
+      setPhase("drafting");
+      await driveBackfill();
+      if (!active.current) return;
       const resumeSweep = openRun && ["sweep", "sweep_manual"].includes(openRun.source) ? openRun.id : undefined;
       const resumeAnalysis = openRun && ["analysis", "analysis_manual"].includes(openRun.source) ? openRun.id : undefined;
       const resumeResearch = openRun && !resumeSweep && !resumeAnalysis ? openRun.id : undefined;
@@ -146,7 +166,7 @@ export function ScanControl({ listSize, unscanned, firstPass, openRun, lastFinis
   return <div className="scan-control">
     <div className="scan-actions">
       {running ? <>
-        <span className="scan-live"><i />{phase === "sweep" ? "Reading careers pages, job boards and AI posts" : phase === "research" ? "Researching with the model" : phase === "analysis" ? "Agent swarm: company, hiring, people, voices, brief" : "Stopping after the current company"}{total ? ` · ${done} / ${total}` : ""}{counts ? ` · ${counts.ok} with something found` : ""} · ${(spent + (run?.costUsd ?? 0)).toFixed(2)}</span>
+        <span className="scan-live"><i />{phase === "drafting" ? "Drafting reach-outs from what is already on file" : phase === "sweep" ? "Reading careers pages, job boards and AI posts" : phase === "research" ? "Researching with the model" : phase === "analysis" ? "Agent swarm: company, hiring, people, voices, brief" : "Stopping after the current company"}{total ? ` · ${done} / ${total}` : ""}{counts ? ` · ${counts.ok} with something found` : ""} · ${(spent + (run?.costUsd ?? 0)).toFixed(2)}</span>
         <button className="scan-stop" type="button" disabled={phase === "stopping"} onClick={stop}>Stop</button>
       </> : <>
         <span className="scan-note">{error ? "The scan stopped." : lastScan ? `Up to date. Last scan ${lastScan}. Night Watch keeps scanning on its own; leave this page open or let the nightly run do it.` : "Nothing scanned yet."}</span>

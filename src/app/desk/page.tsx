@@ -168,6 +168,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     firstPass={(careersChecked ?? 0) === 0 && researched === 0}
     openRun={openRun}
     lastFinishedAt={(lastFinishedRow.data?.finished_at as string | null) ?? null}
+    pendingReachOuts={hiringCompanies > (openCards ?? 0)}
   />;
 
   return (
