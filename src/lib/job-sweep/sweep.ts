@@ -14,10 +14,11 @@ import { scopeCondition, type RunScope } from "../run-scope.ts";
 import { searchQueries, populateSweepConfig, sweepAccountLimit, sweepAiPosts, sweepBudgetUsd, sweepConcurrency, sweepContacts, sweepCooldownMs, sweepSearchFallback, timeBudgetMs } from "../run-config.ts";
 import { requireSchema } from "../schema-check.ts";
 import { admin } from "../supabase/admin.ts";
+import { fetchAll } from "../supabase/fetch-all.ts";
 import { targetAccountByDomain } from "../target-accounts.ts";
 import type { Account } from "../types.ts";
 import { CAREERS_PATHS, careersLinkFromHomepage, detectAts, fetchPostings, fetchText, postingsFromHtml, type AtsRef, type Fetcher, type Posting } from "./ats.ts";
-import { classifyTitle, FAMILY_LABEL, operatingNeedFor, RETIRED_FAMILIES, type JobFamily } from "./classify.ts";
+import { classifyTitle, FAMILY_LABEL, leadRank, operatingNeedFor, type JobFamily } from "./classify.ts";
 import { scrapeTeamPeople } from "./team-page.ts";
 import { aboutAi, discoverLinkedIn } from "../linkedin-discovery.ts";
 import { runQueries } from "../web-search.ts";
@@ -204,7 +205,7 @@ function daysBetween(from: string, to: Date) {
 
 /** Turn the target postings into one hiring signal, with the buyer from the target file or Apollo. */
 export async function hiringSignal(account: Account, result: SweepAccountResult, rows: Array<{ url: string; first_seen_at: string; posted_at: string | null }>, now: Date): Promise<ScoutSignal | null> {
-  const target = result.targetPostings;
+  const target = [...result.targetPostings].sort((left, right) => leadRank(left.family) - leadRank(right.family));
   if (!target.length) return null;
   const firstSeen = new Map(rows.map((row) => [row.url, row]));
   const observed = target
@@ -280,6 +281,26 @@ async function createSweepRun(db: Db, options: SweepOptions, now: number) {
 }
 
 /**
+ * Re-run the title classifier over every stored target posting, so a change to
+ * the rules (a family retired, product-AI roles excluded) takes effect at once
+ * instead of only when each company is next read. Only rows whose family
+ * actually changes are written.
+ */
+export async function reclassifyStoredPostings(db: Db): Promise<number> {
+  const rows = await fetchAll<{ id: string; title: string; family: string | null }>((from, to) =>
+    db.from("job_postings").select("id,title,family").eq("active", true).not("family", "is", null).range(from, to));
+  let changed = 0;
+  for (const row of rows) {
+    const next = classifyTitle(row.title);
+    if (next !== row.family) {
+      await db.from("job_postings").update({ family: next }).eq("id", row.id);
+      changed += 1;
+    }
+  }
+  return changed;
+}
+
+/**
  * Read careers pages for a batch of companies with a small concurrency pool,
  * record every posting, and raise hiring signals. Same run record, time
  * budget, cost budget and stop handling as the research run.
@@ -302,8 +323,9 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
 
   await sweepStaleRuns(db, started);
   await ensureAccountsLoaded(db);
-  // Postings classified under families that no longer qualify stop counting as target roles.
-  await db.from("job_postings").update({ family: null }).in("family", RETIRED_FAMILIES);
+  // Re-apply the current classifier to stored postings so a rule change (retired families, product-AI
+  // roles excluded) clears at once, not only when each company is next read.
+  await reclassifyStoredPostings(db);
 
   let runId = options.runId ?? null;
   if (runId) {

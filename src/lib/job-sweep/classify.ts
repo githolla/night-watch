@@ -39,13 +39,23 @@ export const RETIRED_FAMILIES: JobFamily[] = ["support", "sdr"];
 const LEADERSHIP = /\b(chief|cxo|c[a-z]o|president|vice president|vp|svp|evp|avp|head of|head,|director|partner|general manager|gm)\b/i;
 const MANDATE_FAMILIES: ReadonlySet<JobFamily> = new Set(["ai_ml", "automation"]);
 
+/**
+ * Building AI as a product or doing research is NOT work Nine-67 can quickly
+ * do for a company; the fit is applied, operational automation (reporting,
+ * process, systems, CRM, an internal assistant). So a data scientist, an ML
+ * engineer, a research or applied scientist, computer vision, NLP or robotics
+ * IC role does not qualify — only an AI leadership *mandate* (Head of AI)
+ * still counts, because that names a budget owner. Checked before the rules.
+ */
+const AI_PRODUCT = /\b(machine learning|deep learning|computer vision|natural language|\bnlp\b|\bml\b|ml ?ops|data scien(ce|tist)|research scien(ce|tist)|research engineer|applied scien(ce|tist)|ai (engineer|scientist|researcher|research|product)|(generative ai|gen ?ai|\bllm\b)s? (engineer|developer|scientist)|ai\/ml|\brobotics\b|autonomous (vehicle|driving)|founding (engineer|ai|ml))\b/i;
+
 /** Titles that never qualify, however the words fall. */
 const EXCLUDE =
   /\b(controls?|electrical|mechanical|manufacturing|plant|industrial|hvac|welding|machinist|maintenance|facilities|qa|quality assurance|test automation|sdet|automation engineer|automation technician|process engineer|chemical|packaging|production)\b|\b(nurse|rn|lpn|cna|physician|pharmac|driver|cdl|warehouse|forklift|mechanic|welder|electrician|plumber|technician|cashier|cook|chef|dishwasher|janitor|custodian|housekeep|security (guard|officer)|lifeguard|teacher|intern(ship)?|apprentice|attorney|paralegal|counsel|surgeon|dental|veterinar|pilot|barista|server|bartender|line cook|merchandiser|stocker|loader|picker|packer)\b/i;
 
 /** Ordered: the first family whose pattern matches wins. */
 const RULES: Array<[JobFamily, RegExp]> = [
-  ["ai_ml", /\b(ai|a\.i\.|artificial intelligence|machine learning|\bml\b|llm|generative|nlp|deep learning|data scien|computer vision|prompt engineer|applied scientist)\b/i],
+  ["ai_ml", /\b(\bai\b|a\.i\.|artificial intelligence|generative ai|gen ?ai|\bllm\b|prompt engineer|intelligent automation|conversational ai|chatbot|copilot|ai assistant|ai agent)\b/i],
   ["revops", /\b(rev ?ops|revenue operations|sales operations|sales ops|marketing operations|marketing ops|gtm operations|go-to-market operations|deal desk|sales enablement)\b/i],
   ["crm_admin", /\b(salesforce|hubspot|dynamics 365|crm)\b.*\b(admin|administrator|manager|specialist|analyst|developer|engineer|architect)\b|\b(crm|salesforce) (admin|administrator)\b/i],
   ["systems_integration", /\b(systems? (analyst|administrator|engineer|integration|specialist)|integration (engineer|specialist|analyst|developer|architect)|erp (analyst|administrator|specialist|manager|consultant)|netsuite|workday (analyst|administrator|consultant|specialist)|sap (analyst|consultant|specialist|administrator)|api (engineer|developer|integration)|it business analyst|business systems|solutions? (engineer|architect|analyst)|middleware|ipaas|boomi|mulesoft|workato)\b/i],
@@ -57,17 +67,35 @@ const RULES: Array<[JobFamily, RegExp]> = [
 export function classifyTitle(title: string): JobFamily | null {
   const clean = title.replace(/\s+/g, " ").trim();
   if (!clean || EXCLUDE.test(clean)) return null;
+  const leadership = LEADERSHIP.test(clean);
+  // Product and research AI is not operational automation Nine-67 can quickly do.
+  // Only an AI leadership mandate survives; an IC building AI does not.
+  if (AI_PRODUCT.test(clean) && !leadership) return null;
   for (const [family, pattern] of RULES) {
     if (!pattern.test(clean)) continue;
-    if (LEADERSHIP.test(clean) && !MANDATE_FAMILIES.has(family)) return null;
+    if (leadership && !MANDATE_FAMILIES.has(family)) return null;
     return family;
   }
   return null;
 }
 
+/**
+ * The work Nine-67 delivers fastest comes first: process and reporting
+ * automation, then the analyst and systems seats, and applied AI last. Used
+ * to pick the lead role for a signal and a draft, so outreach opens with a
+ * quick win, not the shiniest AI title.
+ */
+export const FAMILY_LEAD_ORDER: JobFamily[] = ["automation", "data_analyst", "ops_analyst", "revops", "crm_admin", "systems_integration", "ai_ml"];
+export function leadRank(family: JobFamily | null): number {
+  const index = family ? FAMILY_LEAD_ORDER.indexOf(family) : -1;
+  return index === -1 ? FAMILY_LEAD_ORDER.length : index;
+}
+
 /** One sentence naming the work Nine-67 would do instead of the hires. Used as the signal's operating_need. */
 export function operatingNeedFor(postings: Array<{ title: string; family: JobFamily | null }>) {
-  const qualifying = postings.filter((posting): posting is { title: string; family: JobFamily } => posting.family !== null);
+  const qualifying = postings
+    .filter((posting): posting is { title: string; family: JobFamily } => posting.family !== null)
+    .sort((left, right) => leadRank(left.family) - leadRank(right.family));
   if (!qualifying.length) return "";
   const families = [...new Set(qualifying.map((posting) => posting.family))];
   const titles = [...new Set(qualifying.map((posting) => posting.title))].slice(0, 3).join(", ");

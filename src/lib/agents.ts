@@ -65,8 +65,11 @@ export type ScoutSignal = z.infer<typeof signal>;
 
 /** Job families where Nine-67 does the work instead of the company hiring for it. Mirrors docs/scoring.md. */
 export const TARGET_JOB_FAMILIES = [
-  "AI/ML", "automation", "data/analyst", "RevOps", "operations analyst", "volume-driven customer support", "BDR/SDR", "systems/integration", "CRM administration",
+  "process and workflow automation", "data and reporting", "operations analyst", "RevOps", "systems and integration", "CRM administration", "applied AI for internal operations (an internal assistant, not an AI product)",
 ] as const;
+
+/** Roles that look like the target but are not: building AI as a product or doing AI/ML research is not work Nine-67 can quickly do for a company. */
+export const NOT_TARGET_ROLES = "machine learning engineer, ML/AI research or applied scientist, data scientist, computer vision, NLP, deep learning, robotics, or any role building an AI/ML product";
 
 /**
  * Deterministic evidence rules the model cannot talk its way around. An
@@ -197,7 +200,7 @@ export async function scout(account: {
 Nine-67 builds and runs AI and automation for operating teams so a company does not have to hire for that work. You are looking for one thing: public evidence that ${account.name} has work of that kind it needs done right now. The context below is background, not a source: do not spend a search on the starting URL unless it is a careers page or a post by someone at the company. Spend searches on the company's careers page, job boards, and posts by its managers. Prioritize the last 30 days; if nothing qualifies in 30 days, use the strongest qualifying development from the last 180 days.
 
 A development qualifies only if it shows a concrete operating need inside ${account.name}. Look for these, in this order:
-1. hiring (type job_post or job_cluster): open roles on ${account.careers_url ?? "the careers page"} or job boards in these families: ${TARGET_JOB_FAMILIES.join(", ")}. Clusters of related roles, reposted roles, and roles open 30+ days are the strongest. Capture the exact title, department, days open, whether reposted, salary maximum if shown, tools named, and the responsibilities as written.
+1. hiring (type job_post or job_cluster): open roles on ${account.careers_url ?? "the careers page"} or job boards in these families: ${TARGET_JOB_FAMILIES.join(", ")}. Do NOT count ${NOT_TARGET_ROLES}: those build AI, and Nine-67 does operational automation, not someone else's AI product. Clusters of related roles, reposted roles, and roles open 30+ days are the strongest. Capture the exact title, department, days open, whether reposted, salary maximum if shown, tools named, and the responsibilities as written.
 2. asking_for_help (type exec_post): a manager, director or VP at ${account.name} publicly asking for recommendations, vendors, tools, or describing a bottleneck in their own team they are trying to fix, in a LinkedIn post, community thread, or conference Q&A. The post must be about their own team's work. Quote the actual visible post text and name the author.
 3. ai_post (type exec_post): anyone who works at ${account.name} posting publicly, in their own words, about AI, automation, agents or efficiency in their own work or team: what they are trying, what is hard, what they want. LinkedIn posts, X posts, personal blogs, conference talks. Quote the actual visible post text and name the author and their title. A press release, an interview in a publication, or an opinion column is not a post.
 4. new_mandate (type new_leader): a newly appointed leader whose stated mandate is operations, data, automation, AI, RevOps or support at ${account.name}.

@@ -3,8 +3,19 @@ import test from "node:test";
 import { classifyTitle, operatingNeedFor } from "./classify.ts";
 
 const cases: Array<[string, ReturnType<typeof classifyTitle>]> = [
-  ["Senior Machine Learning Engineer", "ai_ml"],
-  ["AI Product Manager", "ai_ml"],
+  // Building or researching AI is not work Nine-67 can quickly do for a company.
+  ["Senior Machine Learning Engineer", null],
+  ["Machine Learning Scientist", null],
+  ["AI Product Manager", null],
+  ["Applied Scientist", null],
+  ["Research Scientist, NLP", null],
+  ["Computer Vision Engineer", null],
+  ["Data Scientist", null],
+  ["MLOps Engineer", null],
+  // Applied, operational AI and automation is the fit.
+  ["AI Automation Specialist", "ai_ml"],
+  ["AI Operations Analyst", "ai_ml"],
+  ["Data Engineer", "data_analyst"],
   ["Revenue Operations Manager", "revops"],
   ["Sales Ops Analyst", "revops"],
   ["Salesforce Administrator", "crm_admin"],

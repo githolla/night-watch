@@ -45,11 +45,12 @@ export function parsePost(hit: SearchHit): FoundPost | null {
   const kind = /linkedin\.com\/posts\//i.test(hit.url) ? "post" : /linkedin\.com\/pulse\//i.test(hit.url) ? "article" : null;
   if (!kind) return null;
   const title = stripLinkedIn(hit.title);
-  const on = title.match(/^(.+?) on LinkedIn:\s*(.*)$/i);
-  const possessive = title.match(/^(.+?)['’]s Post$/i);
+  const on = title.match(/^(.+?)\s+(?:on LinkedIn|posted on LinkedIn|shared|posted)\b:?\s*(.*)$/i);
+  const possessive = title.match(/^(.+?)['’]s (?:Post|Update|Article)\b/i);
   const author = (on?.[1] ?? possessive?.[1] ?? "").trim();
-  const text = decode([on?.[2] ?? "", hit.snippet].filter(Boolean).join(" ").trim());
-  if (kind === "post" && !author) return null;
+  const text = decode([on?.[2] ?? "", hit.snippet, kind === "article" ? title : ""].filter(Boolean).join(" ").trim());
+  // Keep the post even when the author cannot be read from the title: it still belongs on the Posts page.
+  // Only a post with a named author becomes an outreach signal, so an unknown author here is harmless.
   if (text.length < 20) return null;
   const date = hit.date && /^\d{4}-\d{2}-\d{2}/.test(hit.date) ? hit.date.slice(0, 10) : null;
   return { author: author || "Unknown", excerpt: text.slice(0, 600), url: hit.url.split("?")[0], kind, platform: kind === "article" ? "linkedin article" : "linkedin", date };

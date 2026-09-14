@@ -3,7 +3,7 @@ import { analyzeCompany, type AnalysisInput, type CompanyAnalysis } from "./anal
 import { analysisRolesToPostings, channelFor, DRAFT_FIT_FLOOR, draftBreakdown, pickWhoFirst, scoreOfBreakdown, type DraftCandidate } from "./analysis-draft.ts";
 import { fillEmailsFromPattern } from "./email-fill.ts";
 import { verifierConfigured, verifyAccountEmails } from "./email-verify.ts";
-import { FAMILY_LABEL, type JobFamily } from "./job-sweep/classify.ts";
+import { FAMILY_LABEL, leadRank, type JobFamily } from "./job-sweep/classify.ts";
 import { recomputeAccountIntel } from "./account-intel.ts";
 import {
   accountIdsInOpenRuns, ensureAccountsLoaded, finalizeRun, persistSignal, refreshRunAggregates, storeSignalRow, summarize, sweepStaleRuns, upsertPerson,
@@ -142,7 +142,7 @@ function evidenceFor(account: Account, analysis: CompanyAnalysis, person: DraftC
       confidence,
     });
   }
-  const roles = analysisRolesToPostings(analysis.hiring.roles).filter((role) => role.family);
+  const roles = analysisRolesToPostings(analysis.hiring.roles).filter((role) => role.family).sort((left, right) => leadRank(left.family) - leadRank(right.family));
   if (roles.length) {
     const titles = [...new Set(roles.map((role) => role.title))];
     candidates.push({
