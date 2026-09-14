@@ -1360,3 +1360,20 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .reach-next-card strong{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .reach-next-card small{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .reach-next-score{font:600 12px/1 var(--mono);color:var(--ink);border:1px solid var(--line-strong);padding:5px 8px;border-radius:8px}
+
+/* Focus card: company details + everyone on file, in the one-screen flow. */
+.focus-team{background:var(--paper-bright)}
+.focus-team-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.focus-team-facts{margin:0;font-size:13.5px;color:var(--ink-soft)}
+.focus-team-people{margin-top:8px;padding-top:12px;border-top:1px solid var(--line);display:grid;gap:4px}
+.focus-team-loading{margin:0;font-size:13px;color:var(--muted)}
+.focus-team-row{display:flex;align-items:center;gap:10px;padding:7px 0}
+.focus-team-row+.focus-team-row{border-top:1px solid var(--line)}
+.focus-team-row .avatar{flex:0 0 30px;width:30px;height:30px;border-radius:8px;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;font:600 11px/1 var(--sans);color:var(--ink-soft)}
+.focus-team-id{flex:1;min-width:0}
+.focus-team-id strong{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.focus-team-id small{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.focus-team-contact{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:12px;color:var(--ink-soft);max-width:44%;text-align:right}
+.focus-team-contact span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.focus-team-contact a{color:var(--accent);text-decoration:none;font-weight:600}
+.focus-team-more{margin-top:6px;justify-self:start;border:0;background:transparent;color:var(--accent);font-weight:600;font-size:13px;cursor:pointer;padding:4px 0}

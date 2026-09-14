@@ -5,6 +5,7 @@ import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { CadencePlanner } from "./CadencePlanner";
+import { CompanyTeam } from "./CompanyTeam";
 import { MessageComposer } from "./MessageComposer";
 import { RefreshButton } from "./RefreshButton";
 import { RunPanel } from "./RunPanel";
@@ -141,8 +142,8 @@ export function Desk({
   // One-at-a-time by default: the desk opens on the next prospect to work, not a list.
   // `selected` = a full-detail deep dive; `browse` = the searchable list of everyone.
   const [selected, setSelected] = useState<string | undefined>(selectedId);
-  // The full list is home; clicking a prospect drops into the one-at-a-time focus view.
-  const [browse, setBrowse] = useState(!selectedId);
+  // The one-at-a-time prospect flow is home; "All prospects" opens the full list on demand.
+  const [browse, setBrowse] = useState(false);
   const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? initialCards[0]?.id);
   // Start on a tight worklist — the top prospects only — and let the chips widen it when it is cleared.
   const [kind, setKind] = useState<"top" | "all" | "job" | "social">(initialCards.length > SHORTLIST ? "top" : "all");
@@ -653,6 +654,8 @@ export function Desk({
                 {draft.view === "email" && focusCard.email_subject && <p className="focus-subject">Subject &middot; {focusCard.email_subject}</p>}
                 <p className="focus-draft-body">{draft.text || "No draft on file for this channel yet — open the studio to write one."}</p>
               </details>
+
+              {focusCard.accounts.domain && <CompanyTeam domain={focusCard.accounts.domain} company={focusCard.accounts.name} />}
 
               <div className="focus-actions">
                 <button type="button" disabled={busy || (draft.view === "email" && !focusCard.people.email)} className="btn primary" onClick={actOnDraft}>
