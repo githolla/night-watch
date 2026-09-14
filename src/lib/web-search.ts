@@ -81,13 +81,20 @@ export async function runQueries(queries: string[], options: { model?: string; r
   for (let index = 0; index < unique.length; index += QUERIES_PER_AGENT) batches.push(unique.slice(index, index + QUERIES_PER_AGENT));
   const parallel = Math.max(1, options.parallel ?? 4);
   const out: Record<string, SearchHit[]> = {};
+  let fulfilled = 0;
+  let firstError: unknown = null;
   for (let index = 0; index < batches.length; index += parallel) {
     const settled = await Promise.allSettled(batches.slice(index, index + parallel).map((batch) => agentBatch(batch, model, options.recordUsage)));
     settled.forEach((result, offset) => {
-      if (result.status === "fulfilled") Object.assign(out, result.value);
-      else console.warn(`[night-watch] search agent batch failed (${batches[index + offset].length} queries): ${result.reason instanceof Error ? result.reason.message : String(result.reason)}`);
+      if (result.status === "fulfilled") { Object.assign(out, result.value); fulfilled += 1; }
+      else {
+        if (!firstError) firstError = result.reason;
+        console.warn(`[night-watch] search agent batch failed (${batches[index + offset].length} queries): ${result.reason instanceof Error ? result.reason.message : String(result.reason)}`);
+      }
     });
   }
+  // Every batch failed: search is broken (web search disabled, model unavailable). Surface it instead of returning silent zeros.
+  if (batches.length && fulfilled === 0 && firstError) throw firstError;
   return out;
 }
 

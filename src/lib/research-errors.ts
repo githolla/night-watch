@@ -59,7 +59,15 @@ export function classifyResearchError(error: unknown): ClassifiedError {
     return { code: "validation", message: zodSummary(record as Parameters<typeof zodSummary>[0]) };
   }
 
-  const status = typeof record.status === "number" ? record.status : Number.parseInt(/\b(401|403|429|5\d\d)\b/.exec(message)?.[1] ?? "", 10);
+  const status = typeof record.status === "number" ? record.status : Number.parseInt(/\b(401|403|404|429|5\d\d)\b/.exec(message)?.[1] ?? "", 10);
+  // The web-search / web-fetch server tools must be enabled for the org, and the model id must be one this
+  // key can use. Both fail every research call, so name them precisely instead of a vague upstream error.
+  if (/web[_ ]?search|web[_ ]?fetch/i.test(message)) {
+    return { code: "config", message: `The Anthropic web search tool was rejected — enable web search for this API organization in the Anthropic Console (Settings → Capabilities), then retry. Original error: ${message}` };
+  }
+  if (status === 404 || /model/i.test(message) && /not[_ ]?found|does not (exist|have access)|not (available|allowed|permitted)/i.test(message)) {
+    return { code: "config", message: `The model was not found for this API key (${status || "404"}). Set ANTHROPIC_RESEARCH_MODEL to a model this key can use, and confirm web search is enabled. Original error: ${message}` };
+  }
   if (status === 401 || status === 403) return { code: "upstream_auth", message: `Upstream service rejected the credentials (${status}): ${message}` };
   if (status === 429) return { code: "upstream_rate_limit", message: `Upstream service is rate limiting requests (429): ${message}` };
   if (status === 400 && /web_search|tool/i.test(message)) {
