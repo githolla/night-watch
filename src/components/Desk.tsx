@@ -137,7 +137,8 @@ export function Desk({
   // The full list is home; clicking a prospect drops into the one-at-a-time focus view.
   const [browse, setBrowse] = useState(!selectedId);
   const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? initialCards[0]?.id);
-  const [kind, setKind] = useState<"all" | "job" | "social">("all");
+  // Start focused: when the list is large, lead with the high-fit prospects and let the chips widen it.
+  const [kind, setKind] = useState<"priority" | "all" | "job" | "social">(initialCards.filter((item) => item.score >= PRIORITY_THRESHOLD).length >= 8 ? "priority" : "all");
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
@@ -276,7 +277,7 @@ export function Desk({
 
   const priorityCount = cards.filter((item) => item.score >= PRIORITY_THRESHOLD).length;
   const needle = query.trim().toLowerCase();
-  const byKind = kind === "all" ? cards : cards.filter((item) => signalGroup(item) === kind);
+  const byKind = kind === "priority" ? cards.filter((item) => item.score >= PRIORITY_THRESHOLD) : kind === "all" ? cards : cards.filter((item) => signalGroup(item) === kind);
   const filtered = needle ? byKind.filter((item) => `${item.people.full_name} ${item.people.title} ${item.accounts.name}`.toLowerCase().includes(needle)) : byKind;
   const jobCount = cards.filter((item) => signalGroup(item) === "job").length;
   const socialCount = cards.filter((item) => signalGroup(item) === "social").length;
@@ -543,6 +544,7 @@ export function Desk({
             <div className="overview-main">
               <div className="ask-bar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search prospects by name, title or company" aria-label="Search prospects" /></div>
               <div className="list-filters" role="tablist" aria-label="Filter by signal">
+                <button type="button" role="tab" aria-selected={kind === "priority"} className={kind === "priority" ? "is-on" : ""} onClick={() => setKind("priority")}>High-fit <b>{priorityCount}</b></button>
                 <button type="button" role="tab" aria-selected={kind === "all"} className={kind === "all" ? "is-on" : ""} onClick={() => setKind("all")}>All <b>{cards.length}</b></button>
                 <button type="button" role="tab" aria-selected={kind === "job"} className={kind === "job" ? "is-on" : ""} onClick={() => setKind("job")}>Job posts <b>{jobCount}</b></button>
                 <button type="button" role="tab" aria-selected={kind === "social"} className={kind === "social" ? "is-on" : ""} onClick={() => setKind("social")}>Social posts <b>{socialCount}</b></button>

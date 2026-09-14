@@ -49,5 +49,8 @@ export async function enrichAccountPeople(db: SupabaseClient, account: { id: str
     }
     if (Object.keys(patch).length) await db.from("people").update(patch).eq("id", person.id);
   }
-  return { configured: true, checked, emails, linkedins };
+  // Apollo is the source of truth now: drop any leftover blind "best guess" addresses so the page shows
+  // a verified email or nothing, never a guess.
+  const { data: cleared } = await db.from("people").update({ email: null, email_status: "none", email_source: null, email_verified_at: null }).eq("account_id", account.id).eq("email_source", "guess").select("id");
+  return { configured: true, checked, emails, linkedins, cleared: cleared?.length ?? 0 };
 }
