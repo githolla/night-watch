@@ -3,7 +3,10 @@ import { z } from "zod";
 import type { SimulationInput, SimulationResult } from "@/lib/message-simulation";
 import { recordAnthropicUsage, type UsageRecorder } from "./anthropic-cost.ts";
 import { parseModelJson } from "./model-output.ts";
-import { fallbackModelFor, isSupersededModel, researchModel, searchModel, utilityModel, webSearchToolType, writingModel } from "./models.ts";
+import { fallbackChain, researchModel, searchModel, utilityModel, webSearchToolType, writingModel } from "./models.ts";
+
+/** Once a model is rejected and a working one is found, later calls skip straight to it instead of retrying the dead model every time. */
+const resolvedModel = new Map<string, string>();
 
 export { parseModelJson } from "./model-output.ts";
 
@@ -158,13 +161,23 @@ async function completeTurn(
   recordUsage?: UsageRecorder,
 ): Promise<{ response: Anthropic.Messages.Message; model: string }> {
   const { model, ...rest } = params;
+  const start = resolvedModel.get(model) ?? model;
   try {
-    return { response: await completeTurnOn(model, rest, prompt, recordUsage), model };
+    return { response: await completeTurnOn(start, rest, prompt, recordUsage), model: start };
   } catch (error) {
-    const fallback = isUnknownModelError(error) ? fallbackModelFor(model) : null;
-    if (!fallback) throw error;
-    console.warn(`[night-watch] model ${model} was rejected (${isSupersededModel(model) ? "retired" : "unknown"}); retrying on ${fallback}. Set ANTHROPIC_RESEARCH_MODEL to a current model.`);
-    return { response: await completeTurnOn(fallback, rest, prompt, recordUsage), model: fallback };
+    if (!isUnknownModelError(error)) throw error;
+    // The configured model is not available to this key. Try the safety net until one works, and remember it.
+    for (const candidate of fallbackChain(model)) {
+      try {
+        const response = await completeTurnOn(candidate, rest, prompt, recordUsage);
+        resolvedModel.set(model, candidate);
+        console.warn(`[night-watch] model ${start} was rejected for this key; using ${candidate} instead. Set ANTHROPIC_RESEARCH_MODEL to a model this key can use.`);
+        return { response, model: candidate };
+      } catch (inner) {
+        if (!isUnknownModelError(inner)) throw inner;
+      }
+    }
+    throw error;
   }
 }
 

@@ -44,6 +44,17 @@ export function fallbackModelFor(model: string): string | null {
   return model === fallback ? null : fallback;
 }
 
+/**
+ * Models to try, in order, when the configured one is rejected as unknown
+ * (a 404: the key cannot use that model). The current Sonnet models are the
+ * safety net so a research or search call still runs even if the cheap
+ * default is not enabled on this key. `ANTHROPIC_FALLBACK_MODEL` goes first.
+ */
+export function fallbackChain(model: string): string[] {
+  const chain = [process.env.ANTHROPIC_FALLBACK_MODEL, "claude-sonnet-5", "claude-sonnet-4-5", "claude-opus-4-5"].filter((entry): entry is string => Boolean(entry));
+  return [...new Set(chain)].filter((entry) => entry !== model);
+}
+
 /** True for a model id this codebase knows to be retired or renamed. Used only for a clearer error message. */
 export function isSupersededModel(model: string) {
   return SUPERSEDED.test(model);
