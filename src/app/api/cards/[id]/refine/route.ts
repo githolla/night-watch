@@ -44,6 +44,21 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { error: saveError } = await db.from("cards").update(patch).eq("id", id);
     return Response.json({ ok: true, ...refined, persisted: !saveError });
   } catch (error) {
-    return Response.json({ error: error instanceof Error ? error.message : "Refine failed" }, { status: 400 });
+    return Response.json({ error: humanizeError(error) }, { status: 400 });
   }
+}
+
+/** Turn a raw model/API error into one clean sentence for the desk instead of a wall of JSON. */
+function humanizeError(error: unknown): string {
+  const raw = error instanceof Error ? error.message : String(error ?? "");
+  let message = raw;
+  const match = raw.match(/"message"\s*:\s*"([^"]+)"/); // pull the human line out of an Anthropic error blob
+  if (match) message = match[1];
+  if (/usage limit/i.test(message)) {
+    const when = message.match(/regain access on ([0-9]{4}-[0-9]{2}-[0-9]{2}[^."]*)/i);
+    return `AI writing is paused — the Nine-67 workspace hit its Anthropic API spend limit${when ? `, back ${when[1].trim()} UTC` : ""}. Edit the draft by hand for now, or raise the workspace limit in the Anthropic console.`;
+  }
+  if (/rate limit|overloaded|529|429/i.test(message)) return "The model is busy right now — try Refine again in a moment.";
+  if (/api key|authentication|401/i.test(message)) return "The Anthropic API key is missing or invalid — check the workspace settings.";
+  return message.length > 200 ? "Could not refine right now — please try again." : message;
 }
