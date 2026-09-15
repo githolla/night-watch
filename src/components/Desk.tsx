@@ -161,6 +161,7 @@ export function Desk({
   const [refining, setRefining] = useState<"email" | "linkedin" | null>(null);
   const [editing, setEditing] = useState<{ email: boolean; linkedin: boolean }>({ email: false, linkedin: false });
   const [lastRefine, setLastRefine] = useState<{ cardId: string; channel: "email" | "linkedin"; beforeBody: string; afterBody: string; beforeSubject: string; afterSubject: string } | null>(null);
+  const [channelTab, setChannelTab] = useState<"email" | "linkedin">("email");
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
   // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
@@ -702,138 +703,118 @@ export function Desk({
           </div>
         </div>
       ) : (
-        <div className="focus focus-workspace">
-          <aside className="focus-queue">
-            <div className="focus-queue-head">
-              <span className="focus-queue-title">Worklist</span>
-              <span className="focus-queue-count">{todo.length}</span>
-            </div>
-            <div className="focus-queue-list">
-              {todo.map((item) => (
-                <button type="button" key={item.id} className={`focus-queue-row ${focusCard && item.id === focusCard.id ? "is-active" : ""}`} onClick={() => pick(item.id)}>
-                  <span className="avatar sm">{initials(item.accounts.name)}</span>
-                  <span className="focus-queue-id"><strong>{item.accounts.name}</strong><small>{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small></span>
-                  {item.working && <em className="focus-queue-working" title={`Being worked${item.working_by ? ` by ${item.working_by}` : ""} — avoid double-messaging`}>working</em>}
-                  <em className="chip focus-fit">{item.score}</em>
-                </button>
-              ))}
-            </div>
-          </aside>
-          <div className="focus-main">
-          <div className="focus-topbar">
-            <button type="button" className="pipeline-backtofocus" onClick={() => setBrowse(true)}>&larr; All prospects</button>
-            {focusCard && <div className="focus-topbar-nav">
-              <span className="focus-progress">{focusIndex + 1} of {todo.length}</span>
-              <div className="focus-step">
-                <button type="button" className="focus-step-btn" onClick={() => move(-1)} aria-label="Previous prospect" disabled={todo.length < 2}>&larr;</button>
-                <button type="button" className="focus-step-btn" onClick={() => move(1)} aria-label="Next prospect" disabled={todo.length < 2}>&rarr;</button>
+        <div className="deskwork">
+          <header className="deskwork-head">
+            <div><span className="overview-kick">Your worklist</span><h1>Start the right conversation.</h1></div>
+            <div className="deskwork-head-right"><span>Night Watch</span><strong>{todo.length} {todo.length === 1 ? "prospect" : "prospects"} ready</strong><button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview →</button></div>
+          </header>
+
+          <div className="deskwork-grid">
+            {/* LEFT — companies */}
+            <aside className="deskwork-list">
+              <div className="deskwork-list-head"><span>Companies <b>{todo.length}</b></span><span className="deskwork-sort">By fit ↓</span></div>
+              <input className="deskwork-search" placeholder="Find a company" value={query} onChange={(event) => setQuery(event.target.value)} />
+              <div className="deskwork-list-scroll">
+                {(query.trim() ? todo.filter((item) => `${item.accounts.name} ${item.people.full_name}`.toLowerCase().includes(query.trim().toLowerCase())) : todo).map((item) => (
+                  <button type="button" key={item.id} className={`deskwork-row ${focusCard && item.id === focusCard.id ? "is-active" : ""}`} onClick={() => pick(item.id)}>
+                    <span className="avatar sm">{initials(item.accounts.name)}</span>
+                    <span className="deskwork-row-id"><strong>{item.accounts.name}</strong><small>{signalLabel(item)}{item.working ? " · working" : ""}</small></span>
+                    <em className="deskwork-row-fit">{item.score}</em>
+                  </button>
+                ))}
+                {!todo.length && <p className="deskwork-empty">All caught up — new prospects land here after the next scan.</p>}
               </div>
-            </div>}
-          </div>
-          {focusCard && draft && contact ? (
-            <div className="focus-body">
-            <article className="focus-card">
-              <div className="focus-company">
-                <span className="avatar">{initials(focusCard.accounts.name)}</span>
-                <div>
-                  <h1 className="focus-name">{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h1>
-                  <p className="focus-sub"><span className="focus-sig">{signalLabel(focusCard)}</span>{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}<em className="chip focus-fit">Fit {focusCard.score}</em></p>
+            </aside>
+
+            {focusCard && draft && contact ? (<>
+              {/* MIDDLE — company, opening, people */}
+              <section className="deskwork-mid">
+                <header className="deskwork-co">
+                  <span className="avatar">{initials(focusCard.accounts.name)}</span>
+                  <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{signalLabel(focusCard)}{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p></div>
+                  <span className="deskwork-co-fit">{focusCard.score}<small>FIT</small></span>
+                </header>
+
+                <div className="deskwork-opening">
+                  <span className="overview-kick">The opening</span>
+                  <p className="deskwork-opening-lead">{focusCard.why_now || nextLine(focusCard)}</p>
+                  {focusCard.signals.raw?.operating_need && <p className="deskwork-opening-need"><b>Nine-67 could build:</b> {focusCard.signals.raw.operating_need}</p>}
+                  {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">View signal &amp; company details &#8599;</Link>}
                 </div>
-              </div>
 
-              <div className="focus-why">
-                <span className="focus-why-label">Why they&apos;re a good prospect</span>
-                <p className="focus-why-lead">{focusCard.why_now || nextLine(focusCard)}</p>
-                {focusCard.signals.raw?.operating_need && <p className="focus-why-need"><b>Nine-67 could build:</b> {focusCard.signals.raw.operating_need}</p>}
-                {signalEvidence(focusCard) && <p className="focus-why-evidence">{signalGroup(focusCard) === "social" ? "Posted" : "Evidence"}: &ldquo;{signalEvidence(focusCard)}&rdquo;{focusCard.signals.source_url ? <> <a href={focusCard.signals.source_url} target="_blank" rel="noreferrer">source &#8599;</a></> : null}</p>}
-              </div>
+                {focusCard.accounts.domain && <CompanyTeam compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id} onSelect={(person) => { if (person.full_name === focusCard.people.full_name) { setAlt(null); return; } setAlt({ cardId: focusCard.id, person }); setNotice(`Writing to ${person.full_name}.`); }} />}
+              </section>
 
-              <div className="focus-who">
-                <span className="avatar sm">{initials(contact.full_name)}</span>
-                <div className="focus-who-id">
-                  <strong>{contact.full_name}</strong>
-                  <small>{contact.title || "title unknown"} &middot; {contact.email ? contact.email : emailStateLabel(contact.email_status)}</small>
+              {/* RIGHT — draft with Email / LinkedIn tabs */}
+              <section className="deskwork-draft">
+                <div className="deskwork-draft-top"><span className="overview-kick">Outreach draft</span><span className="deskwork-draft-note">Edits kept this session</span></div>
+                <div className="deskwork-draft-to">
+                  <span className="avatar sm">{initials(contact.full_name)}</span>
+                  <div><strong>{contact.full_name}</strong><small>{contact.title || "title unknown"} · {focusCard.accounts.name}</small></div>
+                  {altContact ? <button type="button" className="focus-who-reset" onClick={() => setAlt(null)}>&#8617; {focusCard.people.full_name.split(/\s+/)[0]}</button> : <span className="deskwork-selected">Selected contact</span>}
                 </div>
-                {contact.linkedin_url
-                  ? <a href={contact.linkedin_url} target="_blank" rel="noreferrer" className="focus-link">LinkedIn &#8599;</a>
-                  : <a href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${contact.full_name} ${focusCard.accounts.name}`)}`} target="_blank" rel="noreferrer" className="focus-link">Find &#8599;</a>}
-                {altContact && <button type="button" className="focus-who-reset" onClick={() => setAlt(null)}>&#8617; {focusCard.people.full_name.split(/\s+/)[0]}</button>}
-              </div>
 
-              <div className="focus-messages">
-                <div className="focus-msg-head"><span className="focus-why-label">The message — a draft for each channel</span>{altContact && <span className="focus-msg-alt">Adapted for {contact.full_name.split(/\s+/)[0]}</span>}</div>
-
-                <div className="draft-preview">
-                  <div className="draft-preview-bar">
-                    <span className="draft-preview-ch draft-preview-ch-mail">Email</span>
-                    <div className="draft-preview-tools">
-                      <button type="button" onClick={() => setEditing((state) => ({ ...state, email: !state.email }))}>{editing.email ? "Done" : "Edit"}</button>
-                      <button type="button" disabled={refining === "email"} onClick={() => refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined)}>{refining === "email" ? "Refining…" : "Refine"}</button>
-                      <button type="button" onClick={() => copyText(adapt(emailDraft), "Email")}>Copy</button>
-                    </div>
+                <div className="deskwork-tabs">
+                  <button type="button" className={`deskwork-tab ${channelTab === "email" ? "is-active" : ""}`} onClick={() => setChannelTab("email")}>✉ Email</button>
+                  <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => setChannelTab("linkedin")}><i className="li-mark">in</i> LinkedIn</button>
+                  <div className="deskwork-tools">
+                    <button type="button" onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Done" : "Edit"}</button>
+                    <button type="button" disabled={refining === channelTab} onClick={() => channelTab === "email" ? refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined) : refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === channelTab ? "Refining…" : "Refine"}</button>
+                    <button type="button" onClick={() => copyText(adapt(channelTab === "email" ? emailDraft : linkedinDraft), channelTab === "email" ? "Email" : "LinkedIn message")}>Copy</button>
                   </div>
-                  {editing.email ? (
-                    <div className="draft-edit">
+                </div>
+
+                {channelTab === "email" ? (
+                  editing.email ? (
+                    <div className="deskwork-edit">
                       <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => edit("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
-                      <textarea className="focus-msg-body" value={focusCard.email_body ?? ""} rows={8} placeholder="No email draft yet — press Refine to write one." onChange={(event) => edit("email_body", event.target.value)} onBlur={(event) => saveField("email_body", event.target.value)} />
+                      <textarea className="focus-msg-body" value={focusCard.email_body ?? ""} rows={12} placeholder="No email draft yet — press Refine to write one." onChange={(event) => edit("email_body", event.target.value)} onBlur={(event) => saveField("email_body", event.target.value)} />
                     </div>
                   ) : (
-                    <div className="mail-preview">
-                      <div className="mail-preview-head">
+                    <div className="deskwork-doc">
+                      <div className="deskwork-doc-head">
                         <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
                         <div className="mail-row"><span>Subject</span><b>{subjectView("email", focusCard.email_subject || "—")}</b></div>
                       </div>
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
-                      <div className="mail-preview-body">{bodyView("email", adapt(emailDraft) || "No email draft yet — press Refine to write one.")}</div>
+                      <div className="deskwork-doc-body">{bodyView("email", adapt(emailDraft) || "No email draft yet — press Refine to write one.")}</div>
                     </div>
-                  )}
-                  <div className="draft-preview-send"><button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button><span className="draft-preview-state">{contact.email ? (contact.email_status === "verified" ? "verified address" : emailStateLabel(contact.email_status).toLowerCase()) : "no address on file"}</span></div>
-                </div>
-
-                <div className="draft-preview">
-                  <div className="draft-preview-bar">
-                    <span className="draft-preview-ch draft-preview-ch-li"><i>in</i>LinkedIn message</span>
-                    <div className="draft-preview-tools">
-                      <button type="button" onClick={() => setEditing((state) => ({ ...state, linkedin: !state.linkedin }))}>{editing.linkedin ? "Done" : "Edit"}</button>
-                      <button type="button" disabled={refining === "linkedin"} onClick={() => refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === "linkedin" ? "Refining…" : "Refine"}</button>
-                      <button type="button" onClick={() => copyText(adapt(linkedinDraft), "LinkedIn message")}>Copy</button>
-                    </div>
-                  </div>
-                  {editing.linkedin ? (
-                    <div className="draft-edit">
+                  )
+                ) : (
+                  editing.linkedin ? (
+                    <div className="deskwork-edit">
                       <input className="focus-msg-subject" value={focusCard.linkedin_subject ?? ""} placeholder="Subject (used for InMail)" onChange={(event) => edit("linkedin_subject", event.target.value)} onBlur={(event) => saveField("linkedin_subject", event.target.value)} />
-                      <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={7} placeholder="No LinkedIn message yet — press Refine to write one." onChange={(event) => edit("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
+                      <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={11} placeholder="No LinkedIn message yet — press Refine to write one." onChange={(event) => edit("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
                     </div>
                   ) : (
-                    <div className="li-preview">
-                      <div className="li-preview-head"><span className="avatar sm">{initials(contact.full_name)}</span><div><strong>{contact.full_name}</strong><small>{contact.title || "LinkedIn message"}</small></div></div>
-                      {(focusCard.linkedin_subject || diffFor("linkedin")) && <p className="li-preview-subject">{subjectView("linkedin", focusCard.linkedin_subject || "—")}</p>}
+                    <div className="deskwork-doc">
+                      {(focusCard.linkedin_subject || diffFor("linkedin")) && <div className="deskwork-doc-head"><div className="mail-row"><span>Subject</span><b>{subjectView("linkedin", focusCard.linkedin_subject || "—")}</b></div></div>}
                       {diffFor("linkedin") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
-                      <div className="li-preview-body">{bodyView("linkedin", adapt(linkedinDraft) || "No LinkedIn message yet — press Refine to write one.")}</div>
+                      <div className="deskwork-doc-body">{bodyView("linkedin", adapt(linkedinDraft) || "No LinkedIn message yet — press Refine to write one.")}</div>
                     </div>
-                  )}
-                  <div className="draft-preview-send"><button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button><span className="draft-preview-state">{contact.linkedin_url ? "profile on file" : "search for profile"}</span></div>
-                </div>
-              </div>
+                  )
+                )}
 
-              <div className="focus-actions">
-                {contact.email && <button type="button" disabled={enrolling} className="btn" title="Night Watch sends the email itself and follows up, stopping on a reply" onClick={startSequence}>{enrolling ? "Starting…" : "Automate email →"}</button>}
-                <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
-                <button type="button" disabled={busy} className="btn ghost danger focus-dismiss" onClick={dismissCurrent}>Dismiss</button>
+                <div className="deskwork-draft-foot">
+                  <span className="deskwork-words">{(channelTab === "email" ? (focusCard.email_body ?? "") : linkedinDraft).trim().split(/\s+/).filter(Boolean).length} words</span>
+                  <div className="deskwork-draft-actions">
+                    {channelTab === "email"
+                      ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button>
+                      : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
+                    {contact.email && <button type="button" disabled={enrolling} className="btn" title="Night Watch sends and follows up, stopping on a reply" onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
+                    <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
+                    <button type="button" disabled={busy} className="btn ghost danger" onClick={dismissCurrent}>Dismiss</button>
+                  </div>
+                </div>
+                {notice && <p className="notice focus-notice">{notice}</p>}
+              </section>
+            </>) : (
+              <div className="deskwork-clear">
+                <h2>All caught up</h2>
+                <p>Every prospect has been actioned. New ones land here after the next scan.</p>
+                <button type="button" className="btn" onClick={() => setBrowse(true)}>Overview</button>
               </div>
-              {notice && <p className="notice focus-notice">{notice}</p>}
-            </article>
-            {focusCard.accounts.domain && <aside className="focus-side">
-              <CompanyTeam domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id} onSelect={(person) => { setAlt({ cardId: focusCard.id, person }); setNotice(`Draft adapted for ${person.full_name}. Copy it and send from LinkedIn or email.`); }} />
-            </aside>}
-          </div>
-          ) : (
-            <div className="focus-clear">
-              <h2>All caught up</h2>
-              <p>Every prospect has been actioned. New ones land here after the next scan.</p>
-              <button type="button" className="btn" onClick={() => setBrowse(true)}>Browse all prospects</button>
-            </div>
-          )}
+            )}
           </div>
         </div>
       )}
@@ -903,19 +884,6 @@ function signalWhen(item: Card) {
   if (days === 1) return "spotted yesterday";
   if (days < 30) return `spotted ${days} days ago`;
   return `spotted ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(parsed)}`;
-}
-
-/** The concrete proof behind the signal: the role and tools, the post, or the source excerpt. */
-function signalEvidence(item: Card): string | null {
-  const raw = item.signals.raw;
-  if (!raw) return item.signals.summary || null;
-  if (raw.job) {
-    const bits = [raw.job.title, raw.job.days_open ? `${raw.job.days_open} days open` : "", ...(raw.job.tools_named ?? [])].filter(Boolean);
-    return bits.join(" · ") || item.signals.summary || null;
-  }
-  if (raw.post?.text) return raw.post.text;
-  if (raw.source?.excerpt) return raw.source.excerpt;
-  return item.signals.summary || null;
 }
 
 type AltContact = { id: string; full_name: string; title: string; email: string | null; email_status: string; linkedin_url: string | null };

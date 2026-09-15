@@ -17,7 +17,7 @@ function linkedinSearch(name: string, company: string) {
 }
 
 /** Company details and everyone on file there, loaded on demand for the one-screen prospect flow. */
-export function CompanyTeam({ domain, company, activeId, onSelect }: { domain: string; company: string; activeId?: string; onSelect?: (person: TeamPerson) => void }) {
+export function CompanyTeam({ domain, company, activeId, onSelect, compact }: { domain: string; company: string; activeId?: string; onSelect?: (person: TeamPerson) => void; compact?: boolean }) {
   const [team, setTeam] = useState<{ domain: string; data: Team } | null>(null);
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -35,16 +35,18 @@ export function CompanyTeam({ domain, company, activeId, onSelect }: { domain: s
   const facts = [account?.vertical, account?.revenueBand, account?.employees, account?.tier].filter(Boolean) as string[];
   const shown = open ? people : people.slice(0, 6);
 
-  return <div className="focus-block focus-team">
-    <div className="focus-team-head">
-      <span className="focus-why-label">The company</span>
-      {account?.careersUrl && <a href={account.careersUrl} target="_blank" rel="noreferrer" className="focus-link">Careers page &#8599;</a>}
-    </div>
-    {facts.length > 0 && <p className="focus-team-facts">{facts.join(" · ")}</p>}
-    <Link href={`/accounts/${domain}`} className="focus-link">Everything on {company} &rarr;</Link>
+  return <div className={`focus-block focus-team ${compact ? "is-compact" : ""}`}>
+    {!compact && <>
+      <div className="focus-team-head">
+        <span className="focus-why-label">The company</span>
+        {account?.careersUrl && <a href={account.careersUrl} target="_blank" rel="noreferrer" className="focus-link">Careers page &#8599;</a>}
+      </div>
+      {facts.length > 0 && <p className="focus-team-facts">{facts.join(" · ")}</p>}
+      <Link href={`/accounts/${domain}`} className="focus-link">Everything on {company} &rarr;</Link>
+    </>}
 
     <div className="focus-team-people">
-      <span className="focus-why-label">Everyone on file{people.length ? ` · ${people.length}` : ""}</span>
+      <span className="focus-why-label">{compact ? "People to contact" : `Everyone on file${people.length ? ` · ${people.length}` : ""}`}{compact && people.length ? <em className="focus-team-count">{people.length} available</em> : null}</span>
       {!ready && <p className="focus-team-loading">Loading the team…</p>}
       {ready && people.length === 0 && <p className="focus-team-loading">No one on file yet for this company.</p>}
       {shown.map((person) => (
