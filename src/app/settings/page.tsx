@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { FeatureControlCenter } from "@/components/FeatureControlCenter";
+import { Connections } from "@/components/Connections";
 import { SenderProfileForm } from "@/components/SenderProfileForm";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -18,7 +19,7 @@ export default async function Settings() {
   const db = admin();
   const today = new Date().toISOString().slice(0, 10);
   const [{ data: connections }, { count: accountCount }, { count: cardsToday }, { count: experiments }, { count: outcomes }, { data: sender }] = await Promise.all([
-    db.from("gmail_connections").select("owner,email"),
+    db.from("gmail_connections").select("owner,email,calendar,connected_at"),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example"),
     db.from("cards").select("*", { count: "exact", head: true }).eq("surfaced_on", today),
     db.from("message_experiments").select("*", { count: "exact", head: true }),
@@ -36,6 +37,7 @@ export default async function Settings() {
   return <div>
     <Header />
     <main className="workspace-page">
+      <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} /></div>
       <div className="feature-center" style={{ marginBottom: 18 }}><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
       <FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={activeTargetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} />
     </main>

@@ -22,6 +22,7 @@ const MIGRATIONS: Array<{ file: string; table: string; column: string; adds: str
   { file: "0014_sender_profile.sql", table: "sender_profiles", column: "owner", adds: "the sender identity (name, title, signature, CC) applied to outreach emails" },
   { file: "0015_card_claim.sql", table: "cards", column: "working_at", adds: "the in-progress marker so two people don't message the same prospect" },
   { file: "0016_linkedin_subject.sql", table: "cards", column: "linkedin_subject", adds: "a subject line on the LinkedIn draft (used for InMail)" },
+  { file: "0017_google_scopes.sql", table: "gmail_connections", column: "scopes", adds: "the granted Google scopes and Calendar flag per connected sender" },
 ];
 
 export type PendingMigration = { file: string; adds: string; reason: string; sql: string };

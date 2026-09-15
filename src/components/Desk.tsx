@@ -425,6 +425,24 @@ export function Desk({
     await copyText(text, channel === "email" ? "Email" : "LinkedIn message");
     if (text.trim()) await recordTouch(channel === "email" ? "email" : "message", text);
   };
+  // "Propose times": pull open slots from the connected calendar and drop them into the email draft to edit.
+  const [proposing, setProposing] = useState(false);
+  const proposeMeetingTimes = async () => {
+    if (!focusCard) return;
+    setProposing(true);
+    setNotice("Checking your calendar for open times…");
+    try {
+      const response = await fetch(`/api/cards/${focusCard.id}/propose-times`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+      const json = await response.json();
+      if (!response.ok) { setNotice(json.error ?? "Could not propose times."); return; }
+      const lines = (json.slots as Array<{ label: string }>).map((slot) => `• ${slot.label}`).join("\n");
+      const body = `${(focusCard.email_body ?? "").trimEnd()}\n\nWould any of these work for a quick call?\n${lines}\n\nHappy to send a calendar invite for whichever suits.`;
+      edit("email_body", body);
+      saveField("email_body", body);
+      setNotice("Added open times from your calendar — edit as you like, then send.");
+    } catch { setNotice("Could not reach your calendar."); }
+    finally { setProposing(false); }
+  };
   // Improve one draft with AI, in place: keep it a first-touch, tighten it, and write the result back to the card.
   const refine = async (channel: "email" | "linkedin", body: string, subject?: string) => {
     if (!focusCard) return;
@@ -780,6 +798,7 @@ export function Desk({
                   <div className="deskwork-tools">
                     <button type="button" onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Done" : "Edit"}</button>
                     <button type="button" disabled={refining === channelTab} onClick={() => channelTab === "email" ? refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined) : refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === channelTab ? "Refining…" : "Refine"}</button>
+                    {channelTab === "email" && <button type="button" disabled={proposing} title="Insert open times from your connected calendar" onClick={proposeMeetingTimes}>{proposing ? "Checking…" : "Propose times"}</button>}
                     <button type="button" onClick={() => copyAndLog(channelTab)}>Copy</button>
                   </div>
                 </div>
