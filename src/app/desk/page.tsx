@@ -34,7 +34,6 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   const db = admin();
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = daysAgoIso(1);
-  const owner = "josh" as const;
 
   // An unactioned card must never disappear because a scheduled job failed:
   // query by status and score, and use surfaced_on only as the "new today" badge (F13).
@@ -54,7 +53,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
 
   const [
     { data: cardRows, error },
-    { data: gmail },
+    { data: gmailRows },
     { count: activeAccounts },
     { count: researchedAccounts },
     signalAccountRows,
@@ -79,7 +78,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     { count: totalPosts },
   ] = await Promise.all([
     query,
-    db.from("gmail_connections").select("id").eq("owner", owner).maybeSingle(),
+    db.from("gmail_connections").select("owner,email"),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example"),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example").not("last_scouted_at", "is", null),
     fetchAll<{ account_id: string }>((from, to) => db.from("signals").select("account_id").range(from, to)),
@@ -211,7 +210,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   return (
     <div className="shell">
       <Header />
-      <Desk initialCards={cards} selectedId={params.card} gmailConnected={Boolean(gmail)} context={context} scan={scan} />
+      <Desk initialCards={cards} selectedId={params.card} gmailConnected={(gmailRows ?? []).length > 0} senders={(gmailRows ?? []) as Array<{ owner: string; email: string | null }>} context={context} scan={scan} />
     </div>
   );
 }

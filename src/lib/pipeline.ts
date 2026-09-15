@@ -282,9 +282,6 @@ export async function persistSignal(account: Account, item: ScoutSignal, outcome
 export async function ensureAccountsLoaded(db: Db) {
   // The file is the source of truth; if the database is behind it (empty, or tiers not written), write it now.
   if (await targetsNeedSync(db)) await syncTargetAccounts(db);
-  // Josh works the list alone. Anything still assigned to the earlier second owner moves to him.
-  await db.from("cards").update({ assigned_to: "josh" }).eq("assigned_to", "jenna");
-  await db.from("people").update({ connection_owner: "josh" }).eq("connection_owner", "jenna");
 }
 
 async function allActiveAccounts(db: Db, scope: RunScope = "outreach") {

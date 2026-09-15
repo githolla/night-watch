@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get("code");
-    const owner = z.enum(["josh"]).parse(url.searchParams.get("state"));
+    const owner = z.enum(["josh", "jenna"]).parse(url.searchParams.get("state"));
     if (!code) throw new Error("Missing OAuth code");
     const tokens = await exchangeCode(code);
     if (!tokens.refresh_token) throw new Error("Google did not return a refresh token — remove the app under Google Account access and reconnect.");

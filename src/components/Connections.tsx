@@ -3,47 +3,57 @@
 import { useState } from "react";
 
 type Connection = { owner: string; email: string | null; calendar?: boolean | null; connected_at?: string | null };
+const SEATS: Array<{ owner: "josh" | "jenna"; label: string }> = [
+  { owner: "josh", label: "Seat 1" },
+  { owner: "jenna", label: "Seat 2" },
+];
 
-/** Connect the sending Google Workspace account so Night Watch can send from it, read replies for the
- *  cadence, and propose meeting times from its calendar. */
+/** Connect one Google Workspace account per sending seat. Night Watch sends from the seat a card is assigned
+ *  to (chosen with "Send as" on the desk), pulls that seat's replies into the cadence, and proposes meeting
+ *  times from its calendar. */
 export function Connections({ connections }: { connections: Connection[] }) {
-  const row = connections.find((item) => item.owner === "josh") ?? connections[0] ?? null;
-  const connected = Boolean(row);
-  const [busy, setBusy] = useState(false);
+  const byOwner = new Map(connections.map((row) => [row.owner, row]));
+  const [busy, setBusy] = useState<string | null>(null);
 
-  async function disconnect() {
-    if (!confirm("Disconnect Google? Sending and reply capture will stop until you reconnect.")) return;
-    setBusy(true);
+  async function disconnect(owner: string, label: string) {
+    if (!confirm(`Disconnect Google for ${label}? Sending and reply capture stop for it until reconnected.`)) return;
+    setBusy(owner);
     try {
-      await fetch("/api/gmail/disconnect", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+      await fetch("/api/gmail/disconnect", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner }) });
       window.location.reload();
-    } finally { setBusy(false); }
+    } finally { setBusy(null); }
   }
 
   return (
     <section className="conn-card">
       <header className="conn-head">
-        <div><h2>Google Workspace</h2><p>Connect the account outreach is sent from. Night Watch sends through it, pulls replies into the cadence, and proposes meeting times from its calendar.</p></div>
+        <div><h2>Google Workspace seats</h2><p>Connect an account per seat. Outreach sends from the seat a card is assigned to, replies land back here to drive the cadence, and each seat&rsquo;s calendar powers &ldquo;Propose times&rdquo;.</p></div>
       </header>
       <div className="conn-list">
-        <div className={`conn-row ${connected ? "is-on" : ""}`}>
-          <div className="conn-who">
-            <span className={`conn-dot ${connected ? "is-on" : ""}`} />
-            <div>
-              <strong>Sending account</strong>
-              <small>{connected ? row!.email ?? "connected" : "Not connected"}</small>
+        {SEATS.map(({ owner, label }) => {
+          const row = byOwner.get(owner);
+          const connected = Boolean(row);
+          return (
+            <div key={owner} className={`conn-row ${connected ? "is-on" : ""}`}>
+              <div className="conn-who">
+                <span className={`conn-dot ${connected ? "is-on" : ""}`} />
+                <div>
+                  <strong>{label}</strong>
+                  <small>{connected ? row!.email ?? "connected" : "Not connected"}</small>
+                </div>
+              </div>
+              <div className="conn-scopes">
+                {connected && <><em className="conn-chip is-on">Send</em><em className="conn-chip is-on">Replies</em><em className={`conn-chip ${row!.calendar ? "is-on" : ""}`}>{row!.calendar ? "Calendar" : "No calendar"}</em></>}
+              </div>
+              <div className="conn-actions">
+                <a className="btn primary" href={`/api/gmail/connect?owner=${owner}`}>{connected ? "Reconnect" : "Connect Google"}</a>
+                {connected && <button type="button" className="btn ghost danger" disabled={busy === owner} onClick={() => disconnect(owner, label)}>Disconnect</button>}
+              </div>
             </div>
-          </div>
-          <div className="conn-scopes">
-            {connected && <><em className="conn-chip is-on">Send</em><em className="conn-chip is-on">Replies</em><em className={`conn-chip ${row!.calendar ? "is-on" : ""}`}>{row!.calendar ? "Calendar" : "No calendar"}</em></>}
-          </div>
-          <div className="conn-actions">
-            <a className="btn primary" href="/api/gmail/connect">{connected ? "Reconnect" : "Connect Google"}</a>
-            {connected && <button type="button" className="btn ghost danger" disabled={busy} onClick={disconnect}>Disconnect</button>}
-          </div>
-        </div>
+          );
+        })}
       </div>
-      <p className="conn-note">OAuth only — an encrypted refresh token is stored, never a password. Requires Google Cloud credentials (client ID/secret + redirect URI) on the server, with Gmail send/read and Calendar approved on the consent screen. Reconnect if you add Calendar so &ldquo;Propose times&rdquo; can read your availability.</p>
+      <p className="conn-note">OAuth only — an encrypted refresh token is stored per seat, never a password. Requires Google Cloud credentials (client ID/secret + redirect URI) on the server, with Gmail send/read and Calendar approved on the consent screen. Reconnect a seat after adding Calendar so &ldquo;Propose times&rdquo; can read its availability.</p>
     </section>
   );
 }

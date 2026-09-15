@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { z } from "zod";
 
-const input = z.object({ owner: z.enum(["josh"]).default("josh") });
+const input = z.object({ owner: z.enum(["josh", "jenna"]).default("josh") });
 
 export async function POST(request: Request) {
   try {

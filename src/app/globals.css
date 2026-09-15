@@ -1675,6 +1675,10 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .deskwork-fu-body{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-soft);white-space:pre-wrap;max-height:120px;overflow:hidden}
 .deskwork-fu-copy{justify-self:start;border:1px solid var(--line-strong);background:var(--paper-bright);border-radius:var(--radius-sm);padding:5px 11px;font:600 12px/1 var(--sans);color:var(--ink-soft);cursor:pointer}
 .deskwork-fu-copy:hover{background:var(--soft);color:var(--ink)}
+.deskwork-sendas{display:inline-flex;align-items:center;gap:6px;font:600 11px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-right:auto;margin-left:14px}
+.deskwork-sendas select{border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper-bright);padding:6px 8px;font:500 12px/1 var(--sans);color:inherit;text-transform:none;letter-spacing:0}
+.deskwork-booked{font:600 11px/1 var(--sans);color:#1b7a3d;text-decoration:none}
+.deskwork-booked[href]:hover{text-decoration:underline}
 
 /* Settings → Connections: connect each sender's Google Workspace */
 .conn-card{border:1px solid var(--line-strong);border-radius:16px;background:var(--card);box-shadow:var(--shadow-sm);padding:20px 22px;max-width:760px;margin:0 auto}

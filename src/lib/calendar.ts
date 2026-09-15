@@ -61,6 +61,27 @@ export async function proposeTimes(owner: Owner, opts: { durationMins?: number; 
   return { slots, timeZone };
 }
 
+const WEEKDAYS: Record<string, string> = { mon: "monday", tue: "tuesday", wed: "wednesday", thu: "thursday", fri: "friday", sat: "saturday", sun: "sunday" };
+/** Which offered slot a reply agrees to — conservative: needs at least two matching cues (weekday, date, time)
+ *  and a single clear winner, so an ambiguous "yes" never books the wrong time. Returns null when unsure. */
+export function matchProposedSlot(reply: string, slots: Slot[]): Slot | null {
+  const text = reply.toLowerCase();
+  const tight = text.replace(/\s/g, "");
+  const scored = slots.map((slot) => {
+    const label = slot.label.toLowerCase();
+    const wd = label.match(/\b(mon|tue|wed|thu|fri|sat|sun)/)?.[0];
+    const day = label.match(/\b(\d{1,2})\b/)?.[0];
+    const time = label.match(/\d{1,2}(:\d{2})?\s?(am|pm)/)?.[0]?.replace(/\s/g, "");
+    let score = 0;
+    if (wd && (text.includes(wd) || text.includes(WEEKDAYS[wd]))) score++;
+    if (day && new RegExp(`\\b${day}(st|nd|rd|th)?\\b`).test(text)) score++;
+    if (time && (tight.includes(time) || tight.includes(time.replace(":00", "")))) score++;
+    return { slot, score };
+  }).sort((a, b) => b.score - a.score);
+  if ((scored[0]?.score ?? 0) >= 2 && (scored.length < 2 || scored[0].score > scored[1].score)) return scored[0].slot;
+  return null;
+}
+
 /** Create a calendar invite for a chosen slot and email the attendee (with a Google Meet link). */
 export async function createInvite(owner: Owner, opts: { summary: string; description?: string; start: string; end: string; timeZone: string; attendee: string }) {
   const token = await ownerAccessToken(owner);

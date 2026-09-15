@@ -14,8 +14,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (!card) throw new Error("Card not found");
     if (!["approved", "edited"].includes(card.status)) throw new Error("Approve the card before sending");
     if (card.people.do_not_contact || ["client", "do_not_contact"].includes(card.accounts.status)) throw new Error("Do-not-contact guard blocked this send");
-    const owner = "josh" as const;
-    if (owner !== card.assigned_to) throw new Error("Only the assigned owner may send");
+    // Send from the seat the card is assigned to (chosen with "Send as" on the desk).
+    const owner = (card.assigned_to === "jenna" ? "jenna" : "josh") as "josh" | "jenna";
     const since = new Date(); since.setHours(0, 0, 0, 0);
     const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").gte("sent_at", since.toISOString());
     validateEmail(card.people.email_status, count ?? 0, body);

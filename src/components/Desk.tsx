@@ -32,6 +32,8 @@ type Card = InsightCard & {
   isNew?: boolean;
   carriedOver?: boolean;
   followups?: Followup[];
+  invite_link?: string | null;
+  meeting_at?: string | null;
   people: InsightCard["people"] & {
     email: string | null;
     email_status: string;
@@ -137,6 +139,7 @@ export function Desk({
   selectedId,
   demo = false,
   gmailConnected = false,
+  senders = [],
   context,
   scan,
 }: {
@@ -144,6 +147,7 @@ export function Desk({
   selectedId?: string;
   demo?: boolean;
   gmailConnected?: boolean;
+  senders?: Array<{ owner: string; email: string | null }>;
   context?: DeskContext;
   scan?: import("react").ReactNode;
 }) {
@@ -424,6 +428,14 @@ export function Desk({
     const text = adapt(channel === "email" ? emailDraft : linkedinDraft);
     await copyText(text, channel === "email" ? "Email" : "LinkedIn message");
     if (text.trim()) await recordTouch(channel === "email" ? "email" : "message", text);
+  };
+  // "Send as": route this prospect's outreach through a chosen connected seat by reassigning the card.
+  const seatLabel = (owner: string) => (senders.find((s) => s.owner === owner)?.email ?? (owner === "jenna" ? "Seat 2" : "Seat 1"));
+  const assignSeat = (owner: string) => {
+    if (!focusCard) return;
+    setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, assigned_to: owner } : item));
+    void patch({ assigned_to: owner });
+    setNotice(`Outreach for ${focusCard.people.full_name} now sends from ${seatLabel(owner)}.`);
   };
   // "Propose times": pull open slots from the connected calendar and drop them into the email draft to edit.
   const [proposing, setProposing] = useState(false);
@@ -785,7 +797,7 @@ export function Desk({
 
               {/* RIGHT — draft with Email / LinkedIn tabs */}
               <section className="deskwork-draft">
-                <div className="deskwork-draft-top"><span className="overview-kick">Outreach draft</span><span className="deskwork-draft-note">Edits kept this session</span></div>
+                <div className="deskwork-draft-top"><span className="overview-kick">Outreach draft</span>{focusCard.invite_link ? <a className="deskwork-booked" href={focusCard.invite_link.startsWith("http") ? focusCard.invite_link : undefined} target="_blank" rel="noreferrer">📅 Meeting booked</a> : <span className="deskwork-draft-note">Edits kept this session</span>}</div>
                 <div className="deskwork-draft-to">
                   <span className="avatar sm">{initials(contact.full_name)}</span>
                   <div><strong>{contact.full_name}</strong><small>{contact.title || "title unknown"} · {focusCard.accounts.name}</small></div>
@@ -856,6 +868,11 @@ export function Desk({
 
                 <div className="deskwork-draft-foot">
                   <span className="deskwork-words">{(channelTab === "email" ? (focusCard.email_body ?? "") : linkedinDraft).trim().split(/\s+/).filter(Boolean).length} words</span>
+                  {channelTab === "email" && senders.length > 1 && <label className="deskwork-sendas">Send as
+                    <select value={focusCard.assigned_to} onChange={(event) => assignSeat(event.target.value)}>
+                      {senders.map((seat) => <option key={seat.owner} value={seat.owner}>{seat.email ?? seat.owner}</option>)}
+                    </select>
+                  </label>}
                   <div className="deskwork-draft-actions">
                     {channelTab === "email"
                       ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button>
