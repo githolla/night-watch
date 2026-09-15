@@ -103,6 +103,8 @@ export async function upsertPerson(account: Account, candidate: { name: string; 
   };
   const linkedin = apollo?.linkedin_url ?? candidate.linkedin_url;
   if (linkedin) payload.linkedin_url = linkedin;
+  // Apollo places this person at a different company now — record them but never contact a departed employee.
+  if (apollo?.stillHere === false) payload.do_not_contact = true;
   if (apollo?.email) {
     payload.email = apollo.email;
     payload.email_status = apollo.email_status === "verified" ? "verified" : apollo.email_status === "catch_all" ? "catch_all" : "unverified";
@@ -209,12 +211,19 @@ function rawSourceDate(raw: DatedRaw | null | undefined, fallback: string | null
 
 /**
  * Whether a signal's real source date is too old to act on. Job postings are exempt: an active listing is
- * current by definition and its recency is governed by the sweep's active flag, not a publish date.
+ * current by definition and its recency is governed by the sweep's active flag, not a publish date. A post
+ * (exec_post) must carry its own recent date — never "when we found it" — so an undated or old post is
+ * rejected outright; that is how a years-old post from someone who has since left slips in otherwise.
  */
 function isStaleSource(type: string | undefined, raw: DatedRaw | null | undefined, observedAt: string | null | undefined): boolean {
   if (type === "job_post" || type === "job_cluster") return false;
+  if (type === "exec_post") {
+    const postDate = rawSourceDate(raw, null); // ignore observed_at: a real post always carries its own date
+    if (!postDate) return true; // an undated "post" is boilerplate or unverifiable — do not act on it
+    return Date.now() - postDate.getTime() > SIGNAL_MAX_AGE_DAYS * 86_400_000;
+  }
   const date = rawSourceDate(raw, observedAt);
-  if (!date) return false; // the model was told to only use dated sources; an undated one is not assumed stale
+  if (!date) return false;
   return Date.now() - date.getTime() > SIGNAL_MAX_AGE_DAYS * 86_400_000;
 }
 

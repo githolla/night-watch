@@ -29,12 +29,19 @@ export async function enrichAccountPeople(db: SupabaseClient, account: { id: str
   let checked = 0;
   let emails = 0;
   let linkedins = 0;
+  let departed = 0;
   for (const person of people) {
     // Nothing left to fill for someone with a verified address and a profile URL.
     if (person.email_status === "verified" && person.linkedin_url) continue;
     const match = await matchPerson(person.full_name, account.domain).catch(() => null);
     checked += 1;
     if (!match) continue;
+    // Apollo says this person now works somewhere else — they have left. Stop contacting them.
+    if (match.stillHere === false) {
+      await db.from("people").update({ do_not_contact: true, contact_notes: `Left the company — Apollo shows them at ${match.currentCompany ?? "another company"}.` }).eq("id", person.id);
+      departed += 1;
+      continue;
+    }
     const patch: Record<string, unknown> = {};
     if (match.email && person.email_status !== "verified") {
       patch.email = match.email;
@@ -52,5 +59,5 @@ export async function enrichAccountPeople(db: SupabaseClient, account: { id: str
   // Apollo is the source of truth now: drop any leftover blind "best guess" addresses so the page shows
   // a verified email or nothing, never a guess.
   const { data: cleared } = await db.from("people").update({ email: null, email_status: "none", email_source: null, email_verified_at: null }).eq("account_id", account.id).eq("email_source", "guess").select("id");
-  return { configured: true, checked, emails, linkedins, cleared: cleared?.length ?? 0 };
+  return { configured: true, checked, emails, linkedins, departed, cleared: cleared?.length ?? 0 };
 }
