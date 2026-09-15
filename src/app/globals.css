@@ -1475,3 +1475,14 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .cell-lead .avatar.sm{flex:0 0 28px;width:28px;height:28px;border-radius:7px;font-size:10px}
 .data-table td.cell-clamp{max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pill-attention{background:var(--accent-soft);color:var(--accent-strong)}
+
+/* Results page: bring the KPI tiles onto the shared card + numeral system. */
+.stats .metrics{border:0;gap:12px;background:transparent}
+.stats .metric{padding:16px 18px;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);background:var(--card);color:var(--ink-soft);font:500 12.5px/1.4 var(--sans);letter-spacing:0;text-transform:none}
+.stats .metric:last-child{border:1px solid var(--line)}
+.stats .metric strong{font:600 26px/1.1 var(--sans);letter-spacing:-.02em;margin-top:10px;color:var(--ink)}
+.experiment-metrics{border:0;gap:12px;background:transparent}
+.experiment-metrics>div{min-height:0;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);background:var(--card)}
+.experiment-metrics>div:last-child{border:1px solid var(--line)}
+.experiment-metrics span{text-transform:none;letter-spacing:0;color:var(--ink-soft)}
+.experiment-metrics strong{font:600 26px/1.1 var(--sans);letter-spacing:-.02em}
