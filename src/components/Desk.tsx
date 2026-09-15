@@ -434,7 +434,7 @@ export function Desk({
   }
 
   return (
-    <main className="pipeline">
+    <main className={`pipeline${!active && !browse && cards.length > 0 ? " pipeline-work" : ""}`}>
       {scan && <div className="pipeline-scan">{scan}</div>}
       {cards.length === 0 ? (
           <div className="detail-inner empty-desk">
