@@ -153,6 +153,7 @@ export function Desk({
   const [alt, setAlt] = useState<{ cardId: string; person: AltContact } | null>(null);
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
   // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
@@ -349,6 +350,30 @@ export function Desk({
     if (href) { const link = document.createElement("a"); link.href = href; document.body.appendChild(link); link.click(); link.remove(); }
     if (altContact) { setNotice(`Email draft opened for ${contact.full_name} — send it from your mail app.`); return; }
     recordTouch("email", (draft?.view === "email" ? focusCard?.email_body : "") || draftText);
+  };
+  // Hand the prospect to the automated cadence: Night Watch sends the email itself on day 0, 3 and 7 and stops
+  // the moment they reply. Auto-send needs a verified address and a connected sender, so the engine's guards
+  // decide whether it fires now or waits — the API tells us which.
+  const startSequence = async () => {
+    if (!focusCard) return;
+    const first = focusCard.people.full_name.split(/\s+/)[0] || "there";
+    const subject = focusCard.email_subject || `Quick idea for ${focusCard.accounts.name}`;
+    const body = focusCard.email_body || draftText;
+    if (!body) { setNotice("No email draft yet — open the studio to write one first."); return; }
+    const steps = [
+      { day: 0, channel: "email", title: "Intro email", detail: "The opening email from the draft", subject, body },
+      { day: 3, channel: "email", title: "Follow-up", detail: "A short bump", subject: `Re: ${subject}`, body: `Hi ${first},\n\nFloating this back up in case it slipped by — happy to send a quick teardown of what we'd build for ${focusCard.accounts.name} instead of the hire. Worth a look?` },
+      { day: 7, channel: "email", title: "Close", detail: "A brief sign-off", subject: `Re: ${subject}`, body: `Hi ${first},\n\nI'll leave it here for now. If building this instead of hiring for it becomes a priority, just reply and I'll pick it back up.` },
+    ];
+    setEnrolling(true);
+    try {
+      const response = await fetch(`/api/cards/${focusCard.id}/cadence`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ mode: "automatic", stopOnReply: true, weekdaysOnly: true, sendWindow: "9:30–16:00", timeZone: "America/New_York", steps }) });
+      const json = await response.json();
+      if (!response.ok) { setNotice(json.error ?? "Could not start the sequence."); return; }
+      setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, status: "approved" } : item));
+      setNotice(`Email sequence started for ${focusCard.people.full_name} — Night Watch sends on day 0, 3 and 7 and stops on a reply.`);
+    } catch { setNotice("Could not start the sequence."); }
+    finally { setEnrolling(false); }
   };
   // LinkedIn has no send API, so open the person's LinkedIn and put the message on the clipboard — one paste, not a hunt.
   const openLinkedIn = async () => {
@@ -700,6 +725,7 @@ export function Desk({
                   ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email draft"} →</button>
                   : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
                 {draft.view !== "email" && contact.email && <button type="button" className="btn" onClick={sendEmail}>Email instead →</button>}
+                {contact.email && <button type="button" disabled={enrolling} className="btn" title="Night Watch sends the email itself and follows up, stopping on a reply" onClick={startSequence}>{enrolling ? "Starting…" : "Automate email →"}</button>}
                 <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
                 <button type="button" disabled={busy} className="btn ghost danger focus-dismiss" onClick={dismissCurrent}>Dismiss</button>
               </div>
