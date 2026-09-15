@@ -1555,6 +1555,11 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .li-preview-head strong{display:block;font-size:14px;font-weight:600}
 .li-preview-head small{display:block;font-size:12px;color:var(--muted)}
 .li-preview-subject{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--ink)}
+.diff-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 14px;background:var(--accent-soft);border-bottom:1px solid var(--line);font:600 11px/1.3 var(--sans);color:var(--ink-soft)}
+.diff-bar em{font-style:normal;padding:0 3px;border-radius:3px}
+.diff-bar button{border:1px solid var(--line-strong);background:var(--paper-bright);border-radius:var(--radius-sm);padding:3px 10px;font:600 11px/1 var(--sans);color:var(--ink-soft);cursor:pointer}
+.diff-del{color:var(--failed);text-decoration:line-through;text-decoration-color:var(--failed)}
+.diff-add{background:var(--ok-soft);color:var(--ok);border-radius:3px;text-decoration:none}
 .li-preview-body{font-size:14px;line-height:1.6;color:var(--ink);white-space:pre-wrap}
 .draft-edit{padding:12px 14px;display:grid;gap:9px}
 .draft-preview-send{display:flex;align-items:center;gap:12px;padding:11px 14px;border-top:1px solid var(--line);background:var(--soft)}

@@ -57,6 +57,25 @@ function likeLiteral(value: string) {
   return value.replace(/[\\%_]/g, "\\$&");
 }
 
+/** Service names, value props and section headings scraped off a company site that must never be stored as people. */
+const NON_NAME = /\b(service|services|solution|solutions|advisory|advisor|consult\w*|manag\w*|expertise|strateg\w*|operational|operations|optimi\w*|costs?|reduc\w*|virtual|infrastructure|objectives?|commitment|support|analytics|intelligence|compliance|security|cloud|network\w*|assessment|roadmap|transformation|efficiency|productivity|governance|onboarding|outsourc\w*|helpdesk|migration|backup|recovery|hosting|monitoring|automation|integration|platform|dashboard|program|department|division|team|group|practice|inc|llc|corp|ltd|solutions?)\b/i;
+const NAME_PARTICLE = /^(de|del|della|van|von|der|di|da|la|le|bin|al|el|mac|mc|st|o')$/i;
+/**
+ * Whether a scraped string is plausibly a real person's name, not a service line or value prop like
+ * "Strategic IT Guidance" or "Reduced Operational Costs". Real names are 2-4 capitalized tokens with no
+ * marketing vocabulary, symbols, or sentence connectors.
+ */
+export function isLikelyPersonName(raw: string): boolean {
+  const name = (raw ?? "").trim();
+  if (!name) return false;
+  const words = name.split(/\s+/);
+  if (words.length < 2 || words.length > 5) return false;
+  if (/[0-9@/&|,:•·]/.test(name)) return false;
+  if (NON_NAME.test(name)) return false;
+  if (/\b(and|to|with|without|the|for|of|an?|your|our|that|this)\b/i.test(name)) return false;
+  return words.every((word) => NAME_PARTICLE.test(word) || /^[A-Z][A-Za-z'’.-]*$/.test(word));
+}
+
 async function mapPerson(account: Account, signal: ScoutSignal, recordCost: (costUsd: number) => void) {
   const named = signal.people[0] ?? (signal.post?.author_name
     ? { name: signal.post.author_name, title: signal.post.author_title, role_in_signal: "Post author" }
@@ -74,6 +93,8 @@ async function mapPerson(account: Account, signal: ScoutSignal, recordCost: (cos
  * people table fills up whether or not a card is created.
  */
 export async function upsertPerson(account: Account, candidate: { name: string; title: string; linkedin_url: string | null }, source = "signal") {
+  // A service line or value prop scraped as a "person" ("Strategic IT Guidance") is never stored or Apollo-billed.
+  if (!isLikelyPersonName(candidate.name)) return null;
   const apollo = await matchPerson(candidate.name, account.domain).catch((error) => {
     console.warn(`[night-watch] Apollo match failed for ${candidate.name}: ${error instanceof Error ? error.message : String(error)}`);
     return null;
@@ -582,9 +603,19 @@ export async function purgeJunkPosts() {
   }
 }
 
+/** Remove rows scraped as people that are really service lines or value props ("Strategic IT Guidance"). Their cards cascade away. */
+export async function purgeNonPeople() {
+  const db = admin();
+  const { data } = await db.from("people").select("id,full_name");
+  const bad = (data ?? []).filter((row) => !isLikelyPersonName(row.full_name as string)).map((row) => row.id as string);
+  for (let i = 0; i < bad.length; i += 200) await db.from("people").delete().in("id", bad.slice(i, i + 200));
+  return bad.length;
+}
+
 export async function recomputeAndSurface() {
   const db = admin();
   await purgeJunkPosts().catch(() => undefined);
+  await purgeNonPeople().catch(() => undefined);
   const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(type,observed_at,raw),accounts(outreach)").in("status", ["new", "approved", "edited", "snoozed"]);
   for (const card of cards ?? []) {
     const signal = card.signals as unknown as { type?: string; observed_at: string; raw?: { operating_need?: unknown } | null };

@@ -160,6 +160,7 @@ export function Desk({
   const [enrolling, setEnrolling] = useState(false);
   const [refining, setRefining] = useState<"email" | "linkedin" | null>(null);
   const [editing, setEditing] = useState<{ email: boolean; linkedin: boolean }>({ email: false, linkedin: false });
+  const [lastRefine, setLastRefine] = useState<{ cardId: string; channel: "email" | "linkedin"; beforeBody: string; afterBody: string; beforeSubject: string; afterSubject: string } | null>(null);
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
   // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
@@ -342,6 +343,11 @@ export function Desk({
   const adapt = (text: string) => (altContact && focusCard ? retarget(text, focusCard.people.full_name, altContact.full_name) : text);
   const emailDraft = focusCard?.email_body ?? "";
   const linkedinDraft = focusCard?.linkedin_message ?? focusCard?.linkedin_note ?? focusCard?.linkedin_comment ?? "";
+  // After a Refine, show what changed inline: removed words struck through in red, added words highlighted.
+  const diffFor = (channel: "email" | "linkedin") => (lastRefine && focusCard && lastRefine.cardId === focusCard.id && lastRefine.channel === channel ? lastRefine : null);
+  const renderDiff = (before: string, after: string) => diffWords(before, after).map((seg, index) => seg.t === "same" ? <span key={index}>{seg.w}</span> : <span key={index} className={seg.t === "del" ? "diff-del" : "diff-add"}>{seg.w}</span>);
+  const bodyView = (channel: "email" | "linkedin", plain: string) => { const d = diffFor(channel); return d ? renderDiff(d.beforeBody, d.afterBody) : plain; };
+  const subjectView = (channel: "email" | "linkedin", plain: string) => { const d = diffFor(channel); return d && d.beforeSubject !== d.afterSubject ? renderDiff(d.beforeSubject, d.afterSubject) : plain; };
   const snoozeCurrent = () => { markWorking(false); const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { markWorking(false); const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
   // Where the message actually gets sent, in one click — never hand-copied between windows.
@@ -410,7 +416,8 @@ export function Desk({
       const json = await response.json();
       if (!response.ok) { setNotice(json.error ?? "Could not refine."); return; }
       setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_subject: json.subject ?? item.linkedin_subject, linkedin_message: json.body }) } : item));
-      setNotice("Refined by AI — edit further or copy to send.");
+      setLastRefine({ cardId: focusCard.id, channel, beforeBody: body, afterBody: (json.body as string) ?? body, beforeSubject: subject ?? "", afterSubject: (json.subject as string) ?? subject ?? "" });
+      setNotice("Refined — changes are highlighted. Edit further or copy to send.");
       markWorking(true);
     } catch { setNotice("Could not refine."); }
     finally { setRefining(null); }
@@ -774,9 +781,10 @@ export function Desk({
                     <div className="mail-preview">
                       <div className="mail-preview-head">
                         <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
-                        <div className="mail-row"><span>Subject</span><b>{focusCard.email_subject || "—"}</b></div>
+                        <div className="mail-row"><span>Subject</span><b>{subjectView("email", focusCard.email_subject || "—")}</b></div>
                       </div>
-                      <div className="mail-preview-body">{adapt(emailDraft) || "No email draft yet — press Refine to write one."}</div>
+                      {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
+                      <div className="mail-preview-body">{bodyView("email", adapt(emailDraft) || "No email draft yet — press Refine to write one.")}</div>
                     </div>
                   )}
                   <div className="draft-preview-send"><button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button><span className="draft-preview-state">{contact.email ? (contact.email_status === "verified" ? "verified address" : emailStateLabel(contact.email_status).toLowerCase()) : "no address on file"}</span></div>
@@ -799,8 +807,9 @@ export function Desk({
                   ) : (
                     <div className="li-preview">
                       <div className="li-preview-head"><span className="avatar sm">{initials(contact.full_name)}</span><div><strong>{contact.full_name}</strong><small>{contact.title || "LinkedIn message"}</small></div></div>
-                      {focusCard.linkedin_subject && <p className="li-preview-subject">{focusCard.linkedin_subject}</p>}
-                      <div className="li-preview-body">{adapt(linkedinDraft) || "No LinkedIn message yet — press Refine to write one."}</div>
+                      {(focusCard.linkedin_subject || diffFor("linkedin")) && <p className="li-preview-subject">{subjectView("linkedin", focusCard.linkedin_subject || "—")}</p>}
+                      {diffFor("linkedin") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
+                      <div className="li-preview-body">{bodyView("linkedin", adapt(linkedinDraft) || "No LinkedIn message yet — press Refine to write one.")}</div>
                     </div>
                   )}
                   <div className="draft-preview-send"><button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button><span className="draft-preview-state">{contact.linkedin_url ? "profile on file" : "search for profile"}</span></div>
@@ -832,6 +841,25 @@ export function Desk({
   );
 }
 
+
+/** Word-level diff of two strings, keeping whitespace, for showing what Refine changed. */
+type DiffSeg = { t: "same" | "del" | "add"; w: string };
+function diffWords(before: string, after: string): DiffSeg[] {
+  const a = before.split(/(\s+)/), b = after.split(/(\s+)/);
+  const n = a.length, m = b.length;
+  const dp = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const out: DiffSeg[] = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (a[i] === b[j]) { out.push({ t: "same", w: a[i] }); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { out.push({ t: "del", w: a[i] }); i++; }
+    else { out.push({ t: "add", w: b[j] }); j++; }
+  }
+  while (i < n) out.push({ t: "del", w: a[i++] });
+  while (j < m) out.push({ t: "add", w: b[j++] });
+  return out;
+}
 
 /** Label for a card that rolled forward from an earlier day still un-actioned. */
 function carriedLabel(created?: string | null) {

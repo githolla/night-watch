@@ -37,8 +37,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const patch = payload.channel === "email"
       ? { email_subject: refined.subject ?? payload.subject ?? null, email_body: refined.body }
       : { linkedin_subject: refined.subject ?? payload.subject ?? null, linkedin_message: refined.body };
-    await db.from("cards").update(patch).eq("id", id);
-    return Response.json({ ok: true, ...refined });
+    // Still return the rewrite even if persisting a column lags a pending migration, so the desk always updates.
+    const { error: saveError } = await db.from("cards").update(patch).eq("id", id);
+    return Response.json({ ok: true, ...refined, persisted: !saveError });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Refine failed" }, { status: 400 });
   }
