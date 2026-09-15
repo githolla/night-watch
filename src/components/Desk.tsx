@@ -407,6 +407,12 @@ export function Desk({
     try { await navigator.clipboard.writeText(text); setNotice(`${label} copied — paste it to send.`); }
     catch { setNotice("Copy was blocked by the browser; select the text to copy it."); }
   };
+  // Copy a draft to the clipboard, then offer to log it to the history — copying is how a manual send starts.
+  const copyAndLog = async (channel: "email" | "linkedin") => {
+    const text = adapt(channel === "email" ? emailDraft : linkedinDraft);
+    await copyText(text, channel === "email" ? "Email" : "LinkedIn message");
+    if (text.trim()) await recordTouch(channel === "email" ? "email" : "message", text);
+  };
   // Improve one draft with AI, in place: keep it a first-touch, tighten it, and write the result back to the card.
   const refine = async (channel: "email" | "linkedin", body: string, subject?: string) => {
     if (!focusCard) return;
@@ -762,7 +768,7 @@ export function Desk({
                   <div className="deskwork-tools">
                     <button type="button" onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Done" : "Edit"}</button>
                     <button type="button" disabled={refining === channelTab} onClick={() => channelTab === "email" ? refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined) : refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === channelTab ? "Refining…" : "Refine"}</button>
-                    <button type="button" onClick={() => copyText(adapt(channelTab === "email" ? emailDraft : linkedinDraft), channelTab === "email" ? "Email" : "LinkedIn message")}>Copy</button>
+                    <button type="button" onClick={() => copyAndLog(channelTab)}>Copy</button>
                   </div>
                 </div>
 
