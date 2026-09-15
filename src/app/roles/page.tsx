@@ -49,10 +49,9 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
   if (sinceIso) rows = rows.gte("first_seen_at", sinceIso);
   if (query) rows = rows.or(`title.ilike.%${query.replace(/[%,]/g, " ")}%,accounts.name.ilike.%${query.replace(/[%,]/g, " ")}%`);
 
-  const [{ data, count, error }, familyRows, { count: totalActive }] = await Promise.all([
+  const [{ data, count, error }, familyRows] = await Promise.all([
     rows,
     fetchAll((from, to) => db.from("job_postings").select("family").eq("active", true).not("family", "is", null).range(from, to)),
-    db.from("job_postings").select("*", { count: "exact", head: true }).eq("active", true),
   ]);
   if (error) throw error;
   const byFamily = new Map<string, number>();
@@ -75,10 +74,9 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
   return <div className="shell">
     <Header />
     <main className="targets-page">
-      <section className="targets-head has-hero">
-        <div><span className="eyebrow">Open roles</span><h1>Open roles</h1><p>Jobs at the target companies that Nine-67 could build a system for instead of the hire.</p></div>
-        <div className="targets-head-count"><span>TARGET ROLES OPEN</span><strong>{(familyRows?.length ?? 0).toLocaleString()}</strong><small>{(totalActive ?? 0).toLocaleString()} postings read in total</small></div>
-      </section>
+      <header className="page-head briefing-head">
+        <div><span className="overview-kick">Open roles</span><h1>Job signals</h1><p>Jobs at the target companies that Nine-67 could build a system for instead of the hire · {(familyRows?.length ?? 0).toLocaleString()} open in target families.</p></div>
+      </header>
 
       <nav className="family-strip" aria-label="Job families">
         <Link href={href({ family: "", page: "1" })} className={!family ? "active" : ""}><strong>{(familyRows?.length ?? 0).toLocaleString()}</strong><span>ALL FAMILIES</span></Link>
@@ -97,21 +95,23 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
       </FilterForm>
 
       <section className="target-results">
-        <header><div><span className="eyebrow">Postings{family ? ` · ${FAMILY_LABEL[family]}` : ""}</span><h2>{total.toLocaleString()} roles</h2></div><span>PAGE {page} / {totalPages}</span></header>
-        <ol className="rank-list roles-list">
+        <div className="table-wrap"><table className="data-table"><thead><tr><th>Company</th><th>Role</th><th>Family</th><th>Location</th><th className="col-num">Salary</th><th>Posted</th><th /></tr></thead><tbody>
           {(data ?? []).map((row) => {
             const account = row.accounts as unknown as { name: string; domain: string };
             const posted = row.posted_at ?? (row.first_seen_at as string).slice(0, 10);
             const days = ageInDays(posted);
-            return <RowLink as="li" key={row.id} href={`/accounts/${account.domain}`}>
-              <div className="rank-company"><strong>{account.name}</strong><small>{account.domain}</small></div>
-              <div className="rank-why"><p><a href={row.url} target="_blank" rel="noreferrer">{row.title} ↗</a></p><small>{[row.family ? FAMILY_LABEL[row.family as JobFamily] : "Other", row.department, row.location, row.salary_max ? `up to $${Number(row.salary_max).toLocaleString()}` : null, String(row.source ?? "careers").replace("_", " ")].filter(Boolean).join(" · ")}</small></div>
-              <div className="rank-status"><span>{row.posted_at ? "Posted" : "First seen"} {posted}</span><small>{days === 0 ? "today" : `${days} day${days === 1 ? "" : "s"} ago`}</small></div>
-              <span className="rank-go">→</span>
+            return <RowLink as="tr" key={row.id} href={`/accounts/${account.domain}`}>
+              <td>{account.name}</td>
+              <td className="cell-clamp">{row.title}</td>
+              <td className="cell-sub">{row.family ? FAMILY_LABEL[row.family as JobFamily] : "Other"}</td>
+              <td className="cell-sub">{row.location || "—"}</td>
+              <td className="col-num">{row.salary_max ? `$${Number(row.salary_max).toLocaleString()}` : "—"}</td>
+              <td className="cell-time">{posted}<br /><small>{days === 0 ? "today" : `${days}d ago`}</small></td>
+              <td><a href={row.url} target="_blank" rel="noreferrer">Open ↗</a></td>
             </RowLink>;
           })}
-          {!data?.length && <li className="outreach-empty">No roles yet. The scan reads careers pages and job boards as it runs.</li>}
-        </ol>
+          {!data?.length && <tr><td colSpan={7} className="cell-empty">{query || family || showAll || sinceDays ? "No roles match these filters." : "No roles yet. The scan reads careers pages and job boards as it runs."}</td></tr>}
+        </tbody></table></div>
         <nav className="target-pagination" aria-label="Role pages">
           {page > 1 ? <Link href={href({ page: String(page - 1) })}>← Previous</Link> : <span />}
           <span>{total ? ((page - 1) * pageSize + 1).toLocaleString() : 0}–{Math.min(page * pageSize, total).toLocaleString()} of {total.toLocaleString()}</span>

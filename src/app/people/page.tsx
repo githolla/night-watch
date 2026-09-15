@@ -74,10 +74,9 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
   return <div className="shell">
     <Header />
     <main className="targets-page">
-      <section className="targets-head has-hero">
-        <div><span className="eyebrow">People on file</span><h1>Who to contact, and how.</h1><p>The CEO from the target file, buyer-title matches from Apollo, post authors and signal owners, enriched with email and LinkedIn where available. Nothing is sent from here; the desk sends.</p></div>
-        <div className="targets-head-count"><span>PEOPLE</span><strong>{total.toLocaleString()}</strong><small>{(verified ?? 0).toLocaleString()} verified emails · {(withLinkedIn ?? 0).toLocaleString()} LinkedIn profiles</small></div>
-      </section>
+      <header className="page-head briefing-head">
+        <div><span className="overview-kick">People on file</span><h1>People</h1><p>Buyers and signal owners, enriched with email and LinkedIn where available · {total.toLocaleString()} on file · {(verified ?? 0).toLocaleString()} verified · {(withLinkedIn ?? 0).toLocaleString()} on LinkedIn.</p></div>
+      </header>
 
       {nextCards && nextCards.length > 0 && <section className="reach-next">
         <header><span className="eyebrow">Reach out next</span><Link href="/desk">Work the desk →</Link></header>
@@ -105,20 +104,24 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
       </FilterForm>
 
       <section className="target-results">
-        <header><div><span className="eyebrow">Contacts</span><h2>{total.toLocaleString()} people</h2></div><span>PAGE {page} / {totalPages}</span></header>
-        <ol className="rank-list people-list">
+        <div className="table-wrap"><table className="data-table"><thead><tr><th>Name</th><th>Title</th><th>Company</th><th>Level</th><th>Email</th><th /></tr></thead><tbody>
           {(data ?? []).map((person) => {
             const account = person.accounts as unknown as { name: string; domain: string };
             const email = person.email as string | null;
-            return <RowLink as="li" key={person.id} href={`/accounts/${account.domain}`}>
-              <div className="rank-company"><strong>{person.full_name}</strong><small>{person.title || "title unknown"}</small></div>
-              <div className="rank-why"><p>{account.name}</p><small>{email ? `${email} · ${person.email_source === "pattern" ? "built, unverified" : EMAIL_LABEL[person.email_status as string] ?? person.email_status}` : "no email on file"}{person.linkedin_url ? " · LinkedIn on file" : ""}</small></div>
-              <div className="rank-status">{person.linkedin_url ? <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a> : <span>—</span>}<small>{String(person.source ?? "signal").replace("_", " ")}{person.enriched_at ? ` · ${(person.enriched_at as string).slice(0, 10)}` : ""}</small></div>
-              <span className="rank-go">→</span>
+            const level = person.level as string;
+            const status = person.email_status as string;
+            const emailTone = status === "verified" ? "ok" : status === "catch_all" ? "attention" : email ? "attention" : "muted";
+            return <RowLink as="tr" key={person.id} href={`/accounts/${account.domain}`}>
+              <td><div className="cell-lead"><span className="avatar sm">{peopleInitials(person.full_name)}</span><strong>{person.full_name}</strong></div></td>
+              <td className="cell-clamp">{person.title || "—"}</td>
+              <td>{account.name}</td>
+              <td>{level && level !== "unknown" ? <span className={`pill pill-${level === "owner" ? "accent" : "muted"}`}>{LEVEL_LABEL[level] ?? level}</span> : <span className="cell-sub">—</span>}</td>
+              <td>{email ? <span className={`pill pill-${emailTone}`} title={email}>{EMAIL_LABEL[status] ?? status}</span> : <span className="cell-sub">none</span>}</td>
+              <td>{person.linkedin_url ? <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a> : null}</td>
             </RowLink>;
           })}
-          {!data?.length && <li className="outreach-empty">No people yet. The scan finds them on company sites, LinkedIn results and press as it runs.</li>}
-        </ol>
+          {!data?.length && <tr><td colSpan={6} className="cell-empty">{query || level || email || sinceDays ? "No people match these filters." : "No people yet. The scan finds them on company sites, LinkedIn results and press as it runs."}</td></tr>}
+        </tbody></table></div>
         <nav className="target-pagination" aria-label="People pages">
           {page > 1 ? <Link href={href({ page: String(page - 1) })}>← Previous</Link> : <span />}
           <span>{total ? ((page - 1) * pageSize + 1).toLocaleString() : 0}–{Math.min(page * pageSize, total).toLocaleString()} of {total.toLocaleString()}</span>

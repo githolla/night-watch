@@ -3,6 +3,7 @@ import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { FilterForm } from "@/components/FilterForm";
 import { Header } from "@/components/Header";
+import { RowLink } from "@/components/RowLink";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { daysAgoIso } from "@/lib/time";
@@ -45,10 +46,9 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
   return <div className="shell">
     <Header />
     <main className="targets-page">
-      <section className="targets-head has-hero">
-        <div><span className="eyebrow">Public posts</span><h1>AI posts</h1><p>People at the target companies posting publicly about AI in their own work.</p></div>
-        <div className="targets-head-count"><span>POSTS FOUND</span><strong>{total.toLocaleString()}</strong><small>Verbatim excerpts, linked to the original</small></div>
-      </section>
+      <header className="page-head briefing-head">
+        <div><span className="overview-kick">Public posts</span><h1>Employee posts</h1><p>People at the target companies posting publicly about AI in their own work · {total.toLocaleString()} on file.</p></div>
+      </header>
 
       <FilterForm action="/posts">
         <label><span>Search</span><input name="q" defaultValue={query} placeholder="Author, company, topic, or words in the post" /></label>
@@ -57,22 +57,21 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
         {(query || sinceDays) && <Link href="/posts">Clear</Link>}
       </FilterForm>
 
-      <section className="unqualified-sources posts-list">
-        <header><div><span className="eyebrow">Newest first</span><h2>{total.toLocaleString()} posts</h2></div><span>PAGE {page} / {totalPages}</span></header>
-        <div>
+      <section className="target-results">
+        <div className="table-wrap"><table className="data-table"><thead><tr><th>Person</th><th>Company</th><th>Post</th><th>Platform</th><th>Posted</th><th /></tr></thead><tbody>
           {(data ?? []).map((post) => {
             const account = post.accounts as unknown as { name: string; domain: string };
-            const person = post.people as unknown as { level: string; email_status: string; linkedin_url: string | null } | null;
-            return <a key={post.id} href={post.url} target="_blank" rel="noreferrer" className="unqualified-source-card">
-              <div className="source-card-meta"><span>{(post.platform || "post").toUpperCase()}{post.topic ? ` · ${post.topic}` : ""}</span><time>{post.posted_at ?? (post.created_at as string).slice(0, 10)}</time></div>
-              <h3>{account.name}</h3>
-              <div className="source-card-author"><strong>{post.author_name}</strong><span>{post.author_title || account.domain}</span></div>
-              <blockquote>{post.excerpt}</blockquote>
-              <footer><span>{person ? `${person.level === "owner" ? "Decision owner" : person.level === "influencer" ? "Influencer" : "Adjacent"} · ${person.email_status === "verified" ? "verified email" : person.linkedin_url ? "LinkedIn on file" : "no contact yet"}` : "Person not yet matched"}</span><b>Open the post ↗</b></footer>
-            </a>;
+            return <RowLink as="tr" key={post.id} href={`/accounts/${account.domain}`}>
+              <td><div className="cell-lead"><strong>{post.author_name}</strong><small>{post.author_title || "—"}</small></div></td>
+              <td>{account.name}</td>
+              <td className="cell-clamp">{post.excerpt}</td>
+              <td className="cell-sub">{post.platform || "post"}{post.topic ? ` · ${post.topic}` : ""}</td>
+              <td className="cell-time">{post.posted_at ?? (post.created_at as string).slice(0, 10)}</td>
+              <td><a href={post.url} target="_blank" rel="noreferrer">Open ↗</a></td>
+            </RowLink>;
           })}
-          {!data?.length && <p className="coverage-note">No posts yet. Run the careers sweep from the desk; the posts scan runs inside it.</p>}
-        </div>
+          {!data?.length && <tr><td colSpan={6} className="cell-empty">{query || sinceDays ? "No posts match these filters." : "No posts yet. The posts scan runs inside the careers sweep."}</td></tr>}
+        </tbody></table></div>
         <nav className="target-pagination" aria-label="Post pages">
           {page > 1 ? <Link href={href(page - 1)}>← Previous</Link> : <span />}
           <span>{total ? ((page - 1) * pageSize + 1).toLocaleString() : 0}–{Math.min(page * pageSize, total).toLocaleString()} of {total.toLocaleString()}</span>

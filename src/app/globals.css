@@ -988,7 +988,7 @@ div.stat{cursor:default}
 .pill i{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.85}
 .pill-muted{background:#f0ede6;color:var(--muted)}
 .pill-info{background:var(--info-soft);color:var(--info)}
-.pill-accent{background:var(--accent-soft);color:var(--accent)}
+.pill-accent{background:var(--accent-soft);color:var(--accent-strong)}
 .pill-ok{background:var(--ok-soft);color:var(--ok)}
 .pill-ink{background:var(--ink);color:#fff}
 .table-foot{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
@@ -1442,3 +1442,10 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .focus-teamwrap[open]>summary::before{content:"▾"}
 .focus-teamwrap>summary:hover{background:var(--soft)}
 .focus-teamwrap .focus-team{border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none;background:transparent;padding:14px 16px}
+
+/* List-table cells shared by People / Roles / Posts. */
+.cell-lead{display:flex;align-items:center;gap:9px}
+.cell-lead strong{font-weight:600}
+.cell-lead .avatar.sm{flex:0 0 28px;width:28px;height:28px;border-radius:7px;font-size:10px}
+.data-table td.cell-clamp{max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill-attention{background:var(--accent-soft);color:var(--accent-strong)}
