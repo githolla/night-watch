@@ -23,6 +23,9 @@ type Card = InsightCard & {
   linkedin_message?: string | null;
   surfaced_on?: string | null;
   created_at?: string | null;
+  working_at?: string | null;
+  working_by?: string | null;
+  working?: boolean;
   isNew?: boolean;
   carriedOver?: boolean;
   people: InsightCard["people"] & {
@@ -338,8 +341,8 @@ export function Desk({
   const adapt = (text: string) => (altContact && focusCard ? retarget(text, focusCard.people.full_name, altContact.full_name) : text);
   const emailDraft = focusCard?.email_body ?? "";
   const linkedinDraft = focusCard?.linkedin_message ?? focusCard?.linkedin_note ?? focusCard?.linkedin_comment ?? "";
-  const snoozeCurrent = () => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
-  const dismissCurrent = () => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
+  const snoozeCurrent = () => { markWorking(false); const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
+  const dismissCurrent = () => { markWorking(false); const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
   // Where the message actually gets sent, in one click — never hand-copied between windows.
   const mailtoHref = () => {
     if (!contact?.email || !focusCard) return "";
@@ -378,6 +381,7 @@ export function Desk({
       if (!response.ok) { setNotice(json.error ?? "Could not start the sequence."); return; }
       setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, status: "approved" } : item));
       setNotice(`Email sequence started for ${focusCard.people.full_name} — Night Watch sends on day 0, 3 and 7 and stops on a reply.`);
+      markWorking(true);
     } catch { setNotice("Could not start the sequence."); }
     finally { setEnrolling(false); }
   };
@@ -406,11 +410,19 @@ export function Desk({
       if (!response.ok) { setNotice(json.error ?? "Could not refine."); return; }
       setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_message: json.body }) } : item));
       setNotice("Refined by AI — edit further or copy to send.");
+      markWorking(true);
     } catch { setNotice("Could not refine."); }
     finally { setRefining(null); }
   };
-  // Persist an inline edit to the focused card's draft field.
-  const saveField = (key: "email_subject" | "email_body" | "linkedin_message", value: string) => { void patch({ [key]: value }); };
+  // Persist an inline edit to the focused card's draft field, and mark the prospect as being worked.
+  const saveField = (key: "email_subject" | "email_body" | "linkedin_message", value: string) => { void patch({ [key]: value }); markWorking(true); };
+  // Shared "someone is on this" flag so the two people on the desk don't message the same prospect. Best-effort.
+  function markWorking(on: boolean) {
+    if (!focusCard) return;
+    const id = focusCard.id;
+    setCards((current) => current.map((item) => item.id === id ? { ...item, working_at: on ? new Date().toISOString() : null } : item));
+    void fetch(`/api/cards/${id}/claim`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ on }) }).catch(() => {});
+  }
 
   return (
     <main className="pipeline">
@@ -693,6 +705,7 @@ export function Desk({
                 <button type="button" key={item.id} className={`focus-queue-row ${focusCard && item.id === focusCard.id ? "is-active" : ""}`} onClick={() => pick(item.id)}>
                   <span className="avatar sm">{initials(item.accounts.name)}</span>
                   <span className="focus-queue-id"><strong>{item.accounts.name}</strong><small>{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small></span>
+                  {item.working && <em className="focus-queue-working" title={`Being worked${item.working_by ? ` by ${item.working_by}` : ""} — avoid double-messaging`}>working</em>}
                   <em className="chip focus-fit">{item.score}</em>
                 </button>
               ))}

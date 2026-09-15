@@ -20,6 +20,7 @@ const MIGRATIONS: Array<{ file: string; table: string; column: string; adds: str
   { file: "0012_analysis_drafts.sql", table: "cards", column: "linkedin_message", adds: "drafts written from the analysis, a LinkedIn message on every draft, and roles read from job boards" },
   { file: "0013_linkedin_cooldown.sql", table: "accounts", column: "linkedin_checked_at", adds: "the LinkedIn discovery cooldown so profile and post search stops re-running on every sweep" },
   { file: "0014_sender_profile.sql", table: "sender_profiles", column: "owner", adds: "the sender identity (name, title, signature, CC) applied to outreach emails" },
+  { file: "0015_card_claim.sql", table: "cards", column: "working_at", adds: "the in-progress marker so two people don't message the same prospect" },
 ];
 
 export type PendingMigration = { file: string; adds: string; reason: string; sql: string };
