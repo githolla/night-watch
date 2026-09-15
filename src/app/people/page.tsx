@@ -19,6 +19,7 @@ type PeopleRow = {
   accounts: AccountRef | AccountRef[] | null;
 };
 type CardRow = { id: string; score: number; person_id: string; status: string };
+type TouchRow = { person_id: string; sent_at: string | null; created_at: string; reply_at: string | null };
 
 function peopleInitials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
@@ -35,9 +36,10 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
   const params = await searchParams;
   const db = admin();
 
-  const [people, cards, { count: verified }, { count: withLinkedIn }, { data: nextCards }] = await Promise.all([
+  const [people, cards, touches, { count: verified }, { count: withLinkedIn }, { data: nextCards }] = await Promise.all([
     fetchAll<PeopleRow>((from, to) => db.from("people").select("id,full_name,title,level,email,email_status,linkedin_url,source,created_at,enriched_at,accounts!inner(name,domain)").eq("do_not_contact", false).range(from, to)),
     fetchAll<CardRow>((from, to) => db.from("cards").select("id,score,person_id,status").in("status", ["new", "approved", "edited"]).range(from, to)),
+    fetchAll<TouchRow>((from, to) => db.from("touches").select("person_id,sent_at,created_at,reply_at").range(from, to)),
     db.from("people").select("*", { count: "exact", head: true }).eq("email_status", "verified"),
     db.from("people").select("*", { count: "exact", head: true }).not("linkedin_url", "is", null),
     db.from("cards").select("id,score,channel,people!inner(full_name,title),accounts!inner(name,domain,outreach)").eq("accounts.outreach", true).in("status", ["new", "approved", "edited"]).order("score", { ascending: false }).limit(8),
@@ -49,10 +51,19 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
     const current = draftByPerson.get(card.person_id);
     if (!current || card.score > current.score) draftByPerson.set(card.person_id, { id: card.id, score: card.score });
   }
+  // Outreach history per person: how many touches, when last, and whether they ever replied.
+  const historyByPerson = new Map<string, { count: number; last: string; replied: boolean }>();
+  for (const touch of touches) {
+    const when = touch.sent_at ?? touch.created_at;
+    const current = historyByPerson.get(touch.person_id);
+    if (!current) historyByPerson.set(touch.person_id, { count: 1, last: when, replied: Boolean(touch.reply_at) });
+    else { current.count += 1; if (when > current.last) current.last = when; if (touch.reply_at) current.replied = true; }
+  }
 
   const rows: PersonRow[] = people.map((person) => {
     const account = (Array.isArray(person.accounts) ? person.accounts[0] : person.accounts) ?? null;
     const draft = draftByPerson.get(person.id);
+    const history = historyByPerson.get(person.id);
     return {
       id: person.id,
       name: person.full_name,
@@ -68,6 +79,9 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
       enrichedAt: person.enriched_at,
       draftCardId: draft?.id ?? null,
       draftScore: draft?.score ?? 0,
+      touchCount: history?.count ?? 0,
+      lastContactAt: history?.last ?? null,
+      replied: history?.replied ?? false,
     };
   });
 

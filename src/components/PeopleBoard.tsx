@@ -18,6 +18,9 @@ export type PersonRow = {
   enrichedAt: string | null;
   draftCardId: string | null;
   draftScore: number;
+  touchCount: number;
+  lastContactAt: string | null;
+  replied: boolean;
 };
 export type PeopleFilters = { q: string; level: string; email: string; show: string; sort: string };
 
@@ -35,6 +38,7 @@ const TABS: Array<{ value: string; label: string; test: (row: PersonRow, now: nu
   { value: "linkedin", label: "On LinkedIn", test: (row) => Boolean(row.linkedin) },
   { value: "owner", label: "Decision owners", test: (row) => row.level === "owner" },
   { value: "drafted", label: "Draft ready", test: (row) => Boolean(row.draftCardId) },
+  { value: "contacted", label: "Contacted", test: (row) => row.touchCount > 0 },
   { value: "recent", label: "Added this week", test: (row, now) => Boolean(row.createdAt && now - Date.parse(row.createdAt) <= WEEK_MS) },
 ];
 
@@ -43,11 +47,17 @@ const SORTS: Record<string, { label: string; compare: (a: PersonRow, b: PersonRo
   name: { label: "Name A–Z", compare: (a, b) => a.name.localeCompare(b.name) },
   company: { label: "Company A–Z", compare: (a, b) => a.company.localeCompare(b.company) || a.name.localeCompare(b.name) },
   recent: { label: "Recently added", compare: (a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? "") },
+  contacted: { label: "Recently contacted", compare: (a, b) => (b.lastContactAt ?? "").localeCompare(a.lastContactAt ?? "") },
 };
 
 const emailTone = (row: PersonRow) => (row.emailStatus === "verified" ? "ok" : row.emailStatus === "catch_all" ? "attention" : row.email ? "attention" : "muted");
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
+}
+function ago(value: string | null, now: number) {
+  if (!value) return "";
+  const days = Math.floor((now - Date.parse(value)) / 86_400_000);
+  return days <= 0 ? "today" : days === 1 ? "1d ago" : days < 30 ? `${days}d ago` : days < 365 ? `${Math.round(days / 30)}mo ago` : `${Math.round(days / 365)}y ago`;
 }
 function csvCell(value: unknown) {
   const text = value === null || value === undefined ? "" : String(value);
@@ -126,12 +136,15 @@ export function PeopleBoard({ rows, initial, verified, withLinkedIn }: { rows: P
               <tr key={row.id}>
                 <td><div className="cell-lead"><span className="avatar sm">{initials(row.name)}</span><strong>{row.name}</strong>{row.draftCardId && <Link href={`/desk?card=${row.draftCardId}`} className="pill pill-ink people-draft" onClick={(event) => event.stopPropagation()}><i />Draft {row.draftScore || ""}</Link>}</div></td>
                 <td className="cell-clamp">{row.title || "—"}</td>
-                <td><Link href={`/accounts/${row.domain}`} className="people-company">{row.company}</Link></td>
+                <td><Link href={`/accounts/${row.domain}`} className="people-company">{row.company}</Link>{row.touchCount > 0 && <small className={`people-contacted ${row.replied ? "is-replied" : ""}`}>{row.replied ? "Replied" : `Contacted ${ago(row.lastContactAt, now)}`}</small>}</td>
                 <td>{row.level && row.level !== "unknown" ? <span className={`pill pill-${row.level === "owner" ? "accent" : "muted"}`}>{LEVEL_LABEL[row.level] ?? row.level}</span> : <span className="cell-sub">—</span>}</td>
                 <td>{row.email
                   ? <button type="button" className={`people-email pill pill-${emailTone(row)}`} title={`${row.email} · click to copy`} onClick={() => copyEmail(row.email!)}>{copied === row.email ? "Copied ✓" : row.email}</button>
                   : <span className="cell-sub">none</span>}</td>
-                <td className="people-actions">{row.linkedin ? <a href={row.linkedin} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>LinkedIn ↗</a> : null}</td>
+                <td className="people-actions">
+                  {row.touchCount > 0 && <Link href={`/activity?person=${row.id}&name=${encodeURIComponent(row.name)}`} title={`${row.touchCount} ${row.touchCount === 1 ? "touch" : "touches"} on file`}>History</Link>}
+                  {row.linkedin ? <a href={row.linkedin} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>LinkedIn ↗</a> : null}
+                </td>
               </tr>
             ))}
             {visible.length === 0 && <tr><td colSpan={6} className="cell-empty">{narrowed ? "No people match these filters." : "No people yet. The scan finds them on company sites, LinkedIn results and press as it runs."}</td></tr>}

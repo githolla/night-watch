@@ -1736,4 +1736,10 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .people-company{color:var(--ink);font-weight:600;text-decoration:none}
 .people-company:hover{color:var(--accent-strong);text-decoration:underline}
 .people-draft{margin-left:8px;text-decoration:none}
-.people-actions a{white-space:nowrap}
+.people-contacted{display:block;margin-top:2px;font-size:11px;color:var(--muted)}
+.people-contacted.is-replied{color:#1b7a3d;font-weight:600}
+.people-actions{white-space:nowrap}
+.people-actions a{white-space:nowrap;margin-left:12px}
+.people-actions a:first-child{margin-left:0}
+.activity-back{display:inline-block;margin-top:8px;color:var(--accent-strong);font:600 12.5px/1 var(--sans);text-decoration:none}
+.activity-back:hover{text-decoration:underline}

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -33,7 +34,7 @@ const timeOf = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { ho
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
 
 /** History of every outreach touch — a month calendar of what was done, and the day-by-day record beneath it. */
-export function ActivityView({ events }: { events: ActivityEvent[] }) {
+export function ActivityView({ events, who }: { events: ActivityEvent[]; who?: { name: string } | null }) {
   const byDay = useMemo(() => {
     const map = new Map<string, ActivityEvent[]>();
     for (const event of events) (map.get(event.day) ?? map.set(event.day, []).get(event.day)!).push(event);
@@ -80,7 +81,11 @@ export function ActivityView({ events }: { events: ActivityEvent[] }) {
     <main className="pipeline pipeline-work">
       <div className="activity">
         <header className="activity-head">
-          <div><span className="overview-kick">Outreach history</span><h1>What was sent, day by day.</h1></div>
+          <div>
+            <span className="overview-kick">Outreach history</span>
+            <h1>{who ? `Everything sent to ${who.name}.` : "What was sent, day by day."}</h1>
+            {who && <Link href="/activity" className="activity-back">← All activity</Link>}
+          </div>
           <div className="activity-totals">
             <div className="activity-stat"><strong>{totals.email}</strong><span>Emails</span></div>
             <div className="activity-stat"><strong>{totals.linkedin}</strong><span>LinkedIn</span></div>

@@ -20,7 +20,9 @@ type TouchRow = {
   cards: { email_subject: string | null; accounts: { name: string } | null; people: { full_name: string; title: string } | null } | null;
 };
 
-export default async function Activity() {
+type Params = { person?: string; name?: string };
+
+export default async function Activity({ searchParams }: { searchParams: Promise<Params> }) {
   if (
     !(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) ||
     !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)
@@ -30,12 +32,16 @@ export default async function Activity() {
   const pending = await pendingMigrations(admin());
   if (pending.length) return <MigrationRequired pending={pending} />;
 
+  const params = await searchParams;
+  const personId = params.person?.trim() || "";
   const db = admin();
-  const { data } = await db
+  let query = db
     .from("touches")
     .select("id,channel,sent_at,created_at,reply_at,reply_classification,body,sent_by,cards(email_subject,accounts(name),people(full_name,title))")
     .order("created_at", { ascending: false })
     .limit(1000);
+  if (personId) query = query.eq("person_id", personId);
+  const { data } = await query;
 
   const rows = (data ?? []) as unknown as TouchRow[];
   const events: ActivityEvent[] = rows.map((row) => {
@@ -56,10 +62,12 @@ export default async function Activity() {
     };
   });
 
+  const who = personId ? { name: params.name?.trim() || events[0]?.person || "this contact" } : null;
+
   return (
     <div className="shell">
       <Header />
-      <ActivityView events={events} />
+      <ActivityView events={events} who={who} />
     </div>
   );
 }
