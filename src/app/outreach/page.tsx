@@ -7,6 +7,7 @@ import { parseStoredAnalysis } from "@/lib/analysis";
 import { FAMILY_LABEL, type JobFamily } from "@/lib/job-sweep/classify";
 import { CLOSED_STAGES, type OutreachRow, type OutreachStage, isOutreachStage } from "@/lib/outreach";
 import { loadRunSummary } from "@/lib/run-status";
+import { isLikelyPersonName } from "@/lib/pipeline";
 import { pendingMigrations } from "@/lib/schema-check";
 import { admin } from "@/lib/supabase/admin";
 import { fetchAll } from "@/lib/supabase/fetch-all";
@@ -79,10 +80,12 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   ]);
   const openRun = openRunRow.data ? await loadRunSummary(db, openRunRow.data.id as string) : null;
 
+  // Marketing phrases that slipped in as "people" ("Strategic IT Guidance") must never be the suggested contact.
+  const realPeople = people.filter((person) => isLikelyPersonName(person.full_name));
   const cardsBy = group(cards, (card) => card.account_id);
   const rolesBy = group(roles, (role) => role.account_id);
   const postsBy = group(posts, (post) => post.account_id);
-  const peopleBy = group(people, (person) => person.account_id);
+  const peopleBy = group(realPeople, (person) => person.account_id);
   const signalsBy = group(signals, (signal) => signal.account_id);
   const touchesBy = group(touches.filter((touch) => touch.cards), (touch) => (Array.isArray(touch.cards) ? touch.cards[0] : touch.cards)!.account_id);
   const now = nowMs();

@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
+import { isLikelyPersonName } from "@/lib/pipeline";
 import { targetAccountByDomain } from "@/lib/target-accounts";
 
 type TeamPerson = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; email_source: string | null; linkedin_url: string | null };
@@ -13,7 +14,9 @@ export async function GET(request: Request) {
     const db = admin();
     const { data: account } = await db.from("accounts").select("id,name,domain,vertical,employee_range,tier,careers_url,intel_score").eq("domain", domain).maybeSingle();
     const people = account
-      ? (((await db.from("people").select("id,full_name,title,level,email,email_status,email_source,linkedin_url").eq("account_id", account.id as string).eq("do_not_contact", false).order("level").order("full_name").limit(40)).data ?? []) as TeamPerson[])
+      ? (((await db.from("people").select("id,full_name,title,level,email,email_status,email_source,linkedin_url").eq("account_id", account.id as string).eq("do_not_contact", false).order("level").order("full_name").limit(60)).data ?? []) as TeamPerson[])
+        // Drop marketing phrases ("Strategic IT Guidance", "Reduced Operational Costs") that slipped in as "people".
+        .filter((person) => isLikelyPersonName(person.full_name))
       : [];
     const target = targetAccountByDomain.get(domain);
     return Response.json({

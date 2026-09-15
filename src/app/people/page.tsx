@@ -3,6 +3,7 @@ import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { Header } from "@/components/Header";
 import { PeopleBoard, type PersonRow, type PeopleFilters } from "@/components/PeopleBoard";
+import { isLikelyPersonName } from "@/lib/pipeline";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { fetchAll } from "@/lib/supabase/fetch-all";
@@ -60,7 +61,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
     else { current.count += 1; if (when > current.last) current.last = when; if (touch.reply_at) current.replied = true; }
   }
 
-  const rows: PersonRow[] = people.map((person) => {
+  const rows: PersonRow[] = people.filter((person) => isLikelyPersonName(person.full_name)).map((person) => {
     const account = (Array.isArray(person.accounts) ? person.accounts[0] : person.accounts) ?? null;
     const draft = draftByPerson.get(person.id);
     const history = historyByPerson.get(person.id);
