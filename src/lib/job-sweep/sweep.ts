@@ -78,6 +78,8 @@ const GENERAL_BUYER_TITLES = ["Chief Operating Officer", "Chief Information Offi
 const LEVEL_RANK: Record<string, number> = { owner: 3, influencer: 2, adjacent: 1, unknown: 0 };
 /** An active role not re-seen by any pass within this long is treated as filled/closed, so a stale role never lingers as "active". */
 const ROLE_ACTIVE_TTL_MS = 45 * 86_400_000;
+/** How long LinkedIn profile/post discovery is skipped after a run — it changes little day to day and is the priciest recurring pass. */
+const LINKEDIN_COOLDOWN_MS = 10 * 86_400_000;
 export async function pickBuyerOnFile(db: Db, accountId: string, targetPostings: Array<{ family: JobFamily }>): Promise<{ full_name: string; title: string } | null> {
   const { data } = await db.from("people").select("full_name,title,level").eq("account_id", accountId).eq("do_not_contact", false);
   const people = (data ?? []) as Array<{ full_name: string; title: string; level: string }>;
@@ -483,7 +485,10 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
         let postsFound = 0;
         let linkedinNote: string | null = null;
         const linkedin: { people: Array<{ name: string; title: string; url: string }>; posts: Array<{ author: string; excerpt: string; url: string; kind: string; date: string | null }> } = { people: [], posts: [] };
-        {
+        // LinkedIn profile/post search is the sweep's biggest recurring model cost and barely changes day to day,
+        // so it runs on a cooldown (and always on the extensive first pass), not on every sweep of every company.
+        const linkedinDue = extensive || !account.linkedin_checked_at || Date.parse(account.linkedin_checked_at) < rowStart - LINKEDIN_COOLDOWN_MS;
+        if (linkedinDue) {
           try {
             const context = targetAccountByDomain.get(account.domain);
             const { data: known } = await db.from("people").select("full_name").eq("account_id", account.id).limit(12);
@@ -515,6 +520,9 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           } catch (error) {
             linkedinNote = `LinkedIn search failed: ${error instanceof Error ? error.message : String(error)}`;
           }
+          await db.from("accounts").update({ linkedin_checked_at: sweepStart }).eq("id", account.id);
+        } else {
+          linkedinNote = "LinkedIn search skipped (checked within the cooldown)";
         }
         // Anyone at the company posting publicly about AI in their own work.
         const postsDue = !account.ai_posts_checked_at || Date.parse(account.ai_posts_checked_at) < rowStart - posts.cooldownMs;

@@ -23,7 +23,9 @@ export function anthropicCost(usage: Anthropic.Messages.Usage, model: string) {
     + (usage.cache_creation_input_tokens ?? 0) * rates.cacheWrite
     + (usage.cache_read_input_tokens ?? 0) * rates.cacheRead
   ) / 1_000_000;
-  const searchCost = (usage.server_tool_use?.web_search_requests ?? 0) * 0.01;
+  // Anthropic bills web search and web fetch as server tool use; count both so measured spend isn't understated.
+  const serverTools = usage.server_tool_use as (typeof usage.server_tool_use & { web_fetch_requests?: number }) | undefined;
+  const searchCost = ((serverTools?.web_search_requests ?? 0) + (serverTools?.web_fetch_requests ?? 0)) * 0.01;
   return tokenCost + searchCost;
 }
 

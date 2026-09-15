@@ -18,6 +18,7 @@ const MIGRATIONS: Array<{ file: string; table: string; column: string; adds: str
   { file: "0010_analysis.sql", table: "accounts", column: "analysis", adds: "the deep analysis per company" },
   { file: "0011_contact_details.sql", table: "people", column: "phone", adds: "phone numbers and contact notes from the contact agent" },
   { file: "0012_analysis_drafts.sql", table: "cards", column: "linkedin_message", adds: "drafts written from the analysis, a LinkedIn message on every draft, and roles read from job boards" },
+  { file: "0013_linkedin_cooldown.sql", table: "accounts", column: "linkedin_checked_at", adds: "the LinkedIn discovery cooldown so profile and post search stops re-running on every sweep" },
 ];
 
 export type PendingMigration = { file: string; adds: string; reason: string; sql: string };

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { anthropicCost } from "./anthropic-cost.ts";
 
-test("Haiku usage includes tokens and paid web searches", () => {
+test("Haiku usage includes tokens and paid web search and fetch", () => {
   const cost = anthropicCost({
     input_tokens: 10_000,
     output_tokens: 1_000,
@@ -14,7 +14,8 @@ test("Haiku usage includes tokens and paid web searches", () => {
     service_tier: "standard",
   }, "claude-haiku-4-5");
 
-  assert.equal(cost, 0.045);
+  // tokens 0.015 + (3 search + 1 fetch) * 0.01 = 0.055
+  assert.equal(cost, 0.055);
 });
 
 test("unknown models are costed conservatively", () => {

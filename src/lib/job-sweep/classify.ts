@@ -49,9 +49,15 @@ const MANDATE_FAMILIES: ReadonlySet<JobFamily> = new Set(["ai_ml", "automation"]
  */
 const AI_PRODUCT = /\b(machine learning|deep learning|computer vision|natural language|\bnlp\b|\bml\b|ml ?ops|data scien(ce|tist)|research scien(ce|tist)|research engineer|applied scien(ce|tist)|ai (engineer|scientist|researcher|research|product)|(generative ai|gen ?ai|\bllm\b)s? (engineer|developer|scientist)|ai\/ml|\brobotics\b|autonomous (vehicle|driving)|founding (engineer|ai|ml))\b/i;
 
-/** Titles that never qualify, however the words fall. */
+/**
+ * Titles that never qualify, however the words fall. Industrial/controls tokens (controls, manufacturing,
+ * plant, hvac, plc, scada…) stay here so "Controls Automation Engineer" is blocked — but "automation engineer"
+ * and "process engineer" are NOT blanket-excluded, so "Intelligent/Process Automation Engineer" and "Business
+ * Process Engineer" reach the automation rule. A bare "Automation Engineer" with no industrial context simply
+ * does not match a rule and stays unclassified (not a false positive).
+ */
 const EXCLUDE =
-  /\b(controls?|electrical|mechanical|manufacturing|plant|industrial|hvac|welding|machinist|maintenance|facilities|qa|quality assurance|test automation|sdet|automation engineer|automation technician|process engineer|chemical|packaging|production)\b|\b(nurse|rn|lpn|cna|physician|pharmac|driver|cdl|warehouse|forklift|mechanic|welder|electrician|plumber|technician|cashier|cook|chef|dishwasher|janitor|custodian|housekeep|security (guard|officer)|lifeguard|teacher|intern(ship)?|apprentice|attorney|paralegal|counsel|surgeon|dental|veterinar|pilot|barista|server|bartender|line cook|merchandiser|stocker|loader|picker|packer)\b/i;
+  /\b(controls?|electrical|mechanical|manufacturing|plant|industrial|hvac|plc|scada|welding|machinist|maintenance|facilities|qa|quality assurance|test automation|sdet|chemical|packaging|production)\b|\b(nurse|rn|lpn|cna|physician|pharmac|driver|cdl|warehouse|forklift|mechanic|welder|electrician|plumber|technician|cashier|cook|chef|dishwasher|janitor|custodian|housekeep|security (guard|officer)|lifeguard|teacher|intern(ship)?|apprentice|attorney|paralegal|counsel|surgeon|dental|veterinar|pilot|barista|server|bartender|line cook|merchandiser|stocker|loader|picker|packer)\b/i;
 
 /** Ordered: the first family whose pattern matches wins. */
 const RULES: Array<[JobFamily, RegExp]> = [
