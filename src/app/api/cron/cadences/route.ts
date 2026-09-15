@@ -1,6 +1,7 @@
 import { cronAuthorized } from "@/lib/auth";
 import { sendEmail } from "@/lib/gmail";
 import { validateEmail } from "@/lib/send-action";
+import { fromHeader, senderProfile, withSignature } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
 
@@ -25,8 +26,9 @@ export async function GET(request:Request){
       validateEmail(card.people.email_status,count??0,step.body);
       const {data:connection}=await db.from("gmail_connections").select("email").eq("owner",cadence.owner).single();if(!connection)throw new Error("Gmail is not connected");
       const {data:previous}=await db.from("touches").select("gmail_thread_id").eq("card_id",cadence.card_id).eq("channel","email").not("gmail_thread_id","is",null).order("sent_at",{ascending:false}).limit(1).maybeSingle();
-      const optOut=process.env.OPT_OUT_LINE??"If this isn't relevant, reply no and I won't follow up.",fullBody=`${step.body.trim()}\n\n${optOut}`;
-      const result=await sendEmail(cadence.owner,connection.email,card.people.email,step.subject,fullBody,previous?.gmail_thread_id??undefined);
+      const profile=await senderProfile(db,cadence.owner);
+      const optOut=process.env.OPT_OUT_LINE??"If this isn't relevant, reply no and I won't follow up.",fullBody=`${withSignature(step.body,profile)}\n\n${optOut}`;
+      const result=await sendEmail(cadence.owner,fromHeader(profile,connection.email),card.people.email,step.subject,fullBody,previous?.gmail_thread_id??undefined,profile.cc);
       await db.from("touches").insert({card_id:cadence.card_id,person_id:card.person_id,channel:"email",sent_at:now.toISOString(),sent_by:cadence.owner,gmail_thread_id:result.threadId,body:fullBody,experiment_variant_id:card.active_variant_id??null});
       if(card.active_variant_id){const {data:chosen}=await db.from("message_variants").select("experiment_id").eq("id",card.active_variant_id).maybeSingle();if(chosen)await db.from("message_experiments").update({status:"sent"}).eq("id",chosen.experiment_id)}
       await db.from("cadence_steps").update({status:"sent",sent_at:now.toISOString(),error:null}).eq("id",step.id);await db.from("cards").update({status:"sent"}).eq("id",cadence.card_id);sent++;
