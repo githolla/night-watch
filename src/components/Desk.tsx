@@ -344,7 +344,7 @@ export function Desk({
     if (!contact?.email) return;
     if (draft?.view === "email" && contact.email_status === "verified" && !altContact) { send(); return; }
     const href = mailtoHref();
-    if (href) window.location.href = href;
+    if (href) { const link = document.createElement("a"); link.href = href; document.body.appendChild(link); link.click(); link.remove(); }
     if (altContact) { setNotice(`Email draft opened for ${contact.full_name} — send it from your mail app.`); return; }
     recordTouch("email", (draft?.view === "email" ? focusCard?.email_body : "") || draftText);
   };
