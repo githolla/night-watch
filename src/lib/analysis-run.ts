@@ -6,8 +6,8 @@ import { verifierConfigured, verifyAccountEmails } from "./email-verify.ts";
 import { FAMILY_LABEL, leadRank, type JobFamily } from "./job-sweep/classify.ts";
 import { recomputeAccountIntel } from "./account-intel.ts";
 import {
-  accountIdsInOpenRuns, ensureAccountsLoaded, finalizeRun, persistSignal, refreshRunAggregates, storeSignalRow, summarize, sweepStaleRuns, upsertPerson,
-  type AccountOutcome, type RunNightlyResult, type StopReason,
+  accountIdsInOpenRuns, ensureAccountsLoaded, finalizeRun, isStaleSource, persistSignal, refreshRunAggregates, storeSignalRow, summarize, sweepStaleRuns, upsertPerson,
+  type AccountOutcome, type DatedRaw, type RunNightlyResult, type StopReason,
 } from "./pipeline.ts";
 import { classifyResearchError, ResearchError, researchPreflight } from "./research-errors.ts";
 import { analysisConfig, timeBudgetMs } from "./run-config.ts";
@@ -128,18 +128,19 @@ function nameKey(value: string) {
  * brief itself. A card needs a signal row, so one is written when none of
  * the kept signals fits.
  */
-function evidenceFor(account: Account, analysis: CompanyAnalysis, person: DraftCandidate, quotes: CompanyAnalysis["voices"]): ScoutSignal {
+function evidenceCandidates(account: Account, analysis: CompanyAnalysis, person: DraftCandidate, quotes: CompanyAnalysis["voices"]): ScoutSignal[] {
   const today = analysis.analyzedAt.slice(0, 10);
   const need = analysis.brief.angle || analysis.hiring.buildInstead[0] || analysis.brief.whyNow || `${account.name} has operating work in ${analysis.tech.length ? analysis.tech.slice(0, 3).join(", ") : "its systems and reporting"} that Nine-67 could build and run instead of a hire.`;
   const confidence = Math.max(0.6, Math.min(1, analysis.brief.fit / 100));
   const candidates: ScoutSignal[] = [];
   const quote = quotes.find((voice) => /^https?:\/\//.test(voice.url));
   if (quote) {
-    const date = quote.date && /^\d{4}-\d{2}-\d{2}/.test(quote.date) ? quote.date.slice(0, 10) : today;
+    // A post only counts as fresh evidence if it carries its own real date; an undated quote is left dateless so the staleness gate drops it rather than being stamped "today".
+    const quoteDate = quote.date && /^\d{4}-\d{2}-\d{2}/.test(quote.date) ? quote.date.slice(0, 10) : null;
     candidates.push({
-      type: "exec_post", evidence_kind: "ai_post", summary: `${person.full_name} said publicly: "${quote.quote.slice(0, 160)}"`, source_url: quote.url, observed_at: date, operating_need: need,
+      type: "exec_post", evidence_kind: "ai_post", summary: `${person.full_name} said publicly: "${quote.quote.slice(0, 160)}"`, source_url: quote.url, observed_at: quoteDate ?? today, operating_need: need,
       people: [{ name: person.full_name, title: person.title, role_in_signal: "posted" }],
-      post: { text: quote.quote, author_name: person.full_name, author_title: person.title, published_at: quote.date, reactions: null, comments: null, reposts: null, hashtags: [], is_excerpt: true },
+      post: { text: quote.quote, author_name: person.full_name, author_title: person.title, published_at: quoteDate, reactions: null, comments: null, reposts: null, hashtags: [], is_excerpt: true },
       confidence,
     });
   }
@@ -154,12 +155,15 @@ function evidenceFor(account: Account, analysis: CompanyAnalysis, person: DraftC
       confidence,
     });
   }
+  // A dated development is real evidence; an undated one carries no published date, so the staleness gate drops it — it is never stamped "today".
   const development = analysis.happening.find((item) => item.source_url && /^https?:\/\//.test(item.source_url));
+  const devDate = development?.date && /^\d{4}-\d{2}-\d{2}/.test(development.date) ? development.date.slice(0, 10) : null;
   candidates.push({
     type: "other", evidence_kind: "new_mandate", summary: analysis.brief.whyNow.split(/(?<=\.)\s+/)[0] || `${account.name}: analysed ${today}`,
-    source_url: development?.source_url ?? `https://${account.domain}/`, observed_at: today, operating_need: need, people: [], confidence,
+    source_url: development?.source_url ?? `https://${account.domain}/`, observed_at: devDate ?? today, operating_need: need, people: [], confidence,
+    source: { headline: "", publisher: "", author_name: null, published_at: devDate, excerpt: "" },
   });
-  return candidates.find((candidate) => !disqualifySignal(candidate)) ?? candidates[candidates.length - 1];
+  return candidates.filter((candidate) => !disqualifySignal(candidate));
 }
 
 /** Statuses a person has already acted on; a fresh analysis never overwrites those. */
@@ -182,8 +186,12 @@ async function draftFromAnalysis(db: Db, account: Account, analysis: CompanyAnal
   if (!person) return { status: "skipped", person: named, cardId: null, reason: "nobody on file to write to yet" };
 
   const quotes = analysis.voices.filter((voice) => nameKey(voice.author) === nameKey(person.full_name));
+  // The person's own kept signal is already fresh (it cleared persistSignal's gate). Otherwise fall back to the
+  // strongest candidate that carries a real, recent date — never a synthetic signal stamped "today" on stale material.
   const own = kept.find((entry) => entry.signal.people.some((who) => nameKey(who.name) === nameKey(person.full_name)) || nameKey(entry.signal.post?.author_name ?? "") === nameKey(person.full_name));
-  const evidence = own ?? { signal: evidenceFor(account, analysis, person, quotes), id: null as string | null };
+  const fallback = evidenceCandidates(account, analysis, person, quotes).find((candidate) => !isStaleSource(candidate.type, candidate as DatedRaw));
+  const evidence = own ?? (fallback ? { signal: fallback, id: null as string | null } : null);
+  if (!evidence) return { status: "skipped", person: person.full_name, cardId: null, reason: "no fresh, dated evidence in the last 180 days — held until a current signal appears" };
   const signalId = evidence.id ?? (await storeSignalRow(account, evidence.signal, person.id)).id;
 
   const { data: existingCard } = await db.from("cards").select("id,status").eq("signal_id", signalId).eq("person_id", person.id).maybeSingle();

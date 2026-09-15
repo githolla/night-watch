@@ -24,6 +24,8 @@ export function strength(type: SignalType, job?: { days_open?: number; reposted?
 }
 
 export function recency(observedAt: string, now = new Date()) {
+  // An unparseable or missing date is not "today" — it carries no freshness at all.
+  if (!observedAt || Number.isNaN(Date.parse(observedAt))) return 0;
   const days = Math.max(0, Math.floor((Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - Date.parse(observedAt)) / 864e5));
   return Math.max(0, 20 - Math.max(0, days - 1) * 3);
 }

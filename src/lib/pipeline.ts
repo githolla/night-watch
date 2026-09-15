@@ -200,7 +200,7 @@ export async function storeSignalRow(account: Account, item: ScoutSignal, person
 
 /** A post or article is only a live signal for so long; after this it is history, not a reason to reach out. */
 const SIGNAL_MAX_AGE_DAYS = 180;
-type DatedRaw = { post?: { published_at?: string | null; published?: string | null } | null; source?: { published_at?: string | null } | null };
+export type DatedRaw = { post?: { published_at?: string | null; published?: string | null } | null; source?: { published_at?: string | null } | null };
 
 function rawSourceDate(raw: DatedRaw | null | undefined, fallback: string | null | undefined): Date | null {
   const value = raw?.post?.published_at ?? raw?.post?.published ?? raw?.source?.published_at ?? fallback ?? null;
@@ -215,22 +215,20 @@ function rawSourceDate(raw: DatedRaw | null | undefined, fallback: string | null
  * (exec_post) must carry its own recent date — never "when we found it" — so an undated or old post is
  * rejected outright; that is how a years-old post from someone who has since left slips in otherwise.
  */
-function isStaleSource(type: string | undefined, raw: DatedRaw | null | undefined, observedAt: string | null | undefined): boolean {
-  if (type === "job_post" || type === "job_cluster") return false;
-  if (type === "exec_post") {
-    const postDate = rawSourceDate(raw, null); // ignore observed_at: a real post always carries its own date
-    if (!postDate) return true; // an undated "post" is boilerplate or unverifiable — do not act on it
-    return Date.now() - postDate.getTime() > SIGNAL_MAX_AGE_DAYS * 86_400_000;
-  }
-  const date = rawSourceDate(raw, observedAt);
-  if (!date) return false;
+// `observed_at` is when the app found the thing, not when it happened. Trusting it as a content date is how a
+// stale item stamped "today" — by our own draft synthesizer, or a dateless scrape — surfaces as fresh. So every
+// non-job type is judged by its real published date only; a signal carrying no such date is treated as history.
+export function isStaleSource(type: string | undefined, raw: DatedRaw | null | undefined): boolean {
+  if (type === "job_post" || type === "job_cluster") return false; // an active listing is current by definition; its recency is the sweep's active flag
+  const date = rawSourceDate(raw, null); // real published date only — never observed_at
+  if (!date) return true; // undated non-job signal: boilerplate or unverifiable, not a live reason to reach out
   return Date.now() - date.getTime() > SIGNAL_MAX_AGE_DAYS * 86_400_000;
 }
 
 export async function persistSignal(account: Account, item: ScoutSignal, outcome: AccountOutcome, recordCost: (costUsd: number) => void, options: { alwaysCard?: boolean } = {}) {
   const db = admin();
   // A post or article older than the window is history — never store or surface it as a live reason to reach out.
-  if (isStaleSource(item.type, item as DatedRaw, item.observed_at)) return { storedId: null, cardId: null, personId: null };
+  if (isStaleSource(item.type, item as DatedRaw)) return { storedId: null, cardId: null, personId: null };
   const person = await mapPerson(account, item, recordCost);
   const { id: storedId, isNew } = await storeSignalRow(account, item, person?.id ?? null);
   if (isNew) outcome.signalsNew += 1;
@@ -603,7 +601,7 @@ export async function recomputeAndSurface() {
       continue;
     }
     // Retire any card whose real source is older than the window — a years-old post is not a live signal.
-    if (isStaleSource(signal.type, signal.raw as DatedRaw, signal.observed_at)) {
+    if (isStaleSource(signal.type, signal.raw as DatedRaw)) {
       await db.from("cards").update({ status: "archived", dismiss_reason: `Source is older than ${SIGNAL_MAX_AGE_DAYS} days — no longer a live signal.` }).eq("id", card.id);
       continue;
     }

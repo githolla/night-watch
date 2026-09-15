@@ -30,9 +30,14 @@ export const MAX_TURN_CONTINUATIONS = 3;
 /** A single model turn may not run longer than this; a hung web-search call fails fast instead of eating the run window. */
 export const TURN_TIMEOUT_MS = 75_000;
 
-/** `YYYY-MM-DD`; an ISO datetime is trimmed to its date part first. */
+/** `YYYY-MM-DD`; an ISO datetime is trimmed to its date part first. A future date is clamped to today so a model cannot stamp tomorrow to dodge recency decay. */
 const isoDate = z.preprocess(
-  (value) => (typeof value === "string" ? value.trim().slice(0, 10) : value),
+  (value) => {
+    if (typeof value !== "string") return value;
+    const date = value.trim().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10);
+    return /^\d{4}-\d{2}-\d{2}$/.test(date) && date > today ? today : date;
+  },
   z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "must be a YYYY-MM-DD date")
