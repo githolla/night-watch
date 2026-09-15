@@ -613,7 +613,23 @@ export function Desk({
           </div>
         </div>
       ) : (
-        <div className="focus">
+        <div className="focus focus-workspace">
+          <aside className="focus-queue">
+            <div className="focus-queue-head">
+              <span className="focus-queue-title">Worklist</span>
+              <span className="focus-queue-count">{todo.length}</span>
+            </div>
+            <div className="focus-queue-list">
+              {todo.map((item) => (
+                <button type="button" key={item.id} className={`focus-queue-row ${focusCard && item.id === focusCard.id ? "is-active" : ""}`} onClick={() => pick(item.id)}>
+                  <span className="avatar sm">{initials(item.accounts.name)}</span>
+                  <span className="focus-queue-id"><strong>{item.accounts.name}</strong><small>{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small></span>
+                  <em className="chip focus-fit">{item.score}</em>
+                </button>
+              ))}
+            </div>
+          </aside>
+          <div className="focus-main">
           <div className="focus-topbar">
             <button type="button" className="pipeline-backtofocus" onClick={() => setBrowse(true)}>&larr; All prospects</button>
             {focusCard && <div className="focus-topbar-nav">
@@ -683,6 +699,7 @@ export function Desk({
               <button type="button" className="btn" onClick={() => setBrowse(true)}>Browse all prospects</button>
             </div>
           )}
+          </div>
         </div>
       )}
     </main>
