@@ -1,27 +1,30 @@
 import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
-import { FilterForm } from "@/components/FilterForm";
 import { Header } from "@/components/Header";
-import { RowLink } from "@/components/RowLink";
+import { PeopleBoard, type PersonRow, type PeopleFilters } from "@/components/PeopleBoard";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
-import { daysAgoIso } from "@/lib/time";
+import { fetchAll } from "@/lib/supabase/fetch-all";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-type Params = { q?: string; level?: string; email?: string; page?: string; since?: string };
-const pageSize = 100;
+type Params = { q?: string; level?: string; email?: string; show?: string; sort?: string };
+
+type AccountRef = { name: string; domain: string };
+type PeopleRow = {
+  id: string; full_name: string; title: string; level: string; email: string | null; email_status: string;
+  linkedin_url: string | null; source: string | null; created_at: string | null; enriched_at: string | null;
+  accounts: AccountRef | AccountRef[] | null;
+};
+type CardRow = { id: string; score: number; person_id: string; status: string };
 
 function peopleInitials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
 }
 
-const LEVEL_LABEL: Record<string, string> = { owner: "Decision owner", influencer: "Influencer", adjacent: "Adjacent", unknown: "Unknown" };
-const EMAIL_LABEL: Record<string, string> = { verified: "Verified", catch_all: "Catch-all", unverified: "Unverified", none: "None" };
-
-/** Every person the sweep or a signal has put on file, with contact state. */
+/** Every person the sweep or a signal has put on file — one instant-search directory. */
 export default async function PeoplePage({ searchParams }: { searchParams: Promise<Params> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   await requireUser();
@@ -31,51 +34,56 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
   }
   const params = await searchParams;
   const db = admin();
-  const query = params.q?.trim() ?? "";
-  const level = params.level && params.level in LEVEL_LABEL ? params.level : "";
-  const email = params.email && params.email in EMAIL_LABEL ? params.email : "";
-  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
-  const safe = query.replace(/[%,]/g, " ");
-  const sinceDays = [1, 7, 30].includes(Number(params.since)) ? Number(params.since) : 0;
 
-  let rows = db
-    .from("people")
-    .select("id,full_name,title,level,email,email_status,email_source,linkedin_url,source,enriched_at,created_at,accounts!inner(name,domain)", { count: "exact" })
-    .eq("do_not_contact", false)
-    .order("enriched_at", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
-    .range((page - 1) * pageSize, page * pageSize - 1);
-  if (level) rows = rows.eq("level", level);
-  if (email) rows = rows.eq("email_status", email);
-  if (query) rows = rows.or(`full_name.ilike.%${safe}%,title.ilike.%${safe}%,accounts.name.ilike.%${safe}%`);
-  if (sinceDays) rows = rows.gte("created_at", daysAgoIso(sinceDays));
-
-  const [{ data, count, error }, { count: verified }, { count: withLinkedIn }, { data: nextCards }] = await Promise.all([
-    rows,
+  const [people, cards, { count: verified }, { count: withLinkedIn }, { data: nextCards }] = await Promise.all([
+    fetchAll<PeopleRow>((from, to) => db.from("people").select("id,full_name,title,level,email,email_status,linkedin_url,source,created_at,enriched_at,accounts!inner(name,domain)").eq("do_not_contact", false).range(from, to)),
+    fetchAll<CardRow>((from, to) => db.from("cards").select("id,score,person_id,status").in("status", ["new", "approved", "edited"]).range(from, to)),
     db.from("people").select("*", { count: "exact", head: true }).eq("email_status", "verified"),
     db.from("people").select("*", { count: "exact", head: true }).not("linkedin_url", "is", null),
     db.from("cards").select("id,score,channel,people!inner(full_name,title),accounts!inner(name,domain,outreach)").eq("accounts.outreach", true).in("status", ["new", "approved", "edited"]).order("score", { ascending: false }).limit(8),
   ]);
-  if (error) throw error;
-  const total = count ?? 0;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const href = (next: Partial<Params>) => {
-    const merged = { ...params, ...next };
-    const search = new URLSearchParams();
-    if (merged.q) search.set("q", merged.q);
-    if (merged.level) search.set("level", merged.level);
-    if (merged.email) search.set("email", merged.email);
-    if (merged.since) search.set("since", merged.since);
-    if (merged.page && merged.page !== "1") search.set("page", merged.page);
-    const string = search.toString();
-    return `/people${string ? `?${string}` : ""}`;
+
+  // Best open card per person, for a "draft ready" jump straight to the desk.
+  const draftByPerson = new Map<string, { id: string; score: number }>();
+  for (const card of cards) {
+    const current = draftByPerson.get(card.person_id);
+    if (!current || card.score > current.score) draftByPerson.set(card.person_id, { id: card.id, score: card.score });
+  }
+
+  const rows: PersonRow[] = people.map((person) => {
+    const account = (Array.isArray(person.accounts) ? person.accounts[0] : person.accounts) ?? null;
+    const draft = draftByPerson.get(person.id);
+    return {
+      id: person.id,
+      name: person.full_name,
+      title: person.title ?? "",
+      company: account?.name ?? "Unknown company",
+      domain: account?.domain ?? "",
+      level: person.level ?? "unknown",
+      email: person.email,
+      emailStatus: person.email_status ?? "none",
+      linkedin: person.linkedin_url,
+      source: person.source,
+      createdAt: person.created_at,
+      enrichedAt: person.enriched_at,
+      draftCardId: draft?.id ?? null,
+      draftScore: draft?.score ?? 0,
+    };
+  });
+
+  const initial: PeopleFilters = {
+    q: params.q ?? "",
+    level: params.level ?? "",
+    email: params.email ?? "",
+    show: params.show ?? "",
+    sort: params.sort ?? "best",
   };
 
   return <div className="shell">
     <Header />
     <main className="targets-page">
       <header className="page-head briefing-head">
-        <div><span className="overview-kick">People on file</span><h1>People</h1><p>Buyers and signal owners, enriched with email and LinkedIn where available · {total.toLocaleString()} on file · {(verified ?? 0).toLocaleString()} verified · {(withLinkedIn ?? 0).toLocaleString()} on LinkedIn.</p></div>
+        <div><span className="overview-kick">People on file</span><h1>People</h1><p>Buyers and signal owners, enriched with email and LinkedIn where available · {rows.length.toLocaleString()} on file · {(verified ?? 0).toLocaleString()} verified · {(withLinkedIn ?? 0).toLocaleString()} on LinkedIn.</p></div>
       </header>
 
       {nextCards && nextCards.length > 0 && <section className="reach-next">
@@ -94,40 +102,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
         </div>
       </section>}
 
-      <FilterForm action="/people">
-        <label><span>Search</span><input name="q" defaultValue={query} placeholder="Name, title, or company" /></label>
-        <label><span>Level</span><select name="level" defaultValue={level}><option value="">Any level</option>{Object.entries(LEVEL_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-        <label><span>Email</span><select name="email" defaultValue={email}><option value="">Any state</option>{Object.entries(EMAIL_LABEL).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-        <label><span>Added since</span><select name="since" defaultValue={sinceDays ? String(sinceDays) : ""}><option value="">Any time</option><option value="1">Yesterday</option><option value="7">This week</option><option value="30">This month</option></select></label>
-        <button className="btn primary" type="submit">Apply</button>
-        {(query || level || email || sinceDays) && <Link href="/people">Clear</Link>}
-      </FilterForm>
-
-      <section className="target-results">
-        <div className="table-wrap"><table className="data-table"><thead><tr><th>Name</th><th>Title</th><th>Company</th><th>Level</th><th>Email</th><th /></tr></thead><tbody>
-          {(data ?? []).map((person) => {
-            const account = person.accounts as unknown as { name: string; domain: string };
-            const email = person.email as string | null;
-            const level = person.level as string;
-            const status = person.email_status as string;
-            const emailTone = status === "verified" ? "ok" : status === "catch_all" ? "attention" : email ? "attention" : "muted";
-            return <RowLink as="tr" key={person.id} href={`/accounts/${account.domain}`}>
-              <td><div className="cell-lead"><span className="avatar sm">{peopleInitials(person.full_name)}</span><strong>{person.full_name}</strong></div></td>
-              <td className="cell-clamp">{person.title || "—"}</td>
-              <td>{account.name}</td>
-              <td>{level && level !== "unknown" ? <span className={`pill pill-${level === "owner" ? "accent" : "muted"}`}>{LEVEL_LABEL[level] ?? level}</span> : <span className="cell-sub">—</span>}</td>
-              <td>{email ? <span className={`pill pill-${emailTone}`} title={email}>{EMAIL_LABEL[status] ?? status}</span> : <span className="cell-sub">none</span>}</td>
-              <td>{person.linkedin_url ? <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a> : null}</td>
-            </RowLink>;
-          })}
-          {!data?.length && <tr><td colSpan={6} className="cell-empty">{query || level || email || sinceDays ? "No people match these filters." : "No people yet. The scan finds them on company sites, LinkedIn results and press as it runs."}</td></tr>}
-        </tbody></table></div>
-        <nav className="target-pagination" aria-label="People pages">
-          {page > 1 ? <Link href={href({ page: String(page - 1) })}>← Previous</Link> : <span />}
-          <span>{total ? ((page - 1) * pageSize + 1).toLocaleString() : 0}–{Math.min(page * pageSize, total).toLocaleString()} of {total.toLocaleString()}</span>
-          {page < totalPages ? <Link href={href({ page: String(page + 1) })}>Next →</Link> : <span />}
-        </nav>
-      </section>
+      <PeopleBoard rows={rows} initial={initial} verified={verified ?? 0} withLinkedIn={withLinkedIn ?? 0} />
     </main>
   </div>;
 }
