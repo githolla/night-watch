@@ -11,6 +11,8 @@ import { RefreshButton } from "./RefreshButton";
 import { RunPanel } from "./RunPanel";
 import { SignalInsight, type InsightCard } from "./SignalInsight";
 
+type Followup = { id: string; step: number; channel: string; title: string; detail: string; subject: string | null; body: string; status: string; scheduledAt: string };
+
 type Card = InsightCard & {
   id: string;
   status: string;
@@ -29,6 +31,7 @@ type Card = InsightCard & {
   working?: boolean;
   isNew?: boolean;
   carriedOver?: boolean;
+  followups?: Followup[];
   people: InsightCard["people"] & {
     email: string | null;
     email_status: string;
@@ -772,6 +775,7 @@ export function Desk({
                   </div>
                 </div>
 
+                <div className="deskwork-scroll">
                 {channelTab === "email" ? (
                   editing.email ? (
                     <div className="deskwork-edit">
@@ -802,6 +806,25 @@ export function Desk({
                     </div>
                   )
                 )}
+
+                {(() => {
+                  const seq = (focusCard.followups ?? []).filter((f) => (channelTab === "email" ? f.channel === "email" : f.channel !== "email"));
+                  if (seq.length === 0) {
+                    return <div className="deskwork-fu-hint">The next 3 follow-ups queue here automatically once you send or copy this {channelTab === "email" ? "email" : "message"}.</div>;
+                  }
+                  return <div className="deskwork-followups">
+                    <div className="deskwork-fu-head">Follow-up sequence<span>{seq.length} queued · stops on a reply</span></div>
+                    {seq.map((step) => (
+                      <div key={step.id} className={`deskwork-fu ${step.status === "sent" ? "is-done" : ""}`}>
+                        <div className="deskwork-fu-top"><strong>Step {step.step} · {step.title}</strong><span className={followupWhen(step.scheduledAt, step.status) === "due now" ? "is-due" : ""}>{followupWhen(step.scheduledAt, step.status)}</span></div>
+                        {step.subject && <div className="deskwork-fu-subj">Subject: {step.subject}</div>}
+                        <p className="deskwork-fu-body">{step.body}</p>
+                        <button type="button" className="deskwork-fu-copy" onClick={() => copyText(step.subject ? `Subject: ${step.subject}\n\n${step.body}` : step.body, `Follow-up ${step.step}`)}>Copy follow-up</button>
+                      </div>
+                    ))}
+                  </div>;
+                })()}
+                </div>
 
                 <div className="deskwork-draft-foot">
                   <span className="deskwork-words">{(channelTab === "email" ? (focusCard.email_body ?? "") : linkedinDraft).trim().split(/\s+/).filter(Boolean).length} words</span>
@@ -855,6 +878,17 @@ function carriedLabel(created?: string | null) {
   if (!created) return "Carried over";
   const date = new Date(created);
   return Number.isNaN(date.getTime()) ? "Carried over" : `From ${date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+}
+
+/** Human timing for a queued follow-up: sent, due now, or how many days out. */
+function followupWhen(scheduledAt: string, status: string) {
+  if (status === "sent") return "sent";
+  if (status === "skipped") return "skipped";
+  const days = Math.round((new Date(scheduledAt).getTime() - new Date().getTime()) / 86_400_000);
+  if (status === "ready" || days <= 0) return "due now";
+  if (days === 1) return "tomorrow";
+  if (days < 7) return `in ${days} days`;
+  return new Date(scheduledAt).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
 function emailStateLabel(status: string) {

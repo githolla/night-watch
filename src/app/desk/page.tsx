@@ -167,14 +167,34 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   // day and has rolled forward, so it is marked as carried over rather than re-badged "new" every morning.
   const dayStart = `${today}T00:00:00`;
   const workingCutoff = new Date().getTime() - 30 * 60 * 1000;
-  const cards = (cardRows ?? [])
+  const surfaced = (cardRows ?? [])
     // Never surface a card whose contact is a marketing phrase, not a real person.
-    .filter((card) => { const person = card.people as { full_name?: string } | null; return person?.full_name ? isLikelyPersonName(person.full_name) : false; })
-    .map((card) => {
-      const created = (card.created_at as string | null) ?? "";
-      const workingAt = card.working_at as string | null;
-      return { ...card, isNew: created >= dayStart, carriedOver: Boolean(created) && created < dayStart, working: Boolean(workingAt && Date.parse(workingAt) > workingCutoff) };
-    });
+    .filter((card) => { const person = card.people as { full_name?: string } | null; return person?.full_name ? isLikelyPersonName(person.full_name) : false; });
+
+  // The follow-up sequence for each surfaced card, so the desk can show it inline under the draft.
+  const followupsByCard = new Map<string, Array<{ id: string; step: number; channel: string; title: string; detail: string; subject: string | null; body: string; status: string; scheduledAt: string }>>();
+  const cardIds = surfaced.map((card) => card.id as string);
+  if (cardIds.length) {
+    const { data: cads } = await db.from("cadences").select("id,card_id").in("card_id", cardIds).eq("status", "active");
+    const cadToCard = new Map((cads ?? []).map((row) => [row.id as string, row.card_id as string]));
+    const cadIds = [...cadToCard.keys()];
+    if (cadIds.length) {
+      const { data: steps } = await db.from("cadence_steps").select("id,step_number,channel,title,detail,subject,body,status,scheduled_at,cadence_id").eq("kind", "review").in("cadence_id", cadIds).order("step_number");
+      for (const step of steps ?? []) {
+        const cardId = cadToCard.get(step.cadence_id as string);
+        if (!cardId) continue;
+        const list = followupsByCard.get(cardId) ?? [];
+        list.push({ id: step.id as string, step: step.step_number as number, channel: step.channel as string, title: step.title as string, detail: step.detail as string, subject: (step.subject as string | null) ?? null, body: (step.body as string | null) ?? "", status: step.status as string, scheduledAt: step.scheduled_at as string });
+        followupsByCard.set(cardId, list);
+      }
+    }
+  }
+
+  const cards = surfaced.map((card) => {
+    const created = (card.created_at as string | null) ?? "";
+    const workingAt = card.working_at as string | null;
+    return { ...card, isNew: created >= dayStart, carriedOver: Boolean(created) && created < dayStart, working: Boolean(workingAt && Date.parse(workingAt) > workingCutoff), followups: followupsByCard.get(card.id as string) ?? [] };
+  });
 
   // The app runs itself: opening the desk starts or continues the scan and shows progress, so nobody has to drive the Runs page.
   const openRun = openRunRow.data ? await loadRunSummary(db, openRunRow.data.id as string) : null;

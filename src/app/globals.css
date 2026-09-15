@@ -1658,7 +1658,23 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .deskwork-tools button{border:1px solid var(--line-strong);background:var(--paper-bright);border-radius:var(--radius-sm);padding:5px 11px;font:600 12px/1 var(--sans);color:var(--ink-soft);cursor:pointer}
 .deskwork-tools button:hover{background:var(--soft);color:var(--ink)}
 .deskwork-tools button:disabled{opacity:.5;pointer-events:none}
-.deskwork-doc{overflow-y:auto}
+.deskwork-scroll{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
+.deskwork-doc{overflow:visible}
+/* Follow-up sequence, inline under the draft */
+.deskwork-fu-hint{margin:2px 16px 14px;padding:11px 13px;border:1px dashed var(--line-strong);border-radius:var(--radius);font-size:12.5px;line-height:1.5;color:var(--muted);background:var(--soft)}
+.deskwork-followups{margin:4px 16px 14px;border-top:1px solid var(--line);padding-top:12px;display:grid;gap:10px}
+.deskwork-fu-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.deskwork-fu-head span{font:500 11px/1 var(--sans);letter-spacing:0;text-transform:none;color:var(--muted)}
+.deskwork-fu{border:1px solid var(--line);border-radius:var(--radius);background:var(--paper-bright);padding:11px 13px;display:grid;gap:6px}
+.deskwork-fu.is-done{opacity:.55}
+.deskwork-fu-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.deskwork-fu-top strong{font-size:12.5px;font-weight:600}
+.deskwork-fu-top span{font:600 10px/1 var(--mono);letter-spacing:.04em;color:var(--muted)}
+.deskwork-fu-top span.is-due{color:var(--accent-strong)}
+.deskwork-fu-subj{font-size:11.5px;font-weight:600;color:var(--ink-soft)}
+.deskwork-fu-body{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-soft);white-space:pre-wrap;max-height:120px;overflow:hidden}
+.deskwork-fu-copy{justify-self:start;border:1px solid var(--line-strong);background:var(--paper-bright);border-radius:var(--radius-sm);padding:5px 11px;font:600 12px/1 var(--sans);color:var(--ink-soft);cursor:pointer}
+.deskwork-fu-copy:hover{background:var(--soft);color:var(--ink)}
 .deskwork-doc-head{padding:12px 16px;border-bottom:1px solid var(--line);display:grid;gap:5px}
 .deskwork-doc-body{padding:16px 18px;font-size:14.5px;line-height:1.65;color:var(--ink);white-space:pre-wrap;min-height:120px}
 .deskwork-edit{padding:14px 16px;display:grid;gap:10px;overflow-y:auto}
