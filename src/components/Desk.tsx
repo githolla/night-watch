@@ -625,6 +625,7 @@ export function Desk({
             </div>}
           </div>
           {focusCard && draft && contact ? (
+            <div className="focus-body">
             <article className="focus-card">
               <div className="focus-company">
                 <span className="avatar">{initials(focusCard.accounts.name)}</span>
@@ -665,17 +666,16 @@ export function Desk({
               <div className="focus-actions">
                 {altContact
                   ? <button type="button" className="btn primary" onClick={copyForContact}>Copy message &rarr;</button>
-                  : <button type="button" disabled={busy || (draft.view === "email" && !focusCard.people.email)} className="btn primary" onClick={actOnDraft}>{draft.view === "email" ? "Send email" : "Copy &amp; mark sent"} &rarr;</button>}
+                  : <button type="button" disabled={busy || (draft.view === "email" && !focusCard.people.email)} className="btn primary" onClick={actOnDraft}>{draft.view === "email" ? "Send email" : "Copy & mark sent"} →</button>}
                 <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
                 <button type="button" disabled={busy} className="btn ghost danger focus-dismiss" onClick={dismissCurrent}>Dismiss</button>
               </div>
               {notice && <p className="notice focus-notice">{notice}</p>}
-
-              {focusCard.accounts.domain && <details className="focus-teamwrap">
-                <summary>Company details &amp; everyone on file &mdash; pick another contact</summary>
-                <CompanyTeam domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id} onSelect={(person) => { setAlt({ cardId: focusCard.id, person }); setNotice(`Draft adapted for ${person.full_name}. Copy it and send from LinkedIn or email.`); }} />
-              </details>}
             </article>
+            {focusCard.accounts.domain && <aside className="focus-side">
+              <CompanyTeam domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id} onSelect={(person) => { setAlt({ cardId: focusCard.id, person }); setNotice(`Draft adapted for ${person.full_name}. Copy it and send from LinkedIn or email.`); }} />
+            </aside>}
+          </div>
           ) : (
             <div className="focus-clear">
               <h2>All caught up</h2>

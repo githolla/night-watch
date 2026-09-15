@@ -1486,3 +1486,10 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .experiment-metrics>div:last-child{border:1px solid var(--line)}
 .experiment-metrics span{text-transform:none;letter-spacing:0;color:var(--ink-soft)}
 .experiment-metrics strong{font:600 26px/1.1 var(--sans);letter-spacing:-.02em}
+
+/* Focus flow: the draft on the left, the company and everyone on file alongside it — the width is used and the
+   whole picture (company, person, draft, team, signal) is visible at once instead of hidden behind a disclosure. */
+.focus-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,350px);gap:14px;align-items:start;margin-top:16px}
+.focus-body .focus-card{max-width:none;margin-top:0}
+.focus-side{position:sticky;top:16px;display:grid;gap:12px;min-width:0}
+@media(max-width:980px){.focus-body{grid-template-columns:1fr}.focus-side{position:static}}
