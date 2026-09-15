@@ -291,7 +291,7 @@ export async function findPerson(account: string, signal: ScoutSignal, recordUsa
 const WRITING_MAX_TOKENS = 4_000;
 
 /** The rules every draft follows, whichever evidence it is written from. */
-const DRAFT_RULES = `Never invent familiarity, results, budget, or intent, and never comment on industry trends. Produce every piece of copy even when contact details are unavailable.
+const DRAFT_RULES = `Voice: write in the first person as the founder and CEO of Nine-67 reaching out personally — a real operator who runs the company, warm, direct and human with a little personality, the way a founder who actually did her homework would write it herself. Never corporate, templated, or "marketing"; no buzzwords, no hype, no "I hope this finds you well". Never invent familiarity, results, budget, or intent, and never comment on industry trends. Produce every piece of copy even when contact details are unavailable.
 
 LinkedIn comment: two useful sentences replying to the actual post, with no pitch; leave empty only when the source is not a post. LinkedIn connection note: under 200 characters, specific to the evidence, no link. LinkedIn message (sent after they accept, or as an InMail): 60 to 110 words, plain, opens with the specific thing seen, one low-friction question, no meeting request, no link.
 
@@ -335,14 +335,18 @@ export async function writeOutreachFromBrief(input: BriefDraftInput, recordUsage
  * Keeps it a first-touch from Nine-67, concise and specific to the person, and applies an optional instruction.
  */
 export async function refineDraft(input: { channel: "email" | "linkedin"; company: string; person: string; title: string; whyNow: string; subject?: string; body: string; instruction?: string; senderName?: string; senderTitle?: string }, recordUsage?: UsageRecorder): Promise<{ subject?: string; body: string }> {
-  const ask = input.instruction?.trim() ? `Apply this instruction from the sender: "${input.instruction.trim()}".` : "Tighten it, make the specific hook sharper, and keep it warm and human — no hype.";
   const first = input.person.trim().split(/\s+/)[0] || "there";
-  const senderRole = input.senderTitle?.trim() ? `the ${input.senderTitle.trim()} of Nine-67` : "with Nine-67";
-  // A single warm opener that names the sender, then straight to the specific hook — mirrors how the team writes it by hand.
-  const intro = `Open with ONE short warm line introducing the sender, then the hook. For example: "Nice to meet you, ${first}. I'm ${senderRole}." Keep it natural, not templated, and never repeat it.`;
-  const subjectRule = input.channel === "email" ? " Also write a subject line optimized to get a reply: specific to them, plain and lowercase-leaning, no clickbait, under about eight words." : "";
-  const shape = input.channel === "email" ? `{"subject":"a reply-optimized subject line","body":"the email"}` : `{"body":"the LinkedIn message"}`;
-  const prompt = `You are refining a first-touch cold outreach ${input.channel} from Nine-67 (which builds and runs AI and automation for operating teams so a company gets the work done without hiring for it) to ${input.person}${input.title ? `, ${input.title}` : ""} at ${input.company}. Why now: ${input.whyNow || "—"}.\n\nHere is the current draft to improve — do not start over, keep what works:\n${input.subject ? `Subject: ${input.subject}\n` : ""}${input.body}\n\n${ask} ${intro}${subjectRule} Keep it ${input.channel === "email" ? "90-140 words" : "under 90 words"}, one clear ask, no more than one link, keep https://nine-67.com if it is present, plain text only. Return JSON only: ${shape}.`;
+  const senderName = input.senderName?.trim() || "the founder";
+  const senderRole = input.senderTitle?.trim() ? `${input.senderTitle.trim()} of Nine-67` : "founder of Nine-67";
+  // Write as the actual founder reaching out personally — this is what turns the bland default into her voice.
+  const voice = `Write it in the first person as ${senderName}, ${senderRole}, in their own voice: a real founder reaching out personally — warm, direct, confident, with a little personality, like someone who did their homework. Never corporate, templated, or "marketing"; no buzzwords, no hype.`;
+  const ask = input.instruction?.trim() ? `Apply this instruction from the sender: "${input.instruction.trim()}".` : "Tighten it and make the specific hook sharper.";
+  const intro = `Open with ONE short, natural warm line introducing the sender, then the hook — e.g. "Nice to meet you, ${first}. I'm ${senderName}, ${senderRole}." Vary the wording; never templated.`;
+  const subjectRule = input.channel === "email"
+    ? "Write a subject line optimized to get a reply: specific to them, plain, under about eight words, no clickbait."
+    : "Write a short LinkedIn subject line of 3-6 words for an InMail: specific and human, no clickbait.";
+  const shape = input.channel === "email" ? `{"subject":"a reply-optimized subject line","body":"the email"}` : `{"subject":"a short subject line","body":"the LinkedIn message"}`;
+  const prompt = `You are refining a first-touch outreach ${input.channel} from Nine-67 (which builds and runs AI and automation for operating teams so a company gets the work done without hiring for it) to ${input.person}${input.title ? `, ${input.title}` : ""} at ${input.company}. Why now: ${input.whyNow || "—"}.\n\n${voice}\n\nHere is the current draft to improve — do not start over, keep what works:\n${input.subject ? `Subject: ${input.subject}\n` : ""}${input.body}\n\n${ask} ${intro} ${subjectRule} Keep it ${input.channel === "email" ? "90-140 words" : "under 90 words"}, one clear ask, no more than one link, keep https://nine-67.com if present, plain text only. Return JSON only: ${shape}.`;
   const json = await runWritingAgent(prompt, { model: writingModel(), maxTokens: 1_200 }, recordUsage) as { subject?: unknown; body?: unknown } | null;
   return {
     subject: typeof json?.subject === "string" && json.subject.trim() ? json.subject.trim() : undefined,

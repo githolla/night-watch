@@ -36,7 +36,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     });
     const patch = payload.channel === "email"
       ? { email_subject: refined.subject ?? payload.subject ?? null, email_body: refined.body }
-      : { linkedin_message: refined.body };
+      : { linkedin_subject: refined.subject ?? payload.subject ?? null, linkedin_message: refined.body };
     await db.from("cards").update(patch).eq("id", id);
     return Response.json({ ok: true, ...refined });
   } catch (error) {

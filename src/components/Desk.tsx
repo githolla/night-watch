@@ -21,6 +21,7 @@ type Card = InsightCard & {
   linkedin_note: string | null;
   linkedin_comment?: string | null;
   linkedin_message?: string | null;
+  linkedin_subject?: string | null;
   surfaced_on?: string | null;
   created_at?: string | null;
   working_at?: string | null;
@@ -408,14 +409,14 @@ export function Desk({
       const response = await fetch(`/api/cards/${focusCard.id}/refine`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, subject, body }) });
       const json = await response.json();
       if (!response.ok) { setNotice(json.error ?? "Could not refine."); return; }
-      setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_message: json.body }) } : item));
+      setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_subject: json.subject ?? item.linkedin_subject, linkedin_message: json.body }) } : item));
       setNotice("Refined by AI — edit further or copy to send.");
       markWorking(true);
     } catch { setNotice("Could not refine."); }
     finally { setRefining(null); }
   };
   // Persist an inline edit to the focused card's draft field, and mark the prospect as being worked.
-  const saveField = (key: "email_subject" | "email_body" | "linkedin_message", value: string) => { void patch({ [key]: value }); markWorking(true); };
+  const saveField = (key: "email_subject" | "email_body" | "linkedin_message" | "linkedin_subject", value: string) => { void patch({ [key]: value }); markWorking(true); };
   // Shared "someone is on this" flag so the two people on the desk don't message the same prospect. Best-effort.
   function markWorking(on: boolean) {
     if (!focusCard) return;
@@ -786,17 +787,19 @@ export function Desk({
                     <span className="draft-preview-ch draft-preview-ch-li"><i>in</i>LinkedIn message</span>
                     <div className="draft-preview-tools">
                       <button type="button" onClick={() => setEditing((state) => ({ ...state, linkedin: !state.linkedin }))}>{editing.linkedin ? "Done" : "Edit"}</button>
-                      <button type="button" disabled={refining === "linkedin"} onClick={() => refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "")}>{refining === "linkedin" ? "Refining…" : "Refine"}</button>
+                      <button type="button" disabled={refining === "linkedin"} onClick={() => refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === "linkedin" ? "Refining…" : "Refine"}</button>
                       <button type="button" onClick={() => copyText(adapt(linkedinDraft), "LinkedIn message")}>Copy</button>
                     </div>
                   </div>
                   {editing.linkedin ? (
                     <div className="draft-edit">
+                      <input className="focus-msg-subject" value={focusCard.linkedin_subject ?? ""} placeholder="Subject (used for InMail)" onChange={(event) => edit("linkedin_subject", event.target.value)} onBlur={(event) => saveField("linkedin_subject", event.target.value)} />
                       <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={7} placeholder="No LinkedIn message yet — press Refine to write one." onChange={(event) => edit("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
                     </div>
                   ) : (
                     <div className="li-preview">
                       <div className="li-preview-head"><span className="avatar sm">{initials(contact.full_name)}</span><div><strong>{contact.full_name}</strong><small>{contact.title || "LinkedIn message"}</small></div></div>
+                      {focusCard.linkedin_subject && <p className="li-preview-subject">{focusCard.linkedin_subject}</p>}
                       <div className="li-preview-body">{adapt(linkedinDraft) || "No LinkedIn message yet — press Refine to write one."}</div>
                     </div>
                   )}
