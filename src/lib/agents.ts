@@ -104,6 +104,7 @@ const angle = z.object({
   channel: z.enum(["linkedin_first", "email_first", "intro", "linkedin_only"]),
   linkedin_comment: z.string(), linkedin_note: z.string().transform((value) => value.trim().slice(0, 300)),
   linkedin_message: z.string().default(""),
+  linkedin_subject: z.string().default(""),
   email_subject: z.string(), email_body: z.string(),
 });
 export type OutreachDraft = z.infer<typeof angle>;
@@ -293,13 +294,13 @@ const WRITING_MAX_TOKENS = 4_000;
 /** The rules every draft follows, whichever evidence it is written from. */
 const DRAFT_RULES = `Voice: write in the first person as the founder and CEO of Nine-67 reaching out personally — a real operator who runs the company, warm, direct and human with a little personality, the way a founder who actually did her homework would write it herself. Never corporate, templated, or "marketing"; no buzzwords, no hype, no "I hope this finds you well". Never invent familiarity, results, budget, or intent, and never comment on industry trends. Produce every piece of copy even when contact details are unavailable.
 
-LinkedIn comment: two useful sentences replying to the actual post, with no pitch; leave empty only when the source is not a post. LinkedIn connection note: under 200 characters, specific to the evidence, no link. LinkedIn message (sent after they accept, or as an InMail): 60 to 110 words, plain, opens with the specific thing seen, one low-friction question, no meeting request, no link.
+LinkedIn subject: a short InMail subject of 3 to 6 words in sentence case, naming the concrete thing seen (their role opening, the work, or their post). Specific and human, never clickbait, never all-lowercase. LinkedIn comment: two useful sentences replying to the actual post, with no pitch; leave empty only when the source is not a post. LinkedIn connection note: under 200 characters, specific to the evidence, no link. LinkedIn message (sent after they accept, or as an InMail): 60 to 110 words, plain, opens with the specific thing seen, one low-friction question, no meeting request, no link.
 
 Email — this must read like a real, professional first-touch email a founder would be glad to receive, not a terse note:
 - Subject: 4 to 8 words in sentence case, naming the concrete thing seen (their role opening, the work, or their post). Specific, not clever, never all-lowercase, no emoji.
 - Body: 90 to 140 words. Open with "Hi <first name>," on its own line. First sentence names the specific thing seen — quote a short phrase of their post when there is one, otherwise the role they are hiring for or the development. Then, in plain language, say exactly what Nine-67 would build or run to do that work instead of a hire (an internal tool, a data or reporting pipeline, an AI assistant, a workflow that runs itself), what it does day to day, and the outcome — the work done without the headcount. Offer a free one-page teardown of the role along those lines. Close with one low-friction question (no meeting demand), then a short professional sign-off followed by the link https://nine-67.com on its own final line. Use real sentences and paragraphs with line breaks, warm but concise, no buzzwords, no fabricated results.
 
-For hiring evidence, be concrete about the build in plain words — which parts of the posted role it absorbs — not a generic pitch. Return JSON only: {"brief":"","why_now":"","channel":"email_first","linkedin_comment":"","linkedin_note":"","linkedin_message":"","email_subject":"","email_body":""}.`;
+For hiring evidence, be concrete about the build in plain words — which parts of the posted role it absorbs — not a generic pitch. Return JSON only: {"brief":"","why_now":"","channel":"email_first","linkedin_comment":"","linkedin_note":"","linkedin_message":"","linkedin_subject":"","email_subject":"","email_body":""}.`;
 
 export async function writeAngle(input: unknown, recordUsage?: UsageRecorder): Promise<OutreachDraft> {
   const { response } = await completeTurn({

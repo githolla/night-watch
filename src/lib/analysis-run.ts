@@ -220,6 +220,7 @@ async function draftFromAnalysis(db: Db, account: Account, analysis: CompanyAnal
     brief: draft.brief || analysis.brief.whoFirstWhy || analysis.brief.angle, why_now: draft.why_now || analysis.brief.whyNow,
     channel: channelFor(person, quotes.length > 0),
     linkedin_comment: quotes.length ? draft.linkedin_comment : "", linkedin_note: draft.linkedin_note.slice(0, 300), linkedin_message: draft.linkedin_message,
+    linkedin_subject: draft.linkedin_subject || null,
     email_subject: draft.email_subject, email_body: draft.email_body,
     status: "new", surfaced_on: analysis.analyzedAt.slice(0, 10),
   };

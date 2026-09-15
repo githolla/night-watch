@@ -774,7 +774,7 @@ export function Desk({
                     <div className="deskwork-doc">
                       <div className="deskwork-doc-head">
                         <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
-                        <div className="mail-row"><span>Subject</span><b>{subjectView("email", focusCard.email_subject || "—")}</b></div>
+                        <div className="mail-row"><span>Subject</span><b>{subjectView("email", focusCard.email_subject || subjectGuess(focusCard, "email"))}</b></div>
                       </div>
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("email", adapt(emailDraft) || "No email draft yet — press Refine to write one.")}</div>
@@ -788,7 +788,7 @@ export function Desk({
                     </div>
                   ) : (
                     <div className="deskwork-doc">
-                      {(focusCard.linkedin_subject || diffFor("linkedin")) && <div className="deskwork-doc-head"><div className="mail-row"><span>Subject</span><b>{subjectView("linkedin", focusCard.linkedin_subject || "—")}</b></div></div>}
+                      <div className="deskwork-doc-head"><div className="mail-row"><span>Subject</span><b>{subjectView("linkedin", focusCard.linkedin_subject || subjectGuess(focusCard, "linkedin"))}</b></div></div>
                       {diffFor("linkedin") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("linkedin", adapt(linkedinDraft) || "No LinkedIn message yet — press Refine to write one.")}</div>
                     </div>
@@ -862,6 +862,22 @@ const SIGNAL_LABELS: Record<string, string> = { exec_post: "Executive post", job
 
 function signalLabel(item: Card) {
   return SIGNAL_LABELS[item.signals.type ?? ""] ?? "Market signal";
+}
+
+/** A tailored subject for when a draft hasn't stored one yet, so the desk never shows a blank line. */
+function subjectGuess(item: Card, channel: "email" | "linkedin") {
+  const type = item.signals.type ?? "";
+  const company = item.accounts.name;
+  const isJob = type === "job_post" || type === "job_cluster";
+  const isPost = type === "exec_post";
+  if (channel === "linkedin") {
+    if (isJob) return `Your open roles at ${company}`.slice(0, 60);
+    if (isPost) return "Your recent post on AI";
+    return `An idea for ${company}`;
+  }
+  if (isJob) return "Your open roles, done by automation";
+  if (isPost) return "Your take on AI, and one build idea";
+  return `Doing more at ${company} without the hire`;
 }
 
 /** Group a prospect's signal so the list can be filtered to job-post vs social-post intent. */
