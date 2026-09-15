@@ -9,6 +9,9 @@ const input = z.object({
   subject: z.string().max(200).optional(),
   body: z.string().min(1).max(4000),
   instruction: z.string().max(400).optional(),
+  // When the desk targets a specific contact (name/title), personalize to them, not the card's default person.
+  personName: z.string().max(120).optional(),
+  personTitle: z.string().max(160).optional(),
 });
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -25,8 +28,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const refined = await refineDraft({
       channel: payload.channel,
       company: account?.name ?? "the company",
-      person: person?.full_name ?? "there",
-      title: person?.title ?? "",
+      person: payload.personName ?? person?.full_name ?? "there",
+      title: payload.personTitle ?? person?.title ?? "",
       whyNow: (card.why_now as string) ?? "",
       subject: payload.subject,
       body: payload.body,

@@ -413,7 +413,8 @@ export function Desk({
     if (!body.trim()) { setNotice("Write a draft first, then refine it."); return; }
     setRefining(channel);
     try {
-      const response = await fetch(`/api/cards/${focusCard.id}/refine`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, subject, body }) });
+      const target = altContact ?? focusCard.people;
+      const response = await fetch(`/api/cards/${focusCard.id}/refine`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, subject, body, personName: target.full_name, personTitle: target.title }) });
       const json = await response.json();
       if (!response.ok) { setNotice(json.error ?? "Could not refine."); return; }
       setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_subject: json.subject ?? item.linkedin_subject, linkedin_message: json.body }) } : item));
@@ -433,9 +434,10 @@ export function Desk({
     void fetch(`/api/cards/${id}/claim`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ on }) }).catch(() => {});
   }
 
+  const workingView = !active && !browse && cards.length > 0;
   return (
-    <main className={`pipeline${!active && !browse && cards.length > 0 ? " pipeline-work" : ""}`}>
-      {scan && <div className="pipeline-scan">{scan}</div>}
+    <main className={`pipeline${workingView ? " pipeline-work" : ""}`}>
+      {scan && !workingView && <div className="pipeline-scan">{scan}</div>}
       {cards.length === 0 ? (
           <div className="detail-inner empty-desk">
             <div className="eyebrow">Research status</div>

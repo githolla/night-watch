@@ -1596,7 +1596,7 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 /* ── Outreach workspace: top-header layout, companies | company+contacts | tabbed draft ── */
 /* The working view runs full-bleed so the three panes get real room; .deskwork centers itself. */
 .pipeline.pipeline-work{max-width:none;margin:0;padding:0}
-.deskwork{max-width:1720px;margin:0 auto;padding:22px clamp(16px,2.5vw,40px) 64px;background:var(--paper);min-height:calc(100vh - 56px)}
+.deskwork{max-width:2100px;margin:0 auto;padding:22px clamp(18px,2vw,44px) 64px;background:var(--paper);min-height:calc(100vh - 56px)}
 .deskwork-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}
 .deskwork-head h1{font-size:26px;font-weight:600;letter-spacing:-.03em;margin:6px 0 0}
 .deskwork-head-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
