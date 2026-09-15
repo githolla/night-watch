@@ -131,9 +131,9 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
       <div className="company-topnav">
         <p className="crumbs"><Link href="/outreach">Reach-out list</Link><span>/</span><span>{name}</span></p>
         {sibIndex >= 0 && siblings.length > 1 && <div className="company-stepper">
-          {prevSib ? <Link href={`/accounts/${prevSib.domain}`} className="btn ghost" title={prevSib.name}>&larr; Prev</Link> : <span className="btn ghost is-disabled">&larr; Prev</span>}
+          {prevSib ? <Link href={`/accounts/${prevSib.domain}`} className="btn ghost" title={prevSib.name}>← Prev</Link> : <span className="btn ghost is-disabled">← Prev</span>}
           <span className="company-stepper-count">{sibIndex + 1} of {siblings.length}</span>
-          {nextSib ? <Link href={`/accounts/${nextSib.domain}`} className="btn ghost" title={nextSib.name}>Next &rarr;</Link> : <span className="btn ghost is-disabled">Next &rarr;</span>}
+          {nextSib ? <Link href={`/accounts/${nextSib.domain}`} className="btn ghost" title={nextSib.name}>Next →</Link> : <span className="btn ghost is-disabled">Next →</span>}
         </div>}
       </div>
 
@@ -141,7 +141,8 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
         <div className="record-id">
           <span className="avatar avatar-lg">{initials}</span>
           <div>
-            <h1>{name} <span className={`pill pill-${outreach ? "ink" : "muted"}`}><i />{tier ? `Tier ${tier}` : "Not on file"}{!outreach ? " · held" : ""}</span></h1>
+            <span className="overview-kick">{outreach ? "Reach-out company" : "Company"}</span>
+            <h1>{name} {tier ? <span className={`tier-chip tier-${tier}`}>Tier {tier}</span> : <span className="pill pill-muted"><i />Not on file</span>}{!outreach ? <span className="pill pill-muted"><i />held</span> : null}</h1>
             <p className="record-meta">
               <a href={`https://${domain}`} target="_blank" rel="noreferrer">{domain} ↗</a>
               {target?.vertical && <span>{target.vertical}{target.subSegment ? `, ${target.subSegment}` : ""}</span>}
@@ -182,11 +183,11 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
                 const lastTouch = theirTouches.filter((touch) => touch.sent_at).sort((a, b) => Date.parse(b.sent_at!) - Date.parse(a.sent_at!))[0];
                 const emailState = person.email ? (person.email_status === "verified" ? "verified" : person.email_status === "catch_all" ? "catch-all domain" : person.email_source === "pattern" ? "built from the company format, unverified" : person.email_source === "guess" ? "best-guess (first.last), needs verifying" : person.email_source === "web" ? "seen on a public page, unverified" : person.email_source === "hunter" ? "found by Hunter, unverified" : "unverified") : "";
                 return <tr key={person.id} className={index === 0 ? "is-first" : ""}>
-                  <td><div className="cell-company"><span className="avatar">{person.full_name.split(/\s+/).slice(0, 2).map((word) => word[0]?.toUpperCase()).join("")}</span><div><strong>{person.full_name}{index === 0 && <em className="pill pill-accent"><i />Write first</em>}</strong><small>{person.title || "title unknown"}{LEVEL_LABEL[person.level] ? ` · ${LEVEL_LABEL[person.level]}` : ""}{theirPosts.length ? ` · posted about ${theirPosts[0].topic || "AI"}` : ""}</small></div></div></td>
+                  <td><div className="cell-lead"><span className="avatar sm">{person.full_name.split(/\s+/).slice(0, 2).map((word) => word[0]?.toUpperCase()).join("")}</span><div><strong>{person.full_name}{index === 0 && <em className="chip chip-new">Write first</em>}</strong><small>{person.title || "title unknown"}{LEVEL_LABEL[person.level] ? ` · ${LEVEL_LABEL[person.level]}` : ""}{theirPosts.length ? ` · posted about ${theirPosts[0].topic || "AI"}` : ""}</small></div></div></td>
                   <td className="cell-who">{person.email ? <a href={`mailto:${person.email}`}>{person.email}</a> : <small>none on file</small>}<small>{emailState}</small></td>
                   <td className="cell-who">{person.phone ? <span>{person.phone}</span> : null}<small>{person.linkedin_url ? <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn profile ↗</a> : <a href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${person.full_name} ${name}`)}`} target="_blank" rel="noreferrer">Find on LinkedIn ↗</a>}{person.contact_notes ? <> · {person.contact_notes.length > 90 ? `${person.contact_notes.slice(0, 90)}…` : person.contact_notes}</> : null}</small></td>
                   <td className="cell-time">{String(person.source ?? "signal").replace(/_/g, " ")}{person.enriched_at ? ` · ${date(person.enriched_at)}` : ""}{lastTouch ? <><br />{lastTouch.channel.replace(/_/g, " ")} sent {date(lastTouch.sent_at)}{lastTouch.reply_at ? ", replied" : ""}</> : null}</td>
-                  <td>{draft ? <Link href={`/desk?card=${draft.id}&account=${domain}`} className="btn-secondary">Open draft · {draft.score}</Link> : <small className="muted">none</small>}</td>
+                  <td>{draft ? <Link href={`/desk?card=${draft.id}&account=${domain}`} className="btn">Open draft · {draft.score}</Link> : <small className="muted">none</small>}</td>
                 </tr>;
               })}
             </tbody></table>{ranked.length > 14 && <p className="table-more pad-x">+{ranked.length - 14} more names on file without a contact route yet — mostly leadership-page names. Deliverable emails and phones need Apollo or Hunter.</p>}</div>
@@ -196,7 +197,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
           <section className="card pad" id="drafts">
             <div className="card-title"><h2>The draft</h2>{bestDraft && <span className="pill pill-muted"><i />{CHANNEL_LABEL[bestDraft.channel] ?? bestDraft.channel} · score {bestDraft.score} · {bestDraft.status}</span>}</div>
             {bestDraft ? <div className="draft">
-              <div className="draft-head"><div><strong>To {bestDraftPerson?.full_name ?? bestDraft.people?.full_name ?? "someone"}</strong><small>{bestDraftPerson?.title ?? bestDraft.people?.title ?? ""}{bestDraftPerson?.email ? ` · ${bestDraftPerson.email} (${bestDraftPerson.email_status === "verified" ? "verified" : bestDraftPerson.email_source === "pattern" ? "built, unverified" : "unverified"})` : " · no email on file"}{bestDraftPerson?.linkedin_url ? <> · <a href={bestDraftPerson.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a></> : ""}</small></div><div><Link href={`/desk?card=${bestDraft.id}&account=${domain}`} className="btn-primary">Edit and send on the desk</Link></div></div>
+              <div className="draft-head"><div><strong>To {bestDraftPerson?.full_name ?? bestDraft.people?.full_name ?? "someone"}</strong><small>{bestDraftPerson?.title ?? bestDraft.people?.title ?? ""}{bestDraftPerson?.email ? ` · ${bestDraftPerson.email} (${bestDraftPerson.email_status === "verified" ? "verified" : bestDraftPerson.email_source === "pattern" ? "built, unverified" : "unverified"})` : " · no email on file"}{bestDraftPerson?.linkedin_url ? <> · <a href={bestDraftPerson.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a></> : ""}</small></div><div><Link href={`/desk?card=${bestDraft.id}&account=${domain}`} className="btn primary">Edit and send on the desk</Link></div></div>
               {bestDraft.why_now && <p className="draft-why">{bestDraft.why_now}</p>}
               <div className="draft-channels">
                 {bestDraft.linkedin_comment && <div className="draft-channel"><header><span>LinkedIn · reply to their post</span><CopyButton text={bestDraft.linkedin_comment} label="Copy" /></header><p>{bestDraft.linkedin_comment}</p></div>}
