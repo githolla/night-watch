@@ -8,12 +8,13 @@ export async function GET() {
   try {
     await requireUser();
     const db = admin();
-    const [today, companies] = await Promise.all([
+    const [today, companies, followups] = await Promise.all([
       db.from("cards").select("id,signals!inner(raw)", { count: "exact", head: true }).not("signals.raw->>operating_need", "is", null).in("status", OPEN_STATUSES),
       db.from("accounts").select("id", { count: "exact", head: true }).eq("status", "active").eq("outreach", true).not("domain", "like", "%.example"),
+      db.from("cadence_steps").select("id,cadences!inner(status)", { count: "exact", head: true }).eq("kind", "review").in("status", ["pending", "ready"]).lte("scheduled_at", new Date().toISOString()).eq("cadences.status", "active"),
     ]);
-    return Response.json({ today: today.count ?? 0, companies: companies.count ?? 0 });
+    return Response.json({ today: today.count ?? 0, companies: companies.count ?? 0, followups: followups.count ?? 0 });
   } catch {
-    return Response.json({ today: 0, companies: 0 });
+    return Response.json({ today: 0, companies: 0, followups: 0 });
   }
 }

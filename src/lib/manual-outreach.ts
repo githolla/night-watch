@@ -1,4 +1,5 @@
 import { admin } from "@/lib/supabase/admin";
+import { ensureFollowupCadence } from "@/lib/followups";
 import type { Owner } from "@/lib/types";
 
 export type ManualChannel = "linkedin_comment" | "linkedin_request" | "linkedin_message" | "email" | "intro_ask";
@@ -8,15 +9,15 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
   const db = admin();
   const { data: card } = await db
     .from("cards")
-    .select("person_id,assigned_to,status,active_variant_id,people(do_not_contact),accounts(status)")
+    .select("person_id,assigned_to,status,active_variant_id,email_subject,people(first_name,full_name,do_not_contact),accounts(name,status)")
     .eq("id", cardId)
     .single();
   if (!card) throw new Error("Card not found");
   if (!["approved", "edited", "sent", "replied", "positive", "meeting"].includes(card.status)) {
     throw new Error("Approve the dossier before recording outreach");
   }
-  const person = card.people as unknown as { do_not_contact: boolean };
-  const account = card.accounts as unknown as { status: string };
+  const person = card.people as unknown as { first_name: string | null; full_name: string | null; do_not_contact: boolean };
+  const account = card.accounts as unknown as { name: string | null; status: string };
   if (person.do_not_contact || ["client", "do_not_contact"].includes(account.status)) {
     throw new Error("Do-not-contact guard blocked this action");
   }
@@ -49,6 +50,18 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
     const { data: variant } = await db.from("message_variants").select("experiment_id").eq("id", card.active_variant_id).maybeSingle();
     if (variant) await db.from("message_experiments").update({ status: "sent" }).eq("id", variant.experiment_id);
   }
+  // Once the first touch is out, stand up the next three follow-ups on that channel. Best-effort: never fail the touch.
+  try {
+    await ensureFollowupCadence(db, {
+      cardId,
+      personId: card.person_id,
+      owner,
+      touchedChannel: channel,
+      firstName: person.first_name || person.full_name?.split(/\s+/)[0] || "",
+      company: account.name || "",
+      baseSubject: (card as { email_subject?: string | null }).email_subject || "",
+    });
+  } catch { /* follow-ups are a bonus; the touch itself always stands */ }
   return data;
 }
 

@@ -1743,3 +1743,26 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .people-actions a:first-child{margin-left:0}
 .activity-back{display:inline-block;margin-top:8px;color:var(--accent-strong);font:600 12.5px/1 var(--sans);text-decoration:none}
 .activity-back:hover{text-decoration:underline}
+
+/* Follow-ups: the queued next steps after a first touch */
+.followup-group{margin-top:22px}
+.followup-group-head{display:flex;align-items:center;gap:8px;margin:0 2px 12px;font-size:13px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--muted)}
+.followup-group-head b{font:600 12px/1 var(--mono);color:var(--ink-soft)}
+.followup-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
+.followup{border:1px solid var(--line-strong);border-radius:16px;background:var(--card);box-shadow:0 1px 2px rgba(20,18,14,.04),0 14px 34px -20px rgba(20,18,14,.24);padding:16px;display:flex;flex-direction:column;gap:12px}
+.followup-top{display:flex;align-items:flex-start;gap:11px}
+.followup-top .avatar.sm{flex:0 0 34px;width:34px;height:34px;border-radius:9px;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;font:600 12px/1 var(--sans);color:var(--ink-soft)}
+.followup-id{flex:1;min-width:0;display:grid;gap:2px}
+.followup-id strong{font-size:14.5px;font-weight:600}
+.followup-id small{font-size:12px;color:var(--muted)}
+.followup-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.followup-when{font:600 10px/1 var(--mono);letter-spacing:.04em;color:var(--muted)}
+.followup-when.is-due{color:var(--accent-strong)}
+.followup-title{font-size:13.5px;font-weight:600;display:flex;flex-direction:column;gap:2px}
+.followup-title small{font-size:12px;font-weight:400;color:var(--muted)}
+.followup-draft{border:1px solid var(--line);border-radius:var(--radius);background:var(--paper-bright);padding:12px 14px}
+.followup-draft .mail-row{margin-bottom:8px}
+.followup-body{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink);white-space:pre-wrap}
+.followup-actions{display:flex;gap:8px;flex-wrap:wrap}
+.followup-actions .btn{height:34px;padding:0 13px;font-size:13px}
+@media(max-width:520px){.followup-list{grid-template-columns:1fr}}

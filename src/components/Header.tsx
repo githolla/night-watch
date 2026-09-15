@@ -8,6 +8,7 @@ import { ChevronDown, Lock } from "lucide-react";
 /** A clean top bar: the daily work first, everything else under More, workspace and user on the right. */
 const primary = [
   { href: "/desk", label: "Outreach" },
+  { href: "/followups", label: "Follow-ups" },
   { href: "/outreach", label: "Companies" },
   { href: "/people", label: "People" },
 ];
@@ -25,7 +26,7 @@ export function Header() {
   const pathname = usePathname();
   const active = (href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/desk" && pathname === "/") || (href === "/outreach" && pathname.startsWith("/accounts"));
   const [moreOpen, setMoreOpen] = useState(false);
-  const [counts, setCounts] = useState<{ today: number; companies: number } | null>(null);
+  const [counts, setCounts] = useState<{ today: number; companies: number; followups: number } | null>(null);
   const moreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export function Header() {
     return () => window.removeEventListener("click", onClick);
   }, []);
 
-  const countFor = (href: string) => href === "/desk" ? counts?.today : href === "/outreach" ? counts?.companies : undefined;
+  const countFor = (href: string) => href === "/desk" ? counts?.today : href === "/outreach" ? counts?.companies : href === "/followups" ? counts?.followups : undefined;
 
   return (
     <header className="appbar" aria-label="Navigation">
