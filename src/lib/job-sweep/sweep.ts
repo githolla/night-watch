@@ -76,6 +76,8 @@ const GENERAL_BUYER_TITLES = ["Chief Operating Officer", "Chief Information Offi
 
 /** Rank of a person for a set of roles: a title that matches the roles' buyer titles wins, then seniority. */
 const LEVEL_RANK: Record<string, number> = { owner: 3, influencer: 2, adjacent: 1, unknown: 0 };
+/** An active role not re-seen by any pass within this long is treated as filled/closed, so a stale role never lingers as "active". */
+const ROLE_ACTIVE_TTL_MS = 45 * 86_400_000;
 export async function pickBuyerOnFile(db: Db, accountId: string, targetPostings: Array<{ family: JobFamily }>): Promise<{ full_name: string; title: string } | null> {
   const { data } = await db.from("people").select("full_name,title,level").eq("account_id", accountId).eq("do_not_contact", false);
   const people = (data ?? []) as Array<{ full_name: string; title: string; level: string }>;
@@ -459,9 +461,13 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
           }, { onConflict: "account_id,url" });
           if (error) throw error;
         }
+        // Self-healing close: age out any active role not re-seen within the TTL, whatever this read's status and
+        // whatever found it. This is what stops a filled or vanished role staying "active" forever when a site
+        // moves to a JS board, errors, or empties, and it closes board-search rows that no listing refreshes.
+        const roleTtlCutoff = new Date(Date.parse(sweepStart) - ROLE_ACTIVE_TTL_MS).toISOString();
+        await db.from("job_postings").update({ active: false }).eq("account_id", account.id).eq("active", true).lt("last_seen_at", roleTtlCutoff);
         if (result.status === "listings") {
-          // Only what the sweep itself reads can be closed by the sweep; roles read on job boards by the
-          // analysis or the board search are refreshed by those passes and never appear on the careers page.
+          // A role that dropped off a board we successfully read this sweep is closed now, not after the TTL.
           await db.from("job_postings").update({ active: false }).eq("account_id", account.id).eq("active", true).in("source", ["careers", "sitemap", "jsonld"]).lt("last_seen_at", sweepStart);
         }
         await db.from("accounts").update({

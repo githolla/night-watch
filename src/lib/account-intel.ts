@@ -51,16 +51,30 @@ function ageDays(date: string | null | undefined, now: Date) {
   return Number.isNaN(time) ? null : Math.max(0, Math.floor((now.getTime() - time) / 86_400_000));
 }
 
+/** An active role not re-seen by the sweep within this long is treated as closed for counting, even if its active flag lags. */
+const STALE_ROLE_DAYS = 60;
+/** Public posts older than this stop counting as live activity (matches the signal freshness window). */
+const POST_MAX_AGE_DAYS = 180;
+function withinDays(date: string | null | undefined, days: number, now: Date) {
+  if (!date) return false;
+  const time = Date.parse(date);
+  return !Number.isNaN(time) && now.getTime() - time <= days * 86_400_000;
+}
+
 /** Recompute and store the score, the counts behind it, and when this company last changed. */
 export async function recomputeAccountIntel(db: SupabaseClient, accountId: string, now = new Date()) {
-  const [{ data: roles }, { data: posts }, { data: people }, { count: openCards }] = await Promise.all([
-    db.from("job_postings").select("family,posted_at,first_seen_at").eq("account_id", accountId).eq("active", true).not("family", "is", null),
+  const [{ data: allRoles }, { data: allPosts }, { data: people }, { count: openCards }] = await Promise.all([
+    db.from("job_postings").select("family,posted_at,first_seen_at,last_seen_at").eq("account_id", accountId).eq("active", true).not("family", "is", null),
     db.from("public_posts").select("posted_at,created_at").eq("account_id", accountId),
     db.from("people").select("email_status,enriched_at,created_at").eq("account_id", accountId).eq("do_not_contact", false),
     db.from("cards").select("*", { count: "exact", head: true }).eq("account_id", accountId).in("status", ["new", "approved", "edited"]),
   ]);
-  const roleDates = (roles ?? []).map((row) => (row.posted_at as string | null) ?? (row.first_seen_at as string));
-  const postDates = (posts ?? []).map((row) => (row.posted_at as string | null) ?? (row.created_at as string));
+  // Only count roles the sweep has actually re-seen recently and posts within the freshness window, so a role
+  // whose active flag lags, or a years-old post, never inflates the numbers the user reads.
+  const roles = (allRoles ?? []).filter((row) => withinDays((row.last_seen_at as string | null) ?? (row.first_seen_at as string), STALE_ROLE_DAYS, now));
+  const posts = (allPosts ?? []).filter((row) => withinDays((row.posted_at as string | null) ?? (row.created_at as string), POST_MAX_AGE_DAYS, now));
+  const roleDates = roles.map((row) => (row.posted_at as string | null) ?? (row.first_seen_at as string));
+  const postDates = posts.map((row) => (row.posted_at as string | null) ?? (row.created_at as string));
   const newest = (dates: string[]) => dates.map((date) => Date.parse(date)).filter((time) => !Number.isNaN(time)).sort((a, b) => b - a)[0];
   const input: IntelInputs = {
     openTargetRoles: roles?.length ?? 0,
