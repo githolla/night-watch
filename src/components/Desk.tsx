@@ -155,6 +155,7 @@ export function Desk({
   const [busy, setBusy] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
   const [refining, setRefining] = useState<"email" | "linkedin" | null>(null);
+  const [editing, setEditing] = useState<{ email: boolean; linkedin: boolean }>({ email: false, linkedin: false });
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
   // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
@@ -739,27 +740,54 @@ export function Desk({
               </div>
 
               <div className="focus-messages">
-                <div className="focus-msg-head"><span className="focus-why-label">The message — send by email or LinkedIn</span>{altContact ? <span className="focus-msg-alt">Adapted for {contact.full_name.split(/\s+/)[0]}</span> : <button type="button" className="focus-draft-edit" onClick={() => setSelected(focusCard.id)}>Open studio &rarr;</button>}</div>
+                <div className="focus-msg-head"><span className="focus-why-label">The message — a draft for each channel</span>{altContact && <span className="focus-msg-alt">Adapted for {contact.full_name.split(/\s+/)[0]}</span>}</div>
 
-                <div className="focus-msg">
-                  <div className="focus-msg-top"><span className="focus-msg-ch">Email</span><span className="focus-msg-state">{contact.email ? (contact.email_status === "verified" ? "verified address" : emailStateLabel(contact.email_status).toLowerCase()) : "no address on file"}</span></div>
-                  <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => edit("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
-                  <textarea className="focus-msg-body" value={focusCard.email_body ?? ""} rows={6} placeholder="No email draft yet — Refine with AI to write one." onChange={(event) => edit("email_body", event.target.value)} onBlur={(event) => saveField("email_body", event.target.value)} />
-                  <div className="focus-msg-actions">
-                    <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button>
-                    <button type="button" className="btn" onClick={() => copyText(adapt(emailDraft), "Email")}>Copy</button>
-                    <button type="button" className="btn" disabled={refining === "email"} onClick={() => refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined)}>{refining === "email" ? "Refining…" : "Refine with AI"}</button>
+                <div className="draft-preview">
+                  <div className="draft-preview-bar">
+                    <span className="draft-preview-ch draft-preview-ch-mail">Email</span>
+                    <div className="draft-preview-tools">
+                      <button type="button" onClick={() => setEditing((state) => ({ ...state, email: !state.email }))}>{editing.email ? "Done" : "Edit"}</button>
+                      <button type="button" disabled={refining === "email"} onClick={() => refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined)}>{refining === "email" ? "Refining…" : "Refine"}</button>
+                      <button type="button" onClick={() => copyText(adapt(emailDraft), "Email")}>Copy</button>
+                    </div>
                   </div>
+                  {editing.email ? (
+                    <div className="draft-edit">
+                      <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => edit("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
+                      <textarea className="focus-msg-body" value={focusCard.email_body ?? ""} rows={8} placeholder="No email draft yet — press Refine to write one." onChange={(event) => edit("email_body", event.target.value)} onBlur={(event) => saveField("email_body", event.target.value)} />
+                    </div>
+                  ) : (
+                    <div className="mail-preview">
+                      <div className="mail-preview-head">
+                        <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
+                        <div className="mail-row"><span>Subject</span><b>{focusCard.email_subject || "—"}</b></div>
+                      </div>
+                      <div className="mail-preview-body">{adapt(emailDraft) || "No email draft yet — press Refine to write one."}</div>
+                    </div>
+                  )}
+                  <div className="draft-preview-send"><button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button><span className="draft-preview-state">{contact.email ? (contact.email_status === "verified" ? "verified address" : emailStateLabel(contact.email_status).toLowerCase()) : "no address on file"}</span></div>
                 </div>
 
-                <div className="focus-msg">
-                  <div className="focus-msg-top"><span className="focus-msg-ch">LinkedIn message</span><span className="focus-msg-state">{contact.linkedin_url ? "profile on file" : "find profile"}</span></div>
-                  <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={5} placeholder="No LinkedIn message yet — Refine with AI to write one." onChange={(event) => edit("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
-                  <div className="focus-msg-actions">
-                    <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>
-                    <button type="button" className="btn" onClick={() => copyText(adapt(linkedinDraft), "LinkedIn message")}>Copy</button>
-                    <button type="button" className="btn" disabled={refining === "linkedin"} onClick={() => refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "")}>{refining === "linkedin" ? "Refining…" : "Refine with AI"}</button>
+                <div className="draft-preview">
+                  <div className="draft-preview-bar">
+                    <span className="draft-preview-ch draft-preview-ch-li"><i>in</i>LinkedIn message</span>
+                    <div className="draft-preview-tools">
+                      <button type="button" onClick={() => setEditing((state) => ({ ...state, linkedin: !state.linkedin }))}>{editing.linkedin ? "Done" : "Edit"}</button>
+                      <button type="button" disabled={refining === "linkedin"} onClick={() => refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "")}>{refining === "linkedin" ? "Refining…" : "Refine"}</button>
+                      <button type="button" onClick={() => copyText(adapt(linkedinDraft), "LinkedIn message")}>Copy</button>
+                    </div>
                   </div>
+                  {editing.linkedin ? (
+                    <div className="draft-edit">
+                      <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={7} placeholder="No LinkedIn message yet — press Refine to write one." onChange={(event) => edit("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
+                    </div>
+                  ) : (
+                    <div className="li-preview">
+                      <div className="li-preview-head"><span className="avatar sm">{initials(contact.full_name)}</span><div><strong>{contact.full_name}</strong><small>{contact.title || "LinkedIn message"}</small></div></div>
+                      <div className="li-preview-body">{adapt(linkedinDraft) || "No LinkedIn message yet — press Refine to write one."}</div>
+                    </div>
+                  )}
+                  <div className="draft-preview-send"><button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button><span className="draft-preview-state">{contact.linkedin_url ? "profile on file" : "search for profile"}</span></div>
                 </div>
               </div>
 
