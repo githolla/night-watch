@@ -330,6 +330,26 @@ export async function writeOutreachFromBrief(input: BriefDraftInput, recordUsage
   return angle.parse(jsonFrom(response));
 }
 
+/**
+ * Refine one existing outreach draft in place — the desk's "Refine with AI" on the email or LinkedIn message.
+ * Keeps it a first-touch from Nine-67, concise and specific to the person, and applies an optional instruction.
+ */
+export async function refineDraft(input: { channel: "email" | "linkedin"; company: string; person: string; title: string; whyNow: string; subject?: string; body: string; instruction?: string; senderName?: string; senderTitle?: string }, recordUsage?: UsageRecorder): Promise<{ subject?: string; body: string }> {
+  const ask = input.instruction?.trim() ? `Apply this instruction from the sender: "${input.instruction.trim()}".` : "Tighten it, make the specific hook sharper, and keep it warm and human — no hype.";
+  const first = input.person.trim().split(/\s+/)[0] || "there";
+  const senderRole = input.senderTitle?.trim() ? `the ${input.senderTitle.trim()} of Nine-67` : "with Nine-67";
+  // A single warm opener that names the sender, then straight to the specific hook — mirrors how the team writes it by hand.
+  const intro = `Open with ONE short warm line introducing the sender, then the hook. For example: "Nice to meet you, ${first}. I'm ${senderRole}." Keep it natural, not templated, and never repeat it.`;
+  const subjectRule = input.channel === "email" ? " Also write a subject line optimized to get a reply: specific to them, plain and lowercase-leaning, no clickbait, under about eight words." : "";
+  const shape = input.channel === "email" ? `{"subject":"a reply-optimized subject line","body":"the email"}` : `{"body":"the LinkedIn message"}`;
+  const prompt = `You are refining a first-touch cold outreach ${input.channel} from Nine-67 (which builds and runs AI and automation for operating teams so a company gets the work done without hiring for it) to ${input.person}${input.title ? `, ${input.title}` : ""} at ${input.company}. Why now: ${input.whyNow || "—"}.\n\nHere is the current draft to improve — do not start over, keep what works:\n${input.subject ? `Subject: ${input.subject}\n` : ""}${input.body}\n\n${ask} ${intro}${subjectRule} Keep it ${input.channel === "email" ? "90-140 words" : "under 90 words"}, one clear ask, no more than one link, keep https://nine-67.com if it is present, plain text only. Return JSON only: ${shape}.`;
+  const json = await runWritingAgent(prompt, { model: writingModel(), maxTokens: 1_200 }, recordUsage) as { subject?: unknown; body?: unknown } | null;
+  return {
+    subject: typeof json?.subject === "string" && json.subject.trim() ? json.subject.trim() : undefined,
+    body: typeof json?.body === "string" && json.body.trim() ? json.body.trim() : input.body,
+  };
+}
+
 const jobSearchOutput = z.object({
   postings: z.array(z.object({
     title: z.string().min(2),

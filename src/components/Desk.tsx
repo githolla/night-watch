@@ -154,6 +154,7 @@ export function Desk({
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
+  const [refining, setRefining] = useState<"email" | "linkedin" | null>(null);
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
   // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
@@ -332,13 +333,17 @@ export function Desk({
   const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
   const contact = altContact ?? (focusCard ? focusCard.people : null);
   const draftText = draft ? (altContact && focusCard ? retarget(draft.text, focusCard.people.full_name, altContact.full_name) : draft.text) : "";
+  // Adapt a draft's names to the retargeted contact when one is chosen; both channel drafts are shown for every prospect.
+  const adapt = (text: string) => (altContact && focusCard ? retarget(text, focusCard.people.full_name, altContact.full_name) : text);
+  const emailDraft = focusCard?.email_body ?? "";
+  const linkedinDraft = focusCard?.linkedin_message ?? focusCard?.linkedin_note ?? focusCard?.linkedin_comment ?? "";
   const snoozeCurrent = () => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
   // Where the message actually gets sent, in one click — never hand-copied between windows.
   const mailtoHref = () => {
     if (!contact?.email || !focusCard) return "";
     const subject = focusCard.email_subject || `Quick idea for ${focusCard.accounts.name}`;
-    const body = (draft?.view === "email" ? focusCard.email_body : "") || draftText;
+    const body = adapt(emailDraft || draftText);
     return `mailto:${contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
   const linkedInHref = () => contact?.linkedin_url || (focusCard && contact ? `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${contact.full_name} ${focusCard.accounts.name}`)}` : "");
@@ -377,12 +382,34 @@ export function Desk({
   };
   // LinkedIn has no send API, so open the person's LinkedIn and put the message on the clipboard — one paste, not a hunt.
   const openLinkedIn = async () => {
-    try { await navigator.clipboard.writeText(draftText); } catch { /* the record still stands even if copy is blocked */ }
+    const text = adapt(linkedinDraft || draftText);
+    try { await navigator.clipboard.writeText(text); } catch { /* the record still stands even if copy is blocked */ }
     const href = linkedInHref();
     if (href) window.open(href, "_blank", "noopener,noreferrer");
     if (altContact) { setNotice(`LinkedIn opened for ${contact?.full_name} — the message is on your clipboard, paste it in.`); return; }
-    recordTouch(draft?.view === "email" ? "connection" : (draft?.view ?? "connection"), draftText);
+    recordTouch("connection", text);
   };
+  const copyText = async (text: string, label: string) => {
+    if (!text.trim()) { setNotice("Nothing to copy yet — write or refine a draft first."); return; }
+    try { await navigator.clipboard.writeText(text); setNotice(`${label} copied — paste it to send.`); }
+    catch { setNotice("Copy was blocked by the browser; select the text to copy it."); }
+  };
+  // Improve one draft with AI, in place: keep it a first-touch, tighten it, and write the result back to the card.
+  const refine = async (channel: "email" | "linkedin", body: string, subject?: string) => {
+    if (!focusCard) return;
+    if (!body.trim()) { setNotice("Write a draft first, then refine it."); return; }
+    setRefining(channel);
+    try {
+      const response = await fetch(`/api/cards/${focusCard.id}/refine`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, subject, body }) });
+      const json = await response.json();
+      if (!response.ok) { setNotice(json.error ?? "Could not refine."); return; }
+      setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_message: json.body }) } : item));
+      setNotice("Refined by AI — edit further or copy to send.");
+    } catch { setNotice("Could not refine."); }
+    finally { setRefining(null); }
+  };
+  // Persist an inline edit to the focused card's draft field.
+  const saveField = (key: "email_subject" | "email_body" | "linkedin_message", value: string) => { void patch({ [key]: value }); };
 
   return (
     <main className="pipeline">
@@ -711,20 +738,32 @@ export function Desk({
                 {altContact && <button type="button" className="focus-who-reset" onClick={() => setAlt(null)}>&#8617; {focusCard.people.full_name.split(/\s+/)[0]}</button>}
               </div>
 
-              <div className="focus-draft">
-                <div className="focus-draft-head">
-                  <span className="focus-draft-ch">{draft.label}{altContact ? ` · adapted for ${contact.full_name.split(/\s+/)[0]}` : ""}</span>
-                  <button type="button" className="focus-draft-edit" onClick={() => setSelected(focusCard.id)}>Edit in studio &rarr;</button>
+              <div className="focus-messages">
+                <div className="focus-msg-head"><span className="focus-why-label">The message — send by email or LinkedIn</span>{altContact ? <span className="focus-msg-alt">Adapted for {contact.full_name.split(/\s+/)[0]}</span> : <button type="button" className="focus-draft-edit" onClick={() => setSelected(focusCard.id)}>Open studio &rarr;</button>}</div>
+
+                <div className="focus-msg">
+                  <div className="focus-msg-top"><span className="focus-msg-ch">Email</span><span className="focus-msg-state">{contact.email ? (contact.email_status === "verified" ? "verified address" : emailStateLabel(contact.email_status).toLowerCase()) : "no address on file"}</span></div>
+                  <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => edit("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
+                  <textarea className="focus-msg-body" value={focusCard.email_body ?? ""} rows={6} placeholder="No email draft yet — Refine with AI to write one." onChange={(event) => edit("email_body", event.target.value)} onBlur={(event) => saveField("email_body", event.target.value)} />
+                  <div className="focus-msg-actions">
+                    <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button>
+                    <button type="button" className="btn" onClick={() => copyText(adapt(emailDraft), "Email")}>Copy</button>
+                    <button type="button" className="btn" disabled={refining === "email"} onClick={() => refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined)}>{refining === "email" ? "Refining…" : "Refine with AI"}</button>
+                  </div>
                 </div>
-                {draft.view === "email" && focusCard.email_subject && <p className="focus-subject">Subject: {focusCard.email_subject}</p>}
-                <p className="focus-draft-body">{draftText || "No draft on file for this channel yet — open the studio to write one."}</p>
+
+                <div className="focus-msg">
+                  <div className="focus-msg-top"><span className="focus-msg-ch">LinkedIn message</span><span className="focus-msg-state">{contact.linkedin_url ? "profile on file" : "find profile"}</span></div>
+                  <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={5} placeholder="No LinkedIn message yet — Refine with AI to write one." onChange={(event) => edit("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
+                  <div className="focus-msg-actions">
+                    <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>
+                    <button type="button" className="btn" onClick={() => copyText(adapt(linkedinDraft), "LinkedIn message")}>Copy</button>
+                    <button type="button" className="btn" disabled={refining === "linkedin"} onClick={() => refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "")}>{refining === "linkedin" ? "Refining…" : "Refine with AI"}</button>
+                  </div>
+                </div>
               </div>
 
               <div className="focus-actions">
-                {draft.view === "email"
-                  ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email draft"} →</button>
-                  : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
-                {draft.view !== "email" && contact.email && <button type="button" className="btn" onClick={sendEmail}>Email instead →</button>}
                 {contact.email && <button type="button" disabled={enrolling} className="btn" title="Night Watch sends the email itself and follows up, stopping on a reply" onClick={startSequence}>{enrolling ? "Starting…" : "Automate email →"}</button>}
                 <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
                 <button type="button" disabled={busy} className="btn ghost danger focus-dismiss" onClick={dismissCurrent}>Dismiss</button>
