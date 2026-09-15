@@ -331,16 +331,30 @@ export function Desk({
   const draftText = draft ? (altContact && focusCard ? retarget(draft.text, focusCard.people.full_name, altContact.full_name) : draft.text) : "";
   const snoozeCurrent = () => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
-  const actOnDraft = async () => {
-    if (!draft) return;
-    if (draft.view === "email") { send(); return; }
-    try { await navigator.clipboard.writeText(draftText); } catch { /* the record still stands even if copy is blocked */ }
-    recordTouch(draft.view, draftText);
+  // Where the message actually gets sent, in one click — never hand-copied between windows.
+  const mailtoHref = () => {
+    if (!contact?.email || !focusCard) return "";
+    const subject = focusCard.email_subject || `Quick idea for ${focusCard.accounts.name}`;
+    const body = (draft?.view === "email" ? focusCard.email_body : "") || draftText;
+    return `mailto:${contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
-  // Retargeted to another contact: there is no card to send from, so just copy the adapted message.
-  const copyForContact = async () => {
-    try { await navigator.clipboard.writeText(draftText); setNotice("Message copied — paste it into LinkedIn or email."); }
-    catch { setNotice("Copy was blocked by the browser; select the message text to copy it."); }
+  const linkedInHref = () => contact?.linkedin_url || (focusCard && contact ? `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${contact.full_name} ${focusCard.accounts.name}`)}` : "");
+  // A verified address with Gmail connected sends inside the app; otherwise open a prefilled draft in the mail client.
+  const sendEmail = () => {
+    if (!contact?.email) return;
+    if (draft?.view === "email" && contact.email_status === "verified" && !altContact) { send(); return; }
+    const href = mailtoHref();
+    if (href) window.location.href = href;
+    if (altContact) { setNotice(`Email draft opened for ${contact.full_name} — send it from your mail app.`); return; }
+    recordTouch("email", (draft?.view === "email" ? focusCard?.email_body : "") || draftText);
+  };
+  // LinkedIn has no send API, so open the person's LinkedIn and put the message on the clipboard — one paste, not a hunt.
+  const openLinkedIn = async () => {
+    try { await navigator.clipboard.writeText(draftText); } catch { /* the record still stands even if copy is blocked */ }
+    const href = linkedInHref();
+    if (href) window.open(href, "_blank", "noopener,noreferrer");
+    if (altContact) { setNotice(`LinkedIn opened for ${contact?.full_name} — the message is on your clipboard, paste it in.`); return; }
+    recordTouch(draft?.view === "email" ? "connection" : (draft?.view ?? "connection"), draftText);
   };
 
   return (
@@ -680,9 +694,10 @@ export function Desk({
               </div>
 
               <div className="focus-actions">
-                {altContact
-                  ? <button type="button" className="btn primary" onClick={copyForContact}>Copy message &rarr;</button>
-                  : <button type="button" disabled={busy || (draft.view === "email" && !focusCard.people.email)} className="btn primary" onClick={actOnDraft}>{draft.view === "email" ? "Send email" : "Copy & mark sent"} →</button>}
+                {draft.view === "email"
+                  ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email draft"} →</button>
+                  : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
+                {draft.view !== "email" && contact.email && <button type="button" className="btn" onClick={sendEmail}>Email instead →</button>}
                 <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
                 <button type="button" disabled={busy} className="btn ghost danger focus-dismiss" onClick={dismissCurrent}>Dismiss</button>
               </div>
