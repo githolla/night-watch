@@ -1377,3 +1377,15 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .focus-team-contact span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .focus-team-contact a{color:var(--accent);text-decoration:none;font-weight:600}
 .focus-team-more{margin-top:6px;justify-self:start;border:0;background:transparent;color:var(--accent);font-weight:600;font-size:13px;cursor:pointer;padding:4px 0}
+
+/* Focus flow: back/forward stepper, retarget-to-another-contact. */
+.focus-step{display:flex;gap:6px}
+.focus-step-btn{border:1px solid var(--line-strong);background:var(--paper-bright);border-radius:8px;padding:6px 11px;font:600 12px/1 var(--sans);color:var(--ink);cursor:pointer}
+.focus-step-btn:hover{background:var(--soft)}
+.focus-step-btn:disabled{opacity:.4;pointer-events:none}
+.focus-who-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.focus-who-reset{border:0;background:transparent;color:var(--accent);font-weight:600;font-size:12.5px;cursor:pointer;padding:0}
+.focus-team-row.is-selectable{cursor:pointer;border-radius:9px;margin:0 -8px;padding-left:8px;padding-right:8px}
+.focus-team-row.is-selectable:hover{background:var(--soft)}
+.focus-team-row.is-active{background:var(--accent-soft)}
+.focus-team-flag{margin-left:8px;font:600 10px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-style:normal}

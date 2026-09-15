@@ -17,7 +17,7 @@ function linkedinSearch(name: string, company: string) {
 }
 
 /** Company details and everyone on file there, loaded on demand for the one-screen prospect flow. */
-export function CompanyTeam({ domain, company }: { domain: string; company: string }) {
+export function CompanyTeam({ domain, company, activeId, onSelect }: { domain: string; company: string; activeId?: string; onSelect?: (person: TeamPerson) => void }) {
   const [team, setTeam] = useState<{ domain: string; data: Team } | null>(null);
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -48,14 +48,16 @@ export function CompanyTeam({ domain, company }: { domain: string; company: stri
       {!ready && <p className="focus-team-loading">Loading the team…</p>}
       {ready && people.length === 0 && <p className="focus-team-loading">No one on file yet for this company.</p>}
       {shown.map((person) => (
-        <div key={person.id} className="focus-team-row">
+        <div key={person.id} className={`focus-team-row ${onSelect ? "is-selectable" : ""} ${activeId === person.id ? "is-active" : ""}`} role={onSelect ? "button" : undefined} tabIndex={onSelect ? 0 : undefined}
+          onClick={onSelect ? () => onSelect(person) : undefined}
+          onKeyDown={onSelect ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(person); } } : undefined}>
           <span className="avatar">{initials(person.full_name)}</span>
-          <div className="focus-team-id"><strong>{person.full_name}</strong><small>{person.title || "title unknown"}</small></div>
+          <div className="focus-team-id"><strong>{person.full_name}{activeId === person.id ? <em className="focus-team-flag">writing to</em> : null}</strong><small>{person.title || "title unknown"}</small></div>
           <div className="focus-team-contact">
             {person.email ? <span title={person.email_status}>{person.email}</span> : null}
             {person.linkedin_url
-              ? <a href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn &#8599;</a>
-              : <a href={linkedinSearch(person.full_name, company)} target="_blank" rel="noreferrer">Find &#8599;</a>}
+              ? <a href={person.linkedin_url} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>LinkedIn &#8599;</a>
+              : <a href={linkedinSearch(person.full_name, company)} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>Find &#8599;</a>}
           </div>
         </div>
       ))}

@@ -147,6 +147,8 @@ export function Desk({
   const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? initialCards[0]?.id);
   // Start on a tight worklist — the top prospects only — and let the chips widen it when it is cleared.
   const [kind, setKind] = useState<"top" | "all" | "job" | "social">(initialCards.length > SHORTLIST ? "top" : "all");
+  // A different contact at the same company, chosen from the "everyone on file" list, to retarget the draft to.
+  const [alt, setAlt] = useState<{ cardId: string; person: AltContact } | null>(null);
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
@@ -324,13 +326,21 @@ export function Desk({
     return acc;
   }, {})).sort((a, b) => b.score - a.score).slice(0, 4);
   const draft = focusCard ? primaryDraft(focusCard) : null;
+  // The contact currently being written to — the card's person by default, or one picked from the team list.
+  const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
+  const draftText = draft ? (altContact && focusCard ? retarget(draft.text, focusCard.people.full_name, altContact.full_name) : draft.text) : "";
   const snoozeCurrent = () => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
   const actOnDraft = async () => {
     if (!draft) return;
     if (draft.view === "email") { send(); return; }
-    try { await navigator.clipboard.writeText(draft.text); } catch { /* the record still stands even if copy is blocked */ }
-    recordTouch(draft.view, draft.text);
+    try { await navigator.clipboard.writeText(draftText); } catch { /* the record still stands even if copy is blocked */ }
+    recordTouch(draft.view, draftText);
+  };
+  // Retargeted to another contact: there is no card to send from, so just copy the adapted message.
+  const copyForContact = async () => {
+    try { await navigator.clipboard.writeText(draftText); setNotice("Message copied — paste it into LinkedIn or email."); }
+    catch { setNotice("Copy was blocked by the browser; select the message text to copy it."); }
   };
 
   return (
@@ -612,15 +622,18 @@ export function Desk({
           {focusCard && draft ? (
             <article className="focus-card">
               <div className="focus-topline">
-                <span className="focus-progress"><span>Next</span> &middot; {focusIndex + 1} of {todo.length}</span>
-                <span className="focus-score">Fit {focusCard.score}</span>
+                <span className="focus-progress"><span>Prospect</span> &middot; {focusIndex + 1} of {todo.length}</span>
+                <div className="focus-step">
+                  <button type="button" className="focus-step-btn" onClick={() => move(-1)} aria-label="Previous prospect" disabled={todo.length < 2}>&larr; Back</button>
+                  <button type="button" className="focus-step-btn" onClick={() => move(1)} aria-label="Next prospect" disabled={todo.length < 2}>Next &rarr;</button>
+                </div>
               </div>
 
               <div className="focus-company">
                 <span className="avatar">{initials(focusCard.accounts.name)}</span>
                 <div>
                   <h2 className="focus-name">{focusCard.accounts.name}{focusCard.isNew && <em className="new-label">New</em>}</h2>
-                  <p className="focus-sub">{signalLabel(focusCard)} &middot; signal {signalStrength(focusCard)}/40{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p>
+                  <p className="focus-sub">{signalLabel(focusCard)} &middot; signal {signalStrength(focusCard)}/40 &middot; fit {focusCard.score}{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p>
                 </div>
               </div>
 
@@ -632,40 +645,47 @@ export function Desk({
                 {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">Everything on {focusCard.accounts.name} &rarr;</Link>}
               </div>
 
+              {(() => {
+                const contact = altContact ?? focusCard.people;
+                return <>
               <div className="focus-block focus-who">
-                <span className="focus-why-label">Who to reach out to</span>
-                <div className="focus-who-head">
-                  <span className="avatar">{initials(focusCard.people.full_name)}</span>
-                  <div><strong>{focusCard.people.full_name}</strong><small>{focusCard.people.title || "title unknown"}</small></div>
+                <div className="focus-who-top">
+                  <span className="focus-why-label">Who to reach out to</span>
+                  {altContact && <button type="button" className="focus-who-reset" onClick={() => setAlt(null)}>&larr; back to {focusCard.people.full_name.split(/\s+/)[0]}</button>}
                 </div>
-                <p className="focus-who-why">{whoWhy(focusCard)}</p>
+                <div className="focus-who-head">
+                  <span className="avatar">{initials(contact.full_name)}</span>
+                  <div><strong>{contact.full_name}</strong><small>{contact.title || "title unknown"}</small></div>
+                </div>
+                {!altContact && <p className="focus-who-why">{whoWhy(focusCard)}</p>}
                 <div className="focus-who-route">
-                  <span>{focusCard.people.email ? `${emailStateLabel(focusCard.people.email_status)} · ${focusCard.people.email}` : emailStateLabel(focusCard.people.email_status)}</span>
-                  {focusCard.people.linkedin_url
-                    ? <a href={focusCard.people.linkedin_url} target="_blank" rel="noreferrer" className="focus-link">LinkedIn profile &#8599;</a>
-                    : <a href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${focusCard.people.full_name} ${focusCard.accounts.name}`)}`} target="_blank" rel="noreferrer" className="focus-link">Find on LinkedIn &#8599;</a>}
-                  <span className="focus-channel">Best channel: {focusCard.channel.replaceAll("_", " ")}</span>
+                  <span>{contact.email ? `${emailStateLabel(contact.email_status)} · ${contact.email}` : emailStateLabel(contact.email_status)}</span>
+                  {contact.linkedin_url
+                    ? <a href={contact.linkedin_url} target="_blank" rel="noreferrer" className="focus-link">LinkedIn profile &#8599;</a>
+                    : <a href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${contact.full_name} ${focusCard.accounts.name}`)}`} target="_blank" rel="noreferrer" className="focus-link">Find on LinkedIn &#8599;</a>}
+                  {!altContact && <span className="focus-channel">Best channel: {focusCard.channel.replaceAll("_", " ")}</span>}
                 </div>
               </div>
               {notice && <p className="notice">{notice}</p>}
 
-              <details className="focus-draft">
-                <summary><span className="focus-draft-ch">{draft.label}</span>{draft.text ? " · draft ready — review" : " · no draft yet"}</summary>
+              <details className="focus-draft" open={Boolean(altContact)}>
+                <summary><span className="focus-draft-ch">{draft.label}</span>{altContact ? ` · adapted for ${contact.full_name.split(/\s+/)[0]}` : draft.text ? " · draft ready — review" : " · no draft yet"}</summary>
                 {draft.view === "email" && focusCard.email_subject && <p className="focus-subject">Subject &middot; {focusCard.email_subject}</p>}
-                <p className="focus-draft-body">{draft.text || "No draft on file for this channel yet — open the studio to write one."}</p>
+                <p className="focus-draft-body">{draftText || "No draft on file for this channel yet — open the studio to write one."}</p>
               </details>
 
-              {focusCard.accounts.domain && <CompanyTeam domain={focusCard.accounts.domain} company={focusCard.accounts.name} />}
+              {focusCard.accounts.domain && <CompanyTeam domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id} onSelect={(person) => { setAlt({ cardId: focusCard.id, person }); setNotice(`Draft adapted for ${person.full_name}. Copy it and send from LinkedIn or email.`); }} />}
 
               <div className="focus-actions">
-                <button type="button" disabled={busy || (draft.view === "email" && !focusCard.people.email)} className="btn primary" onClick={actOnDraft}>
-                  {draft.view === "email" ? "Send email" : "Copy & mark sent"} &rarr;
-                </button>
+                {altContact
+                  ? <button type="button" className="btn primary" onClick={copyForContact}>Copy message &rarr;</button>
+                  : <button type="button" disabled={busy || (draft.view === "email" && !focusCard.people.email)} className="btn primary" onClick={actOnDraft}>{draft.view === "email" ? "Send email" : "Copy & mark sent"} &rarr;</button>}
                 <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
                 <button type="button" disabled={busy} className="btn ghost danger" onClick={dismissCurrent}>Dismiss</button>
-                <button type="button" className="btn ghost" onClick={() => move(1)}>Skip &rarr;</button>
                 <button type="button" className="btn ghost focus-studio" onClick={() => setSelected(focusCard.id)}>Full studio &rarr;</button>
               </div>
+                </>;
+              })()}
             </article>
           ) : (
             <div className="focus-clear">
@@ -735,8 +755,18 @@ function signalEvidence(item: Card): string | null {
   return item.signals.summary || null;
 }
 
+type AltContact = { id: string; full_name: string; title: string; email: string | null; email_status: string; linkedin_url: string | null };
+
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
+}
+
+/** Swap the draft's greeting/first-name references when the same message is aimed at a different person. */
+function retarget(text: string, fromName: string, toName: string) {
+  const from = fromName.split(/\s+/)[0];
+  const to = toName.split(/\s+/)[0];
+  if (!text || !from || !to || from === to) return text;
+  return text.split(from).join(to);
 }
 
 /** A plain sentence on why this person is the one to write to. */
