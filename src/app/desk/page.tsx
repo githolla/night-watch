@@ -162,7 +162,13 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     batchSize,
     projectedMaxCostUsd: Number((batchSize * maxCostPerAccountUsd()).toFixed(2)),
   };
-  const cards = (cardRows ?? []).map((card) => ({ ...card, isNew: card.surfaced_on === today }));
+  // "New" means the card was created today; anything older that is still open was not actioned on an earlier
+  // day and has rolled forward, so it is marked as carried over rather than re-badged "new" every morning.
+  const dayStart = `${today}T00:00:00`;
+  const cards = (cardRows ?? []).map((card) => {
+    const created = (card.created_at as string | null) ?? "";
+    return { ...card, isNew: created >= dayStart, carriedOver: Boolean(created) && created < dayStart };
+  });
 
   // The app runs itself: opening the desk starts or continues the scan and shows progress, so nobody has to drive the Runs page.
   const openRun = openRunRow.data ? await loadRunSummary(db, openRunRow.data.id as string) : null;

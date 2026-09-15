@@ -1313,6 +1313,7 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .chip{font:600 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;border-radius:999px;font-style:normal;white-space:nowrap}
 .chip-fit{background:var(--ok-soft);color:var(--ok)}
 .chip-new{background:var(--accent-soft);color:var(--accent-strong)}
+.chip.carried{background:var(--soft);color:var(--muted);text-transform:none;letter-spacing:0;font-family:var(--sans);font-weight:600}
 .signal-card-why{margin:0;font-size:14px;line-height:1.5;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .signal-card-ai{border:1px solid var(--line);border-radius:10px;background:var(--soft);padding:11px 13px}
 .signal-card-ai span{display:block;font:600 10px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--accent-strong);margin-bottom:6px}

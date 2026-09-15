@@ -22,7 +22,9 @@ type Card = InsightCard & {
   linkedin_comment?: string | null;
   linkedin_message?: string | null;
   surfaced_on?: string | null;
+  created_at?: string | null;
   isNew?: boolean;
+  carriedOver?: boolean;
   people: InsightCard["people"] & {
     email: string | null;
     email_status: string;
@@ -453,7 +455,7 @@ export function Desk({
 
             <div className="person-header">
               <div>
-                <div className="row"><span className="badge">{card.status}</span>{card.isNew && <span className="new-label">New today</span>}<span className="owner-label">Human review required</span></div>
+                <div className="row"><span className="badge">{card.status}</span>{card.isNew ? <span className="new-label">New today</span> : card.carriedOver ? <span className="new-label">{carriedLabel(card.created_at)}</span> : null}<span className="owner-label">Human review required</span></div>
                 <h1>{card.people.full_name}</h1>
                 <p className="subtitle">{card.people.title} at {card.accounts.name}</p>
                 <p className="person-path">{card.people.path_score > 0 ? `Warm path · ${card.people.path_score}/10 · ${card.people.connection_status}` : "No warm path · cold outreach"}</p>
@@ -591,7 +593,7 @@ export function Desk({
                     <div className="signal-card-head">
                       <span className="avatar">{initials(item.accounts.name)}</span>
                       <div className="signal-card-id"><strong>{item.accounts.name}</strong><small>{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small></div>
-                      {item.score >= PRIORITY_THRESHOLD ? <em className="chip chip-fit">High fit</em> : item.isNew ? <em className="chip chip-new">New</em> : null}
+                      {item.score >= PRIORITY_THRESHOLD ? <em className="chip chip-fit">High fit</em> : item.isNew ? <em className="chip chip-new">New</em> : item.carriedOver ? <em className="chip carried">Carried over</em> : null}
                     </div>
                     <p className="signal-card-why">{item.why_now || item.signals.summary}</p>
                     {item.signals.raw?.operating_need && <div className="signal-card-ai"><span>The AI opportunity</span><p>{item.signals.raw.operating_need}</p></div>}
@@ -660,7 +662,7 @@ export function Desk({
               <div className="focus-company">
                 <span className="avatar">{initials(focusCard.accounts.name)}</span>
                 <div>
-                  <h1 className="focus-name">{focusCard.accounts.name}{focusCard.isNew && <em className="new-label">New</em>}</h1>
+                  <h1 className="focus-name">{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h1>
                   <p className="focus-sub"><span className="focus-sig">{signalLabel(focusCard)}</span>{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}<em className="chip focus-fit">Fit {focusCard.score}</em></p>
                 </div>
               </div>
@@ -721,6 +723,13 @@ export function Desk({
   );
 }
 
+
+/** Label for a card that rolled forward from an earlier day still un-actioned. */
+function carriedLabel(created?: string | null) {
+  if (!created) return "Carried over";
+  const date = new Date(created);
+  return Number.isNaN(date.getTime()) ? "Carried over" : `From ${date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+}
 
 function emailStateLabel(status: string) {
   switch (status) {
