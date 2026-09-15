@@ -5,7 +5,9 @@ export function apolloConfigured() {
   return Boolean(process.env.APOLLO_API_KEY);
 }
 
-type EnrichPerson = { id: string; full_name: string; email: string | null; email_status: string; email_source: string | null; linkedin_url: string | null };
+type EnrichPerson = { id: string; full_name: string; level: string; email: string | null; email_status: string; email_source: string | null; linkedin_url: string | null };
+/** Spend the limited Apollo match credits on decision-makers first; "level" sorts alphabetically otherwise (adjacent before owner). */
+const LEVEL_RANK: Record<string, number> = { owner: 3, influencer: 2, adjacent: 1, unknown: 0 };
 
 /**
  * Enrich the people already on file for one company with Apollo: fill a
@@ -19,20 +21,22 @@ export async function enrichAccountPeople(db: SupabaseClient, account: { id: str
   if (!apolloConfigured()) return { configured: false, checked: 0, emails: 0, linkedins: 0 };
   const { data } = await db
     .from("people")
-    .select("id,full_name,email,email_status,email_source,linkedin_url")
+    .select("id,full_name,level,email,email_status,email_source,linkedin_url")
     .eq("account_id", account.id)
     .eq("do_not_contact", false)
-    .order("level")
-    .limit(limit);
-  const people = (data ?? []) as EnrichPerson[];
+    .limit(Math.max(limit * 4, 100));
+  // Owners first, then take the budget: the limited credits land on the buyers, not whoever sorts first.
+  const people = ((data ?? []) as EnrichPerson[])
+    .sort((a, b) => (LEVEL_RANK[b.level] ?? 0) - (LEVEL_RANK[a.level] ?? 0))
+    .slice(0, limit);
 
   let checked = 0;
   let emails = 0;
   let linkedins = 0;
   let departed = 0;
   for (const person of people) {
-    // Nothing left to fill for someone with a verified address and a profile URL.
-    if (person.email_status === "verified" && person.linkedin_url) continue;
+    // Always re-check currency — even people already verified with a profile can have left since — so a
+    // departed contact is caught, not left contactable forever. The fill below is what skips filled fields.
     const match = await matchPerson(person.full_name, account.domain).catch(() => null);
     checked += 1;
     if (!match) continue;

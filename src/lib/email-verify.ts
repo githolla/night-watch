@@ -58,7 +58,9 @@ export async function findEmail(fullName: string, domain: string): Promise<{ ema
   return { email, result };
 }
 
-type PersonRow = { id: string; full_name: string; email: string | null; email_status: string; email_source: string | null; email_verified_at: string | null };
+type PersonRow = { id: string; full_name: string; level: string; email: string | null; email_status: string; email_source: string | null; email_verified_at: string | null };
+/** Verify the decision-makers' addresses first; the level column sorts alphabetically otherwise. */
+const LEVEL_RANK: Record<string, number> = { owner: 3, influencer: 2, adjacent: 1, unknown: 0 };
 
 /**
  * Verify every built or unverified address at the company that has not been
@@ -68,8 +70,8 @@ type PersonRow = { id: string; full_name: string; email: string | null; email_st
 export async function verifyAccountEmails(db: SupabaseClient, account: { id: string; domain: string }, limit = 12): Promise<{ checked: number; verified: number; invalid: number; found: number }> {
   const out = { checked: 0, verified: 0, invalid: 0, found: 0 };
   if (!verifierConfigured()) return out;
-  const { data } = await db.from("people").select("id,full_name,email,email_status,email_source,email_verified_at").eq("account_id", account.id).eq("do_not_contact", false).order("level").limit(60);
-  const people = (data ?? []) as PersonRow[];
+  const { data } = await db.from("people").select("id,full_name,level,email,email_status,email_source,email_verified_at").eq("account_id", account.id).eq("do_not_contact", false).limit(60);
+  const people = ((data ?? []) as PersonRow[]).sort((a, b) => (LEVEL_RANK[b.level] ?? 0) - (LEVEL_RANK[a.level] ?? 0));
   let budget = limit;
   for (const person of people) {
     if (budget <= 0) break;

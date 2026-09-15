@@ -1,6 +1,7 @@
 import { disqualifySignal, writeOutreachFromBrief, type ScoutSignal } from "./agents.ts";
 import { analyzeCompany, type AnalysisInput, type CompanyAnalysis } from "./analysis.ts";
 import { analysisRolesToPostings, channelFor, DRAFT_FIT_FLOOR, draftBreakdown, pickWhoFirst, scoreOfBreakdown, type DraftCandidate } from "./analysis-draft.ts";
+import { apolloConfigured, enrichAccountPeople } from "./apollo-enrich.ts";
 import { fillEmailsFromPattern } from "./email-fill.ts";
 import { verifierConfigured, verifyAccountEmails } from "./email-verify.ts";
 import { FAMILY_LABEL, leadRank, type JobFamily } from "./job-sweep/classify.ts";
@@ -80,6 +81,9 @@ export async function analyzeAndStore(db: Db, account: Account, recordCost: (cos
     if (error) analysis.problems.push(`could not store a quote: ${error.message}`);
   }
   try { await fillEmailsFromPattern(db, account, analysis.emailExamples); } catch (error) { analysis.problems.push(`email pattern: ${error instanceof Error ? error.message : String(error)}`); }
+  if (apolloConfigured()) {
+    try { await enrichAccountPeople(db, account); } catch (error) { analysis.problems.push(`apollo enrichment: ${error instanceof Error ? error.message : String(error)}`); }
+  }
   if (verifierConfigured()) {
     try { await verifyAccountEmails(db, account); } catch (error) { analysis.problems.push(`email verification: ${error instanceof Error ? error.message : String(error)}`); }
   }

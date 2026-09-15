@@ -22,6 +22,7 @@ import { classifyTitle, FAMILY_LABEL, leadRank, operatingNeedFor, type JobFamily
 import { scrapeTeamPeople } from "./team-page.ts";
 import { aboutAi, discoverLinkedIn } from "../linkedin-discovery.ts";
 import { runQueries } from "../web-search.ts";
+import { apolloConfigured, enrichAccountPeople } from "../apollo-enrich.ts";
 import { fillEmailsFromPattern } from "../email-fill.ts";
 import { verifierConfigured, verifyAccountEmails } from "../email-verify.ts";
 import { jsonLdPostings, sitemapPostings } from "./discover.ts";
@@ -623,6 +624,12 @@ export async function runSweep(options: SweepOptions): Promise<RunNightlyResult>
             const filled = await fillEmailsFromPattern(db, account as Account, emailExamples);
             emailsBuilt = filled.built;
             if (filled.pattern) contactsNote = `address format ${filled.pattern.key}@ (${Math.round(filled.pattern.confidence * 100)}% sure)`;
+            // Apollo is the primary source of verified addresses (and departures) — run it in the pipeline, owners
+            // first, not only from the on-demand button, so cadences have verified recipients to send to.
+            if (apolloConfigured()) {
+              const enriched = await enrichAccountPeople(db, account as Account);
+              if (enriched.emails || enriched.departed) contactsNote = [contactsNote, `Apollo ${enriched.emails} verified${enriched.linkedins ? `, ${enriched.linkedins} LinkedIn` : ""}${enriched.departed ? `, ${enriched.departed} left` : ""}`].filter(Boolean).join(" · ");
+            }
             if (verifierConfigured()) {
               const checked = await verifyAccountEmails(db, account as Account);
               if (checked.checked || checked.found) contactsNote = [contactsNote, `${checked.verified} of ${checked.checked} addresses verified${checked.invalid ? `, ${checked.invalid} wrong` : ""}${checked.found ? `, ${checked.found} found` : ""}`].filter(Boolean).join(" · ");

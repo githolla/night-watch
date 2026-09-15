@@ -18,13 +18,17 @@ export async function fillEmailsFromPattern(db: SupabaseClient, account: { id: s
   if (!guess) guess = guessFromExamples(webExamples, account.domain);
   if (!guess && account.email_pattern) guess = { key: account.email_pattern as PatternKey, confidence: Number(account.pattern_confidence ?? 0.4), matched: 0, samples: 0 };
 
-  // When a paid verifier (Apollo or Hunter) is connected, do NOT blind-guess addresses: Apollo returns
-  // real verified emails, so a first.last guess just adds noise. Clear any earlier guesses too, so the
-  // list shows Apollo's addresses (or nothing) rather than a wall of "best guess".
+  // When a paid verifier (Apollo or Hunter) is connected, do NOT stamp unverified addresses on people at all —
+  // not a blind first.last guess, and not a pattern-built one. Apollo returns verified emails and Hunter finds
+  // and verifies them, so an unverified guess only clutters the list with "best guess" rows. Still learn and
+  // store the format for reference, and clear any earlier guesses so the page shows a real address or nothing.
   const hasVerifier = Boolean(process.env.APOLLO_API_KEY || process.env.HUNTER_API_KEY);
-  if (!guess && hasVerifier) {
+  if (hasVerifier) {
+    if (guess && (guess.key !== account.email_pattern || Number(account.pattern_confidence ?? 0) !== guess.confidence)) {
+      await db.from("accounts").update({ email_pattern: guess.key, pattern_confidence: guess.confidence }).eq("id", account.id);
+    }
     const { data: cleared } = await db.from("people").update({ email: null, email_status: "none", email_source: null, email_verified_at: null }).eq("account_id", account.id).eq("email_source", "guess").select("id");
-    return { pattern: null as PatternGuess | null, built: 0, cleared: cleared?.length ?? 0 };
+    return { pattern: guess, built: 0, cleared: cleared?.length ?? 0 };
   }
 
   // Last resort (no verifier): no address and no example anywhere. Fall back to the most common corporate
