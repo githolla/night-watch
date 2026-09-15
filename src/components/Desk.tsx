@@ -294,7 +294,6 @@ export function Desk({
   const filtered = needle ? byKind.filter((item) => `${item.people.full_name} ${item.people.title} ${item.accounts.name}`.toLowerCase().includes(needle)) : byKind;
   const jobCount = cards.filter((item) => signalGroup(item) === "job").length;
   const socialCount = cards.filter((item) => signalGroup(item) === "social").length;
-  const withDraft = cards.filter((item) => item.email_body || item.linkedin_note || item.linkedin_message).length;
   const nextLine = (item: Card) => item.signals.raw?.operating_need || item.why_now || item.signals.summary;
 
   // The one draft to show first, picked by the card's chosen channel — email when it is verified, else the readiest LinkedIn surface.
@@ -328,6 +327,7 @@ export function Desk({
   const draft = focusCard ? primaryDraft(focusCard) : null;
   // The contact currently being written to — the card's person by default, or one picked from the team list.
   const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
+  const contact = altContact ?? (focusCard ? focusCard.people : null);
   const draftText = draft ? (altContact && focusCard ? retarget(draft.text, focusCard.people.full_name, altContact.full_name) : draft.text) : "";
   const snoozeCurrent = () => { const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
@@ -614,78 +614,67 @@ export function Desk({
         </div>
       ) : (
         <div className="focus">
-          <button type="button" className="pipeline-backtofocus" onClick={() => setBrowse(true)}>&larr; All prospects</button>
-          <header className="pipeline-head">
-            <div><h1>Working next</h1><p>{todo.length} to work &middot; {priorityCount} priority &middot; {withDraft} with a draft</p></div>
-            <Link className="btn primary" href="/runs">Runs</Link>
-          </header>
-          {focusCard && draft ? (
-            <article className="focus-card">
-              <div className="focus-topline">
-                <span className="focus-progress"><span>Prospect</span> &middot; {focusIndex + 1} of {todo.length}</span>
-                <div className="focus-step">
-                  <button type="button" className="focus-step-btn" onClick={() => move(-1)} aria-label="Previous prospect" disabled={todo.length < 2}>&larr; Back</button>
-                  <button type="button" className="focus-step-btn" onClick={() => move(1)} aria-label="Next prospect" disabled={todo.length < 2}>Next &rarr;</button>
-                </div>
+          <div className="focus-topbar">
+            <button type="button" className="pipeline-backtofocus" onClick={() => setBrowse(true)}>&larr; All prospects</button>
+            {focusCard && <div className="focus-topbar-nav">
+              <span className="focus-progress">{focusIndex + 1} of {todo.length}</span>
+              <div className="focus-step">
+                <button type="button" className="focus-step-btn" onClick={() => move(-1)} aria-label="Previous prospect" disabled={todo.length < 2}>&larr;</button>
+                <button type="button" className="focus-step-btn" onClick={() => move(1)} aria-label="Next prospect" disabled={todo.length < 2}>&rarr;</button>
               </div>
-
+            </div>}
+          </div>
+          {focusCard && draft && contact ? (
+            <article className="focus-card">
               <div className="focus-company">
                 <span className="avatar">{initials(focusCard.accounts.name)}</span>
                 <div>
-                  <h2 className="focus-name">{focusCard.accounts.name}{focusCard.isNew && <em className="new-label">New</em>}</h2>
-                  <p className="focus-sub">{signalLabel(focusCard)} &middot; signal {signalStrength(focusCard)}/40 &middot; fit {focusCard.score}{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p>
+                  <h1 className="focus-name">{focusCard.accounts.name}{focusCard.isNew && <em className="new-label">New</em>}</h1>
+                  <p className="focus-sub"><span className="focus-sig">{signalLabel(focusCard)}</span>{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}<em className="chip focus-fit">Fit {focusCard.score}</em></p>
                 </div>
               </div>
 
-              <div className="focus-block">
+              <div className="focus-why">
                 <span className="focus-why-label">Why they&apos;re a good prospect</span>
                 <p className="focus-why-lead">{focusCard.why_now || nextLine(focusCard)}</p>
-                {focusCard.signals.raw?.operating_need && <div className="focus-sub-block"><span className="focus-why-label">What Nine-67 could build</span><p>{focusCard.signals.raw.operating_need}</p></div>}
-                {signalEvidence(focusCard) && <div className="focus-sub-block"><span className="focus-why-label">{signalGroup(focusCard) === "social" ? "What they posted" : "The evidence"}</span><p className="focus-evidence-text">{signalEvidence(focusCard)}</p>{focusCard.signals.source_url && <a href={focusCard.signals.source_url} target="_blank" rel="noreferrer" className="focus-link">Open the source &#8599;</a>}</div>}
-                {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">Everything on {focusCard.accounts.name} &rarr;</Link>}
+                {focusCard.signals.raw?.operating_need && <p className="focus-why-need"><b>Nine-67 could build:</b> {focusCard.signals.raw.operating_need}</p>}
+                {signalEvidence(focusCard) && <p className="focus-why-evidence">{signalGroup(focusCard) === "social" ? "Posted" : "Evidence"}: &ldquo;{signalEvidence(focusCard)}&rdquo;{focusCard.signals.source_url ? <> <a href={focusCard.signals.source_url} target="_blank" rel="noreferrer">source &#8599;</a></> : null}</p>}
               </div>
 
-              {(() => {
-                const contact = altContact ?? focusCard.people;
-                return <>
-              <div className="focus-block focus-who">
-                <div className="focus-who-top">
-                  <span className="focus-why-label">Who to reach out to</span>
-                  {altContact && <button type="button" className="focus-who-reset" onClick={() => setAlt(null)}>&larr; back to {focusCard.people.full_name.split(/\s+/)[0]}</button>}
+              <div className="focus-who">
+                <span className="avatar sm">{initials(contact.full_name)}</span>
+                <div className="focus-who-id">
+                  <strong>{contact.full_name}</strong>
+                  <small>{contact.title || "title unknown"} &middot; {contact.email ? contact.email : emailStateLabel(contact.email_status)}</small>
                 </div>
-                <div className="focus-who-head">
-                  <span className="avatar">{initials(contact.full_name)}</span>
-                  <div><strong>{contact.full_name}</strong><small>{contact.title || "title unknown"}</small></div>
-                </div>
-                {!altContact && <p className="focus-who-why">{whoWhy(focusCard)}</p>}
-                <div className="focus-who-route">
-                  <span>{contact.email ? `${emailStateLabel(contact.email_status)} · ${contact.email}` : emailStateLabel(contact.email_status)}</span>
-                  {contact.linkedin_url
-                    ? <a href={contact.linkedin_url} target="_blank" rel="noreferrer" className="focus-link">LinkedIn profile &#8599;</a>
-                    : <a href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${contact.full_name} ${focusCard.accounts.name}`)}`} target="_blank" rel="noreferrer" className="focus-link">Find on LinkedIn &#8599;</a>}
-                  {!altContact && <span className="focus-channel">Best channel: {focusCard.channel.replaceAll("_", " ")}</span>}
-                </div>
+                {contact.linkedin_url
+                  ? <a href={contact.linkedin_url} target="_blank" rel="noreferrer" className="focus-link">LinkedIn &#8599;</a>
+                  : <a href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${contact.full_name} ${focusCard.accounts.name}`)}`} target="_blank" rel="noreferrer" className="focus-link">Find &#8599;</a>}
+                {altContact && <button type="button" className="focus-who-reset" onClick={() => setAlt(null)}>&#8617; {focusCard.people.full_name.split(/\s+/)[0]}</button>}
               </div>
-              {notice && <p className="notice">{notice}</p>}
 
-              <details className="focus-draft" open={Boolean(altContact)}>
-                <summary><span className="focus-draft-ch">{draft.label}</span>{altContact ? ` · adapted for ${contact.full_name.split(/\s+/)[0]}` : draft.text ? " · draft ready — review" : " · no draft yet"}</summary>
-                {draft.view === "email" && focusCard.email_subject && <p className="focus-subject">Subject &middot; {focusCard.email_subject}</p>}
+              <div className="focus-draft">
+                <div className="focus-draft-head">
+                  <span className="focus-draft-ch">{draft.label}{altContact ? ` · adapted for ${contact.full_name.split(/\s+/)[0]}` : ""}</span>
+                  <button type="button" className="focus-draft-edit" onClick={() => setSelected(focusCard.id)}>Edit in studio &rarr;</button>
+                </div>
+                {draft.view === "email" && focusCard.email_subject && <p className="focus-subject">Subject: {focusCard.email_subject}</p>}
                 <p className="focus-draft-body">{draftText || "No draft on file for this channel yet — open the studio to write one."}</p>
-              </details>
-
-              {focusCard.accounts.domain && <CompanyTeam domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id} onSelect={(person) => { setAlt({ cardId: focusCard.id, person }); setNotice(`Draft adapted for ${person.full_name}. Copy it and send from LinkedIn or email.`); }} />}
+              </div>
 
               <div className="focus-actions">
                 {altContact
                   ? <button type="button" className="btn primary" onClick={copyForContact}>Copy message &rarr;</button>
-                  : <button type="button" disabled={busy || (draft.view === "email" && !focusCard.people.email)} className="btn primary" onClick={actOnDraft}>{draft.view === "email" ? "Send email" : "Copy & mark sent"} &rarr;</button>}
+                  : <button type="button" disabled={busy || (draft.view === "email" && !focusCard.people.email)} className="btn primary" onClick={actOnDraft}>{draft.view === "email" ? "Send email" : "Copy &amp; mark sent"} &rarr;</button>}
                 <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
-                <button type="button" disabled={busy} className="btn ghost danger" onClick={dismissCurrent}>Dismiss</button>
-                <button type="button" className="btn ghost focus-studio" onClick={() => setSelected(focusCard.id)}>Full studio &rarr;</button>
+                <button type="button" disabled={busy} className="btn ghost danger focus-dismiss" onClick={dismissCurrent}>Dismiss</button>
               </div>
-                </>;
-              })()}
+              {notice && <p className="notice focus-notice">{notice}</p>}
+
+              {focusCard.accounts.domain && <details className="focus-teamwrap">
+                <summary>Company details &amp; everyone on file &mdash; pick another contact</summary>
+                <CompanyTeam domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id} onSelect={(person) => { setAlt({ cardId: focusCard.id, person }); setNotice(`Draft adapted for ${person.full_name}. Copy it and send from LinkedIn or email.`); }} />
+              </details>}
             </article>
           ) : (
             <div className="focus-clear">
@@ -722,10 +711,6 @@ function signalGroup(item: Card): "job" | "social" | "other" {
   if (type === "job_post" || type === "job_cluster") return "job";
   if (type === "exec_post") return "social";
   return "other";
-}
-
-function signalStrength(item: Card) {
-  return item.signals.strength ?? item.score_breakdown?.signal_strength ?? Math.min(40, Math.round(item.score * 0.4));
 }
 
 /** A short, human "how fresh" for the intent signal — the reason a reach-out is timely. */
@@ -769,15 +754,3 @@ function retarget(text: string, fromName: string, toName: string) {
   return text.split(from).join(to);
 }
 
-/** A plain sentence on why this person is the one to write to. */
-function whoWhy(card: Card) {
-  const first = card.people.full_name.split(/\s+/)[0];
-  const base = card.people.level === "owner"
-    ? `${first} owns the operations and budget this work touches — the decision-maker.`
-    : card.people.level === "influencer"
-    ? `${first} shapes this decision and can bring the buyer in.`
-    : card.people.level === "adjacent"
-    ? `${first} is close to the work — a warm way into the team.`
-    : `${first} is a named contact at ${card.accounts.name}.`;
-  return card.people.path_score > 0 ? `${base} Warm path ${card.people.path_score}/10.` : base;
-}

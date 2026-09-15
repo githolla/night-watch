@@ -11,14 +11,14 @@ import { Activity, BarChart3, Briefcase, Building2, ChevronDown, ChevronsLeft, C
  * until it is needed.
  */
 const primary = [
-  { href: "/desk", label: "Overview", icon: LayoutGrid },
+  { href: "/desk", label: "Today", icon: LayoutGrid },
   { href: "/outreach", label: "Companies", icon: Target },
+  { href: "/people", label: "People", icon: Users },
 ];
 const more = [
   { href: "/targets", label: "All companies", icon: Building2 },
   { href: "/roles", label: "Job signals", icon: Briefcase },
   { href: "/posts", label: "Employee posts", icon: MessageSquare },
-  { href: "/people", label: "People", icon: Users },
   { href: "/runs", label: "Runs", icon: Activity },
   { href: "/stats", label: "Results", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
@@ -37,7 +37,7 @@ export function Header() {
   const pathname = usePathname();
   // The remembered state is read from storage inside an external-store subscription, never during render.
   const collapsed = useSyncExternalStore(subscribe, readCollapsed, () => false);
-  const active = (href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/desk" && pathname === "/");
+  const active = (href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/desk" && pathname === "/") || (href === "/outreach" && pathname.startsWith("/accounts"));
   // Open "More" on arrival when the current page lives inside it, so nobody lands on a page the nav is hiding.
   const [moreOpen, setMoreOpen] = useState(() => more.some((item) => active(item.href)));
   // Small state counts for the nav badges, refreshed on each navigation.
