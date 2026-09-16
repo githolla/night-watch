@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Lock } from "lucide-react";
+import { FeedbackWidget } from "./FeedbackWidget";
 
 /** A clean top bar: the daily work first, everything else under More, workspace and user on the right. */
 const primary = [
@@ -51,6 +52,7 @@ export function Header() {
   const countFor = (href: string) => href === "/desk" ? counts?.today : href === "/outreach" ? counts?.companies : href === "/followups" ? counts?.followups : undefined;
 
   return (
+    <>
     <header className="appbar" aria-label="Navigation">
       <div className="appbar-left">
         <Link href="/desk" className="appbar-brand" title="Night Watch">
@@ -74,5 +76,7 @@ export function Header() {
         <form action="/api/auth/logout" method="post"><button className="appbar-lock" type="submit" title="Lock"><Lock size={16} strokeWidth={1.8} /></button></form>
       </div>
     </header>
+    <FeedbackWidget />
+    </>
   );
 }

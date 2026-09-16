@@ -27,6 +27,7 @@ export default async function Settings() {
     db.from("touches").select("*", { count: "exact", head: true }).not("reply_at", "is", null),
     db.from("sender_profiles").select("from_name,title,signature,website,location,cc").eq("owner", me.owner).maybeSingle(),
   ]);
+  const { count: feedbackCount } = me.role === "admin" ? await admin().from("feedback").select("*", { count: "exact", head: true }) : { count: 0 };
   const senderEmail = (connections ?? []).find((row) => row.owner === me.owner)?.email ?? me.email ?? null;
   const senderProfile = {
     from_name: (sender?.from_name as string | null) ?? "",
@@ -46,6 +47,12 @@ export default async function Settings() {
   return <div>
     <Header />
     <main className="workspace-page">
+      {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}>
+        <section className="conn-card">
+          <header className="conn-head"><div><h2>Tester feedback</h2><p>Every &ldquo;Feedback&rdquo; submission across the app, timestamped with who sent it and which page. {feedbackCount ?? 0} on file.</p></div></header>
+          <a className="btn primary" href="/api/feedback/export">Download CSV</a>
+        </section>
+      </div>}
       {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}><Users /></div>}
       <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} /></div>
       <div className="feature-center" style={{ marginBottom: 18 }}><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
