@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { sendEmail } from "@/lib/gmail";
 import { validateEmail, sendInput } from "@/lib/send-action";
-import { fromHeader, senderProfile, withSignature } from "@/lib/sender";
+import { emailHtml, fromHeader, senderProfile, withSignature } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -21,8 +21,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     validateEmail(card.people.email_status, count ?? 0, body);
     const profile = await senderProfile(db, owner);
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
-    const fullBody = `${withSignature(body, profile)}\n\n${optOut}`;
-    const result = await sendEmail(owner, fromHeader(profile, user.email!), card.people.email, subject, fullBody, undefined, profile.cc);
+    const fullBody = `${withSignature(body, profile, user.email)}\n\n${optOut}`;
+    const html = emailHtml(body, profile, user.email, optOut);
+    const result = await sendEmail(owner, fromHeader(profile, user.email!), card.people.email, subject, fullBody, undefined, profile.cc, html);
     await db.from("touches").insert({ card_id: id, person_id: card.person_id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: fullBody, experiment_variant_id: card.active_variant_id ?? null });
     if (card.active_variant_id) {
       const { data: chosen } = await db.from("message_variants").select("experiment_id").eq("id", card.active_variant_id).maybeSingle();

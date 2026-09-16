@@ -25,13 +25,15 @@ export default async function Settings() {
     db.from("cards").select("*", { count: "exact", head: true }).eq("surfaced_on", today),
     db.from("message_experiments").select("*", { count: "exact", head: true }),
     db.from("touches").select("*", { count: "exact", head: true }).not("reply_at", "is", null),
-    db.from("sender_profiles").select("from_name,title,signature,cc").eq("owner", "josh").maybeSingle(),
+    db.from("sender_profiles").select("from_name,title,signature,website,location,cc").eq("owner", me.owner).maybeSingle(),
   ]);
-  const senderEmail = (connections ?? []).find((row) => row.owner === "josh")?.email ?? (connections ?? [])[0]?.email ?? null;
+  const senderEmail = (connections ?? []).find((row) => row.owner === me.owner)?.email ?? me.email ?? null;
   const senderProfile = {
     from_name: (sender?.from_name as string | null) ?? "",
     title: (sender?.title as string | null) ?? "",
     signature: (sender?.signature as string | null) ?? "",
+    website: (sender?.website as string | null) ?? "",
+    location: (sender?.location as string | null) ?? "",
     cc: Array.isArray(sender?.cc) ? (sender!.cc as string[]) : [],
   };
   const slackConnected = Boolean(process.env.SLACK_BOT_TOKEN && process.env.SLACK_SIGNING_SECRET && process.env.SLACK_CHANNEL_ID);

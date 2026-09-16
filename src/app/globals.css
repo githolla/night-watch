@@ -1698,6 +1698,15 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .conn-actions{display:flex;gap:8px}
 .conn-actions .btn{height:34px;padding:0 13px;font-size:13px;text-decoration:none;display:inline-flex;align-items:center}
 .conn-note{margin:6px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
+
+/* Branded signature preview (mirrors what recipients see in the HTML email) */
+.sig-preview{margin-top:14px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:20px 22px;overflow-x:auto}
+.sig-preview table{border-collapse:collapse}
+.sig-preview .sig-mark{vertical-align:top;padding-right:20px;border-right:2px solid #c9c2b6;font:700 30px Georgia,"Times New Roman",serif;color:#9a8258;letter-spacing:-1px;white-space:nowrap}
+.sig-preview .sig-body{vertical-align:top;padding-left:20px}
+.sig-preview .sig-name{font:600 19px Georgia,"Times New Roman",serif;color:#1a1712}
+.sig-preview .sig-title{font:600 11px Arial,Helvetica,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#8a8378;margin-top:2px}
+.sig-preview .sig-lines{margin-top:10px;line-height:1.7;font:400 13px Arial,Helvetica,sans-serif;color:#3a352f}
 @media(max-width:640px){.conn-row{grid-template-columns:1fr}.conn-scopes{order:3}}
 .deskwork-doc-head{padding:12px 16px;border-bottom:1px solid var(--line);display:grid;gap:5px}
 .deskwork-doc-body{padding:16px 18px;font-size:14.5px;line-height:1.65;color:var(--ink);white-space:pre-wrap;min-height:120px}

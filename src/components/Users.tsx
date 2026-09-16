@@ -30,11 +30,17 @@ export function Users() {
     event.preventDefault();
     setBusy(true); setMessage("");
     try {
-      const res = await fetch("/api/admin/users", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(form) });
+      const payload = { ...form, password: form.password.trim() ? form.password : undefined };
+      const res = await fetch("/api/admin/users", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
       const json = await res.json();
       if (!res.ok) { setMessage(json.error ?? "Could not add the user."); return; }
       setForm({ name: "", email: "", owner: "josh", role: "member", password: "" });
-      setMessage("Added. Share their password so they can sign in.");
+      if (json.inviteUrl) {
+        try { await navigator.clipboard.writeText(json.inviteUrl); } catch { /* ignore */ }
+        setMessage(`Invite created and copied to your clipboard — send it to them: ${json.inviteUrl}`);
+      } else {
+        setMessage("Added with a temp password — share it so they can sign in.");
+      }
       await load();
     } finally { setBusy(false); }
   }
@@ -61,9 +67,10 @@ export function Users() {
         <input type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
         <select value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })} aria-label="Seat"><option value="josh">Seat 1</option><option value="jenna">Seat 2</option></select>
         <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} aria-label="Role"><option value="member">Member</option><option value="admin">Admin</option></select>
-        <input type="text" placeholder="Temp password (8+)" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} minLength={8} required />
+        <input type="text" placeholder="Temp password — or blank to send an invite link" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         <button className="btn primary" disabled={busy}>{busy ? "Adding…" : "Add teammate"}</button>
       </form>
+      <p className="conn-note">Leave the password blank to generate an <strong>invite link</strong> (copied to your clipboard) — send it to them and they set their own password, then connect their Google account.</p>
       {message && <p className="notice" role="status">{message}</p>}
 
       <div className="users-list">

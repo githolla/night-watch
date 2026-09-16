@@ -7,18 +7,55 @@ import type { Owner } from "./types.ts";
  * address), a signature appended to the body, and a CC list. Stored per owner
  * slot; the mailbox address itself is the owner's Gmail connection.
  */
-export type SenderProfile = { fromName: string; title: string; signature: string; cc: string[] };
-const EMPTY: SenderProfile = { fromName: "", title: "", signature: "", cc: [] };
+export type SenderProfile = { fromName: string; title: string; signature: string; website: string; location: string; cc: string[] };
+const EMPTY: SenderProfile = { fromName: "", title: "", signature: "", website: "", location: "", cc: [] };
 
 export async function senderProfile(db: SupabaseClient, owner: Owner): Promise<SenderProfile> {
-  const { data } = await db.from("sender_profiles").select("from_name,title,signature,cc").eq("owner", owner).maybeSingle();
+  const { data } = await db.from("sender_profiles").select("from_name,title,signature,website,location,cc").eq("owner", owner).maybeSingle();
   if (!data) return EMPTY;
   return {
     fromName: (data.from_name as string | null) ?? "",
     title: (data.title as string | null) ?? "",
     signature: (data.signature as string | null) ?? "",
+    website: (data.website as string | null) ?? "",
+    location: (data.location as string | null) ?? "",
     cc: Array.isArray(data.cc) ? (data.cc as string[]) : [],
   };
+}
+
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const siteUrl = (site: string) => (site ? (/^https?:\/\//.test(site) ? site : `https://${site}`) : "");
+
+/** The branded Nine-67 signature block, email-safe (inline styles, table layout). Falls back to the free-text
+ *  signature when the structured name isn't set. */
+export function renderSignatureHtml(profile: SenderProfile, email: string): string {
+  if (!profile.fromName.trim()) return profile.signature.trim() ? esc(profile.signature.trim()).replace(/\n/g, "<br>") : "";
+  const rows: string[] = [];
+  if (email) rows.push(`<div style="margin-top:2px;font:400 13px Arial,Helvetica,sans-serif;color:#3a352f">✉&nbsp;&nbsp;<a href="mailto:${esc(email)}" style="color:#3a352f;text-decoration:none">${esc(email)}</a></div>`);
+  if (profile.website.trim()) rows.push(`<div style="font:400 13px Arial,Helvetica,sans-serif;color:#3a352f">◎&nbsp;&nbsp;<a href="${esc(siteUrl(profile.website.trim()))}" style="color:#3a352f;text-decoration:none">${esc(profile.website.trim())}</a></div>`);
+  if (profile.location.trim()) rows.push(`<div style="font:400 13px Arial,Helvetica,sans-serif;color:#3a352f">⌖&nbsp;&nbsp;${esc(profile.location.trim())}</div>`);
+  return `<table cellpadding="0" cellspacing="0" style="margin-top:22px"><tr>
+    <td style="vertical-align:top;padding-right:20px;border-right:2px solid #c9c2b6"><span style="font:700 30px Georgia,'Times New Roman',serif;color:#9a8258;letter-spacing:-1px">Nine&#8209;67</span></td>
+    <td style="vertical-align:top;padding-left:20px">
+      <div style="font:600 19px Georgia,'Times New Roman',serif;color:#1a1712">${esc(profile.fromName.trim())}</div>
+      ${profile.title.trim() ? `<div style="font:600 11px Arial,Helvetica,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#8a8378;margin-top:2px">${esc(profile.title.trim())}</div>` : ""}
+      <div style="margin-top:10px;line-height:1.7">${rows.join("")}</div>
+    </td></tr></table>`;
+}
+
+/** The full HTML email: the message (line breaks preserved), the branded signature, then the opt-out line. */
+export function emailHtml(body: string, profile: SenderProfile, email: string, optOut: string): string {
+  const bodyHtml = esc(body.trim()).replace(/\n/g, "<br>");
+  const sig = renderSignatureHtml(profile, email);
+  const foot = optOut ? `<div style="margin-top:16px;color:#8a8378;font:400 12px Arial,Helvetica,sans-serif">${esc(optOut)}</div>` : "";
+  return `<div style="font:400 14px/1.65 Arial,Helvetica,sans-serif;color:#1a1712">${bodyHtml}${sig}${foot}</div>`;
+}
+
+/** Plain-text signature (for the text/plain part and for callers that don't send HTML). */
+export function renderSignatureText(profile: SenderProfile, email: string): string {
+  if (!profile.fromName.trim()) return profile.signature.trim();
+  const lines = [profile.fromName.trim(), profile.title.trim(), email, profile.website.trim(), profile.location.trim()].filter(Boolean);
+  return lines.join("\n");
 }
 
 /** The Gmail From header value: `Name, Title <email>` when a name is set, otherwise the bare address. */
@@ -27,7 +64,8 @@ export function fromHeader(profile: SenderProfile, email: string) {
   return label ? `${label} <${email}>` : email;
 }
 
-/** Body with the signature appended once; the caller adds the opt-out line after this. */
-export function withSignature(body: string, profile: SenderProfile) {
-  return profile.signature.trim() ? `${body.trim()}\n\n${profile.signature.trim()}` : body.trim();
+/** Plain-text body with the signature appended once; the caller adds the opt-out line after this. */
+export function withSignature(body: string, profile: SenderProfile, email = "") {
+  const sig = renderSignatureText(profile, email);
+  return sig ? `${body.trim()}\n\n${sig}` : body.trim();
 }

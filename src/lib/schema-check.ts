@@ -25,6 +25,7 @@ const MIGRATIONS: Array<{ file: string; table: string; column: string; adds: str
   { file: "0017_google_scopes.sql", table: "gmail_connections", column: "scopes", adds: "the granted Google scopes and Calendar flag per connected sender" },
   { file: "0018_scheduling.sql", table: "cards", column: "proposed_times", adds: "the meeting times offered and the booked calendar invite for auto-scheduling on reply" },
   { file: "0019_users.sql", table: "app_users", column: "email", adds: "per-user sign-ons (email + password) with a sending seat and role" },
+  { file: "0020_invites_signature.sql", table: "app_users", column: "invite_token", adds: "invite links for new teammates and website/location fields for the branded signature" },
 ];
 
 export type PendingMigration = { file: string; adds: string; reason: string; sql: string };
