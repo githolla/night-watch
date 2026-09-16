@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 type Connection = { owner: string; email: string | null; calendar?: boolean | null; connected_at?: string | null };
+type GoogleConfig = { clientId: boolean; clientSecret: boolean; redirectUri: string | null; appUrl: string | null };
 const SEATS: Array<{ owner: "josh" | "jenna"; label: string }> = [
   { owner: "josh", label: "Seat 1" },
   { owner: "jenna", label: "Seat 2" },
@@ -11,10 +12,13 @@ const SEATS: Array<{ owner: "josh" | "jenna"; label: string }> = [
 /** Connect one Google Workspace account per sending seat. Night Watch sends from the seat a card is assigned
  *  to (chosen with "Send as" on the desk), pulls that seat's replies into the cadence, and proposes meeting
  *  times from its calendar. */
-export function Connections({ connections }: { connections: Connection[] }) {
+export function Connections({ connections, google }: { connections: Connection[]; google?: GoogleConfig }) {
   const byOwner = new Map(connections.map((row) => [row.owner, row]));
   const [busy, setBusy] = useState<string | null>(null);
   const [flag] = useState(() => (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("connect") : null));
+  const [origin] = useState(() => (typeof window !== "undefined" ? window.location.origin : ""));
+  const ready = google ? Boolean(google.clientId && google.clientSecret && google.redirectUri) : true;
+  const suggestedRedirect = google?.redirectUri || `${google?.appUrl || origin || "https://your-app"}/api/gmail/callback`;
 
   async function disconnect(owner: string, label: string) {
     if (!confirm(`Disconnect Google for ${label}? Sending and reply capture stop for it until reconnected.`)) return;
@@ -30,7 +34,18 @@ export function Connections({ connections }: { connections: Connection[] }) {
       <header className="conn-head">
         <div><h2>Google Workspace seats</h2><p>Connect an account per seat. Outreach sends from that seat, replies land back here to drive the cadence, and its calendar powers &ldquo;Propose times&rdquo;.</p></div>
       </header>
-      {flag === "unconfigured" && <p className="notice" role="alert">Google sign-in isn&rsquo;t set up on the server yet. An admin needs to add the Google Cloud OAuth credentials (<code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code>, <code>GOOGLE_REDIRECT_URI</code>) and approve the Gmail + Calendar scopes on the consent screen. Until then &ldquo;Connect Google&rdquo; can&rsquo;t start.</p>}
+      {google && !ready && <div className="google-setup">
+        <strong>Finish Google setup to enable sending</strong>
+        <p>Create an OAuth client in Google Cloud, then set these on the server. &ldquo;Connect Google&rdquo; stays disabled until all three are present.</p>
+        <ul className="google-setup-list">
+          <li className={google.clientId ? "ok" : "missing"}><code>GOOGLE_CLIENT_ID</code> {google.clientId ? "set ✓" : "missing"}</li>
+          <li className={google.clientSecret ? "ok" : "missing"}><code>GOOGLE_CLIENT_SECRET</code> {google.clientSecret ? "set ✓" : "missing"}</li>
+          <li className={google.redirectUri ? "ok" : "missing"}><code>GOOGLE_REDIRECT_URI</code> {google.redirectUri ? "set ✓" : "missing"}</li>
+        </ul>
+        <p className="google-setup-redirect">Authorized redirect URI to register in Google Cloud (must match exactly):<br /><code>{suggestedRedirect}</code></p>
+        <p className="conn-note">On the OAuth consent screen, add scopes: Gmail send, Gmail readonly, and Calendar. External apps need Google&rsquo;s verification for these before non-test users can grant them.</p>
+      </div>}
+      {flag === "unconfigured" && ready && <p className="notice" role="alert">Google credentials are set but the sign-in was rejected — check the redirect URI matches exactly and the scopes are approved.</p>}
       <div className="conn-list">
         {SEATS.map(({ owner, label }) => {
           const row = byOwner.get(owner);
@@ -48,7 +63,9 @@ export function Connections({ connections }: { connections: Connection[] }) {
                 {connected && <><em className="conn-chip is-on">Send</em><em className="conn-chip is-on">Replies</em><em className={`conn-chip ${row!.calendar ? "is-on" : ""}`}>{row!.calendar ? "Calendar" : "No calendar"}</em></>}
               </div>
               <div className="conn-actions">
-                <a className="btn primary" href={`/api/gmail/connect?owner=${owner}`}>{connected ? "Reconnect" : "Connect Google"}</a>
+                {ready
+                  ? <a className="btn primary" href={`/api/gmail/connect?owner=${owner}`}>{connected ? "Reconnect" : "Connect Google"}</a>
+                  : <button type="button" className="btn primary" disabled title="Finish Google setup first">Connect Google</button>}
                 {connected && <button type="button" className="btn ghost danger" disabled={busy === owner} onClick={() => disconnect(owner, label)}>Disconnect</button>}
               </div>
             </div>

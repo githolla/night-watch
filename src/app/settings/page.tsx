@@ -37,11 +37,17 @@ export default async function Settings() {
     cc: Array.isArray(sender?.cc) ? (sender!.cc as string[]) : [],
   };
   const slackConnected = Boolean(process.env.SLACK_BOT_TOKEN && process.env.SLACK_SIGNING_SECRET && process.env.SLACK_CHANNEL_ID);
+  const googleConfig = {
+    clientId: Boolean(process.env.GOOGLE_CLIENT_ID),
+    clientSecret: Boolean(process.env.GOOGLE_CLIENT_SECRET),
+    redirectUri: process.env.GOOGLE_REDIRECT_URI ?? null,
+    appUrl: process.env.APP_URL ?? null,
+  };
   return <div>
     <Header />
     <main className="workspace-page">
       {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}><Users /></div>}
-      <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} /></div>
+      <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} /></div>
       <div className="feature-center" style={{ marginBottom: 18 }}><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
       <FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={activeTargetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} />
     </main>
