@@ -1,0 +1,81 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+type Row = { id: string; email: string; name: string; owner: string; role: string; last_login_at: string | null };
+
+/** Admin-only: add teammates with their own email + password sign-on, set their sending seat and role. */
+export function Users() {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [form, setForm] = useState({ name: "", email: "", owner: "josh", role: "member", password: "" });
+  const [busy, setBusy] = useState(false);
+
+  async function load() {
+    const res = await fetch("/api/admin/users", { cache: "no-store" });
+    const json = await res.json();
+    if (res.ok) setRows(json.users ?? []);
+  }
+  useEffect(() => {
+    let live = true;
+    fetch("/api/admin/users", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => { if (live) { setRows(json?.users ?? []); setLoading(false); } })
+      .catch(() => { if (live) setLoading(false); });
+    return () => { live = false; };
+  }, []);
+
+  async function addUser(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true); setMessage("");
+    try {
+      const res = await fetch("/api/admin/users", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(form) });
+      const json = await res.json();
+      if (!res.ok) { setMessage(json.error ?? "Could not add the user."); return; }
+      setForm({ name: "", email: "", owner: "josh", role: "member", password: "" });
+      setMessage("Added. Share their password so they can sign in.");
+      await load();
+    } finally { setBusy(false); }
+  }
+  async function resetPassword(row: Row) {
+    const password = prompt(`New password for ${row.name} (min 8 characters):`);
+    if (!password) return;
+    const res = await fetch(`/api/admin/users/${row.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ password }) });
+    setMessage(res.ok ? `Password reset for ${row.name}.` : "Could not reset the password (min 8 characters).");
+  }
+  async function remove(row: Row) {
+    if (!confirm(`Remove ${row.name}? They will lose access immediately.`)) return;
+    const res = await fetch(`/api/admin/users/${row.id}`, { method: "DELETE" });
+    const json = await res.json();
+    if (!res.ok) { setMessage(json.error ?? "Could not remove the user."); return; }
+    await load();
+  }
+
+  return (
+    <section className="conn-card">
+      <header className="conn-head"><div><h2>Team sign-ons</h2><p>Each teammate signs in with their own email and password. Their <strong>seat</strong> decides which connected Google account their outreach sends from.</p></div></header>
+
+      <form className="users-form" onSubmit={addUser}>
+        <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+        <input type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+        <select value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })} aria-label="Seat"><option value="josh">Seat 1</option><option value="jenna">Seat 2</option></select>
+        <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} aria-label="Role"><option value="member">Member</option><option value="admin">Admin</option></select>
+        <input type="text" placeholder="Temp password (8+)" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} minLength={8} required />
+        <button className="btn primary" disabled={busy}>{busy ? "Adding…" : "Add teammate"}</button>
+      </form>
+      {message && <p className="notice" role="status">{message}</p>}
+
+      <div className="users-list">
+        {loading && <p className="conn-note">Loading team…</p>}
+        {!loading && rows.length === 0 && <p className="conn-note">No sign-ons yet. Add your teammates above — you&rsquo;re currently in as the workspace admin.</p>}
+        {rows.map((row) => (
+          <div key={row.id} className="conn-row is-on">
+            <div className="conn-who"><span className="conn-dot is-on" /><div><strong>{row.name} {row.role === "admin" && <em className="conn-chip is-on">Admin</em>}</strong><small>{row.email} · {row.owner === "jenna" ? "Seat 2" : "Seat 1"}{row.last_login_at ? ` · last in ${new Date(row.last_login_at).toLocaleDateString()}` : " · never signed in"}</small></div></div>
+            <div className="conn-actions"><button type="button" className="btn" onClick={() => resetPassword(row)}>Reset password</button><button type="button" className="btn ghost danger" onClick={() => remove(row)}>Remove</button></div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

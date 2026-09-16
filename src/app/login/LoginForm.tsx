@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 export function LoginForm() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,7 +15,7 @@ export function LoginForm() {
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email, password }),
     });
     const result = await response.json();
     if (!response.ok) {
@@ -27,9 +28,11 @@ export function LoginForm() {
   }
 
   return <form className="password-form" onSubmit={submit}>
-    <label htmlFor="password">Workspace password</label>
-    <input id="password" type="password" autoComplete="current-password" required autoFocus value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter password" />
-    <button className="btn primary" disabled={loading}>{loading ? "Opening…" : "Open Night Watch"}</button>
+    <label htmlFor="email">Email</label>
+    <input id="email" type="email" autoComplete="username" autoFocus value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@nine-67.com" />
+    <label htmlFor="password">Password</label>
+    <input id="password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Your password" />
+    <button className="btn primary" disabled={loading}>{loading ? "Signing in…" : "Sign in"}</button>
     {message && <p className="notice" role="alert">{message}</p>}
   </form>;
 }

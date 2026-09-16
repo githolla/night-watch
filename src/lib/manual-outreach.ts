@@ -5,7 +5,7 @@ import type { Owner } from "@/lib/types";
 export type ManualChannel = "linkedin_comment" | "linkedin_request" | "linkedin_message" | "email" | "intro_ask";
 export type RecordedOutcome = "positive" | "neutral" | "objection" | "referral" | "ooo" | "negative" | "meeting";
 
-export async function recordManualTouch(cardId: string, channel: ManualChannel, _owner: Owner, body?: string) {
+export async function recordManualTouch(cardId: string, channel: ManualChannel, owner: Owner, body?: string) {
   const db = admin();
   const { data: card } = await db
     .from("cards")
@@ -13,8 +13,6 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
     .eq("id", cardId)
     .single();
   if (!card) throw new Error("Card not found");
-  // The touch is credited to the seat the card is assigned to, so a second sender's activity is tracked correctly.
-  const owner: Owner = card.assigned_to === "jenna" ? "jenna" : "josh";
   if (!["approved", "edited", "sent", "replied", "positive", "meeting"].includes(card.status)) {
     throw new Error("Approve the dossier before recording outreach");
   }

@@ -210,7 +210,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   return (
     <div className="shell">
       <Header />
-      <Desk initialCards={cards} selectedId={params.card} gmailConnected={(gmailRows ?? []).length > 0} senders={(gmailRows ?? []) as Array<{ owner: string; email: string | null }>} context={context} scan={scan} />
+      <Desk initialCards={cards} selectedId={params.card} gmailConnected={(gmailRows ?? []).length > 0} context={context} scan={scan} />
     </div>
   );
 }

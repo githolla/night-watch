@@ -3,6 +3,7 @@ import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { FeatureControlCenter } from "@/components/FeatureControlCenter";
 import { Connections } from "@/components/Connections";
+import { Users } from "@/components/Users";
 import { SenderProfileForm } from "@/components/SenderProfileForm";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -11,7 +12,7 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 export default async function Settings() {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
-  await requireUser();
+  const me = await requireUser();
   {
     const pending = await pendingMigrations(admin());
     if (pending.length) return <MigrationRequired pending={pending} />;
@@ -37,6 +38,7 @@ export default async function Settings() {
   return <div>
     <Header />
     <main className="workspace-page">
+      {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}><Users /></div>}
       <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} /></div>
       <div className="feature-center" style={{ marginBottom: 18 }}><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
       <FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={activeTargetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} />

@@ -9,11 +9,10 @@ const input = z.object({
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    await requireUser();
+    const user = await requireUser();
     const { id } = await context.params;
     const body = input.parse(await request.json());
-    const owner = "josh" as const;
-    const data = await recordManualTouch(id, body.channel, owner, body.body);
+    const data = await recordManualTouch(id, body.channel, user.owner, body.body);
     return Response.json(data);
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Touch failed" }, { status: 400 });

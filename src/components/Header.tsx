@@ -27,6 +27,7 @@ export function Header() {
   const active = (href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/desk" && pathname === "/") || (href === "/outreach" && pathname.startsWith("/accounts"));
   const [moreOpen, setMoreOpen] = useState(false);
   const [counts, setCounts] = useState<{ today: number; companies: number; followups: number } | null>(null);
+  const [me, setMe] = useState<{ name: string; email: string; role: string } | null>(null);
   const moreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,6 +35,12 @@ export function Header() {
     fetch("/api/nav-counts", { cache: "no-store" }).then((response) => response.ok ? response.json() : null).then((data) => { if (live && data) setCounts(data); }).catch(() => {});
     return () => { live = false; };
   }, [pathname]);
+  useEffect(() => {
+    let live = true;
+    fetch("/api/me", { cache: "no-store" }).then((response) => response.ok ? response.json() : null).then((data) => { if (live && data && !data.error) setMe(data); }).catch(() => {});
+    return () => { live = false; };
+  }, []);
+  const meInitials = me?.name ? me.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") : "JL";
   useEffect(() => {
     function onClick(event: MouseEvent) { if (moreRef.current && !moreRef.current.contains(event.target as Node)) setMoreOpen(false); }
     window.addEventListener("click", onClick);
@@ -61,8 +68,8 @@ export function Header() {
         </nav>
       </div>
       <div className="appbar-right">
-        <span className="appbar-ws">Nine-67 workspace</span>
-        <span className="ws-badge">JL</span>
+        <span className="appbar-ws">{me?.name ?? "Nine-67 workspace"}</span>
+        <span className="ws-badge" title={me?.email ?? "Signed in"}>{meInitials}</span>
         <form action="/api/auth/logout" method="post"><button className="appbar-lock" type="submit" title="Lock"><Lock size={16} strokeWidth={1.8} /></button></form>
       </div>
     </header>
