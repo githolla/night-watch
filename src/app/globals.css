@@ -1824,6 +1824,9 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .activity-stat strong{font:600 22px/1 var(--sans);letter-spacing:-.02em}
 .activity-stat span{font:600 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .activity-stat.is-reply strong{color:var(--accent-strong)}
+.activity-stat.is-filter{cursor:pointer;font:inherit;text-align:right;transition:border-color .12s,box-shadow .12s}
+.activity-stat.is-filter:hover{border-color:var(--accent)}
+.activity-stat.is-filter.is-on{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink) inset}
 .activity-grid{display:grid;grid-template-columns:minmax(340px,420px) 1fr;gap:20px;align-items:start}
 
 .activity-cal{border:1px solid var(--line-strong);border-radius:16px;background:var(--card);box-shadow:0 1px 2px rgba(20,18,14,.04),0 18px 42px -22px rgba(20,18,14,.26);padding:16px;position:sticky;top:72px}

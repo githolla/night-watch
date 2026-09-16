@@ -35,13 +35,16 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
 
 /** History of every outreach touch — a month calendar of what was done, and the day-by-day record beneath it. */
 export function ActivityView({ events, who, note }: { events: ActivityEvent[]; who?: { name: string } | null; note?: string | null }) {
+  const [chan, setChan] = useState<"all" | "email" | "linkedin">("all");
+  const view = useMemo(() => (chan === "all" ? events : events.filter((event) => channelKind(event.channel) === chan)), [events, chan]);
+
   const byDay = useMemo(() => {
     const map = new Map<string, ActivityEvent[]>();
-    for (const event of events) (map.get(event.day) ?? map.set(event.day, []).get(event.day)!).push(event);
+    for (const event of view) (map.get(event.day) ?? map.set(event.day, []).get(event.day)!).push(event);
     return map;
-  }, [events]);
+  }, [view]);
 
-  const latest = events[0]?.day;
+  const latest = view[0]?.day ?? events[0]?.day;
   const [cursor, setCursor] = useState(() => {
     const base = latest ? new Date(`${latest}T12:00:00`) : new Date();
     return new Date(base.getFullYear(), base.getMonth(), 1);
@@ -49,7 +52,7 @@ export function ActivityView({ events, who, note }: { events: ActivityEvent[]; w
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const monthKey = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`;
-  const monthEvents = useMemo(() => events.filter((event) => event.day.startsWith(monthKey)), [events, monthKey]);
+  const monthEvents = useMemo(() => view.filter((event) => event.day.startsWith(monthKey)), [view, monthKey]);
   const shown = useMemo(() => (selectedDay ? byDay.get(selectedDay) ?? [] : monthEvents), [selectedDay, byDay, monthEvents]);
 
   // Build the calendar grid (Monday-first) for the cursor month.
@@ -58,15 +61,18 @@ export function ActivityView({ events, who, note }: { events: ActivityEvent[]; w
   const cells: (string | null)[] = [...Array(firstWeekday).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => `${monthKey}-${String(i + 1).padStart(2, "0")}`)];
   while (cells.length % 7 !== 0) cells.push(null);
 
+  // Totals count the whole month, not the current filter, so the tiles always show both channels.
+  const monthAll = useMemo(() => events.filter((event) => event.day.startsWith(monthKey)), [events, monthKey]);
   const totals = useMemo(() => {
     let email = 0, linkedin = 0, replies = 0;
-    for (const event of monthEvents) {
+    for (const event of monthAll) {
       if (channelKind(event.channel) === "email") email++;
       else if (channelKind(event.channel) === "linkedin") linkedin++;
       if (event.replied) replies++;
     }
-    return { email, linkedin, replies, total: monthEvents.length };
-  }, [monthEvents]);
+    return { email, linkedin, replies, total: monthAll.length };
+  }, [monthAll]);
+  const toggleChan = (next: "email" | "linkedin") => setChan((current) => (current === next ? "all" : next));
 
   const groups = useMemo(() => {
     const map = new Map<string, ActivityEvent[]>();
@@ -87,8 +93,8 @@ export function ActivityView({ events, who, note }: { events: ActivityEvent[]; w
             {who && <Link href="/activity" className="activity-back">← All activity</Link>}
           </div>
           <div className="activity-totals">
-            <div className="activity-stat"><strong>{totals.email}</strong><span>Emails</span></div>
-            <div className="activity-stat"><strong>{totals.linkedin}</strong><span>LinkedIn</span></div>
+            <button type="button" className={`activity-stat is-filter ${chan === "email" ? "is-on" : ""}`} onClick={() => toggleChan("email")} title="Show only emails"><strong>{totals.email}</strong><span>✉ Emails</span></button>
+            <button type="button" className={`activity-stat is-filter ${chan === "linkedin" ? "is-on" : ""}`} onClick={() => toggleChan("linkedin")} title="Show only LinkedIn"><strong>{totals.linkedin}</strong><span>in LinkedIn</span></button>
             <div className="activity-stat is-reply"><strong>{totals.replies}</strong><span>Replies</span></div>
           </div>
         </header>
@@ -139,7 +145,7 @@ export function ActivityView({ events, who, note }: { events: ActivityEvent[]; w
                     <div className="activity-row-main">
                       <div className="activity-row-top">
                         <strong>{event.person}</strong>
-                        <em className={`activity-chan k-${channelKind(event.channel)}`}>{CHANNEL_LABEL[event.channel] ?? event.channel}</em>
+                        <em className={`activity-chan k-${channelKind(event.channel)}`}>{channelKind(event.channel) === "email" ? "✉" : channelKind(event.channel) === "linkedin" ? "in" : "•"} {CHANNEL_LABEL[event.channel] ?? event.channel}</em>
                         {event.replied && <em className={`activity-reply ${event.replyClass === "positive" ? "is-pos" : ""}`}>Replied</em>}
                       </div>
                       <small className="activity-row-sub">{event.title ? `${event.title} · ` : ""}{event.company}</small>
