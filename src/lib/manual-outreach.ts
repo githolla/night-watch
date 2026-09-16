@@ -7,19 +7,21 @@ export type RecordedOutcome = "positive" | "neutral" | "objection" | "referral" 
 
 export async function recordManualTouch(cardId: string, channel: ManualChannel, owner: Owner, body?: string) {
   const db = admin();
-  const { data: card } = await db
+  // Plain lookup (no embeds) so a relationship quirk can never masquerade as "card not found".
+  const { data: card, error: lookupError } = await db
     .from("cards")
-    .select("person_id,assigned_to,status,active_variant_id,email_subject,people(first_name,full_name,do_not_contact),accounts(name,status)")
+    .select("person_id,account_id,assigned_to,status,active_variant_id,email_subject")
     .eq("id", cardId)
-    .single();
+    .maybeSingle();
+  if (lookupError) throw new Error(`Card lookup failed: ${lookupError.message}`);
   if (!card) throw new Error("Card not found");
   // Copying or opening a draft IS the send, so any live card can be logged — only dismissed/archived can't.
   if (["dismissed", "archived"].includes(card.status)) {
     throw new Error("This prospect was dismissed — reopen it before recording outreach.");
   }
-  const person = card.people as unknown as { first_name: string | null; full_name: string | null; do_not_contact: boolean };
-  const account = card.accounts as unknown as { name: string | null; status: string };
-  if (person.do_not_contact || ["client", "do_not_contact"].includes(account.status)) {
+  const { data: person } = await db.from("people").select("first_name,full_name,do_not_contact").eq("id", card.person_id).maybeSingle();
+  const { data: account } = await db.from("accounts").select("name,status").eq("id", card.account_id).maybeSingle();
+  if (person?.do_not_contact || ["client", "do_not_contact"].includes(account?.status ?? "")) {
     throw new Error("Do-not-contact guard blocked this action");
   }
 
@@ -58,8 +60,8 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
       personId: card.person_id,
       owner,
       touchedChannel: channel,
-      firstName: person.first_name || person.full_name?.split(/\s+/)[0] || "",
-      company: account.name || "",
+      firstName: person?.first_name || person?.full_name?.split(/\s+/)[0] || "",
+      company: account?.name || "",
       baseSubject: (card as { email_subject?: string | null }).email_subject || "",
     });
   } catch { /* follow-ups are a bonus; the touch itself always stands */ }
