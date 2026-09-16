@@ -8,6 +8,7 @@
  * automation, which is a mandate worth knowing about. Pure rules, no model.
  * Mirrors the "Target job families" list in docs/scoring.md.
  */
+import { cleanRoleTitle } from "../clean.ts";
 
 export type JobFamily =
   | "ai_ml"
@@ -104,7 +105,7 @@ export function operatingNeedFor(postings: Array<{ title: string; family: JobFam
     .sort((left, right) => leadRank(left.family) - leadRank(right.family));
   if (!qualifying.length) return "";
   const families = [...new Set(qualifying.map((posting) => posting.family))];
-  const titles = [...new Set(qualifying.map((posting) => posting.title))].slice(0, 3).join(", ");
+  const titles = [...new Set(qualifying.map((posting) => cleanRoleTitle(posting.title)).filter(Boolean))].slice(0, 3).join(", ");
   const count = qualifying.length;
   const what = families.map((family) => FAMILY_LABEL[family].toLowerCase()).join(", ");
   return count === 1

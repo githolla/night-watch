@@ -189,10 +189,27 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     }
   }
 
+  // Stable daily worklist: at the first desk open each day, lock in the top ~25 open prospects. Membership
+  // then stays fixed all day (no reshuffle, nothing new bubbling up), so re-entering is easy. Graceful if the
+  // worklist_on column (migration 0023) isn't applied yet.
+  const DAILY_WORKLIST = 25;
+  try {
+    const stampedToday = surfaced.some((card) => (card.worklist_on as string | null) === today);
+    if (!stampedToday) {
+      const alreadyOn = surfaced.filter((card) => card.worklist_on).length;
+      const toAdd = surfaced.filter((card) => !card.worklist_on).slice(0, Math.max(0, DAILY_WORKLIST - alreadyOn)).map((card) => card.id as string);
+      if (toAdd.length) {
+        await db.from("cards").update({ worklist_on: today }).in("id", toAdd);
+        const added = new Set(toAdd);
+        for (const card of surfaced) if (added.has(card.id as string)) (card as { worklist_on?: string | null }).worklist_on = today;
+      }
+    }
+  } catch { /* column not migrated yet — the desk falls back to the score-ordered list */ }
+
   const cards = surfaced.map((card) => {
     const created = (card.created_at as string | null) ?? "";
     const workingAt = card.working_at as string | null;
-    return { ...card, isNew: created >= dayStart, carriedOver: Boolean(created) && created < dayStart, working: Boolean(workingAt && Date.parse(workingAt) > workingCutoff), followups: followupsByCard.get(card.id as string) ?? [] };
+    return { ...card, isNew: created >= dayStart, carriedOver: Boolean(created) && created < dayStart, working: Boolean(workingAt && Date.parse(workingAt) > workingCutoff), onWorklist: Boolean(card.worklist_on), followups: followupsByCard.get(card.id as string) ?? [] };
   });
 
   // The app runs itself: opening the desk starts or continues the scan and shows progress, so nobody has to drive the Runs page.

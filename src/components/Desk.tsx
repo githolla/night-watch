@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
+import { sanitizeCopy } from "@/lib/clean";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { CadencePlanner } from "./CadencePlanner";
 import { CompanyTeam } from "./CompanyTeam";
@@ -31,6 +32,7 @@ type Card = InsightCard & {
   working?: boolean;
   isNew?: boolean;
   carriedOver?: boolean;
+  onWorklist?: boolean;
   followups?: Followup[];
   invite_link?: string | null;
   meeting_at?: string | null;
@@ -173,8 +175,10 @@ export function Desk({
   // only the shortlist, not all 161. Cards arrive sorted by score, so "top" is just the first slice.
   const actionable = cards.filter((item) => !WORKED_STATUSES.includes(item.status));
   const byKind = kind === "top" ? actionable.slice(0, SHORTLIST) : kind === "all" ? cards : cards.filter((item) => signalGroup(item) === kind);
-  // The work queue: prospects in the current filter still needing a decision.
-  const todo = byKind.filter((item) => !WORKED_STATUSES.includes(item.status));
+  // The work queue for the desk: the day's fixed worklist (stamped once each morning) so it doesn't reshuffle
+  // as you work. Falls back to the score-ordered shortlist before migration 0023 is applied.
+  const daily = cards.filter((item) => item.onWorklist);
+  const todo = (daily.length ? daily : byKind).filter((item) => !WORKED_STATUSES.includes(item.status));
   const active = selected ? cards.find((item) => item.id === selected) : undefined;
   const focusCard = todo.find((item) => item.id === focusId) ?? todo[0];
   const card = active ?? focusCard ?? cards[0];
@@ -225,8 +229,8 @@ export function Desk({
   }
 
   async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string) {
-    const label = view === "email" ? "manual email" : view === "comment" ? "LinkedIn reply" : view === "message" ? "LinkedIn message" : "LinkedIn connection request";
-    if (!demo && !confirm(`Record this ${label} as sent?`)) return;
+    const label = view === "email" ? "Email" : view === "comment" ? "LinkedIn reply" : view === "message" ? "LinkedIn message" : "LinkedIn request";
+    // No blocking confirm — copying/opening IS the send here, so it logs straight to the history and cadence.
     if (demo) {
       setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
       setNotice(`${label} recorded in demo mode.`);
@@ -239,7 +243,7 @@ export function Desk({
     setBusy(false);
     if (!response.ok) { if (isMissing(result.error)) dropStaleCard(card.id); else setNotice(result.error ?? "Unable to record outreach."); return; }
     setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
-    setNotice(`${label} recorded. Learning will now include this touch.`);
+    setNotice(`Logged as sent — it's in History now.`);
   }
 
   async function recordOutcome() {
@@ -777,8 +781,8 @@ export function Desk({
 
                 <div className="deskwork-opening">
                   <span className="overview-kick">The opening</span>
-                  <p className="deskwork-opening-lead">{focusCard.why_now || nextLine(focusCard)}</p>
-                  {focusCard.signals.raw?.operating_need && <p className="deskwork-opening-need"><b>Nine-67 could build:</b> {focusCard.signals.raw.operating_need}</p>}
+                  <p className="deskwork-opening-lead">{sanitizeCopy(focusCard.why_now || nextLine(focusCard))}</p>
+                  {focusCard.signals.raw?.operating_need && <p className="deskwork-opening-need"><b>Nine-67 could build:</b> {sanitizeCopy(focusCard.signals.raw.operating_need)}</p>}
                   {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">View signal &amp; company details &#8599;</Link>}
                 </div>
 

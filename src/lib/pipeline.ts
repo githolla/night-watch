@@ -58,7 +58,7 @@ function likeLiteral(value: string) {
 }
 
 /** Service names, value props and section headings scraped off a company site that must never be stored as people. */
-const NON_NAME = /\b(service|services|solution|solutions|advisory|advisor|consult\w*|manag\w*|expertise|strateg\w*|operational|operations|optimi\w*|costs?|reduc\w*|virtual|infrastructure|objectives?|commitment|support|analytics|intelligence|compliance|security|cloud|network\w*|assessment|roadmap|transformation|efficiency|productivity|governance|onboarding|outsourc\w*|helpdesk|migration|backup|recovery|hosting|monitoring|automation|integration|platform|dashboard|program|department|division|team|group|practice|inc|llc|corp|ltd|solutions?)\b/i;
+const NON_NAME = /\b(service|services|solution|solutions|advisory|advisor|consult\w*|manag\w*|expertise|strateg\w*|operational|operations|optimi\w*|costs?|reduc\w*|virtual|infrastructure|objectives?|commitment|support|analytics|intelligence|compliance|security|cloud|network\w*|assessment|roadmap|transformation|efficiency|productivity|governance|onboarding|outsourc\w*|helpdesk|migration|backup|recovery|hosting|monitoring|automation|integration|platform|dashboard|program|department|division|team|group|practice|leaders?|leadership|executives?|functional|enterprise|capabilities|inc|llc|corp|ltd|solutions?)\b/i;
 const NAME_PARTICLE = /^(de|del|della|van|von|der|di|da|la|le|bin|al|el|mac|mc|st|o')$/i;
 /**
  * Whether a scraped string is plausibly a real person's name, not a service line or value prop like
