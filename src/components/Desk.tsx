@@ -787,7 +787,7 @@ export function Desk({
 
               {/* RIGHT — draft with Email / LinkedIn tabs */}
               <section className="deskwork-draft">
-                <div className="deskwork-draft-top"><span className="overview-kick">Outreach draft</span>{focusCard.invite_link ? <a className="deskwork-booked" href={focusCard.invite_link.startsWith("http") ? focusCard.invite_link : undefined} target="_blank" rel="noreferrer">📅 Meeting booked</a> : <span className="deskwork-draft-note">Edits kept this session</span>}</div>
+                <div className="deskwork-draft-top"><span className="overview-kick">Outreach draft</span><span className="deskwork-draft-topright">{focusCard.invite_link ? <a className="deskwork-booked" href={focusCard.invite_link.startsWith("http") ? focusCard.invite_link : undefined} target="_blank" rel="noreferrer">📅 Meeting booked</a> : null}<a className="deskwork-brief-link" href={`/brief/${focusCard.id}`} target="_blank" rel="noreferrer">Call brief ↗</a></span></div>
                 <div className="deskwork-draft-to">
                   <span className="avatar sm">{initials(contact.full_name)}</span>
                   <div><strong>{contact.full_name}</strong><small>{contact.title || "title unknown"} · {focusCard.accounts.name}</small></div>

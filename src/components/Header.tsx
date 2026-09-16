@@ -13,6 +13,7 @@ const primary = [
   { href: "/people", label: "People" },
 ];
 const more = [
+  { href: "/pipeline", label: "Pipeline" },
   { href: "/activity", label: "History" },
   { href: "/targets", label: "All companies" },
   { href: "/roles", label: "Job signals" },
