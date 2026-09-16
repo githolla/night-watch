@@ -34,7 +34,7 @@ const timeOf = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { ho
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
 
 /** History of every outreach touch — a month calendar of what was done, and the day-by-day record beneath it. */
-export function ActivityView({ events, who }: { events: ActivityEvent[]; who?: { name: string } | null }) {
+export function ActivityView({ events, who, note }: { events: ActivityEvent[]; who?: { name: string } | null; note?: string | null }) {
   const byDay = useMemo(() => {
     const map = new Map<string, ActivityEvent[]>();
     for (const event of events) (map.get(event.day) ?? map.set(event.day, []).get(event.day)!).push(event);
@@ -92,6 +92,8 @@ export function ActivityView({ events, who }: { events: ActivityEvent[]; who?: {
             <div className="activity-stat is-reply"><strong>{totals.replies}</strong><span>Replies</span></div>
           </div>
         </header>
+
+        {note && <p className="notice" role="status" style={{ marginBottom: 16 }}>{note}</p>}
 
         <div className="activity-grid">
           <section className="activity-cal">

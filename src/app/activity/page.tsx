@@ -41,7 +41,13 @@ export default async function Activity({ searchParams }: { searchParams: Promise
     .order("created_at", { ascending: false })
     .limit(1000);
   if (personId) query = query.eq("person_id", personId);
-  const { data } = await query;
+  const { data, error } = await query;
+  const { count: totalTouches } = await db.from("touches").select("*", { count: "exact", head: true });
+  const note = error
+    ? `Couldn't load history: ${error.message}`
+    : (totalTouches ?? 0) === 0
+      ? "Nothing recorded yet. History fills when you Copy or Open an email/LinkedIn on the desk, or when the cadence sends. (Enrolling with “Automate” only shows here once its emails actually send — which needs Gmail connected.)"
+      : null;
 
   const rows = (data ?? []) as unknown as TouchRow[];
   const events: ActivityEvent[] = rows.map((row) => {
@@ -67,7 +73,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
   return (
     <div className="shell">
       <Header />
-      <ActivityView events={events} who={who} />
+      <ActivityView events={events} who={who} note={note} />
     </div>
   );
 }
