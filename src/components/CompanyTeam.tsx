@@ -17,7 +17,7 @@ function linkedinSearch(name: string, company: string) {
 }
 
 /** Company details and everyone on file there, loaded on demand for the one-screen prospect flow. */
-export function CompanyTeam({ domain, company, activeId, onSelect, compact }: { domain: string; company: string; activeId?: string; onSelect?: (person: TeamPerson) => void; compact?: boolean }) {
+export function CompanyTeam({ domain, company, activeId, onSelect, compact, loggedIds }: { domain: string; company: string; activeId?: string; onSelect?: (person: TeamPerson) => void; compact?: boolean; loggedIds?: Set<string> }) {
   const [team, setTeam] = useState<{ domain: string; data: Team } | null>(null);
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -50,11 +50,11 @@ export function CompanyTeam({ domain, company, activeId, onSelect, compact }: { 
       {!ready && <p className="focus-team-loading">Loading the team…</p>}
       {ready && people.length === 0 && <p className="focus-team-loading">No one on file yet for this company.</p>}
       {shown.map((person) => (
-        <div key={person.id} className={`focus-team-row ${onSelect ? "is-selectable" : ""} ${activeId === person.id ? "is-active" : ""}`} role={onSelect ? "button" : undefined} tabIndex={onSelect ? 0 : undefined}
+        <div key={person.id} className={`focus-team-row ${onSelect ? "is-selectable" : ""} ${activeId === person.id ? "is-active" : ""} ${loggedIds?.has(person.id) ? "is-logged" : ""}`} role={onSelect ? "button" : undefined} tabIndex={onSelect ? 0 : undefined}
           onClick={onSelect ? () => onSelect(person) : undefined}
           onKeyDown={onSelect ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(person); } } : undefined}>
-          <span className="avatar">{initials(person.full_name)}</span>
-          <div className="focus-team-id"><strong>{person.full_name}{activeId === person.id ? <em className="focus-team-flag">writing to</em> : null}</strong><small>{person.title || "title unknown"}</small></div>
+          <span className="avatar">{loggedIds?.has(person.id) ? "✓" : initials(person.full_name)}</span>
+          <div className="focus-team-id"><strong>{person.full_name}{loggedIds?.has(person.id) ? <em className="focus-team-flag is-logged">logged</em> : activeId === person.id ? <em className="focus-team-flag">writing to</em> : null}</strong><small>{person.title || "title unknown"}</small></div>
           <div className="focus-team-contact">
             {person.email ? <span title={person.email_status}>{person.email}</span> : null}
             {person.linkedin_url

@@ -5,7 +5,7 @@ import type { Owner } from "@/lib/types";
 export type ManualChannel = "linkedin_comment" | "linkedin_request" | "linkedin_message" | "email" | "intro_ask";
 export type RecordedOutcome = "positive" | "neutral" | "objection" | "referral" | "ooo" | "negative" | "meeting";
 
-export async function recordManualTouch(cardId: string, channel: ManualChannel, owner: Owner, body?: string) {
+export async function recordManualTouch(cardId: string, channel: ManualChannel, owner: Owner, body?: string, personId?: string) {
   const db = admin();
   // Plain lookup (no embeds) so a relationship quirk can never masquerade as "card not found".
   const { data: card, error: lookupError } = await db
@@ -15,11 +15,12 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
     .maybeSingle();
   if (lookupError) throw new Error(`Card lookup failed: ${lookupError.message}`);
   if (!card) throw new Error("Card not found");
-  // Copying or opening a draft IS the send, so any live card can be logged — only dismissed/archived can't.
   if (["dismissed", "archived"].includes(card.status)) {
     throw new Error("This prospect was dismissed — reopen it before recording outreach.");
   }
-  const { data: person } = await db.from("people").select("first_name,full_name,do_not_contact").eq("id", card.person_id).maybeSingle();
+  // Log against the contact actually picked on the desk, not the card's default person.
+  const targetPersonId = personId ?? card.person_id;
+  const { data: person } = await db.from("people").select("first_name,full_name,do_not_contact").eq("id", targetPersonId).maybeSingle();
   const { data: account } = await db.from("accounts").select("name,status").eq("id", card.account_id).maybeSingle();
   if (person?.do_not_contact || ["client", "do_not_contact"].includes(account?.status ?? "")) {
     throw new Error("Do-not-contact guard blocked this action");
@@ -40,19 +41,20 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
 
   const { data, error } = await db.from("touches").insert({
     card_id: cardId,
-    person_id: card.person_id,
+    person_id: targetPersonId,
     channel,
     body,
     sent_at: new Date().toISOString(),
     sent_by: owner,
   }).select().single();
   if (error) throw error;
-  await db.from("cards").update({ status: "sent" }).eq("id", cardId);
+  // Do NOT flip the card to "sent" — a company stays on the desk so its other contacts can still be logged.
+  // The card leaves only when the user snoozes/dismisses it or a real reply lands.
   // Once the first touch is out, stand up the next three follow-ups on that channel. Best-effort: never fail the touch.
   try {
     await ensureFollowupCadence(db, {
       cardId,
-      personId: card.person_id,
+      personId: targetPersonId,
       owner,
       touchedChannel: channel,
       firstName: person?.first_name || person?.full_name?.split(/\s+/)[0] || "",

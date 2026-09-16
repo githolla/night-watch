@@ -34,7 +34,13 @@ const timeOf = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { ho
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
 
 /** History of every outreach touch — a month calendar of what was done, and the day-by-day record beneath it. */
-export function ActivityView({ events, who, note }: { events: ActivityEvent[]; who?: { name: string } | null; note?: string | null }) {
+export function ActivityView({ events: initialEvents, who, note, canDelete }: { events: ActivityEvent[]; who?: { name: string } | null; note?: string | null; canDelete?: boolean }) {
+  const [events, setEvents] = useState(initialEvents);
+  async function removeEvent(id: string) {
+    if (!confirm("Remove this record? It was never actually sent, or is a duplicate.")) return;
+    const res = await fetch(`/api/touches/${id}`, { method: "DELETE" });
+    if (res.ok) setEvents((current) => current.filter((event) => event.id !== id));
+  }
   const [chan, setChan] = useState<"all" | "email" | "linkedin">("all");
   const view = useMemo(() => (chan === "all" ? events : events.filter((event) => channelKind(event.channel) === chan)), [events, chan]);
 
@@ -153,6 +159,7 @@ export function ActivityView({ events, who, note }: { events: ActivityEvent[]; w
                       {event.snippet && <p className="activity-row-snip">{event.snippet}</p>}
                     </div>
                     <time className="activity-row-time">{timeOf(event.at)}</time>
+                    {canDelete && <button type="button" className="activity-row-del" title="Remove this record" onClick={() => removeEvent(event.id)}>✕</button>}
                   </div>
                 ))}
               </div>

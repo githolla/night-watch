@@ -28,7 +28,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
     !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)
   )
     redirect("/setup");
-  await requireUser();
+  const me = await requireUser();
   const pending = await pendingMigrations(admin());
   if (pending.length) return <MigrationRequired pending={pending} />;
 
@@ -73,7 +73,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
   return (
     <div className="shell">
       <Header />
-      <ActivityView events={events} who={who} note={note} />
+      <ActivityView events={events} who={who} note={note} canDelete={me.role === "admin"} />
     </div>
   );
 }

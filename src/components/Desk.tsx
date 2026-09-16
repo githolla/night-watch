@@ -37,6 +37,7 @@ type Card = InsightCard & {
   invite_link?: string | null;
   meeting_at?: string | null;
   people: InsightCard["people"] & {
+    id?: string;
     email: string | null;
     email_status: string;
     linkedin_url: string | null;
@@ -162,6 +163,7 @@ export function Desk({
   const [kind, setKind] = useState<"top" | "all" | "job" | "social">(initialCards.length > SHORTLIST ? "top" : "all");
   // A different contact at the same company, chosen from the "everyone on file" list, to retarget the draft to.
   const [alt, setAlt] = useState<{ cardId: string; person: AltContact } | null>(null);
+  const [logged, setLogged] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
@@ -228,22 +230,22 @@ export function Desk({
     setNotice(`Sent. The email to ${card.people.full_name} is recorded and replies are being watched.`);
   }
 
-  async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string) {
+  async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string, target?: { id?: string; full_name: string }) {
     const label = view === "email" ? "Email" : view === "comment" ? "LinkedIn reply" : view === "message" ? "LinkedIn message" : "LinkedIn request";
+    // Log against the contact actually selected, not the card's default person.
+    const who = target ?? altContact ?? card.people;
+    const personId = who && "id" in who ? who.id : undefined;
     // No blocking confirm — copying/opening IS the send here, so it logs straight to the history and cadence.
-    if (demo) {
-      setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
-      setNotice(`${label} recorded in demo mode.`);
-      return;
-    }
+    if (demo) { setNotice(`${label} to ${who?.full_name ?? "contact"} recorded in demo mode.`); return; }
     setBusy(true);
     const channel = view === "email" ? "email" : view === "comment" ? "linkedin_comment" : view === "message" ? "linkedin_message" : "linkedin_request";
-    const response = await fetch(`/api/cards/${card.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body }) });
+    const response = await fetch(`/api/cards/${card.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body, personId }) });
     const result = await response.json();
     setBusy(false);
     if (!response.ok) { if (isMissing(result.error)) dropStaleCard(); else setNotice(result.error ?? "Unable to record outreach."); return; }
-    setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
-    setNotice(`Logged as sent — it's in History now.`);
+    // Keep the company on the desk (don't mark the card sent) so its other contacts can still be logged.
+    if (personId) setLogged((current) => new Set(current).add(personId));
+    setNotice(`Logged ${label.toLowerCase()} to ${who?.full_name ?? "the contact"} — it's in History now.`);
   }
 
   async function recordOutcome() {
@@ -380,7 +382,6 @@ export function Desk({
     if (draft?.view === "email" && contact.email_status === "verified" && !altContact) { send(); return; }
     const href = mailtoHref();
     if (href) { const link = document.createElement("a"); link.href = href; document.body.appendChild(link); link.click(); link.remove(); }
-    if (altContact) { setNotice(`Email draft opened for ${contact.full_name} — send it from your mail app.`); return; }
     recordTouch("email", (draft?.view === "email" ? focusCard?.email_body : "") || draftText);
   };
   // Hand the prospect to the automated cadence: Night Watch sends the email itself on day 0, 3 and 7 and stops
@@ -414,7 +415,6 @@ export function Desk({
     try { await navigator.clipboard.writeText(text); } catch { /* the record still stands even if copy is blocked */ }
     const href = linkedInHref();
     if (href) window.open(href, "_blank", "noopener,noreferrer");
-    if (altContact) { setNotice(`LinkedIn opened for ${contact?.full_name} — the message is on your clipboard, paste it in.`); return; }
     recordTouch("connection", text);
   };
   const copyText = async (text: string, label: string) => {
@@ -788,7 +788,7 @@ export function Desk({
                   {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">View signal &amp; company details &#8599;</Link>}
                 </div>
 
-                {focusCard.accounts.domain && <CompanyTeam compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id} onSelect={(person) => { if (person.full_name === focusCard.people.full_name) { setAlt(null); return; } setAlt({ cardId: focusCard.id, person }); setNotice(`Writing to ${person.full_name}.`); }} />}
+                {focusCard.accounts.domain && <CompanyTeam compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id} loggedIds={logged} onSelect={(person) => { if (person.full_name === focusCard.people.full_name) { setAlt(null); return; } setAlt({ cardId: focusCard.id, person }); setNotice(`Writing to ${person.full_name}.`); }} />}
               </section>
 
               {/* RIGHT — draft with Email / LinkedIn tabs */}

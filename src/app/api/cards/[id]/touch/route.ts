@@ -5,6 +5,7 @@ import { z } from "zod";
 const input = z.object({
   channel: z.enum(["linkedin_comment", "linkedin_request", "linkedin_message", "email", "intro_ask"]),
   body: z.string().max(5000).optional(),
+  personId: z.string().uuid().optional(),
 });
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -12,7 +13,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const user = await requireUser();
     const { id } = await context.params;
     const body = input.parse(await request.json());
-    const data = await recordManualTouch(id, body.channel, user.owner, body.body);
+    const data = await recordManualTouch(id, body.channel, user.owner, body.body, body.personId);
     return Response.json(data);
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Touch failed" }, { status: 400 });
