@@ -13,8 +13,9 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
     .eq("id", cardId)
     .single();
   if (!card) throw new Error("Card not found");
-  if (!["approved", "edited", "sent", "replied", "positive", "meeting"].includes(card.status)) {
-    throw new Error("Approve the dossier before recording outreach");
+  // Copying or opening a draft IS the send, so any live card can be logged — only dismissed/archived can't.
+  if (["dismissed", "archived"].includes(card.status)) {
+    throw new Error("This prospect was dismissed — reopen it before recording outreach.");
   }
   const person = card.people as unknown as { first_name: string | null; full_name: string | null; do_not_contact: boolean };
   const account = card.accounts as unknown as { name: string | null; status: string };

@@ -223,7 +223,7 @@ export function Desk({
     });
     const json = await response.json();
     setBusy(false);
-    if (!response.ok) { if (isMissing(json.error)) dropStaleCard(card.id); else setNotice(json.error ?? "Send failed."); return; }
+    if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Send failed."); return; }
     setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
     setNotice(`Sent. The email to ${card.people.full_name} is recorded and replies are being watched.`);
   }
@@ -241,7 +241,7 @@ export function Desk({
     const response = await fetch(`/api/cards/${card.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body }) });
     const result = await response.json();
     setBusy(false);
-    if (!response.ok) { if (isMissing(result.error)) dropStaleCard(card.id); else setNotice(result.error ?? "Unable to record outreach."); return; }
+    if (!response.ok) { if (isMissing(result.error)) dropStaleCard(); else setNotice(result.error ?? "Unable to record outreach."); return; }
     setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
     setNotice(`Logged as sent — it's in History now.`);
   }
@@ -276,14 +276,11 @@ export function Desk({
     const from = Math.max(0, focusIndex);
     return todo[(from + 1) % todo.length]?.id;
   };
-  // An action hit a prospect the server no longer has (cleared or re-surfaced since this page loaded).
-  // Drop it from the list and move on instead of leaving a dead card on screen.
+  // An action couldn't reach the prospect on the server. Non-destructive: never yank the card the user is
+  // looking at — just tell them to reload. (Removing it was confusing when it fired on a card that was fine.)
   const isMissing = (message?: string) => !!message && /card not found/i.test(message);
-  const dropStaleCard = (id: string) => {
-    const next = afterCurrent();
-    setCards((current) => current.filter((item) => item.id !== id));
-    setFocusId(next);
-    setNotice("That prospect was cleared or refreshed since you opened the desk — moving to the next. Reload to pull the latest list.");
+  const dropStaleCard = () => {
+    setNotice("Couldn't reach that prospect just now — reload the desk and try again.");
   };
   const move = (offset: number) => {
     if (active) {
@@ -404,7 +401,7 @@ export function Desk({
     try {
       const response = await fetch(`/api/cards/${focusCard.id}/cadence`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ mode: "automatic", stopOnReply: true, weekdaysOnly: true, sendWindow: "9:30–16:00", timeZone: "America/New_York", steps }) });
       const json = await response.json();
-      if (!response.ok) { if (isMissing(json.error)) dropStaleCard(focusCard.id); else setNotice(json.error ?? "Could not start the sequence."); return; }
+      if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Could not start the sequence."); return; }
       setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, status: "approved" } : item));
       setNotice(`Email sequence started for ${focusCard.people.full_name} — Night Watch sends on day 0, 3 and 7 and stops on a reply.`);
       markWorking(true);
@@ -458,7 +455,7 @@ export function Desk({
       const target = altContact ?? focusCard.people;
       const response = await fetch(`/api/cards/${focusCard.id}/refine`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, subject, body, personName: target.full_name, personTitle: target.title }) });
       const json = await response.json();
-      if (!response.ok) { if (isMissing(json.error)) dropStaleCard(focusCard.id); else setNotice(json.error ?? "Could not refine."); return; }
+      if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Could not refine."); return; }
       setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_subject: json.subject ?? item.linkedin_subject, linkedin_message: json.body }) } : item));
       setLastRefine({ cardId: focusCard.id, channel, beforeBody: body, afterBody: (json.body as string) ?? body, beforeSubject: subject ?? "", afterSubject: (json.subject as string) ?? subject ?? "" });
       setNotice("Refined — changes are highlighted. Edit further or copy to send.");
