@@ -428,6 +428,11 @@ export function Desk({
     await copyText(text, channel === "email" ? "Email" : "LinkedIn message");
     if (text.trim()) await recordTouch(channel === "email" ? "email" : "message", text);
   };
+  // Mark a message sent when it went out elsewhere (e.g. an agent sent it) — logs the touch without opening/copying.
+  const markSent = async (channel: "email" | "linkedin") => {
+    const text = adapt(channel === "email" ? (focusCard?.email_body ?? emailDraft) : linkedinDraft);
+    await recordTouch(channel === "email" ? "email" : "message", text);
+  };
   // "Propose times": pull open slots from the connected calendar and drop them into the email draft to edit.
   const [proposing, setProposing] = useState(false);
   const proposeMeetingTimes = async () => {
@@ -863,6 +868,7 @@ export function Desk({
                     {channelTab === "email"
                       ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button>
                       : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
+                    <button type="button" disabled={busy} className="btn" title="Already sent (by you or the agent)? Log it to History without opening." onClick={() => markSent(channelTab)}>Mark sent</button>
                     {contact.email && <button type="button" disabled={enrolling} className="btn" title="Night Watch sends and follows up, stopping on a reply" onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
                     <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
                     <button type="button" disabled={busy} className="btn ghost danger" onClick={dismissCurrent}>Dismiss</button>

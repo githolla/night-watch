@@ -10,7 +10,7 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
   // Plain lookup (no embeds) so a relationship quirk can never masquerade as "card not found".
   const { data: card, error: lookupError } = await db
     .from("cards")
-    .select("person_id,account_id,assigned_to,status,active_variant_id,email_subject")
+    .select("person_id,account_id,assigned_to,status,email_subject")
     .eq("id", cardId)
     .maybeSingle();
   if (lookupError) throw new Error(`Card lookup failed: ${lookupError.message}`);
@@ -45,14 +45,9 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
     body,
     sent_at: new Date().toISOString(),
     sent_by: owner,
-    experiment_variant_id: card.active_variant_id ?? null,
   }).select().single();
   if (error) throw error;
   await db.from("cards").update({ status: "sent" }).eq("id", cardId);
-  if (card.active_variant_id) {
-    const { data: variant } = await db.from("message_variants").select("experiment_id").eq("id", card.active_variant_id).maybeSingle();
-    if (variant) await db.from("message_experiments").update({ status: "sent" }).eq("id", variant.experiment_id);
-  }
   // Once the first touch is out, stand up the next three follow-ups on that channel. Best-effort: never fail the touch.
   try {
     await ensureFollowupCadence(db, {
