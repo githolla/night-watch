@@ -22,9 +22,15 @@ function setSession(token: string) {
 }
 
 export async function POST(request: Request) {
+  let email: string | undefined;
+  let password: string;
   try {
-    const { email, password } = input.parse(await request.json());
+    ({ email, password } = input.parse(await request.json()));
+  } catch {
+    return Response.json({ error: "Enter your email and password." }, { status: 400 });
+  }
 
+  try {
     // Real per-user login when an email is given.
     if (email && email.trim()) {
       const user = await userByEmail(email);
@@ -40,7 +46,15 @@ export async function POST(request: Request) {
 
     await new Promise((resolve) => setTimeout(resolve, 500));
     return Response.json({ error: "Those sign-in details are not correct." }, { status: 401 });
-  } catch {
-    return Response.json({ error: "Enter your email and password." }, { status: 400 });
+  } catch (error) {
+    // The password may have been correct — a throw here is a server/config problem
+    // (e.g. the session encryption key isn't set), not bad input. Say so plainly
+    // instead of the misleading "enter your email and password".
+    const missingKey = error instanceof Error && /TOKEN_ENCRYPTION_KEY/.test(error.message);
+    return Response.json({
+      error: missingKey
+        ? "This workspace isn't fully set up: the session key (TOKEN_ENCRYPTION_KEY) is missing on the server. Ask your admin to add it in Vercel, then redeploy."
+        : "Something went wrong signing you in. Please try again in a moment.",
+    }, { status: 500 });
   }
 }
