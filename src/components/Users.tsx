@@ -63,11 +63,15 @@ export function Users() {
       <header className="conn-head"><div><h2>Team sign-ons</h2><p>Each teammate signs in with their own email and password. Their <strong>seat</strong> decides which connected Google account their outreach sends from.</p></div></header>
 
       <form className="users-form" onSubmit={addUser}>
-        <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-        <input type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-        <select value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })} aria-label="Seat"><option value="josh">Seat 1</option><option value="jenna">Seat 2</option></select>
-        <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} aria-label="Role"><option value="member">Member</option><option value="admin">Admin</option></select>
-        <input type="text" placeholder="Temp password — or blank to send an invite link" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+        <div className="users-form-row">
+          <label><span>Name</span><input placeholder="Josh Lee" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></label>
+          <label className="grow"><span>Email</span><input type="email" placeholder="josh@nine-67.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></label>
+        </div>
+        <div className="users-form-row">
+          <label><span>Seat</span><select value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })}><option value="josh">Seat 1</option><option value="jenna">Seat 2</option></select></label>
+          <label><span>Role</span><select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}><option value="member">Member</option><option value="admin">Admin</option></select></label>
+          <label className="grow"><span>Password <em>optional</em></span><input type="text" placeholder="Leave blank to send an invite link" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
+        </div>
         <button className="btn primary" disabled={busy}>{busy ? "Adding…" : "Add teammate"}</button>
       </form>
       <p className="conn-note">Leave the password blank to generate an <strong>invite link</strong> (copied to your clipboard) — send it to them and they set their own password, then connect their Google account.</p>

@@ -14,6 +14,7 @@ const SEATS: Array<{ owner: "josh" | "jenna"; label: string }> = [
 export function Connections({ connections }: { connections: Connection[] }) {
   const byOwner = new Map(connections.map((row) => [row.owner, row]));
   const [busy, setBusy] = useState<string | null>(null);
+  const [flag] = useState(() => (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("connect") : null));
 
   async function disconnect(owner: string, label: string) {
     if (!confirm(`Disconnect Google for ${label}? Sending and reply capture stop for it until reconnected.`)) return;
@@ -27,8 +28,9 @@ export function Connections({ connections }: { connections: Connection[] }) {
   return (
     <section className="conn-card">
       <header className="conn-head">
-        <div><h2>Google Workspace seats</h2><p>Connect an account per seat. Outreach sends from the seat a card is assigned to, replies land back here to drive the cadence, and each seat&rsquo;s calendar powers &ldquo;Propose times&rdquo;.</p></div>
+        <div><h2>Google Workspace seats</h2><p>Connect an account per seat. Outreach sends from that seat, replies land back here to drive the cadence, and its calendar powers &ldquo;Propose times&rdquo;.</p></div>
       </header>
+      {flag === "unconfigured" && <p className="notice" role="alert">Google sign-in isn&rsquo;t set up on the server yet. An admin needs to add the Google Cloud OAuth credentials (<code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code>, <code>GOOGLE_REDIRECT_URI</code>) and approve the Gmail + Calendar scopes on the consent screen. Until then &ldquo;Connect Google&rdquo; can&rsquo;t start.</p>}
       <div className="conn-list">
         {SEATS.map(({ owner, label }) => {
           const row = byOwner.get(owner);

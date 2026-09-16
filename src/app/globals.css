@@ -1699,6 +1699,18 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .conn-actions .btn{height:34px;padding:0 13px;font-size:13px;text-decoration:none;display:inline-flex;align-items:center}
 .conn-note{margin:6px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
 
+/* Team sign-ons: add-teammate form */
+.users-form{display:grid;gap:10px;margin:16px 0 6px}
+.users-form-row{display:flex;gap:10px;flex-wrap:wrap}
+.users-form-row>label{flex:1 1 150px;min-width:0;display:grid;gap:4px}
+.users-form-row>label.grow{flex:2 1 260px}
+.users-form label>span{font:600 11px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.users-form label>span em{font-style:normal;text-transform:none;letter-spacing:0;color:var(--muted);opacity:.7;margin-left:4px}
+.users-form input,.users-form select{width:100%;box-sizing:border-box;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper-bright);padding:9px 11px;font:500 13px/1.2 var(--sans);color:inherit}
+.users-form input:focus,.users-form select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.users-form>button{justify-self:start;margin-top:2px}
+.users-list{display:grid;gap:8px;margin-top:14px}
+
 /* Branded signature preview (mirrors what recipients see in the HTML email) */
 .sig-preview{margin-top:14px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:20px 22px;overflow-x:auto}
 .sig-preview table{border-collapse:collapse}
