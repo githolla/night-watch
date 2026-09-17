@@ -11,6 +11,7 @@ export function Users() {
   const [message, setMessage] = useState("");
   const [form, setForm] = useState({ name: "", email: "", owner: "josh", role: "member", password: "" });
   const [busy, setBusy] = useState(false);
+  const [sending, setSending] = useState<string | null>(null);
 
   async function load() {
     const res = await fetch("/api/admin/users", { cache: "no-store" });
@@ -50,6 +51,14 @@ export function Users() {
     const res = await fetch(`/api/admin/users/${row.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ password }) });
     setMessage(res.ok ? `Password reset for ${row.name}.` : "Could not reset the password (min 8 characters).");
   }
+  async function emailInvite(row: Row) {
+    setSending(row.id); setMessage("");
+    try {
+      const res = await fetch(`/api/admin/users/${row.id}/invite-email`, { method: "POST" });
+      const json = await res.json();
+      setMessage(res.ok ? `Invite emailed to ${row.email} — sent from ${json.sentFrom}.` : (json.error ?? "Could not send the invite email."));
+    } finally { setSending(null); }
+  }
   async function remove(row: Row) {
     if (!confirm(`Remove ${row.name}? They will lose access immediately.`)) return;
     const res = await fetch(`/api/admin/users/${row.id}`, { method: "DELETE" });
@@ -74,7 +83,7 @@ export function Users() {
         </div>
         <button className="btn primary" disabled={busy}>{busy ? "Adding…" : "Add teammate"}</button>
       </form>
-      <p className="conn-note">Leave the password blank to generate an <strong>invite link</strong> (copied to your clipboard) — send it to them and they set their own password, then connect their Google account.</p>
+      <p className="conn-note">Leave the password blank to generate an <strong>invite link</strong> (copied to your clipboard). Then hit <strong>Email invite</strong> on their row to send it straight from a connected Google seat — or paste the link into your own email. They set their password from the link, then connect their Google account.</p>
       {message && <p className="notice" role="status">{message}</p>}
 
       <div className="users-list">
@@ -83,7 +92,7 @@ export function Users() {
         {rows.map((row) => (
           <div key={row.id} className="conn-row is-on">
             <div className="conn-who"><span className="conn-dot is-on" /><div><strong>{row.name} {row.role === "admin" && <em className="conn-chip is-on">Admin</em>}</strong><small>{row.email} · {row.owner === "jenna" ? "Seat 2" : "Seat 1"}{row.last_login_at ? ` · last in ${new Date(row.last_login_at).toLocaleDateString()}` : " · never signed in"}</small></div></div>
-            <div className="conn-actions"><button type="button" className="btn" onClick={() => resetPassword(row)}>Reset password</button><button type="button" className="btn ghost danger" onClick={() => remove(row)}>Remove</button></div>
+            <div className="conn-actions"><button type="button" className="btn" disabled={sending === row.id} onClick={() => emailInvite(row)}>{sending === row.id ? "Sending…" : "Email invite"}</button><button type="button" className="btn" onClick={() => resetPassword(row)}>Reset password</button><button type="button" className="btn ghost danger" onClick={() => remove(row)}>Remove</button></div>
           </div>
         ))}
       </div>
