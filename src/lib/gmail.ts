@@ -1,5 +1,7 @@
 import { decrypt } from "./crypto.ts";import { admin } from "./supabase/admin.ts";import type { Owner } from "./types.ts";
-function config(){return {client_id:process.env.GOOGLE_CLIENT_ID!,client_secret:process.env.GOOGLE_CLIENT_SECRET!,redirect_uri:process.env.GOOGLE_REDIRECT_URI!}}
+// Trim every value: credentials pasted into a dashboard often carry a stray newline or space,
+// which Google rejects as invalid_client / redirect_uri_mismatch. Never send that whitespace.
+function config(){return {client_id:(process.env.GOOGLE_CLIENT_ID??"").trim(),client_secret:(process.env.GOOGLE_CLIENT_SECRET??"").trim(),redirect_uri:(process.env.GOOGLE_REDIRECT_URI??"").trim()}}
 // Send + read replies (for cadence) and full Calendar (free/busy + create invites for "Propose times"); userinfo.email captures the real connected address.
 export const GOOGLE_SCOPES="openid email https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar";
 export function oauthUrl(owner:Owner){const {client_id,redirect_uri}=config();const q=new URLSearchParams({client_id,redirect_uri,response_type:"code",scope:GOOGLE_SCOPES,access_type:"offline",prompt:"consent",include_granted_scopes:"true",state:owner});return `https://accounts.google.com/o/oauth2/v2/auth?${q}`}
