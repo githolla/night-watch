@@ -59,6 +59,13 @@ export function Users() {
       setMessage(res.ok ? `Invite emailed to ${row.email} — sent from ${json.sentFrom}.` : (json.error ?? "Could not send the invite email."));
     } finally { setSending(null); }
   }
+  async function changeSeat(row: Row, owner: string) {
+    if (owner === row.owner) return;
+    setRows((current) => current.map((item) => (item.id === row.id ? { ...item, owner } : item)));
+    const res = await fetch(`/api/admin/users/${row.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner }) });
+    if (res.ok) { setMessage(`${row.name} moved to ${owner === "jenna" ? "Seat 2" : "Seat 1"}. They connect their own Google on that seat.`); await load(); }
+    else { setMessage("Could not change the seat."); await load(); }
+  }
   async function remove(row: Row) {
     if (!confirm(`Remove ${row.name}? They will lose access immediately.`)) return;
     const res = await fetch(`/api/admin/users/${row.id}`, { method: "DELETE" });
@@ -91,8 +98,8 @@ export function Users() {
         {!loading && rows.length === 0 && <p className="conn-note">No sign-ons yet. Add your teammates above — you&rsquo;re currently in as the workspace admin.</p>}
         {rows.map((row) => (
           <div key={row.id} className="conn-row is-on">
-            <div className="conn-who"><span className="conn-dot is-on" /><div><strong>{row.name} {row.role === "admin" && <em className="conn-chip is-on">Admin</em>}</strong><small>{row.email} · {row.owner === "jenna" ? "Seat 2" : "Seat 1"}{row.last_login_at ? ` · last in ${new Date(row.last_login_at).toLocaleDateString()}` : " · never signed in"}</small></div></div>
-            <div className="conn-actions"><button type="button" className="btn" disabled={sending === row.id} onClick={() => emailInvite(row)}>{sending === row.id ? "Sending…" : "Email invite"}</button><button type="button" className="btn" onClick={() => resetPassword(row)}>Reset password</button><button type="button" className="btn ghost danger" onClick={() => remove(row)}>Remove</button></div>
+            <div className="conn-who"><span className="conn-dot is-on" /><div><strong>{row.name} {row.role === "admin" && <em className="conn-chip is-on">Admin</em>}</strong><small>{row.email}{row.last_login_at ? ` · last in ${new Date(row.last_login_at).toLocaleDateString()}` : " · never signed in"}</small></div></div>
+            <div className="conn-actions"><label className="users-seat"><span>Seat</span><select value={row.owner} onChange={(e) => changeSeat(row, e.target.value)}><option value="josh">Seat 1</option><option value="jenna">Seat 2</option></select></label><button type="button" className="btn" disabled={sending === row.id} onClick={() => emailInvite(row)}>{sending === row.id ? "Sending…" : "Email invite"}</button><button type="button" className="btn" onClick={() => resetPassword(row)}>Reset password</button><button type="button" className="btn ghost danger" onClick={() => remove(row)}>Remove</button></div>
           </div>
         ))}
       </div>
