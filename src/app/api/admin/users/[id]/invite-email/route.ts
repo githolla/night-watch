@@ -37,10 +37,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
     const base = (process.env.APP_URL ?? new URL(request.url).origin).trim().replace(/\s+/g, "");
     const inviteUrl = `${base.replace(/\/$/, "")}/invite/${token}`;
-    const { subject, text } = buildInviteEmail({ name: user.name as string, appUrl: base, inviteUrl, senderName: me.name });
-
     const profile = await senderProfile(db, owner);
-    await sendEmail(owner, fromHeader(profile, seat.email as string), user.email as string, subject, text);
+    // Prefer the seat's configured display name over the bootstrap "Workspace admin".
+    const senderName = profile.fromName.trim() || (me.name === "Workspace admin" ? "The Nine-67 team" : me.name);
+    const { subject, text, html } = buildInviteEmail({ name: user.name as string, appUrl: base, inviteUrl, senderName });
+
+    await sendEmail(owner, fromHeader(profile, seat.email as string), user.email as string, subject, text, undefined, undefined, html);
 
     return Response.json({ ok: true, sentFrom: seat.email, to: user.email });
   } catch (error) {
