@@ -31,15 +31,15 @@ const siteUrl = (site: string) => (site ? (/^https?:\/\//.test(site) ? site : `h
 export function renderSignatureHtml(profile: SenderProfile, email: string): string {
   if (!profile.fromName.trim()) return profile.signature.trim() ? esc(profile.signature.trim()).replace(/\n/g, "<br>") : "";
   const rows: string[] = [];
-  if (email) rows.push(`<div style="margin-top:2px;font:400 13px Arial,Helvetica,sans-serif;color:#3a352f">✉&nbsp;&nbsp;<a href="mailto:${esc(email)}" style="color:#3a352f;text-decoration:none">${esc(email)}</a></div>`);
-  if (profile.website.trim()) rows.push(`<div style="font:400 13px Arial,Helvetica,sans-serif;color:#3a352f">◎&nbsp;&nbsp;<a href="${esc(siteUrl(profile.website.trim()))}" style="color:#3a352f;text-decoration:none">${esc(profile.website.trim())}</a></div>`);
-  if (profile.location.trim()) rows.push(`<div style="font:400 13px Arial,Helvetica,sans-serif;color:#3a352f">⌖&nbsp;&nbsp;${esc(profile.location.trim())}</div>`);
-  return `<table cellpadding="0" cellspacing="0" style="margin-top:22px"><tr>
-    <td style="vertical-align:top;padding-right:20px;border-right:2px solid #c9c2b6"><span style="font:700 30px Georgia,'Times New Roman',serif;color:#9a8258;letter-spacing:-1px">Nine&#8209;67</span></td>
-    <td style="vertical-align:top;padding-left:20px">
-      <div style="font:600 19px Georgia,'Times New Roman',serif;color:#1a1712">${esc(profile.fromName.trim())}</div>
-      ${profile.title.trim() ? `<div style="font:600 11px Arial,Helvetica,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#8a8378;margin-top:2px">${esc(profile.title.trim())}</div>` : ""}
-      <div style="margin-top:10px;line-height:1.7">${rows.join("")}</div>
+  if (email) rows.push(`<div style="margin-top:3px;font:400 15px Arial,Helvetica,sans-serif;color:#3a352f">✉&nbsp;&nbsp;<a href="mailto:${esc(email)}" style="color:#3a352f;text-decoration:none">${esc(email)}</a></div>`);
+  if (profile.website.trim()) rows.push(`<div style="font:400 15px Arial,Helvetica,sans-serif;color:#3a352f">◎&nbsp;&nbsp;<a href="${esc(siteUrl(profile.website.trim()))}" style="color:#3a352f;text-decoration:none">${esc(profile.website.trim())}</a></div>`);
+  if (profile.location.trim()) rows.push(`<div style="font:400 15px Arial,Helvetica,sans-serif;color:#3a352f">⌖&nbsp;&nbsp;${esc(profile.location.trim())}</div>`);
+  return `<table cellpadding="0" cellspacing="0" style="margin-top:28px"><tr>
+    <td style="vertical-align:top;padding-right:30px;border-right:2px solid #c9c2b6"><span style="font:800 48px Arial,Helvetica,sans-serif;color:#9a8258;letter-spacing:-1px;white-space:nowrap">Nine&#8209;67</span></td>
+    <td style="vertical-align:top;padding-left:30px">
+      <div style="font:600 30px Georgia,'Times New Roman',serif;color:#1a1712;letter-spacing:-.3px">${esc(profile.fromName.trim())}</div>
+      ${profile.title.trim() ? `<div style="font:600 13px Arial,Helvetica,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#8a8378;margin-top:5px">${esc(profile.title.trim())}</div>` : ""}
+      <div style="margin-top:14px;line-height:1.9">${rows.join("")}</div>
     </td></tr></table>`;
 }
 
