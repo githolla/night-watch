@@ -47,13 +47,21 @@ let cached: { at: number; pending: PendingMigration[] } | null = null;
  *  anything is pending, so a normal page load never pays for 18 sequential database queries. */
 export async function pendingMigrations(db: SupabaseClient, now = Date.now()): Promise<PendingMigration[]> {
   if (cached && now - cached.at < 60_000) return cached.pending;
-  const probes = await Promise.all(
-    MIGRATIONS.map(async (migration) => {
-      const { error } = await db.from(migration.table).select(migration.column).limit(1);
-      return error ? { file: migration.file, adds: migration.adds, reason: error.message, sql: migrationSql(migration.file) } : null;
-    }),
-  );
-  const pending = probes.filter((item): item is PendingMigration => item !== null);
+  // Fast path: migrations are applied in order, so if the newest one is present the rest are too —
+  // one cheap query on the (normal) fully-migrated path. Only when it fails do we run the full scan
+  // in parallel to name exactly what's missing.
+  const newest = MIGRATIONS[MIGRATIONS.length - 1];
+  const { error: newestError } = await db.from(newest.table).select(newest.column).limit(1);
+  let pending: PendingMigration[] = [];
+  if (newestError) {
+    const probes = await Promise.all(
+      MIGRATIONS.map(async (migration) => {
+        const { error } = await db.from(migration.table).select(migration.column).limit(1);
+        return error ? { file: migration.file, adds: migration.adds, reason: error.message, sql: migrationSql(migration.file) } : null;
+      }),
+    );
+    pending = probes.filter((item): item is PendingMigration => item !== null);
+  }
   cached = { at: now, pending };
   return pending;
 }
