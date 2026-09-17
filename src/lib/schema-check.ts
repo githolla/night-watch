@@ -42,14 +42,18 @@ function migrationSql(file: string) {
 
 let cached: { at: number; pending: PendingMigration[] } | null = null;
 
-/** Migrations under supabase/migrations that the connected database has not applied. Cached for a minute per server. */
+/** Migrations under supabase/migrations that the connected database has not applied. Cached for a minute per server.
+ *  Probes run in parallel (one round-trip, not one-per-migration) and the result is cached whether or not
+ *  anything is pending, so a normal page load never pays for 18 sequential database queries. */
 export async function pendingMigrations(db: SupabaseClient, now = Date.now()): Promise<PendingMigration[]> {
-  if (cached && now - cached.at < 60_000 && cached.pending.length === 0) return [];
-  const pending: PendingMigration[] = [];
-  for (const migration of MIGRATIONS) {
-    const { error } = await db.from(migration.table).select(migration.column).limit(1);
-    if (error) pending.push({ file: migration.file, adds: migration.adds, reason: error.message, sql: migrationSql(migration.file) });
-  }
+  if (cached && now - cached.at < 60_000) return cached.pending;
+  const probes = await Promise.all(
+    MIGRATIONS.map(async (migration) => {
+      const { error } = await db.from(migration.table).select(migration.column).limit(1);
+      return error ? { file: migration.file, adds: migration.adds, reason: error.message, sql: migrationSql(migration.file) } : null;
+    }),
+  );
+  const pending = probes.filter((item): item is PendingMigration => item !== null);
   cached = { at: now, pending };
   return pending;
 }
