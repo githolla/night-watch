@@ -8,6 +8,7 @@
     { "path": "/api/cron/analysis", "schedule": "0 7 * * *" },
     { "path": "/api/cron/morning", "schedule": "0 12 * * *" },
     { "path": "/api/cron/replies", "schedule": "*/15 * * * *" },
-    { "path": "/api/cron/cadences", "schedule": "*/15 * * * *" }
+    { "path": "/api/cron/cadences", "schedule": "*/15 * * * *" },
+    { "path": "/api/cron/feedback-digest", "schedule": "0 1,13 * * *" }
   ]
 }
