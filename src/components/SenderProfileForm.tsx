@@ -17,6 +17,18 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   const [cc, setCc] = useState(initial.cc.join(", "));
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [error, setError] = useState("");
+  const [testing, setTesting] = useState(false);
+  const [testMsg, setTestMsg] = useState("");
+
+  async function sendTest() {
+    setTesting(true); setTestMsg("");
+    try {
+      const response = await fetch("/api/gmail/test", { method: "POST" });
+      const json = await response.json().catch(() => ({}));
+      setTestMsg(response.ok ? `Test sent to ${json.to} — check your inbox.` : (json.error ?? "Could not send the test."));
+    } catch { setTestMsg("Could not send the test."); }
+    finally { setTesting(false); }
+  }
 
   const fromLine = [fromName, title].filter((part) => part.trim()).join(", ");
   const preview = fromLine ? `${fromLine} <${senderEmail ?? "your@mailbox"}>` : (senderEmail ?? "Connect a mailbox to send");
@@ -62,9 +74,12 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
       </div>
       <div className="sender-profile-actions">
         <button type="button" className="btn primary" onClick={save} disabled={state === "saving"}>{state === "saving" ? "Saving…" : "Save identity"}</button>
+        <button type="button" className="btn" onClick={sendTest} disabled={testing} title="Send a sample email to your own inbox">{testing ? "Sending…" : "Send test to myself"}</button>
         {state === "saved" && <span className="sender-profile-ok">Saved.</span>}
         {state === "error" && <span className="sender-profile-err">{error}</span>}
+        {testMsg && <span className={/check your inbox/.test(testMsg) ? "sender-profile-ok" : "sender-profile-err"}>{testMsg}</span>}
       </div>
+      <p className="sender-profile-lead" style={{ marginTop: 8 }}>Tip: <strong>Save identity</strong> first, then <strong>Send test to myself</strong> to preview a real send in your own inbox before emailing prospects.</p>
     </section>
   );
 }
