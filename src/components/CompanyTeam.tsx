@@ -57,9 +57,12 @@ export function CompanyTeam({ domain, company, activeId, onSelect, compact, logg
           <div className="focus-team-id"><strong>{person.full_name}{loggedIds?.has(person.id) ? <em className="focus-team-flag is-logged">logged</em> : activeId === person.id ? <em className="focus-team-flag">writing to</em> : null}</strong><small>{person.title || "title unknown"}</small></div>
           <div className="focus-team-contact">
             {person.email ? <span title={person.email_status}>{person.email}</span> : null}
-            {person.linkedin_url
-              ? <a href={person.linkedin_url} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>LinkedIn &#8599;</a>
-              : <a href={linkedinSearch(person.full_name, company)} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>Find &#8599;</a>}
+            <span className="focus-team-links">
+              <Link href={`/activity?person=${person.id}&name=${encodeURIComponent(person.full_name)}`} onClick={(event) => event.stopPropagation()}>History &#8599;</Link>
+              {person.linkedin_url
+                ? <a href={person.linkedin_url} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>LinkedIn &#8599;</a>
+                : <a href={linkedinSearch(person.full_name, company)} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>Find &#8599;</a>}
+            </span>
           </div>
         </div>
       ))}

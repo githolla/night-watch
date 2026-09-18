@@ -819,6 +819,7 @@ h1,h2,h3{font-family:var(--display)!important}
 .activity-sync{align-self:center;height:34px;padding:0 13px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper-bright);color:var(--ink-soft);font:600 12px/1 var(--sans);cursor:pointer}
 .activity-sync:hover{background:var(--soft);color:var(--ink)}
 .activity-sync:disabled{opacity:.6;cursor:default}
+.focus-team-links{display:inline-flex;gap:12px;align-items:center;white-space:nowrap}
 .eyebrow,.micro-label,.tier-chip,.status-chip,.scan-live,.scan-stop,.outreach-clear,.outreach-page,.click-tag,.account-nav a,.run-log th,.target-directory-table th,.rank-num,.targets-head-count span,.coverage-tile span{letter-spacing:.06em}
 .intel-score,.targets-head-count strong,.next-up-rank strong,.reach-score .intel-score{font-weight:700;letter-spacing:-.03em}
 .shell{display:flex;flex-direction:column;min-height:100vh;align-items:stretch}

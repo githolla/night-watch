@@ -380,10 +380,12 @@ export function Desk({
   // A verified address with Gmail connected sends inside the app; otherwise open a prefilled draft in the mail client.
   const sendEmail = () => {
     if (!contact?.email) return;
-    if (draft?.view === "email" && contact.email_status === "verified" && !altContact) { send(); return; }
+    // On the Email tab, a verified primary contact sends in-app via Gmail regardless of the card's
+    // primary channel; otherwise (unverified, or an alternate contact) open a prefilled draft.
+    if (contact.email_status === "verified" && !altContact) { send(); return; }
     const href = mailtoHref();
     if (href) { const link = document.createElement("a"); link.href = href; document.body.appendChild(link); link.click(); link.remove(); }
-    recordTouch("email", (draft?.view === "email" ? focusCard?.email_body : "") || draftText);
+    recordTouch("email", focusCard?.email_body || emailDraft || draftText);
   };
   // Hand the prospect to the automated cadence: Night Watch sends the email itself on day 0, 3 and 7 and stops
   // the moment they reply. Auto-send needs a verified address and a connected sender, so the engine's guards

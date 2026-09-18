@@ -12,7 +12,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const db = admin();
     const { data: card } = await db.from("cards").select("*,people(*),accounts(*)").eq("id", id).single();
     if (!card) throw new Error("Card not found");
-    if (!["approved", "edited"].includes(card.status)) throw new Error("Approve the card before sending");
+    if (["sent", "dismissed", "archived"].includes(card.status)) throw new Error(card.status === "sent" ? "This card is already marked sent." : "This card was dismissed.");
     if (card.people.do_not_contact || ["client", "do_not_contact"].includes(card.accounts.status)) throw new Error("Do-not-contact guard blocked this send");
     // Send from the signed-in user's own seat (their connected Google account).
     const owner = user.owner;
