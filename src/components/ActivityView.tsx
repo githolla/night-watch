@@ -31,6 +31,7 @@ const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const monthName = (date: Date) => date.toLocaleDateString(undefined, { month: "long", year: "numeric" });
 const dayLong = (day: string) => new Date(`${day}T12:00:00`).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 const timeOf = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+const fullWhen = (iso: string) => new Date(iso).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
 
 /** History of every outreach touch — a month calendar of what was done, and the day-by-day record beneath it. */
@@ -122,6 +123,26 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
         {syncMsg && <p className="notice" role="status" style={{ marginBottom: 12 }}>{syncMsg}</p>}
         {note && <p className="notice" role="status" style={{ marginBottom: 16 }}>{note}</p>}
 
+        {who ? (
+          <section className="ptl">
+            <div className="ptl-head">{view.length} {view.length === 1 ? "message" : "messages"} to {who.name}</div>
+            {view.length === 0 && <p className="activity-empty">No emails or messages recorded for {who.name} yet.</p>}
+            {view.map((event) => (
+              <div key={event.id} className="ptl-item">
+                <span className={`ptl-icon k-${channelKind(event.channel)}`}>{channelKind(event.channel) === "email" ? "✉" : channelKind(event.channel) === "linkedin" ? "in" : "•"}</span>
+                <div className="ptl-main">
+                  <div className="ptl-top">
+                    <strong>{event.subject || CHANNEL_LABEL[event.channel] || "Message"}</strong>
+                    <time>{fullWhen(event.at)}</time>
+                  </div>
+                  <div className="ptl-meta"><span>{CHANNEL_LABEL[event.channel] ?? event.channel}</span>{event.company ? <span>{event.company}</span> : null}{event.replied ? <em className={`activity-reply ${event.replyClass === "positive" ? "is-pos" : ""}`}>Replied</em> : null}</div>
+                  {event.snippet && <p className="ptl-snip">{event.snippet}</p>}
+                </div>
+                {canDelete && <button type="button" className="activity-row-del" title="Remove this record" onClick={() => removeEvent(event.id)}>✕</button>}
+              </div>
+            ))}
+          </section>
+        ) : (
         <div className="activity-grid">
           <section className="activity-cal">
             <div className="activity-cal-head">
@@ -181,6 +202,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
             ))}
           </section>
         </div>
+        )}
       </div>
     </main>
   );
