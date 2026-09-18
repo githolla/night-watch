@@ -4,6 +4,7 @@ import { pendingMigrations } from "@/lib/schema-check";
 import { FeatureControlCenter } from "@/components/FeatureControlCenter";
 import { Connections } from "@/components/Connections";
 import { Users } from "@/components/Users";
+import { FeedbackAutomation } from "@/components/FeedbackAutomation";
 import { SenderProfileForm } from "@/components/SenderProfileForm";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -53,6 +54,7 @@ export default async function Settings() {
           <a className="btn primary" href="/api/feedback/export">Download CSV</a>
         </section>
       </div>}
+      {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}><FeedbackAutomation /></div>}
       {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}><Users /></div>}
       <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} /></div>
       <div className="feature-center" style={{ marginBottom: 18 }}><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
