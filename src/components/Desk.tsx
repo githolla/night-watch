@@ -171,6 +171,7 @@ export function Desk({
   const [editing, setEditing] = useState<{ email: boolean; linkedin: boolean }>({ email: false, linkedin: false });
   const [lastRefine, setLastRefine] = useState<{ cardId: string; channel: "email" | "linkedin"; beforeBody: string; afterBody: string; beforeSubject: string; afterSubject: string } | null>(null);
   const [channelTab, setChannelTab] = useState<"email" | "linkedin">("email");
+  const [compose, setCompose] = useState<{ cardId: string; first: string; message: string; signoff: string } | null>(null);
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
   // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
@@ -813,12 +814,25 @@ export function Desk({
 
                 <div className="deskwork-scroll">
                 {channelTab === "email" ? (
-                  editing.email ? (
-                    <div className="deskwork-edit">
-                      <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => edit("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
-                      <textarea className="focus-msg-body" value={focusCard.email_body ?? ""} rows={12} placeholder="No email draft yet — press Refine to write one." onChange={(event) => edit("email_body", event.target.value)} onBlur={(event) => saveField("email_body", event.target.value)} />
-                    </div>
-                  ) : (
+                  editing.email ? (() => {
+                    const fname = contact.full_name.split(/\s+/)[0] || "there";
+                    const cur = compose && compose.cardId === focusCard.id ? compose : { cardId: focusCard.id, ...parseEmail(focusCard.email_body ?? "", fname) };
+                    const apply = (patchObj: Partial<{ first: string; message: string; signoff: string }>) => {
+                      const next = { ...cur, ...patchObj, cardId: focusCard.id };
+                      setCompose(next);
+                      edit("email_body", assembleEmail(next.first, next.message, next.signoff));
+                    };
+                    const persist = () => saveField("email_body", assembleEmail(cur.first, cur.message, cur.signoff));
+                    return (
+                      <div className="deskwork-edit deskwork-compose">
+                        <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => edit("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
+                        <label className="compose-field"><span>Greeting</span><div className="compose-greet">Hi&nbsp;<input value={cur.first} placeholder="first name" onChange={(event) => apply({ first: event.target.value })} onBlur={persist} />,</div></label>
+                        <label className="compose-field"><span>Message — make it specific to this person &amp; company</span><textarea className="focus-msg-body" rows={8} value={cur.message} placeholder="Write the pitch for this contact." onChange={(event) => apply({ message: event.target.value })} onBlur={persist} /></label>
+                        <label className="compose-field"><span>Sign-off</span><input value={cur.signoff} placeholder="Thank you," onChange={(event) => apply({ signoff: event.target.value })} onBlur={persist} /></label>
+                        <p className="compose-sig">— Your Nine-67 signature (your name, title &amp; contact) is added automatically. Change it in <Link href="/settings" className="focus-link">Settings → identity</Link>.</p>
+                      </div>
+                    );
+                  })() : (
                     <div className="deskwork-doc">
                       <div className="deskwork-doc-head">
                         <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
@@ -826,6 +840,7 @@ export function Desk({
                       </div>
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("email", adapt(emailDraft) || "No email draft yet — press Refine to write one.")}</div>
+                      <div className="deskwork-doc-sig">— Your Nine-67 signature (name, title &amp; contact) is added automatically when this sends.</div>
                     </div>
                   )
                 ) : (
@@ -995,3 +1010,34 @@ function retarget(text: string, fromName: string, toName: string) {
   return text.split(from).join(to);
 }
 
+
+/** Split a stored email body into the pieces the composer edits: greeting first name, message, sign-off.
+ *  Heuristic — a leading "Hi <name>," and a trailing "Thanks,/Best,…" block are pulled out; the rest is the message. */
+function parseEmail(body: string, fallbackFirst: string): { first: string; message: string; signoff: string } {
+  const raw = (body || "").replace(/\r/g, "").trim();
+  if (!raw) return { first: fallbackFirst, message: "", signoff: "Thank you," };
+  const lines = raw.split("\n");
+  let first = fallbackFirst;
+  let start = 0;
+  const greet = lines[0].match(/^\s*(?:hi|hey|hello|dear)\s+([^,]+?),?\s*$/i);
+  if (greet) { first = greet[1].trim(); start = 1; while (start < lines.length && !lines[start].trim()) start++; }
+  let rest = lines.slice(start).join("\n").trim();
+  let signoff = "Thank you,";
+  const rl = rest.split("\n");
+  for (let i = rl.length - 1; i >= 0 && i >= rl.length - 3; i--) {
+    if (/^\s*(thanks|thank you|best|regards|cheers|warmly|talk soon|speak soon|sincerely)\b/i.test(rl[i])) {
+      signoff = rl.slice(i).join("\n").trim();
+      rest = rl.slice(0, i).join("\n").trim();
+      break;
+    }
+  }
+  return { first, message: rest, signoff };
+}
+
+/** Rebuild the email body from the composer pieces, without doubling a greeting the message already carries. */
+function assembleEmail(first: string, message: string, signoff: string): string {
+  const m = (message || "").trim();
+  const greet = /^\s*(hi|hey|hello|dear)\b/i.test(m) ? "" : `Hi ${(first || "there").trim()},\n\n`;
+  const so = (signoff || "").trim();
+  return `${greet}${m}${so ? `\n\n${so}` : ""}`;
+}
