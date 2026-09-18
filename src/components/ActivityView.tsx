@@ -36,6 +36,19 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
 /** History of every outreach touch — a month calendar of what was done, and the day-by-day record beneath it. */
 export function ActivityView({ events: initialEvents, who, note, canDelete }: { events: ActivityEvent[]; who?: { name: string } | null; note?: string | null; canDelete?: boolean }) {
   const [events, setEvents] = useState(initialEvents);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
+  async function syncGmail() {
+    setSyncing(true); setSyncMsg("");
+    try {
+      const res = await fetch("/api/admin/sent-sync", { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) { setSyncMsg(json.error ?? "Sync failed."); return; }
+      setSyncMsg(json.logged > 0 ? `Added ${json.logged} email${json.logged === 1 ? "" : "s"} from Gmail — reloading…` : "No new Gmail sends to add (scanned recent Sent).");
+      if (json.logged > 0) setTimeout(() => location.reload(), 900);
+    } catch { setSyncMsg("Sync failed."); }
+    finally { setSyncing(false); }
+  }
   async function removeEvent(id: string) {
     if (!confirm("Remove this record? It was never actually sent, or is a duplicate.")) return;
     const res = await fetch(`/api/touches/${id}`, { method: "DELETE" });
@@ -102,9 +115,11 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
             <button type="button" className={`activity-stat is-filter ${chan === "email" ? "is-on" : ""}`} onClick={() => toggleChan("email")} title="Show only emails"><strong>{totals.email}</strong><span>✉ Emails</span></button>
             <button type="button" className={`activity-stat is-filter ${chan === "linkedin" ? "is-on" : ""}`} onClick={() => toggleChan("linkedin")} title="Show only LinkedIn"><strong>{totals.linkedin}</strong><span>in LinkedIn</span></button>
             <div className="activity-stat is-reply"><strong>{totals.replies}</strong><span>Replies</span></div>
+            {canDelete && <button type="button" className="activity-sync" onClick={syncGmail} disabled={syncing} title="Pull emails sent directly from Gmail into History">{syncing ? "Syncing…" : "Sync Gmail sent"}</button>}
           </div>
         </header>
 
+        {syncMsg && <p className="notice" role="status" style={{ marginBottom: 12 }}>{syncMsg}</p>}
         {note && <p className="notice" role="status" style={{ marginBottom: 16 }}>{note}</p>}
 
         <div className="activity-grid">

@@ -816,6 +816,9 @@ h1,h2,h3{font-family:var(--display)!important}
 .compose-field textarea:focus,.compose-field input:focus,.compose-greet input:focus{border-color:var(--accent)}
 .compose-sig{margin:2px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
 .deskwork-doc-sig{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:12px;color:var(--muted)}
+.activity-sync{align-self:center;height:34px;padding:0 13px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper-bright);color:var(--ink-soft);font:600 12px/1 var(--sans);cursor:pointer}
+.activity-sync:hover{background:var(--soft);color:var(--ink)}
+.activity-sync:disabled{opacity:.6;cursor:default}
 .eyebrow,.micro-label,.tier-chip,.status-chip,.scan-live,.scan-stop,.outreach-clear,.outreach-page,.click-tag,.account-nav a,.run-log th,.target-directory-table th,.rank-num,.targets-head-count span,.coverage-tile span{letter-spacing:.06em}
 .intel-score,.targets-head-count strong,.next-up-rank strong,.reach-score .intel-score{font-weight:700;letter-spacing:-.03em}
 .shell{display:flex;flex-direction:column;min-height:100vh;align-items:stretch}
