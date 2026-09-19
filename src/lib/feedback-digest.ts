@@ -37,11 +37,23 @@ function issueBody(items: Feedback[]) {
   return lines.join("\n");
 }
 
+/** The created_at of the most recent feedback-digest issue, used as a cursor so each feedback item is
+ *  reported exactly once instead of re-appearing on every run within the lookback window. */
+async function lastDigestAt(token: string): Promise<string | null> {
+  const res = await fetch(`https://api.github.com/repos/${repo()}/issues?labels=${LABEL}&state=all&per_page=1&sort=created&direction=desc`, { headers: ghHeaders(token) });
+  if (!res.ok) return null;
+  const rows = (await res.json()) as Array<{ created_at: string }>;
+  return rows[0]?.created_at ?? null;
+}
+
 /** Read new feedback and open a GitHub issue for the agent to act on. Safe to call on demand or from cron. */
 export async function runFeedbackDigest(): Promise<DigestResult> {
   const token = process.env.FEEDBACK_GH_TOKEN;
   if (!token) return { posted: false, error: "Set FEEDBACK_GH_TOKEN (a GitHub token with Issues: read & write) in the environment." };
-  const since = new Date(Date.now() - LOOKBACK_MS).toISOString();
+  // Only report feedback newer than the last digest (so nothing is re-reported); fall back to the
+  // lookback window on the very first run when no prior digest exists.
+  const cursor = await lastDigestAt(token);
+  const since = cursor ?? new Date(Date.now() - LOOKBACK_MS).toISOString();
   const { data, error } = await admin().from("feedback").select("id,created_at,user_email,user_name,path,category,rating,message").gte("created_at", since).order("created_at", { ascending: true });
   if (error) return { posted: false, error: error.message };
   const items = (data ?? []) as Feedback[];
