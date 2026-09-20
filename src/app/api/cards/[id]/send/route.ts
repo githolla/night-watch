@@ -24,11 +24,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const fullBody = `${withSignature(body, profile, user.email)}\n\n${optOut}`;
     const html = emailHtml(body, profile, user.email, optOut);
     const result = await sendEmail(owner, fromHeader(profile, user.email!), card.people.email, subject, fullBody, undefined, profile.cc, html);
-    await db.from("touches").insert({ card_id: id, person_id: card.person_id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: fullBody, experiment_variant_id: card.active_variant_id ?? null });
-    if (card.active_variant_id) {
-      const { data: chosen } = await db.from("message_variants").select("experiment_id").eq("id", card.active_variant_id).maybeSingle();
-      if (chosen) await db.from("message_experiments").update({ status: "sent" }).eq("id", chosen.experiment_id);
-    }
+    // Log the send to History. Kept minimal (no experiment_variant_id) so a missing optional column
+    // can never make this insert fail — a failed insert here is why a send could say "sent" yet not
+    // appear in History.
+    const { error: touchError } = await db.from("touches").insert({ card_id: id, person_id: card.person_id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: fullBody });
+    if (touchError) throw new Error(`Email sent, but recording it to History failed: ${touchError.message}`);
     await db.from("cards").update({ status: "sent", email_subject: subject, email_body: body }).eq("id", id);
     return Response.json({ ok: true, threadId: result.threadId });
   } catch (error) {
