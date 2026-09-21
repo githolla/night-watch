@@ -2136,3 +2136,7 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .deskwork-fu-folded>summary::before{content:"";display:inline-block;margin-right:7px;width:0;height:0;border:4px solid transparent;border-left-color:currentColor;transition:transform .15s ease}
 .deskwork-fu-folded[open]>summary::before{transform:rotate(90deg) translateX(-1px)}
 .deskwork-fu-folded>summary:hover{color:var(--ink)}
+/* Offer to write a colleague their own draft rather than resend the primary contact's. */
+.compose-alt-note{margin:6px 0 2px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;background:var(--accent-soft);padding:11px 13px;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.compose-alt-note p{margin:0;font:500 12.5px/1.55 var(--sans);color:var(--ink)}
+.compose-alt-note small{font:500 11.5px/1.45 var(--sans);color:var(--muted)}
