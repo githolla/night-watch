@@ -19,6 +19,25 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   const [error, setError] = useState("");
   const [testing, setTesting] = useState(false);
   const [testMsg, setTestMsg] = useState("");
+  const [uploadErr, setUploadErr] = useState("");
+
+  // True when the signature field holds real HTML (a pasted/uploaded signature) vs plain text.
+  const isHtmlSig = /<[a-z][a-z0-9-]*(\s[^>]*)?\/?>/i.test(signature.trim());
+  // Preview-only sanitize: strip scripts/handlers so pasting HTML can't run in the admin's browser. The
+  // outbound email keeps the raw HTML (email clients sanitize on their end).
+  const previewHtml = signature
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/ on[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+
+  async function onUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    setUploadErr("");
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > 20000) { setUploadErr("That file is over 20KB — use a hosted image URL in the signature rather than an embedded one."); return; }
+    try { setSignature((await file.text()).trim()); } catch { setUploadErr("Couldn't read that file."); }
+    event.target.value = "";
+  }
 
   async function sendTest() {
     setTesting(true); setTestMsg("");
@@ -56,22 +75,36 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
         <label><span>Location</span><input value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Pennsylvania, USA | ET (UTC-5 / UTC-4)" maxLength={160} /></label>
       </div>
       <label className="sender-profile-full"><span>CC (comma-separated — the team gets a copy of every send)</span><input value={cc} onChange={(event) => setCc(event.target.value)} placeholder="josh@nine-67.com, diego@nine-67.com" /></label>
-      <label className="sender-profile-full"><span>Fallback signature (used only if you leave the name above blank)</span><textarea value={signature} onChange={(event) => setSignature(event.target.value)} rows={3} placeholder={"Josh Lee\nFDE, COO, Nine-67\nnine-67.com"} maxLength={2000} /></label>
-      <p className="sender-profile-preview"><span>From line</span><code>{preview}</code></p>
-      <div className="sig-preview" aria-label="Signature preview">
-        <table><tbody><tr>
-          <td className="sig-mark">Nine&#8209;67</td>
-          <td className="sig-body">
-            <div className="sig-name">{fromName || "Your name"}</div>
-            {title && <div className="sig-title">{title}</div>}
-            <div className="sig-lines">
-              <div>✉&nbsp;&nbsp;{senderEmail ?? "you@nine-67.com"}</div>
-              {website && <div>◎&nbsp;&nbsp;{website}</div>}
-              {location && <div>⌖&nbsp;&nbsp;{location}</div>}
-            </div>
-          </td>
-        </tr></tbody></table>
+      <label className="sender-profile-full">
+        <span>Your signature — paste your own HTML signature to use it as-is (it overrides the built-in block), or plain text as a fallback</span>
+        <textarea value={signature} onChange={(event) => setSignature(event.target.value)} rows={isHtmlSig ? 8 : 3} placeholder={"Paste an HTML signature, or plain text like:\nJosh Lee\nFDE, COO, Nine-67\nnine-67.com"} maxLength={20000} style={isHtmlSig ? { fontFamily: "var(--mono, monospace)", fontSize: 12 } : undefined} />
+      </label>
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", margin: "-4px 0 4px" }}>
+        <label className="btn" style={{ cursor: "pointer" }}>
+          Upload signature (.html)
+          <input type="file" accept=".html,.htm,.txt,text/html" onChange={onUpload} style={{ display: "none" }} />
+        </label>
+        {isHtmlSig && <button type="button" className="btn ghost" onClick={() => setSignature("")}>Clear &amp; use built-in block</button>}
+        <span className="sender-profile-lead" style={{ margin: 0 }}>{isHtmlSig ? "Using your uploaded HTML signature." : "Using the built-in Nine-67 block below."}</span>
+        {uploadErr && <span className="sender-profile-err">{uploadErr}</span>}
       </div>
+      <p className="sender-profile-preview"><span>From line</span><code>{preview}</code></p>
+      {isHtmlSig
+        ? <div className="sig-preview" aria-label="Signature preview" dangerouslySetInnerHTML={{ __html: previewHtml }} />
+        : <div className="sig-preview" aria-label="Signature preview">
+            <table><tbody><tr>
+              <td className="sig-mark">Nine&#8209;67</td>
+              <td className="sig-body">
+                <div className="sig-name">{fromName || "Your name"}</div>
+                {title && <div className="sig-title">{title}</div>}
+                <div className="sig-lines">
+                  <div>✉&nbsp;&nbsp;{senderEmail ?? "you@nine-67.com"}</div>
+                  {website && <div>◎&nbsp;&nbsp;{website}</div>}
+                  {location && <div>⌖&nbsp;&nbsp;{location}</div>}
+                </div>
+              </td>
+            </tr></tbody></table>
+          </div>}
       <div className="sender-profile-actions">
         <button type="button" className="btn primary" onClick={save} disabled={state === "saving"}>{state === "saving" ? "Saving…" : "Save identity"}</button>
         <button type="button" className="btn" onClick={sendTest} disabled={testing} title="Send a sample email to your own inbox">{testing ? "Sending…" : "Send test to myself"}</button>

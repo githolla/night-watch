@@ -5,7 +5,7 @@ import { z } from "zod";
 const input = z.object({
   from_name: z.string().max(120),
   title: z.string().max(120),
-  signature: z.string().max(2000),
+  signature: z.string().max(20000), // large enough for a pasted/uploaded HTML signature
   website: z.string().max(160).optional(),
   location: z.string().max(160).optional(),
   cc: z.array(z.string().trim().min(3).max(160)).max(10),

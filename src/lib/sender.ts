@@ -64,10 +64,29 @@ export function sanitizeLinks(text: string): string {
     .trim();
 }
 
-/** The branded Nine-67 signature block, email-safe (inline styles, table layout). Falls back to the free-text
- *  signature when the structured name isn't set. */
+/** True when the signature field holds real HTML (an uploaded/pasted signature) rather than plain text. */
+export function isHtmlSignature(signature: string): boolean {
+  return /<[a-z][a-z0-9-]*(\s[^>]*)?\/?>/i.test(signature.trim());
+}
+
+/** Flatten an HTML signature to readable plain text for the text/plain part of the email. */
+function htmlSignatureToText(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(div|p|tr|table|h[1-6]|li)>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&#8209;/gi, "-")
+    .replace(/[ \t]+/g, " ").replace(/ *\n{3,}/g, "\n\n").replace(/[ \t]+\n/g, "\n").trim();
+}
+
+/** The branded Nine-67 signature block, email-safe (inline styles, table layout). An uploaded HTML
+ *  signature wins outright; otherwise the structured name builds the block, or the free-text is a fallback. */
 export function renderSignatureHtml(profile: SenderProfile, email: string): string {
-  if (!profile.fromName.trim()) return profile.signature.trim() ? esc(profile.signature.trim()).replace(/\n/g, "<br>") : "";
+  // A signature the admin uploaded/pasted as HTML is used verbatim — it IS the signature, so it takes
+  // precedence over the built-in block (that's the point of uploading your own).
+  const sig = profile.signature.trim();
+  if (isHtmlSignature(sig)) return `<div style="margin-top:24px">${sig}</div>`;
+  if (!profile.fromName.trim()) return sig ? esc(sig).replace(/\n/g, "<br>") : "";
   const rows: string[] = [];
   if (email) rows.push(`<div style="margin-top:3px;font:400 15px Arial,Helvetica,sans-serif;color:#3a352f">✉&nbsp;&nbsp;<a href="mailto:${esc(email)}" style="color:#3a352f;text-decoration:none">${esc(email)}</a></div>`);
   if (profile.website.trim()) rows.push(`<div style="font:400 15px Arial,Helvetica,sans-serif;color:#3a352f">◎&nbsp;&nbsp;<a href="${esc(siteUrl(profile.website.trim()))}" style="color:#3a352f;text-decoration:none">${esc(profile.website.trim())}</a></div>`);
@@ -91,7 +110,10 @@ export function emailHtml(body: string, profile: SenderProfile, email: string, o
 
 /** Plain-text signature (for the text/plain part and for callers that don't send HTML). */
 export function renderSignatureText(profile: SenderProfile, email: string): string {
-  if (!profile.fromName.trim()) return profile.signature.trim();
+  const sig = profile.signature.trim();
+  // An uploaded HTML signature can't go in the text/plain part raw — flatten its tags to readable text.
+  if (isHtmlSignature(sig)) return htmlSignatureToText(sig);
+  if (!profile.fromName.trim()) return sig;
   const lines = [profile.fromName.trim(), profile.title.trim(), email, profile.website.trim(), profile.location.trim()].filter(Boolean);
   return lines.join("\n");
 }
