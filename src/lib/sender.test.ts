@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { dedupeParagraphs, similarText, sanitizeSignatureHtml, hasProposedTimes, stripProposedTimes } from "./clean.ts";
+import { dedupeParagraphs, similarText, sanitizeSignatureHtml, hasProposedTimes, stripProposedTimes, decodeEntities, foreignEmployer } from "./clean.ts";
 import { sanitizeLinks } from "./sender.ts";
 
 test("the outbound cleaner never mangles a prospect's own words", () => {
@@ -122,4 +122,48 @@ test("proposed meeting times can be taken back out of a draft", () => {
   // A draft with no times is returned untouched, and stripping is safe to repeat.
   assert.equal(stripProposedTimes(written), written);
   assert.equal(stripProposedTimes(stripProposedTimes(withTimes)), written);
+});
+
+test("HTML entities in scraped names and titles are decoded", () => {
+  assert.equal(decodeEntities("Employers&#27; Forum of Indiana"), "Employers' Forum of Indiana");
+  assert.equal(decodeEntities("Johnson &amp; Johnson"), "Johnson & Johnson");
+  assert.equal(decodeEntities("O&#x27;Brien"), "O'Brien");
+  assert.equal(decodeEntities("Sales &amp; Marketing &mdash; EMEA"), "Sales & Marketing — EMEA");
+  assert.equal(decodeEntities("Chief Operating Officer"), "Chief Operating Officer");
+});
+
+test("a contact who works somewhere else is spotted, and a real title is never mistaken for one", () => {
+  // Executives quoted on a page about another company were being stored as that company's contacts.
+  assert.equal(foreignEmployer("CIO, Peterson Cheese", "Quantiphi", "quantiphi.com"), "Peterson Cheese");
+  assert.equal(foreignEmployer("President &amp; CEO, Employers&#27; Forum of Indiana", "Quantiphi", "quantiphi.com"), "Employers' Forum of Indiana");
+
+  // Everything below is a REAL title at the company and must survive. Wrongly hiding a decision-maker
+  // costs more than leaving one bad row on screen, so anything uncertain must return null.
+  for (const title of [
+    "Chief Operating Officer",
+    "COO / CFO",
+    "Co-Founder",
+    "VP - Marketing",
+    "VP, Marketing",
+    "VP, Corporate Development",
+    "VP, Finance Transformation & Advisory Services",
+    "EVP, Head of E&S Casualty",
+    "SVP, Global Operations",
+    "Director, Information Technology",
+    "Head of Data",
+    "Chief Information Security Officer",
+    "VP, People",
+    "Senior Director, Supply Chain",
+    "Managing Director, Client Success",
+  ]) {
+    assert.equal(foreignEmployer(title, "Quantiphi", "quantiphi.com"), null, `should NOT flag: ${title}`);
+  }
+
+  // The same company written differently is not a foreign employer.
+  assert.equal(foreignEmployer("CEO, Quantiphi", "Quantiphi", "quantiphi.com"), null);
+  assert.equal(foreignEmployer("CEO, Quantiphi Inc", "Quantiphi", "quantiphi.com"), null);
+  assert.equal(foreignEmployer("CTO, Consero Global", "Consero Global", "conseroglobal.com"), null);
+  // No comma at all, nothing to judge.
+  assert.equal(foreignEmployer("Chief Executive Officer", "Quantiphi"), null);
+  assert.equal(foreignEmployer("", "Quantiphi"), null);
 });

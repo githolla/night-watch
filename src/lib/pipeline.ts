@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { decodeEntities, foreignEmployer } from "./clean.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { findPerson, scout, type ScoutSignal, writeAngle } from "./agents.ts";
 import { matchPerson } from "./apollo.ts";
@@ -93,8 +94,18 @@ async function mapPerson(account: Account, signal: ScoutSignal, recordCost: (cos
  * people table fills up whether or not a card is created.
  */
 export async function upsertPerson(account: Account, candidate: { name: string; title: string; linkedin_url: string | null }, source = "signal") {
+  // Scraped text arrives HTML-escaped; decode before anything is matched, stored, or emailed, or a contact
+  // is filed as "Employers&#27; Forum of Indiana" and greeted with the entity still in their name.
+  candidate = { ...candidate, name: decodeEntities(candidate.name), title: decodeEntities(candidate.title) };
   // A service line or value prop scraped as a "person" ("Strategic IT Guidance") is never stored or Apollo-billed.
   if (!isLikelyPersonName(candidate.name)) return null;
+  // A research pass that reads about one company also meets executives quoted from others. Storing them
+  // here means offering to email "CIO, Peterson Cheese" a pitch about Quantiphi's hiring.
+  const elsewhere = foreignEmployer(candidate.title, account.name, account.domain);
+  if (elsewhere) {
+    console.warn(`[night-watch] skipping ${candidate.name} for ${account.domain}: title says ${elsewhere}`);
+    return null;
+  }
   const apollo = await matchPerson(candidate.name, account.domain).catch((error) => {
     console.warn(`[night-watch] Apollo match failed for ${candidate.name}: ${error instanceof Error ? error.message : String(error)}`);
     return null;

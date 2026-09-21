@@ -126,3 +126,69 @@ export function hasProposedTimes(body: string | null | undefined): boolean {
 export function stripProposedTimes(body: string | null | undefined): string {
   return (body ?? "").replace(new RegExp(PROPOSED_TIMES, "gi"), "").replace(/\n{3,}/g, "\n\n").trimEnd();
 }
+
+/**
+ * Decode the HTML entities that arrive in scraped names and titles. Without this a contact list shows
+ * "Employers&#27; Forum of Indiana" and an email would greet someone with a literal "&amp;".
+ */
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "–", mdash: "—",
+  lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”", hellip: "…",
+};
+export function decodeEntities(text: string | null | undefined): string {
+  return (text ?? "")
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => safeChar(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec: string) => safeChar(parseInt(dec, 10)))
+    .replace(/&([a-z]+);/gi, (match, name: string) => NAMED_ENTITIES[name.toLowerCase()] ?? match)
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+function safeChar(code: number): string {
+  // Scrapers emit &#27; (escape) where they mean &#39; (apostrophe); anything unprintable becomes one.
+  if (!Number.isFinite(code) || code < 32 || (code >= 127 && code <= 159)) return "'";
+  return String.fromCodePoint(code);
+}
+
+// Words that make a comma-trailing phrase a DEPARTMENT rather than another employer. "VP, Corporate
+// Development" and "VP, Finance Transformation & Advisory Services" are real titles at the company;
+// "CIO, Peterson Cheese" is somebody else's CIO who happened to appear on the same page.
+const DEPARTMENT = /\b(engineering|marketing|sales|finance|financial|accounting|operations?|technology|technical|product|people|talent|hr|human resources|legal|security|data|analytics|development|strategy|corporate|business|it|information|digital|transformation|advisory|services?|delivery|customer|client|success|revenue|growth|supply chain|procurement|manufacturing|quality|compliance|risk|audit|communications?|brand|design|research|infrastructure|platform|cloud|software|solutions?|programs?|projects?|innovation|partnerships?|alliances|administration|facilities|training|education|content|creative|media|公|global|north america|emea|apac|americas|region|division|group|office|affairs|relations|experience|insights?|intelligence|architecture|systems?|network|support|enablement|excellence)\b/i;
+
+// A trailing segment that opens with one of these is the rest of a job title, not another company.
+const ROLE_TAIL = /^(head|lead|leader|director|manager|chief|chair|chairman|chairwoman|president|vice|vp|svp|evp|avp|owner|partner|principal|founder|co-founder|general manager|gm|officer|counsel|controller|treasurer|secretary|editor|architect|engineer|scientist|analyst|specialist|advisor|adviser|consultant|coordinator|administrator|supervisor|associate|assistant|deputy|acting|interim|senior|junior|staff|distinguished|executive|managing|global|regional|national|corporate|group|divisional)\b/i;
+
+/**
+ * The OTHER employer named in a job title, or null when the title is just a role at this company.
+ *
+ * A research pass that reads a page about one company also meets executives quoted from other companies,
+ * and they were being stored as contacts there. Emailing "CIO, Peterson Cheese" a pitch about Quantiphi's
+ * hiring is visibly wrong to the person receiving it.
+ *
+ * Deliberately cautious: it only fires on a trailing comma segment that reads like an organisation and
+ * matches nothing about this company. Anything uncertain returns null, because wrongly hiding a real
+ * decision-maker costs more than leaving one bad row on screen.
+ */
+export function foreignEmployer(title: string | null | undefined, companyName: string, domain?: string | null): string | null {
+  const clean = decodeEntities(title);
+  if (!clean.includes(",")) return null;
+  const tail = clean.slice(clean.lastIndexOf(",") + 1).trim().replace(/[.;]+$/, "");
+  if (!tail || tail.split(/\s+/).length < 2 || tail.split(/\s+/).length > 7) return null;
+  if (DEPARTMENT.test(tail)) return null;
+  // "EVP, Head of E&S Casualty" is a role, not an employer. A tail that opens with a role word describes
+  // what the person does here, whatever follows it.
+  if (ROLE_TAIL.test(tail)) return null;
+  // Must read like a proper noun: at least two capitalised words (allowing "of", "and", "the").
+  const words = tail.split(/\s+/);
+  const capitalised = words.filter((word) => /^[A-Z]/.test(word));
+  if (capitalised.length < 2) return null;
+
+  const normalise = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const tailKey = normalise(tail);
+  const companyKey = normalise(companyName);
+  const domainKey = normalise((domain ?? "").replace(/\.[a-z.]+$/, ""));
+  if (!tailKey || !companyKey) return null;
+  // Same company written differently ("Quantiphi Inc", "Quantiphi") is not a foreign employer.
+  if (tailKey.includes(companyKey) || companyKey.includes(tailKey)) return null;
+  if (domainKey && (tailKey.includes(domainKey) || domainKey.includes(tailKey))) return null;
+  return tail;
+}

@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { isLikelyPersonName } from "@/lib/pipeline";
 import { targetAccountByDomain } from "@/lib/target-accounts";
+import { decodeEntities, foreignEmployer } from "@/lib/clean";
 
 type TeamPerson = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; email_source: string | null; linkedin_url: string | null; sentAt?: string | null };
 
@@ -17,6 +18,11 @@ export async function GET(request: Request) {
       ? (((await db.from("people").select("id,full_name,title,level,email,email_status,email_source,linkedin_url").eq("account_id", account.id as string).eq("do_not_contact", false).order("level").order("full_name").limit(60)).data ?? []) as TeamPerson[])
         // Drop marketing phrases ("Strategic IT Guidance", "Reduced Operational Costs") that slipped in as "people".
         .filter((person) => isLikelyPersonName(person.full_name))
+        // Decode on the way out too: contacts stored before this was fixed still carry raw entities.
+        .map((person) => ({ ...person, full_name: decodeEntities(person.full_name), title: decodeEntities(person.title) }))
+        // And hide the ones whose own title says they work somewhere else. Applying the rule on read as
+        // well as on write means contacts already on file stop being offered without a migration.
+        .filter((person) => !foreignEmployer(person.title, (account.name as string) ?? "", account.domain as string))
       : [];
     // Who here has already been written to. Held only in the browser before now, so every reload forgot it
     // and the same colleague could be emailed twice by someone who could not see the first one.
