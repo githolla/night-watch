@@ -13,6 +13,7 @@ export function FeedbackAutomation() {
   const [configured, setConfigured] = useState(true);
   const [running, setRunning] = useState(false);
   const [message, setMessage] = useState("");
+  const [open, setOpen] = useState(false);
 
   async function load() {
     try {
@@ -44,15 +45,20 @@ export function FeedbackAutomation() {
     finally { setRunning(false); }
   }
 
+  const openCount = issues.filter((issue) => issue.state !== "closed").length;
   return (
     <section className="conn-card">
-      <header className="conn-head">
-        <div>
-          <h2>Feedback automation</h2>
-          <p>Twice a day, new tester feedback becomes a work item and the agent fixes what it safely can. Run it now, and see what got fixed below.</p>
-        </div>
-        <button type="button" className="btn primary" onClick={runNow} disabled={running || !configured}>{running ? "Running…" : "Run digest now"}</button>
+      <header className="conn-head" style={{ alignItems: "center" }}>
+        <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: 0, padding: 0, textAlign: "left", cursor: "pointer", color: "inherit", flex: 1, minWidth: 0 }}>
+          <span aria-hidden style={{ transition: "transform .15s", transform: open ? "rotate(90deg)" : "none", opacity: 0.6 }}>&#9654;</span>
+          <span style={{ minWidth: 0 }}>
+            <h2 style={{ margin: 0 }}>Feedback automation {!open && issues.length > 0 && <span className="conn-note" style={{ fontWeight: 400 }}>· {issues.length} item{issues.length === 1 ? "" : "s"}{openCount ? `, ${openCount} queued` : ""}</span>}</h2>
+            {open && <p style={{ margin: "4px 0 0" }}>Twice a day, new tester feedback becomes a work item and the agent fixes what it safely can. Run it now, and see what got fixed below.</p>}
+          </span>
+        </button>
+        {open && <button type="button" className="btn primary" onClick={runNow} disabled={running || !configured}>{running ? "Running…" : "Run digest now"}</button>}
       </header>
+      {!open ? null : <>
       {message && <p className="notice" role="status">{message}</p>}
       {!configured && <p className="conn-note">Not configured yet — set <code>FEEDBACK_GH_TOKEN</code> (a GitHub token with Issues: read &amp; write) in the environment and redeploy.</p>}
 
@@ -78,6 +84,7 @@ export function FeedbackAutomation() {
           );
         })}
       </div>
+      </>}
     </section>
   );
 }
