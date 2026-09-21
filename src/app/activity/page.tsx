@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 
 type TouchRow = {
   id: string;
+  card_id: string | null;
   channel: string;
   sent_at: string | null;
   created_at: string;
@@ -17,6 +18,7 @@ type TouchRow = {
   reply_classification: string;
   body: string | null;
   sent_by: string;
+  gmail_thread_id: string | null;
   cards: { email_subject: string | null; linkedin_subject: string | null; accounts: { name: string } | null; people: { full_name: string; title: string; email: string | null } | null } | null;
 };
 
@@ -37,7 +39,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
   const db = admin();
   let query = db
     .from("touches")
-    .select("id,channel,sent_at,created_at,reply_at,reply_classification,body,sent_by,cards(email_subject,linkedin_subject,accounts(name),people(full_name,title,email))")
+    .select("id,card_id,channel,sent_at,created_at,reply_at,reply_classification,body,sent_by,gmail_thread_id,cards(email_subject,linkedin_subject,accounts(name),people(full_name,title,email))")
     .order("created_at", { ascending: false })
     .limit(1000);
   if (personId) query = query.eq("person_id", personId);
@@ -50,6 +52,10 @@ export default async function Activity({ searchParams }: { searchParams: Promise
   for (const row of (profileRows ?? []) as Array<{ owner: string; from_name: string | null }>)
     if (row.from_name?.trim()) seatName[row.owner] = row.from_name.trim();
   const senderLabel = (owner: string) => seatName[owner] || (owner ? owner.charAt(0).toUpperCase() + owner.slice(1) : "Unknown");
+
+  // Cards currently enrolled in a cadence, so History can flag/filter "in cadence" sends.
+  const { data: cadenceRows } = await db.from("cadences").select("card_id").eq("status", "active");
+  const cadenceCards = new Set((cadenceRows ?? []).map((row) => (row as { card_id: string }).card_id));
   const note = error
     ? `Couldn't load history: ${error.message}`
     : (totalTouches ?? 0) === 0
@@ -76,6 +82,8 @@ export default async function Activity({ searchParams }: { searchParams: Promise
       snippet: body.replace(/\s+/g, " ").slice(0, 140),
       replied: Boolean(row.reply_at),
       replyClass: row.reply_classification,
+      inCadence: row.card_id ? cadenceCards.has(row.card_id) : false,
+      gmailThreadId: row.gmail_thread_id ?? null,
     };
   });
 

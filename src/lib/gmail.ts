@@ -18,6 +18,27 @@ export async function ownerAccessToken(owner:Owner){return accessToken(owner)}
 export async function listSent(token:string,q="in:sent newer_than:3d",max=60){const res=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(q)}&maxResults=${max}`,{headers:{authorization:`Bearer ${token}`}});if(!res.ok)throw new Error(`Gmail list sent failed: ${res.status}`);return ((await res.json() as {messages?:Array<{id:string;threadId:string}>}).messages)??[]}
 // Recipient, subject, thread and send time for one message — metadata only, no body fetch.
 export async function messageMeta(token:string,id:string){const res=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=To&metadataHeaders=Subject`,{headers:{authorization:`Bearer ${token}`}});if(!res.ok)throw new Error(`Gmail message meta failed: ${res.status}`);const data=await res.json() as {internalDate?:string;threadId?:string;payload?:{headers?:Array<{name:string;value:string}>}};const headers=data.payload?.headers??[];const get=(n:string)=>headers.find((h)=>h.name.toLowerCase()===n.toLowerCase())?.value??"";return {to:get("To"),subject:get("Subject"),threadId:data.threadId??"",dateMs:Number(data.internalDate??0)}}
+// Decode a Gmail base64url body part to text.
+const decodeB64Url=(data:string)=>Buffer.from(data.replace(/-/g,"+").replace(/_/g,"/"),"base64").toString("utf8");
+// Walk a Gmail payload tree and return the message body as readable text: prefer text/plain,
+// fall back to a stripped text/html. Handles nested multipart/alternative + multipart/mixed.
+function extractBody(payload:unknown):string{
+  const plain:string[]=[]; const html:string[]=[];
+  const walk=(p:{mimeType?:string;body?:{data?:string};parts?:unknown[]})=>{
+    if(!p) return;
+    if(p.mimeType==="text/plain"&&p.body?.data) plain.push(decodeB64Url(p.body.data));
+    else if(p.mimeType==="text/html"&&p.body?.data) html.push(decodeB64Url(p.body.data));
+    for(const c of (p.parts??[]) as Array<typeof p>) walk(c);
+  };
+  walk(payload as {mimeType?:string;body?:{data?:string};parts?:unknown[]});
+  if(plain.length) return plain.join("\n").trim();
+  if(html.length) return html.join("\n").replace(/<style[\s\S]*?<\/style>/gi,"").replace(/<br\s*\/?>(?=)/gi,"\n").replace(/<\/(p|div|tr|table)>/gi,"\n").replace(/<[^>]+>/g," ").replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/[ \t]{2,}/g," ").replace(/\n{3,}/g,"\n\n").trim();
+  return "";
+}
+// The full body text of one sent message (used when logging a Gmail-composed send to History).
+export async function messageBody(token:string,id:string){const res=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=full`,{headers:{authorization:`Bearer ${token}`}});if(!res.ok)throw new Error(`Gmail message body failed: ${res.status}`);const data=await res.json() as {payload?:unknown};return extractBody(data.payload)}
+// The subject + full body of a thread's first (outbound) message — for reading a send back in History.
+export async function threadText(token:string,threadId:string){const res=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/threads/${threadId}?format=full`,{headers:{authorization:`Bearer ${token}`}});if(!res.ok)throw new Error(`Gmail thread failed: ${res.status}`);const data=await res.json() as {messages?:Array<{payload?:{headers?:Array<{name:string;value:string}>}}>};const msg=data.messages?.[0];if(!msg)return {subject:"",body:""};const headers=msg.payload?.headers??[];const subject=headers.find((h)=>h.name.toLowerCase()==="subject")?.value??"";return {subject,body:extractBody(msg.payload)}}
 const base64url=(s:string)=>Buffer.from(s).toString("base64url");
 // RFC 2047 encoded-word for header values with non-ASCII (e.g. an em dash in the subject),
 // so Gmail doesn't mojibake them into "Ã¢Â€Â".

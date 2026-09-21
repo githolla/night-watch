@@ -1,5 +1,5 @@
 import { admin } from "./supabase/admin.ts";
-import { listSent, messageMeta, ownerAccessToken } from "./gmail.ts";
+import { listSent, messageMeta, messageBody, ownerAccessToken } from "./gmail.ts";
 import type { Owner } from "./types.ts";
 
 /** Pull the email address out of a "Name <email>" (or bare) To header. */
@@ -45,6 +45,9 @@ export async function runSentSync(): Promise<{ scanned: number; logged: number }
       const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("person_id", person.id).eq("channel", "email").eq("sent_by", owner).gte("sent_at", lo).lte("sent_at", hi);
       if ((count ?? 0) > 0) continue;
 
+      // Store the full message text so History can show the entire email; fall back to the subject.
+      let fullBody = "";
+      try { fullBody = await messageBody(token, msg.id); } catch { /* keep fallback */ }
       const { error } = await db.from("touches").insert({
         card_id: card.id,
         person_id: person.id,
@@ -52,7 +55,7 @@ export async function runSentSync(): Promise<{ scanned: number; logged: number }
         sent_at: new Date(at).toISOString(),
         sent_by: owner,
         gmail_thread_id: meta.threadId,
-        body: meta.subject ? `(sent from Gmail) ${meta.subject}` : "(sent from Gmail)",
+        body: fullBody.trim() || (meta.subject ? `(sent from Gmail) ${meta.subject}` : "(sent from Gmail)"),
       });
       if (!error) logged++;
     }

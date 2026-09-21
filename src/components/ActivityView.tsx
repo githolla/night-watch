@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export type ActivityEvent = {
@@ -20,6 +20,8 @@ export type ActivityEvent = {
   snippet: string;
   replied: boolean;
   replyClass: string;
+  inCadence: boolean;
+  gmailThreadId: string | null;
 };
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -30,6 +32,25 @@ const CHANNEL_LABEL: Record<string, string> = {
   intro_ask: "Intro",
 };
 const channelKind = (channel: string) => (channel === "email" ? "email" : channel === "intro_ask" ? "intro" : "linkedin");
+type Filter = "all" | "email" | "linkedin" | "sent" | "replied" | "cadence";
+const FILTERS: Array<{ key: Filter; label: string }> = [
+  { key: "all", label: "All" },
+  { key: "email", label: "Email" },
+  { key: "linkedin", label: "LinkedIn" },
+  { key: "sent", label: "Sent" },
+  { key: "replied", label: "Replied" },
+  { key: "cadence", label: "In cadence" },
+];
+function matchFilter(event: ActivityEvent, filter: Filter): boolean {
+  switch (filter) {
+    case "email": return channelKind(event.channel) === "email";
+    case "linkedin": return channelKind(event.channel) === "linkedin";
+    case "sent": return !event.replied;
+    case "replied": return event.replied;
+    case "cadence": return event.inCadence;
+    default: return true;
+  }
+}
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const monthName = (date: Date) => date.toLocaleDateString(undefined, { month: "long", year: "numeric" });
 const dayLong = (day: string) => new Date(`${day}T12:00:00`).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
@@ -41,6 +62,21 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
 export function ActivityView({ events: initialEvents, who, note, canDelete }: { events: ActivityEvent[]; who?: { name: string } | null; note?: string | null; canDelete?: boolean }) {
   const [events, setEvents] = useState(initialEvents);
   const [detail, setDetail] = useState<ActivityEvent | null>(null);
+  const [fetched, setFetched] = useState<{ id: string; body: string } | null>(null);
+  // A send only logged as a snippet (composed directly in Gmail) needs its full body pulled back
+  // from Gmail so the reader shows the entire email; a normal send already carries its full body.
+  const needsFetch = Boolean(detail && detail.channel === "email" && detail.gmailThreadId && (!detail.body || detail.body.startsWith("(sent from Gmail)")));
+  const loadingBody = Boolean(needsFetch && detail && fetched?.id !== detail.id);
+  useEffect(() => {
+    if (!detail || !needsFetch || fetched?.id === detail.id) return;
+    const id = detail.id;
+    let live = true;
+    fetch(`/api/touches/${id}/message`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { if (live && typeof j?.body === "string") setFetched({ id, body: j.body }); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [detail, needsFetch, fetched]);
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState("");
   async function syncGmail() {
@@ -59,8 +95,18 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
     const res = await fetch(`/api/touches/${id}`, { method: "DELETE" });
     if (res.ok) setEvents((current) => current.filter((event) => event.id !== id));
   }
-  const [chan, setChan] = useState<"all" | "email" | "linkedin">("all");
-  const view = useMemo(() => (chan === "all" ? events : events.filter((event) => channelKind(event.channel) === chan)), [events, chan]);
+  const [filter, setFilter] = useState<Filter>("all");
+  const view = useMemo(() => (filter === "all" ? events : events.filter((event) => matchFilter(event, filter))), [events, filter]);
+  const counts = useMemo(() => {
+    const c: Record<Filter, number> = { all: events.length, email: 0, linkedin: 0, sent: 0, replied: 0, cadence: 0 };
+    for (const event of events) {
+      if (channelKind(event.channel) === "email") c.email++;
+      else if (channelKind(event.channel) === "linkedin") c.linkedin++;
+      if (event.replied) c.replied++; else c.sent++;
+      if (event.inCadence) c.cadence++;
+    }
+    return c;
+  }, [events]);
 
   const byDay = useMemo(() => {
     const map = new Map<string, ActivityEvent[]>();
@@ -68,10 +114,10 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
     return map;
   }, [view]);
 
-  const latest = view[0]?.day ?? events[0]?.day;
+  // Always open on the current month so "today" is in view; you can page back to older months.
   const [cursor, setCursor] = useState(() => {
-    const base = latest ? new Date(`${latest}T12:00:00`) : new Date();
-    return new Date(base.getFullYear(), base.getMonth(), 1);
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), 1);
   });
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
@@ -96,7 +142,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
     }
     return { email, linkedin, replies, total: monthAll.length };
   }, [monthAll]);
-  const toggleChan = (next: "email" | "linkedin") => setChan((current) => (current === next ? "all" : next));
+  const toggleFilter = (next: Filter) => setFilter((current) => (current === next ? "all" : next));
 
   const groups = useMemo(() => {
     const map = new Map<string, ActivityEvent[]>();
@@ -117,12 +163,20 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
             {who && <Link href="/activity" className="activity-back">← All activity</Link>}
           </div>
           <div className="activity-totals">
-            <button type="button" className={`activity-stat is-filter ${chan === "email" ? "is-on" : ""}`} onClick={() => toggleChan("email")} title="Show only emails"><strong>{totals.email}</strong><span>✉ Emails</span></button>
-            <button type="button" className={`activity-stat is-filter ${chan === "linkedin" ? "is-on" : ""}`} onClick={() => toggleChan("linkedin")} title="Show only LinkedIn"><strong>{totals.linkedin}</strong><span>in LinkedIn</span></button>
-            <div className="activity-stat is-reply"><strong>{totals.replies}</strong><span>Replies</span></div>
+            <button type="button" className={`activity-stat is-filter ${filter === "email" ? "is-on" : ""}`} onClick={() => toggleFilter("email")} title="Show only emails"><strong>{totals.email}</strong><span>✉ Emails</span></button>
+            <button type="button" className={`activity-stat is-filter ${filter === "linkedin" ? "is-on" : ""}`} onClick={() => toggleFilter("linkedin")} title="Show only LinkedIn"><strong>{totals.linkedin}</strong><span>in LinkedIn</span></button>
+            <button type="button" className={`activity-stat is-reply is-filter ${filter === "replied" ? "is-on" : ""}`} onClick={() => toggleFilter("replied")} title="Show only replied"><strong>{totals.replies}</strong><span>Replies</span></button>
             {canDelete && <button type="button" className="activity-sync" onClick={syncGmail} disabled={syncing} title="Pull emails sent directly from Gmail into History">{syncing ? "Syncing…" : "Sync Gmail sent"}</button>}
           </div>
         </header>
+
+        <div className="activity-filters" role="tablist" aria-label="Filter history">
+          {FILTERS.map((f) => (
+            <button key={f.key} type="button" role="tab" aria-selected={filter === f.key} className={`activity-filter ${filter === f.key ? "is-on" : ""}`} onClick={() => setFilter(f.key)}>
+              {f.label}<em>{counts[f.key]}</em>
+            </button>
+          ))}
+        </div>
 
         {syncMsg && <p className="notice" role="status" style={{ marginBottom: 12 }}>{syncMsg}</p>}
         {note && <p className="notice" role="status" style={{ marginBottom: 16 }}>{note}</p>}
@@ -226,8 +280,17 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
               <div><dt>Sent by</dt><dd>{detail.sentBy}</dd></div>
               <div><dt>When</dt><dd>{fullWhen(detail.at)}</dd></div>
               <div><dt>Status</dt><dd>{detail.replied ? <span className={`act-modal-reply ${detail.replyClass === "positive" ? "is-pos" : ""}`}>Replied{detail.replyClass === "positive" ? " · positive" : ""}</span> : "Sent · no reply yet"}</dd></div>
+              {detail.inCadence && <div><dt>Cadence</dt><dd>In an active follow-up sequence</dd></div>}
             </dl>
-            <div className="act-modal-body">{detail.body ? detail.body : <em className="act-modal-empty">No message text was recorded for this send.</em>}</div>
+            <div className="act-modal-body">
+              {loadingBody && <span className="act-modal-loading">Loading the full message…</span>}
+              {(() => {
+                if (loadingBody) return null;
+                const text = fetched?.id === detail.id ? fetched.body : detail.body;
+                if (text && !text.startsWith("(sent from Gmail)")) return text;
+                return <em className="act-modal-empty">{text ? text : "No message text was recorded for this send."}</em>;
+              })()}
+            </div>
           </div>
         </div>
       )}
