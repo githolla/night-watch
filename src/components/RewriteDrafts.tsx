@@ -2,38 +2,59 @@
 
 import { useState } from "react";
 
-// Admin one-click: rewrite every un-sent email draft through the current founder-voice rewriter, in
-// batches, so the whole worklist picks up the new drafting quality at once.
+// Admin draft tools: rewrite every un-sent email through the founder-voice rewriter, or set one blanket
+// greeting across all of them.
 export function RewriteDrafts() {
-  const [running, setRunning] = useState(false);
-  const [done, setDone] = useState(0);
+  const [running, setRunning] = useState<"" | "rewrite" | "greeting">("");
   const [msg, setMsg] = useState("");
+  const [greeting, setGreeting] = useState("Hi {first},");
 
-  async function run() {
-    if (running) return;
-    if (!confirm("Rewrite every un-sent email draft with the latest founder-voice rules? This updates the drafts in place (you can still edit any before sending).")) return;
-    setRunning(true); setDone(0); setMsg("Rewriting drafts…");
+  async function drain(url: string, extra: Record<string, unknown>, label: string, key: "rewritten" | "applied") {
     const before = new Date().toISOString();
     let total = 0;
-    try {
-      for (let i = 0; i < 40; i++) { // safety cap; each pass does 25
-        const res = await fetch("/api/admin/rewrite-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ before }) });
-        const json = await res.json();
-        if (!res.ok) { setMsg(json.error ?? "Rewrite failed."); break; }
-        total += json.rewritten ?? 0; setDone(total);
-        setMsg(`Rewritten ${total} so far${json.remaining ? ` · ${json.remaining} to go…` : ""}`);
-        if (!json.remaining) { setMsg(`Done — rewrote ${total} draft${total === 1 ? "" : "s"}. Reload the desk to see them.`); break; }
-      }
-    } catch { setMsg("Rewrite failed — try again."); }
-    finally { setRunning(false); }
+    for (let i = 0; i < 60; i++) {
+      const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...extra, before }) });
+      const json = await res.json();
+      if (!res.ok) { setMsg(json.error ?? "Something went wrong."); return; }
+      total += json[key] ?? 0;
+      setMsg(`${label} ${total} so far${json.remaining ? ` · ${json.remaining} to go…` : ""}`);
+      if (!json.remaining) { setMsg(`Done — ${label.toLowerCase()} ${total} draft${total === 1 ? "" : "s"}. Reload the desk to see them.`); return; }
+    }
+  }
+
+  async function rewrite() {
+    if (running) return;
+    if (!confirm("Rewrite every un-sent email draft with the latest founder-voice rules? Each stays editable before you send.")) return;
+    setRunning("rewrite"); setMsg("Rewriting drafts…");
+    try { await drain("/api/admin/rewrite-drafts", {}, "Rewrote", "rewritten"); } catch { setMsg("Rewrite failed — try again."); }
+    finally { setRunning(""); }
+  }
+
+  async function applyGreeting() {
+    if (running) return;
+    if (!greeting.trim()) { setMsg("Type a greeting first."); return; }
+    if (!confirm(`Set the greeting on every un-sent email to “${greeting.trim()}” (with {first} replaced by each contact's first name)?`)) return;
+    setRunning("greeting"); setMsg("Applying greeting…");
+    try { await drain("/api/admin/apply-greeting", { greeting }, "Updated", "applied"); } catch { setMsg("Update failed — try again."); }
+    finally { setRunning(""); }
   }
 
   return (
     <section className="conn-card">
       <div className="conn-head"><h2>Draft quality</h2></div>
-      <p className="conn-note">Rewrite every un-sent email in the worklist with the latest founder-voice rules (plain, specific, no vendor buzzwords). Runs on the writing model; each draft stays editable before you send.</p>
-      <button type="button" className="btn" onClick={run} disabled={running}>{running ? "Rewriting…" : "Rewrite all drafts"}</button>
-      {msg && <p className="notice" role="status" style={{ marginTop: 10 }}>{msg}{running && done > 0 ? "" : ""}</p>}
+
+      <p className="conn-note">Rewrite every un-sent email in the worklist with the latest founder-voice rules (plain, specific, no vendor buzzwords, no em dashes, real link only). Runs on the writing model; each draft stays editable before you send.</p>
+      <button type="button" className="btn" onClick={rewrite} disabled={!!running}>{running === "rewrite" ? "Rewriting…" : "Rewrite all drafts"}</button>
+
+      <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
+        <p className="conn-note">Set one greeting across every un-sent email. Use <code>{"{first}"}</code> for the contact&apos;s first name.</p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <input value={greeting} onChange={(e) => setGreeting(e.target.value)} placeholder="Hi {first}," style={{ flex: "1 1 260px", minWidth: 0, border: "1px solid var(--line-strong)", borderRadius: "var(--radius-sm)", background: "var(--paper-bright)", padding: "9px 11px", font: "500 14px/1 var(--sans)", color: "inherit" }} />
+          <button type="button" className="btn" onClick={applyGreeting} disabled={!!running}>{running === "greeting" ? "Applying…" : "Apply to all emails"}</button>
+        </div>
+      </div>
+
+      {msg && <p className="notice" role="status" style={{ marginTop: 12 }}>{msg}</p>}
     </section>
   );
 }

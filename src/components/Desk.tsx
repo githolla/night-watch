@@ -1033,12 +1033,14 @@ function retarget(text: string, fromName: string, toName: string) {
 function parseEmail(body: string, fallbackFirst: string): { first: string; message: string; signoff: string } {
   const raw = (body || "").replace(/\r/g, "").trim();
   if (!raw) return { first: fallbackFirst, message: "", signoff: "Thank you," };
-  const lines = raw.split("\n");
   let first = fallbackFirst;
-  let start = 0;
-  const greet = lines[0].match(/^\s*(?:hi|hey|hello|dear)\s+([^,]+?),?\s*$/i);
-  if (greet) { first = greet[1].trim(); start = 1; while (start < lines.length && !lines[start].trim()) start++; }
-  const afterGreet = lines.slice(start).join("\n").trim();
+  // Pull off a leading greeting whether it sits on its own line ("Hi Kate,\n\n…") OR runs inline with
+  // the message ("Hi Kate, saw your…"). Stripping it here is what stops the name showing twice — once
+  // in the Greeting field and again at the start of the Message.
+  let work = raw;
+  const greet = work.match(/^\s*(?:hi|hey|hello|dear)\s+([^,\n]+?)\s*,[ \t]*\n*/i);
+  if (greet) { first = greet[1].trim(); work = work.slice(greet[0].length); }
+  const afterGreet = work.trim();
   let rest = afterGreet;
   let signoff = "Thank you,";
   const rl = rest.split("\n");

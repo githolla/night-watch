@@ -39,6 +39,10 @@ export function sanitizeLinks(text: string): string {
   try { host = new URL(site).hostname.replace(/^www\./, ""); } catch { /* keep default */ }
   return text
     .replace(/https?:\/\/[^\s<>)\]]+/gi, (u) => { try { return new URL(u).hostname.replace(/^www\./, "") === host ? site : ""; } catch { return ""; } })
+    // No em/en dashes — they read as AI-written; use a comma instead.
+    .replace(/\s*[—–]\s*/g, ", ")
+    .replace(/,\s*,/g, ",")
+    .replace(/\s+([.,!?;:])/g, "$1")
     .replace(/[ \t]{2,}/g, " ")
     .replace(/ *\n{3,}/g, "\n\n")
     .replace(/[ \t]+\n/g, "\n")
