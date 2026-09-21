@@ -32,9 +32,46 @@ const siteUrl = (site: string) => (site ? (/^https?:\/\//.test(site) ? site : `h
  * whatever path or subdomain — to the canonical homepage, and strips links to any other domain entirely,
  * so a fabricated URL can never reach a prospect. `SENDER_SITE_URL` overrides the canonical link.
  */
+/** Normalize a line for comparison: lowercase, drop apostrophes and punctuation, collapse whitespace. */
+const normalizeForCompare = (value: string) =>
+  value.toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9\s]+/g, " ").replace(/\s+/g, " ").trim();
+
+/**
+ * True when two lines say the same thing with cosmetic differences — a capital letter, a contraction
+ * ("I am" vs "I'm"), punctuation. Token overlap (Jaccard), so "Nice to meet you. I am founder and CEO of
+ * Nine-67." and "nice to meet you. I'm founder and CEO of Nine-67." count as the same opener.
+ */
+export function similarText(left: string, right: string, threshold = 0.75): boolean {
+  const a = new Set(normalizeForCompare(left).split(" ").filter(Boolean));
+  const b = new Set(normalizeForCompare(right).split(" ").filter(Boolean));
+  if (!a.size || !b.size) return false;
+  let common = 0;
+  for (const token of a) if (b.has(token)) common += 1;
+  const union = a.size + b.size - common;
+  return union > 0 && common / union >= threshold;
+}
+
+/**
+ * Drop any paragraph that repeats an earlier one in near-identical wording. A blanket "apply to all"
+ * opener that was re-applied with a tweak (case, a contraction) otherwise stacks up and ships to the
+ * prospect two or three times over. Only paragraphs of 5+ words are considered, so short lines and
+ * sign-offs are never collapsed.
+ */
+export function dedupeParagraphs(text: string): string {
+  const paragraphs = text.split(/\n\s*\n/);
+  const kept: string[] = [];
+  for (const paragraph of paragraphs) {
+    const trimmed = paragraph.trim();
+    const longEnough = normalizeForCompare(trimmed).split(" ").filter(Boolean).length >= 5;
+    if (longEnough && kept.some((earlier) => similarText(earlier, trimmed))) continue;
+    kept.push(trimmed);
+  }
+  return kept.join("\n\n");
+}
+
 export function sanitizeLinks(text: string): string {
   if (!text) return text;
-  return text
+  return dedupeParagraphs(text)
     // No links in the body at all — the website already lives in the signature. Drop every URL (keeping any
     // trailing sentence punctuation) and every bare domain a model may have invented ("nine-67.com/x",
     // "acme.io/demo"), so a prospect never sees a duplicate or fabricated link in the message.

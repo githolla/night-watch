@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { sanitizeLinks } from "@/lib/sender";
+import { sanitizeLinks, similarText } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
 
 export const maxDuration = 300;
@@ -16,10 +16,15 @@ const stripGreeting = (body: string, line: string) => {
   let out = body.replace(/^\s+/, "").replace(/^(?:hi|hey|hello|dear|good (?:morning|afternoon|evening))\b[^\n,]*,[ \t]*\n*/i, "").replace(/^\s+/, "");
   const norm = line.trim();
   if (norm) {
-    // Case-insensitive: re-applying "Nice to meet you…" after changing "nice"→"Nice" must still be seen as
-    // the same opener and replaced, not stacked (the reported "line shows up twice" bug).
-    for (let i = 0; i < 6 && out.slice(0, norm.length).toLowerCase() === norm.toLowerCase(); i++) {
-      out = out.slice(norm.length).replace(/^[ \t]*\n+/, "").replace(/^\s+/, "");
+    // Strip every leading paragraph that says the same thing as the opener being applied — matched loosely,
+    // so a re-apply that only changed the case ("nice"→"Nice") or a contraction ("I am"→"I'm") replaces the
+    // old one instead of stacking a near-copy on top of it.
+    for (let i = 0; i < 8; i++) {
+      const block = out.match(/^([\s\S]*?)(?:\n\s*\n|$)/);
+      const paragraph = (block?.[1] ?? "").trim();
+      if (!paragraph || !block) break;
+      if (paragraph.toLowerCase() !== norm.toLowerCase() && !similarText(paragraph, norm)) break;
+      out = out.slice(block[0].length).replace(/^\s+/, "");
     }
   }
   return out.replace(/^\s+/, "");
