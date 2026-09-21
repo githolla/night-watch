@@ -4,6 +4,8 @@ import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
+import { RewriteDrafts } from "@/components/RewriteDrafts";
+import { ToolDrawer } from "@/components/ToolDrawer";
 import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, populateSweepConfig, sweepAccountLimit } from "@/lib/run-config";
 import { latestRunSummary, loadRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
 import { isLikelyPersonName } from "@/lib/pipeline";
@@ -225,7 +227,14 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   return (
     <div className="shell">
       <Header />
-      <Desk initialCards={cards} selectedId={params.card} gmailConnected={(gmailRows ?? []).some((row) => (row as { owner: string }).owner === me.owner)} context={context} scan={scan} />
+      <Desk
+        initialCards={cards}
+        selectedId={params.card}
+        gmailConnected={(gmailRows ?? []).some((row) => (row as { owner: string }).owner === me.owner)}
+        context={context}
+        scan={scan}
+        tools={me.role === "admin" ? <ToolDrawer label="Draft tools" title="Draft tools"><RewriteDrafts /></ToolDrawer> : null}
+      />
     </div>
   );
 }

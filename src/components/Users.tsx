@@ -82,7 +82,7 @@ export function Users() {
         when={<>Someone new needs to work the desk. Give them their own sign-on rather than sharing yours, so History records who actually sent what.</>}
         watch={<>Their <strong>seat</strong> decides which connected mailbox their emails leave from &mdash; so after you invite them, they need to connect their own Google account under <strong>Sending &amp; identity</strong>, or their sends will have nowhere to go.</>}
       />
-      <header className="conn-head"><div><h2>Team sign-ons</h2><p>Each teammate signs in with their own email and password. Their <strong>seat</strong> decides which connected Google account their outreach sends from.</p></div></header>
+      <header className="conn-head"><div><h2>Team members</h2><p>Each teammate signs in with their own email and password. Their <strong>seat</strong> decides which connected Google account their outreach sends from.</p></div></header>
 
       <form className="users-form" onSubmit={addUser}>
         <div className="users-form-row">

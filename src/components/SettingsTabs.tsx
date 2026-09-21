@@ -5,8 +5,8 @@ import { useState, type ReactNode } from "react";
 export type SettingsTab = {
   id: string;
   label: string;
-  /** One line in the sidebar: what this section is, in the user's words. */
-  summary: string;
+  /** A small icon for the compact nav. */
+  icon?: ReactNode;
   /** What to do here, shown above the panel. */
   blurb: string;
   /** Whether this section still needs attention, shown as a chip in the sidebar. */
@@ -15,10 +15,10 @@ export type SettingsTab = {
 };
 
 /**
- * Settings is six unrelated concerns — sending identity, companies, drafts, team, feedback, system — and a
- * row of bare tab labels gave no clue which one you needed or whether anything was set up. Each section now
- * says what it is and whether it is ready, and the panel opens with what to do, so the page reads as a
- * short list of jobs rather than a wall of controls. Only the open panel is rendered.
+ * Compact navigation: an icon, a short label, and a status indicator only where one carries information.
+ * The long per-section descriptions that used to sit here made the sidebar the loudest thing on the page;
+ * counts and explanation now live inside the page they describe, which is where you are when you need
+ * them. Only the open panel is rendered.
  */
 export function SettingsTabs({ tabs }: { tabs: SettingsTab[] }) {
   // Open on the first thing that still needs doing, so a half-configured app points at its own gap.
@@ -45,11 +45,9 @@ export function SettingsTabs({ tabs }: { tabs: SettingsTab[] }) {
               className={`settings-navitem ${tab.id === current?.id ? "is-on" : ""}`}
               onClick={() => setActive(tab.id)}
             >
-              <span className="settings-navitem-top">
-                <strong>{tab.label}</strong>
-                {tab.status && <em className={`settings-chip is-${tab.status.tone}`}>{tab.status.label}</em>}
-              </span>
-              <small>{tab.summary}</small>
+              <span className="settings-navitem-icon" aria-hidden>{tab.icon}</span>
+              <strong>{tab.label}</strong>
+              {tab.status && <em className={`settings-chip is-${tab.status.tone}`}>{tab.status.label}</em>}
             </button>
           ))}
         </div>

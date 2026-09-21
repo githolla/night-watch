@@ -38,7 +38,7 @@ export function Connections({ connections, google }: { connections: Connection[]
         watch={<>A <strong>seat</strong> is a person who sends. Each one connects their own mailbox, so their emails go out as them, not as you. No password is ever stored &mdash; only an encrypted token Google issues, which you can revoke at any time.</>}
       />
       <header className="conn-head">
-        <div><h2>Google Workspace seats</h2><p>Connect an account per seat. Outreach sends from that seat, replies land back here to drive the cadence, and its calendar powers &ldquo;Propose times&rdquo;.</p></div>
+        <div><h2>Connected accounts</h2><p>Connect an account per seat. Outreach sends from that seat, replies land back here to drive the cadence, and its calendar powers &ldquo;Propose times&rdquo;.</p></div>
       </header>
       {google && !ready && <div className="google-setup">
         <strong>Finish Google setup to enable sending</strong>

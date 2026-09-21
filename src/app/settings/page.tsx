@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Building2, Mail, MessageSquare, PenLine, Plug, UsersRound } from "lucide-react";
 import { Header } from "@/components/Header";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
@@ -5,8 +7,6 @@ import { FeatureControlCenter } from "@/components/FeatureControlCenter";
 import { Connections } from "@/components/Connections";
 import { Users } from "@/components/Users";
 import { FeedbackAutomation } from "@/components/FeedbackAutomation";
-import { RewriteDrafts } from "@/components/RewriteDrafts";
-import { AddCompany } from "@/components/AddCompany";
 import { SettingsTabs } from "@/components/SettingsTabs";
 import { SenderProfileForm } from "@/components/SenderProfileForm";
 import { requireUser } from "@/lib/auth";
@@ -54,53 +54,52 @@ export default async function Settings() {
   const mailboxConnected = (connections ?? []).some((row) => row.owner === me.owner);
   const identitySet = Boolean(senderProfile.from_name.trim());
   const sendingReady = mailboxConnected && identitySet;
-  const { count: teamCount } = isAdmin ? await db.from("app_users").select("*", { count: "exact", head: true }) : { count: 0 };
 
-  // One section per job, each saying what it is and whether it still needs doing.
+  // Compact sections. Counts live inside each page, not in the nav; a chip appears only where it carries
+  // information. Target accounts and Draft tools have moved to the pages where that work happens — the
+  // entries here are signposts to them, kept while people learn the new places.
   const tabs = [
     {
-      id: "sending", label: "Sending & identity",
-      summary: "The mailbox you send from, and the name and signature on every email",
+      id: "sending", label: "Email accounts", icon: <Mail />,
       blurb: sendingReady
-        ? `Emails go out from ${senderEmail ?? "the connected mailbox"} as “${senderProfile.from_name}”. Change the mailbox, the name and title on the From line, who gets CC'd, or the signature appended to every send.`
-        : "Start here — nothing can send until a Google account is connected. Connect the mailbox Night Watch should send from, then set the name and title that appear on the From line and the signature appended to every email.",
+        ? `Emails go out from ${senderEmail ?? "the connected mailbox"} as \u201C${senderProfile.from_name}\u201D. Change the mailbox, the name on the From line, who is copied, or the signature.`
+        : "Connect the Google account Night Watch sends from, then set the name and signature every email goes out with.",
       status: sendingReady
-        ? { tone: "ok" as const, label: "Ready" }
-        : { tone: "todo" as const, label: mailboxConnected ? "Add your name" : "Start here" },
+        ? { tone: "ok" as const, label: "Connected" }
+        : { tone: "todo" as const, label: mailboxConnected ? "Add name" : "Start here" },
       content: <>
         <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} /></div>
         <div className="feature-center"><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
       </>,
     },
     ...(isAdmin ? [{
-      id: "companies", label: "Companies",
-      summary: "Add a company to the reach-out list, or take one off",
-      blurb: "The list is imported from the target file and kept in step automatically. Use this to add a company by hand, or to take one off when the pitch doesn't apply — an AI product company that already builds this itself, for example. Anything you change by hand is respected; the nightly import won't undo it.",
-      status: { tone: "info" as const, label: `${accountCount ?? 0} active` },
-      content: <div className="feature-center"><AddCompany /></div>,
+      id: "companies", label: "Target accounts", icon: <Building2 />,
+      blurb: "Adding and excluding companies now lives with the company table, so it is where you are when you decide.",
+      content: <div className="settings-moved">
+        <p>This moved to <strong>All companies</strong>, where the full searchable table is. Use <strong>Add company</strong> there to add one by hand, or search and <strong>Exclude</strong> to take one off outreach.</p>
+        <Link className="btn primary" href="/targets">Open All companies</Link>
+      </div>,
     }] : []),
     ...(isAdmin ? [{
-      id: "drafts", label: "All emails at once",
-      summary: "Apply one fix to every email waiting to be sent",
-      blurb: "Three ways to change every un-sent email together instead of opening them one at a time: clean up drafts that saved badly, set one greeting across all of them, or hand them all back to the writing model to be written again. Nothing here touches an email you have already sent, and every draft stays editable afterwards. Only the rewrite costs money — the other two are instant and free.",
-      content: <div className="feature-center"><RewriteDrafts /></div>,
+      id: "drafts", label: "Draft tools", icon: <PenLine />,
+      blurb: "Bulk draft fixes now live on the desk, next to the drafts they change.",
+      content: <div className="settings-moved">
+        <p>This moved to <strong>Outreach</strong>, the desk where you work the drafts. Use <strong>Draft tools</strong> in the header there to clean up drafts, update the greeting, or regenerate them with AI.</p>
+        <Link className="btn primary" href="/desk">Open Outreach</Link>
+      </div>,
     }] : []),
     ...(isAdmin ? [{
-      id: "team", label: "Team",
-      summary: "Who can sign in, and which mailbox they send from",
-      blurb: "Invite a teammate by email. They get their own sign-on and their own sending seat, so their emails go out from their mailbox with their signature, not yours.",
-      status: { tone: "info" as const, label: `${teamCount ?? 0} ${teamCount === 1 ? "person" : "people"}` },
+      id: "team", label: "Team & access", icon: <UsersRound />,
+      blurb: "Who can sign in, and which connected mailbox their outreach sends from.",
       content: <div className="feature-center"><Users /></div>,
     }] : []),
     ...(isAdmin ? [{
-      id: "feedback", label: "Feedback",
-      summary: "What testers have reported from inside the app",
-      blurb: "Every “Feedback” submission from across the app, with who sent it and which page they were on. Download it as a spreadsheet, or have it posted to GitHub automatically each night.",
-      status: { tone: "info" as const, label: `${feedbackCount ?? 0} on file` },
+      id: "feedback", label: "Feedback inbox", icon: <MessageSquare />,
+      blurb: "Everything testers have sent with the Feedback button, and where it goes next.",
       content: <>
         <div className="feature-center" style={{ marginBottom: 18 }}>
           <section className="conn-card">
-            <header className="conn-head"><div><h2>Tester feedback</h2><p>Every &ldquo;Feedback&rdquo; submission across the app, timestamped with who sent it and which page. {feedbackCount ?? 0} on file.</p></div></header>
+            <header className="conn-head"><div><h2>Tester feedback</h2><p>{feedbackCount ?? 0} submission{feedbackCount === 1 ? "" : "s"}, each timestamped with who sent it and which page they were on.</p></div></header>
             <a className="btn primary" href="/api/feedback/export">Download CSV</a>
           </section>
         </div>
@@ -108,9 +107,8 @@ export default async function Settings() {
       </>,
     }] : []),
     {
-      id: "system", label: "System",
-      summary: "Run status, Slack and the target list — mostly read-only",
-      blurb: "How the nightly run is doing, whether Slack is wired up, and how much of the target list has been researched. You shouldn't need anything here day to day — it's for checking that the machinery behind the desk is running.",
+      id: "system", label: "Integrations & automation", icon: <Plug />,
+      blurb: "Slack, the nightly run and the target list. Mostly read-only \u2014 for checking the machinery is running.",
       content:
         <FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={activeTargetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} />,
     },

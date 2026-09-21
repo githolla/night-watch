@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
 import { hasProposedTimes, sanitizeCopy, stripProposedTimes } from "@/lib/clean";
@@ -144,9 +144,12 @@ export function Desk({
   gmailConnected = false,
   context,
   scan,
+  tools,
 }: {
   initialCards: Card[];
   selectedId?: string;
+  /** A page-level tool rendered in the desk header (Draft tools), passed in from the server page. */
+  tools?: ReactNode;
   demo?: boolean;
   gmailConnected?: boolean;
   context?: DeskContext;
@@ -895,7 +898,7 @@ export function Desk({
         <div className="deskwork">
           <header className="deskwork-head">
             <div><span className="overview-kick">Your worklist</span><h1>Start the right conversation.</h1></div>
-            <div className="deskwork-head-right"><span>Night Watch</span><strong>{todo.length} {todo.length === 1 ? "prospect" : "prospects"} ready</strong><button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview →</button></div>
+            <div className="deskwork-head-right"><span>Night Watch</span><strong>{todo.length} {todo.length === 1 ? "prospect" : "prospects"} ready</strong><div className="deskwork-head-actions">{tools}<button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview &rarr;</button></div></div>
           </header>
 
           <div className="deskwork-grid">

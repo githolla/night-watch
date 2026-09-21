@@ -60,7 +60,7 @@ export function RewriteDrafts() {
 
   async function rewrite() {
     if (running) return;
-    if (!confirm("Rewrite every un-sent email draft with the latest founder-voice rules? Each stays editable before you send.")) return;
+    if (!confirm("Regenerate every un-sent email draft with AI, using the latest founder-voice rules? This replaces anything you edited by hand, and uses AI credits. Each draft stays editable before you send.")) return;
     setRunning("rewrite"); setMsg("Rewriting drafts…");
     try { await drain("/api/admin/rewrite-drafts", {}, "Rewrote", "rewritten"); } catch { setMsg("Rewrite failed — try again."); }
     finally { setRunning(""); }
@@ -84,16 +84,16 @@ export function RewriteDrafts() {
         watch={<>Nothing here touches an email you&rsquo;ve already sent, and every draft stays editable afterwards. Only <strong>Rewrite all drafts</strong> costs money; the other two are instant and free.</>}
       />
 
-      <h3 className="panel-subhead">Rewrite all drafts <span className="panel-cost is-paid">Costs money</span></h3>
+      <h3 className="panel-subhead">Regenerate drafts with AI <span className="panel-cost is-paid">Uses AI credits</span></h3>
       <p className="conn-note">Hands every un-sent email back to the writing model to be written again from scratch, following the current rules: plain language, specific to that company, no vendor buzzwords, no em dashes. Use it when the drafts read generically. It replaces what is there, so anything you edited by hand is lost &mdash; and because it calls the model once per draft, it takes a few minutes and adds to your API bill.</p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <button type="button" className="btn" onClick={rewrite} disabled={!!running}>{running === "rewrite" ? "Rewriting…" : "Rewrite all drafts"}</button>
+        <button type="button" className="btn" onClick={rewrite} disabled={!!running}>{running === "rewrite" ? "Regenerating…" : "Regenerate drafts with AI"}</button>
         <button type="button" className="btn primary" onClick={cleanUp} disabled={!!running} title="Removes repeated lines, links in the body, and the old “teardown” CTA from drafts already saved. No AI, no cost.">{running === "clean" ? "Cleaning…" : "Clean up all drafts"}</button>
       </div>
       <p className="conn-note" style={{ marginTop: 8 }}><strong>Clean up all drafts</strong> is the safe one. It removes an opening line that got saved twice, a stray link in the body, and the old &ldquo;teardown&rdquo; sentence &mdash; and nothing else. It doesn&rsquo;t reword a single sentence, doesn&rsquo;t call the model, costs nothing, and leaves a draft alone if there is nothing to fix. Start here before reaching for a rewrite.</p>
 
       <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-        <h3 className="panel-subhead">One greeting everywhere <span className="panel-cost is-free">Free</span></h3>
+        <h3 className="panel-subhead">Update greeting <span className="panel-cost is-free">Free</span></h3>
         <p className="conn-note">Replaces the opening line of every un-sent email with the one you type here. Write <code>{"{first}"}</code> where the contact&rsquo;s first name should go, so <em>Hi {"{first}"},</em> reaches Robert as <em>Hi Robert,</em>. Use it when you want a consistent opener across the whole list. It swaps the greeting only &mdash; the rest of each email is untouched.</p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <input value={greeting} onChange={(e) => setGreeting(e.target.value)} placeholder="Hi {first}," style={{ flex: "1 1 260px", minWidth: 0, border: "1px solid var(--line-strong)", borderRadius: "var(--radius-sm)", background: "var(--paper-bright)", padding: "9px 11px", font: "500 14px/1 var(--sans)", color: "inherit" }} />

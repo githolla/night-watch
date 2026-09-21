@@ -1,27 +1,31 @@
 import type { ReactNode } from "react";
 
 /**
- * The same three questions answered above every tool in Settings: what it does, when you'd reach for it,
- * and the one thing that bites if you don't know it (what it costs, or what it changes that you can't undo).
+ * Explanation, folded away. The controls are the point of the page, so the long-form "what this does /
+ * when to use it" now sits behind a "How this works" disclosure instead of pushing the buttons below the
+ * fold. It stays available for someone meeting a screen for the first time, and out of the way afterwards.
  *
- * It is the same shape every time on purpose. Each panel used to explain itself in its own voice, at its own
- * length, in prose the user had to read in full to find out whether the button was safe to press — so the
- * page read as a lot of controls with no way in. Answering the same three questions in the same order means
- * you learn the pattern once and can then skim any section.
+ * `watch` is deliberately NOT inside the fold: a consequence you cannot undo, or something that costs
+ * money, has to be visible next to the control it applies to, not one click away.
  */
 export function PanelGuide({ what, when, watch }: {
   /** One sentence: what pressing the thing actually does. */
   what: ReactNode;
   /** When a person would want it — the situation, not the mechanism. */
   when: ReactNode;
-  /** Optional: the cost, the catch, or what can't be undone. */
+  /** The cost, the catch, or what can't be undone. Always visible. */
   watch?: ReactNode;
 }) {
   return (
-    <dl className="panel-guide">
-      <div><dt>What this does</dt><dd>{what}</dd></div>
-      <div><dt>When to use it</dt><dd>{when}</dd></div>
-      {watch && <div className="is-watch"><dt>Worth knowing</dt><dd>{watch}</dd></div>}
-    </dl>
+    <>
+      <details className="how-works">
+        <summary>How this works</summary>
+        <div className="how-works-body">
+          <p>{what}</p>
+          <p><strong>When to use it.</strong> {when}</p>
+        </div>
+      </details>
+      {watch && <p className="panel-watch">{watch}</p>}
+    </>
   );
 }

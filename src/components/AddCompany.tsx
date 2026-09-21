@@ -47,7 +47,7 @@ export function AddCompany() {
   // "build this instead of hiring" pitch doesn't land.
   async function remove(company: Found) {
     if (busy) return;
-    if (!confirm(`Remove ${company.name} (${company.domain}) from the reach-out list?\n\nIts un-sent drafts are dismissed and the nightly sync won't put it back. Sent history is kept.`)) return;
+    if (!confirm(`Exclude ${company.name} (${company.domain}) from outreach?\n\nIts un-sent drafts are dismissed and the nightly sync won't put it back. Everything you already sent is kept in History.`)) return;
     setBusy(true); setMsg("Removing…");
     try {
       const res = await fetch("/api/admin/remove-company", {
@@ -55,10 +55,10 @@ export function AddCompany() {
         body: JSON.stringify({ id: company.id }),
       });
       const json = await res.json();
-      if (!res.ok) { setMsg(json.error ?? "Could not remove the company."); return; }
-      setMsg(`Removed ${json.name ?? company.name} from the list${json.dismissed ? ` and cleared ${json.dismissed} un-sent draft${json.dismissed === 1 ? "" : "s"}` : ""}.`);
+      if (!res.ok) { setMsg(json.error ?? "Could not exclude the company."); return; }
+      setMsg(`Excluded ${json.name ?? company.name} from outreach${json.dismissed ? ` and cleared ${json.dismissed} un-sent draft${json.dismissed === 1 ? "" : "s"}` : ""}.`);
       setResults((current) => current.filter((row) => row.id !== company.id));
-    } catch { setMsg("Could not remove the company — try again."); }
+    } catch { setMsg("Could not exclude the company — try again."); }
     finally { setBusy(false); }
   }
 
@@ -88,6 +88,7 @@ export function AddCompany() {
         when={<>You&rsquo;ve thought of a company the imported list doesn&rsquo;t have, or you&rsquo;ve hit one the pitch doesn&rsquo;t fit &mdash; an AI product company that already builds this kind of thing itself.</>}
         watch={<>Either way the decision sticks: the nightly import keeps hand-managed companies exactly as you left them. Taking a company off dismisses its un-sent drafts but <strong>keeps everything you already sent</strong> in History.</>}
       />
+      <h3 className="panel-subhead">Add a company</h3>
       <p className="conn-note">Put a company on the reach-out list by hand. It joins the target list as an active, hand-managed account — the nightly file sync won&apos;t remove it — and the next research run works it like any other target.</p>
       <form onSubmit={add} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -103,7 +104,8 @@ export function AddCompany() {
         </div>
       </form>
       <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-        <p className="conn-note">Remove a company from the reach-out list — search by name, then remove the right one. Use this for AI-native product companies, where the &ldquo;build this instead of hiring&rdquo; pitch doesn&apos;t fit. Un-sent drafts are dismissed, sent history is kept, and the nightly sync won&apos;t put it back.</p>
+        <h3 className="panel-subhead">Exclude from outreach</h3>
+        <p className="conn-note">Search by name, then exclude the right one. Use this for AI-native product companies, where the &ldquo;build this instead of hiring&rdquo; pitch doesn&apos;t fit. Un-sent drafts are dismissed, everything already sent stays in History, and the nightly sync won&apos;t put it back.</p>
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search companies by name or domain (e.g. Motive)" style={{ width: "100%", border: "1px solid var(--line-strong)", borderRadius: "var(--radius-sm)", background: "var(--paper-bright)", padding: "9px 11px", font: "500 14px/1 var(--sans)", color: "inherit" }} />
         {search.trim().length >= 2 && (
           <div style={{ marginTop: 8, border: "1px solid var(--line)", borderRadius: "var(--radius-sm)", maxHeight: 260, overflowY: "auto" }}>
@@ -115,7 +117,7 @@ export function AddCompany() {
                   <strong style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{company.name}</strong>
                   <small className="conn-note">{company.domain}{company.vertical ? ` · ${company.vertical}` : ""}{company.outreach ? "" : " · already off the list"}</small>
                 </div>
-                <button type="button" className="btn ghost danger" disabled={busy || !company.outreach} onClick={() => remove(company)}>{company.outreach ? "Remove" : "Removed"}</button>
+                <button type="button" className="btn ghost danger" disabled={busy || !company.outreach} onClick={() => remove(company)}>{company.outreach ? "Exclude" : "Excluded"}</button>
               </div>
             ))}
           </div>
