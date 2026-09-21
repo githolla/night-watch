@@ -24,6 +24,37 @@ export function AddCompany() {
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<Found[]>([]);
   const [searching, setSearching] = useState(false);
+  // The company being adjusted in place, and the edits pending on it.
+  const [editing, setEditing] = useState<string | null>(null);
+  const [draft, setDraft] = useState<{ name: string; vertical: string; tier: "A1" | "A2" | "B" | "C"; outreach: boolean } | null>(null);
+
+  const startEdit = (company: Found) => {
+    setEditing(company.id);
+    setDraft({
+      name: company.name,
+      vertical: company.vertical ?? "",
+      tier: (["A1", "A2", "B", "C"].includes(company.tier ?? "") ? company.tier : "A1") as "A1" | "A2" | "B" | "C",
+      outreach: Boolean(company.outreach),
+    });
+  };
+
+  // Save an adjustment: name, industry, priority tier, or whether it is being reached out to at all.
+  async function saveEdit(company: Found) {
+    if (!draft || busy) return;
+    setBusy(true); setMsg("");
+    try {
+      const res = await fetch("/api/admin/update-company", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: company.id, name: draft.name.trim() || company.name, vertical: draft.vertical.trim(), tier: draft.tier, outreach: draft.outreach }),
+      });
+      const json = await res.json();
+      if (!res.ok) { setMsg(json.error ?? "Could not update the company."); return; }
+      setResults((current) => current.map((row) => row.id === company.id ? { ...row, ...json.account } : row));
+      setEditing(null); setDraft(null);
+      setMsg(`Updated ${json.account?.name ?? company.name}.`);
+    } catch { setMsg("Could not update the company — try again."); }
+    finally { setBusy(false); }
+  }
 
   // Type-ahead over the company list, so removing one means finding it by name, not recalling its domain.
   useEffect(() => {
@@ -104,20 +135,43 @@ export function AddCompany() {
         </div>
       </form>
       <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-        <h3 className="panel-subhead">Exclude from outreach</h3>
-        <p className="conn-note">Search by name, then exclude the right one. Use this for AI-native product companies, where the &ldquo;build this instead of hiring&rdquo; pitch doesn&apos;t fit. Un-sent drafts are dismissed, everything already sent stays in History, and the nightly sync won&apos;t put it back.</p>
+        <h3 className="panel-subhead">Adjust or exclude a company</h3>
+        <p className="conn-note">Search by name, then <strong>Adjust</strong> to correct its name, industry or priority, or turn outreach on and off. <strong>Exclude</strong> takes it off outreach for good &mdash; use that for AI-native product companies, where the &ldquo;build this instead of hiring&rdquo; pitch doesn&apos;t fit. Excluding dismisses un-sent drafts; everything already sent stays in History, and the nightly sync won&apos;t put it back.</p>
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search companies by name or domain (e.g. Motive)" style={{ width: "100%", border: "1px solid var(--line-strong)", borderRadius: "var(--radius-sm)", background: "var(--paper-bright)", padding: "9px 11px", font: "500 14px/1 var(--sans)", color: "inherit" }} />
         {search.trim().length >= 2 && (
           <div style={{ marginTop: 8, border: "1px solid var(--line)", borderRadius: "var(--radius-sm)", maxHeight: 260, overflowY: "auto" }}>
             {searching && !results.length && <p className="conn-note" style={{ margin: 0, padding: "10px 12px" }}>Searching…</p>}
             {!searching && !results.length && <p className="conn-note" style={{ margin: 0, padding: "10px 12px" }}>No company matches “{search.trim()}”.</p>}
             {results.map((company) => (
-              <div key={company.id} style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "space-between", padding: "9px 12px", borderTop: "1px solid var(--line)" }}>
-                <div style={{ minWidth: 0 }}>
-                  <strong style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{company.name}</strong>
-                  <small className="conn-note">{company.domain}{company.vertical ? ` · ${company.vertical}` : ""}{company.outreach ? "" : " · already off the list"}</small>
+              <div key={company.id} className="company-row">
+                <div className="company-row-top">
+                  <div style={{ minWidth: 0 }}>
+                    <strong style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{company.name}</strong>
+                    <small className="conn-note">{company.domain}{company.vertical ? ` · ${company.vertical}` : ""}{company.tier ? ` · ${company.tier}` : ""}{company.outreach ? "" : " · not being reached out to"}</small>
+                  </div>
+                  <div className="company-row-actions">
+                    <button type="button" className="btn" disabled={busy} onClick={() => (editing === company.id ? (setEditing(null), setDraft(null)) : startEdit(company))}>{editing === company.id ? "Cancel" : "Adjust"}</button>
+                    <button type="button" className="btn ghost danger" disabled={busy || !company.outreach} onClick={() => remove(company)}>{company.outreach ? "Exclude" : "Excluded"}</button>
+                  </div>
                 </div>
-                <button type="button" className="btn ghost danger" disabled={busy || !company.outreach} onClick={() => remove(company)}>{company.outreach ? "Exclude" : "Excluded"}</button>
+                {editing === company.id && draft && (
+                  <div className="company-row-edit">
+                    <label><span>Name</span><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} maxLength={200} /></label>
+                    <label><span>Industry</span><input value={draft.vertical} onChange={(e) => setDraft({ ...draft, vertical: e.target.value })} placeholder="optional" maxLength={200} /></label>
+                    <label><span>Priority</span>
+                      <select value={draft.tier} onChange={(e) => setDraft({ ...draft, tier: e.target.value as "A1" | "A2" | "B" | "C" })}>
+                        {TIERS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                      </select>
+                    </label>
+                    <label className="company-row-toggle">
+                      <input type="checkbox" checked={draft.outreach} onChange={(e) => setDraft({ ...draft, outreach: e.target.checked })} />
+                      <span>Reach out to this company</span>
+                    </label>
+                    <div className="company-row-actions">
+                      <button type="button" className="btn primary" disabled={busy} onClick={() => saveEdit(company)}>{busy ? "Saving…" : "Save changes"}</button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

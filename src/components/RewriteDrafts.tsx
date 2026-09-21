@@ -1,16 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PanelGuide } from "./PanelGuide";
 
 const GREETING_KEY = "nw.blanketGreeting";
 
-// Admin draft tools: rewrite every un-sent email through the founder-voice rewriter, or set one blanket
-// greeting across all of them.
+type Preview = { total: number; scanned: number; wouldChange: number; exact: boolean; samples: Array<{ name: string; before: string; after: string }> };
+
+/**
+ * Three separate things you can do to every un-sent draft at once. They were one panel of stacked buttons,
+ * which made them look like variations on a theme when in fact one is free and reversible, one rewrites the
+ * opening line, and one spends money and discards your hand edits.
+ *
+ * Each is now its own card, saying up front how many drafts it would touch and — for the two deterministic
+ * ones — letting you see the exact before and after on real drafts before anything is written.
+ */
 export function RewriteDrafts() {
   const [running, setRunning] = useState<"" | "rewrite" | "greeting" | "clean">("");
   const [msg, setMsg] = useState("");
   const [greeting, setGreeting] = useState("Hi {first},");
+  const [preview, setPreview] = useState<{ tool: "clean" | "greeting"; data: Preview } | null>(null);
+  const [previewing, setPreviewing] = useState<"" | "clean" | "greeting">("");
 
   // The greeting field resets to the default on every reload, which reads as "my greeting didn't save."
   // Persist the last value locally so the panel reopens showing what the admin actually set.
@@ -24,11 +33,24 @@ export function RewriteDrafts() {
     try { localStorage.setItem(GREETING_KEY, greeting); } catch { /* ignore */ }
   }, [greeting]);
 
+  async function runPreview(tool: "clean" | "greeting") {
+    if (previewing || running) return;
+    if (tool === "greeting" && !greeting.trim()) { setMsg("Type a greeting first."); return; }
+    setPreviewing(tool); setMsg("");
+    try {
+      const response = await fetch("/api/admin/draft-preview", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ tool, greeting }) });
+      const json = await response.json();
+      if (!response.ok) { setMsg(json.error ?? "Could not check the drafts."); return; }
+      setPreview({ tool, data: json as Preview });
+    } catch { setMsg("Could not check the drafts."); }
+    finally { setPreviewing(""); }
+  }
+
   // Repair drafts already saved with a repeated opener / stray link / the old "teardown" CTA. Deterministic
-  // and free — no model calls — unlike "Rewrite all drafts".
+  // and free — no model calls — unlike "Regenerate drafts with AI".
   async function cleanUp() {
     if (running) return;
-    if (!confirm("Clean up every un-sent draft? Removes repeated lines, links in the body, and the old “teardown” line. No AI, nothing is rewritten.")) return;
+    if (!confirm("Clean up every un-sent draft? Removes repeated lines, links in the body, and the old “teardown” line. No AI, nothing is reworded.")) return;
     setRunning("clean"); setMsg("Cleaning drafts…");
     try {
       let offset = 0, fixed = 0, blanked = 0;
@@ -40,6 +62,7 @@ export function RewriteDrafts() {
         setMsg(`Checked ${offset} draft${offset === 1 ? "" : "s"}, fixed ${fixed}…`);
         if (json.done) break;
       }
+      setPreview(null);
       setMsg(`Done — checked ${offset} drafts and fixed ${fixed}. Drafts that were already clean were left untouched${blanked ? `; ${blanked} skipped to avoid emptying them` : ""}. Reload the desk to see them.`);
     } catch { setMsg("Clean-up failed — try again."); }
     finally { setRunning(""); }
@@ -54,15 +77,15 @@ export function RewriteDrafts() {
       if (!res.ok) { setMsg(json.error ?? "Something went wrong."); return; }
       total += json[key] ?? 0;
       setMsg(`${label} ${total} so far${json.remaining ? ` · ${json.remaining} to go…` : ""}`);
-      if (!json.remaining) { setMsg(`Done — ${label.toLowerCase()} ${total} draft${total === 1 ? "" : "s"}. Reload the desk to see them.`); return; }
+      if (!json.remaining) { setPreview(null); setMsg(`Done — ${label.toLowerCase()} ${total} draft${total === 1 ? "" : "s"}. Reload the desk to see them.`); return; }
     }
   }
 
   async function rewrite() {
     if (running) return;
     if (!confirm("Regenerate every un-sent email draft with AI, using the latest founder-voice rules? This replaces anything you edited by hand, and uses AI credits. Each draft stays editable before you send.")) return;
-    setRunning("rewrite"); setMsg("Rewriting drafts…");
-    try { await drain("/api/admin/rewrite-drafts", {}, "Rewrote", "rewritten"); } catch { setMsg("Rewrite failed — try again."); }
+    setRunning("rewrite"); setMsg("Regenerating drafts…");
+    try { await drain("/api/admin/rewrite-drafts", {}, "Regenerated", "rewritten"); } catch { setMsg("Regenerate failed — try again."); }
     finally { setRunning(""); }
   }
 
@@ -70,38 +93,84 @@ export function RewriteDrafts() {
     if (running) return;
     if (!greeting.trim()) { setMsg("Type a greeting first."); return; }
     if (!confirm(`Set the greeting on every un-sent email to “${greeting.trim()}” (with {first} replaced by each contact's first name)?`)) return;
-    setRunning("greeting"); setMsg("Applying greeting…");
+    setRunning("greeting"); setMsg("Updating greeting…");
     try { await drain("/api/admin/apply-greeting", { greeting }, "Updated", "applied"); } catch { setMsg("Update failed — try again."); }
     finally { setRunning(""); }
   }
 
+  const shown = preview?.data;
+
   return (
-    <section className="conn-card">
-      <div className="conn-head"><h2>Change every email at once</h2></div>
-      <PanelGuide
-        what="Applies one change to every email still waiting to be sent, instead of you opening them one at a time."
-        when={<>You&rsquo;ve noticed the same problem in several drafts &mdash; a repeated line, the wrong greeting, a phrase you don&rsquo;t want going out &mdash; and fixing them individually would take all afternoon.</>}
-        watch={<>Nothing here touches an email you&rsquo;ve already sent, and every draft stays editable afterwards. Only <strong>Rewrite all drafts</strong> costs money; the other two are instant and free.</>}
-      />
-
-      <h3 className="panel-subhead">Regenerate drafts with AI <span className="panel-cost is-paid">Uses AI credits</span></h3>
-      <p className="conn-note">Hands every un-sent email back to the writing model to be written again from scratch, following the current rules: plain language, specific to that company, no vendor buzzwords, no em dashes. Use it when the drafts read generically. It replaces what is there, so anything you edited by hand is lost &mdash; and because it calls the model once per draft, it takes a few minutes and adds to your API bill.</p>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <button type="button" className="btn" onClick={rewrite} disabled={!!running}>{running === "rewrite" ? "Regenerating…" : "Regenerate drafts with AI"}</button>
-        <button type="button" className="btn primary" onClick={cleanUp} disabled={!!running} title="Removes repeated lines, links in the body, and the old “teardown” CTA from drafts already saved. No AI, no cost.">{running === "clean" ? "Cleaning…" : "Clean up all drafts"}</button>
-      </div>
-      <p className="conn-note" style={{ marginTop: 8 }}><strong>Clean up all drafts</strong> is the safe one. It removes an opening line that got saved twice, a stray link in the body, and the old &ldquo;teardown&rdquo; sentence &mdash; and nothing else. It doesn&rsquo;t reword a single sentence, doesn&rsquo;t call the model, costs nothing, and leaves a draft alone if there is nothing to fix. Start here before reaching for a rewrite.</p>
-
-      <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-        <h3 className="panel-subhead">Update greeting <span className="panel-cost is-free">Free</span></h3>
-        <p className="conn-note">Replaces the opening line of every un-sent email with the one you type here. Write <code>{"{first}"}</code> where the contact&rsquo;s first name should go, so <em>Hi {"{first}"},</em> reaches Robert as <em>Hi Robert,</em>. Use it when you want a consistent opener across the whole list. It swaps the greeting only &mdash; the rest of each email is untouched.</p>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <input value={greeting} onChange={(e) => setGreeting(e.target.value)} placeholder="Hi {first}," style={{ flex: "1 1 260px", minWidth: 0, border: "1px solid var(--line-strong)", borderRadius: "var(--radius-sm)", background: "var(--paper-bright)", padding: "9px 11px", font: "500 14px/1 var(--sans)", color: "inherit" }} />
-          <button type="button" className="btn" onClick={applyGreeting} disabled={!!running}>{running === "greeting" ? "Applying…" : "Apply to all emails"}</button>
+    <div className="draft-tools">
+      {/* 1 — the safe one, first on purpose. */}
+      <section className="draft-tool">
+        <header>
+          <div><h3>Clean up drafts</h3><p>Removes an opening line that saved twice, a stray link in the body, and the old &ldquo;teardown&rdquo; sentence. Nothing is reworded.</p></div>
+          <span className="panel-cost is-free">Free</span>
+        </header>
+        <div className="draft-tool-actions">
+          <button type="button" className="btn" disabled={!!running || !!previewing} onClick={() => runPreview("clean")}>{previewing === "clean" ? "Checking…" : "Preview changes"}</button>
+          <button type="button" className="btn primary" disabled={!!running} onClick={cleanUp}>{running === "clean" ? "Cleaning…" : "Clean up drafts"}</button>
         </div>
-      </div>
+        {preview?.tool === "clean" && shown && <PreviewBlock data={shown} />}
+      </section>
 
-      {msg && <p className="notice" role="status" style={{ marginTop: 12 }}>{msg}</p>}
-    </section>
+      {/* 2 — rewrites one line across the list. */}
+      <section className="draft-tool">
+        <header>
+          <div><h3>Update greeting</h3><p>Replaces the opening line of every un-sent email. Write <code>{"{first}"}</code> where the first name goes, so <em>Hi {"{first}"},</em> reaches Robert as <em>Hi Robert,</em>. The rest of each email is untouched.</p></div>
+          <span className="panel-cost is-free">Free</span>
+        </header>
+        <input
+          value={greeting}
+          onChange={(event) => { setGreeting(event.target.value); if (preview?.tool === "greeting") setPreview(null); }}
+          placeholder="Hi {first},"
+          className="draft-tool-input"
+        />
+        <div className="draft-tool-actions">
+          <button type="button" className="btn" disabled={!!running || !!previewing} onClick={() => runPreview("greeting")}>{previewing === "greeting" ? "Checking…" : "Preview changes"}</button>
+          <button type="button" className="btn primary" disabled={!!running} onClick={applyGreeting}>{running === "greeting" ? "Updating…" : "Update greeting"}</button>
+        </div>
+        {preview?.tool === "greeting" && shown && <PreviewBlock data={shown} />}
+      </section>
+
+      {/* 3 — the expensive, destructive one, last and clearly marked. */}
+      <section className="draft-tool">
+        <header>
+          <div><h3>Regenerate drafts with AI</h3><p>Writes every un-sent email again from scratch with the current rules: plain language, specific to that company, no buzzwords. Use it when the drafts read generically.</p></div>
+          <span className="panel-cost is-paid">Uses AI credits</span>
+        </header>
+        <p className="panel-watch">This replaces what is there, so anything you edited by hand is lost, and it calls the model once per draft. There is no preview — the wording only exists once it has been written.</p>
+        <div className="draft-tool-actions">
+          <button type="button" className="btn" disabled={!!running} onClick={rewrite}>{running === "rewrite" ? "Regenerating…" : "Regenerate drafts with AI"}</button>
+        </div>
+      </section>
+
+      {msg && <p className="notice" role="status">{msg}</p>}
+    </div>
+  );
+}
+
+/** How many drafts change, and the exact before/after on real ones. */
+function PreviewBlock({ data }: { data: Preview }) {
+  if (!data.wouldChange) {
+    return <p className="draft-preview-empty">Nothing to change — all {data.total} un-sent draft{data.total === 1 ? "" : "s"} are already like this.</p>;
+  }
+  return (
+    <div className="draft-preview">
+      <p className="draft-preview-count">
+        <strong>{data.wouldChange}</strong> of {data.exact ? data.total : `the first ${data.scanned} checked`} un-sent draft{data.wouldChange === 1 ? "" : "s"} would change
+        {!data.exact && <> &mdash; the remaining {data.total - data.scanned} are checked when it runs</>}.
+      </p>
+      {data.samples.map((sample, index) => (
+        <details key={index} className="draft-preview-item">
+          <summary>{sample.name}</summary>
+          <div className="draft-preview-diff">
+            <div><span>Now</span><pre>{sample.before}</pre></div>
+            <div><span>After</span><pre>{sample.after}</pre></div>
+          </div>
+        </details>
+      ))}
+    </div>
   );
 }

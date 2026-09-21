@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Building2, Mail, MessageSquare, PenLine, Plug, UsersRound } from "lucide-react";
 import { Header } from "@/components/Header";
+import { RewriteDrafts } from "@/components/RewriteDrafts";
+import { AddCompany } from "@/components/AddCompany";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { FeatureControlCenter } from "@/components/FeatureControlCenter";
@@ -74,19 +76,25 @@ export default async function Settings() {
     },
     ...(isAdmin ? [{
       id: "companies", label: "Target accounts", icon: <Building2 />,
-      blurb: "Adding and excluding companies now lives with the company table, so it is where you are when you decide.",
-      content: <div className="settings-moved">
-        <p>This moved to <strong>All companies</strong>, where the full searchable table is. Use <strong>Add company</strong> there to add one by hand, or search and <strong>Exclude</strong> to take one off outreach.</p>
-        <Link className="btn primary" href="/targets">Open All companies</Link>
-      </div>,
+      blurb: "Add a company, adjust one that is already on the file, or take one off outreach.",
+      content: <>
+        <div className="settings-moved">
+          <p>Also on <strong>All companies</strong>, next to the searchable table &mdash; that is usually the quicker place to decide, because you can see the company first.</p>
+          <Link className="btn" href="/targets">Open All companies</Link>
+        </div>
+        <div className="feature-center"><AddCompany /></div>
+      </>,
     }] : []),
     ...(isAdmin ? [{
       id: "drafts", label: "Draft tools", icon: <PenLine />,
-      blurb: "Bulk draft fixes now live on the desk, next to the drafts they change.",
-      content: <div className="settings-moved">
-        <p>This moved to <strong>Outreach</strong>, the desk where you work the drafts. Use <strong>Draft tools</strong> in the header there to clean up drafts, update the greeting, or regenerate them with AI.</p>
-        <Link className="btn primary" href="/desk">Open Outreach</Link>
-      </div>,
+      blurb: "Apply one change to every email still waiting to be sent, instead of opening them one at a time.",
+      content: <>
+        <div className="settings-moved">
+          <p>Also on <strong>Outreach</strong>, behind <strong>Draft tools</strong> in the desk header &mdash; the same three tools, next to the drafts they change.</p>
+          <Link className="btn" href="/desk">Open Outreach</Link>
+        </div>
+        <div className="feature-center"><RewriteDrafts /></div>
+      </>,
     }] : []),
     ...(isAdmin ? [{
       id: "team", label: "Team & access", icon: <UsersRound />,

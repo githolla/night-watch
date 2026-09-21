@@ -2077,3 +2077,34 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 /* A section that has moved to the page where the work happens. */
 .settings-moved{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper-bright);padding:16px 18px;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
 .settings-moved p{margin:0;max-width:66ch;font:500 13.5px/1.6 var(--sans);color:var(--ink)}
+
+/* Draft tools: one card per action, so the free ones and the one that spends money don't read alike. */
+.draft-tools{display:flex;flex-direction:column;gap:14px}
+.draft-tool{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper-bright);padding:15px 17px;display:flex;flex-direction:column;gap:11px}
+.draft-tool>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.draft-tool h3{margin:0;font:700 15px/1.3 var(--sans);color:var(--ink)}
+.draft-tool header p{margin:5px 0 0;max-width:66ch;font:500 13px/1.55 var(--sans);color:var(--muted)}
+.draft-tool .panel-watch{margin:0}
+.draft-tool-input{width:100%;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper);padding:9px 11px;font:500 14px/1.2 var(--sans);color:inherit}
+.draft-tool-actions{display:flex;gap:8px;flex-wrap:wrap}
+/* What would actually change, before anything is written. */
+.draft-preview{border-top:1px solid var(--line);padding-top:11px;display:flex;flex-direction:column;gap:7px}
+.draft-preview-count{margin:0;font:500 13px/1.5 var(--sans);color:var(--ink)}
+.draft-preview-empty{margin:0;border-top:1px solid var(--line);padding-top:11px;font:500 13px/1.5 var(--sans);color:var(--muted)}
+.draft-preview-item{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper)}
+.draft-preview-item>summary{cursor:pointer;padding:8px 11px;font:600 12.5px/1 var(--sans);color:var(--ink)}
+.draft-preview-diff{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;padding:0 11px 11px}
+.draft-preview-diff>div{min-width:0}
+.draft-preview-diff span{display:block;margin-bottom:4px;font:700 10px/1 var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.draft-preview-diff pre{margin:0;max-height:190px;overflow:auto;white-space:pre-wrap;word-break:break-word;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper-bright);padding:8px 10px;font:500 12px/1.5 var(--sans);color:var(--ink)}
+
+/* A company row in the adjust/exclude list, with its editor opening underneath. */
+.company-row{border-top:1px solid var(--line);padding:9px 12px}
+.company-row-top{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.company-row-actions{display:flex;gap:6px;flex-wrap:wrap;flex:0 0 auto}
+.company-row-edit{margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px;align-items:end}
+.company-row-edit label{display:flex;flex-direction:column;gap:4px;min-width:0}
+.company-row-edit label>span{font:700 10px/1 var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.company-row-edit input[type=text],.company-row-edit input:not([type]),.company-row-edit select{width:100%;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper-bright);padding:8px 10px;font:500 13px/1.2 var(--sans);color:inherit}
+.company-row-toggle{flex-direction:row!important;align-items:center;gap:7px}
+.company-row-toggle span{text-transform:none!important;letter-spacing:0!important;font:500 13px/1.3 var(--sans)!important;color:var(--ink)!important}
