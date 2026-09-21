@@ -2,7 +2,11 @@ import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { z } from "zod";
 
-const input = z.object({ domain: z.string().trim().min(1).max(200) });
+// Either a picked company id (from the admin search) or a typed domain.
+const input = z.object({
+  id: z.string().trim().min(1).max(64).optional(),
+  domain: z.string().trim().max(200).optional(),
+}).refine((value) => Boolean(value.id || value.domain), { message: "Pick a company or enter its domain." });
 
 const normalizeDomain = (raw: string) =>
   raw.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/.*$/, "");
@@ -17,11 +21,15 @@ export async function POST(request: Request) {
   try {
     const user = await requireUser();
     if (user.role !== "admin") return Response.json({ error: "Admins only" }, { status: 403 });
-    const { domain: raw } = input.parse(await request.json().catch(() => ({})));
-    const domain = normalizeDomain(raw);
+    const picked = input.parse(await request.json().catch(() => ({})));
     const db = admin();
-    const { data: account } = await db.from("accounts").select("id,name").eq("domain", domain).maybeSingle();
-    if (!account) return Response.json({ error: `No company on the list with the domain ${domain}.` }, { status: 404 });
+    // Prefer the id picked from the search — it's unambiguous. Fall back to a typed domain.
+    const lookup = picked.id
+      ? db.from("accounts").select("id,name,domain").eq("id", picked.id)
+      : db.from("accounts").select("id,name,domain").eq("domain", normalizeDomain(picked.domain ?? ""));
+    const { data: account } = await lookup.maybeSingle();
+    if (!account) return Response.json({ error: picked.id ? "That company is no longer on the list." : `No company on the list with the domain ${normalizeDomain(picked.domain ?? "")}.` }, { status: 404 });
+    const domain = account.domain as string;
 
     const { error } = await db.from("accounts").update({ outreach: false, outreach_manual: true }).eq("id", account.id);
     if (error) return Response.json({ error: error.message }, { status: 400 });

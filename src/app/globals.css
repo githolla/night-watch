@@ -2005,3 +2005,12 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .followup-actions{display:flex;gap:8px;flex-wrap:wrap}
 .followup-actions .btn{height:34px;padding:0 13px;font-size:13px}
 @media(max-width:520px){.followup-list{grid-template-columns:1fr}}
+
+/* Settings tabs — one screen per concern instead of a single long scroll. */
+.settings-tabs{display:flex;flex-direction:column;gap:18px}
+.settings-tablist{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--line);position:sticky;top:82px;z-index:5;background:var(--paper);padding-top:4px}
+.settings-tab{border:0;background:transparent;padding:10px 14px;font:600 13px/1 var(--sans);color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.settings-tab:hover{color:var(--ink)}
+.settings-tab.is-on{color:var(--ink);border-bottom-color:var(--accent)}
+.settings-tabpanel{min-width:0}
+@media(max-width:640px){.settings-tablist{overflow-x:auto;flex-wrap:nowrap}}

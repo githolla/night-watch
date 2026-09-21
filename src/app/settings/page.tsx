@@ -7,6 +7,7 @@ import { Users } from "@/components/Users";
 import { FeedbackAutomation } from "@/components/FeedbackAutomation";
 import { RewriteDrafts } from "@/components/RewriteDrafts";
 import { AddCompany } from "@/components/AddCompany";
+import { SettingsTabs } from "@/components/SettingsTabs";
 import { SenderProfileForm } from "@/components/SenderProfileForm";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -47,22 +48,38 @@ export default async function Settings() {
     redirectUri: process.env.GOOGLE_REDIRECT_URI ?? null,
     appUrl: process.env.APP_URL ?? null,
   };
+  const isAdmin = me.role === "admin";
+  // Grouped into tabs so Settings is one screen per concern instead of a single long scroll.
+  const tabs = [
+    {
+      id: "sending", label: "Sending & identity", content: <>
+        <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} /></div>
+        <div className="feature-center"><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
+      </>,
+    },
+    ...(isAdmin ? [{ id: "companies", label: "Companies", content: <div className="feature-center"><AddCompany /></div> }] : []),
+    ...(isAdmin ? [{ id: "drafts", label: "Draft quality", content: <div className="feature-center"><RewriteDrafts /></div> }] : []),
+    ...(isAdmin ? [{ id: "team", label: "Team", content: <div className="feature-center"><Users /></div> }] : []),
+    ...(isAdmin ? [{
+      id: "feedback", label: "Feedback", content: <>
+        <div className="feature-center" style={{ marginBottom: 18 }}>
+          <section className="conn-card">
+            <header className="conn-head"><div><h2>Tester feedback</h2><p>Every &ldquo;Feedback&rdquo; submission across the app, timestamped with who sent it and which page. {feedbackCount ?? 0} on file.</p></div></header>
+            <a className="btn primary" href="/api/feedback/export">Download CSV</a>
+          </section>
+        </div>
+        <div className="feature-center"><FeedbackAutomation /></div>
+      </>,
+    }] : []),
+    {
+      id: "system", label: "System", content:
+        <FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={activeTargetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} />,
+    },
+  ];
   return <div>
     <Header />
     <main className="workspace-page">
-      {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}>
-        <section className="conn-card">
-          <header className="conn-head"><div><h2>Tester feedback</h2><p>Every &ldquo;Feedback&rdquo; submission across the app, timestamped with who sent it and which page. {feedbackCount ?? 0} on file.</p></div></header>
-          <a className="btn primary" href="/api/feedback/export">Download CSV</a>
-        </section>
-      </div>}
-      {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}><AddCompany /></div>}
-      {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}><RewriteDrafts /></div>}
-      {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}><FeedbackAutomation /></div>}
-      {me.role === "admin" && <div className="feature-center" style={{ marginBottom: 18 }}><Users /></div>}
-      <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} /></div>
-      <div className="feature-center" style={{ marginBottom: 18 }}><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
-      <FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={activeTargetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} />
+      <SettingsTabs tabs={tabs} />
     </main>
   </div>;
 }
