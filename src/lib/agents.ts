@@ -96,7 +96,7 @@ export function disqualifySignal(item: ScoutSignal): string | null {
     if (!item.post.author_name?.trim() && !item.people.length) return "exec_post without a named author";
     if (/forbes\.com|inc\.com|entrepreneur\.com|hbr\.org|fastcompany\.com|medium\.com|substack\.com/i.test(item.source_url)) return "opinion piece, not an operator post";
   }
-  if (item.type === "job_post" && !item.job?.title?.trim()) return "job signal without a role title";
+  if ((item.type === "job_post" || item.type === "job_cluster") && !item.job?.title?.trim()) return "job signal without a role title";
   return null;
 }
 

@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/gmail";
 import { validateEmail } from "@/lib/send-action";
 import { dailyCap } from "@/lib/send-guards";
 import { fromHeader, sanitizeLinks, senderProfile, withSignature } from "@/lib/sender";
+import { outboundBaseUrl } from "@/lib/urls";
 import { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
 
@@ -49,7 +50,7 @@ export async function GET(request:Request){
       const {data:previous}=await db.from("touches").select("gmail_thread_id").eq("card_id",cadence.card_id).eq("channel","email").not("gmail_thread_id","is",null).order("sent_at",{ascending:false}).limit(1).maybeSingle();
       const profile=await senderProfile(db,cadence.owner);
       const optOut=process.env.OPT_OUT_LINE??"If this isn't relevant, reply no and I won't follow up.",fullBody=`${withSignature(cleanBody,profile,connection.email)}\n\n${optOut}`;
-      const base=(process.env.APP_URL??new URL(request.url).origin).trim().replace(/\/$/,"");
+      const base=outboundBaseUrl(request);
       const unsubscribe=`${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(card.person_id))}`;
       // Plain text (no branded HTML part) keeps cold follow-ups out of spam; unsubscribe header for deliverability.
       const result=await sendEmail(cadence.owner,fromHeader(profile,connection.email),card.people.email,step.subject,fullBody,previous?.gmail_thread_id??undefined,profile.cc,undefined,unsubscribe);

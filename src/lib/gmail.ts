@@ -4,7 +4,9 @@ import { decrypt } from "./crypto.ts";import { admin } from "./supabase/admin.ts
 function config(){return {client_id:(process.env.GOOGLE_CLIENT_ID??"").trim(),client_secret:(process.env.GOOGLE_CLIENT_SECRET??"").trim(),redirect_uri:(process.env.GOOGLE_REDIRECT_URI??"").trim()}}
 // Send + read replies (for cadence) and full Calendar (free/busy + create invites for "Propose times"); userinfo.email captures the real connected address.
 export const GOOGLE_SCOPES="openid email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar";
-export function oauthUrl(owner:Owner){const {client_id,redirect_uri}=config();const q=new URLSearchParams({client_id,redirect_uri,response_type:"code",scope:GOOGLE_SCOPES,access_type:"offline",prompt:"select_account consent",include_granted_scopes:"true",state:owner});return `https://accounts.google.com/o/oauth2/v2/auth?${q}`}
+/** Short-lived cookie that binds an OAuth handshake to the browser that began it (CSRF nonce). */
+export const OAUTH_STATE_COOKIE="gmail_oauth_state";
+export function oauthUrl(owner:Owner,nonce?:string){const {client_id,redirect_uri}=config();const state=nonce?`${owner}.${nonce}`:owner;const q=new URLSearchParams({client_id,redirect_uri,response_type:"code",scope:GOOGLE_SCOPES,access_type:"offline",prompt:"select_account consent",include_granted_scopes:"true",state});return `https://accounts.google.com/o/oauth2/v2/auth?${q}`}
 export async function exchangeCode(code:string){const response=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:new URLSearchParams({...config(),code,grant_type:"authorization_code"})});if(!response.ok)throw new Error("Google OAuth exchange failed");return response.json() as Promise<{access_token:string;refresh_token:string;scope:string}>}
 // The email address of the account that just authorized, so we store the real sender rather than a guessed one.
 // The connected account's email and display name (name needs the `profile` scope), so we can store the

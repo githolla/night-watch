@@ -5,6 +5,7 @@ import { ensureFollowupCadence } from "@/lib/followups";
 import { validateEmail, sendInput } from "@/lib/send-action";
 import { dailyCap } from "@/lib/send-guards";
 import { fromHeader, sanitizeLinks, senderProfile, withSignature } from "@/lib/sender";
+import { outboundBaseUrl } from "@/lib/urls";
 import { admin } from "@/lib/supabase/admin";
 
 const daysBetween = (iso: string | null | undefined) => (iso ? Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)) : 0);
@@ -39,7 +40,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
     const fullBody = `${withSignature(body, profile, fromEmail)}\n\n${optOut}`;
     // Cold first touch goes as true text/plain (no branded HTML part) — best for inbox placement.
-    const base = (process.env.APP_URL ?? new URL(request.url).origin).trim().replace(/\/$/, "");
+    const base = outboundBaseUrl(request);
     const unsubscribe = `${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(card.person_id))}`;
     const result = await sendEmail(owner, fromHeader(profile, fromEmail), card.people.email, subject, fullBody, undefined, profile.cc, undefined, unsubscribe);
     // The email has now actually left. Mark the card sent FIRST so it can never stay actionable after a
