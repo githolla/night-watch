@@ -168,7 +168,9 @@ export function Desk({
   const [busy, setBusy] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
   const [refining, setRefining] = useState<"email" | "linkedin" | null>(null);
-  const [editing, setEditing] = useState<{ email: boolean; linkedin: boolean }>({ email: false, linkedin: false });
+  // Open the composer in edit mode so every email/message is directly editable before sending;
+  // the tools row flips it to a read-only "Preview" of exactly how it will go out.
+  const [editing, setEditing] = useState<{ email: boolean; linkedin: boolean }>({ email: true, linkedin: true });
   const [lastRefine, setLastRefine] = useState<{ cardId: string; channel: "email" | "linkedin"; beforeBody: string; afterBody: string; beforeSubject: string; afterSubject: string } | null>(null);
   const [channelTab, setChannelTab] = useState<"email" | "linkedin">("email");
   const [compose, setCompose] = useState<{ cardId: string; first: string; message: string; signoff: string } | null>(null);
@@ -807,7 +809,7 @@ export function Desk({
                   <button type="button" className={`deskwork-tab ${channelTab === "email" ? "is-active" : ""}`} onClick={() => setChannelTab("email")}>✉ Email</button>
                   <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => setChannelTab("linkedin")}><i className="li-mark">in</i> LinkedIn</button>
                   <div className="deskwork-tools">
-                    <button type="button" onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Done" : "Edit"}</button>
+                    <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>
                     <button type="button" disabled={refining === channelTab} onClick={() => channelTab === "email" ? refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined) : refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === channelTab ? "Refining…" : "Refine"}</button>
                     {channelTab === "email" && <button type="button" disabled={proposing} title="Insert open times from your connected calendar" onClick={proposeMeetingTimes}>{proposing ? "Checking…" : "Propose times"}</button>}
                     <button type="button" onClick={() => copyAndLog(channelTab)}>Copy</button>
@@ -827,6 +829,7 @@ export function Desk({
                     const persist = () => saveField("email_body", assembleEmail(cur.first, cur.message, cur.signoff));
                     return (
                       <div className="deskwork-edit deskwork-compose">
+                        <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
                         <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => edit("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
                         <label className="compose-field"><span>Greeting</span><div className="compose-greet">Hi&nbsp;<input value={cur.first} placeholder="first name" onChange={(event) => apply({ first: event.target.value })} onBlur={persist} />,</div></label>
                         <label className="compose-field"><span>Message — make it specific to this person &amp; company</span><textarea className="focus-msg-body" rows={8} value={cur.message} placeholder="Write the pitch for this contact." onChange={(event) => apply({ message: event.target.value })} onBlur={persist} /></label>

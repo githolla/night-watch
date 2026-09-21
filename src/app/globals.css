@@ -808,6 +808,9 @@ body{font-family:var(--sans);letter-spacing:-.005em;font-variant-numeric:tabular
 /* Page headings in the geometric display face (Montserrat); !important overrides the many per-heading font shorthands. Body/data stay on Inter. */
 h1,h2,h3{font-family:var(--display)!important}
 .deskwork-compose{display:flex;flex-direction:column;gap:14px}
+.compose-to{display:flex;align-items:baseline;gap:10px;font-size:13px;color:var(--ink-soft);padding-bottom:10px;border-bottom:1px solid var(--line)}
+.compose-to>span{font:700 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.compose-to>b{font-weight:600;color:var(--ink);overflow-wrap:anywhere}
 .compose-field{display:flex;flex-direction:column;gap:5px}
 .compose-field>span{font:700 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .compose-greet{display:flex;align-items:center;gap:2px;font-size:14px;color:var(--ink)}
