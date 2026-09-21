@@ -7,7 +7,7 @@ const GREETING_KEY = "nw.blanketGreeting";
 // Admin draft tools: rewrite every un-sent email through the founder-voice rewriter, or set one blanket
 // greeting across all of them.
 export function RewriteDrafts() {
-  const [running, setRunning] = useState<"" | "rewrite" | "greeting">("");
+  const [running, setRunning] = useState<"" | "rewrite" | "greeting" | "clean">("");
   const [msg, setMsg] = useState("");
   const [greeting, setGreeting] = useState("Hi {first},");
 
@@ -23,7 +23,17 @@ export function RewriteDrafts() {
     try { localStorage.setItem(GREETING_KEY, greeting); } catch { /* ignore */ }
   }, [greeting]);
 
-  async function drain(url: string, extra: Record<string, unknown>, label: string, key: "rewritten" | "applied") {
+  // Repair drafts already saved with a repeated opener / stray link / the old "teardown" CTA. Deterministic
+  // and free — no model calls — unlike "Rewrite all drafts".
+  async function cleanUp() {
+    if (running) return;
+    if (!confirm("Clean up every un-sent draft? Removes repeated lines, links in the body, and the old “teardown” line. No AI, nothing is rewritten.")) return;
+    setRunning("clean"); setMsg("Cleaning drafts…");
+    try { await drain("/api/admin/clean-drafts", {}, "Cleaned", "cleaned"); } catch { setMsg("Clean-up failed — try again."); }
+    finally { setRunning(""); }
+  }
+
+  async function drain(url: string, extra: Record<string, unknown>, label: string, key: "rewritten" | "applied" | "cleaned") {
     const before = new Date().toISOString();
     let total = 0;
     for (let i = 0; i < 60; i++) {
@@ -58,7 +68,11 @@ export function RewriteDrafts() {
       <div className="conn-head"><h2>Draft quality</h2></div>
 
       <p className="conn-note">Rewrite every un-sent email in the worklist with the latest founder-voice rules (plain, specific, no vendor buzzwords, no em dashes, real link only). Runs on the writing model; each draft stays editable before you send.</p>
-      <button type="button" className="btn" onClick={rewrite} disabled={!!running}>{running === "rewrite" ? "Rewriting…" : "Rewrite all drafts"}</button>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button type="button" className="btn" onClick={rewrite} disabled={!!running}>{running === "rewrite" ? "Rewriting…" : "Rewrite all drafts"}</button>
+        <button type="button" className="btn primary" onClick={cleanUp} disabled={!!running} title="Removes repeated lines, links in the body, and the old “teardown” CTA from drafts already saved. No AI, no cost.">{running === "clean" ? "Cleaning…" : "Clean up all drafts"}</button>
+      </div>
+      <p className="conn-note" style={{ marginTop: 8 }}><strong>Clean up all drafts</strong> fixes drafts that were already saved with a repeated opening line, a link in the body, or the old &ldquo;teardown&rdquo; CTA. It&rsquo;s instant and free &mdash; it doesn&rsquo;t reword anything.</p>
 
       <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
         <p className="conn-note">Set one greeting across every un-sent email. Use <code>{"{first}"}</code> for the contact&apos;s first name.</p>

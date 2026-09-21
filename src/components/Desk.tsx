@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
-import { sanitizeCopy } from "@/lib/clean";
+import { dedupeParagraphs, sanitizeCopy } from "@/lib/clean";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { CadencePlanner } from "./CadencePlanner";
 import { CompanyTeam } from "./CompanyTeam";
@@ -878,7 +878,10 @@ export function Desk({
                     // was written to the company's first contact). Re-seed whenever the card OR the contact
                     // changes; the message/sign-off come from the stored body with its old greeting stripped.
                     const who = ("id" in contact && contact.id ? contact.id : contact.full_name) as string;
-                    const parsed = parseEmail(focusCard.email_body ?? "", fname);
+                    // Collapse a repeated opener that's already saved on the card, so the editor shows what
+                    // will actually send (the same pass runs on every outbound body) rather than the stored
+                    // duplicate. Editing/blurring then persists the cleaned version.
+                    const parsed = parseEmail(dedupeParagraphs(focusCard.email_body ?? ""), fname);
                     const cur = compose && compose.cardId === focusCard.id && compose.who === who
                       ? compose
                       : { cardId: focusCard.id, who, first: fname, message: parsed.message, signoff: parsed.signoff };

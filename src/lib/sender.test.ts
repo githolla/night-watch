@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { dedupeParagraphs, similarText } from "./sender.ts";
+import { dedupeParagraphs, similarText } from "./clean.ts";
 
 test("a re-applied opener is recognised despite case and contraction changes", () => {
   const base = "Nice to meet you. I am founder and CEO of Nine-67.";
