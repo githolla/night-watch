@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { dedupeParagraphs, similarText, sanitizeSignatureHtml, hasProposedTimes, stripProposedTimes, decodeEntities, foreignEmployer, greetedName, stripLeadingGreeting } from "./clean.ts";
+import { dedupeParagraphs, similarText, sanitizeSignatureHtml, hasProposedTimes, stripProposedTimes, decodeEntities, foreignEmployer, greetedName, stripLeadingGreeting, isRoleAddress, looksLikeDocumentName, isRealContact } from "./clean.ts";
 import { sanitizeLinks } from "./sender.ts";
 
 test("the outbound cleaner never mangles a prospect's own words", () => {
@@ -202,4 +202,47 @@ test("a greeting is found whether it ends the line or runs into the first senten
     "Quantiphi is hiring 6 senior data engineering roles.");
   // A real sentence that merely starts with a greeting word must not lose its opening.
   assert.equal(stripLeadingGreeting("Higher throughput is the point here."), "Higher throughput is the point here.");
+});
+
+test("a functional mailbox is never treated as a person", () => {
+  for (const email of [
+    "recruiting@quantiphi.com", "careers@acme.com", "jobs@acme.com", "hr@acme.com",
+    "service@acme.com", "support@acme.com", "info@acme.com", "hello@acme.com",
+    "sales@acme.com", "marketing@acme.com", "press@acme.com", "legal@acme.com",
+    "billing@acme.com", "accounts@acme.com", "noreply@acme.com", "no-reply@acme.com",
+    "team@acme.com", "the-team@acme.com", "info.uk@acme.com", "contact@acme.com",
+    "partnerships@acme.com", "investors@acme.com", "talent@acme.com",
+  ]) {
+    assert.equal(isRoleAddress(email), true, `should be a role mailbox: ${email}`);
+  }
+  // Real people must not be caught, including ones whose names collide with role words.
+  for (const email of [
+    "asif.hasan@quantiphi.com", "jim.reesing@quantiphi.com", "bridget.howard@conseroglobal.com",
+    "j.smith@acme.com", "msales@acme.com", "salesforce.chen@acme.com", "arthur@acme.com",
+    "irene@acme.com", "prakash@acme.com", "hrithik.roshan@acme.com", "ito@acme.com",
+  ]) {
+    assert.equal(isRoleAddress(email), false, `should be a person: ${email}`);
+  }
+  assert.equal(isRoleAddress(null), false);
+  assert.equal(isRoleAddress(""), false);
+});
+
+test("a page title scraped as a contact is rejected", () => {
+  for (const name of [
+    "Modern Slavery Statement", "Privacy Policy", "Terms and Conditions", "Annual Report",
+    "Cookie Notice", "Launch Partner", "Press Release", "Case Study",
+  ]) {
+    assert.equal(looksLikeDocumentName(name), true, `should be rejected: ${name}`);
+  }
+  for (const name of ["Asif Hasan", "Jim Reesing", "Bridget Howard", "Reghu Hariharan", "Ashley Honeyman"]) {
+    assert.equal(looksLikeDocumentName(name), false, `should be kept: ${name}`);
+  }
+});
+
+test("isRealContact combines both, and keeps real people", () => {
+  assert.equal(isRealContact({ full_name: "Modern Slavery Statement", email: "modern.statement@quantiphi.com" }), false);
+  assert.equal(isRealContact({ full_name: "Talent Acquisition", email: "recruiting@quantiphi.com" }), false);
+  assert.equal(isRealContact({ full_name: "Asif Hasan", email: "recruiting@quantiphi.com" }), false);
+  assert.equal(isRealContact({ full_name: "Asif Hasan", email: "asif.hasan@quantiphi.com" }), true);
+  assert.equal(isRealContact({ full_name: "Bridget Howard", email: null }), true);
 });

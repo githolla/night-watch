@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { decodeEntities, foreignEmployer } from "./clean.ts";
+import { decodeEntities, foreignEmployer, looksLikeDocumentName } from "./clean.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { findPerson, scout, type ScoutSignal, writeAngle } from "./agents.ts";
 import { matchPerson } from "./apollo.ts";
@@ -99,6 +99,8 @@ export async function upsertPerson(account: Account, candidate: { name: string; 
   candidate = { ...candidate, name: decodeEntities(candidate.name), title: decodeEntities(candidate.title) };
   // A service line or value prop scraped as a "person" ("Strategic IT Guidance") is never stored or Apollo-billed.
   if (!isLikelyPersonName(candidate.name)) return null;
+  // Nor a page title that happens to be capitalised like a name ("Modern Slavery Statement").
+  if (looksLikeDocumentName(candidate.name)) return null;
   // A research pass that reads about one company also meets executives quoted from others. Storing them
   // here means offering to email "CIO, Peterson Cheese" a pitch about Quantiphi's hiring.
   const elsewhere = foreignEmployer(candidate.title, account.name, account.domain);

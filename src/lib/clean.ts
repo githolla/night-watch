@@ -233,3 +233,35 @@ export function greetedName(body: string | null | undefined): string | null {
 export function stripLeadingGreeting(body: string | null | undefined): string {
   return (body ?? "").replace(GREETING_LINE, "").replace(/^\s+/, "");
 }
+
+/**
+ * A mailbox that belongs to a function rather than a person: recruiting@, service@, info@, careers@.
+ *
+ * Writing a personal first-touch to one of these is worse than useless — it reads as a bot, it lands with
+ * whoever staffs the inbox, and it burns the sending domain's reputation on a mailbox that never replies.
+ */
+const ROLE_MAILBOX = /^(?:the[-._]?)?(?:recruit\w*|talent|hiring|jobs?|careers?|apply|applications?|hr|people(?:ops)?|team|staff|admin\w*|office|reception|frontdesk|service\w*|support|help(?:desk)?|customer\w*|success|info\w*|contact\w*|hello|hi|hey|enquir\w*|inquir\w*|general|main|mail|email|webmail|postmaster|abuse|noreply|no[-._]?reply|donotreply|do[-._]?not[-._]?reply|bounce\w*|notification\w*|alerts?|system|automated|robot|bot|sales|presales|partners?|partnership\w*|biz\w*|business|marketing|media|press|pr|comms?|communications?|social|newsletter|subscribe|unsubscribe|legal|privacy|compliance|security|abuse|billing|invoic\w*|accounts?(?:payable|receivable)?|ap|ar|finance|payroll|orders?|purchasing|procurement|vendors?|suppliers?|quotes?|rfp|bids?|events?|training|education|research|investor\w*|ir|board|ethics|whistleblow\w*|feedback|survey|webmaster|it|helpme|test|demo|trial|signup|register)$/i;
+
+export function isRoleAddress(email: string | null | undefined): boolean {
+  const local = (email ?? "").trim().toLowerCase().split("@")[0];
+  if (!local) return false;
+  // Strip separators so "the-team", "info.uk" and "sales_us" are judged on their first word.
+  const head = local.split(/[-._+]/)[0];
+  return ROLE_MAILBOX.test(local) || ROLE_MAILBOX.test(head);
+}
+
+// Page titles, policies and headlines get scraped as "people": "Modern Slavery Statement", "Privacy
+// Policy", "Annual Report". They have a capitalised-words shape that a name test alone cannot tell apart.
+const DOCUMENT_WORD = /\b(statement|policy|policies|report|notice|terms|conditions|disclaimer|disclosure|cookies?|privacy|charter|agreement|contract|release|announcement|press|award|awards|launch|partner|partnership|webinar|whitepaper|ebook|guide|overview|summary|newsletter|bulletin|update|blog|article|case study|testimonial|faq|sitemap|careers?|jobs?|vacancy|vacancies|opportunity|opportunities|department|division|committee|board|council|foundation|institute|association|society|alliance|network|centre|center|academy|university|college|school|hospital|clinic|church|trust|fund|capital|ventures?|holdings?|group|limited|incorporated)\b/i;
+
+/** True when a scraped "name" is really a page title, policy or headline rather than a human. */
+export function looksLikeDocumentName(name: string | null | undefined): boolean {
+  return DOCUMENT_WORD.test(decodeEntities(name));
+}
+
+/** Everything that disqualifies a scraped contact from being written to, in one place. */
+export function isRealContact(person: { full_name?: string | null; email?: string | null }): boolean {
+  if (looksLikeDocumentName(person.full_name)) return false;
+  if (isRoleAddress(person.email)) return false;
+  return true;
+}

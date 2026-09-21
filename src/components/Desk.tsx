@@ -450,25 +450,6 @@ export function Desk({
   const snoozeCurrent = () => { markWorking(false); const next = afterCurrent(); void patchFocus({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { markWorking(false); const next = afterCurrent(); void patchFocus({ status: "dismissed" }); setFocusId(next); setNotice(""); };
   const linkedInHref = () => contact?.linkedin_url || (focusCard && contact ? `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${contact.full_name} ${focusCard.accounts.name}`)}` : "");
-  // Give the selected colleague their own draft, angled at what their role owns, from data already on
-  // file. Free — no model call — and it becomes their own card, so their send, follow-ups and History are
-  // separate from everyone else's at the company.
-  const [drafting, setDrafting] = useState(false);
-  const writeDraftFor = async () => {
-    if (!focusCard || !altContact || drafting) return;
-    setDrafting(true);
-    setNotice(`Writing a draft for ${altContact.full_name}…`);
-    try {
-      const response = await fetch(`/api/cards/${focusCard.id}/draft-for`, {
-        method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ personId: altContact.id }),
-      });
-      const json = await response.json();
-      if (!response.ok) { setNotice(json.error ?? "Could not write the draft."); return; }
-      setNotice(`Written for ${json.person}, aimed at their role. Reload the desk and it appears as their own prospect, ready to edit and send.`);
-    } catch { setNotice("Could not write the draft."); }
-    finally { setDrafting(false); }
-  };
   // Send to whoever is selected. Picking a colleague used to downgrade this to "Open email", which handed
   // the work back to the user's mail client for no reason the user could see — the send route simply had no
   // way to address anyone but the card's own contact. It does now, so there is one button and it sends.
@@ -1032,11 +1013,7 @@ export function Desk({
                             : <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>}
                         </div>
                         <label className="compose-field"><span>Greeting</span><div className="compose-greet">Hi&nbsp;<input value={cur.first} placeholder="first name" readOnly={!!altContact} title={altContact ? `The draft is saved once, for ${focusCard.people.full_name}. The greeting becomes ${cur.first} when you copy or open it for ${altContact.full_name}.` : undefined} onChange={(event) => apply({ first: event.target.value })} onBlur={persist} />,</div></label>
-                        {altContact && <div className="compose-alt-note">
-                          <p>This is {focusCard.people.full_name}&rsquo;s note with the name swapped. Sending near-identical emails to colleagues reads as a mail merge the moment two of them compare.</p>
-                          <button type="button" className="btn" disabled={drafting} onClick={writeDraftFor}>{drafting ? "Writing…" : `Write a draft for ${altContact.full_name.split(/\s+/)[0]}`}</button>
-                          <small>Free &mdash; written from this company&rsquo;s signal and aimed at what a {altContact.title || "colleague"} owns. No AI credits.</small>
-                        </div>}
+                        {altContact && <p className="compose-sig">This is {primaryFirst}&rsquo;s note with the name swapped. {altContact.full_name.split(/\s+/)[0]} gets their own, written for their role, once <strong>Draft tools &rarr; Write a draft for every contact</strong> has run.</p>}
                         <label className="compose-field"><span>Message — make it specific to this person &amp; company</span><textarea className="focus-msg-body" rows={8} value={cur.message} placeholder="Write the pitch for this contact." onChange={(event) => apply({ message: event.target.value })} onBlur={persist} /></label>
                         <label className="compose-field"><span>Sign-off</span><input value={cur.signoff} placeholder="Thank you," onChange={(event) => apply({ signoff: event.target.value })} onBlur={persist} /></label>
                         <p className="compose-sig">— Your Nine-67 signature (your name, title &amp; contact) is added automatically. Change it in <Link href="/settings" className="focus-link">Settings → identity</Link>.</p>
