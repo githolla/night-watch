@@ -390,9 +390,12 @@ export function Desk({
     // On the Email tab, a verified primary contact sends in-app via Gmail regardless of the card's
     // primary channel; otherwise (unverified, or an alternate contact) open a prefilled draft.
     if (contact.email_status === "verified" && !altContact) { send(); return; }
+    // Opening a prefilled draft is NOT sending — don't log it to History yet, or it shows as "sent"
+    // when the user may never send it. Gmail-Sent sync backfills a real send; "Mark sent" logs it
+    // explicitly if they sent from another client.
     const href = mailtoHref();
     if (href) { const link = document.createElement("a"); link.href = href; document.body.appendChild(link); link.click(); link.remove(); }
-    recordTouch("email", focusCard?.email_body || emailDraft || draftText);
+    setNotice("Opened a prefilled draft in your mail app. It hasn't been logged — once you've actually sent it, click “Mark sent” (or it'll appear here automatically from your Gmail Sent within a few minutes).");
   };
   // Hand the prospect to the automated cadence: Night Watch sends the email itself on day 0, 3 and 7 and stops
   // the moment they reply. Auto-send needs a verified address and a connected sender, so the engine's guards
