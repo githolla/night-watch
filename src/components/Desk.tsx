@@ -1012,7 +1012,10 @@ function retarget(text: string, fromName: string, toName: string) {
   const from = fromName.split(/\s+/)[0];
   const to = toName.split(/\s+/)[0];
   if (!text || !from || !to || from === to) return text;
-  return text.split(from).join(to);
+  // Whole-word only, so a first name that's a substring of other words (e.g. "Al" in "already",
+  // "Sam" in "same") can't mangle the rest of the draft.
+  const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return text.replace(new RegExp(`\\b${escaped}\\b`, "g"), to);
 }
 
 
@@ -1026,7 +1029,8 @@ function parseEmail(body: string, fallbackFirst: string): { first: string; messa
   let start = 0;
   const greet = lines[0].match(/^\s*(?:hi|hey|hello|dear)\s+([^,]+?),?\s*$/i);
   if (greet) { first = greet[1].trim(); start = 1; while (start < lines.length && !lines[start].trim()) start++; }
-  let rest = lines.slice(start).join("\n").trim();
+  const afterGreet = lines.slice(start).join("\n").trim();
+  let rest = afterGreet;
   let signoff = "Thank you,";
   const rl = rest.split("\n");
   for (let i = rl.length - 1; i >= 0 && i >= rl.length - 3; i--) {
@@ -1036,6 +1040,10 @@ function parseEmail(body: string, fallbackFirst: string): { first: string; messa
       break;
     }
   }
+  // Never drop the body: if pulling out a sign-off (or greeting) left the message empty but there was
+  // real content, keep the whole thing as the message. This is what made the email look like it
+  // "disappeared" when opening it to edit.
+  if (!rest.trim()) { rest = afterGreet; signoff = ""; }
   return { first, message: rest, signoff };
 }
 
