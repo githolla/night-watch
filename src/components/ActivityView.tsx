@@ -10,10 +10,13 @@ export type ActivityEvent = {
   day: string; // YYYY-MM-DD
   channel: string;
   owner: string;
+  sentBy: string;
   person: string;
   title: string;
   company: string;
+  to: string | null;
   subject: string | null;
+  body: string;
   snippet: string;
   replied: boolean;
   replyClass: string;
@@ -37,6 +40,7 @@ const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2)
 /** History of every outreach touch — a month calendar of what was done, and the day-by-day record beneath it. */
 export function ActivityView({ events: initialEvents, who, note, canDelete }: { events: ActivityEvent[]; who?: { name: string } | null; note?: string | null; canDelete?: boolean }) {
   const [events, setEvents] = useState(initialEvents);
+  const [detail, setDetail] = useState<ActivityEvent | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState("");
   async function syncGmail() {
@@ -128,17 +132,18 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
             <div className="ptl-head">{view.length} {view.length === 1 ? "message" : "messages"} to {who.name}</div>
             {view.length === 0 && <p className="activity-empty">No emails or messages recorded for {who.name} yet.</p>}
             {view.map((event) => (
-              <div key={event.id} className="ptl-item">
+              <div key={event.id} className="ptl-item is-open" role="button" tabIndex={0} onClick={() => setDetail(event)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDetail(event); } }} title="Open this message">
                 <span className={`ptl-icon k-${channelKind(event.channel)}`}>{channelKind(event.channel) === "email" ? "✉" : channelKind(event.channel) === "linkedin" ? "in" : "•"}</span>
                 <div className="ptl-main">
                   <div className="ptl-top">
                     <strong>{event.subject || CHANNEL_LABEL[event.channel] || "Message"}</strong>
                     <time>{fullWhen(event.at)}</time>
                   </div>
-                  <div className="ptl-meta"><span>{CHANNEL_LABEL[event.channel] ?? event.channel}</span>{event.company ? <span>{event.company}</span> : null}{event.replied ? <em className={`activity-reply ${event.replyClass === "positive" ? "is-pos" : ""}`}>Replied</em> : null}</div>
+                  <div className="ptl-meta"><span>{CHANNEL_LABEL[event.channel] ?? event.channel}</span>{event.company ? <span>{event.company}</span> : null}<span>Sent by {event.sentBy}</span>{event.replied ? <em className={`activity-reply ${event.replyClass === "positive" ? "is-pos" : ""}`}>Replied</em> : null}</div>
                   {event.snippet && <p className="ptl-snip">{event.snippet}</p>}
+                  <span className="ptl-open-hint">Open ↗</span>
                 </div>
-                {canDelete && <button type="button" className="activity-row-del" title="Remove this record" onClick={() => removeEvent(event.id)}>✕</button>}
+                {canDelete && <button type="button" className="activity-row-del" title="Remove this record" onClick={(e) => { e.stopPropagation(); removeEvent(event.id); }}>✕</button>}
               </div>
             ))}
           </section>
@@ -182,7 +187,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
               <div key={day} className="activity-day">
                 {!selectedDay && <div className="activity-day-label">{dayLong(day)}<span>{list.length}</span></div>}
                 {list.map((event) => (
-                  <div key={event.id} className="activity-row">
+                  <div key={event.id} className="activity-row is-open" role="button" tabIndex={0} onClick={() => setDetail(event)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDetail(event); } }} title="Open this message">
                     <span className="avatar sm">{initials(event.person)}</span>
                     <div className="activity-row-main">
                       <div className="activity-row-top">
@@ -190,12 +195,12 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
                         <em className={`activity-chan k-${channelKind(event.channel)}`}>{channelKind(event.channel) === "email" ? "✉" : channelKind(event.channel) === "linkedin" ? "in" : "•"} {CHANNEL_LABEL[event.channel] ?? event.channel}</em>
                         {event.replied && <em className={`activity-reply ${event.replyClass === "positive" ? "is-pos" : ""}`}>Replied</em>}
                       </div>
-                      <small className="activity-row-sub">{event.title ? `${event.title} · ` : ""}{event.company}</small>
+                      <small className="activity-row-sub">{event.title ? `${event.title} · ` : ""}{event.company} · Sent by {event.sentBy}</small>
                       {event.subject && <p className="activity-row-subject">{event.subject}</p>}
                       {event.snippet && <p className="activity-row-snip">{event.snippet}</p>}
                     </div>
                     <time className="activity-row-time">{timeOf(event.at)}</time>
-                    {canDelete && <button type="button" className="activity-row-del" title="Remove this record" onClick={() => removeEvent(event.id)}>✕</button>}
+                    {canDelete && <button type="button" className="activity-row-del" title="Remove this record" onClick={(e) => { e.stopPropagation(); removeEvent(event.id); }}>✕</button>}
                   </div>
                 ))}
               </div>
@@ -204,6 +209,28 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
         </div>
         )}
       </div>
+
+      {detail && (
+        <div className="act-modal-back" role="dialog" aria-modal="true" onClick={() => setDetail(null)}>
+          <div className="act-modal" onClick={(e) => e.stopPropagation()}>
+            <header className="act-modal-head">
+              <div>
+                <span className={`act-modal-chan k-${channelKind(detail.channel)}`}>{channelKind(detail.channel) === "email" ? "✉ Email" : channelKind(detail.channel) === "linkedin" ? "in LinkedIn" : CHANNEL_LABEL[detail.channel] ?? detail.channel}</span>
+                <h2>{detail.subject || CHANNEL_LABEL[detail.channel] || "Message"}</h2>
+              </div>
+              <button type="button" className="act-modal-x" onClick={() => setDetail(null)} aria-label="Close">✕</button>
+            </header>
+            <dl className="act-modal-meta">
+              <div><dt>To</dt><dd>{detail.person}{detail.title ? `, ${detail.title}` : ""}{detail.to ? ` · ${detail.to}` : ""}</dd></div>
+              <div><dt>Company</dt><dd>{detail.company}</dd></div>
+              <div><dt>Sent by</dt><dd>{detail.sentBy}</dd></div>
+              <div><dt>When</dt><dd>{fullWhen(detail.at)}</dd></div>
+              <div><dt>Status</dt><dd>{detail.replied ? <span className={`act-modal-reply ${detail.replyClass === "positive" ? "is-pos" : ""}`}>Replied{detail.replyClass === "positive" ? " · positive" : ""}</span> : "Sent · no reply yet"}</dd></div>
+            </dl>
+            <div className="act-modal-body">{detail.body ? detail.body : <em className="act-modal-empty">No message text was recorded for this send.</em>}</div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

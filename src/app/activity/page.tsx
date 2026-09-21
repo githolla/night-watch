@@ -17,7 +17,7 @@ type TouchRow = {
   reply_classification: string;
   body: string | null;
   sent_by: string;
-  cards: { email_subject: string | null; accounts: { name: string } | null; people: { full_name: string; title: string } | null } | null;
+  cards: { email_subject: string | null; linkedin_subject: string | null; accounts: { name: string } | null; people: { full_name: string; title: string; email: string | null } | null } | null;
 };
 
 type Params = { person?: string; name?: string };
@@ -37,12 +37,19 @@ export default async function Activity({ searchParams }: { searchParams: Promise
   const db = admin();
   let query = db
     .from("touches")
-    .select("id,channel,sent_at,created_at,reply_at,reply_classification,body,sent_by,cards(email_subject,accounts(name),people(full_name,title))")
+    .select("id,channel,sent_at,created_at,reply_at,reply_classification,body,sent_by,cards(email_subject,linkedin_subject,accounts(name),people(full_name,title,email))")
     .order("created_at", { ascending: false })
     .limit(1000);
   if (personId) query = query.eq("person_id", personId);
   const { data, error } = await query;
   const { count: totalTouches } = await db.from("touches").select("*", { count: "exact", head: true });
+
+  // Seat → display name, so History shows "Sent by Josh / Suuchi" rather than the raw seat slug.
+  const { data: profileRows } = await db.from("sender_profiles").select("owner,from_name");
+  const seatName: Record<string, string> = {};
+  for (const row of (profileRows ?? []) as Array<{ owner: string; from_name: string | null }>)
+    if (row.from_name?.trim()) seatName[row.owner] = row.from_name.trim();
+  const senderLabel = (owner: string) => seatName[owner] || (owner ? owner.charAt(0).toUpperCase() + owner.slice(1) : "Unknown");
   const note = error
     ? `Couldn't load history: ${error.message}`
     : (totalTouches ?? 0) === 0
@@ -52,17 +59,21 @@ export default async function Activity({ searchParams }: { searchParams: Promise
   const rows = (data ?? []) as unknown as TouchRow[];
   const events: ActivityEvent[] = rows.map((row) => {
     const when = row.sent_at ?? row.created_at;
+    const body = (row.body ?? "").trim();
     return {
       id: row.id,
       at: when,
       day: when.slice(0, 10),
       channel: row.channel,
       owner: row.sent_by,
+      sentBy: senderLabel(row.sent_by),
       person: row.cards?.people?.full_name ?? "Unknown contact",
       title: row.cards?.people?.title ?? "",
       company: row.cards?.accounts?.name ?? "Unknown company",
-      subject: row.channel === "email" ? row.cards?.email_subject ?? null : null,
-      snippet: (row.body ?? "").replace(/\s+/g, " ").trim().slice(0, 140),
+      to: row.channel === "email" ? row.cards?.people?.email ?? null : null,
+      subject: row.channel === "email" ? row.cards?.email_subject ?? null : row.cards?.linkedin_subject ?? null,
+      body,
+      snippet: body.replace(/\s+/g, " ").slice(0, 140),
       replied: Boolean(row.reply_at),
       replyClass: row.reply_classification,
     };
