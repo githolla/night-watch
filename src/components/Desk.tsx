@@ -165,6 +165,9 @@ export function Desk({
   const [alt, setAlt] = useState<{ cardId: string; person: AltContact } | null>(null);
   const [logged, setLogged] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
+  // The left list can show just today's worklist, or every active (un-worked) prospect so older
+  // companies are never "lost" — the one-at-a-time flow still works from whichever pool is showing.
+  const [listScope, setListScope] = useState<"today" | "all">("today");
   const [busy, setBusy] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
   const [refining, setRefining] = useState<"email" | "linkedin" | null>(null);
@@ -184,12 +187,14 @@ export function Desk({
   // as you work. Falls back to the score-ordered shortlist before migration 0023 is applied.
   const daily = cards.filter((item) => item.onWorklist);
   const todo = (daily.length ? daily : byKind).filter((item) => !WORKED_STATUSES.includes(item.status));
+  // The pool the one-at-a-time flow walks: today's worklist, or every active prospect in "All".
+  const focusPool = listScope === "all" ? actionable : todo;
   const active = selected ? cards.find((item) => item.id === selected) : undefined;
-  const focusCard = todo.find((item) => item.id === focusId) ?? todo[0];
+  const focusCard = focusPool.find((item) => item.id === focusId) ?? focusPool[0] ?? todo[0];
   const card = active ?? focusCard ?? cards[0];
   const hasSourceResults = (context?.recentSignals.length ?? 0) > 0;
   const cardIndex = Math.max(0, cards.findIndex((item) => item.id === card?.id));
-  const focusIndex = focusCard ? todo.findIndex((item) => item.id === focusCard.id) : -1;
+  const focusIndex = focusCard ? focusPool.findIndex((item) => item.id === focusCard.id) : -1;
   const listSynced = !context || context.activeAccounts === context.targetTotal;
   const run = describeRun(context?.lastRun ?? null);
   const coverage = context?.coverage;
@@ -277,9 +282,9 @@ export function Desk({
   const pick = (id: string) => { setFocusId(id); setBrowse(false); setNotice(""); };
   // The prospect to land on after the current one leaves the queue.
   const afterCurrent = () => {
-    if (todo.length <= 1) return undefined;
+    if (focusPool.length <= 1) return undefined;
     const from = Math.max(0, focusIndex);
-    return todo[(from + 1) % todo.length]?.id;
+    return focusPool[(from + 1) % focusPool.length]?.id;
   };
   // An action couldn't reach the prospect on the server. Non-destructive: never yank the card the user is
   // looking at — just tell them to reload. (Removing it was confusing when it fired on a card that was fine.)
@@ -293,9 +298,9 @@ export function Desk({
       if (next) choose(next.id);
       return;
     }
-    if (!todo.length) return;
+    if (!focusPool.length) return;
     const from = Math.max(0, focusIndex);
-    const next = todo[(from + offset + todo.length) % todo.length];
+    const next = focusPool[(from + offset + focusPool.length) % focusPool.length];
     if (next) { setFocusId(next.id); setNotice(""); }
   };
 
@@ -313,7 +318,7 @@ export function Desk({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cardIndex, cards.length, active, browse, focusIndex, todo.length]);
+  }, [cardIndex, cards.length, active, browse, focusIndex, focusPool.length]);
 
   // Jump to the top when you open a prospect or come back to the list.
   useEffect(() => {
@@ -763,17 +768,21 @@ export function Desk({
           <div className="deskwork-grid">
             {/* LEFT — companies */}
             <aside className="deskwork-list">
-              <div className="deskwork-list-head"><span>Companies <b>{todo.length}</b></span><span className="deskwork-sort">By fit ↓</span></div>
-              <input className="deskwork-search" placeholder="Find a company" value={query} onChange={(event) => setQuery(event.target.value)} />
+              <div className="deskwork-list-head"><span>Companies <b>{focusPool.length}</b></span><span className="deskwork-sort">By fit ↓</span></div>
+              <div className="deskwork-scope" role="tablist" aria-label="Which prospects to list">
+                <button type="button" role="tab" aria-selected={listScope === "today"} className={listScope === "today" ? "is-on" : ""} onClick={() => setListScope("today")}>Today <b>{todo.length}</b></button>
+                <button type="button" role="tab" aria-selected={listScope === "all"} className={listScope === "all" ? "is-on" : ""} onClick={() => setListScope("all")} title="Every active prospect, not just today's — nothing is lost">All active <b>{actionable.length}</b></button>
+              </div>
+              <input className="deskwork-search" placeholder={listScope === "all" ? "Search all prospects" : "Find a company"} value={query} onChange={(event) => setQuery(event.target.value)} />
               <div className="deskwork-list-scroll">
-                {(query.trim() ? todo.filter((item) => `${item.accounts.name} ${item.people.full_name}`.toLowerCase().includes(query.trim().toLowerCase())) : todo).map((item) => (
+                {(query.trim() ? focusPool.filter((item) => `${item.accounts.name} ${item.people.full_name}`.toLowerCase().includes(query.trim().toLowerCase())) : focusPool).map((item) => (
                   <button type="button" key={item.id} className={`deskwork-row ${focusCard && item.id === focusCard.id ? "is-active" : ""}`} onClick={() => pick(item.id)}>
                     <span className="avatar sm">{initials(item.accounts.name)}</span>
                     <span className="deskwork-row-id"><strong>{item.accounts.name}</strong><small>{signalLabel(item)}{item.working ? " · working" : ""}</small></span>
                     <em className="deskwork-row-fit">{item.score}</em>
                   </button>
                 ))}
-                {!todo.length && <p className="deskwork-empty">All caught up — new prospects land here after the next scan.</p>}
+                {!focusPool.length && <p className="deskwork-empty">{listScope === "all" ? "No active prospects yet — new ones land here after the next scan." : "All caught up for today — switch to “All active” to work ahead, or new prospects land after the next scan."}</p>}
               </div>
             </aside>
 
@@ -866,10 +875,10 @@ export function Desk({
                 {(() => {
                   const seq = (focusCard.followups ?? []).filter((f) => (channelTab === "email" ? f.channel === "email" : f.channel !== "email"));
                   if (seq.length === 0) {
-                    return <div className="deskwork-fu-hint">The next 3 follow-ups queue here automatically once you send or copy this {channelTab === "email" ? "email" : "message"}.</div>;
+                    return <div className="deskwork-fu-hint">Three follow-ups (spread over ~2 weeks, stopping the moment they reply) appear here once you send or copy this {channelTab === "email" ? "email" : "message"} — or press <b>Automate</b> below to have Night Watch send them for you.</div>;
                   }
                   return <div className="deskwork-followups">
-                    <div className="deskwork-fu-head">Follow-up sequence<span>{seq.length} queued · stops on a reply</span></div>
+                    <div className="deskwork-fu-head">Follow-up sequence<span>{seq.length} queued · “Automate” sends these for you, or copy each to send by hand · stops on a reply</span></div>
                     {seq.map((step) => (
                       <div key={step.id} className={`deskwork-fu ${step.status === "sent" ? "is-done" : ""}`}>
                         <div className="deskwork-fu-top"><strong>Step {step.step} · {step.title}</strong><span className={followupWhen(step.scheduledAt, step.status) === "due now" ? "is-due" : ""}>{followupWhen(step.scheduledAt, step.status)}</span></div>
@@ -889,7 +898,7 @@ export function Desk({
                       ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button>
                       : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
                     <button type="button" disabled={busy} className="btn" title="Already sent (by you or the agent)? Log it to History without opening." onClick={() => markSent(channelTab)}>Mark sent</button>
-                    {contact.email && <button type="button" disabled={enrolling} className="btn" title="Night Watch sends and follows up, stopping on a reply" onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
+                    {contact.email && <button type="button" disabled={enrolling} className="btn" title="Hands-off: Night Watch sends this email and its follow-ups for you (day 0, 3, 7) and stops the moment they reply. Prefer to send it yourself? Use “Send email” — the same follow-ups still queue in the list above for you to copy." onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
                     <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
                     <button type="button" disabled={busy} className="btn ghost danger" onClick={dismissCurrent}>Dismiss</button>
                   </div>
