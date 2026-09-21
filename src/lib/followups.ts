@@ -67,7 +67,9 @@ export async function ensureFollowupCadence(
     cadence_id: cadence.id as string,
     step_number: index + 1,
     channel: step.channel,
-    kind: "review" as const,
+    // Email follow-ups auto-send (the cron falls back to a manual "ready" reminder when the recipient
+    // isn't verified or Gmail isn't connected). LinkedIn steps are always manual reminders.
+    kind: (step.channel === "email" ? "automatic" : "review") as "automatic" | "review",
     title: step.title,
     detail: step.detail,
     subject: step.subject,

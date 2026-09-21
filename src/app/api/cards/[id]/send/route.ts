@@ -20,16 +20,20 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").gte("sent_at", since.toISOString());
     validateEmail(card.people.email_status, count ?? 0, body);
     const profile = await senderProfile(db, owner);
+    // Send AS the seat's connected mailbox, not the app user's login email — otherwise Gmail rewrites
+    // or rejects the From when a teammate's login differs from the connected Google account.
+    const { data: connection } = await db.from("gmail_connections").select("email").eq("owner", owner).maybeSingle();
+    const fromEmail = connection?.email ?? user.email ?? "";
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
-    const fullBody = `${withSignature(body, profile, user.email)}\n\n${optOut}`;
-    const html = emailHtml(body, profile, user.email, optOut);
-    const result = await sendEmail(owner, fromHeader(profile, user.email!), card.people.email, subject, fullBody, undefined, profile.cc, html);
-    // Log the send to History. Kept minimal (no experiment_variant_id) so a missing optional column
-    // can never make this insert fail — a failed insert here is why a send could say "sent" yet not
-    // appear in History.
-    const { error: touchError } = await db.from("touches").insert({ card_id: id, person_id: card.person_id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: fullBody });
-    if (touchError) throw new Error(`Email sent, but recording it to History failed: ${touchError.message}`);
+    const fullBody = `${withSignature(body, profile, fromEmail)}\n\n${optOut}`;
+    const html = emailHtml(body, profile, fromEmail, optOut);
+    const result = await sendEmail(owner, fromHeader(profile, fromEmail), card.people.email, subject, fullBody, undefined, profile.cc, html);
+    // The email has now actually left. Mark the card sent FIRST so it can never stay actionable after a
+    // real send (which is how a "failed" toast used to lead to a duplicate re-send). Only then log to
+    // History; if that write fails, the send still stands — we report success with a soft warning.
     await db.from("cards").update({ status: "sent", email_subject: subject, email_body: body }).eq("id", id);
+    const { error: touchError } = await db.from("touches").insert({ card_id: id, person_id: card.person_id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: fullBody });
+    if (touchError) return Response.json({ ok: true, threadId: result.threadId, warning: `Sent to ${card.people.full_name}, but saving it to History failed (${touchError.message}). It won't need re-sending.` });
     return Response.json({ ok: true, threadId: result.threadId });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Send failed" }, { status: 400 });

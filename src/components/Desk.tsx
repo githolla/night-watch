@@ -230,7 +230,7 @@ export function Desk({
     setBusy(false);
     if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Send failed."); return; }
     setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
-    setNotice(`Sent. The email to ${card.people.full_name} is recorded and replies are being watched.`);
+    setNotice(json.warning ?? `Sent. The email to ${card.people.full_name} is recorded and replies are being watched.`);
   }
 
   async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string, target?: { id?: string; full_name: string }) {

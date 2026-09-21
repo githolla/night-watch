@@ -26,7 +26,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) {
     redirect("/setup");
   }
-  await requireUser();
+  const me = await requireUser();
   {
     const pending = await pendingMigrations(admin());
     if (pending.length) return <MigrationRequired pending={pending} />;
@@ -225,7 +225,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   return (
     <div className="shell">
       <Header />
-      <Desk initialCards={cards} selectedId={params.card} gmailConnected={(gmailRows ?? []).length > 0} context={context} scan={scan} />
+      <Desk initialCards={cards} selectedId={params.card} gmailConnected={(gmailRows ?? []).some((row) => (row as { owner: string }).owner === me.owner)} context={context} scan={scan} />
     </div>
   );
 }
