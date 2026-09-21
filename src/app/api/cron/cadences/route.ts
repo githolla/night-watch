@@ -38,9 +38,9 @@ export async function GET(request:Request){
       // → leave the sender a manual "ready" reminder instead of a hard failure.
       if(!card.people.email||card.people.email_status!=="verified"||!step.subject||!step.body||!connection){await db.from("cadence_steps").update({status:"ready"}).eq("id",step.id);ready++;continue}
       const dayStart=new Date(now);dayStart.setHours(0,0,0,0);
-      // Count every email touch from this seat today toward the cap (matches the manual send route),
-      // including manual logs — they are real sends and must count for the warmup ramp.
-      const {count}=await db.from("touches").select("*",{count:"exact",head:true}).eq("sent_by",cadence.owner).eq("channel","email").gte("sent_at",dayStart.toISOString());
+      // Only touches that actually left through Gmail count toward the cap (matches the manual send route);
+      // a "Copy" touch carries no thread id and must not stall the cadence.
+      const {count}=await db.from("touches").select("*",{count:"exact",head:true}).eq("sent_by",cadence.owner).eq("channel","email").not("gmail_thread_id","is",null).gte("sent_at",dayStart.toISOString());
       // Warmup ramp + daily cap: defer to a later run (stays pending) when the seat's cap is reached.
       const cap=dailyCap(daysBetween(connection.connected_at??connection.created_at));
       if((count??0)>=cap)continue;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
-import { dedupeParagraphs, sanitizeCopy } from "@/lib/clean";
+import { sanitizeCopy } from "@/lib/clean";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { CadencePlanner } from "./CadencePlanner";
 import { CompanyTeam } from "./CompanyTeam";
@@ -171,6 +171,8 @@ export function Desk({
   const [busy, setBusy] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
+  // Separate from `busy` so a blur-triggered autosave can't disable the Send button mid-click.
+  const [sending, setSending] = useState(false);
   const [refining, setRefining] = useState<"email" | "linkedin" | null>(null);
   // Open the composer in edit mode so every email/message is directly editable before sending;
   // the tools row flips it to a read-only "Preview" of exactly how it will go out.
@@ -227,6 +229,7 @@ export function Desk({
   }
 
   async function send() {
+    if (sending) return; // re-entry guard, since the button is no longer disabled by `busy`
     if (demo) {
       setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
       setNotice("Demo send simulated — no email left the app.");
@@ -239,14 +242,16 @@ export function Desk({
       ? `⚠️ ${card.people.email} is NOT a verified address — it may bounce and hurt your sending reputation. Send anyway to ${card.people.full_name}?`
       : `Send this email to ${card.people.full_name} at ${card.people.email}?`;
     if (!confirm(prompt)) return;
-    setBusy(true);
+    setSending(true);
+    // A subject is required server-side; fall back rather than fail with a raw validation error.
+    const subject = (card.email_subject ?? "").trim() || subjectGuess(card, "email");
     const response = await fetch(`/api/cards/${card.id}/send`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ subject: card.email_subject, body: card.email_body }),
+      body: JSON.stringify({ subject, body: card.email_body }),
     });
-    const json = await response.json();
-    setBusy(false);
+    const json = await response.json().catch(() => ({}));
+    setSending(false);
     if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Send failed."); return; }
     setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
     setNotice(json.warning ?? `Sent. The email to ${card.people.full_name} is recorded and replies are being watched.`);
@@ -295,6 +300,9 @@ export function Desk({
   const edit = (key: string, value: string) => setCards((current) => current.map((item) => item.id === card.id ? { ...item, [key]: value } : item));
   const choose = (id: string) => {
     setSelected(id);
+    // Keep the focus card in step with the selected one. When these diverged, a touch recorded from the
+    // dossier was logged against the PREVIOUS prospect — wrong person, wrong card, wrong company.
+    setFocusId(id);
     setNotice("");
     document.querySelector(".detail")?.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -878,10 +886,9 @@ export function Desk({
                     // was written to the company's first contact). Re-seed whenever the card OR the contact
                     // changes; the message/sign-off come from the stored body with its old greeting stripped.
                     const who = ("id" in contact && contact.id ? contact.id : contact.full_name) as string;
-                    // Collapse a repeated opener that's already saved on the card, so the editor shows what
-                    // will actually send (the same pass runs on every outbound body) rather than the stored
-                    // duplicate. Editing/blurring then persists the cleaned version.
-                    const parsed = parseEmail(dedupeParagraphs(focusCard.email_body ?? ""), fname);
+                    // Parse the stored body as-is. Cleaning it here looked harmless but meant merely opening
+                    // a card and clicking a field silently rewrote the saved draft on blur.
+                    const parsed = parseEmail(focusCard.email_body ?? "", fname);
                     const cur = compose && compose.cardId === focusCard.id && compose.who === who
                       ? compose
                       : { cardId: focusCard.id, who, first: fname, message: parsed.message, signoff: parsed.signoff };
@@ -950,7 +957,10 @@ export function Desk({
                   <span className="deskwork-words">{(channelTab === "email" ? (focusCard.email_body ?? "") : linkedinDraft).trim().split(/\s+/).filter(Boolean).length} words</span>
                   <div className="deskwork-draft-actions">
                     {channelTab === "email"
-                      ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{!altContact ? "Send email" : "Open email"} →</button>
+                      // NOT disabled on `busy`: clicking here blurs the message box, which fires a save and
+                      // sets busy, so the button disabled itself before the click landed and the first press
+                      // was swallowed ("I have to click send twice"). send() guards re-entry itself.
+                      ? <button type="button" disabled={sending || !contact.email} className="btn primary" onClick={sendEmail}>{!altContact ? "Send email" : "Open email"} →</button>
                       : <button type="button" disabled={busy} className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
                     <button type="button" disabled={busy} className="btn" title="Already sent (by you or the agent)? Log it to History without opening." onClick={() => markSent(channelTab)}>Mark sent</button>
                     {contact.email && <button type="button" disabled={enrolling} className="btn" title="Hands-off: Night Watch sends this email and its follow-ups for you (day 0, 3, 7) and stops the moment they reply. Prefer to send it yourself? Use “Send email” — the same follow-ups still queue in the list above for you to copy." onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
@@ -1083,6 +1093,12 @@ function retarget(text: string, fromName: string, toName: string) {
 }
 
 
+/**
+ * A leading greeting in any shape a draft actually uses: "Hi Kate," "Hi Kate" "Hi Kate!" "Hello Kate -"
+ * "Dear Ms. Chen:". Bounded to one or two name-ish words so it can never swallow a real opening sentence.
+ */
+const GREETING_LINE = /^[ \t]*(?:hi|hey|hello|dear)\s+([A-Za-z][\w'.-]*(?:[ \t]+[A-Za-z][\w'.-]*)?)[ \t]*[,!:;–—-]*[ \t]*(?:\n+|$)/i;
+
 /** Split a stored email body into the pieces the composer edits: greeting first name, message, sign-off.
  *  Heuristic — a leading "Hi <name>," and a trailing "Thanks,/Best,…" block are pulled out; the rest is the message. */
 function parseEmail(body: string, fallbackFirst: string): { first: string; message: string; signoff: string } {
@@ -1093,7 +1109,10 @@ function parseEmail(body: string, fallbackFirst: string): { first: string; messa
   // the message ("Hi Kate, saw your…"). Stripping it here is what stops the name showing twice — once
   // in the Greeting field and again at the start of the Message.
   let work = raw;
-  const greet = work.match(/^\s*(?:hi|hey|hello|dear)\s+([^,\n]+?)\s*,[ \t]*\n*/i);
+  // Accept the shapes drafts actually use, not just "Hi Name,". A comma-only match left "Hi Kate" (or
+  // "Hi Kate!", "Hello Kate -") sitting inside the message, where assembleEmail then refused to replace it —
+  // so the Greeting field silently did nothing and the wrong name went out.
+  const greet = work.match(GREETING_LINE);
   if (greet) { first = greet[1].trim(); work = work.slice(greet[0].length); }
   const afterGreet = work.trim();
   let rest = afterGreet;
@@ -1113,10 +1132,11 @@ function parseEmail(body: string, fallbackFirst: string): { first: string; messa
   return { first, message: rest, signoff };
 }
 
-/** Rebuild the email body from the composer pieces, without doubling a greeting the message already carries. */
+/** Rebuild the email body from the composer pieces. The Greeting field is authoritative: any greeting still
+ *  carried by the message is removed first, so the chosen contact's name always wins (previously a greeting
+ *  the parser hadn't recognised was left in place and the new one was skipped entirely). */
 function assembleEmail(first: string, message: string, signoff: string): string {
-  const m = (message || "").trim();
-  const greet = /^\s*(hi|hey|hello|dear)\b/i.test(m) ? "" : `Hi ${(first || "there").trim()},\n\n`;
+  const m = (message || "").trim().replace(GREETING_LINE, "").trim();
   const so = (signoff || "").trim();
-  return `${greet}${m}${so ? `\n\n${so}` : ""}`;
+  return `Hi ${(first || "there").trim()},\n\n${m}${so ? `\n\n${so}` : ""}`;
 }

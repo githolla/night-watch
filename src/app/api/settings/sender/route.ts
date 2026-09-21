@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth";
+import { sanitizeSignatureHtml } from "@/lib/clean";
 import { admin } from "@/lib/supabase/admin";
 import { z } from "zod";
 
@@ -16,8 +17,12 @@ export async function POST(request: Request) {
     const user = await requireUser();
     const body = input.parse(await request.json());
     const db = admin();
+    // Sanitize on WRITE so the stored signature is already safe everywhere it's used — the settings preview
+    // renders it as HTML and it ships inside every outbound email. Hand-rolled client-side stripping was
+    // bypassable (`<img src=x/onerror=…>`), which let it run in an admin's browser.
+    const signature = sanitizeSignatureHtml(body.signature);
     const { error } = await db.from("sender_profiles").upsert(
-      { owner: user.owner, from_name: body.from_name, title: body.title, signature: body.signature, website: body.website ?? "", location: body.location ?? "", cc: body.cc, updated_at: new Date().toISOString() },
+      { owner: user.owner, from_name: body.from_name, title: body.title, signature, website: body.website ?? "", location: body.location ?? "", cc: body.cc, updated_at: new Date().toISOString() },
       { onConflict: "owner" },
     );
     if (error) throw new Error(error.message);

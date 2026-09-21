@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Owner } from "./types.ts";
-import { dedupeParagraphs, similarText } from "./clean.ts";
+import { dedupeParagraphs, similarText, sanitizeSignatureHtml } from "./clean.ts";
 
 /**
  * How the connected mailbox presents on an outreach email: a display name and
@@ -40,36 +40,29 @@ export function sanitizeLinks(text: string): string {
   // domain mentioned in a sentence (keep — deleting it mangles their copy).
   let canonHost = "nine-67.com";
   try { canonHost = new URL((process.env.SENDER_SITE_URL || "https://nine-67.com").trim()).hostname.replace(/^www\./, ""); } catch { /* keep default */ }
-  const ourHostPattern = new RegExp(`(?:https?://)?(?:[a-z0-9-]+\\.)*${canonHost.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:/\\S*)?`, "i");
-  return dedupeParagraphs(text)
-    // Our own link duplicates the signature. Drafts put it on its own line as a CTA, so drop the whole line
-    // — stripping just the URL left broken prose like "More at if useful." But when the line carries real
-    // content around the link, keep the sentence and remove only the link.
-    .split("\n").map((line) => {
-      if (!ourHostPattern.test(line)) return line;
-      const stripped = line.replace(new RegExp(ourHostPattern.source, "gi"), "").replace(/[ \t]{2,}/g, " ").trim();
-      return stripped.split(/\s+/).filter(Boolean).length >= 5 ? stripped : "";
-    }).join("\n")
-    // A foreign URL with a scheme in a cold first touch is almost always one the model invented, so it must
-    // never reach a prospect. Trailing sentence punctuation is preserved.
-    .replace(/https?:\/\/[^\s<>)\]]+/gi, (raw) => raw.match(/[.,!?;:]+$/)?.[0] ?? "")
-    // Removing an inline link can leave an orphaned connector as its own sentence ("… needs. More at. Talk
-    // soon?"). Drop that fragment rather than ship it.
-    .replace(/(^|[.!?]\s+)(?:more\s+|read\s+more\s+|learn\s+more\s+)?(?:at|on|via|visit|see|here)\s*[.,]/gi, "$1")
-    // …or a dangling preposition mid-sentence ("read more at here" -> "read more here").
-    .replace(/\b(?:at|on|via|to)\s+(here|there)\b/gi, "$1")
-    // Strip the leftover CTA some cached drafts still carry ("Want a free one-page teardown…"). Remove the
-    // whole sentence containing "teardown" so nothing dangling is left.
-    .replace(/[^.!?\n]*\bteardown\b[^.!?\n]*[.!?]?/gi, "")
+  // (?<![@\w.]) so an email address keeps its domain — "Reach me at josh@nine-67.com" must not become "josh@".
+  const ourLink = new RegExp(`(?<![@\\w.])(?:https?://)?(?:[a-z0-9-]+\\.)*${canonHost.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:/\\S*)?`, "gi");
+  const cleaned = text
+    // Our own link only — it duplicates the signature, and this also catches an invented path on our domain
+    // ("nine-67.com/case-study"). A prospect's own domain, an email address, and any other link are the
+    // sender's words and are left exactly as written.
+    .replace(ourLink, "")
+    // The one retired CTA, matched as the actual phrase rather than any sentence containing "teardown" —
+    // that word has ordinary uses ("a teardown of your competitor's funnel") and the broad rule was deleting
+    // real sentences, sometimes the whole email.
+    .replace(/[^.!?\n]*\bone[- ]page teardown\b[^.!?\n]*[.!?]/gi, "")
     // No em/en dashes — they read as AI-written; use a comma. Only when spaced on BOTH sides, so number
     // ranges ("10–15", "$10–15M") and a "\n— Name" sign-off are left intact.
     .replace(/ +[—–] +/g, ", ")
     .replace(/,\s*,/g, ",")
-    .replace(/\s+([.,!?;:])/g, "$1")
+    // Same-line only: a \s+ here used to pull a stray "." onto the previous paragraph ("promised:.").
+    .replace(/[ \t]+([.,!?;:])/g, "$1")
     .replace(/[ \t]{2,}/g, " ")
-    .replace(/ *\n{3,}/g, "\n\n")
     .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
+  // Never hand back an empty body: if the rules would erase everything, the original is the safer answer.
+  return cleaned || text.trim();
 }
 
 /** True when the signature field holds real HTML (an uploaded/pasted signature) rather than plain text. */
@@ -93,7 +86,8 @@ export function renderSignatureHtml(profile: SenderProfile, email: string): stri
   // A signature the admin uploaded/pasted as HTML is used verbatim — it IS the signature, so it takes
   // precedence over the built-in block (that's the point of uploading your own).
   const sig = profile.signature.trim();
-  if (isHtmlSignature(sig)) return `<div style="margin-top:24px">${sig}</div>`;
+  // Sanitized again at render, not only on write, so a signature stored before that guard existed is safe too.
+  if (isHtmlSignature(sig)) return `<div style="margin-top:24px">${sanitizeSignatureHtml(sig)}</div>`;
   if (!profile.fromName.trim()) return sig ? esc(sig).replace(/\n/g, "<br>") : "";
   const rows: string[] = [];
   if (email) rows.push(`<div style="margin-top:3px;font:400 15px Arial,Helvetica,sans-serif;color:#3a352f">✉&nbsp;&nbsp;<a href="mailto:${esc(email)}" style="color:#3a352f;text-decoration:none">${esc(email)}</a></div>`);

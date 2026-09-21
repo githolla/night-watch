@@ -29,11 +29,22 @@ export function RewriteDrafts() {
     if (running) return;
     if (!confirm("Clean up every un-sent draft? Removes repeated lines, links in the body, and the old “teardown” line. No AI, nothing is rewritten.")) return;
     setRunning("clean"); setMsg("Cleaning drafts…");
-    try { await drain("/api/admin/clean-drafts", {}, "Cleaned", "cleaned"); } catch { setMsg("Clean-up failed — try again."); }
+    try {
+      let offset = 0, fixed = 0, blanked = 0;
+      for (let i = 0; i < 60; i++) {
+        const res = await fetch("/api/admin/clean-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ offset }) });
+        const json = await res.json();
+        if (!res.ok) { setMsg(json.error ?? "Clean-up failed."); return; }
+        fixed += json.cleaned ?? 0; blanked += json.skipped ?? 0; offset = json.offset ?? offset;
+        setMsg(`Checked ${offset} draft${offset === 1 ? "" : "s"}, fixed ${fixed}…`);
+        if (json.done) break;
+      }
+      setMsg(`Done — checked ${offset} drafts and fixed ${fixed}. Drafts that were already clean were left untouched${blanked ? `; ${blanked} skipped to avoid emptying them` : ""}. Reload the desk to see them.`);
+    } catch { setMsg("Clean-up failed — try again."); }
     finally { setRunning(""); }
   }
 
-  async function drain(url: string, extra: Record<string, unknown>, label: string, key: "rewritten" | "applied" | "cleaned") {
+  async function drain(url: string, extra: Record<string, unknown>, label: string, key: "rewritten" | "applied") {
     const before = new Date().toISOString();
     let total = 0;
     for (let i = 0; i < 60; i++) {

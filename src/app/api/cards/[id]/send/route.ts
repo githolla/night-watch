@@ -35,9 +35,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // or rejects the From when a teammate's login differs from the connected Google account.
     const { data: connection } = await db.from("gmail_connections").select("email,connected_at,created_at").eq("owner", owner).maybeSingle();
     const since = new Date(); since.setHours(0, 0, 0, 0);
-    // Count every email touch from this seat today toward the daily cap — including manual "Mark sent"
-    // logs, which are real sends from the mailbox and must count for the warmup ramp to protect the domain.
-    const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").gte("sent_at", since.toISOString());
+    // Count only touches that actually left through Gmail (they carry a thread id). "Copy" also writes an
+    // email touch, and counting those meant four copies on a fresh mailbox (cap 4) blocked every real send
+    // before a single email had gone out.
+    const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").not("gmail_thread_id", "is", null).gte("sent_at", since.toISOString());
     // Warm the mailbox up gently: the daily cap starts low on a freshly connected seat and ramps to the base.
     const cap = dailyCap(daysBetween(connection?.connected_at ?? connection?.created_at));
     // Manual desk send: a human chose to send and is warned in the UI when the address isn't verified, so

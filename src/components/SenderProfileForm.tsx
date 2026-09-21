@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { sanitizeSignatureHtml } from "@/lib/clean";
 
 type Profile = { from_name: string; title: string; signature: string; website: string; location: string; cc: string[] };
 
@@ -23,12 +24,9 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
 
   // True when the signature field holds real HTML (a pasted/uploaded signature) vs plain text.
   const isHtmlSig = /<[a-z][a-z0-9-]*(\s[^>]*)?\/?>/i.test(signature.trim());
-  // Preview-only sanitize: strip scripts/handlers so pasting HTML can't run in the admin's browser. The
-  // outbound email keeps the raw HTML (email clients sanitize on their end).
-  const previewHtml = signature
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/ on[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+  // Same sanitizer the server applies on save and on render — one definition, so the preview can't show
+  // something safer than what is stored. The previous hand-rolled version missed `<img src=x/onerror=…>`.
+  const previewHtml = sanitizeSignatureHtml(signature);
 
   async function onUpload(event: React.ChangeEvent<HTMLInputElement>) {
     setUploadErr("");
