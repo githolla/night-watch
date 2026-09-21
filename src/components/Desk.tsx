@@ -235,33 +235,37 @@ export function Desk({
   /** Write to the prospect the one-at-a-time desk is showing. */
   const patchFocus = (values: Record<string, unknown>) => patchOn(focusCard?.id ?? card.id, values);
 
-  async function send() {
-    if (sending) return; // re-entry guard, since the button is no longer disabled by `busy`
+  // `target` is the prospect being sent to, and callers always pass it: this read `card`
+  // (active ?? focusCard) while the desk's Send button lives in the focusCard composer, so a stale
+  // `selected` would have confirmed one name and emailed a different person entirely.
+  async function send(target?: Card) {
+    const onCard = target ?? card;
+    if (sending || !onCard) return; // re-entry guard, since the button is no longer disabled by `busy`
     if (demo) {
-      setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
+      setCards((current) => current.map((item) => item.id === onCard.id ? { ...item, status: "sent" } : item));
       setNotice("Demo send simulated — no email left the app.");
       return;
     }
     // Warn before sending to an address we haven't verified — it's more likely to bounce, which hurts the
     // sending domain. The person can still choose to send.
-    const unverified = card.people.email_status !== "verified";
+    const unverified = onCard.people.email_status !== "verified";
     const prompt = unverified
-      ? `⚠️ ${card.people.email} is NOT a verified address — it may bounce and hurt your sending reputation. Send anyway to ${card.people.full_name}?`
-      : `Send this email to ${card.people.full_name} at ${card.people.email}?`;
+      ? `⚠️ ${onCard.people.email} is NOT a verified address — it may bounce and hurt your sending reputation. Send anyway to ${onCard.people.full_name}?`
+      : `Send this email to ${onCard.people.full_name} at ${onCard.people.email}?`;
     if (!confirm(prompt)) return;
     setSending(true);
     // A subject is required server-side; fall back rather than fail with a raw validation error.
-    const subject = (card.email_subject ?? "").trim() || subjectGuess(card, "email");
-    const response = await fetch(`/api/cards/${card.id}/send`, {
+    const subject = (onCard.email_subject ?? "").trim() || subjectGuess(onCard, "email");
+    const response = await fetch(`/api/cards/${onCard.id}/send`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ subject, body: card.email_body }),
+      body: JSON.stringify({ subject, body: onCard.email_body }),
     });
     const json = await response.json().catch(() => ({}));
     setSending(false);
     if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Send failed."); return; }
-    setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: "sent" } : item));
-    setNotice(json.warning ?? `Sent. The email to ${card.people.full_name} is recorded and replies are being watched.`);
+    setCards((current) => current.map((item) => item.id === onCard.id ? { ...item, status: "sent" } : item));
+    setNotice(json.warning ?? `Sent. The email to ${onCard.people.full_name} is recorded and replies are being watched.`);
   }
 
   async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string, target?: { id?: string; full_name: string }, onCardOverride?: { id: string }) {
@@ -323,9 +327,10 @@ export function Desk({
     // If the picked prospect isn't in today's worklist, switch to the "All active" scope so it's in the
     // walked pool (and Next/Prev behave) instead of falling back to a different card.
     if (listScope === "today" && !todo.some((item) => item.id === id) && actionable.some((item) => item.id === id)) setListScope("all");
-    // Keep `selected` in step: a stale `selected` is what let `card` and `focusCard` point at different
-    // prospects in the first place.
-    setFocusId(id); setSelected(id); setBrowse(false); setNotice("");
+    // Do NOT touch `selected` here: it is the view switch (a non-empty `selected` opens the full-detail
+    // dossier), so setting it sent every click on a company into the dossier instead of the worklist.
+    // The two views staying in step is handled by each write naming its own card, not by syncing these.
+    setFocusId(id); setBrowse(false); setNotice("");
   };
   // The prospect to land on after the current one leaves the queue.
   const afterCurrent = () => {
@@ -436,7 +441,7 @@ export function Desk({
     if (!contact?.email) return;
     // The primary contact sends in-app via Gmail (verified or not — send() warns on an unverified address).
     // An alternate contact opens a prefilled draft instead, since in-app send always goes to the primary.
-    if (!altContact) { send(); return; }
+    if (!altContact) { void send(focusCard ?? undefined); return; }
     // Opening a prefilled draft is NOT sending — don't log it to History yet, or it shows as "sent"
     // when the user may never send it. Gmail-Sent sync backfills a real send; "Mark sent" logs it
     // explicitly if they sent from another client.
@@ -732,7 +737,7 @@ export function Desk({
                 sendReady={["approved", "edited"].includes(card.status)}
                 onEdit={edit}
                 onSave={() => patch({ status: "edited", email_subject: card.email_subject, email_body: card.email_body, linkedin_note: card.linkedin_note, linkedin_comment: card.linkedin_comment, linkedin_message: card.linkedin_message ?? "" })}
-                onSend={send}
+                onSend={() => void send(card)}
                 onRecordTouch={(view, body) => recordTouch(view, body, card.people, card)}
                 onNotice={setNotice}
               />
