@@ -35,12 +35,19 @@ const siteUrl = (site: string) => (site ? (/^https?:\/\//.test(site) ? site : `h
 export function sanitizeLinks(text: string): string {
   if (!text) return text;
   const site = (process.env.SENDER_SITE_URL || "https://nine-67.com").trim();
-  let host = "nine-67.com";
-  try { host = new URL(site).hostname.replace(/^www\./, ""); } catch { /* keep default */ }
+  let canonHost = "nine-67.com";
+  try { canonHost = new URL(site).hostname.replace(/^www\./, ""); } catch { /* keep default */ }
   return text
-    .replace(/https?:\/\/[^\s<>)\]]+/gi, (u) => { try { return new URL(u).hostname.replace(/^www\./, "") === host ? site : ""; } catch { return ""; } })
-    // No em/en dashes — they read as AI-written; use a comma instead.
-    .replace(/\s*[—–]\s*/g, ", ")
+    .replace(/https?:\/\/[^\s<>)\]]+/gi, (raw) => {
+      // Keep trailing sentence punctuation OUT of the URL so "…visit https://nine-67.com." keeps the period
+      // and the (valid) homepage link isn't dropped as a foreign host.
+      const trail = raw.match(/[.,!?;:]+$/)?.[0] ?? "";
+      const u = trail ? raw.slice(0, -trail.length) : raw;
+      try { return (new URL(u).hostname.replace(/^www\./, "") === canonHost ? site : "") + trail; } catch { return trail; }
+    })
+    // No em/en dashes — they read as AI-written; use a comma. Only when spaced on BOTH sides, so number
+    // ranges ("10–15", "$10–15M") and a "\n— Name" sign-off are left intact.
+    .replace(/ +[—–] +/g, ", ")
     .replace(/,\s*,/g, ",")
     .replace(/\s+([.,!?;:])/g, "$1")
     .replace(/[ \t]{2,}/g, " ")
@@ -83,8 +90,12 @@ export function renderSignatureText(profile: SenderProfile, email: string): stri
 
 /** The Gmail From header value: `Name, Title <email>` when a name is set, otherwise the bare address. */
 export function fromHeader(profile: SenderProfile, email: string) {
-  const label = [profile.fromName, profile.title].filter((part) => part.trim()).join(", ");
-  return label ? `${label} <${email}>` : email;
+  const label = [profile.fromName, profile.title].filter((part) => part.trim()).join(", ").replace(/[\r\n]/g, "").trim();
+  if (!label) return email;
+  // RFC 5322: a display name containing a comma (our default "Name, Title") or other specials must be a
+  // quoted-string, or strict parsers read it as two addresses and garble the sender.
+  const needsQuote = /[",:;<>@()[\]\\]/.test(label);
+  return needsQuote ? `"${label.replace(/"/g, "'")}" <${email}>` : `${label} <${email}>`;
 }
 
 /** Plain-text body with the signature appended once; the caller adds the opt-out line after this. */

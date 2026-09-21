@@ -26,7 +26,9 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
   const db = admin();
   const query = params.q?.trim() ?? "";
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
-  const safe = query.replace(/[%,]/g, " ");
+  // Strip PostgREST or()-filter metacharacters: %/, split conditions, ()/* group and wildcard. Leaving them
+  // in lets a search string break the filter grammar or inject extra conditions.
+  const safe = query.replace(/[%,()*]/g, " ");
   const sinceDays = [1, 7, 30].includes(Number(params.since)) ? Number(params.since) : 0;
 
   let rows = db

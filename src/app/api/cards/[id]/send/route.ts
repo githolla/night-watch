@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { encrypt } from "@/lib/crypto";
 import { sendEmail } from "@/lib/gmail";
+import { ensureFollowupCadence } from "@/lib/followups";
 import { validateEmail, sendInput } from "@/lib/send-action";
 import { dailyCap } from "@/lib/send-guards";
 import { fromHeader, sanitizeLinks, senderProfile, withSignature } from "@/lib/sender";
@@ -27,7 +28,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // or rejects the From when a teammate's login differs from the connected Google account.
     const { data: connection } = await db.from("gmail_connections").select("email,connected_at,created_at").eq("owner", owner).maybeSingle();
     const since = new Date(); since.setHours(0, 0, 0, 0);
-    const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").gte("sent_at", since.toISOString());
+    // Count only touches that actually left through Gmail (a real thread id) toward the daily cap, so a
+    // manual log or a failed attempt with no thread never inflates the count and blocks a genuine send.
+    const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").not("gmail_thread_id", "is", null).gte("sent_at", since.toISOString());
     // Warm the mailbox up gently: the daily cap starts low on a freshly connected seat and ramps to the base.
     const cap = dailyCap(daysBetween(connection?.connected_at ?? connection?.created_at));
     validateEmail(card.people.email_status, count ?? 0, body, cap);
@@ -45,6 +48,15 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     await db.from("cards").update({ status: "sent", email_subject: subject, email_body: body }).eq("id", id);
     const { error: touchError } = await db.from("touches").insert({ card_id: id, person_id: card.person_id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: fullBody });
     if (touchError) return Response.json({ ok: true, threadId: result.threadId, warning: `Sent to ${card.people.full_name}, but saving it to History failed (${touchError.message}). It won't need re-sending.` });
+    // Schedule the follow-up cadence off this first touch (idempotent, best-effort — a failure here never
+    // undoes the send).
+    try {
+      await ensureFollowupCadence(db, {
+        cardId: id, personId: card.person_id, owner, touchedChannel: "email",
+        firstName: (card.people.full_name ?? "").trim().split(/\s+/)[0] || "there",
+        company: card.accounts?.name ?? "", baseSubject: subject,
+      });
+    } catch { /* follow-up scheduling is best-effort */ }
     return Response.json({ ok: true, threadId: result.threadId });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Send failed" }, { status: 400 });

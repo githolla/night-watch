@@ -20,6 +20,10 @@ function linkedinSearch(name: string, company: string) {
 export function CompanyTeam({ domain, company, activeId, onSelect, compact, loggedIds }: { domain: string; company: string; activeId?: string; onSelect?: (person: TeamPerson) => void; compact?: boolean; loggedIds?: Set<string> }) {
   const [team, setTeam] = useState<{ domain: string; data: Team } | null>(null);
   const [open, setOpen] = useState(false);
+  // Collapse the expanded team list when the component is reused for a different company. React's
+  // adjust-state-during-render pattern (not an effect) so it takes effect on the same render as the new prop.
+  const [seenDomain, setSeenDomain] = useState(domain);
+  if (domain !== seenDomain) { setSeenDomain(domain); setOpen(false); }
   useEffect(() => {
     let live = true;
     fetch(`/api/company-team?domain=${encodeURIComponent(domain)}`, { cache: "no-store" })

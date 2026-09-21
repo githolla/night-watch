@@ -11,6 +11,7 @@ function ratesFor(model: string): Rates {
   if (model.includes("haiku-4-5")) return { input: 1, output: 5, cacheWrite: 2, cacheRead: 0.1 };
   if (model.includes("sonnet-5")) return { input: 2, output: 10, cacheWrite: 4, cacheRead: 0.2 };
   if (model.includes("sonnet-4")) return { input: 3, output: 15, cacheWrite: 6, cacheRead: 0.3 };
+  if (model.includes("opus")) return { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 };
   // Unknown/future models use a deliberately conservative fallback.
   return { input: 10, output: 50, cacheWrite: 20, cacheRead: 1 };
 }

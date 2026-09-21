@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE, validSharedSession } from "./shared-auth.ts";
 import { readSession } from "./session.ts";
@@ -28,5 +29,15 @@ export async function requireAdmin(): Promise<AppUser> {
 
 export function cronAuthorized(request: Request) {
   const secret = process.env.CRON_SECRET;
-  return Boolean(secret && request.headers.get("authorization") === `Bearer ${secret}`);
+  if (!secret) {
+    // A cron endpoint with no secret set is a dead cron: it would run for anyone. Log loudly and refuse.
+    console.error("[cron] CRON_SECRET is not set — cron endpoint refusing all requests");
+    return false;
+  }
+  const expected = `Bearer ${secret}`;
+  const got = request.headers.get("authorization") ?? "";
+  const a = Buffer.from(got);
+  const b = Buffer.from(expected);
+  // Constant-time compare so a wrong secret can't be recovered byte-by-byte from response timing.
+  return a.length === b.length && timingSafeEqual(a, b);
 }

@@ -186,6 +186,12 @@ async function draftFromAnalysis(db: Db, account: Account, analysis: CompanyAnal
     // The synthesizer named someone the people agent did not store; store them now.
     const seen = analysis.people.find((candidate) => nameKey(candidate.name) === nameKey(named));
     person = (await upsertPerson(account, { name: named, title: analysis.brief.whoFirstTitle || seen?.title || "", linkedin_url: seen?.linkedin_url ?? null }, "analysis")) as DraftCandidate;
+    // upsertPerson bypasses the do_not_contact filter the people query used, so it can return an existing
+    // opted-out contact by name. Recheck and never draft to someone who has opted out.
+    if (person) {
+      const { data: dnc } = await db.from("people").select("do_not_contact").eq("id", person.id).maybeSingle();
+      if (dnc?.do_not_contact) return { status: "skipped", person: named, cardId: null, reason: "the named contact has opted out of contact" };
+    }
   }
   if (!person) return { status: "skipped", person: named, cardId: null, reason: "nobody on file to write to yet" };
 

@@ -19,6 +19,9 @@ export async function GET(request:Request){
   for(const raw of data??[]){
     const step=raw as unknown as DueStep,cadence=step.cadences,card=cadence.cards;
     try{
+      // A paused cadence is a temporary hold: leave its steps pending so they resume when it reactivates.
+      // Only a terminally non-active cadence (stopped/completed) skips its steps for good.
+      if(cadence.status==="paused")continue;
       if(cadence.status!=="active"){await db.from("cadence_steps").update({status:"skipped"}).eq("id",step.id);skipped++;continue}
       if(cadence.rules?.stop_on_reply){const {count}=await db.from("touches").select("*",{count:"exact",head:true}).eq("card_id",cadence.card_id).neq("reply_classification","none");if((count??0)>0){await stopCadence(db,cadence.id);stopped++;continue}}
       // Manual reminders (LinkedIn, or steps explicitly flagged for review) surface as "ready" for the human.
@@ -30,18 +33,22 @@ export async function GET(request:Request){
       // → leave the sender a manual "ready" reminder instead of a hard failure.
       if(!card.people.email||card.people.email_status!=="verified"||!step.subject||!step.body||!connection){await db.from("cadence_steps").update({status:"ready"}).eq("id",step.id);ready++;continue}
       const dayStart=new Date(now);dayStart.setHours(0,0,0,0);
-      const {count}=await db.from("touches").select("*",{count:"exact",head:true}).eq("sent_by",cadence.owner).eq("channel","email").gte("sent_at",dayStart.toISOString());
+      // Count only touches that actually left through Gmail toward the cap (matches the manual send route).
+      const {count}=await db.from("touches").select("*",{count:"exact",head:true}).eq("sent_by",cadence.owner).eq("channel","email").not("gmail_thread_id","is",null).gte("sent_at",dayStart.toISOString());
       // Warmup ramp + daily cap: defer to a later run (stays pending) when the seat's cap is reached.
       const cap=dailyCap(daysBetween(connection.connected_at??connection.created_at));
       if((count??0)>=cap)continue;
-      validateEmail(card.people.email_status,count??0,step.body,cap);
+      // Validate the sanitized body that actually ships, not the raw draft — link-count and content
+      // guards must reflect the real payload after fabricated/foreign links are stripped.
+      const cleanBody=sanitizeLinks(step.body);
+      validateEmail(card.people.email_status,count??0,cleanBody,cap);
       // Atomically claim the step by stamping sent_at while it's still pending+unclaimed, so two
       // overlapping runs (or a retry) can't both send it — only the update that matches wins.
       const {data:claimed}=await db.from("cadence_steps").update({sent_at:now.toISOString()}).eq("id",step.id).eq("status","pending").is("sent_at",null).select("id");
       if(!claimed||!claimed.length)continue;
       const {data:previous}=await db.from("touches").select("gmail_thread_id").eq("card_id",cadence.card_id).eq("channel","email").not("gmail_thread_id","is",null).order("sent_at",{ascending:false}).limit(1).maybeSingle();
       const profile=await senderProfile(db,cadence.owner);
-      const optOut=process.env.OPT_OUT_LINE??"If this isn't relevant, reply no and I won't follow up.",fullBody=`${withSignature(sanitizeLinks(step.body),profile,connection.email)}\n\n${optOut}`;
+      const optOut=process.env.OPT_OUT_LINE??"If this isn't relevant, reply no and I won't follow up.",fullBody=`${withSignature(cleanBody,profile,connection.email)}\n\n${optOut}`;
       const base=(process.env.APP_URL??new URL(request.url).origin).trim().replace(/\/$/,"");
       const unsubscribe=`${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(card.person_id))}`;
       // Plain text (no branded HTML part) keeps cold follow-ups out of spam; unsubscribe header for deliverability.

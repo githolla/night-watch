@@ -13,7 +13,10 @@ type PersonRow = { id: string; full_name: string; email: string | null; email_st
 export async function fillEmailsFromPattern(db: SupabaseClient, account: { id: string; domain: string; email_pattern?: string | null; pattern_confidence?: number | null }, webExamples: string[] = []) {
   const { data } = await db.from("people").select("id,full_name,email,email_status,email_source").eq("account_id", account.id).eq("do_not_contact", false);
   const people = (data ?? []) as PersonRow[];
-  const samples = people.filter((person) => person.email && person.email_source !== "pattern").map((person) => ({ name: person.full_name, email: person.email as string }));
+  // Learn the format only from real addresses. A "pattern"-built or blind "guess" address is our own
+  // construction, not evidence — feeding it back in would let a low-confidence guess masquerade as the
+  // account's confirmed pattern.
+  const samples = people.filter((person) => person.email && person.email_source !== "pattern" && person.email_source !== "guess").map((person) => ({ name: person.full_name, email: person.email as string }));
   let guess: PatternGuess | null = detectPattern(samples, account.domain);
   if (!guess) guess = guessFromExamples(webExamples, account.domain);
   if (!guess && account.email_pattern) guess = { key: account.email_pattern as PatternKey, confidence: Number(account.pattern_confidence ?? 0.4), matched: 0, samples: 0 };

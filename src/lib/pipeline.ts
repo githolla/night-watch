@@ -5,7 +5,7 @@ import { matchPerson } from "./apollo.ts";
 import { classifyResearchError, ResearchError, researchPreflight } from "./research-errors.ts";
 import { priorityBand, selectResearchBatch } from "./research-rotation.ts";
 import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, researchCooldownMs, runBudgetUsd, STALE_HEARTBEAT_MS, timeBudgetMs } from "./run-config.ts";
-import { countRows, loadRunSummary, type RunSummary } from "./run-status.ts";
+import { countRows, loadRunSummary, RESEARCH_SOURCES, type RunSummary } from "./run-status.ts";
 import { ARCHIVE_THRESHOLD, CARD_THRESHOLD, score, strength } from "./scoring.ts";
 import { recomputeAccountIntel } from "./account-intel.ts";
 import { requireSchema } from "./schema-check.ts";
@@ -479,7 +479,9 @@ export async function runNightly(options: RunNightlyOptions): Promise<RunNightly
     // outlived its window is finished before the list advances. Otherwise its
     // queued companies stay "busy" and are skipped by every later run.
     const idleCutoff = new Date(started - 2 * 60_000).toISOString();
-    const { data: idle } = await db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false)
+    // Only adopt an idle *research* run. Sweep and analysis runs share the runs table; resuming one here
+    // would iterate its queued accounts through the research pipeline, which is the wrong processing.
+    const { data: idle } = await db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false).in("source", RESEARCH_SOURCES)
       .or(`heartbeat_at.is.null,heartbeat_at.lt.${idleCutoff}`).order("started_at", { ascending: false }).limit(1).maybeSingle();
     if (idle) {
       const { count } = await db.from("run_accounts").select("*", { count: "exact", head: true }).eq("run_id", idle.id).eq("status", "queued");

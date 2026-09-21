@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { purgeNonPeople } from "@/lib/pipeline";
 
 /** Permanently delete rows scraped as "people" that are really service lines or value props
@@ -6,7 +6,7 @@ import { purgeNonPeople } from "@/lib/pipeline";
  *  Read-time filters already hide these; this cleans the database so they stop counting and being enriched. */
 export async function POST() {
   try {
-    await requireUser();
+    await requireAdmin();
     const removed = await purgeNonPeople();
     return Response.json({ ok: true, removed });
   } catch (error) {

@@ -35,7 +35,7 @@ export async function GET(request:Request){
   const {data:connRows}=await db.from("gmail_connections").select("owner,email");
   const seatEmail=new Map<string,string>();for(const r of (connRows??[]) as Array<{owner:string;email:string|null}>)if(r.email)seatEmail.set(r.owner,r.email.trim().toLowerCase());
   // Only poll recent outbound (last 21 days) and cap the batch, so this stays bounded as volume grows.
-  const {data:touches}=await db.from("touches").select("id,card_id,sent_by,gmail_thread_id,sent_at,experiment_variant_id").eq("channel","email").not("gmail_thread_id","is",null).is("reply_at",null).gte("sent_at",daysAgoIso(21)).order("sent_at",{ascending:false}).limit(300);
+  const {data:touches}=await db.from("touches").select("id,card_id,sent_by,gmail_thread_id,sent_at,experiment_variant_id").eq("channel","email").not("gmail_thread_id","is",null).is("reply_at",null).gte("sent_at",daysAgoIso(21)).order("sent_at",{ascending:true}).limit(300);
   let replies=0;
   for(const touch of touches??[]){
     try{

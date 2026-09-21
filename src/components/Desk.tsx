@@ -402,6 +402,10 @@ export function Desk({
   // decide whether it fires now or waits — the API tells us which.
   const startSequence = async () => {
     if (!focusCard) return;
+    // Automation always enrols the card's PRIMARY contact (its email is what the engine sends to). If the
+    // user has retargeted the draft to an alternate contact, automating here would silently send to the
+    // wrong person — steer them to Copy / Open email for the alternate instead.
+    if (altContact) { setNotice(`“Automate” sends to ${focusCard.people.full_name} (the primary contact). To reach ${altContact.full_name}, use Copy or Open email and send it yourself.`); return; }
     const first = focusCard.people.full_name.split(/\s+/)[0] || "there";
     const subject = focusCard.email_subject || `Quick idea for ${focusCard.accounts.name}`;
     const body = focusCard.email_body || draftText;
@@ -634,6 +638,7 @@ export function Desk({
               />
 
               <CadencePlanner
+                key={card.id}
                 cardId={card.id}
                 demo={demo}
                 channel={card.channel}
@@ -824,7 +829,7 @@ export function Desk({
                     <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>
                     <button type="button" disabled={refining === channelTab} onClick={() => channelTab === "email" ? refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined) : refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === channelTab ? "Refining…" : "Refine"}</button>
                     {channelTab === "email" && <button type="button" disabled={proposing} title="Insert open times from your connected calendar" onClick={proposeMeetingTimes}>{proposing ? "Checking…" : "Propose times"}</button>}
-                    <button type="button" onClick={() => copyAndLog(channelTab)}>Copy</button>
+                    <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy</button>
                   </div>
                 </div>
 
@@ -899,7 +904,7 @@ export function Desk({
                   <div className="deskwork-draft-actions">
                     {channelTab === "email"
                       ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button>
-                      : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
+                      : <button type="button" disabled={busy} className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
                     <button type="button" disabled={busy} className="btn" title="Already sent (by you or the agent)? Log it to History without opening." onClick={() => markSent(channelTab)}>Mark sent</button>
                     {contact.email && <button type="button" disabled={enrolling} className="btn" title="Hands-off: Night Watch sends this email and its follow-ups for you (day 0, 3, 7) and stops the moment they reply. Prefer to send it yourself? Use “Send email” — the same follow-ups still queue in the list above for you to copy." onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
                     <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>

@@ -47,7 +47,7 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
   rows = showAll ? rows : rows.not("family", "is", null);
   if (family) rows = rows.eq("family", family);
   if (sinceIso) rows = rows.gte("first_seen_at", sinceIso);
-  if (query) rows = rows.or(`title.ilike.%${query.replace(/[%,]/g, " ")}%,accounts.name.ilike.%${query.replace(/[%,]/g, " ")}%`);
+  if (query) { const safe = query.replace(/[%,()*]/g, " "); rows = rows.or(`title.ilike.%${safe}%,accounts.name.ilike.%${safe}%`); }
 
   const [{ data, count, error }, familyRows] = await Promise.all([
     rows,

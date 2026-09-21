@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const GREETING_KEY = "nw.blanketGreeting";
 
 // Admin draft tools: rewrite every un-sent email through the founder-voice rewriter, or set one blanket
 // greeting across all of them.
@@ -8,6 +10,18 @@ export function RewriteDrafts() {
   const [running, setRunning] = useState<"" | "rewrite" | "greeting">("");
   const [msg, setMsg] = useState("");
   const [greeting, setGreeting] = useState("Hi {first},");
+
+  // The greeting field resets to the default on every reload, which reads as "my greeting didn't save."
+  // Persist the last value locally so the panel reopens showing what the admin actually set.
+  useEffect(() => {
+    // localStorage is an external store only available on the client; hydrating from it must run in a
+    // mount effect (not render/lazy-init) to avoid an SSR hydration mismatch on the input value.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    try { const saved = localStorage.getItem(GREETING_KEY); if (saved) setGreeting(saved); } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    try { localStorage.setItem(GREETING_KEY, greeting); } catch { /* ignore */ }
+  }, [greeting]);
 
   async function drain(url: string, extra: Record<string, unknown>, label: string, key: "rewritten" | "applied") {
     const before = new Date().toISOString();
