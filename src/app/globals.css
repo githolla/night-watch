@@ -2041,3 +2041,22 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .focus-apply-all{flex:0 0 auto;white-space:nowrap;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper-bright);color:var(--ink-soft);padding:0 11px;font:600 12px/1 var(--sans);cursor:pointer}
 .focus-apply-all:hover:not(:disabled){border-color:var(--accent);color:var(--ink)}
 .focus-apply-all:disabled{opacity:.55;cursor:default}
+
+/* The what / when / worth-knowing block above each Settings tool. Same shape everywhere, so it is learned
+   once and skimmed thereafter. */
+.panel-guide{margin:0 0 16px;display:flex;flex-direction:column;gap:9px;border:1px solid var(--line);border-left:3px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper-bright);padding:13px 15px}
+.panel-guide>div{display:grid;grid-template-columns:132px minmax(0,1fr);gap:12px;align-items:baseline}
+.panel-guide dt{font:700 10.5px/1.4 var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.panel-guide dd{margin:0;font:500 13.5px/1.6 var(--sans);color:var(--ink)}
+.panel-guide .is-watch dt{color:var(--accent)}
+.panel-guide .is-watch dd{color:var(--ink)}
+@media(max-width:640px){
+  .panel-guide>div{grid-template-columns:minmax(0,1fr);gap:2px}
+}
+
+/* Named sub-tools inside a Settings panel, each tagged with whether it costs anything to press. */
+.panel-subhead{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:18px 0 6px;font:700 14px/1.3 var(--sans);color:var(--ink)}
+.panel-subhead:first-of-type{margin-top:0}
+.panel-cost{font:700 10px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:4px 7px;white-space:nowrap}
+.panel-cost.is-free{background:var(--ok-soft);color:var(--ok)}
+.panel-cost.is-paid{background:var(--accent-soft);color:var(--accent)}

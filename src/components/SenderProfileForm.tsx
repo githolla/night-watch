@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PanelGuide } from "./PanelGuide";
 import { sanitizeSignatureHtml } from "@/lib/clean";
 
 type Profile = { from_name: string; title: string; signature: string; website: string; location: string; cc: string[] };
@@ -65,7 +66,11 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   return (
     <section className="card pad sender-profile">
       <div className="card-title"><div><span className="overview-kick">Outreach identity</span><h2>How your emails present</h2></div></div>
-      <p className="sender-profile-lead">Every outreach email — sent by hand or by the automated cadence — goes out from the connected mailbox with this name, title, CC and signature. It does not change which mailbox sends.</p>
+      <PanelGuide
+        what="Sets how your emails look to the person receiving them: the name and title on the From line, anyone CC'd, and the signature at the bottom."
+        when={<>Before your first send, and whenever your title or signature changes. Press <strong>Send test to myself</strong> afterwards to see a real one land in your own inbox.</>}
+        watch={<>This is how the email <em>reads</em>, not where it sends from &mdash; the mailbox is whichever Google account is connected above. Paste your own HTML signature to use it as-is; leave it empty and the built-in Nine&#8209;67 block is used instead.</>}
+      />
       <div className="sender-profile-grid">
         <label><span>Sender name</span><input value={fromName} onChange={(event) => setFromName(event.target.value)} placeholder="Suuchi Ramesh" maxLength={120} /></label>
         <label><span>Title (shown on the From line & signature)</span><input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="FDE, COO" maxLength={120} /></label>

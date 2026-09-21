@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PanelGuide } from "./PanelGuide";
 
 type Issue = { number: number; title: string; state: string; url: string; created_at: string; closed_at: string | null; comments: number; lastComment: string | null };
 
@@ -48,6 +49,11 @@ export function FeedbackAutomation() {
   const openCount = issues.filter((issue) => issue.state !== "closed").length;
   return (
     <section className="conn-card">
+      <PanelGuide
+        what={<>Collects the feedback testers send from inside the app and posts it to GitHub each night as a single list, so the coding agent can pick the fixes up.</>}
+        when={<>Leave it running. Open it when you want to see what testers have reported lately and whether anything has been done about it.</>}
+        watch={<>It reads what people typed into the Feedback button &mdash; it doesn&rsquo;t watch anyone&rsquo;s screen. The digest posts once a night, so something reported this morning appears tomorrow unless you post it now.</>}
+      />
       <header className="conn-head" style={{ alignItems: "center" }}>
         <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: 0, padding: 0, textAlign: "left", cursor: "pointer", color: "inherit", flex: 1, minWidth: 0 }}>
           <span aria-hidden style={{ transition: "transform .15s", transform: open ? "rotate(90deg)" : "none", opacity: 0.6 }}>&#9654;</span>

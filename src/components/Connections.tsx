@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PanelGuide } from "./PanelGuide";
 
 type Connection = { owner: string; email: string | null; calendar?: boolean | null; connected_at?: string | null };
 type GoogleConfig = { clientId: boolean; clientSecret: boolean; redirectUri: string | null; appUrl: string | null };
@@ -31,6 +32,11 @@ export function Connections({ connections, google }: { connections: Connection[]
 
   return (
     <section className="conn-card">
+      <PanelGuide
+        what={<>Connects the Google account your emails are actually sent from. Night Watch signs in as that mailbox: outreach leaves from it, replies are read back from it to stop follow-ups the moment someone answers, and its calendar supplies the open slots behind &ldquo;Propose times&rdquo;.</>}
+        when={<>Once, at the start &mdash; nothing can send until this is done. Again if you switch mailbox, or if you connected before granting Calendar access and want &ldquo;Propose times&rdquo; to work.</>}
+        watch={<>A <strong>seat</strong> is a person who sends. Each one connects their own mailbox, so their emails go out as them, not as you. No password is ever stored &mdash; only an encrypted token Google issues, which you can revoke at any time.</>}
+      />
       <header className="conn-head">
         <div><h2>Google Workspace seats</h2><p>Connect an account per seat. Outreach sends from that seat, replies land back here to drive the cadence, and its calendar powers &ldquo;Propose times&rdquo;.</p></div>
       </header>

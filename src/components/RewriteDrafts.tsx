@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { PanelGuide } from "./PanelGuide";
 
 const GREETING_KEY = "nw.blanketGreeting";
 
@@ -76,17 +77,24 @@ export function RewriteDrafts() {
 
   return (
     <section className="conn-card">
-      <div className="conn-head"><h2>Draft quality</h2></div>
+      <div className="conn-head"><h2>Change every email at once</h2></div>
+      <PanelGuide
+        what="Applies one change to every email still waiting to be sent, instead of you opening them one at a time."
+        when={<>You&rsquo;ve noticed the same problem in several drafts &mdash; a repeated line, the wrong greeting, a phrase you don&rsquo;t want going out &mdash; and fixing them individually would take all afternoon.</>}
+        watch={<>Nothing here touches an email you&rsquo;ve already sent, and every draft stays editable afterwards. Only <strong>Rewrite all drafts</strong> costs money; the other two are instant and free.</>}
+      />
 
-      <p className="conn-note">Rewrite every un-sent email in the worklist with the latest founder-voice rules (plain, specific, no vendor buzzwords, no em dashes, real link only). Runs on the writing model; each draft stays editable before you send.</p>
+      <h3 className="panel-subhead">Rewrite all drafts <span className="panel-cost is-paid">Costs money</span></h3>
+      <p className="conn-note">Hands every un-sent email back to the writing model to be written again from scratch, following the current rules: plain language, specific to that company, no vendor buzzwords, no em dashes. Use it when the drafts read generically. It replaces what is there, so anything you edited by hand is lost &mdash; and because it calls the model once per draft, it takes a few minutes and adds to your API bill.</p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <button type="button" className="btn" onClick={rewrite} disabled={!!running}>{running === "rewrite" ? "Rewriting…" : "Rewrite all drafts"}</button>
         <button type="button" className="btn primary" onClick={cleanUp} disabled={!!running} title="Removes repeated lines, links in the body, and the old “teardown” CTA from drafts already saved. No AI, no cost.">{running === "clean" ? "Cleaning…" : "Clean up all drafts"}</button>
       </div>
-      <p className="conn-note" style={{ marginTop: 8 }}><strong>Clean up all drafts</strong> fixes drafts that were already saved with a repeated opening line, a link in the body, or the old &ldquo;teardown&rdquo; CTA. It&rsquo;s instant and free &mdash; it doesn&rsquo;t reword anything.</p>
+      <p className="conn-note" style={{ marginTop: 8 }}><strong>Clean up all drafts</strong> is the safe one. It removes an opening line that got saved twice, a stray link in the body, and the old &ldquo;teardown&rdquo; sentence &mdash; and nothing else. It doesn&rsquo;t reword a single sentence, doesn&rsquo;t call the model, costs nothing, and leaves a draft alone if there is nothing to fix. Start here before reaching for a rewrite.</p>
 
       <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-        <p className="conn-note">Set one greeting across every un-sent email. Use <code>{"{first}"}</code> for the contact&apos;s first name.</p>
+        <h3 className="panel-subhead">One greeting everywhere <span className="panel-cost is-free">Free</span></h3>
+        <p className="conn-note">Replaces the opening line of every un-sent email with the one you type here. Write <code>{"{first}"}</code> where the contact&rsquo;s first name should go, so <em>Hi {"{first}"},</em> reaches Robert as <em>Hi Robert,</em>. Use it when you want a consistent opener across the whole list. It swaps the greeting only &mdash; the rest of each email is untouched.</p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <input value={greeting} onChange={(e) => setGreeting(e.target.value)} placeholder="Hi {first}," style={{ flex: "1 1 260px", minWidth: 0, border: "1px solid var(--line-strong)", borderRadius: "var(--radius-sm)", background: "var(--paper-bright)", padding: "9px 11px", font: "500 14px/1 var(--sans)", color: "inherit" }} />
           <button type="button" className="btn" onClick={applyGreeting} disabled={!!running}>{running === "greeting" ? "Applying…" : "Apply to all emails"}</button>

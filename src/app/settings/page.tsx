@@ -80,9 +80,9 @@ export default async function Settings() {
       content: <div className="feature-center"><AddCompany /></div>,
     }] : []),
     ...(isAdmin ? [{
-      id: "drafts", label: "Draft quality",
-      summary: "Fix or rewrite every un-sent email at once",
-      blurb: "Bulk tools that act on every un-sent draft together. “Clean up all drafts” is instant and free — it removes repeated lines and stray links without rewording anything. “Rewrite all drafts” runs the writing model and costs money. Both leave every draft editable before you send it.",
+      id: "drafts", label: "All emails at once",
+      summary: "Apply one fix to every email waiting to be sent",
+      blurb: "Three ways to change every un-sent email together instead of opening them one at a time: clean up drafts that saved badly, set one greeting across all of them, or hand them all back to the writing model to be written again. Nothing here touches an email you have already sent, and every draft stays editable afterwards. Only the rewrite costs money — the other two are instant and free.",
       content: <div className="feature-center"><RewriteDrafts /></div>,
     }] : []),
     ...(isAdmin ? [{
