@@ -172,3 +172,63 @@ export async function sendSlackTest() {
 export async function postSlackEphemeral(channel: string, user: string, text: string) {
   return slackApi("chat.postEphemeral", { channel, user, text });
 }
+
+const REPLY_LABEL: Record<string, { emoji: string; label: string }> = {
+  positive: { emoji: "🟢", label: "Positive reply" },
+  meeting: { emoji: "📅", label: "Meeting booked" },
+  neutral: { emoji: "⚪", label: "Neutral reply" },
+  objection: { emoji: "🟠", label: "Objection" },
+  ooo: { emoji: "🌴", label: "Out of office" },
+  negative: { emoji: "🔴", label: "Not interested" },
+  none: { emoji: "✉️", label: "Reply" },
+};
+
+// Trim a raw email reply down to the new text: drop quoted history ("> …", "On <date> … wrote:") and
+// collapse whitespace, so Slack shows what they actually said, not the whole thread.
+function replySnippet(body: string, max = 700) {
+  const lines = body.replace(/\r/g, "").split("\n");
+  const kept: string[] = [];
+  for (const line of lines) {
+    if (/^\s*>/.test(line)) break;
+    if (/^\s*On .+wrote:\s*$/.test(line)) break;
+    if (/^\s*-{2,}\s*Original Message\s*-{2,}/i.test(line)) break;
+    kept.push(line);
+  }
+  return kept.join("\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, max);
+}
+
+/** Post a single inbound reply to the Slack channel: who replied, the classification, a snippet, and a
+ *  link straight to the dossier. Best-effort — never throws into the caller. */
+export async function sendReplySlack(reply: {
+  cardId: string;
+  name: string;
+  company: string;
+  title?: string | null;
+  classification: string;
+  body: string;
+  booked?: boolean;
+}) {
+  if (!slackConfigured()) return { delivered: false, reason: "Slack is not configured" };
+  const meta = REPLY_LABEL[reply.classification] ?? REPLY_LABEL.none;
+  const snippet = replySnippet(reply.body);
+  const dossierUrl = `${appUrl()}/desk?card=${encodeURIComponent(reply.cardId)}`;
+  const header = `${meta.emoji} ${slackText(reply.name)} replied · ${slackText(reply.company)}`;
+  const blocks: SlackBlock[] = [
+    { type: "section", text: { type: "mrkdwn", text: `*${header}*\n${slackText(reply.title ?? "")} · *${meta.label}*${reply.booked ? " · _invite sent_" : ""}` } },
+  ];
+  if (snippet) blocks.push({ type: "section", text: { type: "mrkdwn", text: `>>> ${slackText(snippet, 2800)}` } });
+  blocks.push({ type: "actions", elements: [{ type: "button", text: { type: "plain_text", text: "Open dossier" }, url: dossierUrl, action_id: `open_reply_${reply.cardId}` }] });
+  try {
+    const result = await slackApi<{ ts: string; channel: string }>("chat.postMessage", {
+      channel: slackChannelId(),
+      text: `${meta.emoji} ${reply.name} (${reply.company}) replied — ${meta.label}`,
+      blocks,
+      unfurl_links: false,
+      unfurl_media: false,
+    });
+    return { delivered: true, ts: result.ts, channel: result.channel };
+  } catch (error) {
+    console.warn(`[night-watch] reply Slack post failed: ${error instanceof Error ? error.message : String(error)}`);
+    return { delivered: false, reason: error instanceof Error ? error.message : "post failed" };
+  }
+}

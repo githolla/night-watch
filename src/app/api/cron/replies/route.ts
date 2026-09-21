@@ -2,6 +2,7 @@ import { cronAuthorized } from "@/lib/auth";
 import { classifyReply } from "@/lib/agents";
 import { thread } from "@/lib/gmail";
 import { createInvite, matchProposedSlot, type Slot } from "@/lib/calendar";
+import { sendReplySlack } from "@/lib/slack";
 import { admin } from "@/lib/supabase/admin";
 import { daysAgoIso } from "@/lib/time";
 import type { Owner } from "@/lib/types";
@@ -48,10 +49,15 @@ export async function GET(request:Request){
       await db.from("touches").update({reply_at:replyAt,reply_classification:classification}).eq("id",touch.id);
       await db.from("cards").update({status:classification==="positive"?"positive":"replied"}).eq("id",touch.card_id);
       // If they picked one of the times we proposed, book the calendar invite automatically (sets status to "meeting").
-      if(classification==="positive")await autoBook(db,touch.card_id,touch.sent_by as Owner,body);
+      const booked=classification==="positive"?Boolean(await autoBook(db,touch.card_id,touch.sent_by as Owner,body)):false;
       if(touch.experiment_variant_id){const {data:variant}=await db.from("message_variants").select("experiment_id").eq("id",touch.experiment_variant_id).maybeSingle();if(variant)await db.from("message_experiments").update({status:"completed"}).eq("id",variant.experiment_id)}
       const {data:cadence}=await db.from("cadences").select("id").eq("card_id",touch.card_id).eq("status","active").maybeSingle();
       if(cadence){await db.from("cadences").update({status:"stopped",completed_at:replyAt}).eq("id",cadence.id);await db.from("cadence_steps").update({status:"skipped"}).eq("cadence_id",cadence.id).eq("status","pending")}
+      // Surface every inbound reply in Slack (who, classification, a snippet, a link to the dossier).
+      const {data:info}=await db.from("cards").select("people(full_name,title),accounts(name)").eq("id",touch.card_id).maybeSingle();
+      const person=info?.people as unknown as {full_name:string;title:string|null}|null;
+      const account=info?.accounts as unknown as {name:string}|null;
+      if(person)await sendReplySlack({cardId:touch.card_id,name:person.full_name,company:account?.name??"",title:person.title,classification:booked?"meeting":classification,body,booked});
       replies++;
     }catch{}
   }
