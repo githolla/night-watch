@@ -40,7 +40,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").gte("sent_at", since.toISOString());
     // Warm the mailbox up gently: the daily cap starts low on a freshly connected seat and ramps to the base.
     const cap = dailyCap(daysBetween(connection?.connected_at ?? connection?.created_at));
-    validateEmail(card.people.email_status, count ?? 0, body, cap);
+    // Manual desk send: a human chose to send and is warned in the UI when the address isn't verified, so
+    // the verified requirement is relaxed here (the automated cadence still enforces it).
+    validateEmail(card.people.email_status, count ?? 0, body, cap, false);
     const profile = await senderProfile(db, owner);
     const fromEmail = connection?.email ?? user.email ?? "";
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";

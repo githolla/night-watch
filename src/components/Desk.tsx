@@ -182,14 +182,19 @@ export function Desk({
   const [outcome, setOutcome] = useState("positive");
   // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
   // only the shortlist, not all 161. Cards arrive sorted by score, so "top" is just the first slice.
+  // Push prospects whose email is verified (one-click sendable) to the top, keeping score order within each
+  // group. Stable sort, so it doesn't reshuffle as you work. Guessed/unverified addresses sink.
+  const verifiedFirst = <T extends { people: { email_status: string } }>(list: T[]) =>
+    [...list].sort((a, b) => (a.people.email_status === "verified" ? 0 : 1) - (b.people.email_status === "verified" ? 0 : 1));
   const actionable = cards.filter((item) => !WORKED_STATUSES.includes(item.status));
-  const byKind = kind === "top" ? actionable.slice(0, SHORTLIST) : kind === "all" ? cards : cards.filter((item) => signalGroup(item) === kind);
+  const byKind = verifiedFirst(kind === "top" ? actionable.slice(0, SHORTLIST) : kind === "all" ? cards : cards.filter((item) => signalGroup(item) === kind));
   // The work queue for the desk: the day's fixed worklist (stamped once each morning) so it doesn't reshuffle
   // as you work. Falls back to the score-ordered shortlist before migration 0023 is applied.
   const daily = cards.filter((item) => item.onWorklist);
   const todo = (daily.length ? daily : byKind).filter((item) => !WORKED_STATUSES.includes(item.status));
-  // The pool the one-at-a-time flow walks: today's worklist, or every active prospect in "All".
-  const focusPool = listScope === "all" ? actionable : todo;
+  // The pool the one-at-a-time flow walks: today's worklist, or every active prospect in "All". Verified
+  // (sendable) prospects first so the operator works the ones they can send in one click.
+  const focusPool = verifiedFirst(listScope === "all" ? actionable : todo);
   const active = selected ? cards.find((item) => item.id === selected) : undefined;
   // Land on the picked card even if it isn't in the current pool (e.g. picked from the "All"/Overview list
   // while the scope is "today"), rather than silently showing focusPool[0] — a different company.
@@ -227,7 +232,13 @@ export function Desk({
       setNotice("Demo send simulated — no email left the app.");
       return;
     }
-    if (!confirm(`Send this email to ${card.people.full_name} at ${card.people.email}?`)) return;
+    // Warn before sending to an address we haven't verified — it's more likely to bounce, which hurts the
+    // sending domain. The person can still choose to send.
+    const unverified = card.people.email_status !== "verified";
+    const prompt = unverified
+      ? `⚠️ ${card.people.email} is NOT a verified address — it may bounce and hurt your sending reputation. Send anyway to ${card.people.full_name}?`
+      : `Send this email to ${card.people.full_name} at ${card.people.email}?`;
+    if (!confirm(prompt)) return;
     setBusy(true);
     const response = await fetch(`/api/cards/${card.id}/send`, {
       method: "POST",
@@ -395,9 +406,9 @@ export function Desk({
   // A verified address with Gmail connected sends inside the app; otherwise open a prefilled draft in the mail client.
   const sendEmail = () => {
     if (!contact?.email) return;
-    // On the Email tab, a verified primary contact sends in-app via Gmail regardless of the card's
-    // primary channel; otherwise (unverified, or an alternate contact) open a prefilled draft.
-    if (contact.email_status === "verified" && !altContact) { send(); return; }
+    // The primary contact sends in-app via Gmail (verified or not — send() warns on an unverified address).
+    // An alternate contact opens a prefilled draft instead, since in-app send always goes to the primary.
+    if (!altContact) { send(); return; }
     // Opening a prefilled draft is NOT sending — don't log it to History yet, or it shows as "sent"
     // when the user may never send it. Gmail-Sent sync backfills a real send; "Mark sent" logs it
     // explicitly if they sent from another client.
@@ -930,7 +941,7 @@ export function Desk({
                   <span className="deskwork-words">{(channelTab === "email" ? (focusCard.email_body ?? "") : linkedinDraft).trim().split(/\s+/).filter(Boolean).length} words</span>
                   <div className="deskwork-draft-actions">
                     {channelTab === "email"
-                      ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{contact.email_status === "verified" && !altContact ? "Send email" : "Open email"} →</button>
+                      ? <button type="button" disabled={busy || !contact.email} className="btn primary" onClick={sendEmail}>{!altContact ? "Send email" : "Open email"} →</button>
                       : <button type="button" disabled={busy} className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
                     <button type="button" disabled={busy} className="btn" title="Already sent (by you or the agent)? Log it to History without opening." onClick={() => markSent(channelTab)}>Mark sent</button>
                     {contact.email && <button type="button" disabled={enrolling} className="btn" title="Hands-off: Night Watch sends this email and its follow-ups for you (day 0, 3, 7) and stops the moment they reply. Prefer to send it yourself? Use “Send email” — the same follow-ups still queue in the list above for you to copy." onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
