@@ -6,10 +6,10 @@ export function SlackPanel({ connected, channelId, embedded = false }: { connect
   const [state, setState] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
-  async function sendTest() {
+  async function sendTest(kind?: "reply") {
     setState("sending");
     setMessage("");
-    const response = await fetch("/api/slack/test", { method: "POST" });
+    const response = await fetch("/api/slack/test", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(kind ? { kind } : {}) });
     const result = await response.json();
     if (!response.ok) {
       setState("error");
@@ -17,7 +17,7 @@ export function SlackPanel({ connected, channelId, embedded = false }: { connect
       return;
     }
     setState("success");
-    setMessage("Test brief delivered. Check the configured Slack channel.");
+    setMessage(kind === "reply" ? "Sample reply posted — check the channel for the reply card." : "Test brief delivered. Check the configured Slack channel.");
   }
 
   return <section className="panel slack-panel">
@@ -34,7 +34,10 @@ export function SlackPanel({ connected, channelId, embedded = false }: { connect
     </div>
     {connected ? <>
       <div className="integration-route"><span>CHANNEL</span><strong>{channelId}</strong><span>DELIVERY</span><strong>12:00 UTC</strong></div>
-      <button className="btn primary" type="button" onClick={sendTest} disabled={state === "sending"}>{state === "sending" ? "Sending…" : "Send test brief"}</button>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button className="btn primary" type="button" onClick={() => sendTest()} disabled={state === "sending"}>{state === "sending" ? "Sending…" : "Send test brief"}</button>
+        <button className="btn" type="button" onClick={() => sendTest("reply")} disabled={state === "sending"} title="Posts a sample inbound-reply card to the channel, exactly as a real reply would appear.">Send sample reply</button>
+      </div>
     </> : <>
       <ol className="integration-steps">
         <li>Create the Night Watch Slack app from the included manifest.</li>
