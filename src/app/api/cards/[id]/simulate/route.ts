@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { simulateMessages } from "@/lib/agents";
 import { simulateHeuristically } from "@/lib/message-simulation";
 import { admin } from "@/lib/supabase/admin";
+import { spendTally } from "@/lib/spend";
 import { z } from "zod";
 
 const variant = z.object({ label: z.enum(["A", "B"]), subject: z.string().max(120), body: z.string().min(1).max(1000) });
@@ -33,7 +34,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
     let result;
     try {
-      result = process.env.ANTHROPIC_API_KEY ? await simulateMessages(calibratedInput) : simulateHeuristically(calibratedInput);
+      const tally = spendTally("message_lab", { cardId: id });
+      result = process.env.ANTHROPIC_API_KEY ? await simulateMessages(calibratedInput, tally.record) : simulateHeuristically(calibratedInput);
+      await tally.flush();
     } catch {
       result = simulateHeuristically(calibratedInput);
     }

@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { refineDraft } from "@/lib/agents";
 import { senderProfile } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
+import { spendTally } from "@/lib/spend";
 import { z } from "zod";
 
 const input = z.object({
@@ -25,6 +26,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const person = card.people as unknown as { full_name: string; title: string } | null;
     const account = card.accounts as unknown as { name: string } | null;
     const sender = await senderProfile(db, "josh");
+    const tally = spendTally("refine_draft", { cardId: id, channel: payload.channel });
     const refined = await refineDraft({
       channel: payload.channel,
       company: account?.name ?? "the company",
@@ -36,7 +38,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       instruction: payload.instruction,
       senderName: sender.fromName,
       senderTitle: sender.title,
-    });
+    }, tally.record);
+    await tally.flush();
     const patch = payload.channel === "email"
       ? { email_subject: refined.subject ?? payload.subject ?? null, email_body: refined.body }
       : { linkedin_subject: refined.subject ?? payload.subject ?? null, linkedin_message: refined.body };

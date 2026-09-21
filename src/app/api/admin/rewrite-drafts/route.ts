@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { refineDraft } from "@/lib/agents";
 import { admin } from "@/lib/supabase/admin";
+import { spendTally } from "@/lib/spend";
 
 export const maxDuration = 300;
 
@@ -33,6 +34,9 @@ export async function POST(request: Request) {
   // progress and page through the worklist instead of one long silent call that looks hung.
   const { data } = await filter().order("updated_at", { ascending: true }).limit(10);
   const cards = (data ?? []) as unknown as CardRow[];
+  // What this batch cost. Regenerating every draft is one press that fires one model call per draft, and
+  // until now it recorded nothing at all — the single largest way to spend money invisibly.
+  const tally = spendTally("rewrite_drafts");
   const results = await Promise.allSettled(cards.map(async (card) => {
     if (!card.email_body || !card.people?.full_name) { await db.from("cards").update({ updated_at: new Date().toISOString() }).eq("id", card.id); return false; }
     try {
@@ -41,7 +45,7 @@ export async function POST(request: Request) {
         channel: "email", company: card.accounts?.name ?? "", person: card.people.full_name, title: card.people.title ?? "",
         whyNow: card.why_now ?? "", subject: card.email_subject ?? undefined, body: card.email_body,
         senderName: sender.name, senderTitle: sender.title,
-      });
+      }, tally.record);
       await db.from("cards").update({ email_subject: out.subject ?? card.email_subject, email_body: out.body }).eq("id", card.id);
       return true;
     } catch {
@@ -51,6 +55,7 @@ export async function POST(request: Request) {
     }
   }));
   const rewritten = results.filter((r) => r.status === "fulfilled" && r.value).length;
+  const costUsd = await tally.flush({ drafts: rewritten });
   const { count: remaining } = await filter().limit(1);
-  return Response.json({ rewritten, remaining: remaining ?? 0, cutoff });
+  return Response.json({ rewritten, remaining: remaining ?? 0, cutoff, costUsd: Number(costUsd.toFixed(4)) });
 }

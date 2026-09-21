@@ -471,7 +471,7 @@ const simulationOutput = z.object({
   winner: z.enum(["A", "B"]), confidence: z.number().min(0).max(100),
 });
 
-export async function simulateMessages(input: SimulationInput): Promise<SimulationResult> {
+export async function simulateMessages(input: SimulationInput, recordUsage?: UsageRecorder): Promise<SimulationResult> {
   const background = input.context.slice(0, 1500);
   const focusAreas = input.focusAreas.filter(Boolean).slice(0, 5).map((area) => area.slice(0, 120));
   const prompt = `You are running a rigorous pre-send message simulation. Compare variants A and B for ${input.personName} at ${input.company}. Channel: ${input.channel}. Signal: ${input.signalSummary}.
@@ -496,7 +496,7 @@ ${JSON.stringify(input.variants)}
 Simulate exactly four perspectives: the operator who owns the work, a busy executive, a skeptical buyer, and a message-quality/filter reviewer. Score each variant 0-100 on relevance, specificity, trust, and replyEase. Prefer concrete signal use, restraint, brevity, and a low-friction reply. Penalize generic praise, manufactured familiarity, hype, repetition, or meeting asks. This is directional qualitative judgment, never a predicted response rate.
 
 Return JSON only: {"variants":[{"label":"A","subject":"","body":"","score":0,"dimensions":{"relevance":0,"specificity":0,"trust":0,"replyEase":0},"summary":""},{"label":"B","subject":"","body":"","score":0,"dimensions":{"relevance":0,"specificity":0,"trust":0,"replyEase":0},"summary":""}],"panel":[{"persona":"The operator","vote":"A","concern":"","suggestion":""},{"persona":"The busy executive","vote":"A","concern":"","suggestion":""},{"persona":"The skeptic","vote":"A","concern":"","suggestion":""},{"persona":"The message filter","vote":"A","concern":"","suggestion":""}],"winner":"A","confidence":0}`;
-  const { response, model } = await completeTurn({ model: utilityModel(), max_tokens: WRITING_MAX_TOKENS }, prompt);
+  const { response, model } = await completeTurn({ model: utilityModel(), max_tokens: WRITING_MAX_TOKENS }, prompt, recordUsage);
   const parsed = simulationOutput.parse(jsonFrom(response));
   const variants = parsed.variants.map((scored) => ({ ...scored, ...input.variants.find((original) => original.label === scored.label)! }));
   return { ...parsed, variants, model };

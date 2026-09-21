@@ -2108,3 +2108,12 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .company-row-edit input[type=text],.company-row-edit input:not([type]),.company-row-edit select{width:100%;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper-bright);padding:8px 10px;font:500 13px/1.2 var(--sans);color:inherit}
 .company-row-toggle{flex-direction:row!important;align-items:center;gap:7px}
 .company-row-toggle span{text-transform:none!important;letter-spacing:0!important;font:500 13px/1.3 var(--sans)!important;color:var(--ink)!important}
+
+/* What the app has spent. */
+.spend-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:12px}
+.spend-figure{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper-bright);padding:11px 13px;display:flex;flex-direction:column;gap:4px}
+.spend-figure span{font:700 10px/1 var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.spend-figure strong{font:700 20px/1.1 var(--sans);letter-spacing:-.01em;color:var(--ink)}
+.spend-table{width:100%;border-collapse:collapse;margin-bottom:10px}
+.spend-table td{padding:7px 0;border-top:1px solid var(--line);font:500 13px/1.4 var(--sans);color:var(--ink)}
+.spend-table td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}

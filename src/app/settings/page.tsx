@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Building2, Mail, MessageSquare, PenLine, Plug, UsersRound } from "lucide-react";
 import { Header } from "@/components/Header";
+import { SpendPanel } from "@/components/SpendPanel";
 import { RewriteDrafts } from "@/components/RewriteDrafts";
 import { AddCompany } from "@/components/AddCompany";
 import { MigrationRequired } from "@/components/MigrationRequired";
@@ -117,8 +118,10 @@ export default async function Settings() {
     {
       id: "system", label: "Integrations & automation", icon: <Plug />,
       blurb: "Slack, the nightly run and the target list. Mostly read-only \u2014 for checking the machinery is running.",
-      content:
-        <FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={activeTargetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} />,
+      content: <>
+        <div className="feature-center" style={{ marginBottom: 18 }}><SpendPanel /></div>
+        <FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={activeTargetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} />
+      </>,
     },
   ];
   return <div>
