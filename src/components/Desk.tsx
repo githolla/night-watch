@@ -421,6 +421,9 @@ export function Desk({
     acc[key].score = Math.max(acc[key].score, item.score);
     return acc;
   }, {})).sort((a, b) => b.score - a.score).slice(0, 4);
+  // Already gone out: the composer must not stay open on it. Editing a sent email changes nothing that
+  // will ever be delivered, and the empty editor sitting above the follow-up list read as a broken screen.
+  const sentAlready = Boolean(focusCard && ["sent", "replied", "positive", "meeting"].includes(focusCard.status));
   const draft = focusCard ? primaryDraft(focusCard) : null;
   // The contact currently being written to — the card's person by default, or one picked from the team list.
   const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
@@ -936,7 +939,7 @@ export function Desk({
 
               {/* RIGHT — draft with Email / LinkedIn tabs */}
               <section className="deskwork-draft">
-                <div className="deskwork-draft-top"><span className="overview-kick">Outreach draft</span><span className="deskwork-draft-topright">{focusCard.invite_link ? <a className="deskwork-booked" href={focusCard.invite_link.startsWith("http") ? focusCard.invite_link : undefined} target="_blank" rel="noreferrer">📅 Meeting booked</a> : null}<a className="deskwork-brief-link" href={`/brief/${focusCard.id}`} target="_blank" rel="noreferrer">Call brief ↗</a></span></div>
+                <div className="deskwork-draft-top"><span className="overview-kick">{sentAlready ? "Sent email" : "Outreach draft"}</span><span className="deskwork-draft-topright">{focusCard.invite_link ? <a className="deskwork-booked" href={focusCard.invite_link.startsWith("http") ? focusCard.invite_link : undefined} target="_blank" rel="noreferrer">📅 Meeting booked</a> : null}<a className="deskwork-brief-link" href={`/brief/${focusCard.id}`} target="_blank" rel="noreferrer">Call brief ↗</a></span></div>
                 <div className="deskwork-draft-to">
                   <span className="avatar sm">{initials(contact.full_name)}</span>
                   <div><strong>{contact.full_name}</strong><small>{contact.title || "title unknown"} · {focusCard.accounts.name}</small></div>
@@ -947,7 +950,7 @@ export function Desk({
                   <button type="button" className={`deskwork-tab ${channelTab === "email" ? "is-active" : ""}`} onClick={() => setChannelTab("email")}>✉ Email</button>
                   <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => setChannelTab("linkedin")}><i className="li-mark">in</i> LinkedIn</button>
                   <div className="deskwork-tools">
-                    <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>
+                    {!sentAlready && <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>}
                     <button type="button" disabled={refining === channelTab} onClick={() => channelTab === "email" ? refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined) : refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === channelTab ? "Refining…" : "Refine"}</button>
                     {channelTab === "email" && <button type="button" disabled={proposing} title={timesInDraft ? "Take the proposed times back out of this email" : "Only if you want them: insert open times from your connected calendar into this one email"} onClick={timesInDraft ? removeMeetingTimes : proposeMeetingTimes}>{proposing ? "Checking…" : timesInDraft ? "Remove times" : "Propose times"}</button>}
                     <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy</button>
@@ -956,7 +959,7 @@ export function Desk({
 
                 <div className="deskwork-scroll">
                 {channelTab === "email" ? (
-                  editing.email ? (() => {
+                  editing.email && !sentAlready ? (() => {
                     const fname = contact.full_name.split(/\s+/)[0] || "there";
                     // Greeting follows the SELECTED contact, not the name baked into the drafted body (which
                     // was written to the company's first contact). Re-seed whenever the card OR the contact
@@ -1013,6 +1016,7 @@ export function Desk({
                         <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
                         <div className="mail-row"><span>Subject</span><b>{subjectView("email", focusCard.email_subject || subjectGuess(focusCard, "email"))}</b></div>
                       </div>
+                      {sentAlready && <div className="deskwork-sent-note">This email has been sent{focusCard.people.full_name ? ` to ${contact.full_name}` : ""}. It is kept here as a record &mdash; the follow-ups below are what happens next.</div>}
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("email", adapt(emailDraft) || "No email draft yet — press Refine to write one.")}</div>
                       <div className="deskwork-doc-sig">— Your Nine-67 signature (name, title &amp; contact) is added automatically when this sends.</div>

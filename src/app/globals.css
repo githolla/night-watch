@@ -1732,7 +1732,9 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .deskwork-tools button{border:1px solid var(--line-strong);background:var(--paper-bright);border-radius:var(--radius-sm);padding:5px 11px;font:600 12px/1 var(--sans);color:var(--ink-soft);cursor:pointer}
 .deskwork-tools button:hover{background:var(--soft);color:var(--ink)}
 .deskwork-tools button:disabled{opacity:.5;pointer-events:none}
-.deskwork-scroll{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
+/* Never let this collapse to a sliver with its own hidden scrollbar: when a card is sent the body is
+   short, and `min-height:0` let the flex row shrink to a few pixels that still scrolled. */
+.deskwork-scroll{flex:1 1 auto;min-height:min(320px,55vh);overflow-y:auto;display:flex;flex-direction:column}
 .deskwork-doc{overflow:visible}
 /* Follow-up sequence, inline under the draft */
 .deskwork-fu-hint{margin:2px 16px 14px;padding:11px 13px;border:1px dashed var(--line-strong);border-radius:var(--radius);font-size:12.5px;line-height:1.5;color:var(--muted);background:var(--soft)}
@@ -2123,3 +2125,6 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .focus-team-flag.is-sent:hover{background:var(--accent);color:var(--paper-bright);border-color:var(--accent)}
 .focus-team-row.is-logged{background:var(--accent-soft)}
 .focus-team-row.is-logged .avatar{background:var(--accent);color:var(--paper-bright)}
+
+/* A card whose email has already gone out. */
+.deskwork-sent-note{margin:0 16px 10px;border-left:3px solid var(--ok);background:var(--ok-soft);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:9px 12px;font:500 13px/1.55 var(--sans);color:var(--ink)}
