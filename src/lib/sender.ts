@@ -26,6 +26,25 @@ export async function senderProfile(db: SupabaseClient, owner: Owner): Promise<S
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const siteUrl = (site: string) => (site ? (/^https?:\/\//.test(site) ? site : `https://${site}`) : "");
 
+/**
+ * The only URL allowed to leave in outbound copy is the real Nine-67 homepage. Models can hallucinate
+ * plausible-but-dead links (e.g. nine-67.com/case-study, /demo). This collapses ANY nine-67.com link —
+ * whatever path or subdomain — to the canonical homepage, and strips links to any other domain entirely,
+ * so a fabricated URL can never reach a prospect. `SENDER_SITE_URL` overrides the canonical link.
+ */
+export function sanitizeLinks(text: string): string {
+  if (!text) return text;
+  const site = (process.env.SENDER_SITE_URL || "https://nine-67.com").trim();
+  let host = "nine-67.com";
+  try { host = new URL(site).hostname.replace(/^www\./, ""); } catch { /* keep default */ }
+  return text
+    .replace(/https?:\/\/[^\s<>)\]]+/gi, (u) => { try { return new URL(u).hostname.replace(/^www\./, "") === host ? site : ""; } catch { return ""; } })
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/ *\n{3,}/g, "\n\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .trim();
+}
+
 /** The branded Nine-67 signature block, email-safe (inline styles, table layout). Falls back to the free-text
  *  signature when the structured name isn't set. */
 export function renderSignatureHtml(profile: SenderProfile, email: string): string {

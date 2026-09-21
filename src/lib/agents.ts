@@ -4,6 +4,7 @@ import type { SimulationInput, SimulationResult } from "@/lib/message-simulation
 import { recordAnthropicUsage, type UsageRecorder } from "./anthropic-cost.ts";
 import { parseModelJson } from "./model-output.ts";
 import { fallbackChain, researchModel, searchModel, utilityModel, webSearchToolType, writingModel } from "./models.ts";
+import { sanitizeLinks } from "./sender.ts";
 
 /** Once a model is rejected and a working one is found, later calls skip straight to it instead of retrying the dead model every time. */
 const resolvedModel = new Map<string, string>();
@@ -108,6 +109,10 @@ const angle = z.object({
   email_subject: z.string(), email_body: z.string(),
 });
 export type OutreachDraft = z.infer<typeof angle>;
+/** Strip any fabricated/foreign links from a draft so only the real homepage can reach a prospect. */
+function cleanDraft(draft: OutreachDraft): OutreachDraft {
+  return { ...draft, email_body: sanitizeLinks(draft.email_body), linkedin_message: sanitizeLinks(draft.linkedin_message), linkedin_note: sanitizeLinks(draft.linkedin_note), linkedin_comment: sanitizeLinks(draft.linkedin_comment) };
+}
 
 function client() {
   if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is missing");
@@ -302,7 +307,7 @@ Email — a real, professional first-touch email a founder would be glad to rece
 - Subject: 4 to 8 words in sentence case, naming the concrete thing seen (their role opening, the work, or their post). Specific, not clever, never all-lowercase, no emoji. Vary it per person.
 - Body: 50 to 90 words — short beats long for a cold first touch. Greet by first name. The first sentence names the specific thing seen — quote a short phrase of their post when there is one, otherwise the exact role they are hiring for or the development — and ties it to what THIS person owns. Then, in plain language, say what Nine-67 would build or run to do that work instead of a hire (an internal tool, a data or reporting pipeline, an AI assistant, a workflow that runs itself), what it does day to day, and the outcome.
 - Concrete detail (required): include at least one specific, checkable fact unique to this company — a role title word-for-word, how long a role has been open (use role.postedAt when present, e.g. "the Lead AI Solutions Partner role you've had open ~6 weeks"), a tool or system they named, or a short quoted phrase from their post. The email must never read as if it could be sent to a different company unchanged.
-- The ask: close with one low-friction question, no meeting demand. Rotate the ask so it fits this person — a short teardown of one role, a quick sketch of the one workflow, a relevant example from similar work, one specific build idea, or a simple "is this on your radar?" — and do NOT use "a one-page teardown" unless it is clearly the single best fit; never use it as a default. Then a short sign-off, then https://nine-67.com on its own final line. Real sentences, warm but concise, no buzzwords, no fabricated results.
+- The ask: close with one low-friction question, no meeting demand. Rotate the ask so it fits this person — a short teardown of one role, a quick sketch of the one workflow, a relevant example from similar work, one specific build idea, or a simple "is this on your radar?" — and do NOT use "a one-page teardown" unless it is clearly the single best fit; never use it as a default. Then a short sign-off, then the ONLY link allowed — https://nine-67.com — on its own final line. Never invent any other URL or path (no /case-study, /demo, /pricing, /examples, etc.) and never link any other domain; if you want to point at a case study or example, describe it in words rather than link a page that may not exist. Real sentences, warm but concise, no buzzwords, no fabricated results.
 - Sound like a person, not a vendor. AVOID at all costs (these read as AI spam and get deleted): inventing a product name for what you'd build ("an AI-driven platform orchestration tool", "an X engine/platform/suite"); buzzwords ("AI-driven", "orchestration", "leverage", "streamline", "seamless", "end-to-end", "solutions", "synergy"); pasting their raw job-title strings into a sentence ("Saw your postings for Lead Business Solutions Architect and Director, Platform Product Management…"); and claiming to know their internal process ("automates the architecture review, integration decisions and product prioritization those roles would handle manually"). Instead: refer to what you saw in plain human words ("you're hiring a few AI roles at once"), then say in ONE plain sentence the single thing you'd build and the outcome, the way a founder would actually say it out loud to a peer. If you wouldn't say it in a hallway, don't write it.
 
 For hiring evidence, be concrete about the build in plain words — which parts of the posted role it absorbs — not a generic pitch. Return JSON only: {"brief":"","why_now":"","channel":"email_first","linkedin_comment":"","linkedin_note":"","linkedin_message":"","linkedin_subject":"","email_subject":"","email_body":""}.`;
@@ -311,7 +316,7 @@ export async function writeAngle(input: unknown, recordUsage?: UsageRecorder): P
   const { response } = await completeTurn({
     model: writingModel(), max_tokens: WRITING_MAX_TOKENS,
   }, `Draft outreach from this source-backed dossier: ${JSON.stringify(input)}. Ground every line in the supplied post or source. The dossier's signal.operating_need is the work this company needs done; Nine-67 builds and runs AI and automation so an operating team does not have to hire for that work. Lead with that need in their words, then offer the specific alternative to the hire: name the product or automation Nine-67 would build to do the posted role's work (what it is and what it does), so they get the output without the headcount. Channel: intro for path 10; linkedin_only without verified email; linkedin_first for LinkedIn signals; otherwise email_first. ${DRAFT_RULES}`, recordUsage);
-  return angle.parse(jsonFrom(response));
+  return cleanDraft(angle.parse(jsonFrom(response)));
 }
 
 export type BriefDraftInput = {
@@ -333,7 +338,7 @@ export async function writeOutreachFromBrief(input: BriefDraftInput, recordUsage
   const { response } = await completeTurn({
     model: writingModel(), max_tokens: WRITING_MAX_TOKENS,
   }, `Draft first-touch outreach for the person below, from a research brief. Everything here was found on public pages; use only what is here. ${JSON.stringify(input)}\n\nNine-67 builds and runs AI and automation for operating teams at $50M-1B companies, so the company gets the work done without hiring a person to do it by hand. Lead with the specific thing seen: their own post or quote when there is one (quote a phrase of it), otherwise the role they are hiring for, otherwise the concrete development in "happening". Then offer the specific alternative: what Nine-67 would build or run instead of the hire, in one sentence. The brief's opener is a starting point, not copy to paste. If person.quotes is empty, linkedin_comment must be empty. Channel: linkedin_only when emailState is none; linkedin_first when emailState is unverified or when the evidence is their own post; otherwise email_first. ${DRAFT_RULES}`, recordUsage);
-  return angle.parse(jsonFrom(response));
+  return cleanDraft(angle.parse(jsonFrom(response)));
 }
 
 /**
@@ -355,11 +360,11 @@ export async function refineDraft(input: { channel: "email" | "linkedin"; compan
     ? "Write a subject line optimized to get a reply: specific to them, plain, sentence case (never all-lowercase), under about eight words, no clickbait."
     : "Write a short LinkedIn subject line of 3-6 words for an InMail: specific and human, no clickbait.";
   const shape = input.channel === "email" ? `{"subject":"a reply-optimized subject line","body":"the email"}` : `{"subject":"a short subject line","body":"the LinkedIn message"}`;
-  const prompt = `You are rewriting a first-touch outreach ${input.channel} from Nine-67 (which builds and runs AI and automation for operating teams so a company gets the work done without hiring for it) to ${input.person}${input.title ? `, ${input.title}` : ""} at ${input.company}. Why now: ${input.whyNow || "—"}.\n\n${voice}\n\n${avoid}\n\nHere is the current draft:\n${input.subject ? `Subject: ${input.subject}\n` : ""}${input.body}\n\n${ask} ${intro} ${subjectRule} Keep it ${input.channel === "email" ? "50-90 words" : "under 90 words"}, one clear low-friction question, no more than one link, keep https://nine-67.com if present, plain text only. Return JSON only: ${shape}.`;
+  const prompt = `You are rewriting a first-touch outreach ${input.channel} from Nine-67 (which builds and runs AI and automation for operating teams so a company gets the work done without hiring for it) to ${input.person}${input.title ? `, ${input.title}` : ""} at ${input.company}. Why now: ${input.whyNow || "—"}.\n\n${voice}\n\n${avoid}\n\nHere is the current draft:\n${input.subject ? `Subject: ${input.subject}\n` : ""}${input.body}\n\n${ask} ${intro} ${subjectRule} Keep it ${input.channel === "email" ? "50-90 words" : "under 90 words"}, one clear low-friction question, plain text only. The ONLY link allowed is https://nine-67.com — keep it if present, never invent any other URL or path (no /case-study, /demo, etc.) and never link any other domain. Return JSON only: ${shape}.`;
   const json = await runWritingAgent(prompt, { model: writingModel(), maxTokens: 1_200 }, recordUsage) as { subject?: unknown; body?: unknown } | null;
   return {
     subject: typeof json?.subject === "string" && json.subject.trim() ? json.subject.trim() : undefined,
-    body: typeof json?.body === "string" && json.body.trim() ? json.body.trim() : input.body,
+    body: sanitizeLinks(typeof json?.body === "string" && json.body.trim() ? json.body.trim() : input.body),
   };
 }
 

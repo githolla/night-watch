@@ -3,7 +3,7 @@ import { encrypt } from "@/lib/crypto";
 import { sendEmail } from "@/lib/gmail";
 import { validateEmail, sendInput } from "@/lib/send-action";
 import { dailyCap } from "@/lib/send-guards";
-import { fromHeader, senderProfile, withSignature } from "@/lib/sender";
+import { fromHeader, sanitizeLinks, senderProfile, withSignature } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
 
 const daysBetween = (iso: string | null | undefined) => (iso ? Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)) : 0);
@@ -12,7 +12,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   try {
     const user = await requireUser();
     const { id } = await context.params;
-    const { subject, body } = sendInput.parse(await request.json());
+    const parsed = sendInput.parse(await request.json());
+    const subject = parsed.subject;
+    // Strip any fabricated/foreign link the sender may have pasted in — only the real homepage may go out.
+    const body = sanitizeLinks(parsed.body);
     const db = admin();
     const { data: card } = await db.from("cards").select("*,people(*),accounts(*)").eq("id", id).single();
     if (!card) throw new Error("Card not found");

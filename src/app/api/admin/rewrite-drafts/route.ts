@@ -29,11 +29,12 @@ export async function POST(request: Request) {
   const filter = () => db.from("cards").select("id,why_now,email_subject,email_body,assigned_to,people(full_name,title),accounts(name)", { count: "exact" })
     .in("status", ["new", "approved", "edited"]).not("email_body", "is", null).lt("updated_at", cutoff);
 
-  const { data } = await filter().order("updated_at", { ascending: true }).limit(25);
+  // Small batch, processed concurrently, so each request returns in seconds and the caller can show
+  // progress and page through the worklist instead of one long silent call that looks hung.
+  const { data } = await filter().order("updated_at", { ascending: true }).limit(10);
   const cards = (data ?? []) as unknown as CardRow[];
-  let rewritten = 0;
-  for (const card of cards) {
-    if (!card.email_body || !card.people?.full_name) { await db.from("cards").update({ updated_at: new Date().toISOString() }).eq("id", card.id); continue; }
+  const results = await Promise.allSettled(cards.map(async (card) => {
+    if (!card.email_body || !card.people?.full_name) { await db.from("cards").update({ updated_at: new Date().toISOString() }).eq("id", card.id); return false; }
     try {
       const sender = prof.get(card.assigned_to) ?? { name: "", title: "" };
       const out = await refineDraft({
@@ -42,12 +43,14 @@ export async function POST(request: Request) {
         senderName: sender.name, senderTitle: sender.title,
       });
       await db.from("cards").update({ email_subject: out.subject ?? card.email_subject, email_body: out.body }).eq("id", card.id);
-      rewritten++;
+      return true;
     } catch {
-      // Bump updated_at so a card that keeps failing doesn't wedge the batch on the next pass.
+      // Bump updated_at so a card that keeps failing drops past the cursor instead of wedging the batch.
       await db.from("cards").update({ updated_at: new Date().toISOString() }).eq("id", card.id);
+      return false;
     }
-  }
+  }));
+  const rewritten = results.filter((r) => r.status === "fulfilled" && r.value).length;
   const { count: remaining } = await filter().limit(1);
   return Response.json({ rewritten, remaining: remaining ?? 0, cutoff });
 }
