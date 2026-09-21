@@ -57,7 +57,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // real send (which is how a "failed" toast used to lead to a duplicate re-send). Only then log to
     // History; if that write fails, the send still stands — we report success with a soft warning.
     await db.from("cards").update({ status: "sent", email_subject: subject, email_body: body }).eq("id", id);
-    const { error: touchError } = await db.from("touches").insert({ card_id: id, person_id: card.person_id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: fullBody, experiment_variant_id: card.active_variant_id ?? null });
+    const { error: touchError } = await db.from("touches").insert({ card_id: id, person_id: card.person_id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: fullBody });
     if (touchError) return Response.json({ ok: true, threadId: result.threadId, warning: `Sent to ${card.people.full_name}, but saving it to History failed (${touchError.message}). It won't need re-sending.` });
     // Schedule the follow-up cadence off this first touch (idempotent, best-effort — a failure here never
     // undoes the send).

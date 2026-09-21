@@ -37,7 +37,7 @@ export async function GET(request:Request){
   const {data:connRows}=await db.from("gmail_connections").select("owner,email");
   const ourEmails=new Set<string>();for(const r of (connRows??[]) as Array<{owner:string;email:string|null}>)if(r.email)ourEmails.add(r.email.trim().toLowerCase());
   // Only poll recent outbound (last 21 days) and cap the batch, so this stays bounded as volume grows.
-  const {data:touches}=await db.from("touches").select("id,card_id,sent_by,gmail_thread_id,sent_at,experiment_variant_id").eq("channel","email").not("gmail_thread_id","is",null).is("reply_at",null).gte("sent_at",daysAgoIso(21)).order("sent_at",{ascending:true}).limit(300);
+  const {data:touches}=await db.from("touches").select("id,card_id,sent_by,gmail_thread_id,sent_at").eq("channel","email").not("gmail_thread_id","is",null).is("reply_at",null).gte("sent_at",daysAgoIso(21)).order("sent_at",{ascending:true}).limit(300);
   let replies=0;
   // A card with a first touch + a follow-up has TWO unreplied touches on one thread; without this a real
   // reply would be handled once per touch — duplicate Slack posts and a card status written twice (which can
@@ -57,7 +57,6 @@ export async function GET(request:Request){
       await db.from("cards").update({status:classification==="positive"?"positive":"replied"}).eq("id",touch.card_id);
       // If they picked one of the times we proposed, book the calendar invite automatically (sets status to "meeting").
       const booked=classification==="positive"?Boolean(await autoBook(db,touch.card_id,touch.sent_by as Owner,body)):false;
-      if(touch.experiment_variant_id){const {data:variant}=await db.from("message_variants").select("experiment_id").eq("id",touch.experiment_variant_id).maybeSingle();if(variant)await db.from("message_experiments").update({status:"completed"}).eq("id",variant.experiment_id)}
       const {data:cadence}=await db.from("cadences").select("id").eq("card_id",touch.card_id).eq("status","active").maybeSingle();
       if(cadence){await db.from("cadences").update({status:"stopped",completed_at:replyAt}).eq("id",cadence.id);await db.from("cadence_steps").update({status:"skipped"}).eq("cadence_id",cadence.id).eq("status","pending")}
       // Surface every inbound reply in Slack (who, classification, a snippet, a link to the dossier).

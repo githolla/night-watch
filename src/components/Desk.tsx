@@ -433,7 +433,7 @@ export function Desk({
     if (!body) { setNotice("No email draft yet — open the studio to write one first."); return; }
     const steps = [
       { day: 0, channel: "email", title: "Intro email", detail: "The opening email from the draft", subject, body },
-      { day: 3, channel: "email", title: "Follow-up", detail: "A short bump", subject: `Re: ${subject}`, body: `Hi ${first},\n\nFloating this back up in case it slipped by — happy to send a quick teardown of what we'd build for ${focusCard.accounts.name} instead of the hire. Worth a look?` },
+      { day: 3, channel: "email", title: "Follow-up", detail: "A short bump", subject: `Re: ${subject}`, body: `Hi ${first},\n\nFloating this back up in case it slipped by. Happy to sketch out what we'd build for ${focusCard.accounts.name} to do that work instead of the hire. Worth a look?` },
       { day: 7, channel: "email", title: "Close", detail: "A brief sign-off", subject: `Re: ${subject}`, body: `Hi ${first},\n\nI'll leave it here for now. If building this instead of hiring for it becomes a priority, just reply and I'll pick it back up.` },
     ];
     setEnrolling(true);

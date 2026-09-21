@@ -69,7 +69,7 @@ export async function recordCardOutcome(cardId: string, outcome: RecordedOutcome
   const db = admin();
   const { data: touch } = await db
     .from("touches")
-    .select("id,experiment_variant_id")
+    .select("id")
     .eq("card_id", cardId)
     .order("sent_at", { ascending: false })
     .limit(1)
@@ -83,10 +83,6 @@ export async function recordCardOutcome(cardId: string, outcome: RecordedOutcome
   if (error) throw error;
   await db.from("cards").update({ status: cardStatus }).eq("id", cardId);
 
-  if (touch.experiment_variant_id) {
-    const { data: variant } = await db.from("message_variants").select("experiment_id").eq("id", touch.experiment_variant_id).maybeSingle();
-    if (variant) await db.from("message_experiments").update({ status: "completed" }).eq("id", variant.experiment_id);
-  }
   const { data: cadence } = await db.from("cadences").select("id").eq("card_id", cardId).eq("status", "active").maybeSingle();
   if (cadence) {
     await db.from("cadences").update({ status: "stopped", completed_at: replyAt }).eq("id", cadence.id);

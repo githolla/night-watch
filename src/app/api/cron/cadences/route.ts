@@ -10,11 +10,11 @@ import type { Owner } from "@/lib/types";
 
 export const maxDuration=300;
 const daysBetween=(iso:string|null|undefined)=>(iso?Math.max(0,Math.floor((Date.now()-new Date(iso).getTime())/86_400_000)):0);
-type DueStep={id:string;cadence_id:string;channel:string;kind:string;subject:string|null;body:string|null;cadences:{id:string;status:string;owner:Owner;rules:{stop_on_reply?:boolean};card_id:string;cards:{person_id:string;assigned_to:Owner;active_variant_id:string|null;people:{email:string|null;email_status:string;do_not_contact:boolean};accounts:{status:string}}}};
+type DueStep={id:string;cadence_id:string;channel:string;kind:string;subject:string|null;body:string|null;cadences:{id:string;status:string;owner:Owner;rules:{stop_on_reply?:boolean};card_id:string;cards:{person_id:string;assigned_to:Owner;people:{email:string|null;email_status:string;do_not_contact:boolean};accounts:{status:string}}}};
 
 export async function GET(request:Request){
   if(!cronAuthorized(request))return Response.json({error:"Unauthorized"},{status:401});
-  const db=admin(),now=new Date(),{data,error}=await db.from("cadence_steps").select("id,cadence_id,channel,kind,subject,body,cadences(id,status,owner,rules,card_id,cards(person_id,assigned_to,active_variant_id,people(email,email_status,do_not_contact),accounts(status)))").eq("status","pending").lte("scheduled_at",now.toISOString()).order("scheduled_at").limit(25);
+  const db=admin(),now=new Date(),{data,error}=await db.from("cadence_steps").select("id,cadence_id,channel,kind,subject,body,cadences(id,status,owner,rules,card_id,cards(person_id,assigned_to,people(email,email_status,do_not_contact),accounts(status)))").eq("status","pending").lte("scheduled_at",now.toISOString()).order("scheduled_at").limit(25);
   if(error)return Response.json({error:error.message},{status:500});
   let sent=0,ready=0,stopped=0,failed=0,skipped=0;
   // At most one email per cadence per run: if the cron lapsed and day 3 + 7 + 14 are all due, sending them
@@ -61,8 +61,7 @@ export async function GET(request:Request){
       // Multipart: plain-text part for deliverability + HTML part carrying the branded signature; unsubscribe header too.
       const result=await sendEmail(cadence.owner,fromHeader(profile,connection.email),card.people.email,step.subject,fullBody,previous?.gmail_thread_id??undefined,profile.cc,html,unsubscribe);
       firedThisRun.add(cadence.id);
-      await db.from("touches").insert({card_id:cadence.card_id,person_id:card.person_id,channel:"email",sent_at:now.toISOString(),sent_by:cadence.owner,gmail_thread_id:result.threadId,body:fullBody,experiment_variant_id:card.active_variant_id??null});
-      if(card.active_variant_id){const {data:chosen}=await db.from("message_variants").select("experiment_id").eq("id",card.active_variant_id).maybeSingle();if(chosen)await db.from("message_experiments").update({status:"sent"}).eq("id",chosen.experiment_id)}
+      await db.from("touches").insert({card_id:cadence.card_id,person_id:card.person_id,channel:"email",sent_at:now.toISOString(),sent_by:cadence.owner,gmail_thread_id:result.threadId,body:fullBody});
       await db.from("cadence_steps").update({status:"sent",sent_at:now.toISOString(),error:null}).eq("id",step.id);await db.from("cards").update({status:"sent"}).eq("id",cadence.card_id);sent++;
     }catch(cause){await db.from("cadence_steps").update({status:"failed",error:cause instanceof Error?cause.message:"Step failed"}).eq("id",step.id);failed++}
   }

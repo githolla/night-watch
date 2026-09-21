@@ -14,7 +14,7 @@ export function buildFollowups(channel: FollowupChannel, ctx: { firstName: strin
   if (channel === "email") {
     return [
       { day: 3, channel, title: "Follow-up email", detail: "A short bump on the first note, same thread", subject: re,
-        body: `Hi ${name},\n\nFloating this back up in case it slipped by. Happy to put together a quick, no-obligation teardown of one role at ${company} and exactly what we'd build to do that work instead of hiring for it.\n\nWorth a look?` },
+        body: `Hi ${name},\n\nFloating this back up in case it slipped by. Happy to put together a quick, no-obligation outline of one role at ${company} and exactly what we'd build to do that work instead of hiring for it.\n\nWorth a look?` },
       { day: 7, channel, title: "A concrete angle", detail: "Give one specific example of the build", subject: re,
         body: `Hi ${name},\n\nOne more thought: most of the teams we work with start with a single workflow — the reporting, the data entry, the routing — and let one system own it end to end before touching anything else.\n\nIf there's one repetitive thing your team wishes it never had to staff for, tell me what it is and I'll sketch how we'd automate it.` },
       { day: 14, channel, title: "Close the loop", detail: "A soft sign-off that leaves the door open", subject: re,

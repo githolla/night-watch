@@ -16,7 +16,9 @@ const stripGreeting = (body: string, line: string) => {
   let out = body.replace(/^\s+/, "").replace(/^(?:hi|hey|hello|dear|good (?:morning|afternoon|evening))\b[^\n,]*,[ \t]*\n*/i, "").replace(/^\s+/, "");
   const norm = line.trim();
   if (norm) {
-    for (let i = 0; i < 6 && out.startsWith(norm); i++) {
+    // Case-insensitive: re-applying "Nice to meet you…" after changing "nice"→"Nice" must still be seen as
+    // the same opener and replaced, not stacked (the reported "line shows up twice" bug).
+    for (let i = 0; i < 6 && out.slice(0, norm.length).toLowerCase() === norm.toLowerCase(); i++) {
       out = out.slice(norm.length).replace(/^[ \t]*\n+/, "").replace(/^\s+/, "");
     }
   }

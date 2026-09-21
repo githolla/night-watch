@@ -34,25 +34,15 @@ const siteUrl = (site: string) => (site ? (/^https?:\/\//.test(site) ? site : `h
  */
 export function sanitizeLinks(text: string): string {
   if (!text) return text;
-  const site = (process.env.SENDER_SITE_URL || "https://nine-67.com").trim();
-  let canonHost = "nine-67.com";
-  try { canonHost = new URL(site).hostname.replace(/^www\./, ""); } catch { /* keep default */ }
-  const isCanonHost = (host: string) => { const h = host.replace(/^www\./, "").toLowerCase(); return h === canonHost || h.endsWith(`.${canonHost}`); };
   return text
-    .replace(/https?:\/\/[^\s<>)\]]+/gi, (raw) => {
-      // Keep trailing sentence punctuation OUT of the URL so "…visit https://nine-67.com." keeps the period
-      // and the (valid) homepage link isn't dropped as a foreign host.
-      const trail = raw.match(/[.,!?;:]+$/)?.[0] ?? "";
-      const u = trail ? raw.slice(0, -trail.length) : raw;
-      // Any nine-67 host (apex, www, or a subdomain like app.nine-67.com) collapses to the homepage; a
-      // foreign host is dropped entirely so a fabricated link can never reach a prospect.
-      try { return (isCanonHost(new URL(u).hostname) ? site : "") + trail; } catch { return trail; }
-    })
-    // Schemeless links models love to invent ("nine-67.com/case-study", "acme.io/demo") never hit the pass
-    // above. Collapse a canonical bare domain that carries a (likely fabricated) path to the homepage, strip
-    // a foreign bare domain, and leave a plain domain mention as text (don't manufacture a new link).
-    .replace(/(^|[\s(])((?:[a-z0-9-]+\.)+(?:com|io|ai|co|net|org|dev|app|xyz|us|biz|info|me|tech|solutions))(\/[^\s<>)\]]*)?/gi, (_whole, pre: string, host: string, path?: string) =>
-      pre + (isCanonHost(host) ? (path ? site : host) : ""))
+    // No links in the body at all — the website already lives in the signature. Drop every URL (keeping any
+    // trailing sentence punctuation) and every bare domain a model may have invented ("nine-67.com/x",
+    // "acme.io/demo"), so a prospect never sees a duplicate or fabricated link in the message.
+    .replace(/https?:\/\/[^\s<>)\]]+/gi, (raw) => raw.match(/[.,!?;:]+$/)?.[0] ?? "")
+    .replace(/(^|[\s(])(?:[a-z0-9-]+\.)+(?:com|io|ai|co|net|org|dev|app|xyz|us|biz|info|me|tech|solutions)(\/[^\s<>)\]]*)?/gi, (_whole, pre: string) => pre)
+    // Strip the leftover CTA some cached drafts still carry ("Want a free one-page teardown…"). Remove the
+    // whole sentence containing "teardown" so nothing dangling is left.
+    .replace(/[^.!?\n]*\bteardown\b[^.!?\n]*[.!?]?/gi, "")
     // No em/en dashes — they read as AI-written; use a comma. Only when spaced on BOTH sides, so number
     // ranges ("10–15", "$10–15M") and a "\n— Name" sign-off are left intact.
     .replace(/ +[—–] +/g, ", ")
