@@ -171,20 +171,26 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     .filter((card) => { const person = card.people as { full_name?: string } | null; return person?.full_name ? isLikelyPersonName(person.full_name) : false; });
 
   // The follow-up sequence for each surfaced card, so the desk can show it inline under the draft.
-  const followupsByCard = new Map<string, Array<{ id: string; step: number; channel: string; title: string; detail: string; subject: string | null; body: string; status: string; scheduledAt: string }>>();
+  const followupsByCard = new Map<string, Array<{ id: string; step: number; channel: string; title: string; detail: string; subject: string | null; body: string; status: string; scheduledAt: string; forPerson: string; forPersonId: string }>>();
   const cardIds = surfaced.map((card) => card.id as string);
   if (cardIds.length) {
-    const { data: cads } = await db.from("cadences").select("id,card_id").in("card_id", cardIds).eq("status", "active");
-    const cadToCard = new Map((cads ?? []).map((row) => [row.id as string, row.card_id as string]));
+    // Carry the person the cadence is for. A cadence belongs to one contact, not to the whole company, and
+    // without their name the desk showed "Hi Asif," under whichever colleague happened to be selected.
+    const { data: cads } = await db.from("cadences").select("id,card_id,person_id,people(full_name)").in("card_id", cardIds).eq("status", "active");
+    const cadToCard = new Map((cads ?? []).map((row) => [row.id as string, {
+      cardId: row.card_id as string,
+      personId: (row.person_id as string) ?? "",
+      personName: ((row.people as unknown as { full_name?: string } | null)?.full_name) ?? "",
+    }]));
     const cadIds = [...cadToCard.keys()];
     if (cadIds.length) {
       const { data: steps } = await db.from("cadence_steps").select("id,step_number,channel,title,detail,subject,body,status,scheduled_at,cadence_id").eq("kind", "review").in("cadence_id", cadIds).order("step_number");
       for (const step of steps ?? []) {
-        const cardId = cadToCard.get(step.cadence_id as string);
-        if (!cardId) continue;
-        const list = followupsByCard.get(cardId) ?? [];
-        list.push({ id: step.id as string, step: step.step_number as number, channel: step.channel as string, title: step.title as string, detail: step.detail as string, subject: (step.subject as string | null) ?? null, body: (step.body as string | null) ?? "", status: step.status as string, scheduledAt: step.scheduled_at as string });
-        followupsByCard.set(cardId, list);
+        const owner = cadToCard.get(step.cadence_id as string);
+        if (!owner) continue;
+        const list = followupsByCard.get(owner.cardId) ?? [];
+        list.push({ id: step.id as string, step: step.step_number as number, channel: step.channel as string, title: step.title as string, detail: step.detail as string, subject: (step.subject as string | null) ?? null, body: (step.body as string | null) ?? "", status: step.status as string, scheduledAt: step.scheduled_at as string, forPerson: owner.personName, forPersonId: owner.personId });
+        followupsByCard.set(owner.cardId, list);
       }
     }
   }

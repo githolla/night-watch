@@ -12,7 +12,7 @@ import { RefreshButton } from "./RefreshButton";
 import { RunPanel } from "./RunPanel";
 import { SignalInsight, type InsightCard } from "./SignalInsight";
 
-type Followup = { id: string; step: number; channel: string; title: string; detail: string; subject: string | null; body: string; status: string; scheduledAt: string };
+type Followup = { id: string; step: number; channel: string; title: string; detail: string; subject: string | null; body: string; status: string; scheduledAt: string; forPerson?: string; forPersonId?: string };
 
 type Card = InsightCard & {
   id: string;
@@ -1042,8 +1042,14 @@ export function Desk({
                   if (seq.length === 0) {
                     return <div className="deskwork-fu-hint">Three follow-ups (spread over ~2 weeks, stopping the moment they reply) appear here once you send or copy this {channelTab === "email" ? "email" : "message"} — or press <b>Automate</b> below to have Night Watch send them for you.</div>;
                   }
+                  // A cadence belongs to ONE contact, not to the company. Showing it unlabelled under
+                  // whichever colleague was selected read as "emailing one person enrolled everybody".
+                  const forName = seq.find((step) => step.forPerson)?.forPerson ?? "";
+                  const forId = seq.find((step) => step.forPersonId)?.forPersonId ?? "";
+                  const viewingSomeoneElse = Boolean(forId && contact && "id" in contact && contact.id && contact.id !== forId);
                   return <div className="deskwork-followups">
-                    <div className="deskwork-fu-head">Follow-up sequence<span>{seq.length} queued · “Automate” sends these for you, or copy each to send by hand · stops on a reply</span></div>
+                    <div className="deskwork-fu-head">Follow-up sequence{forName ? ` for ${forName}` : ""}<span>{seq.length} queued · “Automate” sends these for you, or copy each to send by hand · stops on a reply</span></div>
+                    {viewingSomeoneElse && <div className="deskwork-fu-whose">These follow-ups go to <strong>{forName}</strong>, the contact this email was sent to &mdash; not to {contact.full_name}. Nobody else at {focusCard.accounts.name} is on a sequence. Send to {contact.full_name} and they get their own.</div>}
                     {seq.map((step) => (
                       <div key={step.id} className={`deskwork-fu ${step.status === "sent" ? "is-done" : ""}`}>
                         <div className="deskwork-fu-top"><strong>Step {step.step} · {step.title}</strong><span className={followupWhen(step.scheduledAt, step.status) === "due now" ? "is-due" : ""}>{followupWhen(step.scheduledAt, step.status)}</span></div>

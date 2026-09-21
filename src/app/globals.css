@@ -2128,3 +2128,5 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 
 /* A card whose email has already gone out. */
 .deskwork-sent-note{margin:0 16px 10px;border-left:3px solid var(--ok);background:var(--ok-soft);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:9px 12px;font:500 13px/1.55 var(--sans);color:var(--ink)}
+/* Whose follow-ups these are — a cadence belongs to one contact, not to the company. */
+.deskwork-fu-whose{margin:0 0 4px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:9px 12px;font:500 12.5px/1.55 var(--sans);color:var(--ink)}

@@ -23,7 +23,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (!card) throw new Error("Card not found");
     // Only a card still in an un-sent working state may be sent. An allowlist (not a denylist) so a card that
     // already replied / booked a meeting / was snoozed can't be re-sent a cold email through the API.
-    if (!["new", "approved", "edited"].includes(card.status)) throw new Error(card.status === "sent" ? "This card is already marked sent." : `This card is ${card.status}, not ready to send.`);
+    // A card is marked sent the moment its first email goes out, but a company has more than one person
+    // on it. Writing to a COLLEAGUE afterwards is normal work and must not be blocked — the per-person
+    // guard below is what stops the same contact being emailed twice. Every other status still stops here.
+    const writingToColleague = Boolean(parsed.personId && parsed.personId !== card.person_id);
+    const sendable = writingToColleague ? ["new", "approved", "edited", "sent"] : ["new", "approved", "edited"];
+    if (!sendable.includes(card.status)) throw new Error(card.status === "sent" ? "This card is already marked sent." : `This card is ${card.status}, not ready to send.`);
     // The recipient is the card's own contact unless the desk picked a colleague from the company's team
     // list. That person must be at the SAME company: the id arrives from the browser, so without this check
     // any person in the database could be emailed through someone else's card.
