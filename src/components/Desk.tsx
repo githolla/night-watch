@@ -421,13 +421,22 @@ export function Desk({
     acc[key].score = Math.max(acc[key].score, item.score);
     return acc;
   }, {})).sort((a, b) => b.score - a.score).slice(0, 4);
-  // Already gone out: the composer must not stay open on it. Editing a sent email changes nothing that
-  // will ever be delivered, and the empty editor sitting above the follow-up list read as a broken screen.
-  const sentAlready = Boolean(focusCard && ["sent", "replied", "positive", "meeting"].includes(focusCard.status));
   const draft = focusCard ? primaryDraft(focusCard) : null;
   // The contact currently being written to — the card's person by default, or one picked from the team list.
   const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
   const contact = altContact ?? (focusCard ? focusCard.people : null);
+  // "Already gone out" is a fact about a PERSON, not about the card. The card is marked sent the moment its
+  // first email leaves, but a colleague who has not been written to still needs an editable draft and a Send
+  // button — otherwise picking them showed a read-only record of somebody else's email.
+  const cardSent = Boolean(focusCard && ["sent", "replied", "positive", "meeting"].includes(focusCard.status));
+  const cadenceForId = focusCard?.followups?.find((step) => step.forPersonId)?.forPersonId;
+  const alreadyWritten = new Set<string>(logged);
+  // Whoever the first email went to: the cadence names them, and before any cadence exists it is the card's
+  // own contact.
+  const firstRecipient = cadenceForId ?? (focusCard && "id" in focusCard.people ? (focusCard.people.id as string | undefined) : undefined);
+  if (cardSent && firstRecipient) alreadyWritten.add(firstRecipient);
+  const selectedContactId = contact && "id" in contact && contact.id ? (contact.id as string) : undefined;
+  const sentAlready = Boolean(selectedContactId && alreadyWritten.has(selectedContactId));
   const draftText = draft ? (altContact && focusCard ? retarget(draft.text, focusCard.people.full_name, altContact.full_name) : draft.text) : "";
   // Adapt a draft's names to the retargeted contact when one is chosen; both channel drafts are shown for every prospect.
   const adapt = (text: string) => (altContact && focusCard ? retarget(text, focusCard.people.full_name, altContact.full_name) : text);
@@ -1047,9 +1056,23 @@ export function Desk({
                   const forName = seq.find((step) => step.forPerson)?.forPerson ?? "";
                   const forId = seq.find((step) => step.forPersonId)?.forPersonId ?? "";
                   const viewingSomeoneElse = Boolean(forId && contact && "id" in contact && contact.id && contact.id !== forId);
+                  // Another contact's sequence folds away: you came here to write to the person selected, and
+                  // three of somebody else's queued emails filled the panel instead.
+                  if (viewingSomeoneElse) {
+                    return <details className="deskwork-followups deskwork-fu-folded">
+                      <summary>Follow-up sequence for {forName} &middot; {seq.length} queued</summary>
+                      <div className="deskwork-fu-whose">These go to <strong>{forName}</strong>, the contact that email was sent to &mdash; not to {contact.full_name}. Nobody else at {focusCard.accounts.name} is on a sequence; send to {contact.full_name} and they get their own.</div>
+                      {seq.map((step) => (
+                        <div key={step.id} className={`deskwork-fu ${step.status === "sent" ? "is-done" : ""}`}>
+                          <div className="deskwork-fu-top"><strong>Step {step.step} · {step.title}</strong><span>{followupWhen(step.scheduledAt, step.status)}</span></div>
+                          {step.subject && <div className="deskwork-fu-subj">Subject: {step.subject}</div>}
+                          <p className="deskwork-fu-body">{step.body}</p>
+                        </div>
+                      ))}
+                    </details>;
+                  }
                   return <div className="deskwork-followups">
                     <div className="deskwork-fu-head">Follow-up sequence{forName ? ` for ${forName}` : ""}<span>{seq.length} queued · “Automate” sends these for you, or copy each to send by hand · stops on a reply</span></div>
-                    {viewingSomeoneElse && <div className="deskwork-fu-whose">These follow-ups go to <strong>{forName}</strong>, the contact this email was sent to &mdash; not to {contact.full_name}. Nobody else at {focusCard.accounts.name} is on a sequence. Send to {contact.full_name} and they get their own.</div>}
                     {seq.map((step) => (
                       <div key={step.id} className={`deskwork-fu ${step.status === "sent" ? "is-done" : ""}`}>
                         <div className="deskwork-fu-top"><strong>Step {step.step} · {step.title}</strong><span className={followupWhen(step.scheduledAt, step.status) === "due now" ? "is-due" : ""}>{followupWhen(step.scheduledAt, step.status)}</span></div>

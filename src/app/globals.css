@@ -2130,3 +2130,9 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .deskwork-sent-note{margin:0 16px 10px;border-left:3px solid var(--ok);background:var(--ok-soft);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:9px 12px;font:500 13px/1.55 var(--sans);color:var(--ink)}
 /* Whose follow-ups these are — a cadence belongs to one contact, not to the company. */
 .deskwork-fu-whose{margin:0 0 4px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:9px 12px;font:500 12.5px/1.55 var(--sans);color:var(--ink)}
+/* Another contact's sequence, folded so it does not take over the panel. */
+.deskwork-fu-folded>summary{cursor:pointer;list-style:none;padding:8px 0;font:600 12px/1 var(--sans);letter-spacing:.02em;text-transform:uppercase;color:var(--muted)}
+.deskwork-fu-folded>summary::-webkit-details-marker{display:none}
+.deskwork-fu-folded>summary::before{content:"";display:inline-block;margin-right:7px;width:0;height:0;border:4px solid transparent;border-left-color:currentColor;transition:transform .15s ease}
+.deskwork-fu-folded[open]>summary::before{transform:rotate(90deg) translateX(-1px)}
+.deskwork-fu-folded>summary:hover{color:var(--ink)}

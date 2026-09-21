@@ -170,6 +170,19 @@ const ROLE_TAIL = /^(head|lead|leader|director|manager|chief|chair|chairman|chai
  */
 export function foreignEmployer(title: string | null | undefined, companyName: string, domain?: string | null): string | null {
   const clean = decodeEntities(title);
+  // "VP of Platform Engineering at TalentNet" names the employer just as plainly as a trailing comma does.
+  const atMatch = clean.match(/\s+at\s+([A-Z][^,]*)$/);
+  if (atMatch) {
+    const named = atMatch[1].trim().replace(/[.;]+$/, "");
+    const words = named.split(/\s+/);
+    // A single lowercase-ish word after "at" is usually part of the role ("Head of Data at Scale"), so it
+    // takes more than one word, an internal capital (TalentNet, PayScale) or a company suffix to count.
+    const looksLikeCompany = words.length > 1 || /[a-z][A-Z]/.test(named) || /\b(inc|llc|ltd|corp|co|group|holdings|partners|labs)\b/i.test(named);
+    if (looksLikeCompany && words.length <= 6 && !DEPARTMENT.test(named)) {
+      const other = differentCompany(named, companyName, domain);
+      if (other) return other;
+    }
+  }
   if (!clean.includes(",")) return null;
   const tail = clean.slice(clean.lastIndexOf(",") + 1).trim().replace(/[.;]+$/, "");
   if (!tail || tail.split(/\s+/).length < 2 || tail.split(/\s+/).length > 7) return null;
@@ -182,13 +195,18 @@ export function foreignEmployer(title: string | null | undefined, companyName: s
   const capitalised = words.filter((word) => /^[A-Z]/.test(word));
   if (capitalised.length < 2) return null;
 
+  return differentCompany(tail, companyName, domain);
+}
+
+/** The named organisation, unless it is this company written another way. */
+function differentCompany(named: string, companyName: string, domain?: string | null): string | null {
   const normalise = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const tailKey = normalise(tail);
+  const namedKey = normalise(named);
   const companyKey = normalise(companyName);
   const domainKey = normalise((domain ?? "").replace(/\.[a-z.]+$/, ""));
-  if (!tailKey || !companyKey) return null;
+  if (!namedKey || !companyKey) return null;
   // Same company written differently ("Quantiphi Inc", "Quantiphi") is not a foreign employer.
-  if (tailKey.includes(companyKey) || companyKey.includes(tailKey)) return null;
-  if (domainKey && (tailKey.includes(domainKey) || domainKey.includes(tailKey))) return null;
-  return tail;
+  if (namedKey.includes(companyKey) || companyKey.includes(namedKey)) return null;
+  if (domainKey && (namedKey.includes(domainKey) || domainKey.includes(namedKey))) return null;
+  return named;
 }

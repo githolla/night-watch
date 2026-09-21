@@ -167,3 +167,15 @@ test("a contact who works somewhere else is spotted, and a real title is never m
   assert.equal(foreignEmployer("Chief Executive Officer", "Quantiphi"), null);
   assert.equal(foreignEmployer("", "Quantiphi"), null);
 });
+
+test("an employer named with \"at\" is caught too, without eating a real title", () => {
+  assert.equal(foreignEmployer("VP of Application Development and Platform Engineering at TalentNet", "Quantiphi", "quantiphi.com"), "TalentNet");
+  assert.equal(foreignEmployer("CTO at Peterson Cheese", "Quantiphi", "quantiphi.com"), "Peterson Cheese");
+  // Same company, however it is written.
+  assert.equal(foreignEmployer("VP of Engineering at Quantiphi", "Quantiphi", "quantiphi.com"), null);
+  // A single ordinary word after "at" is part of the role, not an employer.
+  assert.equal(foreignEmployer("Head of Data at Scale", "Quantiphi", "quantiphi.com"), null);
+  assert.equal(foreignEmployer("Director of Engineering at Large", "Quantiphi", "quantiphi.com"), null);
+  // Departments after "at" are not employers either.
+  assert.equal(foreignEmployer("Senior Director at Global Operations", "Quantiphi", "quantiphi.com"), null);
+});
