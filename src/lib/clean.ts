@@ -7,14 +7,19 @@ const normalizeForCompare = (value: string) =>
  * ("I am" vs "I'm"), punctuation. Token overlap (Jaccard), so "Nice to meet you. I am founder and CEO of
  * Nine-67." and "nice to meet you. I'm founder and CEO of Nine-67." count as the same opener.
  */
-export function similarText(left: string, right: string, threshold = 0.75): boolean {
+export function similarText(left: string, right: string, threshold = 0.7): boolean {
   const a = new Set(normalizeForCompare(left).split(" ").filter(Boolean));
   const b = new Set(normalizeForCompare(right).split(" ").filter(Boolean));
   if (!a.size || !b.size) return false;
   let common = 0;
   for (const token of a) if (b.has(token)) common += 1;
   const union = a.size + b.size - common;
-  return union > 0 && common / union >= threshold;
+  if (union > 0 && common / union >= threshold) return true;
+  // Containment as well as overlap: one line being almost entirely contained in the other catches a reword
+  // that adds or drops a few words ("I am" -> "I'm", "the founder", a trailing clause), which plain overlap
+  // scores too low. Guarded by a minimum length so short lines can't match on a couple of common words.
+  const smaller = Math.min(a.size, b.size);
+  return smaller >= 5 && common / smaller >= 0.8;
 }
 
 /**

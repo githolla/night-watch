@@ -2,12 +2,25 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { dedupeParagraphs, similarText } from "./clean.ts";
 
-test("a re-applied opener is recognised despite case and contraction changes", () => {
+test("a re-applied opener is recognised despite case, contraction and wording changes", () => {
   const base = "Nice to meet you. I am founder and CEO of Nine-67.";
-  assert.equal(similarText(base, "nice to meet you. I am founder and CEO of Nine-67."), true);
-  assert.equal(similarText(base, "Nice to meet you. I'm founder and CEO of Nine-67."), true);
-  // A genuinely different paragraph must never be treated as a duplicate.
-  assert.equal(similarText(base, "I saw Netsmart posted for a Data Architect and Operations Analyst role this week."), false);
+  for (const variant of [
+    "nice to meet you. I am founder and CEO of Nine-67.",
+    "Nice to meet you. I'm founder and CEO of Nine-67.",
+    "Nice to meet you. I'm the founder and CEO of Nine-67.",
+    "Nice to meet you — I'm founder & CEO of Nine-67!",
+    "Nice to meet you. I am founder and CEO at Nine-67.",
+  ]) {
+    assert.equal(similarText(base, variant), true, `should match: ${variant}`);
+  }
+  // Genuinely different paragraphs must never be treated as duplicates.
+  for (const different of [
+    "I saw Netsmart posted for a Data Architect and Operations Analyst role this week.",
+    "We build automated data and reporting systems that absorb the work those roles would do.",
+    "Would any of these times work for a quick call next week?",
+  ]) {
+    assert.equal(similarText(base, different), false, `should NOT match: ${different}`);
+  }
 });
 
 test("a tripled opener collapses to one, leaving the rest of the email intact", () => {
