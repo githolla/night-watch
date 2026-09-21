@@ -32,7 +32,9 @@ export async function runSentSync(): Promise<{ scanned: number; logged: number }
       if (!to || !to.includes("@")) continue;
 
       // Only track sends to a known contact who has a card (so History can show company/person).
-      const { data: person } = await db.from("people").select("id").ilike("email", to).maybeSingle();
+      // Escape LIKE wildcards so a "%"/"_" in the address matches literally (not as a wildcard) while
+      // keeping ilike's case-insensitivity for email matching.
+      const { data: person } = await db.from("people").select("id").ilike("email", to.replace(/[\\%_]/g, "\\$&")).maybeSingle();
       if (!person) continue;
       const { data: card } = await db.from("cards").select("id").eq("person_id", person.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (!card) continue;

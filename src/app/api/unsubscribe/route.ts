@@ -15,8 +15,10 @@ async function optOut(token: string | null): Promise<boolean> {
 
 // Gmail's RFC 8058 one-click sends a POST — that's the ONLY thing that mutates.
 export async function POST(request: Request) {
-  await optOut(new URL(request.url).searchParams.get("t"));
-  return new Response(null, { status: 200 });
+  const ok = await optOut(new URL(request.url).searchParams.get("t"));
+  // Return 200 only when the flag was actually set. On a failed write, a 500 tells Gmail's one-click to
+  // retry rather than mark them unsubscribed while we'd still contact them.
+  return new Response(null, { status: ok ? 200 : 500 });
 }
 
 const page = (title: string, msg: string) =>

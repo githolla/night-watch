@@ -37,14 +37,22 @@ export function sanitizeLinks(text: string): string {
   const site = (process.env.SENDER_SITE_URL || "https://nine-67.com").trim();
   let canonHost = "nine-67.com";
   try { canonHost = new URL(site).hostname.replace(/^www\./, ""); } catch { /* keep default */ }
+  const isCanonHost = (host: string) => { const h = host.replace(/^www\./, "").toLowerCase(); return h === canonHost || h.endsWith(`.${canonHost}`); };
   return text
     .replace(/https?:\/\/[^\s<>)\]]+/gi, (raw) => {
       // Keep trailing sentence punctuation OUT of the URL so "…visit https://nine-67.com." keeps the period
       // and the (valid) homepage link isn't dropped as a foreign host.
       const trail = raw.match(/[.,!?;:]+$/)?.[0] ?? "";
       const u = trail ? raw.slice(0, -trail.length) : raw;
-      try { return (new URL(u).hostname.replace(/^www\./, "") === canonHost ? site : "") + trail; } catch { return trail; }
+      // Any nine-67 host (apex, www, or a subdomain like app.nine-67.com) collapses to the homepage; a
+      // foreign host is dropped entirely so a fabricated link can never reach a prospect.
+      try { return (isCanonHost(new URL(u).hostname) ? site : "") + trail; } catch { return trail; }
     })
+    // Schemeless links models love to invent ("nine-67.com/case-study", "acme.io/demo") never hit the pass
+    // above. Collapse a canonical bare domain that carries a (likely fabricated) path to the homepage, strip
+    // a foreign bare domain, and leave a plain domain mention as text (don't manufacture a new link).
+    .replace(/(^|[\s(])((?:[a-z0-9-]+\.)+(?:com|io|ai|co|net|org|dev|app|xyz|us|biz|info|me|tech|solutions))(\/[^\s<>)\]]*)?/gi, (_whole, pre: string, host: string, path?: string) =>
+      pre + (isCanonHost(host) ? (path ? site : host) : ""))
     // No em/en dashes — they read as AI-written; use a comma. Only when spaced on BOTH sides, so number
     // ranges ("10–15", "$10–15M") and a "\n— Name" sign-off are left intact.
     .replace(/ +[—–] +/g, ", ")

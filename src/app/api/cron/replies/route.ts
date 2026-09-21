@@ -32,21 +32,28 @@ async function autoBook(db: ReturnType<typeof admin>, cardId: string, owner: Own
 export async function GET(request:Request){
   if(!cronAuthorized(request))return Response.json({error:"Unauthorized"},{status:401});
   const db=admin();
-  // Which mailbox each seat sends from, so we never count our own thread messages as a reply.
+  // Every mailbox we send from (across both seats), so no message we sent — first touch OR a later
+  // follow-up on the same thread — is ever mis-scored as an inbound reply.
   const {data:connRows}=await db.from("gmail_connections").select("owner,email");
-  const seatEmail=new Map<string,string>();for(const r of (connRows??[]) as Array<{owner:string;email:string|null}>)if(r.email)seatEmail.set(r.owner,r.email.trim().toLowerCase());
+  const ourEmails=new Set<string>();for(const r of (connRows??[]) as Array<{owner:string;email:string|null}>)if(r.email)ourEmails.add(r.email.trim().toLowerCase());
   // Only poll recent outbound (last 21 days) and cap the batch, so this stays bounded as volume grows.
   const {data:touches}=await db.from("touches").select("id,card_id,sent_by,gmail_thread_id,sent_at,experiment_variant_id").eq("channel","email").not("gmail_thread_id","is",null).is("reply_at",null).gte("sent_at",daysAgoIso(21)).order("sent_at",{ascending:true}).limit(300);
   let replies=0;
+  // A card with a first touch + a follow-up has TWO unreplied touches on one thread; without this a real
+  // reply would be handled once per touch — duplicate Slack posts and a card status written twice (which can
+  // stomp a just-booked meeting back to "positive"). Handle each thread at most once per run.
+  const seenThreads=new Set<string>();
   for(const touch of touches??[]){
+    if(seenThreads.has(touch.gmail_thread_id))continue;
     try{
-      const value=await thread(touch.sent_by,touch.gmail_thread_id), our=seatEmail.get(touch.sent_by);
-      // A genuine reply is a thread message AFTER our send that is NOT from our own seat address
-      // (a later message from us — a follow-up on the same thread — must never be scored as a reply).
-      const messages=value.messages.filter(message=>Number(message.internalDate)>new Date(touch.sent_at).getTime()&&(!our||fromAddress(message.payload.headers)!==our));
+      const value=await thread(touch.sent_by,touch.gmail_thread_id);
+      // A genuine reply is a thread message AFTER our send that is NOT from one of our own seat mailboxes.
+      const messages=value.messages.filter(message=>Number(message.internalDate)>new Date(touch.sent_at).getTime()&&!ourEmails.has(fromAddress(message.payload.headers)));
       if(!messages.length)continue;
+      seenThreads.add(touch.gmail_thread_id);
       const latest=messages.at(-1)!,body=decode(latest.payload.body?.data)||decode(latest.payload.parts?.find(part=>part.mimeType==="text/plain")?.body.data),classification=await classifyReply(body),replyAt=new Date(Number(latest.internalDate)).toISOString();
-      await db.from("touches").update({reply_at:replyAt,reply_classification:classification}).eq("id",touch.id);
+      // Mark EVERY still-open touch on this thread replied, so sibling touches (a follow-up) aren't reprocessed next run.
+      await db.from("touches").update({reply_at:replyAt,reply_classification:classification}).eq("gmail_thread_id",touch.gmail_thread_id).is("reply_at",null);
       await db.from("cards").update({status:classification==="positive"?"positive":"replied"}).eq("id",touch.card_id);
       // If they picked one of the times we proposed, book the calendar invite automatically (sets status to "meeting").
       const booked=classification==="positive"?Boolean(await autoBook(db,touch.card_id,touch.sent_by as Owner,body)):false;

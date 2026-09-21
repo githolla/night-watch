@@ -20,6 +20,7 @@ const nonceMatches = (a: string, b: string) => {
 };
 
 export async function GET(request: Request) {
+  const base = (process.env.APP_URL ?? new URL(request.url).origin).replace(/\/$/, "");
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get("code");
@@ -51,11 +52,15 @@ export async function GET(request: Request) {
       else if (!(existing.from_name as string | null)?.trim()) await db.from("sender_profiles").update({ from_name: profile.name.trim() }).eq("owner", owner);
     }
     // Clear the one-time state cookie now that the handshake is complete.
+    const secure = process.env.NODE_ENV === "production" ? " Secure;" : "";
     return new Response(null, { status: 302, headers: new Headers({
-      Location: `${process.env.APP_URL ?? url.origin}/settings?gmail=connected`,
-      "Set-Cookie": `${OAUTH_STATE_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`,
+      Location: `${base}/settings?gmail=connected`,
+      "Set-Cookie": `${OAUTH_STATE_COOKIE}=; HttpOnly;${secure} SameSite=Lax; Path=/; Max-Age=0`,
     }) });
   } catch (error) {
-    return Response.json({ error: error instanceof Error ? error.message : "OAuth failed" }, { status: 400 });
+    // Redirect back to Settings with a readable message instead of dumping raw JSON on the user after a
+    // top-level OAuth navigation (state mismatch, missing refresh token, etc.).
+    const reason = error instanceof Error ? error.message : "OAuth failed";
+    return Response.redirect(`${base}/settings?gmail=error&reason=${encodeURIComponent(reason)}`);
   }
 }
