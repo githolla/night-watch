@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
-import { sanitizeCopy } from "@/lib/clean";
+import { hasProposedTimes, sanitizeCopy, stripProposedTimes } from "@/lib/clean";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { CadencePlanner } from "./CadencePlanner";
 import { CompanyTeam } from "./CompanyTeam";
@@ -210,14 +210,17 @@ export function Desk({
   const coverage = context?.coverage;
   const coveragePercent = context && context.activeAccounts ? Math.round((coverage!.researched / context.activeAccounts) * 1000) / 10 : 0;
 
-  async function patch(values: Record<string, unknown>) {
+  // Every write names the card it is for. `card` (active ?? focusCard) and `focusCard` are NOT always the
+  // same prospect — picking one from the list moves focusId while `selected` stays put — so a write that
+  // assumed `card` saved the focused draft onto a different company's card and destroyed what was there.
+  async function patchOn(cardId: string, values: Record<string, unknown>) {
     if (demo) {
-      setCards((current) => current.map((item) => item.id === card.id ? { ...item, ...values } : item));
+      setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...values } : item));
       setNotice("Demo updated locally — nothing was saved or sent.");
       return;
     }
     setBusy(true);
-    const response = await fetch(`/api/cards/${card.id}`, {
+    const response = await fetch(`/api/cards/${cardId}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(values),
@@ -225,8 +228,12 @@ export function Desk({
     const json = await response.json();
     setBusy(false);
     if (!response.ok) return alert(json.error);
-    setCards((current) => current.map((item) => item.id === card.id ? { ...item, ...json } : item));
+    setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...json } : item));
   }
+  /** Write to the dossier's card (the one the dossier view renders). */
+  const patch = (values: Record<string, unknown>) => patchOn(card.id, values);
+  /** Write to the prospect the one-at-a-time desk is showing. */
+  const patchFocus = (values: Record<string, unknown>) => patchOn(focusCard?.id ?? card.id, values);
 
   async function send() {
     if (sending) return; // re-entry guard, since the button is no longer disabled by `busy`
@@ -298,7 +305,11 @@ export function Desk({
     setNotice("Outcome recorded. Signal and message analytics have been updated.");
   }
 
-  const edit = (key: string, value: string) => setCards((current) => current.map((item) => item.id === card.id ? { ...item, [key]: value } : item));
+  const editOn = (cardId: string, key: string, value: string) => setCards((current) => current.map((item) => item.id === cardId ? { ...item, [key]: value } : item));
+  /** Edit the dossier's card. */
+  const edit = (key: string, value: string) => editOn(card.id, key, value);
+  /** Edit the prospect the one-at-a-time desk is showing — never whichever card happens to be `selected`. */
+  const editFocus = (key: string, value: string) => editOn(focusCard?.id ?? card.id, key, value);
   const choose = (id: string) => {
     setSelected(id);
     // Keep the focus card in step with the selected one. When these diverged, a touch recorded from the
@@ -312,7 +323,9 @@ export function Desk({
     // If the picked prospect isn't in today's worklist, switch to the "All active" scope so it's in the
     // walked pool (and Next/Prev behave) instead of falling back to a different card.
     if (listScope === "today" && !todo.some((item) => item.id === id) && actionable.some((item) => item.id === id)) setListScope("all");
-    setFocusId(id); setBrowse(false); setNotice("");
+    // Keep `selected` in step: a stale `selected` is what let `card` and `focusCard` point at different
+    // prospects in the first place.
+    setFocusId(id); setSelected(id); setBrowse(false); setNotice("");
   };
   // The prospect to land on after the current one leaves the queue.
   const afterCurrent = () => {
@@ -408,8 +421,8 @@ export function Desk({
   const renderDiff = (before: string, after: string) => diffWords(before, after).map((seg, index) => seg.t === "same" ? <span key={index}>{seg.w}</span> : <span key={index} className={seg.t === "del" ? "diff-del" : "diff-add"}>{seg.w}</span>);
   const bodyView = (channel: "email" | "linkedin", plain: string) => { const d = diffFor(channel); return d ? renderDiff(d.beforeBody, d.afterBody) : plain; };
   const subjectView = (channel: "email" | "linkedin", plain: string) => { const d = diffFor(channel); return d && d.beforeSubject !== d.afterSubject ? renderDiff(d.beforeSubject, d.afterSubject) : plain; };
-  const snoozeCurrent = () => { markWorking(false); const next = afterCurrent(); void patch({ status: "snoozed" }); setFocusId(next); setNotice(""); };
-  const dismissCurrent = () => { markWorking(false); const next = afterCurrent(); void patch({ status: "dismissed" }); setFocusId(next); setNotice(""); };
+  const snoozeCurrent = () => { markWorking(false); const next = afterCurrent(); void patchFocus({ status: "snoozed" }); setFocusId(next); setNotice(""); };
+  const dismissCurrent = () => { markWorking(false); const next = afterCurrent(); void patchFocus({ status: "dismissed" }); setFocusId(next); setNotice(""); };
   // Where the message actually gets sent, in one click — never hand-copied between windows.
   const mailtoHref = () => {
     if (!contact?.email || !focusCard) return "";
@@ -487,8 +500,48 @@ export function Desk({
     const text = adapt(channel === "email" ? (focusCard?.email_body ?? emailDraft) : linkedinDraft);
     await recordTouch(channel === "email" ? "email" : "message", text);
   };
+  // Set this subject on every un-sent email. Editing one draft USED to change others, because a write could
+  // land on a different card than the one on screen; that was a bug and is fixed. The operator liked the
+  // effect, so it is offered here as an explicit, confirmed action that touches subjects only.
+  const [applyingSubject, setApplyingSubject] = useState(false);
+  const applySubjectToAll = async () => {
+    if (!focusCard || applyingSubject) return;
+    const subject = (focusCard.email_subject ?? "").trim();
+    if (!subject) { setNotice("Write a subject first, then apply it to every email."); return; }
+    if (!confirm(`Use “${subject}” as the subject on every un-sent email? Each email's message is left exactly as it is.`)) return;
+    if (demo) { setNotice("Demo mode — nothing was changed."); return; }
+    setApplyingSubject(true);
+    try {
+      const before = new Date().toISOString();
+      let total = 0;
+      for (let i = 0; i < 60; i++) {
+        const response = await fetch("/api/admin/apply-subject", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ subject, before }) });
+        const json = await response.json();
+        if (!response.ok) { setNotice(json.error ?? "Could not apply the subject."); return; }
+        total += json.applied ?? 0;
+        setNotice(`Applying “${subject}” — ${total} so far…`);
+        if (!json.remaining) break;
+      }
+      setCards((current) => current.map((item) => ["new", "approved", "edited"].includes(item.status) && item.email_body ? { ...item, email_subject: subject } : item));
+      setNotice(`Subject set on ${total} un-sent email${total === 1 ? "" : "s"}. Every message body was left alone.`);
+    } catch { setNotice("Could not apply the subject."); }
+    finally { setApplyingSubject(false); }
+  };
   // "Propose times": pull open slots from the connected calendar and drop them into the email draft to edit.
+  // Strictly opt-in — nothing adds times on its own — and reversible, because it writes into the saved draft.
   const [proposing, setProposing] = useState(false);
+  const timesInDraft = hasProposedTimes(focusCard?.email_body);
+  // Take the times back out: off the draft AND off the card, so a reply can no longer auto-book against
+  // times the operator has withdrawn.
+  const removeMeetingTimes = async () => {
+    if (!focusCard) return;
+    const body = stripProposedTimes(focusCard.email_body);
+    editFocus("email_body", body);
+    saveField("email_body", body);
+    setCompose(null);
+    if (!demo) await fetch(`/api/cards/${focusCard.id}/propose-times`, { method: "DELETE" }).catch(() => undefined);
+    setNotice("Removed the proposed times. Nothing will be auto-booked from a reply for this prospect.");
+  };
   const proposeMeetingTimes = async () => {
     if (!focusCard) return;
     setProposing(true);
@@ -499,12 +552,12 @@ export function Desk({
       if (!response.ok) { setNotice(json.error ?? "Could not propose times."); return; }
       const lines = (json.slots as Array<{ label: string }>).map((slot) => `• ${slot.label}`).join("\n");
       const body = `${(focusCard.email_body ?? "").trimEnd()}\n\nWould any of these work for a quick call?\n${lines}\n\nHappy to send a calendar invite for whichever suits.`;
-      edit("email_body", body);
+      editFocus("email_body", body);
       saveField("email_body", body);
       // Drop the composer's cached parse so the editor re-reads this new body; otherwise a blur would
       // reassemble from the stale pre-insert text and wipe the times just added.
       setCompose(null);
-      setNotice("Added open times from your calendar — edit as you like, then send.");
+      setNotice("Added open times from your calendar — edit as you like, then send. Didn't mean to? Press “Remove times” to take them back out.");
     } catch { setNotice("Could not reach your calendar."); }
     finally { setProposing(false); }
   };
@@ -532,7 +585,7 @@ export function Desk({
     finally { setRefining(null); }
   };
   // Persist an inline edit to the focused card's draft field, and mark the prospect as being worked.
-  const saveField = (key: "email_subject" | "email_body" | "linkedin_message" | "linkedin_subject", value: string) => { void patch({ [key]: value }); markWorking(true); };
+  const saveField = (key: "email_subject" | "email_body" | "linkedin_message" | "linkedin_subject", value: string) => { void patchFocus({ [key]: value }); markWorking(true); };
   // Shared "someone is on this" flag so the two people on the desk don't message the same prospect. Best-effort.
   function markWorking(on: boolean) {
     if (!focusCard) return;
@@ -673,6 +726,7 @@ export function Desk({
                 emailSubject={card.email_subject ?? ""}
                 emailBody={card.email_body ?? ""}
                 busy={busy}
+                sending={sending}
                 demo={demo}
                 gmailConnected={gmailConnected}
                 sendReady={["approved", "edited"].includes(card.status)}
@@ -874,7 +928,7 @@ export function Desk({
                   <div className="deskwork-tools">
                     <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>
                     <button type="button" disabled={refining === channelTab} onClick={() => channelTab === "email" ? refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined) : refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === channelTab ? "Refining…" : "Refine"}</button>
-                    {channelTab === "email" && <button type="button" disabled={proposing} title="Insert open times from your connected calendar" onClick={proposeMeetingTimes}>{proposing ? "Checking…" : "Propose times"}</button>}
+                    {channelTab === "email" && <button type="button" disabled={proposing} title={timesInDraft ? "Take the proposed times back out of this email" : "Only if you want them: insert open times from your connected calendar into this one email"} onClick={timesInDraft ? removeMeetingTimes : proposeMeetingTimes}>{proposing ? "Checking…" : timesInDraft ? "Remove times" : "Propose times"}</button>}
                     <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy</button>
                   </div>
                 </div>
@@ -903,13 +957,16 @@ export function Desk({
                     const apply = (patchObj: Partial<{ first: string; message: string; signoff: string }>) => {
                       const next = { ...cur, ...patchObj, cardId: focusCard.id, who };
                       setCompose(next);
-                      edit("email_body", assembleEmail(storedFirst(next.first), next.message, next.signoff));
+                      editFocus("email_body", assembleEmail(storedFirst(next.first), next.message, next.signoff));
                     };
                     const persist = () => saveField("email_body", assembleEmail(storedFirst(cur.first), cur.message, cur.signoff));
                     return (
                       <div className="deskwork-edit deskwork-compose">
                         <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
-                        <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => edit("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
+                        <div className="focus-subject-row">
+                          <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => editFocus("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
+                          <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>
+                        </div>
                         <label className="compose-field"><span>Greeting</span><div className="compose-greet">Hi&nbsp;<input value={cur.first} placeholder="first name" readOnly={!!altContact} title={altContact ? `The draft is saved once, for ${focusCard.people.full_name}. The greeting becomes ${cur.first} when you copy or open it for ${altContact.full_name}.` : undefined} onChange={(event) => apply({ first: event.target.value })} onBlur={persist} />,</div></label>
                         {altContact && <p className="compose-sig">Writing to {altContact.full_name}. The draft is saved once, against {focusCard.people.full_name}, and the greeting becomes &ldquo;Hi {cur.first},&rdquo; when you copy or open it &mdash; so edits here can&rsquo;t overwrite {primaryFirst}&rsquo;s greeting. To edit the greeting itself, switch back to {primaryFirst}.</p>}
                         <label className="compose-field"><span>Message — make it specific to this person &amp; company</span><textarea className="focus-msg-body" rows={8} value={cur.message} placeholder="Write the pitch for this contact." onChange={(event) => apply({ message: event.target.value })} onBlur={persist} /></label>
@@ -931,8 +988,8 @@ export function Desk({
                 ) : (
                   editing.linkedin ? (
                     <div className="deskwork-edit">
-                      <input className="focus-msg-subject" value={focusCard.linkedin_subject ?? ""} placeholder="Subject (used for InMail)" onChange={(event) => edit("linkedin_subject", event.target.value)} onBlur={(event) => saveField("linkedin_subject", event.target.value)} />
-                      <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={11} placeholder="No LinkedIn message yet — press Refine to write one." onChange={(event) => edit("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
+                      <input className="focus-msg-subject" value={focusCard.linkedin_subject ?? ""} placeholder="Subject (used for InMail)" onChange={(event) => editFocus("linkedin_subject", event.target.value)} onBlur={(event) => saveField("linkedin_subject", event.target.value)} />
+                      <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={11} placeholder="No LinkedIn message yet — press Refine to write one." onChange={(event) => editFocus("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
                     </div>
                   ) : (
                     <div className="deskwork-doc">

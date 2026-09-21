@@ -23,6 +23,8 @@ type Props = {
   emailSubject: string;
   emailBody: string;
   busy: boolean;
+  /** True only while a send is actually in flight. Separate from `busy`, which a draft save also sets. */
+  sending: boolean;
   demo: boolean;
   gmailConnected: boolean;
   sendReady: boolean;
@@ -152,8 +154,8 @@ export function MessageComposer(props: Props) {
           // this panel was still hiding the Send button entirely, so the dossier had no way to send at all.
           props.gmailConnected && props.email ? <div className="manual-send-actions">
             <button type="button" onClick={copyEmail}>{copied ? <Check /> : <Copy />}{copied ? "Copied" : "Copy email"}</button>
-            <button type="button" className="composer-primary" disabled={props.busy || (!props.demo && !props.sendReady)} onClick={props.onSend}>
-              <Send /> {props.demo ? `Simulate email to ${props.personName}` : props.sendReady ? `Send email to ${props.personName}` : "Save draft first"}<span>→</span>
+            <button type="button" className="composer-primary" disabled={props.sending || (!props.demo && !props.sendReady)} onClick={props.onSend}>
+              <Send /> {props.sending ? "Sending…" : props.demo ? `Simulate email to ${props.personName}` : props.sendReady ? `Send email to ${props.personName}` : "Save draft first"}<span>→</span>
             </button>
           </div> : props.email ? <div className="manual-send-actions">
             <button type="button" onClick={copyEmail}>{copied ? <Check /> : <Copy />}{copied ? "Copied" : "Copy email"}</button>

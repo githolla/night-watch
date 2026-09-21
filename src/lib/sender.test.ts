@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { dedupeParagraphs, similarText, sanitizeSignatureHtml } from "./clean.ts";
+import { dedupeParagraphs, similarText, sanitizeSignatureHtml, hasProposedTimes, stripProposedTimes } from "./clean.ts";
 import { sanitizeLinks } from "./sender.ts";
 
 test("the outbound cleaner never mangles a prospect's own words", () => {
@@ -105,4 +105,21 @@ test("a tripled opener collapses to one, leaving the rest of the email intact", 
 test("short repeated lines are left alone (sign-offs, one-liners)", () => {
   const body = "Thank you,\n\nThank you,";
   assert.equal(dedupeParagraphs(body), body);
+});
+
+test("proposed meeting times can be taken back out of a draft", () => {
+  const written = "Hi Robert,\n\nSaw the Data Architect role you've had open six weeks. We'd build the pipeline instead.\n\nWorth a look?\n\nThank you,";
+  const withTimes = `${written}\n\nWould any of these work for a quick call?\n• Tue 23 Sep, 10:00 AM ET\n• Wed 24 Sep, 2:00 PM ET\n\nHappy to send a calendar invite for whichever suits.`;
+
+  assert.equal(hasProposedTimes(written), false);
+  assert.equal(hasProposedTimes(withTimes), true);
+  // Removing the block must give back exactly what the operator wrote, not an approximation.
+  assert.equal(stripProposedTimes(withTimes), written);
+  // Clicking "Propose times" twice inserted it twice; both come out.
+  assert.equal(stripProposedTimes(`${withTimes}\n\nWould any of these work for a quick call?\n• Thu 25 Sep, 9:00 AM ET\n\nHappy to send a calendar invite for whichever suits.`), written);
+  // The operator may have deleted the trailing sentence before changing their mind.
+  assert.equal(stripProposedTimes(`${written}\n\nWould any of these work for a quick call?\n• Tue 23 Sep, 10:00 AM ET`), written);
+  // A draft with no times is returned untouched, and stripping is safe to repeat.
+  assert.equal(stripProposedTimes(written), written);
+  assert.equal(stripProposedTimes(stripProposedTimes(withTimes)), written);
 });

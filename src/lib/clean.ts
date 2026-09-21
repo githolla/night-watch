@@ -110,3 +110,19 @@ export function sanitizeCopy(raw: string): string {
   if (!raw) return raw;
   return raw.replace(REQ_ID, "").replace(/\(\s*[,;]?\s*\)/g, "").replace(/\s{2,}/g, " ").replace(/\s+([),.;])/g, "$1").trim();
 }
+
+// The exact block the desk's "Propose times" button inserts. Kept here so it can be taken back out again
+// without disturbing the draft around it: the button writes straight into the saved email, and with no way
+// to undo it a single stray click on the toolbar permanently rewrote the operator's draft.
+// The closing sentence is optional — the operator may have edited it away before changing their mind.
+const PROPOSED_TIMES = String.raw`\n*[ \t]*Would any of these work for a quick call\?[ \t]*\n(?:[ \t]*[•\-*][^\n]*\n?)+(?:\n*[ \t]*Happy to send a calendar invite for whichever suits\.?)?`;
+
+/** True when a draft already carries the proposed-times block. */
+export function hasProposedTimes(body: string | null | undefined): boolean {
+  return new RegExp(PROPOSED_TIMES, "i").test(body ?? "");
+}
+
+/** Remove the proposed-times block (or blocks, if it was inserted more than once), leaving the rest as-is. */
+export function stripProposedTimes(body: string | null | undefined): string {
+  return (body ?? "").replace(new RegExp(PROPOSED_TIMES, "gi"), "").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
