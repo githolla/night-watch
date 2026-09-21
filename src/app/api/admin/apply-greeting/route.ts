@@ -6,8 +6,20 @@ export const maxDuration = 300;
 
 type CardRow = { id: string; email_body: string | null; people: { full_name: string } | null };
 
-// Strip any leading greeting (own line or inline) so we can replace it with the admin's chosen one.
-const stripGreeting = (body: string) => body.replace(/^\s*(?:hi|hey|hello|dear)\s+[^,\n]+?\s*,[ \t]*\n*/i, "").replace(/^\s+/, "");
+// Strip the existing opening so a freshly chosen greeting REPLACES it instead of stacking on top:
+//  - a standard greeting line ("Hi Mike," / "Hello Mike,"), on its own line or inline; and then
+//  - any leading short standalone opener paragraphs — e.g. a previously-applied "TEST" — which re-applying
+//    would otherwise pile up (the bug that produced "TEST / TEST / Nice to meet you…"). A first line ending
+//    in sentence punctuation is real body copy, so it's kept.
+const stripGreeting = (body: string) => {
+  let out = body.replace(/^\s+/, "").replace(/^(?:hi|hey|hello|dear)\s+[^,\n]+?\s*,[ \t]*\n+/i, "");
+  for (let i = 0; i < 6; i++) {
+    const next = out.replace(/^([^\n]{1,60})\n\s*\n/, (whole, line: string) => (/[.!?:]["')\]]?\s*$/.test(line.trim()) ? whole : ""));
+    if (next === out) break;
+    out = next;
+  }
+  return out.replace(/^\s+/, "");
+};
 
 // Blanket greeting: set the same opening line on every un-sent email draft. `{first}`/`{name}` are
 // replaced with the contact's first name. Batched + cursor-bounded by updated_at like the rewrite tool.
