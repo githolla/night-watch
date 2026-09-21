@@ -177,7 +177,7 @@ export function Desk({
   const [editing, setEditing] = useState<{ email: boolean; linkedin: boolean }>({ email: true, linkedin: true });
   const [lastRefine, setLastRefine] = useState<{ cardId: string; channel: "email" | "linkedin"; beforeBody: string; afterBody: string; beforeSubject: string; afterSubject: string } | null>(null);
   const [channelTab, setChannelTab] = useState<"email" | "linkedin">("email");
-  const [compose, setCompose] = useState<{ cardId: string; first: string; message: string; signoff: string } | null>(null);
+  const [compose, setCompose] = useState<{ cardId: string; who: string; first: string; message: string; signoff: string } | null>(null);
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
   // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
@@ -857,9 +857,16 @@ export function Desk({
                 {channelTab === "email" ? (
                   editing.email ? (() => {
                     const fname = contact.full_name.split(/\s+/)[0] || "there";
-                    const cur = compose && compose.cardId === focusCard.id ? compose : { cardId: focusCard.id, ...parseEmail(focusCard.email_body ?? "", fname) };
+                    // Greeting follows the SELECTED contact, not the name baked into the drafted body (which
+                    // was written to the company's first contact). Re-seed whenever the card OR the contact
+                    // changes; the message/sign-off come from the stored body with its old greeting stripped.
+                    const who = ("id" in contact && contact.id ? contact.id : contact.full_name) as string;
+                    const parsed = parseEmail(focusCard.email_body ?? "", fname);
+                    const cur = compose && compose.cardId === focusCard.id && compose.who === who
+                      ? compose
+                      : { cardId: focusCard.id, who, first: fname, message: parsed.message, signoff: parsed.signoff };
                     const apply = (patchObj: Partial<{ first: string; message: string; signoff: string }>) => {
-                      const next = { ...cur, ...patchObj, cardId: focusCard.id };
+                      const next = { ...cur, ...patchObj, cardId: focusCard.id, who };
                       setCompose(next);
                       edit("email_body", assembleEmail(next.first, next.message, next.signoff));
                     };
