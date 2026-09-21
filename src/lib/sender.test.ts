@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { dedupeParagraphs, similarText, sanitizeSignatureHtml, hasProposedTimes, stripProposedTimes, decodeEntities, foreignEmployer } from "./clean.ts";
+import { dedupeParagraphs, similarText, sanitizeSignatureHtml, hasProposedTimes, stripProposedTimes, decodeEntities, foreignEmployer, greetedName, stripLeadingGreeting } from "./clean.ts";
 import { sanitizeLinks } from "./sender.ts";
 
 test("the outbound cleaner never mangles a prospect's own words", () => {
@@ -178,4 +178,28 @@ test("an employer named with \"at\" is caught too, without eating a real title",
   assert.equal(foreignEmployer("Director of Engineering at Large", "Quantiphi", "quantiphi.com"), null);
   // Departments after "at" are not employers either.
   assert.equal(foreignEmployer("Senior Director at Global Operations", "Quantiphi", "quantiphi.com"), null);
+});
+
+test("a greeting is found whether it ends the line or runs into the first sentence", () => {
+  // What the writing model actually produces — greeting inline. This shape matched nothing before, so the
+  // message kept "Hi Asif," inside it while the Greeting field showed whoever was selected.
+  assert.equal(greetedName("Hi Asif, Nice to meet you. I am founder and CEO of Nine-67."), "Asif");
+  assert.equal(stripLeadingGreeting("Hi Asif, Nice to meet you. I am founder and CEO of Nine-67."),
+    "Nice to meet you. I am founder and CEO of Nine-67.");
+
+  // The on-its-own-line shape must keep working.
+  assert.equal(greetedName("Hi Robert,\n\nSaw the Data Architect role."), "Robert");
+  assert.equal(stripLeadingGreeting("Hi Robert,\n\nSaw the Data Architect role."), "Saw the Data Architect role.");
+
+  // Other shapes drafts use.
+  assert.equal(greetedName("Hello Ms. Chen: we build"), "Ms. Chen");
+  assert.equal(greetedName("Hey Jim!\nQuick idea"), "Jim");
+  assert.equal(greetedName("Dear Reghu Hariharan,\n\nOne thought"), "Reghu Hariharan");
+
+  // No greeting: the body is returned untouched and nothing is invented.
+  assert.equal(greetedName("Quantiphi is hiring 6 senior data engineering roles."), null);
+  assert.equal(stripLeadingGreeting("Quantiphi is hiring 6 senior data engineering roles."),
+    "Quantiphi is hiring 6 senior data engineering roles.");
+  // A real sentence that merely starts with a greeting word must not lose its opening.
+  assert.equal(stripLeadingGreeting("Higher throughput is the point here."), "Higher throughput is the point here.");
 });

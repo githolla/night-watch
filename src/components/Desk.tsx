@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
-import { hasProposedTimes, sanitizeCopy, stripProposedTimes } from "@/lib/clean";
+import { greetedName, hasProposedTimes, sanitizeCopy, stripLeadingGreeting, stripProposedTimes } from "@/lib/clean";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { CadencePlanner } from "./CadencePlanner";
 import { CompanyTeam } from "./CompanyTeam";
@@ -1013,7 +1013,7 @@ export function Desk({
                             : <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>}
                         </div>
                         <label className="compose-field"><span>Greeting</span><div className="compose-greet">Hi&nbsp;<input value={cur.first} placeholder="first name" readOnly={!!altContact} title={altContact ? `The draft is saved once, for ${focusCard.people.full_name}. The greeting becomes ${cur.first} when you copy or open it for ${altContact.full_name}.` : undefined} onChange={(event) => apply({ first: event.target.value })} onBlur={persist} />,</div></label>
-                        {altContact && <p className="compose-sig">Writing to {altContact.full_name}. The draft is saved once, against {focusCard.people.full_name}, and the greeting becomes &ldquo;Hi {cur.first},&rdquo; when you copy or open it &mdash; so edits here can&rsquo;t overwrite {primaryFirst}&rsquo;s greeting. To edit the greeting itself, switch back to {primaryFirst}.</p>}
+                        {altContact && <p className="compose-sig">Writing to {altContact.full_name}. The company&rsquo;s draft is stored once, against {focusCard.people.full_name}; the greeting becomes &ldquo;Hi {cur.first},&rdquo; on the copy that goes to {altContact.full_name.split(/\s+/)[0]}, so editing here can&rsquo;t overwrite {primaryFirst}&rsquo;s. Press <strong>Refine</strong> if you want wording aimed at {altContact.full_name.split(/\s+/)[0]} rather than the same note again.</p>}
                         <label className="compose-field"><span>Message — make it specific to this person &amp; company</span><textarea className="focus-msg-body" rows={8} value={cur.message} placeholder="Write the pitch for this contact." onChange={(event) => apply({ message: event.target.value })} onBlur={persist} /></label>
                         <label className="compose-field"><span>Sign-off</span><input value={cur.signoff} placeholder="Thank you," onChange={(event) => apply({ signoff: event.target.value })} onBlur={persist} /></label>
                         <p className="compose-sig">— Your Nine-67 signature (your name, title &amp; contact) is added automatically. Change it in <Link href="/settings" className="focus-link">Settings → identity</Link>.</p>
@@ -1225,11 +1225,6 @@ function retarget(text: string, fromName: string, toName: string) {
 }
 
 
-/**
- * A leading greeting in any shape a draft actually uses: "Hi Kate," "Hi Kate" "Hi Kate!" "Hello Kate -"
- * "Dear Ms. Chen:". Bounded to one or two name-ish words so it can never swallow a real opening sentence.
- */
-const GREETING_LINE = /^[ \t]*(?:hi|hey|hello|dear)\s+([A-Za-z][\w'.-]*(?:[ \t]+[A-Za-z][\w'.-]*)?)[ \t]*[,!:;–—-]*[ \t]*(?:\n+|$)/i;
 
 /** Split a stored email body into the pieces the composer edits: greeting first name, message, sign-off.
  *  Heuristic — a leading "Hi <name>," and a trailing "Thanks,/Best,…" block are pulled out; the rest is the message. */
@@ -1240,12 +1235,11 @@ function parseEmail(body: string, fallbackFirst: string): { first: string; messa
   // Pull off a leading greeting whether it sits on its own line ("Hi Kate,\n\n…") OR runs inline with
   // the message ("Hi Kate, saw your…"). Stripping it here is what stops the name showing twice — once
   // in the Greeting field and again at the start of the Message.
-  let work = raw;
-  // Accept the shapes drafts actually use, not just "Hi Name,". A comma-only match left "Hi Kate" (or
-  // "Hi Kate!", "Hello Kate -") sitting inside the message, where assembleEmail then refused to replace it —
-  // so the Greeting field silently did nothing and the wrong name went out.
-  const greet = work.match(GREETING_LINE);
-  if (greet) { first = greet[1].trim(); work = work.slice(greet[0].length); }
+  // Accept the shapes drafts actually use, including a greeting that runs into the first sentence
+  // ("Hi Asif, Nice to meet you."), which is what the writing model produces. See clean.ts for the tests.
+  const greeted = greetedName(raw);
+  if (greeted) first = greeted;
+  const work = stripLeadingGreeting(raw);
   const afterGreet = work.trim();
   let rest = afterGreet;
   let signoff = "Thank you,";
@@ -1268,7 +1262,7 @@ function parseEmail(body: string, fallbackFirst: string): { first: string; messa
  *  carried by the message is removed first, so the chosen contact's name always wins (previously a greeting
  *  the parser hadn't recognised was left in place and the new one was skipped entirely). */
 function assembleEmail(first: string, message: string, signoff: string): string {
-  const m = (message || "").trim().replace(GREETING_LINE, "").trim();
+  const m = stripLeadingGreeting((message || "").trim()).trim();
   const so = (signoff || "").trim();
   return `Hi ${(first || "there").trim()},\n\n${m}${so ? `\n\n${so}` : ""}`;
 }

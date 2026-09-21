@@ -210,3 +210,26 @@ function differentCompany(named: string, companyName: string, domain?: string | 
   if (domainKey && (namedKey.includes(domainKey) || domainKey.includes(namedKey))) return null;
   return named;
 }
+
+/**
+ * A leading greeting in any shape a draft actually uses, INCLUDING one that runs straight into the first
+ * sentence: the writing model produces "Hi Asif, Nice to meet you." on a single line, not "Hi Asif,\n\n".
+ *
+ * An earlier version required the greeting to end its line, so on an inline one it matched nothing: the
+ * Greeting field showed the selected contact while the message underneath still opened "Hi Asif," — the
+ * wrong name, twice, on every colleague at the company.
+ *
+ * Bounded to one or two name-ish words so it can never swallow a real opening sentence.
+ */
+export const GREETING_LINE = /^[ \t]*(?:hi|hey|hello|dear)[ \t]+([A-Za-z][\w'.-]*(?:[ \t]+[A-Za-z][\w'.-]*)?)[ \t]*(?:[,!:;–—-]+[ \t]*|\n+|$)/i;
+
+/** The first name a draft greets, or null when it opens with no greeting at all. */
+export function greetedName(body: string | null | undefined): string | null {
+  const match = (body ?? "").match(GREETING_LINE);
+  return match ? match[1].trim() : null;
+}
+
+/** The draft with its opening greeting removed, whatever shape it took. */
+export function stripLeadingGreeting(body: string | null | undefined): string {
+  return (body ?? "").replace(GREETING_LINE, "").replace(/^\s+/, "");
+}
