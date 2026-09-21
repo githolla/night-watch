@@ -170,6 +170,7 @@ export function Desk({
   const [listScope, setListScope] = useState<"today" | "all">("today");
   const [busy, setBusy] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
+  const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
   const [refining, setRefining] = useState<"email" | "linkedin" | null>(null);
   // Open the composer in edit mode so every email/message is directly editable before sending;
   // the tools row flips it to a read-only "Preview" of exactly how it will go out.
@@ -190,7 +191,9 @@ export function Desk({
   // The pool the one-at-a-time flow walks: today's worklist, or every active prospect in "All".
   const focusPool = listScope === "all" ? actionable : todo;
   const active = selected ? cards.find((item) => item.id === selected) : undefined;
-  const focusCard = focusPool.find((item) => item.id === focusId) ?? focusPool[0] ?? todo[0];
+  // Land on the picked card even if it isn't in the current pool (e.g. picked from the "All"/Overview list
+  // while the scope is "today"), rather than silently showing focusPool[0] — a different company.
+  const focusCard = focusPool.find((item) => item.id === focusId) ?? cards.find((item) => item.id === focusId) ?? focusPool[0] ?? todo[0];
   const card = active ?? focusCard ?? cards[0];
   const hasSourceResults = (context?.recentSignals.length ?? 0) > 0;
   const cardIndex = Math.max(0, cards.findIndex((item) => item.id === card?.id));
@@ -279,7 +282,12 @@ export function Desk({
     document.querySelector(".detail")?.scrollTo({ top: 0, behavior: "smooth" });
   };
   // Pick who to work next from the browse list, then drop straight back into the one-at-a-time view.
-  const pick = (id: string) => { setFocusId(id); setBrowse(false); setNotice(""); };
+  const pick = (id: string) => {
+    // If the picked prospect isn't in today's worklist, switch to the "All active" scope so it's in the
+    // walked pool (and Next/Prev behave) instead of falling back to a different card.
+    if (listScope === "today" && !todo.some((item) => item.id === id) && actionable.some((item) => item.id === id)) setListScope("all");
+    setFocusId(id); setBrowse(false); setNotice("");
+  };
   // The prospect to land on after the current one leaves the queue.
   const afterCurrent = () => {
     if (focusPool.length <= 1) return undefined;
@@ -406,6 +414,8 @@ export function Desk({
     // user has retargeted the draft to an alternate contact, automating here would silently send to the
     // wrong person — steer them to Copy / Open email for the alternate instead.
     if (altContact) { setNotice(`“Automate” sends to ${focusCard.people.full_name} (the primary contact). To reach ${altContact.full_name}, use Copy or Open email and send it yourself.`); return; }
+    // Guard against a second enrol (navigate away and back, then click again) creating a duplicate cadence.
+    if (enrolledIds.has(focusCard.id)) { setNotice(`${focusCard.people.full_name} is already on the automated sequence.`); return; }
     const first = focusCard.people.full_name.split(/\s+/)[0] || "there";
     const subject = focusCard.email_subject || `Quick idea for ${focusCard.accounts.name}`;
     const body = focusCard.email_body || draftText;
@@ -420,6 +430,7 @@ export function Desk({
       const response = await fetch(`/api/cards/${focusCard.id}/cadence`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ mode: "automatic", stopOnReply: true, weekdaysOnly: true, sendWindow: "9:30–16:00", timeZone: "America/New_York", steps }) });
       const json = await response.json();
       if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Could not start the sequence."); return; }
+      setEnrolledIds((current) => new Set(current).add(focusCard.id));
       setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, status: "approved" } : item));
       setNotice(`Email sequence started for ${focusCard.people.full_name} — Night Watch sends on day 0, 3 and 7 and stops on a reply.`);
       markWorking(true);
@@ -464,6 +475,9 @@ export function Desk({
       const body = `${(focusCard.email_body ?? "").trimEnd()}\n\nWould any of these work for a quick call?\n${lines}\n\nHappy to send a calendar invite for whichever suits.`;
       edit("email_body", body);
       saveField("email_body", body);
+      // Drop the composer's cached parse so the editor re-reads this new body; otherwise a blur would
+      // reassemble from the stale pre-insert text and wipe the times just added.
+      setCompose(null);
       setNotice("Added open times from your calendar — edit as you like, then send.");
     } catch { setNotice("Could not reach your calendar."); }
     finally { setProposing(false); }
@@ -474,11 +488,17 @@ export function Desk({
     if (!body.trim()) { setNotice("Write a draft first, then refine it."); return; }
     setRefining(channel);
     try {
-      const target = altContact ?? focusCard.people;
+      // Refine always improves the PRIMARY contact's draft (the card's shared field). Writing an
+      // alternate-contact-tailored body here would corrupt the primary's draft; the alternate is handled at
+      // display/send time by adapt()/retarget, not persisted.
+      const target = focusCard.people;
       const response = await fetch(`/api/cards/${focusCard.id}/refine`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, subject, body, personName: target.full_name, personTitle: target.title }) });
       const json = await response.json();
       if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Could not refine."); return; }
       setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_subject: json.subject ?? item.linkedin_subject, linkedin_message: json.body }) } : item));
+      // Reset the composer's cached parse so the Edit view shows the refined text (and a later blur can't
+      // reassemble the pre-refine draft over it).
+      if (channel === "email") setCompose(null);
       setLastRefine({ cardId: focusCard.id, channel, beforeBody: body, afterBody: (json.body as string) ?? body, beforeSubject: subject ?? "", afterSubject: (json.subject as string) ?? subject ?? "" });
       setNotice("Refined — changes are highlighted. Edit further or copy to send.");
       markWorking(true);

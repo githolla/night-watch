@@ -30,14 +30,16 @@ export async function syncTargetAccounts(db: SupabaseClient) {
   if (demoteError) throw demoteError;
 
   const targetDomains = new Set(targetAccounts.map((account) => account.domain));
-  const active: string[] = [];
+  const active: Array<{ domain: string; outreach_manual: boolean | null }> = [];
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await db.from("accounts").select("domain").eq("status", "active").range(from, from + 999);
+    const { data, error } = await db.from("accounts").select("domain,outreach_manual").eq("status", "active").range(from, from + 999);
     if (error) throw error;
-    active.push(...(data ?? []).map((account) => account.domain as string));
+    active.push(...((data ?? []) as Array<{ domain: string; outreach_manual: boolean | null }>));
     if ((data?.length ?? 0) < 1000) break;
   }
-  const stale = active.filter((domain) => !domain.endsWith(".example") && !targetDomains.has(domain));
+  // Pause companies no longer on the file — but never a hand-added company (outreach_manual set); those are
+  // managed from the admin "Add company" tool, not the file, so the sync must leave them active.
+  const stale = active.filter((row) => !row.domain.endsWith(".example") && !targetDomains.has(row.domain) && !row.outreach_manual).map((row) => row.domain);
   for (const batch of batches(stale)) {
     const { error } = await db.from("accounts").update({ status: "paused" }).in("domain", batch);
     if (error) throw error;
