@@ -3,7 +3,7 @@ import { admin } from "@/lib/supabase/admin";
 import { isLikelyPersonName } from "@/lib/pipeline";
 import { targetAccountByDomain } from "@/lib/target-accounts";
 
-type TeamPerson = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; email_source: string | null; linkedin_url: string | null };
+type TeamPerson = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; email_source: string | null; linkedin_url: string | null; sentAt?: string | null };
 
 /** The company's details and everyone on file there, for the desk's one-screen prospect flow. */
 export async function GET(request: Request) {
@@ -18,6 +18,22 @@ export async function GET(request: Request) {
         // Drop marketing phrases ("Strategic IT Guidance", "Reduced Operational Costs") that slipped in as "people".
         .filter((person) => isLikelyPersonName(person.full_name))
       : [];
+    // Who here has already been written to. Held only in the browser before now, so every reload forgot it
+    // and the same colleague could be emailed twice by someone who could not see the first one.
+    if (people.length) {
+      const { data: touches } = await db.from("touches")
+        .select("person_id,sent_at")
+        .in("person_id", people.map((person) => person.id))
+        .eq("channel", "email")
+        .not("sent_at", "is", null)
+        .order("sent_at", { ascending: false });
+      const lastSent = new Map<string, string>();
+      for (const row of (touches ?? []) as Array<{ person_id: string; sent_at: string }>) {
+        if (!lastSent.has(row.person_id)) lastSent.set(row.person_id, row.sent_at);
+      }
+      for (const person of people) person.sentAt = lastSent.get(person.id) ?? null;
+    }
+
     const target = targetAccountByDomain.get(domain);
     return Response.json({
       account: account

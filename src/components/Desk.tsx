@@ -241,9 +241,12 @@ export function Desk({
   // `target` is the prospect being sent to, and callers always pass it: this read `card`
   // (active ?? focusCard) while the desk's Send button lives in the focusCard composer, so a stale
   // `selected` would have confirmed one name and emailed a different person entirely.
-  async function send(target?: Card) {
+  async function send(target?: Card, to?: { id?: string; full_name: string; email: string | null; email_status?: string }, bodyOverride?: string) {
     const onCard = target ?? card;
-    if (sending || !onCard) return; // re-entry guard, since the button is no longer disabled by `busy`
+    // Who the email is actually addressed to: the card's own contact, or the colleague picked from the
+    // company's team list. The server re-checks that person is at the same company.
+    const who = to ?? onCard?.people;
+    if (sending || !onCard || !who) return; // re-entry guard, since the button is no longer disabled by `busy`
     if (demo) {
       setCards((current) => current.map((item) => item.id === onCard.id ? { ...item, status: "sent" } : item));
       setNotice("Demo send simulated — no email left the app.");
@@ -251,10 +254,10 @@ export function Desk({
     }
     // Warn before sending to an address we haven't verified — it's more likely to bounce, which hurts the
     // sending domain. The person can still choose to send.
-    const unverified = onCard.people.email_status !== "verified";
+    const unverified = who.email_status !== "verified";
     const prompt = unverified
-      ? `⚠️ ${onCard.people.email} is NOT a verified address — it may bounce and hurt your sending reputation. Send anyway to ${onCard.people.full_name}?`
-      : `Send this email to ${onCard.people.full_name} at ${onCard.people.email}?`;
+      ? `⚠️ ${who.email} is NOT a verified address — it may bounce and hurt your sending reputation. Send anyway to ${who.full_name}?`
+      : `Send this email to ${who.full_name} at ${who.email}?`;
     if (!confirm(prompt)) return;
     setSending(true);
     // A subject is required server-side; fall back rather than fail with a raw validation error.
@@ -262,13 +265,16 @@ export function Desk({
     const response = await fetch(`/api/cards/${onCard.id}/send`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ subject, body: onCard.email_body }),
+      body: JSON.stringify({ subject, body: bodyOverride ?? onCard.email_body, personId: who && "id" in who ? who.id : undefined }),
     });
     const json = await response.json().catch(() => ({}));
     setSending(false);
     if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Send failed."); return; }
     setCards((current) => current.map((item) => item.id === onCard.id ? { ...item, status: "sent" } : item));
-    setNotice(json.warning ?? `Sent. The email to ${onCard.people.full_name} is recorded and replies are being watched.`);
+    // Mark the recipient in the team list straight away, so it is obvious who has already been written to
+    // without waiting for a reload.
+    if (who && "id" in who && who.id) setLogged((current) => new Set(current).add(who.id as string));
+    setNotice(json.warning ?? `Sent. The email to ${json.to ?? who.full_name} is recorded and replies are being watched.`);
   }
 
   async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string, target?: { id?: string; full_name: string }, onCardOverride?: { id: string }) {
@@ -431,26 +437,13 @@ export function Desk({
   const subjectView = (channel: "email" | "linkedin", plain: string) => { const d = diffFor(channel); return d && d.beforeSubject !== d.afterSubject ? renderDiff(d.beforeSubject, d.afterSubject) : plain; };
   const snoozeCurrent = () => { markWorking(false); const next = afterCurrent(); void patchFocus({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { markWorking(false); const next = afterCurrent(); void patchFocus({ status: "dismissed" }); setFocusId(next); setNotice(""); };
-  // Where the message actually gets sent, in one click — never hand-copied between windows.
-  const mailtoHref = () => {
-    if (!contact?.email || !focusCard) return "";
-    const subject = focusCard.email_subject || `Quick idea for ${focusCard.accounts.name}`;
-    const body = adapt(emailDraft || draftText);
-    return `mailto:${contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  };
   const linkedInHref = () => contact?.linkedin_url || (focusCard && contact ? `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${contact.full_name} ${focusCard.accounts.name}`)}` : "");
-  // A verified address with Gmail connected sends inside the app; otherwise open a prefilled draft in the mail client.
+  // Send to whoever is selected. Picking a colleague used to downgrade this to "Open email", which handed
+  // the work back to the user's mail client for no reason the user could see — the send route simply had no
+  // way to address anyone but the card's own contact. It does now, so there is one button and it sends.
   const sendEmail = () => {
-    if (!contact?.email) return;
-    // The primary contact sends in-app via Gmail (verified or not — send() warns on an unverified address).
-    // An alternate contact opens a prefilled draft instead, since in-app send always goes to the primary.
-    if (!altContact) { void send(focusCard ?? undefined); return; }
-    // Opening a prefilled draft is NOT sending — don't log it to History yet, or it shows as "sent"
-    // when the user may never send it. Gmail-Sent sync backfills a real send; "Mark sent" logs it
-    // explicitly if they sent from another client.
-    const href = mailtoHref();
-    if (href) { const link = document.createElement("a"); link.href = href; document.body.appendChild(link); link.click(); link.remove(); }
-    setNotice("Opened a prefilled draft in your mail app. It hasn't been logged — once you've actually sent it, click “Mark sent” (or it'll appear here automatically from your Gmail Sent within a few minutes).");
+    if (!contact?.email || !focusCard) return;
+    void send(focusCard, contact, altContact ? adapt(emailDraft) : undefined);
   };
   // Hand the prospect to the automated cadence: Night Watch sends the email itself on day 0, 3 and 7 and stops
   // the moment they reply. Auto-send needs a verified address and a connected sender, so the engine's guards
@@ -1066,7 +1059,7 @@ export function Desk({
                       // NOT disabled on `busy`: clicking here blurs the message box, which fires a save and
                       // sets busy, so the button disabled itself before the click landed and the first press
                       // was swallowed ("I have to click send twice"). send() guards re-entry itself.
-                      ? <button type="button" disabled={sending || !contact.email} className="btn primary" onClick={sendEmail}>{!altContact ? "Send email" : "Open email"} →</button>
+                      ? <button type="button" disabled={sending || !contact.email} className="btn primary" onClick={sendEmail}>{sending ? "Sending…" : "Send email"} →</button>
                       : <button type="button" disabled={busy} className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
                     <button type="button" disabled={busy} className="btn" title="Already sent (by you or the agent)? Log it to History without opening." onClick={() => markSent(channelTab)}>Mark sent</button>
                     {contact.email && <button type="button" disabled={enrolling} className="btn" title="Hands-off: Night Watch sends this email and its follow-ups for you (day 0, 3, 7) and stops the moment they reply. Prefer to send it yourself? Use “Send email” — the same follow-ups still queue in the list above for you to copy." onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}

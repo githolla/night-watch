@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-type TeamPerson = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; linkedin_url: string | null };
+type TeamPerson = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; linkedin_url: string | null; sentAt?: string | null };
 type Team = {
   account: { name: string; domain: string; vertical: string | null; employees: string | null; tier: string | null; revenueBand: string | null; careersUrl: string | null } | null;
   people: TeamPerson[];
@@ -54,11 +54,13 @@ export function CompanyTeam({ domain, company, activeId, onSelect, compact, logg
       {!ready && <p className="focus-team-loading">Loading the team…</p>}
       {ready && people.length === 0 && <p className="focus-team-loading">No one on file yet for this company.</p>}
       {shown.map((person) => (
-        <div key={person.id} className={`focus-team-row ${onSelect ? "is-selectable" : ""} ${activeId === person.id ? "is-active" : ""} ${loggedIds?.has(person.id) ? "is-logged" : ""}`} role={onSelect ? "button" : undefined} tabIndex={onSelect ? 0 : undefined}
+        <div key={person.id} className={`focus-team-row ${onSelect ? "is-selectable" : ""} ${activeId === person.id ? "is-active" : ""} ${(loggedIds?.has(person.id) || person.sentAt) ? "is-logged" : ""}`} role={onSelect ? "button" : undefined} tabIndex={onSelect ? 0 : undefined}
           onClick={onSelect ? () => onSelect(person) : undefined}
           onKeyDown={onSelect ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(person); } } : undefined}>
-          <span className="avatar">{loggedIds?.has(person.id) ? "✓" : initials(person.full_name)}</span>
-          <div className="focus-team-id"><strong>{person.full_name}{loggedIds?.has(person.id) ? <em className="focus-team-flag is-logged">logged</em> : activeId === person.id ? <em className="focus-team-flag">writing to</em> : null}</strong><small>{person.title || "title unknown"}</small></div>
+          <span className="avatar">{(loggedIds?.has(person.id) || person.sentAt) ? "✓" : initials(person.full_name)}</span>
+          <div className="focus-team-id"><strong>{person.full_name}{(loggedIds?.has(person.id) || person.sentAt)
+            ? <Link className="focus-team-flag is-sent" href={`/activity?person=${person.id}&name=${encodeURIComponent(person.full_name)}`} onClick={(event) => event.stopPropagation()} title={person.sentAt ? `Emailed ${new Date(person.sentAt).toLocaleDateString()} — open in History` : "Already written to — open in History"}>sent &#8599;</Link>
+            : activeId === person.id ? <em className="focus-team-flag">writing to</em> : null}</strong><small>{person.title || "title unknown"}</small></div>
           <div className="focus-team-contact">
             {person.email ? <span title={person.email_status}>{person.email}</span> : null}
             <span className="focus-team-links">
