@@ -505,6 +505,26 @@ export function Desk({
     const text = adapt(channel === "email" ? (focusCard?.email_body ?? emailDraft) : linkedinDraft);
     await recordTouch(channel === "email" ? "email" : "message", text);
   };
+  // A subject is easy to wipe by accident (select-all, then a keystroke), and an email with no subject is
+  // the one thing here that cannot be half-right. Remember what a card's subject was when the operator
+  // started editing it, so it can be put straight back; if there is nothing to put back, the generated
+  // subject stands in — the same one the send route already falls back to.
+  // State, not a ref: the restore point is read while rendering (to label the button and fill the
+  // placeholder), and a ref read during render is not reactive — the button would show a stale subject.
+  const [subjectRestore, setSubjectRestore] = useState<Record<string, string>>({});
+  const rememberSubject = (id: string, value: string) => {
+    const trimmed = value.trim();
+    if (trimmed) setSubjectRestore((current) => current[id] === trimmed ? current : { ...current, [id]: trimmed });
+  };
+  const subjectIsBlank = !(focusCard?.email_subject ?? "").trim();
+  const subjectFallback = focusCard ? (subjectRestore[focusCard.id] || subjectGuess(focusCard, "email")) : "";
+  const restoreSubject = (announce: boolean) => {
+    if (!focusCard || !subjectFallback) return;
+    editFocus("email_subject", subjectFallback);
+    saveField("email_subject", subjectFallback);
+    if (announce) setNotice(`Subject put back to “${subjectFallback}”.`);
+  };
+
   // Set this subject on every un-sent email. Editing one draft USED to change others, because a write could
   // land on a different card than the one on screen; that was a bug and is fixed. The operator liked the
   // effect, so it is offered here as an explicit, confirmed action that touches subjects only.
@@ -969,8 +989,20 @@ export function Desk({
                       <div className="deskwork-edit deskwork-compose">
                         <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
                         <div className="focus-subject-row">
-                          <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => editFocus("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
-                          <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>
+                          <input
+                            className="focus-msg-subject"
+                            value={focusCard.email_subject ?? ""}
+                            placeholder={subjectFallback || "Subject line (optimized for a reply)"}
+                            // The value as it stood before this edit is the restore point, so backspacing it
+                            // away character by character brings back the whole line, not the last letter.
+                            onFocus={(event) => rememberSubject(focusCard.id, event.target.value)}
+                            onChange={(event) => editFocus("email_subject", event.target.value)}
+                            // Leaving the field empty saves the subject back rather than saving a blank one.
+                            onBlur={(event) => { if (event.target.value.trim()) saveField("email_subject", event.target.value); else restoreSubject(true); }}
+                          />
+                          {subjectIsBlank && subjectFallback
+                            ? <button type="button" className="focus-apply-all" title={`Put the subject back: “${subjectFallback}”`} onClick={() => restoreSubject(false)}>Restore subject</button>
+                            : <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>}
                         </div>
                         <label className="compose-field"><span>Greeting</span><div className="compose-greet">Hi&nbsp;<input value={cur.first} placeholder="first name" readOnly={!!altContact} title={altContact ? `The draft is saved once, for ${focusCard.people.full_name}. The greeting becomes ${cur.first} when you copy or open it for ${altContact.full_name}.` : undefined} onChange={(event) => apply({ first: event.target.value })} onBlur={persist} />,</div></label>
                         {altContact && <p className="compose-sig">Writing to {altContact.full_name}. The draft is saved once, against {focusCard.people.full_name}, and the greeting becomes &ldquo;Hi {cur.first},&rdquo; when you copy or open it &mdash; so edits here can&rsquo;t overwrite {primaryFirst}&rsquo;s greeting. To edit the greeting itself, switch back to {primaryFirst}.</p>}
