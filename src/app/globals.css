@@ -1631,7 +1631,7 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .deskwork-head-right>span{font-size:12px;color:var(--muted)}
 .deskwork-head-right>strong{font-size:14px;font-weight:600}
 .deskwork-overview{margin-top:4px;border:0;background:transparent;color:var(--accent-strong);font:600 12.5px/1 var(--sans);cursor:pointer;padding:0}
-.deskwork-grid{display:grid;grid-template-columns:280px minmax(280px,1fr) minmax(400px,1.2fr);gap:16px;align-items:start}
+.deskwork-grid{display:grid;grid-template-columns:260px minmax(0,1fr) minmax(0,1.2fr);gap:16px;align-items:start}
 
 .deskwork-list{border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--paper-bright);box-shadow:var(--shadow-sm);overflow:hidden;position:sticky;top:72px}
 .deskwork-list-head{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;border-bottom:1px solid var(--line);font:600 13px/1 var(--sans)}
@@ -1677,12 +1677,12 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .deskwork-draft-to small{display:block;font-size:12px;color:var(--muted)}
 .deskwork-selected{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--soft);padding:5px 8px;border-radius:999px}
 .deskwork-draft-to .focus-who-reset{margin-left:auto}
-.deskwork-tabs{display:flex;align-items:center;gap:2px;padding:8px 12px 0;border-bottom:1px solid var(--line)}
+.deskwork-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:2px;padding:8px 12px 0;border-bottom:1px solid var(--line)}
 .deskwork-tab{display:inline-flex;align-items:center;gap:7px;border:0;background:transparent;padding:9px 12px;font:600 13px/1 var(--sans);color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
 .deskwork-tab:hover{color:var(--ink)}
 .deskwork-tab.is-active{color:var(--ink);border-bottom-color:var(--accent)}
 .deskwork-tab .li-mark{display:grid;place-items:center;width:18px;height:18px;border-radius:4px;background:#0a66c2;color:#fff;font:700 9px/1 var(--sans);font-style:normal}
-.deskwork-tools{margin-left:auto;display:flex;gap:6px;padding-bottom:7px}
+.deskwork-tools{margin-left:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;padding-bottom:7px}
 .deskwork-tools button{border:1px solid var(--line-strong);background:var(--paper-bright);border-radius:var(--radius-sm);padding:5px 11px;font:600 12px/1 var(--sans);color:var(--ink-soft);cursor:pointer}
 .deskwork-tools button:hover{background:var(--soft);color:var(--ink)}
 .deskwork-tools button:disabled{opacity:.5;pointer-events:none}
