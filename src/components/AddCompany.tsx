@@ -18,6 +18,28 @@ export function AddCompany() {
   const [tier, setTier] = useState<"A1" | "A2" | "B" | "C">("A1");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [removeDomain, setRemoveDomain] = useState("");
+
+  // Take a company off the reach-out list for good — e.g. an AI-native product company, where the
+  // "build this instead of hiring" pitch doesn't land.
+  async function remove(event: React.FormEvent) {
+    event.preventDefault();
+    if (busy) return;
+    if (!removeDomain.trim()) { setMsg("Enter the company's domain to remove it."); return; }
+    if (!confirm(`Remove ${removeDomain.trim()} from the reach-out list? Its un-sent drafts are dismissed and it won't come back on the nightly sync.`)) return;
+    setBusy(true); setMsg("Removing…");
+    try {
+      const res = await fetch("/api/admin/remove-company", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ domain: removeDomain }),
+      });
+      const json = await res.json();
+      if (!res.ok) { setMsg(json.error ?? "Could not remove the company."); return; }
+      setMsg(`Removed ${json.name ?? removeDomain} from the list${json.dismissed ? ` and cleared ${json.dismissed} un-sent draft${json.dismissed === 1 ? "" : "s"}` : ""}.`);
+      setRemoveDomain("");
+    } catch { setMsg("Could not remove the company — try again."); }
+    finally { setBusy(false); }
+  }
 
   async function add(event: React.FormEvent) {
     event.preventDefault();
@@ -39,7 +61,7 @@ export function AddCompany() {
 
   return (
     <section className="conn-card">
-      <div className="conn-head"><h2>Add a company</h2></div>
+      <div className="conn-head"><h2>Companies on the list</h2></div>
       <p className="conn-note">Put a company on the reach-out list by hand. It joins the target list as an active, hand-managed account — the nightly file sync won&apos;t remove it — and the next research run works it like any other target.</p>
       <form onSubmit={add} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -54,6 +76,14 @@ export function AddCompany() {
           <button type="submit" className="btn primary" disabled={busy}>{busy ? "Adding…" : "Add to list"}</button>
         </div>
       </form>
+      <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
+        <p className="conn-note">Remove a company from the reach-out list — use this for AI-native product companies, where the &ldquo;build this instead of hiring&rdquo; pitch doesn&apos;t fit. Its un-sent drafts are dismissed and the nightly sync won&apos;t put it back.</p>
+        <form onSubmit={remove} style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <input value={removeDomain} onChange={(e) => setRemoveDomain(e.target.value)} placeholder="Domain to remove (e.g. gomotive.com)" style={{ flex: "1 1 260px", minWidth: 0, border: "1px solid var(--line-strong)", borderRadius: "var(--radius-sm)", background: "var(--paper-bright)", padding: "9px 11px", font: "500 14px/1 var(--sans)", color: "inherit" }} />
+          <button type="submit" className="btn ghost danger" disabled={busy}>{busy ? "Working…" : "Remove from list"}</button>
+        </form>
+      </div>
+
       {msg && <p className="notice" role="status" style={{ marginTop: 12 }}>{msg}</p>}
     </section>
   );

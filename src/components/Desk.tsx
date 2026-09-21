@@ -254,14 +254,20 @@ export function Desk({
 
   async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string, target?: { id?: string; full_name: string }) {
     const label = view === "email" ? "Email" : view === "comment" ? "LinkedIn reply" : view === "message" ? "LinkedIn message" : "LinkedIn request";
-    // Log against the contact actually selected, not the card's default person.
-    const who = target ?? altContact ?? card.people;
+    // Log against the card whose draft is actually on screen (the focus card) and the contact selected on
+    // THAT card. Using `card` (active ?? focusCard) could point at a different, browse-selected card than the
+    // draft panel shows, while `altContact` is keyed to focusCard — that mismatch is how Copy logged touches
+    // against a colleague instead of the person picked.
+    const onCard = focusCard ?? card;
+    const who = target ?? (focusCard ? contact : card.people);
     const personId = who && "id" in who ? who.id : undefined;
+    // Never let the server silently fall back to the card's default person — that mislogs the wrong contact.
+    if (!onCard || !personId) { setNotice("Couldn't tell which contact to log this against — pick the person again, then retry."); return; }
     // No blocking confirm — copying/opening IS the send here, so it logs straight to the history and cadence.
     if (demo) { setNotice(`${label} to ${who?.full_name ?? "contact"} recorded in demo mode.`); return; }
     setBusy(true);
     const channel = view === "email" ? "email" : view === "comment" ? "linkedin_comment" : view === "message" ? "linkedin_message" : "linkedin_request";
-    const response = await fetch(`/api/cards/${card.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body, personId }) });
+    const response = await fetch(`/api/cards/${onCard.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body, personId }) });
     const result = await response.json();
     setBusy(false);
     if (!response.ok) { if (isMissing(result.error)) dropStaleCard(); else setNotice(result.error ?? "Unable to record outreach."); return; }

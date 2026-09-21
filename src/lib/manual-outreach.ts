@@ -20,7 +20,10 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
   }
   // Log against the contact actually picked on the desk, not the card's default person.
   const targetPersonId = personId ?? card.person_id;
-  const { data: person } = await db.from("people").select("first_name,full_name,do_not_contact").eq("id", targetPersonId).maybeSingle();
+  const { data: person } = await db.from("people").select("first_name,full_name,do_not_contact,account_id").eq("id", targetPersonId).maybeSingle();
+  if (!person) throw new Error("That contact no longer exists — reload the desk and try again.");
+  // A touch must never be attributed to someone at a different company than the card's.
+  if (person.account_id && person.account_id !== card.account_id) throw new Error("That contact belongs to a different company than this prospect.");
   const { data: account } = await db.from("accounts").select("name,status").eq("id", card.account_id).maybeSingle();
   if (person?.do_not_contact || ["client", "do_not_contact"].includes(account?.status ?? "")) {
     throw new Error("Do-not-contact guard blocked this action");
