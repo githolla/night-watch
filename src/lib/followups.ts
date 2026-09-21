@@ -37,7 +37,11 @@ function scheduleBusinessDays(days: number): string {
   let remaining = days;
   while (remaining > 0) { cursor.setUTCDate(cursor.getUTCDate() + 1); if (![0, 6].includes(cursor.getUTCDay())) remaining--; }
   while ([0, 6].includes(cursor.getUTCDay())) cursor.setUTCDate(cursor.getUTCDate() + 1);
-  cursor.setUTCHours(15, 0, 0, 0);
+  // Land at a random minute inside ~9am–5pm US Eastern (13:00–21:00 UTC) instead of a fixed time, so
+  // a batch of follow-ups doesn't all fire on the same minute (which reads as automated to spam filters).
+  const hour = 13 + Math.floor(Math.random() * 8);
+  const minute = Math.floor(Math.random() * 60);
+  cursor.setUTCHours(hour, minute, 0, 0);
   return cursor.toISOString();
 }
 

@@ -1,11 +1,14 @@
 import { cronAuthorized } from "@/lib/auth";
+import { encrypt } from "@/lib/crypto";
 import { sendEmail } from "@/lib/gmail";
 import { validateEmail } from "@/lib/send-action";
-import { emailHtml, fromHeader, senderProfile, withSignature } from "@/lib/sender";
+import { dailyCap } from "@/lib/send-guards";
+import { fromHeader, senderProfile, withSignature } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
 
 export const maxDuration=300;
+const daysBetween=(iso:string|null|undefined)=>(iso?Math.max(0,Math.floor((Date.now()-new Date(iso).getTime())/86_400_000)):0);
 type DueStep={id:string;cadence_id:string;channel:string;kind:string;subject:string|null;body:string|null;cadences:{id:string;status:string;owner:Owner;rules:{stop_on_reply?:boolean};card_id:string;cards:{person_id:string;assigned_to:Owner;active_variant_id:string|null;people:{email:string|null;email_status:string;do_not_contact:boolean};accounts:{status:string}}}};
 
 export async function GET(request:Request){
@@ -22,15 +25,16 @@ export async function GET(request:Request){
       if(step.kind==="review"||step.channel!=="email"){await db.from("cadence_steps").update({status:"ready"}).eq("id",step.id);ready++;continue}
       // They've become off-limits — stop touching them (skip, don't fail).
       if(card.people.do_not_contact||["client","do_not_contact"].includes(card.accounts.status)){await db.from("cadence_steps").update({status:"skipped"}).eq("id",step.id);skipped++;continue}
-      const {data:connection}=await db.from("gmail_connections").select("email").eq("owner",cadence.owner).maybeSingle();
+      const {data:connection}=await db.from("gmail_connections").select("email,connected_at,created_at").eq("owner",cadence.owner).maybeSingle();
       // Can't auto-send yet (unverified recipient, missing pieces, or Gmail not connected for this seat)
       // → leave the sender a manual "ready" reminder instead of a hard failure.
       if(!card.people.email||card.people.email_status!=="verified"||!step.subject||!step.body||!connection){await db.from("cadence_steps").update({status:"ready"}).eq("id",step.id);ready++;continue}
       const dayStart=new Date(now);dayStart.setHours(0,0,0,0);
       const {count}=await db.from("touches").select("*",{count:"exact",head:true}).eq("sent_by",cadence.owner).eq("channel","email").gte("sent_at",dayStart.toISOString());
-      // Daily cap reached — defer to a later run (stays pending), don't fail or drop it.
-      if((count??0)>=15)continue;
-      validateEmail(card.people.email_status,count??0,step.body);
+      // Warmup ramp + daily cap: defer to a later run (stays pending) when the seat's cap is reached.
+      const cap=dailyCap(daysBetween(connection.connected_at??connection.created_at));
+      if((count??0)>=cap)continue;
+      validateEmail(card.people.email_status,count??0,step.body,cap);
       // Atomically claim the step by stamping sent_at while it's still pending+unclaimed, so two
       // overlapping runs (or a retry) can't both send it — only the update that matches wins.
       const {data:claimed}=await db.from("cadence_steps").update({sent_at:now.toISOString()}).eq("id",step.id).eq("status","pending").is("sent_at",null).select("id");
@@ -38,8 +42,10 @@ export async function GET(request:Request){
       const {data:previous}=await db.from("touches").select("gmail_thread_id").eq("card_id",cadence.card_id).eq("channel","email").not("gmail_thread_id","is",null).order("sent_at",{ascending:false}).limit(1).maybeSingle();
       const profile=await senderProfile(db,cadence.owner);
       const optOut=process.env.OPT_OUT_LINE??"If this isn't relevant, reply no and I won't follow up.",fullBody=`${withSignature(step.body,profile,connection.email)}\n\n${optOut}`;
-      const html=emailHtml(step.body,profile,connection.email,optOut);
-      const result=await sendEmail(cadence.owner,fromHeader(profile,connection.email),card.people.email,step.subject,fullBody,previous?.gmail_thread_id??undefined,profile.cc,html);
+      const base=(process.env.APP_URL??new URL(request.url).origin).trim().replace(/\/$/,"");
+      const unsubscribe=`${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(card.person_id))}`;
+      // Plain text (no branded HTML part) keeps cold follow-ups out of spam; unsubscribe header for deliverability.
+      const result=await sendEmail(cadence.owner,fromHeader(profile,connection.email),card.people.email,step.subject,fullBody,previous?.gmail_thread_id??undefined,profile.cc,undefined,unsubscribe);
       await db.from("touches").insert({card_id:cadence.card_id,person_id:card.person_id,channel:"email",sent_at:now.toISOString(),sent_by:cadence.owner,gmail_thread_id:result.threadId,body:fullBody,experiment_variant_id:card.active_variant_id??null});
       if(card.active_variant_id){const {data:chosen}=await db.from("message_variants").select("experiment_id").eq("id",card.active_variant_id).maybeSingle();if(chosen)await db.from("message_experiments").update({status:"sent"}).eq("id",chosen.experiment_id)}
       await db.from("cadence_steps").update({status:"sent",sent_at:now.toISOString(),error:null}).eq("id",step.id);await db.from("cards").update({status:"sent"}).eq("id",cadence.card_id);sent++;

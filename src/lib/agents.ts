@@ -300,7 +300,9 @@ LinkedIn subject: a short InMail subject of 3 to 6 words in sentence case, namin
 
 Email — a real, professional first-touch email a founder would be glad to receive, not a terse note:
 - Subject: 4 to 8 words in sentence case, naming the concrete thing seen (their role opening, the work, or their post). Specific, not clever, never all-lowercase, no emoji. Vary it per person.
-- Body: 70 to 140 words. Greet by first name. The first sentence names the specific thing seen — quote a short phrase of their post when there is one, otherwise the role they are hiring for or the development — and ties it to what THIS person owns. Then, in plain language, say what Nine-67 would build or run to do that work instead of a hire (an internal tool, a data or reporting pipeline, an AI assistant, a workflow that runs itself), what it does day to day, and the outcome. Vary the concrete offer to fit the person and situation — a short teardown of one role, a quick sketch of the workflow, a relevant example, a specific build idea, a brief call — do NOT default to "a one-page teardown" every time. Close with one low-friction question (no meeting demand), a short sign-off, then https://nine-67.com on its own final line. Real sentences and paragraphs, warm but concise, no buzzwords, no fabricated results.
+- Body: 50 to 90 words — short beats long for a cold first touch. Greet by first name. The first sentence names the specific thing seen — quote a short phrase of their post when there is one, otherwise the exact role they are hiring for or the development — and ties it to what THIS person owns. Then, in plain language, say what Nine-67 would build or run to do that work instead of a hire (an internal tool, a data or reporting pipeline, an AI assistant, a workflow that runs itself), what it does day to day, and the outcome.
+- Concrete detail (required): include at least one specific, checkable fact unique to this company — a role title word-for-word, how long a role has been open (use role.postedAt when present, e.g. "the Lead AI Solutions Partner role you've had open ~6 weeks"), a tool or system they named, or a short quoted phrase from their post. The email must never read as if it could be sent to a different company unchanged.
+- The ask: close with one low-friction question, no meeting demand. Rotate the ask so it fits this person — a short teardown of one role, a quick sketch of the one workflow, a relevant example from similar work, one specific build idea, or a simple "is this on your radar?" — and do NOT use "a one-page teardown" unless it is clearly the single best fit; never use it as a default. Then a short sign-off, then https://nine-67.com on its own final line. Real sentences, warm but concise, no buzzwords, no fabricated results.
 
 For hiring evidence, be concrete about the build in plain words — which parts of the posted role it absorbs — not a generic pitch. Return JSON only: {"brief":"","why_now":"","channel":"email_first","linkedin_comment":"","linkedin_note":"","linkedin_message":"","linkedin_subject":"","email_subject":"","email_body":""}.`;
 
@@ -315,7 +317,7 @@ export type BriefDraftInput = {
   company: { name: string; domain: string; industry: string };
   person: { name: string; title: string; why: string; quotes: Array<{ quote: string; url: string; date: string | null }>; emailState: "verified" | "unverified" | "none"; linkedin: boolean };
   brief: { whyNow: string; angle: string; opener: string; objections: string[] };
-  roles: Array<{ title: string; why: string }>;
+  roles: Array<{ title: string; why: string; postedAt?: string | null }>;
   buildInstead: string[];
   happening: string[];
 };

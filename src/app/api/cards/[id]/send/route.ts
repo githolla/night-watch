@@ -1,8 +1,12 @@
 import { requireUser } from "@/lib/auth";
+import { encrypt } from "@/lib/crypto";
 import { sendEmail } from "@/lib/gmail";
 import { validateEmail, sendInput } from "@/lib/send-action";
-import { emailHtml, fromHeader, senderProfile, withSignature } from "@/lib/sender";
+import { dailyCap } from "@/lib/send-guards";
+import { fromHeader, senderProfile, withSignature } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
+
+const daysBetween = (iso: string | null | undefined) => (iso ? Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)) : 0);
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -16,18 +20,22 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (card.people.do_not_contact || ["client", "do_not_contact"].includes(card.accounts.status)) throw new Error("Do-not-contact guard blocked this send");
     // Send from the signed-in user's own seat (their connected Google account).
     const owner = user.owner;
-    const since = new Date(); since.setHours(0, 0, 0, 0);
-    const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").gte("sent_at", since.toISOString());
-    validateEmail(card.people.email_status, count ?? 0, body);
-    const profile = await senderProfile(db, owner);
     // Send AS the seat's connected mailbox, not the app user's login email — otherwise Gmail rewrites
     // or rejects the From when a teammate's login differs from the connected Google account.
-    const { data: connection } = await db.from("gmail_connections").select("email").eq("owner", owner).maybeSingle();
+    const { data: connection } = await db.from("gmail_connections").select("email,connected_at,created_at").eq("owner", owner).maybeSingle();
+    const since = new Date(); since.setHours(0, 0, 0, 0);
+    const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").gte("sent_at", since.toISOString());
+    // Warm the mailbox up gently: the daily cap starts low on a freshly connected seat and ramps to the base.
+    const cap = dailyCap(daysBetween(connection?.connected_at ?? connection?.created_at));
+    validateEmail(card.people.email_status, count ?? 0, body, cap);
+    const profile = await senderProfile(db, owner);
     const fromEmail = connection?.email ?? user.email ?? "";
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
     const fullBody = `${withSignature(body, profile, fromEmail)}\n\n${optOut}`;
-    const html = emailHtml(body, profile, fromEmail, optOut);
-    const result = await sendEmail(owner, fromHeader(profile, fromEmail), card.people.email, subject, fullBody, undefined, profile.cc, html);
+    // Cold first touch goes as true text/plain (no branded HTML part) — best for inbox placement.
+    const base = (process.env.APP_URL ?? new URL(request.url).origin).trim().replace(/\/$/, "");
+    const unsubscribe = `${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(card.person_id))}`;
+    const result = await sendEmail(owner, fromHeader(profile, fromEmail), card.people.email, subject, fullBody, undefined, profile.cc, undefined, unsubscribe);
     // The email has now actually left. Mark the card sent FIRST so it can never stay actionable after a
     // real send (which is how a "failed" toast used to lead to a duplicate re-send). Only then log to
     // History; if that write fails, the send still stands — we report success with a soft warning.

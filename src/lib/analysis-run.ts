@@ -210,7 +210,7 @@ async function draftFromAnalysis(db: Db, account: Account, analysis: CompanyAnal
       emailState: person.email_status === "verified" ? "verified" : person.email ? "unverified" : "none", linkedin: Boolean(person.linkedin_url),
     },
     brief: { whyNow: analysis.brief.whyNow, angle: analysis.brief.angle, opener: analysis.brief.opener, objections: analysis.brief.objections },
-    roles: analysis.hiring.roles.slice(0, 8).map((role) => ({ title: role.title, why: role.why })),
+    roles: analysis.hiring.roles.slice(0, 8).map((role) => ({ title: role.title, why: role.why, postedAt: role.posted_at })),
     buildInstead: analysis.hiring.buildInstead.slice(0, 6),
     happening: analysis.happening.slice(0, 6).map((item) => item.text),
   }, recordCost);

@@ -16,6 +16,11 @@ export const DEFAULT_RESEARCH_MODEL = "claude-haiku-4-5";
 /** The verbatim search agents and the job-board and posts scans. `ANTHROPIC_SEARCH_MODEL` overrides. */
 export const DEFAULT_SEARCH_MODEL = "claude-haiku-4-5";
 
+/** The prospect-facing copy (emails, LinkedIn) is written on a stronger model — noticeably more human
+ *  and varied than Haiku — because it's the one thing a prospect actually reads. Research/search stay
+ *  on Haiku. It's one cheap call per prospect, cached on the card. `ANTHROPIC_WRITING_MODEL` overrides. */
+export const DEFAULT_WRITING_MODEL = "claude-sonnet-5";
+
 /** Models known to have been retired or renamed; a request for one is retried on the current default. */
 const SUPERSEDED = /claude-(3|sonnet-4-5|opus-4-5|opus-4-1|sonnet-4-\d{8}|haiku-3)/i;
 
@@ -24,7 +29,7 @@ export function researchModel() {
 }
 
 export function writingModel() {
-  return process.env.ANTHROPIC_WRITING_MODEL ?? process.env.ANTHROPIC_MODEL ?? DEFAULT_RESEARCH_MODEL;
+  return process.env.ANTHROPIC_WRITING_MODEL ?? process.env.ANTHROPIC_MODEL ?? DEFAULT_WRITING_MODEL;
 }
 
 export function utilityModel() {
