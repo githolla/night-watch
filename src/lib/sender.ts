@@ -36,12 +36,28 @@ export { dedupeParagraphs, similarText };
  */
 export function sanitizeLinks(text: string): string {
   if (!text) return text;
+  // Our own domain, so we can tell "our link" (remove — it's already in the signature) from a prospect's
+  // domain mentioned in a sentence (keep — deleting it mangles their copy).
+  let canonHost = "nine-67.com";
+  try { canonHost = new URL((process.env.SENDER_SITE_URL || "https://nine-67.com").trim()).hostname.replace(/^www\./, ""); } catch { /* keep default */ }
+  const ourHostPattern = new RegExp(`(?:https?://)?(?:[a-z0-9-]+\\.)*${canonHost.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:/\\S*)?`, "i");
   return dedupeParagraphs(text)
-    // No links in the body at all — the website already lives in the signature. Drop every URL (keeping any
-    // trailing sentence punctuation) and every bare domain a model may have invented ("nine-67.com/x",
-    // "acme.io/demo"), so a prospect never sees a duplicate or fabricated link in the message.
+    // Our own link duplicates the signature. Drafts put it on its own line as a CTA, so drop the whole line
+    // — stripping just the URL left broken prose like "More at if useful." But when the line carries real
+    // content around the link, keep the sentence and remove only the link.
+    .split("\n").map((line) => {
+      if (!ourHostPattern.test(line)) return line;
+      const stripped = line.replace(new RegExp(ourHostPattern.source, "gi"), "").replace(/[ \t]{2,}/g, " ").trim();
+      return stripped.split(/\s+/).filter(Boolean).length >= 5 ? stripped : "";
+    }).join("\n")
+    // A foreign URL with a scheme in a cold first touch is almost always one the model invented, so it must
+    // never reach a prospect. Trailing sentence punctuation is preserved.
     .replace(/https?:\/\/[^\s<>)\]]+/gi, (raw) => raw.match(/[.,!?;:]+$/)?.[0] ?? "")
-    .replace(/(^|[\s(])(?:[a-z0-9-]+\.)+(?:com|io|ai|co|net|org|dev|app|xyz|us|biz|info|me|tech|solutions)(\/[^\s<>)\]]*)?/gi, (_whole, pre: string) => pre)
+    // Removing an inline link can leave an orphaned connector as its own sentence ("… needs. More at. Talk
+    // soon?"). Drop that fragment rather than ship it.
+    .replace(/(^|[.!?]\s+)(?:more\s+|read\s+more\s+|learn\s+more\s+)?(?:at|on|via|visit|see|here)\s*[.,]/gi, "$1")
+    // …or a dangling preposition mid-sentence ("read more at here" -> "read more here").
+    .replace(/\b(?:at|on|via|to)\s+(here|there)\b/gi, "$1")
     // Strip the leftover CTA some cached drafts still carry ("Want a free one-page teardown…"). Remove the
     // whole sentence containing "teardown" so nothing dangling is left.
     .replace(/[^.!?\n]*\bteardown\b[^.!?\n]*[.!?]?/gi, "")
