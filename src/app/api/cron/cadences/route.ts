@@ -9,6 +9,9 @@ import { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
 
 export const maxDuration=300;
+// A claim this old belongs to a run that died; 15 minutes is comfortably past maxDuration (5) so a live
+// run is never overtaken.
+const STALE_CLAIM_MS=15*60*1000;
 const daysBetween=(iso:string|null|undefined)=>(iso?Math.max(0,Math.floor((Date.now()-new Date(iso).getTime())/86_400_000)):0);
 type DueStep={id:string;cadence_id:string;channel:string;kind:string;subject:string|null;body:string|null;cadences:{id:string;status:string;owner:Owner;rules:{stop_on_reply?:boolean};card_id:string;cards:{person_id:string;assigned_to:Owner;people:{email:string|null;email_status:string;do_not_contact:boolean};accounts:{status:string}}}};
 
@@ -50,7 +53,13 @@ export async function GET(request:Request){
       validateEmail(card.people.email_status,count??0,cleanBody,cap);
       // Atomically claim the step by stamping sent_at while it's still pending+unclaimed, so two
       // overlapping runs (or a retry) can't both send it — only the update that matches wins.
-      const {data:claimed}=await db.from("cadence_steps").update({sent_at:now.toISOString()}).eq("id",step.id).eq("status","pending").is("sent_at",null).select("id");
+      // A claim older than STALE_CLAIM_MS can be taken again: if the function died between the claim and
+      // the send (or between the send and the status write), the step kept status "pending" with sent_at
+      // set, which `sent_at is null` could never match again — the step was picked up every run, re-validated,
+      // and silently dropped forever. The window is well past maxDuration, so a run still in flight can't be
+      // double-claimed. Postgres serialises the row, so the loser of a race matches zero rows.
+      const staleBefore=new Date(now.getTime()-STALE_CLAIM_MS).toISOString();
+      const {data:claimed}=await db.from("cadence_steps").update({sent_at:now.toISOString()}).eq("id",step.id).eq("status","pending").or(`sent_at.is.null,sent_at.lt.${staleBefore}`).select("id");
       if(!claimed||!claimed.length)continue;
       const {data:previous}=await db.from("touches").select("gmail_thread_id").eq("card_id",cadence.card_id).eq("channel","email").not("gmail_thread_id","is",null).order("sent_at",{ascending:false}).limit(1).maybeSingle();
       const profile=await senderProfile(db,cadence.owner);

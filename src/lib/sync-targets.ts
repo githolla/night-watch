@@ -55,13 +55,27 @@ export async function syncTargetAccounts(db: SupabaseClient) {
 }
 
 /**
- * True when the database does not yet reflect the file: fewer reach-out
- * companies than the cut names, or companies without a tier. Cheap: two counts.
+ * True when the database does not yet reflect the file: fewer companies accounted for than the cut names,
+ * or companies without a tier. Cheap: three counts.
+ *
+ * "Accounted for" deliberately includes companies taken off by hand (outreach_manual set, outreach false).
+ * Counting only outreach=true meant every hand-removal pushed the total permanently below the file count,
+ * so this returned true forever and the full 1,859-row sync ran inline on every /outreach and /targets
+ * render — the whole page hanging on a re-import that had nothing to do.
  */
 export async function targetsNeedSync(db: SupabaseClient) {
-  const [{ count: onList }, { count: untiered }] = await Promise.all([
+  const [{ count: onList }, { count: optedOut }, { count: untiered }] = await Promise.all([
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("outreach_manual", true).eq("outreach", false),
     db.from("accounts").select("*", { count: "exact", head: true }).not("domain", "like", "%.example").is("tier", null),
   ]);
-  return (onList ?? 0) < targetAccounts.filter((account) => account.outreach).length || (untiered ?? 0) > 0;
+  return needsSync(onList ?? 0, optedOut ?? 0, untiered ?? 0);
+}
+
+/** The number of reach-out companies the file expects the database to account for. */
+export const outreachOnFile = targetAccounts.filter((account) => account.outreach).length;
+
+/** The decision behind targetsNeedSync, split out so the arithmetic can be tested without a database. */
+export function needsSync(onList: number, optedOut: number, untiered: number) {
+  return onList + optedOut < outreachOnFile || untiered > 0;
 }

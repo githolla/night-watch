@@ -257,13 +257,14 @@ export function Desk({
     setNotice(json.warning ?? `Sent. The email to ${card.people.full_name} is recorded and replies are being watched.`);
   }
 
-  async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string, target?: { id?: string; full_name: string }) {
+  async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string, target?: { id?: string; full_name: string }, onCardOverride?: { id: string }) {
     const label = view === "email" ? "Email" : view === "comment" ? "LinkedIn reply" : view === "message" ? "LinkedIn message" : "LinkedIn request";
     // Log against the card whose draft is actually on screen (the focus card) and the contact selected on
     // THAT card. Using `card` (active ?? focusCard) could point at a different, browse-selected card than the
     // draft panel shows, while `altContact` is keyed to focusCard — that mismatch is how Copy logged touches
-    // against a colleague instead of the person picked.
-    const onCard = focusCard ?? card;
+    // against a colleague instead of the person picked. A caller rendering its own card (the dossier
+    // composer) names both the card and the contact so it can't inherit the focus card's either.
+    const onCard = onCardOverride ?? focusCard ?? card;
     const who = target ?? (focusCard ? contact : card.people);
     const personId = who && "id" in who ? who.id : undefined;
     // Never let the server silently fall back to the card's default person — that mislogs the wrong contact.
@@ -678,7 +679,7 @@ export function Desk({
                 onEdit={edit}
                 onSave={() => patch({ status: "edited", email_subject: card.email_subject, email_body: card.email_body, linkedin_note: card.linkedin_note, linkedin_comment: card.linkedin_comment, linkedin_message: card.linkedin_message ?? "" })}
                 onSend={send}
-                onRecordTouch={recordTouch}
+                onRecordTouch={(view, body) => recordTouch(view, body, card.people, card)}
                 onNotice={setNotice}
               />
 
@@ -892,17 +893,25 @@ export function Desk({
                     const cur = compose && compose.cardId === focusCard.id && compose.who === who
                       ? compose
                       : { cardId: focusCard.id, who, first: fname, message: parsed.message, signoff: parsed.signoff };
+                    // A card has ONE stored email_body, shared by every contact at the company. Writing the
+                    // alternate's name into it corrupted the primary's draft: pick a colleague, type one
+                    // character, and the primary's saved greeting became "Hi <colleague>,". Store the
+                    // primary's greeting and let adapt()/retarget swap the name in at display and send time
+                    // — the same rule refine() already follows for the body.
+                    const primaryFirst = focusCard.people.full_name.split(/\s+/)[0] || "there";
+                    const storedFirst = (next: string) => (altContact ? primaryFirst : next);
                     const apply = (patchObj: Partial<{ first: string; message: string; signoff: string }>) => {
                       const next = { ...cur, ...patchObj, cardId: focusCard.id, who };
                       setCompose(next);
-                      edit("email_body", assembleEmail(next.first, next.message, next.signoff));
+                      edit("email_body", assembleEmail(storedFirst(next.first), next.message, next.signoff));
                     };
-                    const persist = () => saveField("email_body", assembleEmail(cur.first, cur.message, cur.signoff));
+                    const persist = () => saveField("email_body", assembleEmail(storedFirst(cur.first), cur.message, cur.signoff));
                     return (
                       <div className="deskwork-edit deskwork-compose">
                         <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
                         <input className="focus-msg-subject" value={focusCard.email_subject ?? ""} placeholder="Subject line (optimized for a reply)" onChange={(event) => edit("email_subject", event.target.value)} onBlur={(event) => saveField("email_subject", event.target.value)} />
-                        <label className="compose-field"><span>Greeting</span><div className="compose-greet">Hi&nbsp;<input value={cur.first} placeholder="first name" onChange={(event) => apply({ first: event.target.value })} onBlur={persist} />,</div></label>
+                        <label className="compose-field"><span>Greeting</span><div className="compose-greet">Hi&nbsp;<input value={cur.first} placeholder="first name" readOnly={!!altContact} title={altContact ? `The draft is saved once, for ${focusCard.people.full_name}. The greeting becomes ${cur.first} when you copy or open it for ${altContact.full_name}.` : undefined} onChange={(event) => apply({ first: event.target.value })} onBlur={persist} />,</div></label>
+                        {altContact && <p className="compose-sig">Writing to {altContact.full_name}. The draft is saved once, against {focusCard.people.full_name}, and the greeting becomes &ldquo;Hi {cur.first},&rdquo; when you copy or open it &mdash; so edits here can&rsquo;t overwrite {primaryFirst}&rsquo;s greeting. To edit the greeting itself, switch back to {primaryFirst}.</p>}
                         <label className="compose-field"><span>Message — make it specific to this person &amp; company</span><textarea className="focus-msg-body" rows={8} value={cur.message} placeholder="Write the pitch for this contact." onChange={(event) => apply({ message: event.target.value })} onBlur={persist} /></label>
                         <label className="compose-field"><span>Sign-off</span><input value={cur.signoff} placeholder="Thank you," onChange={(event) => apply({ signoff: event.target.value })} onBlur={persist} /></label>
                         <p className="compose-sig">— Your Nine-67 signature (your name, title &amp; contact) is added automatically. Change it in <Link href="/settings" className="focus-link">Settings → identity</Link>.</p>
