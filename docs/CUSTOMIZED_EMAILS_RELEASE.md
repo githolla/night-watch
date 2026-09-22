@@ -13,3 +13,10 @@ The earlier pasted email audit identified placeholder subjects, repeated recipie
 ## Validation
 
 443 unique company domains, subjects and company-normalized bodies; each body names its company. TypeScript and lint pass. The 34 existing sender and contact-draft tests pass, including sender-specific greetings and distinct colleague drafts.
+
+
+## Proof-based revision
+
+All 443 drafts now include one relevant proof or delivery-process paragraph. 49 mention the owner-supplied 20-application engagement. Others use relevant public case-study details, application examples from the owner-provided deployment screenshot, or how Nine-67 builds, iterates, trains and deploys. No savings, adoption rates or industry-specific results are invented. The case-study client is not assumed to be the 20-application client.
+
+The deterministic contact writer and AI writing/refinement rules use the same approved evidence. The authenticated administrator's worklist starts a bounded background repair after rendering, with progress/error feedback. It updates untouched and broken drafts only, preserves valid edited/approved drafts and sent history, and checks the old subject/body before writing to avoid overwriting an edit made during the request. No repair is awaited during server rendering. This runs when an administrator next opens the worklist; deployment alone does not certify production rows were updated.

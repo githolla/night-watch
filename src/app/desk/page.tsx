@@ -1,3 +1,4 @@
+import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
 import { Desk, type DeskContext } from "@/components/Desk";
 import { ScanControl } from "@/components/ScanControl";
 import { MigrationRequired } from "@/components/MigrationRequired";
@@ -245,6 +246,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   return (
     <div className="shell">
       <Header />
+      {me.role === "admin" && <RefreshDraftCopy />}
       <Desk
         initialCards={cards}
         selectedId={params.card}

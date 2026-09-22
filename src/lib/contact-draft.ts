@@ -1,3 +1,4 @@
+import { outreachProof } from "./outreach-proof.ts";
 import customizedEmails from "../../data/customized-emails.json" with { type: "json" };
 import { decodeEntities } from "./clean.ts";
 
@@ -527,7 +528,7 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
     : variantFor(input.personName, 997);
   const seed = `${company}|${angle.key}|${typeof input.variantSalt === "string" ? input.variantSalt : ""}`;
   const subjectLine = angle.subjects[variantFor(`${seed}|subject`, angle.subjects.length, rotate)];
-  const offerLine = angle.offers[variantFor(`${seed}|offer`, angle.offers.length, rotate)];
+  const proof = outreachProof(`${input.personTitle} ${input.operatingNeed ?? ""} ${roles.join(" ")}`, variantFor(`${seed}|proof`, 997, rotate));
   const askLine = angle.asks[variantFor(`${seed}|ask`, angle.asks.length, rotate)];
   // Which of the two openings, also independently.
   const opening = variantFor(`${seed}|open`, 2, rotate) === 0 ? context.sawLine : context.noticedLine;
@@ -562,7 +563,16 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
     "",
     `${intro} ${opening}`,
     "",
-    offerLine(context),
+    `${proof.text} ${({
+      finance: "For finance, the starting point would be the cost or profitability decision the tool needs to support.",
+      engineering: "For engineering, we would scope the build around the existing architecture and review it with your team.",
+      security: "For security, we would define access and review requirements before choosing what to build.",
+      operations: "For operations, we would start with one handoff the team can test in its daily work.",
+      people: "For your people team, we would plan training around the work users actually need to do.",
+      marketing: "For marketing, we would start with one output the team needs to review and publish.",
+      executive: "For leadership, we would agree on one priority and review a working version against it.",
+      general: "We would start with one task your team can try in a working version.",
+    } as Record<string, string>)[angle.key]}`,
     "",
     askLine,
     "",

@@ -46,7 +46,7 @@ test("colleagues at one company get genuinely different emails, not one note ren
 
   // Each speaks to what that person owns.
   // Intent, not exact wording — the copy should be free to change without the test lying about it.
-  assert.match(cfo.body, /cost|payroll|salary|recruiting/i, "finance should talk about money");
+  assert.match(cfo.body, /cost|payroll|salary|recruiting|budget|profitability/i, "finance should talk about money");
   assert.match(cto.body, /build|stack|infrastructure|schedul\w*|pipeline|tests|scripts/i, "engineering should talk about the build");
   assert.match(ceo.body, /team|headcount|hir\w*|permanent cost/i, "an executive should talk about the hire itself");
 });
@@ -275,7 +275,7 @@ test("the copy pools are deep enough that the list does not read as one letter",
 
 test("the worklist writer uses authored company copy and the assigned sender greeting", () => {
   const draft = composeContactDraft({ company: "Aprio", personName: "Richard Kopelman", personTitle: "CEO", variantSalt: 0, senderName: "Suuchi Ramesh", greeting: "Hello {first},", signoff: "Best regards," });
-  assert.equal(draft.subject, "one intake after integration");
+  assert.equal(draft.subject, "One intake after integration");
   assert.ok(draft.body.startsWith("Hello Richard,"));
   assert.ok(draft.body.includes("Suuchi Ramesh"));
   assert.ok(draft.body.includes("shared document checklist"));
