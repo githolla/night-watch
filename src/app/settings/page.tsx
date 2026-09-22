@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Building2, Mail, MessageSquare, PenLine, Plug, UsersRound } from "lucide-react";
 import { Header } from "@/components/Header";
 import { SpendPanel } from "@/components/SpendPanel";
+import { TestSequence } from "@/components/TestSequence";
 import { RewriteDrafts } from "@/components/RewriteDrafts";
 import { AddCompany } from "@/components/AddCompany";
 import { MigrationRequired } from "@/components/MigrationRequired";
@@ -72,7 +73,8 @@ export default async function Settings() {
         : { tone: "todo" as const, label: mailboxConnected ? "Add name" : "Start here" },
       content: <>
         <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} /></div>
-        <div className="feature-center"><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
+        <div className="feature-center" style={{ marginBottom: 18 }}><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
+        {isAdmin && <div className="feature-center"><TestSequence senderEmail={senderEmail} /></div>}
       </>,
     },
     ...(isAdmin ? [{

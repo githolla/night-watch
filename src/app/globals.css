@@ -2149,3 +2149,7 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .appbar-more-list a{display:flex;flex-direction:column;gap:2px}
 .appbar-more-list a small{font:500 11px/1.4 var(--sans);color:var(--muted);white-space:normal;max-width:34ch}
 .appbar-more-list a:hover small,.appbar-more-list a.is-active small{color:inherit;opacity:.8}
+.deskwork-fu-actions{display:flex;gap:6px;flex-wrap:wrap}
+/* The ordered walkthrough in the sequence tester. */
+.test-steps{margin:0 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.test-steps li{font:500 13px/1.55 var(--sans);color:var(--ink)}

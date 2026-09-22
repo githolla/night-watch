@@ -450,6 +450,23 @@ export function Desk({
   const snoozeCurrent = () => { markWorking(false); const next = afterCurrent(); void patchFocus({ status: "snoozed" }); setFocusId(next); setNotice(""); };
   const dismissCurrent = () => { markWorking(false); const next = afterCurrent(); void patchFocus({ status: "dismissed" }); setFocusId(next); setNotice(""); };
   const linkedInHref = () => contact?.linkedin_url || (focusCard && contact ? `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(`${contact.full_name} ${focusCard.accounts.name}`)}` : "");
+  // Send a queued follow-up now rather than on the day it is scheduled for. Same guards as the scheduler;
+  // only the wait is skipped. Testing the sequence used to mean editing scheduled_at in SQL and calling the
+  // cron with its secret.
+  const [sendingStep, setSendingStep] = useState("");
+  const sendFollowupNow = async (stepId: string, label: string) => {
+    if (sendingStep) return;
+    if (!confirm(`Send “${label}” now instead of on its scheduled day?`)) return;
+    setSendingStep(stepId);
+    setNotice("Sending…");
+    try {
+      const response = await fetch(`/api/cadence-steps/${stepId}/send-now`, { method: "POST" });
+      const json = await response.json();
+      if (!response.ok) { setNotice(json.error ?? "Could not send that follow-up."); return; }
+      setNotice(`Sent to ${json.to}. It threads under the first email; reload to see it marked sent.`);
+    } catch { setNotice("Could not send that follow-up."); }
+    finally { setSendingStep(""); }
+  };
   // Send to whoever is selected. Picking a colleague used to downgrade this to "Open email", which handed
   // the work back to the user's mail client for no reason the user could see — the send route simply had no
   // way to address anyone but the card's own contact. It does now, so there is one button and it sends.
@@ -1078,7 +1095,10 @@ export function Desk({
                         <div className="deskwork-fu-top"><strong>Step {step.step} · {step.title}</strong><span className={followupWhen(step.scheduledAt, step.status) === "due now" ? "is-due" : ""}>{followupWhen(step.scheduledAt, step.status)}</span></div>
                         {step.subject && <div className="deskwork-fu-subj">Subject: {step.subject}</div>}
                         <p className="deskwork-fu-body">{step.body}</p>
-                        <button type="button" className="deskwork-fu-copy" onClick={() => copyText(step.subject ? `Subject: ${step.subject}\n\n${step.body}` : step.body, `Follow-up ${step.step}`)}>Copy follow-up</button>
+                        <div className="deskwork-fu-actions">
+                          <button type="button" className="deskwork-fu-copy" onClick={() => copyText(step.subject ? `Subject: ${step.subject}\n\n${step.body}` : step.body, `Follow-up ${step.step}`)}>Copy follow-up</button>
+                          {step.status === "pending" && step.channel === "email" && <button type="button" className="deskwork-fu-copy" disabled={!!sendingStep} title="Send this one now instead of waiting for its scheduled day" onClick={() => sendFollowupNow(step.id, step.title)}>{sendingStep === step.id ? "Sending…" : "Send now"}</button>}
+                        </div>
                       </div>
                     ))}
                   </div>;
