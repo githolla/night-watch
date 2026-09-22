@@ -21,6 +21,12 @@ export async function POST(request: Request) {
     const line = typeof subject === "string" ? subject.trim() : "";
     if (!line) return Response.json({ error: "Write a subject first." }, { status: 400 });
     if (line.length > 120) return Response.json({ error: "That subject is too long (120 characters max)." }, { status: 400 });
+    // "TEST" typed once and applied to all put the same placeholder on the subject of every un-sent email
+    // on the list — sixty of them, found later one screenshot at a time. A blanket write is exactly where a
+    // placeholder does the most damage, so it is refused here rather than caught afterwards.
+    if (/^(test|testing|subject|draft|todo|tbd|xxx|asdf|n\/a|\.+)$/i.test(line)) {
+      return Response.json({ error: `“${line}” looks like a placeholder. Applying it would put it on every un-sent email — write the subject you actually want to send.` }, { status: 400 });
+    }
     const cutoff = typeof before === "string" && before ? before : new Date().toISOString();
     const db = admin();
 

@@ -275,6 +275,15 @@ const COUNT_WORD = ["no", "one", "two", "three", "four", "five", "six", "seven",
 const numberWord = (count: number) => COUNT_WORD[count] ?? String(count);
 
 /**
+ * Careers-page furniture that a scraper takes as part of the title: the link text wrapping the posting
+ * ("Apply for X … Apply", "View job", "Learn more"). It produced a real draft naming "Apply for Adobe
+ * Multi-Solution Architect and Apply for Multi-Solution Architect Apply" — the word Apply three times in
+ * one sentence, and two roles that looked identical once the tail was cut.
+ */
+const POSTING_CHROME_HEAD = /^\s*(?:apply (?:for|to|now for)|view|see|read more about|explore|job:|role:|position:|opening:|vacancy:)\s+/i;
+const POSTING_CHROME_TAIL = /[\s,–—-]*\b(?:apply(?:\s+now)?|apply here|learn more|read more|view job|view role|view details|see details|see more|more info|details)\b[\s.>»]*$/i;
+
+/**
  * A posting title trimmed to something that reads inside a sentence: no parenthetical, no location or
  * employment-type tail, no trailing requisition code. A subject line built from an untrimmed title was being
  * cut mid-word at 120 characters.
@@ -282,6 +291,9 @@ const numberWord = (count: number) => COUNT_WORD[count] ?? String(count);
 function tidyRole(raw: string): string {
   let role = decodeEntities(raw)
     .replace(COUNT_PREFIX, "")
+    // Twice: "Apply for Solution Architect Apply Now" carries chrome at both ends, and cutting the tail can
+    // expose another ("… Apply Learn more").
+    .replace(POSTING_CHROME_HEAD, "").replace(POSTING_CHROME_TAIL, "").replace(POSTING_CHROME_TAIL, "")
     .replace(/\([^)]*\)/g, " ")
     .replace(/\[[^\]]*\]/g, " ")
     .replace(/\s*[-–—|,]\s*(remote|hybrid|onsite|on-site|full[- ]time|part[- ]time|contract|temporary|permanent|usa?|u\.s\.?|uk|canada|emea|apac|anywhere|multiple locations)\b.*$/i, "")

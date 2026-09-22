@@ -36,6 +36,27 @@ test("every fault that actually reached a prospect tonight is caught", () => {
   assert.ok(rules({ body: "Hi Jim,\n\nWe build {need} for you.\n\nThank you," }).includes("placeholder"));
 });
 
+test("the audit does not invent faults the drafts do not have", () => {
+  // Reported on the real list: "never names Q2 Holdings" on an email saying Q2 throughout, and the same for
+  // The RealReal written as RealReal. A check that cries wolf is as useless as one that stays silent.
+  const named = (company: string, personName: string, body: string) =>
+    auditDraft(row({ company, personName, body })).map((fault) => fault.rule);
+  assert.ok(!named("Q2 Holdings", "Eric Carter", "Hi Eric,\n\nQ2 is hiring.\n\nThank you,").includes("no-company"));
+  assert.ok(!named("The RealReal", "Rati Sahi Levesque", "Hi Rati,\n\nRealReal is hiring.\n\nThank you,").includes("no-company"));
+  assert.ok(!named("Seacoast Banking Corp of Florida", "Charles M. Shaffer", "Hi Charles,\n\nSeacoast Banking is hiring.\n\nThank you,").includes("no-company"));
+  // But a draft that genuinely never mentions them is still called out.
+  assert.ok(named("Global Tax Management", "Christine Funkhouser", "Hi Christine,\n\nWe build reporting.\n\nThank you,").includes("no-company"));
+});
+
+test("a company's own product filed as a contact is caught, and its founders are not", () => {
+  // "ModMed Pay" at ModMed is a payments product. "Husch" at Husch Blackwell is very likely a founder, and
+  // a rule that eats founders is worse than the product it catches.
+  assert.ok(auditDraft(row({ personName: "ModMed Pay", company: "ModMed", body: "Hi ModMed,\n\nModMed is hiring.\n\nThank you," })).some((f) => f.rule === "not-a-person"));
+  for (const [name, company] of [["Catherine Hanaway", "Husch Blackwell"], ["Evan Lyall", "Roush Enterprises"], ["Robert Husch", "Husch Blackwell"], ["Peterson Cheese", "Peterson Cheese"], ["Roush Williams", "Roush Enterprises"]] as const) {
+    assert.ok(!auditDraft(row({ personName: name, company, body: `Hi ${name.split(" ")[0]},\n\n${company} is hiring.\n\nThank you,` })).some((f) => f.rule === "not-a-person"), `${name} at ${company} is a person`);
+  }
+});
+
 test("a blocking fault is what stops a send, and a nit is not", () => {
   assert.equal(isSendable(auditDraft(row({}))), true);
   assert.equal(isSendable(auditDraft(row({ subject: "TEST" }))), false);

@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { isLikelyPersonName } from "@/lib/pipeline";
 import { targetAccountByDomain } from "@/lib/target-accounts";
-import { decodeEntities, foreignEmployer, isRealContact } from "@/lib/clean";
+import { decodeEntities, foreignEmployer, isRealContact, looksLikeCompanyBrand } from "@/lib/clean";
 
 type TeamPerson = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; email_source: string | null; linkedin_url: string | null; sentAt?: string | null };
 
@@ -26,6 +26,8 @@ export async function GET(request: Request) {
         // And the ones that are not a person at all: a functional mailbox (recruiting@, service@) or a page
         // title scraped as a contact ("Modern Slavery Statement").
         .filter((person) => isRealContact(person))
+        // And the company's own products, filed under its own name: "ModMed Pay" at ModMed.
+        .filter((person) => !looksLikeCompanyBrand(person.full_name, account.name as string))
       : [];
     // Who here has already been written to. Held only in the browser before now, so every reload forgot it
     // and the same colleague could be emailed twice by someone who could not see the first one.

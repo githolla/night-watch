@@ -1,4 +1,4 @@
-import { decodeBody, decodeEntities, greetedName, isRealContact, stripLeadingGreeting } from "./clean.ts";
+import { decodeBody, decodeEntities, greetedName, isRealContact, looksLikeCompanyBrand, stripLeadingGreeting } from "./clean.ts";
 
 /**
  * Every way a saved draft can be wrong, checked in one place.
@@ -60,6 +60,8 @@ export function auditDraft(row: AuditRow): Fault[] {
   // — Is the recipient a person —
   if (!isRealContact({ full_name: row.personName, title: row.personTitle, email: row.personEmail })) {
     say("not-a-person", `“${row.personName ?? "This contact"}” is not a person — it is a phrase or a functional mailbox.`);
+  } else if (looksLikeCompanyBrand(row.personName, row.company)) {
+    say("not-a-person", `“${row.personName}” is one of ${company}'s own products, not a person there.`);
   }
 
   // — Is it addressed to them —
@@ -80,7 +82,7 @@ export function auditDraft(row: AuditRow): Fault[] {
   }
   if (/https?:\/\//.test(body)) say("link-in-body", "There is a link in the body; the signature already carries one and two trips spam filters.");
   if (body.length > BODY_LIMIT) say("too-long", `The body is ${body.length} characters and the send route refuses anything over ${BODY_LIMIT}.`);
-  if (company && !body.includes(company)) say("no-company", `It never names ${company}.`, false);
+  if (company && !namesCompany(body, company)) say("no-company", `It never names ${company}.`, false);
 
   const text = `${subject}\n${body}`;
   if (/\broles?\s*:/i.test(text)) say("list-as-title", "A list of roles was read as one job title, so a colon is sitting mid-sentence.");
@@ -97,6 +99,30 @@ export function auditDraft(row: AuditRow): Fault[] {
   }
 
   return faults;
+}
+
+// Words that carry no identity: what is left once they go is what a person would actually write. Without
+// this, an email to Q2 Holdings that says "Q2" eight times was reported as never naming the company, and an
+// audit that invents faults is no more use than one that misses them.
+const COMPANY_FURNITURE = /\b(inc|inc\.|incorporated|corp|corp\.|corporation|company|co|co\.|llc|l\.l\.c\.|ltd|ltd\.|limited|plc|group|holdings?|technologies|technology|software|solutions?|systems?|services?|enterprises?|partners|ventures|labs?|global|international|worldwide|usa?|of|the|and|&)\b/gi;
+
+/**
+ * True when the draft names the company, allowing for the way people actually write it.
+ *
+ * An exact match alone reported "never names Q2 Holdings" on an email that says Q2 throughout, and the same
+ * for "The RealReal" written as RealReal and "Seacoast Banking Corp of Florida" written as Seacoast
+ * Banking. An audit that invents faults is no more use than one that misses them, so this looks for the
+ * distinctive word rather than the registered name.
+ */
+function namesCompany(body: string, company: string): boolean {
+  const text = body.toLowerCase();
+  if (text.includes(company.toLowerCase())) return true;
+  const core = company.replace(COMPANY_FURNITURE, " ").replace(/\s{2,}/g, " ").trim();
+  // Nothing distinctive left ("The Group") — the full name was the only test there was.
+  if (!core) return false;
+  // The first surviving word is the identifying one: Seacoast, Q2, RealReal.
+  const identifier = core.split(/\s+/)[0];
+  return new RegExp(`\\b${escapeRegExp(identifier)}\\b`, "i").test(body);
 }
 
 function escapeRegExp(value: string) {

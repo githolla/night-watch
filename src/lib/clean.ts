@@ -300,6 +300,29 @@ export function looksLikeMarketingPhrase(name: string | null | undefined, title?
   return Boolean(role) && MARKETING_TITLE.test(role);
 }
 
+// Words that turn a company name into one of its products. A contact called "ModMed Pay" at ModMed is a
+// payments product, not a colleague.
+const PRODUCT_WORD = /^(pay|payments?|care|cloud|connect|connects?|app|apps|health|plus|pro|one|ai|labs?|suite|hub|portal|direct|now|go|mobile|insights?|analytics|platform|studio|works?|flow|engage|assist|central|link|sync|edge|next|prime|max|lite|online|digital|express|team|support|sales|billing|academy|university|community|marketplace|store|shop|blog|news|events?|partners?|careers?)$/i;
+
+/**
+ * True when a "contact" is one of the company's own products or sub-brands rather than a person.
+ *
+ * Narrow on purpose: it fires only when the name STARTS with the company's distinctive word and everything
+ * after it is a product word. Founders very often share a surname with the company — Husch at Husch
+ * Blackwell, Roush at Roush Enterprises — and those must never be thrown away.
+ */
+export function looksLikeCompanyBrand(name: string | null | undefined, company: string | null | undefined): boolean {
+  const person = decodeEntities(name ?? "").trim();
+  const firm = decodeEntities(company ?? "").trim();
+  if (!person || !firm) return false;
+  const identifier = firm.split(/\s+/)[0];
+  if (identifier.length < 3) return false;
+  const words = person.split(/\s+/);
+  if (words.length < 2 || words.length > 3) return false;
+  if (words[0].toLowerCase() !== identifier.toLowerCase()) return false;
+  return words.slice(1).every((word) => PRODUCT_WORD.test(word.replace(/[^\p{L}\p{N}]/gu, "")));
+}
+
 /** Everything that disqualifies a scraped contact from being written to, in one place. */
 export function isRealContact(person: { full_name?: string | null; email?: string | null; title?: string | null }): boolean {
   if (looksLikeDocumentName(person.full_name)) return false;

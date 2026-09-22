@@ -166,6 +166,20 @@ test("a cluster signal's whole list is not read as one role title", () => {
   assert.ok(!/\b\d+ roles/i.test(draft.body), `counts are spelled, not doubled: ${draft.body}`);
 });
 
+test("careers-page link text is not part of the job title", () => {
+  // The real draft: "hiring three roles, including Apply for Adobe Multi-Solution Architect and Apply for
+  // Multi-Solution Architect Apply" — the word Apply three times in one sentence, and two roles that read
+  // as the same one because the only thing telling them apart was the tail.
+  const roles = rolesFromSignal({ job: {
+    title: "Apply for Adobe Multi-Solution Architect, AEM/EDS (US) Apply",
+    responsibilities: ["Apply for Multi-Solution Architect (India) Apply", "Apply for Solution Architect, Workfront (US) Apply", "Senior Data Engineer Apply Now", "View job Data Analyst Learn more"],
+  } });
+  const draft = composeContactDraft({ company: "Code and Theory", personName: "Arjun Kalyanpur", personTitle: "Head of Product", roles, variantSalt: 0 });
+  assert.ok(!/\bapply\b/i.test(draft.body), `no "Apply" left in the body: ${draft.body}`);
+  assert.ok(!/\b(learn more|view job|read more)\b/i.test(draft.body), `no link text left: ${draft.body}`);
+  assert.ok(!/\b(\w[\w -]{2,}?) and \1\b/i.test(draft.body), `no role named twice: ${draft.body}`);
+});
+
 test("a genuine title carrying a comma is not split into two invented roles", () => {
   // "Manager, Sales Ops" is one posting. Splitting every comma would invent a "Manager" opening that
   // nobody posted, so only a list the signal itself counted ("6 roles: …") is split.

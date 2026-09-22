@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { decodeEntities, foreignEmployer, isRealContact, looksLikeDocumentName, looksLikeMarketingPhrase } from "./clean.ts";
+import { decodeEntities, foreignEmployer, isRealContact, looksLikeCompanyBrand, looksLikeDocumentName, looksLikeMarketingPhrase } from "./clean.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { findPerson, scout, type ScoutSignal, writeAngle } from "./agents.ts";
 import { matchPerson } from "./apollo.ts";
@@ -114,6 +114,8 @@ export async function upsertPerson(account: Account, candidate: { name: string; 
   // title "Your Industry Partner". Three capitalised words pass every test above, so this one reached a
   // real draft that opened "Hi Discover,".
   if (looksLikeMarketingPhrase(candidate.name, candidate.title)) return null;
+  // Nor one of the company's own products: "ModMed Pay" is a payments product at ModMed, not a colleague.
+  if (looksLikeCompanyBrand(candidate.name, account.name)) return null;
   // A research pass that reads about one company also meets executives quoted from others. Storing them
   // here means offering to email "CIO, Peterson Cheese" a pitch about Quantiphi's hiring.
   const elsewhere = foreignEmployer(candidate.title, account.name, account.domain);
