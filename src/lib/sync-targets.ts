@@ -29,6 +29,14 @@ export async function syncTargetAccounts(db: SupabaseClient) {
   const { error: demoteError } = await db.from("accounts").update({ outreach: false }).or(`tier.is.null,tier.not.in.(${OUTREACH_TIERS.join(",")})`).is("outreach_manual", null).eq("outreach", true);
   if (demoteError) throw demoteError;
 
+  // Companies that sell this service themselves are taken off outreach here too. The promote step above
+  // keys on tier alone, so without this the database would put them straight back on the list.
+  const competitors = targetAccounts.filter((account) => account.sellsThisService).map((account) => account.domain);
+  for (const batch of batches(competitors)) {
+    const { error } = await db.from("accounts").update({ outreach: false }).in("domain", batch).is("outreach_manual", null).eq("outreach", true);
+    if (error) throw error;
+  }
+
   const targetDomains = new Set(targetAccounts.map((account) => account.domain));
   const active: Array<{ domain: string; outreach_manual: boolean | null }> = [];
   for (let from = 0; ; from += 1000) {

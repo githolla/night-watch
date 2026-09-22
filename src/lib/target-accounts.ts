@@ -38,6 +38,32 @@ export function isOutreachTier(tier: TargetTier) {
   return OUTREACH_TIERS.includes(tier);
 }
 
+/**
+ * Companies the offer cannot be sold to, because they sell it themselves.
+ *
+ * "We build and run that work so you don't hire for it" IS the managed-services pitch, and the AI/data
+ * consultancy pitch, and what a staffing firm is for. An audit of the reach-out list found 171 of 576 —
+ * 29.7%, 120 of them first-wave — were firms of exactly that kind: Quantiphi, Fractal Analytics, Tredence,
+ * phData, Blend360, Datavail, Vaco, Cielo, Bullhorn, and most of the IT-services and consulting verticals.
+ *
+ * Judged on the recorded vertical and sub-segment only — never guessed from a company name — so the rule is
+ * auditable and reversible. Kept as a predicate rather than an edit to the generated file: the cut is a
+ * decision about the offer, and it should be visible as one.
+ */
+const SELLS_THIS_SERVICE_VERTICAL = /^(IT services|Consulting firms)$/i;
+const SELLS_THIS_SERVICE_SUBSEGMENT = /\b(staffing|recruit\w*|rpo|talent (?:solutions|intelligence|acquisition))\b|\b(?:ai|a\.i\.|machine learning|ml|data(?: science| engineering| analytics| platform| virtualization)?)\b[^,]{0,30}\b(?:consult\w*|advisory|services|software|platform|engineering)\b|\b(?:analytics|business intelligence)\b[^,]{0,20}\b(?:software|platform|vendor)\b|\bmanaged (?:data|analytics) services\b/i;
+
+// A sub-segment describing a data / analytics / AI PRODUCT. These are not consultancies, so the vertical
+// and services rules miss them, but "we build the reporting so you don't hire for it" still lands badly on
+// a company whose product IS the reporting.
+const SELLS_THIS_SERVICE_PRODUCT = /\b(analytics|data platform|data warehous\w*|data & ai|data and ai|revenue ai|talent intelligence|business intelligence|predictive model\w*|ai platform|ai software|machine learning platform)\b/i;
+
+export function sellsThisService(vertical: string, subSegment: string): boolean {
+  return SELLS_THIS_SERVICE_VERTICAL.test((vertical ?? "").trim())
+    || SELLS_THIS_SERVICE_SUBSEGMENT.test(subSegment ?? "")
+    || SELLS_THIS_SERVICE_PRODUCT.test(subSegment ?? "");
+}
+
 export type TargetAccount = {
   rank: number;
   name: string;
@@ -60,6 +86,8 @@ export type TargetAccount = {
   tier: TargetTier;
   /** True for Tier A: the only companies Night Watch drafts outreach for. */
   outreach: boolean;
+  /** True when the company sells this service itself, so the pitch cannot land however good the fit looks. */
+  sellsThisService: boolean;
   /** Why the cut removed the company, when it did. */
   dropReason: string;
 };
@@ -100,7 +128,9 @@ export const targetAccounts: TargetAccount[] = targetAccountData.map((record, in
     notes,
     alsoIn,
     tier: cut.tier,
-    outreach: isOutreachTier(cut.tier),
+    // Tier says the company is the right size and shape; this says the pitch can actually land there.
+    outreach: isOutreachTier(cut.tier) && !sellsThisService(vertical, subSegment),
+    sellsThisService: sellsThisService(vertical, subSegment),
     dropReason: cut.dropReason,
   };
 });

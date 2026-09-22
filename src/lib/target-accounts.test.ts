@@ -29,9 +29,15 @@ test("the reach-out cut tags every company and keeps only Tier A for outreach", 
   const byTier = new Map<string, number>();
   for (const account of targetAccounts) byTier.set(account.tier, (byTier.get(account.tier) ?? 0) + 1);
   assert.deepEqual(Object.fromEntries([...byTier].sort()), { A1: 294, A2: 282, B: 764, C: 223, removed: 296 });
-  assert.equal(outreachAccounts.length, 576);
+  // Tier says the company is the right size and shape. Outreach additionally requires that the pitch can
+  // land there, so the 133 Tier A companies that sell this service themselves are excluded — see
+  // target-cut.test.ts. Outreach is therefore a strict subset of Tier A, not equal to it.
+  const tierA = targetAccounts.filter((account) => account.tier === "A1" || account.tier === "A2");
+  assert.equal(tierA.length, 576);
+  assert.equal(outreachAccounts.length, tierA.filter((account) => !account.sellsThisService).length);
   assert.ok(outreachAccounts.every((account) => account.outreach && (account.tier === "A1" || account.tier === "A2")));
-  assert.ok(targetAccounts.every((account) => account.outreach === (account.tier === "A1" || account.tier === "A2")));
+  assert.ok(targetAccounts.every((account) =>
+    account.outreach === ((account.tier === "A1" || account.tier === "A2") && !account.sellsThisService)));
   assert.ok(targetAccounts.filter((account) => account.tier === "removed").every((account) => account.dropReason));
   assert.ok(targetAccounts.filter((account) => account.tier !== "removed").every((account) => !account.dropReason));
   assert.equal(activeTargetAccounts.length, 1859 - 296);

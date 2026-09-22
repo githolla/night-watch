@@ -41,7 +41,8 @@ function blankTarget(live: LiveAccount): TargetAccount {
   return {
     rank: 0, name: live.name, domain: live.domain, revenueEstimateUsdM: null, revenueBand: "", employees: null, vertical: live.vertical ?? "", subSegment: "",
     hqCity: live.hq_city ?? "", hqState: live.hq_state ?? "", ownership: "", peSponsor: "", ceo: "", targetTitles: live.target_titles ?? [], aiSignal: "", sourceUrl: "", notes: "", alsoIn: "",
-    tier: "B", outreach: true, dropReason: "",
+    // A company added by hand rather than from the file: not judged a competitor by the cut.
+    tier: "B", outreach: true, sellsThisService: false, dropReason: "",
   };
 }
 
