@@ -49,6 +49,11 @@ const HEALTH_PROBES: Array<{ file: string; table: string; column: string; breaks
   { file: "0023_worklist.sql", table: "cards", column: "worklist_on", breaks: "today's worklist: the desk list is empty and reshuffles on every load" },
   { file: "0017_google_scopes.sql", table: "gmail_connections", column: "connected_at", breaks: "the send warm-up cap and the From address on every email" },
   { file: "0020_invites_signature.sql", table: "sender_profiles", column: "website", breaks: "the signature block on every outbound email" },
+  // A repair script rather than a migration, and the code runs fine without it — the greeting simply
+  // cannot be saved until it is applied. Listed HERE and not in MIGRATIONS on purpose: this list only
+  // reports, while a pending migration makes requireSchema refuse to run at all, and an optional setting
+  // must never stop the nightly research.
+  { file: "repair/0025_sender_greeting.sql", table: "sender_profiles", column: "greeting", breaks: "the per-seat greeting, sign-off and introduction (drafts fall back to the built-in lines)" },
   { file: "0018_scheduling.sql", table: "cards", column: "invite_link", breaks: "auto-booking a meeting when a prospect picks a proposed time" },
   { file: "0015_card_claim.sql", table: "cards", column: "working_at", breaks: "the 'someone is working this' marker, so two people can message the same prospect" },
 ];

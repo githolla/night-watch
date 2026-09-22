@@ -235,8 +235,13 @@ function differentCompany(named: string, companyName: string, domain?: string | 
  * wrong name, twice, on every colleague at the company.
  *
  * Bounded to one or two name-ish words so it can never swallow a real opening sentence.
+ *
+ * The opener list runs wider than hi/hey/hello/dear because each seat now writes its own greeting. One
+ * outside the list is not recognised as a greeting at all, and the composer then shows the Greeting field
+ * AND leaves the greeting sitting in the message — which is the doubled "Hi Ara, Nice to meet you" that
+ * had just been fixed, reintroduced by the setting that was meant to be an improvement.
  */
-export const GREETING_LINE = /^[ \t]*(?:hi|hey|hello|dear)[ \t]+([A-Za-z][\w'.-]*(?:[ \t]+[A-Za-z][\w'.-]*)?)[ \t]*(?:[,!:;–—-]+[ \t]*|\n+|$)/i;
+export const GREETING_LINE = /^[ \t]*(?:hi there|hi|hey there|hey|hello there|hello|dear|greetings|good (?:morning|afternoon|evening)|morning|afternoon)[ \t]+([A-Za-z][\w'.-]*(?:[ \t]+[A-Za-z][\w'.-]*)?)[ \t]*(?:[,!:;–—-]+[ \t]*|\n+|$)/i;
 
 /** The first name a draft greets, or null when it opens with no greeting at all. */
 export function greetedName(body: string | null | undefined): string | null {
@@ -248,6 +253,13 @@ export function greetedName(body: string | null | undefined): string | null {
 export function stripLeadingGreeting(body: string | null | undefined): string {
   return (body ?? "").replace(GREETING_LINE, "").replace(/^\s+/, "");
 }
+
+/**
+ * The closing lines a draft may end on. Shared with the composer so a seat's OWN sign-off is recognised as
+ * a sign-off rather than read as the last sentence of the message — which would leave it in the body and
+ * then put a second one underneath it on save.
+ */
+export const SIGNOFF_OPENERS = /^\s*(thanks|thank you|many thanks|best|best wishes|all the best|regards|kind regards|warm regards|cheers|warmly|sincerely|yours|talk soon|speak soon|appreciate it|much appreciated|with thanks|respectfully)\b/i;
 
 /**
  * A mailbox that belongs to a function rather than a person: recruiting@, service@, info@, careers@.

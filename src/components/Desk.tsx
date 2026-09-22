@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
-import { greetedName, hasProposedTimes, sanitizeCopy, stripLeadingGreeting, stripProposedTimes } from "@/lib/clean";
+import { greetedName, hasProposedTimes, sanitizeCopy, SIGNOFF_OPENERS, stripLeadingGreeting, stripProposedTimes } from "@/lib/clean";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { CadencePlanner } from "./CadencePlanner";
 import { CompanyTeam } from "./CompanyTeam";
@@ -1343,7 +1343,7 @@ function parseEmail(body: string, fallbackFirst: string): { first: string; messa
   let signoff = "Thank you,";
   const rl = rest.split("\n");
   for (let i = rl.length - 1; i >= 0 && i >= rl.length - 3; i--) {
-    if (/^\s*(thanks|thank you|best|regards|cheers|warmly|talk soon|speak soon|sincerely)\b/i.test(rl[i])) {
+    if (SIGNOFF_OPENERS.test(rl[i])) {
       signoff = rl.slice(i).join("\n").trim();
       rest = rl.slice(0, i).join("\n").trim();
       break;

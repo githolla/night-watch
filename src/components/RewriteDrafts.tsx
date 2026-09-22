@@ -246,7 +246,7 @@ export function RewriteDrafts() {
           <div><h3><em className="draft-step">Step 3</em>Audit every draft</h3><p>Reads every un-sent email on file and checks it against every rule at once: greets the right person, names the company, has a real subject, no placeholder left in, no link in the body, no role list read as a job title, within the length the send route accepts, and addressed to someone who is actually a person.</p></div>
           <span className="panel-cost is-free">Free</span>
         </header>
-        <p className="panel-watch">Read-only &mdash; nothing is written, nothing is sent, no AI is called. It names each draft that fails and says why, so the list can be checked rather than taken on trust.</p>
+        <p className="panel-watch">Read-only &mdash; nothing is written, nothing is sent, no AI is called. It names each failing draft and says why &mdash; up to 200 of them &mdash; and counts every rule across the whole list, so it can be checked rather than taken on trust.</p>
         <div className="draft-tool-actions">
           <button type="button" className="btn primary" disabled={!!running} onClick={auditDrafts}>{running === "audit" ? "Reading…" : "Audit every draft"}</button>
         </div>
@@ -255,6 +255,7 @@ export function RewriteDrafts() {
             {Object.entries(audit.byRule).sort((a, b) => b[1] - a[1]).map(([rule, n]) => <li key={rule}><strong>{n}</strong> &middot; {rule.replace(/-/g, " ")}</li>)}
           </ul>
         )}
+        {audit && audit.problems.length >= 200 && <p className="panel-watch">Showing the first 200 by name. The counts above cover every draft read.</p>}
         {audit && audit.problems.length > 0 && (
           <ul className="draft-tool-list">
             {audit.problems.map((problem) => (

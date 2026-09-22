@@ -79,8 +79,9 @@ export async function POST(request: Request) {
     for (const card of cards) {
       const person = card.people;
       const company = card.accounts?.name ?? "";
-      // Nothing to write a draft from: leave whatever is there rather than replacing it with a worse one.
-      if (!person?.full_name || !company) { skipped += 1; continue; }
+      // Nothing to write a draft from — including no seat, which would produce an email introducing
+      // nobody. Leave whatever is there rather than replacing it with something worse.
+      if (!person?.full_name || !company || !profiles.get(card.assigned_to)) { skipped += 1; continue; }
       const raw = card.signals?.raw ?? {};
       const draft = composeContactDraft({
         variantSalt: positions.get(card.id) ?? 0,

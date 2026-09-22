@@ -672,7 +672,8 @@ export async function recomputeAndSurface() {
   // The audit knows what is broken and the writer knows how to write a correct one; leaving a human to
   // carry the result from one to the other is how sixty drafts kept the subject "TEST" for a day.
   const repair = await repairBrokenDrafts().catch(() => null);
-  if (repair?.repaired) console.warn(`[night-watch] rewrote ${repair.repaired} draft(s) that could not be sent as they stood`);
+  if (repair?.repaired) console.warn(`[night-watch] brought ${repair.repaired} draft(s) back in line with the writer`);
+  if (repair && !repair.done) console.warn("[night-watch] draft repair ran out of time; the next pass continues where it stopped");
   const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(type,observed_at,raw),accounts(outreach)").in("status", ["new", "approved", "edited", "snoozed"]);
   for (const card of cards ?? []) {
     const signal = card.signals as unknown as { type?: string; observed_at: string; raw?: { operating_need?: unknown } | null };
@@ -707,4 +708,6 @@ export async function recomputeAndSurface() {
   const today = new Date().toISOString().slice(0, 10);
   const { data: top } = await db.from("cards").select("id").in("status", ["new", "approved", "edited"]).or(`snooze_until.is.null,snooze_until.lte.${today}`).order("score", { ascending: false }).limit(10);
   if (top?.length) await db.from("cards").update({ surfaced_on: today }).in("id", top.map((card) => card.id));
+  // Handed back so the caller can say what happened instead of always reporting a clean sweep.
+  return { draftsRepaired: repair?.repaired ?? 0, draftsPending: repair ? !repair.done : false };
 }

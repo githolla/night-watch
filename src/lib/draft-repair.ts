@@ -32,7 +32,12 @@ type Row = {
  *
  * Sent emails are never touched: they are a record of what went out.
  */
-export async function repairBrokenDrafts(limit = 2000) {
+export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000) {
+  // A time budget, because this runs inside the worklist refresh alongside everything else that pass does.
+  // Without one it would keep going until the platform killed the request, which loses the whole refresh
+  // rather than just the tail of this. Stopping early is safe: the next pass picks up where this left off,
+  // and `done` says plainly whether there is more.
+  const deadline = Date.now() + budgetMs;
   const db = admin();
   const open = ["new", "approved", "edited"];
   const rows: Row[] = [];
@@ -41,7 +46,7 @@ export async function repairBrokenDrafts(limit = 2000) {
       .select("id,status,signal_id,email_subject,email_body,why_now,assigned_to,signals(raw),accounts(name),people(full_name,title,email)")
       .in("status", open).not("email_body", "is", null).order("id").range(from, from + 499);
     // Never let a failed read look like a clean list.
-    if (error) return { checked: 0, repaired: 0, failed: 0 };
+    if (error) return { checked: 0, repaired: 0, failed: 0, done: false };
     rows.push(...((data ?? []) as unknown as Row[]));
     if ((data?.length ?? 0) < 500) break;
   }
@@ -59,7 +64,7 @@ export async function repairBrokenDrafts(limit = 2000) {
 
   // Untouched drafts are kept current with the writer; worked-on ones only when they cannot be sent.
   const candidates = rows.filter((row) => row.status === "new" || !isSendable(auditDraft(toAuditRow(row))));
-  if (!candidates.length) return { checked: rows.length, repaired: 0, failed: 0 };
+  if (!candidates.length) return { checked: rows.length, repaired: 0, failed: 0, done: true };
   const broken = candidates;
 
   // Each card's own seat: the draft introduces the sender by name, so repairing Jenna's card with Josh's
@@ -71,7 +76,10 @@ export async function repairBrokenDrafts(limit = 2000) {
 
   let repaired = 0;
   let failed = 0;
+  let done = true;
   for (const row of broken) {
+    // Out of time: leave the rest for the next pass rather than taking the whole refresh down with us.
+    if (Date.now() > deadline) { done = false; break; }
     const person = row.people;
     const company = row.accounts?.name ?? "";
     // Nothing to write from: leave it rather than replacing it with something worse.
@@ -102,7 +110,7 @@ export async function repairBrokenDrafts(limit = 2000) {
       .eq("id", row.id).eq("status", row.status).in("status", open);
     if (error) failed += 1; else repaired += 1;
   }
-  return { checked: rows.length, repaired, failed };
+  return { checked: rows.length, repaired, failed, done };
 }
 
 const toAuditRow = (row: Row): AuditRow => ({
