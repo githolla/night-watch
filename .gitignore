@@ -6,3 +6,11 @@ node_modules/
 dist/
 coverage/
 *.tsbuildinfo
+
+# Throwaway analysis scripts. TypeScript imports only resolve from the repo root, so a one-off script that
+# reads the target list or exercises a helper has to be written here rather than in a temp directory.
+# Ignored so scratch never reaches a commit; nothing here is part of the app.
+*-tmp.ts
+*-check.ts
+*-check.mjs
+scratch-*.ts
