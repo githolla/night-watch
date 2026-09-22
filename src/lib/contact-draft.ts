@@ -281,6 +281,7 @@ const numberWord = (count: number) => COUNT_WORD[count] ?? String(count);
  */
 function tidyRole(raw: string): string {
   let role = decodeEntities(raw)
+    .replace(COUNT_PREFIX, "")
     .replace(/\([^)]*\)/g, " ")
     .replace(/\[[^\]]*\]/g, " ")
     .replace(/\s*[-–—|,]\s*(remote|hybrid|onsite|on-site|full[- ]time|part[- ]time|contract|temporary|permanent|usa?|u\.s\.?|uk|canada|emea|apac|anywhere|multiple locations)\b.*$/i, "")
@@ -295,6 +296,27 @@ function tidyRole(raw: string): string {
     role = cut.slice(0, cut.lastIndexOf(" ") > 12 ? cut.lastIndexOf(" ") : 44).replace(/[\s,;:.-]+$/, "");
   }
   return role;
+}
+
+/**
+ * "6 roles:", "six open roles including" — a cluster signal often records its WHOLE list in one string, and
+ * that string was being read as a role title. A real draft went out reading "hiring six roles, including
+ * 6 roles: Data Engineer and Data Engineer": the count twice, the same role twice, and a colon in the
+ * middle of a sentence.
+ */
+const COUNT_PREFIX = /^\s*(?:\d{1,3}|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:new\s+|open\s+)?roles?\b\s*(?:including|incl\.?|such as|like)?\s*[:,–—-]?\s*/i;
+
+/**
+ * One string that is really a list becomes the list. Only split when the count prefix proves it is one:
+ * plenty of genuine titles carry a comma ("Manager, Sales Ops"), and splitting those invents roles that
+ * were never posted.
+ */
+function expandRoleList(value: string): string[] {
+  const match = value.match(COUNT_PREFIX);
+  if (!match) return [value];
+  const rest = value.slice(match[0].length).trim();
+  if (!rest) return [];
+  return rest.split(/\s*[;,]\s*(?=[A-Z0-9])/).map((part) => part.trim()).filter(Boolean);
 }
 
 // A req we should not price as headcount: an internship is not a hire being weighed against a build, and
@@ -480,9 +502,9 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
 export function rolesFromSignal(raw: Record<string, unknown> | null | undefined): string[] {
   const job = (raw ?? {}).job as { title?: unknown; responsibilities?: unknown } | undefined;
   const out: string[] = [];
-  if (typeof job?.title === "string" && job.title.trim()) out.push(job.title.trim());
+  if (typeof job?.title === "string" && job.title.trim()) out.push(...expandRoleList(job.title.trim()));
   if (Array.isArray(job?.responsibilities)) {
-    for (const line of job.responsibilities) if (typeof line === "string" && line.trim()) out.push(line.trim());
+    for (const line of job.responsibilities) if (typeof line === "string" && line.trim()) out.push(...expandRoleList(line.trim()));
   }
   // A cluster signal lists its roles in the summary; the scout writes them as "Title, Title, Title".
   return out.slice(0, 6);

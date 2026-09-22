@@ -15,7 +15,7 @@ type Preview = { total: number; scanned: number; wouldChange: number; exact: boo
  * ones — letting you see the exact before and after on real drafts before anything is written.
  */
 export function RewriteDrafts() {
-  const [running, setRunning] = useState<"" | "rewrite" | "greeting" | "clean" | "contacts">("");
+  const [running, setRunning] = useState<"" | "rewrite" | "greeting" | "clean" | "contacts" | "redraft">("");
   const [msg, setMsg] = useState("");
   const [greeting, setGreeting] = useState("Hi {first},");
   const [preview, setPreview] = useState<{ tool: "clean" | "greeting"; data: Preview } | null>(null);
@@ -124,6 +124,31 @@ export function RewriteDrafts() {
     finally { setRunning(""); }
   }
 
+  // Put every un-sent draft through the same composer, so the list reads as one voice. Free: no model call.
+  async function redraftAll() {
+    if (running) return;
+    if (!confirm("Rewrite EVERY un-sent draft with the per-person writer? Each contact gets an email aimed at what their role owns. This replaces drafts you have edited by hand. Sent emails are never touched, and it uses no AI credits.")) return;
+    setRunning("redraft"); setMsg("Rewriting drafts…");
+    try {
+      // One timestamp for the whole drain: every row this writes stays in the open statuses, so a moving
+      // source set would let the run keep finding its own output.
+      const before = new Date().toISOString();
+      let offset = 0, written = 0, failed = 0, done = false;
+      for (let i = 0; i < 200; i++) {
+        const res = await fetch("/api/admin/redraft-all", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ offset, before }) });
+        const json = await res.json();
+        if (!res.ok) { setMsg(json.error ?? "Could not rewrite the drafts."); return; }
+        written += json.written ?? 0; failed += json.failed ?? 0; offset = json.next ?? offset;
+        setMsg(`Rewritten ${written} of ${json.total ?? "?"}…`);
+        if (json.done) { done = true; break; }
+      }
+      // Never report an exhausted loop as a finished run.
+      if (!done) { setMsg(`Stopped with ${written} rewritten — there are more to do. Press it again to carry on.`); return; }
+      setMsg(`Done — ${written} draft${written === 1 ? "" : "s"} rewritten${failed ? `; ${failed} could not be saved` : ""}. Reload the desk to read them.`);
+    } catch { setMsg("Could not rewrite the drafts — try again."); }
+    finally { setRunning(""); }
+  }
+
   const shown = preview?.data;
 
   return (
@@ -144,6 +169,18 @@ export function RewriteDrafts() {
         </label>
         <div className="draft-tool-actions">
           <button type="button" className="btn primary" disabled={!!running} onClick={draftContacts}>{running === "contacts" ? "Writing…" : "Write the drafts"}</button>
+        </div>
+      </section>
+
+      {/* 0b — makes the list read as one voice. */}
+      <section className="draft-tool">
+        <header>
+          <div><h3>Make every draft read the same way</h3><p>The contact a company arrived with kept whatever was written for them at the time, while their colleagues got the per-person writer &mdash; so working down the list you met one email with the greeting doubled into the first line, the next with no subject, the next written properly. This puts all of them through the same writer.</p></div>
+          <span className="panel-cost is-free">Free</span>
+        </header>
+        <p className="panel-watch">Each contact is written to about what their role owns, from their company&rsquo;s own signal, with no AI call. <strong>It replaces drafts you have edited by hand.</strong> Emails already sent are never touched.</p>
+        <div className="draft-tool-actions">
+          <button type="button" className="btn" disabled={!!running} onClick={redraftAll}>{running === "redraft" ? "Rewriting…" : "Rewrite every un-sent draft"}</button>
         </div>
       </section>
 

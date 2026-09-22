@@ -154,6 +154,24 @@ test("role titles are read from the signal's job field, not a key that never exi
   assert.deepEqual(rolesFromSignal({ job: { title: "  " } }), [], "a blank title is not a role");
 });
 
+test("a cluster signal's whole list is not read as one role title", () => {
+  // The real draft this comes from: "I saw Quantiphi is hiring six roles, including 6 roles: Data Engineer
+  // and Data Engineer, open for the last 25 days." The count appeared twice, the colon landed mid-sentence
+  // and the same role was named twice, because the cluster's summary string was taken as a title.
+  const roles = rolesFromSignal({ job: { title: "6 roles: Data Engineer - USA, Senior Data Engineer - DBT, Senior Data Engineer - Snowflake", responsibilities: ["Data Engineer - USA"] } });
+  assert.ok(!roles.some((role) => /roles?\s*:/i.test(role)), `no entry should still be a list: ${JSON.stringify(roles)}`);
+  const draft = composeContactDraft({ company: "Quantiphi", personName: "Jim Reesing", personTitle: "CEO", roles, whyNow: "open for 25 days", variantSalt: 1 });
+  assert.ok(!/roles?:/i.test(draft.body), `no colon-list in the body: ${draft.body}`);
+  assert.ok(!/\b(\w[\w -]*?) and \1\b/i.test(draft.body), `no role named twice: ${draft.body}`);
+  assert.ok(!/\b\d+ roles/i.test(draft.body), `counts are spelled, not doubled: ${draft.body}`);
+});
+
+test("a genuine title carrying a comma is not split into two invented roles", () => {
+  // "Manager, Sales Ops" is one posting. Splitting every comma would invent a "Manager" opening that
+  // nobody posted, so only a list the signal itself counted ("6 roles: …") is split.
+  assert.deepEqual(rolesFromSignal({ job: { title: "Manager, Sales Ops" } }), ["Manager, Sales Ops"]);
+});
+
 test("colleagues at one company never get the same pitch, subject or ask", () => {
   // The measured failure: 480 drafts shared 4 pitch paragraphs, and a CEO, a Co-Founder and a President at
   // one company received a byte-identical subject, pitch and ask. Only the name differed.

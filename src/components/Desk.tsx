@@ -168,8 +168,10 @@ export function Desk({
   const [kind, setKind] = useState<"top" | "all" | "job" | "social">(initialCards.length > SHORTLIST ? "top" : "all");
   // A different contact at the same company, chosen from the "everyone on file" list, to retarget the draft to.
   const [alt, setAlt] = useState<{ cardId: string; person: AltContact } | null>(null);
-  // Where clicking a colleague came from, so there is a way back to them.
-  const [cameFrom, setCameFrom] = useState<{ cardId: string; name: string } | null>(null);
+  // Where clicking a colleague came from, so there is a way back to them. Carries the company too: without
+  // it the link followed you to the next prospect, offering "back to Arjun" on a company Arjun has nothing
+  // to do with.
+  const [cameFrom, setCameFrom] = useState<{ cardId: string; name: string; company: string } | null>(null);
   const [openingContact, setOpeningContact] = useState<string | null>(null);
   const [logged, setLogged] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
@@ -296,7 +298,7 @@ export function Desk({
     if (person.id && from.people.id === person.id) { setAlt(null); setCameFrom(null); return; }
     // Their card may already be loaded — switch straight to it rather than asking the server.
     const loaded = cards.find((item) => item.people.id === person.id && (from.signal_id ? item.signal_id === from.signal_id : item.signals.source_url === from.signals.source_url));
-    if (loaded) { setAlt(null); setCameFrom({ cardId: from.id, name: from.people.full_name }); setFocusId(loaded.id); setNotice(`Writing to ${person.full_name}.`); return; }
+    if (loaded) { setAlt(null); setCameFrom({ cardId: from.id, name: from.people.full_name, company: from.accounts.name }); setFocusId(loaded.id); setNotice(`Writing to ${person.full_name}.`); return; }
     if (demo) { setAlt({ cardId: from.id, person }); setNotice(`Writing to ${person.full_name}.`); return; }
     setOpeningContact(person.id);
     const response = await fetch(`/api/cards/${from.id}/draft-for`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ personId: person.id }) });
@@ -308,7 +310,7 @@ export function Desk({
     const fresh = json.card as Card;
     setCards((current) => current.some((item) => item.id === fresh.id) ? current.map((item) => item.id === fresh.id ? { ...item, ...fresh } : item) : [...current, fresh]);
     setAlt(null);
-    setCameFrom({ cardId: from.id, name: from.people.full_name });
+    setCameFrom({ cardId: from.id, name: from.people.full_name, company: from.accounts.name });
     setFocusId(fresh.id);
     setNotice(json.existing ? `Writing to ${person.full_name} — this is their own draft.` : `Wrote ${person.full_name} their own email, aimed at what their role owns.`);
   }
@@ -1024,7 +1026,7 @@ export function Desk({
                   <div><strong>{contact.full_name}</strong><small>{contact.title || "title unknown"} · {focusCard.accounts.name}</small></div>
                   {altContact
                     ? <button type="button" className="focus-who-reset" onClick={() => setAlt(null)}>&#8617; {focusCard.people.full_name.split(/\s+/)[0]}</button>
-                    : cameFrom && cameFrom.cardId !== focusCard.id
+                    : cameFrom && cameFrom.cardId !== focusCard.id && cameFrom.company === focusCard.accounts.name
                       ? <button type="button" className="focus-who-reset" title={`Back to ${cameFrom.name}`} onClick={() => { setFocusId(cameFrom.cardId); setCameFrom(null); setNotice(""); }}>&#8617; {cameFrom.name.split(/\s+/)[0]}</button>
                       : <span className="deskwork-selected">Selected contact</span>}
                 </div>
