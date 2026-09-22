@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 
 const GREETING_KEY = "nw.blanketGreeting";
 
+type Fault = { rule: string; says: string; blocking: boolean };
+type Problem = { id: string; who: string; company: string; status: string; subject: string; faults: Fault[] };
+type AuditResult = { checked: number; clean: number; unsendable: number; byRule: Record<string, number>; problems: Problem[] };
+
 type Preview = { total: number; scanned: number; wouldChange: number; exact: boolean; samples: Array<{ name: string; before: string; after: string }> };
 
 /**
@@ -15,7 +19,7 @@ type Preview = { total: number; scanned: number; wouldChange: number; exact: boo
  * ones — letting you see the exact before and after on real drafts before anything is written.
  */
 export function RewriteDrafts() {
-  const [running, setRunning] = useState<"" | "rewrite" | "greeting" | "clean" | "contacts" | "redraft" | "people">("");
+  const [running, setRunning] = useState<"" | "rewrite" | "greeting" | "clean" | "contacts" | "redraft" | "people" | "audit">("");
   const [msg, setMsg] = useState("");
   const [greeting, setGreeting] = useState("Hi {first},");
   const [preview, setPreview] = useState<{ tool: "clean" | "greeting"; data: Preview } | null>(null);
@@ -23,6 +27,7 @@ export function RewriteDrafts() {
   const [perCompany, setPerCompany] = useState(4);
   // The names taken off the contact list, so the result can be read rather than taken on trust.
   const [purged, setPurged] = useState<string[] | null>(null);
+  const [audit, setAudit] = useState<AuditResult | null>(null);
 
   // The greeting field resets to the default on every reload, which reads as "my greeting didn't save."
   // Persist the last value locally so the panel reopens showing what the admin actually set.
@@ -167,6 +172,36 @@ export function RewriteDrafts() {
     finally { setRunning(""); }
   }
 
+  // Check every draft on file against every rule. Read-only: nothing is written and nothing is sent.
+  async function auditDrafts() {
+    if (running) return;
+    setRunning("audit"); setMsg("Reading every draft…"); setAudit(null);
+    try {
+      let offset = 0, done = false;
+      const totals: AuditResult = { checked: 0, clean: 0, unsendable: 0, byRule: {}, problems: [] };
+      for (let i = 0; i < 200; i++) {
+        const res = await fetch("/api/admin/audit-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ offset }) });
+        const json = await res.json();
+        if (!res.ok) { setMsg(json.error ?? "Could not read the drafts."); return; }
+        totals.checked += json.checked ?? 0;
+        totals.clean += json.clean ?? 0;
+        totals.unsendable += json.unsendable ?? 0;
+        for (const [rule, n] of Object.entries((json.byRule ?? {}) as Record<string, number>)) totals.byRule[rule] = (totals.byRule[rule] ?? 0) + n;
+        for (const problem of (json.problems ?? []) as Problem[]) if (totals.problems.length < 200) totals.problems.push(problem);
+        offset = json.next ?? offset;
+        setMsg(`Read ${totals.checked} of ${json.total ?? "?"}…`);
+        if (json.done) { done = true; break; }
+      }
+      // Never report a partial pass as a finished audit.
+      if (!done) { setMsg(`Stopped after ${totals.checked} drafts — there are more. Press it again to carry on.`); return; }
+      setAudit(totals);
+      setMsg(totals.checked === totals.clean
+        ? `Read all ${totals.checked} un-sent drafts. Every one passed.`
+        : `Read ${totals.checked} un-sent drafts: ${totals.clean} clean, ${totals.checked - totals.clean} with something wrong, ${totals.unsendable} that could not be sent as they stand.`);
+    } catch { setMsg("Could not read the drafts — try again."); }
+    finally { setRunning(""); }
+  }
+
   const shown = preview?.data;
 
   return (
@@ -188,6 +223,33 @@ export function RewriteDrafts() {
         <div className="draft-tool-actions">
           <button type="button" className="btn primary" disabled={!!running} onClick={draftContacts}>{running === "contacts" ? "Writing…" : "Write the drafts"}</button>
         </div>
+      </section>
+
+      {/* 0 — read before you write: what is actually wrong, by name. */}
+      <section className="draft-tool">
+        <header>
+          <div><h3>Audit every draft</h3><p>Reads every un-sent email on file and checks it against every rule at once: greets the right person, names the company, has a real subject, no placeholder left in, no link in the body, no role list read as a job title, within the length the send route accepts, and addressed to someone who is actually a person.</p></div>
+          <span className="panel-cost is-free">Free</span>
+        </header>
+        <p className="panel-watch">Read-only &mdash; nothing is written, nothing is sent, no AI is called. It names each draft that fails and says why, so the list can be checked rather than taken on trust.</p>
+        <div className="draft-tool-actions">
+          <button type="button" className="btn primary" disabled={!!running} onClick={auditDrafts}>{running === "audit" ? "Reading…" : "Audit every draft"}</button>
+        </div>
+        {audit && Object.keys(audit.byRule).length > 0 && (
+          <ul className="draft-tool-list">
+            {Object.entries(audit.byRule).sort((a, b) => b[1] - a[1]).map(([rule, n]) => <li key={rule}><strong>{n}</strong> &middot; {rule.replace(/-/g, " ")}</li>)}
+          </ul>
+        )}
+        {audit && audit.problems.length > 0 && (
+          <ul className="draft-tool-list">
+            {audit.problems.map((problem) => (
+              <li key={problem.id}>
+                <strong>{problem.who}</strong> &middot; {problem.company}
+                {problem.faults.map((fault) => <span key={fault.rule} className={`audit-fault ${fault.blocking ? "is-blocking" : ""}`}>{fault.says}</span>)}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {/* 0a — nothing else matters if the list is not people. */}

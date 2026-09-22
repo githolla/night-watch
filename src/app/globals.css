@@ -2090,6 +2090,10 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 /* What a check actually removed, by name, so the result can be read rather than taken on trust. */
 .draft-tool-list{margin:12px 0 0;padding:10px 13px 10px 30px;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);font:500 13px/1.7 var(--sans);color:var(--ink-soft)}
 .draft-tool-list li{margin:0}
+.draft-tool-list li strong{color:var(--ink)}
+/* One named fault under the draft it belongs to. Blocking ones read as blocking. */
+.audit-fault{display:block;margin-top:2px;padding-left:11px;border-left:2px solid var(--line-strong);font:500 12px/1.5 var(--sans);color:var(--ink-soft)}
+.audit-fault.is-blocking{border-left-color:var(--danger,#b4331f);color:var(--danger,#b4331f)}
 .draft-tool-input{width:100%;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper);padding:9px 11px;font:500 14px/1.2 var(--sans);color:inherit}
 .draft-tool-actions{display:flex;gap:8px;flex-wrap:wrap}
 /* What would actually change, before anything is written. */

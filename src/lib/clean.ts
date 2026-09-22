@@ -136,12 +136,27 @@ const NAMED_ENTITIES: Record<string, string> = {
   lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”", hellip: "…",
 };
 export function decodeEntities(text: string | null | undefined): string {
+  return decoded(text).replace(/\s{2,}/g, " ").trim();
+}
+
+/** The entity substitution both decoders share, with no whitespace handling of its own. */
+function decoded(text: string | null | undefined): string {
   return (text ?? "")
     .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => safeChar(parseInt(hex, 16)))
     .replace(/&#(\d+);/g, (_, dec: string) => safeChar(parseInt(dec, 10)))
-    .replace(/&([a-z]+);/gi, (match, name: string) => NAMED_ENTITIES[name.toLowerCase()] ?? match)
-    .replace(/\s{2,}/g, " ")
-    .trim();
+    .replace(/&([a-z]+);/gi, (match, name: string) => NAMED_ENTITIES[name.toLowerCase()] ?? match);
+}
+
+/**
+ * The same decoding for a multi-line body.
+ *
+ * decodeEntities collapses EVERY run of whitespace, which is right for a name or a job title and wrong for
+ * an email: it welds the greeting, the pitch and the sign-off into one paragraph. Anything reading a body
+ * through it sees no paragraphs at all — a check for a repeated paragraph can never fire, and a second
+ * greeting stops looking like one. Runs of spaces and tabs still collapse here; line breaks survive.
+ */
+export function decodeBody(text: string | null | undefined): string {
+  return decoded(text).replace(/[ \t]{2,}/g, " ").replace(/[ \t]+\n/g, "\n").trim();
 }
 function safeChar(code: number): string {
   // Scrapers emit &#27; (escape) where they mean &#39; (apostrophe); anything unprintable becomes one.
