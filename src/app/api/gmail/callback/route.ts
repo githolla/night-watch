@@ -36,12 +36,16 @@ export async function GET(request: Request) {
     const email = profile.email ?? `${owner}@nine-67.com`;
     const scopes = tokens.scope ?? "";
     const db = admin();
+    // connected_at drives the warm-up ramp, so it must be the FIRST connection, not the latest. Stamping it
+    // on every OAuth round-trip meant re-granting a scope or fixing a token silently dropped a fully warmed
+    // mailbox back to the starting cap, with nothing in the UI to explain the sudden drop.
+    const { data: already } = await db.from("gmail_connections").select("connected_at").eq("owner", owner).maybeSingle();
     await db.from("gmail_connections").upsert({
       owner,
       email,
       scopes,
       calendar: /\/auth\/calendar/.test(scopes),
-      connected_at: new Date().toISOString(),
+      connected_at: (already?.connected_at as string | null) ?? new Date().toISOString(),
       refresh_token_ciphertext: encrypt(tokens.refresh_token),
     }, { onConflict: "owner" });
 

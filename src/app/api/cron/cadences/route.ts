@@ -2,7 +2,7 @@ import { cronAuthorized } from "@/lib/auth";
 import { encrypt } from "@/lib/crypto";
 import { sendEmail } from "@/lib/gmail";
 import { validateEmail } from "@/lib/send-action";
-import { dailyCap } from "@/lib/send-guards";
+import { dailyCap, sendDayStart } from "@/lib/send-guards";
 import { emailHtml, fromHeader, sanitizeLinks, senderProfile, withSignature } from "@/lib/sender";
 import { outboundBaseUrl } from "@/lib/urls";
 import { admin } from "@/lib/supabase/admin";
@@ -45,7 +45,7 @@ export async function GET(request:Request){
       // Can't auto-send yet (unverified recipient, missing pieces, or Gmail not connected for this seat)
       // → leave the sender a manual "ready" reminder instead of a hard failure.
       if(!to.email||to.email_status!=="verified"||!step.subject||!step.body||!connection){await db.from("cadence_steps").update({status:"ready"}).eq("id",step.id);ready++;continue}
-      const dayStart=new Date(now);dayStart.setHours(0,0,0,0);
+      const dayStart=sendDayStart(now); // the operator's midnight, matching the manual send route
       // Only touches that actually left through Gmail count toward the cap (matches the manual send route);
       // a "Copy" touch carries no thread id and must not stall the cadence.
       const {count}=await db.from("touches").select("*",{count:"exact",head:true}).eq("sent_by",cadence.owner).eq("channel","email").not("gmail_thread_id","is",null).gte("sent_at",dayStart.toISOString());

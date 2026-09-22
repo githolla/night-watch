@@ -3,7 +3,7 @@ import { encrypt } from "@/lib/crypto";
 import { sendEmail } from "@/lib/gmail";
 import { ensureFollowupCadence } from "@/lib/followups";
 import { validateEmail, sendInput } from "@/lib/send-action";
-import { dailyCap } from "@/lib/send-guards";
+import { dailyCap, sendDayStart } from "@/lib/send-guards";
 import { emailHtml, fromHeader, sanitizeLinks, senderProfile, withSignature } from "@/lib/sender";
 import { outboundBaseUrl } from "@/lib/urls";
 import { admin } from "@/lib/supabase/admin";
@@ -51,7 +51,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // Send AS the seat's connected mailbox, not the app user's login email — otherwise Gmail rewrites
     // or rejects the From when a teammate's login differs from the connected Google account.
     const { data: connection } = await db.from("gmail_connections").select("email,connected_at,created_at").eq("owner", owner).maybeSingle();
-    const since = new Date(); since.setHours(0, 0, 0, 0);
+    // Midnight where the operator is, not on the server — see sendDayStart.
+    const since = sendDayStart();
     // Count only touches that actually left through Gmail (they carry a thread id). "Copy" also writes an
     // email touch, and counting those meant four copies on a fresh mailbox (cap 4) blocked every real send
     // before a single email had gone out.
