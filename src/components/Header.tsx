@@ -15,7 +15,7 @@ import { FeedbackWidget } from "./FeedbackWidget";
  * hint as its tooltip.
  */
 const primary = [
-  { href: "/desk", label: "Desk", hint: "Today's worklist: write and send, one prospect at a time" },
+  { href: "/desk", label: "Worklist", hint: "Today's prospects: write and send, one at a time" },
   { href: "/followups", label: "Follow-ups", hint: "Queued follow-ups and anything due now" },
   { href: "/outreach", label: "Reach-out list", hint: "The companies being worked, by stage" },
   { href: "/people", label: "People", hint: "Every contact on file" },
