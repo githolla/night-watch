@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
+import { angleFor, composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
 import { isRealContact } from "@/lib/clean";
 import { isLikelyPersonName } from "@/lib/pipeline";
 import { senderProfile } from "@/lib/sender";
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       // produced an empty set and rewritten sent outreach back to "new". Skip the company instead.
       if (peopleError || siblingsError) { failed += 1; continue; }
       const taken = new Set<string>((siblings ?? []).map((row) => row.person_id as string));
-      const candidates = ((people ?? []) as PersonRow[])
+      const ranked = ((people ?? []) as PersonRow[])
         .filter((person) => !taken.has(person.id))
         // A personal first-touch to recruiting@ reads as a bot and burns sending reputation on a mailbox
         // that never replies.
@@ -90,16 +90,41 @@ export async function POST(request: Request) {
         .sort((a, b) =>
           (LEVEL_RANK[a.level ?? "unknown"] ?? 3) - (LEVEL_RANK[b.level ?? "unknown"] ?? 3)
           || (EMAIL_RANK[a.email_status ?? "none"] ?? 3) - (EMAIL_RANK[b.email_status ?? "none"] ?? 3)
-          || a.full_name.localeCompare(b.full_name))
-        .slice(0, perCompany);
+          || a.full_name.localeCompare(b.full_name));
+
+      // Take a SPREAD of functions rather than the four most senior. Picking purely by seniority meant four
+      // co-founders at one company, who all read as the same angle, so their drafts made the same argument
+      // in nearly the same words — the mail merge this feature exists to avoid, reintroduced by the sort.
+      // It is also better outreach: a CFO and an engineering lead are two ways into a company, four
+      // co-founders are one.
+      const byAngle = new Map<string, PersonRow[]>();
+      for (const person of ranked) {
+        const key = angleFor(person.title ?? "");
+        byAngle.set(key, [...(byAngle.get(key) ?? []), person]);
+      }
+      const candidates: PersonRow[] = [];
+      // One from each function in seniority order, then a second from each, until the cap is reached.
+      for (let round = 0; candidates.length < perCompany && round < 10; round += 1) {
+        let addedThisRound = false;
+        for (const group of byAngle.values()) {
+          if (candidates.length >= perCompany) break;
+          const next = group[round];
+          if (!next) continue;
+          candidates.push(next);
+          addedThisRound = true;
+        }
+        if (!addedThisRound) break;
+      }
       if (!candidates.length) { skipped += 1; continue; }
 
       const raw = card.signals?.raw ?? {};
 
       const roles = rolesFromSignal(raw);
 
-      const rows = candidates.map((person) => {
+      const rows = candidates.map((person, index) => {
         const draft = composeContactDraft({
+          // Two colleagues who land on the same angle must not draw the same wording by chance.
+          variantSalt: index,
           company: card.accounts?.name ?? "",
           personName: person.full_name,
           personTitle: person.title ?? "",

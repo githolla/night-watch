@@ -25,6 +25,14 @@ export type ContactDraftInput = {
   roles?: string[];
   senderName?: string | null;
   senderTitle?: string | null;
+  /**
+   * This contact's position in the company's list, which is what keeps two colleagues on the same angle off
+   * the same wording. Pass a number and it rotates the copy pools, so positions 0..3 are guaranteed to draw
+   * four different pitches; leave it out and the choice falls back to a hash of the name, which collides
+   * one time in four. The bulk drafter passes the position; the one-person route works it out from the
+   * colleagues already drafted.
+   */
+  variantSalt?: string | number | null;
 };
 
 type Context = {
@@ -49,14 +57,18 @@ type Context = {
   noticedLine: string;
 };
 
-type Variant = {
-  subject: (c: Context) => string;
-  opening: (c: Context) => string;
-  offer: (c: Context) => string;
-  ask: (c: Context) => string;
+/**
+ * Each angle holds independent pools. The subject, the pitch and the ask are picked with separate seeds, so
+ * four of each gives sixteen combinations rather than four — paired variants meant three colleagues at one
+ * company could receive a byte-identical pitch, which is exactly the mail merge this exists to avoid.
+ */
+type Angle = {
+  key: string;
+  subjects: Array<(c: Context) => string>;
+  /** true picks the "I saw" opening, false the "I noticed" one. */
+  offers: Array<(c: Context) => string>;
+  asks: string[];
 };
-
-type Angle = { key: string; variants: Variant[] };
 
 /**
  * Titles are matched as PREFIXES, not whole words. The previous table wrapped stems in \b…\b, so
@@ -67,143 +79,180 @@ const ANGLES: Array<{ test: RegExp; angle: Angle }> = [
   {
     // Money. Checked before technology so "VP, Finance Transformation" is finance, not transformation.
     test: /\b(cfo|chief financial\w*|controller\w*|treasur\w*|finance\w*|financial\w*|accounting|fp&a|chief accounting\w*)\b/i,
-    angle: { key: "finance", variants: [
-      {
-        subject: (c) => `${c.company}: the cost of ${c.bareNoun}`,
-        opening: (c) => c.sawLine,
-        offer: (c) => `Before that becomes salary it is worth pricing the alternative. We build and run ${c.need}, so the output arrives without the headcount and the cost is a build rather than a permanent line on payroll.`,
-        ask: () => "Would a rough cost comparison be useful?",
-      },
-      {
-        subject: (c) => `${c.bareNoun} at ${c.company}, or a system`,
-        opening: (c) => c.noticedLine,
-        offer: (c) => `Fully loaded, a role like that runs well past its salary once recruiting, ramp and the months of waiting are counted. We build ${c.need} once instead, and run it.`,
-        ask: () => "Happy to put rough numbers side by side if that helps.",
-      },
-    ] },
+    angle: { key: "finance",
+      subjects: [
+        (c) => `${c.company}: the cost of ${c.bareNoun}`,
+        (c) => `${c.bareNoun} at ${c.company}, or a system`,
+        (c) => `What ${c.bareNoun} costs ${c.company} fully loaded`,
+        (c) => `A cheaper way through ${c.bareNoun}`,
+      ],
+      offers: [
+        (c) => `Before that becomes salary it is worth pricing the alternative. We build and run ${c.need}, so the output arrives without the headcount and the cost is a build rather than a permanent line on payroll.`,
+        (c) => `Fully loaded, a role like that runs well past its salary once recruiting, ramp and the months of waiting are counted. We build ${c.need} once instead, and run it.`,
+        (c) => `The part people tend to miss is the months before anyone starts, when the work is simply not getting done. We build ${c.need} now, at a fixed cost, and it keeps running whoever you hire later.`,
+        (c) => `A build is capital you can stop spending; a salary is not. We put ${c.need} on a system you own, so the cost lands once rather than every month.`,
+      ],
+      asks: [
+        "Would a rough cost comparison be useful?",
+        "Happy to put rough numbers side by side if that helps.",
+        "Is the budget for that already committed, or still open?",
+        "Would it help to see what a build like that runs to?",
+      ] },
   },
   {
     // Whoever owns what gets built.
     test: /\b(cto|chief technolog\w*|chief information officer|cio|chief digital\w*|chief data\w*|chief analytics\w*|chief ai\w*|chief innovation\w*|chief knowledge\w*|chief product\w*|engineering|engineer|architect\w*|platform\w*|infrastructure|devops|technolog\w*|technical|digital|ecommerce|e-commerce|data|analytics|bi\b|business intelligence|it\b|information technology|software|cloud|product)\b/i,
-    angle: { key: "engineering", variants: [
-      {
-        subject: (c) => `${c.company}: building ${c.bareNoun} instead of filling ${c.pronoun}`,
-        opening: (c) => c.sawLine,
-        offer: (c) => `We build ${c.need} as real infrastructure, owned end to end: scheduling, checks that fail loudly, and the reporting on top. That is the work the postings describe, running as a system rather than maintained by hand.`,
-        ask: () => "Happy to sketch how we would structure it. Worth a look?",
-      },
-      {
-        subject: (c) => `The build behind ${possessive(c.company)} open ${c.isPlural ? "roles" : "role"}`,
-        opening: (c) => c.noticedLine,
-        offer: (c) => `We build ${c.need} and hand it over documented, so it is something your team owns rather than inherits. It runs whether or not the hire lands.`,
-        ask: () => "What does that work run on at the moment?",
-      },
-    ] },
+    angle: { key: "engineering",
+      subjects: [
+        (c) => `${c.company}: building ${c.bareNoun} instead of filling ${c.pronoun}`,
+        (c) => `The build behind ${possessive(c.company)} open ${c.isPlural ? "roles" : "role"}`,
+        (c) => `${c.company}: who owns that work once it is built`,
+        (c) => `A system for ${c.bareNoun} at ${c.company}`,
+      ],
+      offers: [
+        (c) => `We build ${c.need} as real infrastructure, owned end to end: scheduling, checks that fail loudly, and the reporting on top. That is the work the postings describe, running as a system rather than maintained by hand.`,
+        (c) => `We build ${c.need} and hand it over documented, so it is something your team owns rather than inherits. It runs whether or not the hire lands.`,
+        (c) => `The useful question is usually which parts of that work should be a person and which should be a pipeline. We build the pipeline half of ${c.need} and leave the judgement to your team.`,
+        (c) => `We put ${c.need} behind one scheduled job with tests around it, so a failure is an alert rather than something noticed a week later in a number that looks wrong.`,
+      ],
+      asks: [
+        "Happy to sketch how we would structure it. Worth a look?",
+        "What does that work run on at the moment?",
+        "Would a short technical walkthrough be useful?",
+        "Is that closer to a build problem or a hiring one for you?",
+      ] },
   },
   {
     test: /\b(ciso|chief information security\w*|chief security\w*|security|infosec|cyber\w*|risk|compliance|privacy|audit|chief claims\w*)\b/i,
-    angle: { key: "security", variants: [
-      {
-        subject: (c) => c.count
+    angle: { key: "security",
+      subjects: [
+        (c) => c.count
           ? `${c.company}: who touches the data once ${c.bareNoun} ${c.isPlural ? "are" : "is"} filled`
           : `${c.company}: who touches the data as the team grows`,
-        opening: (c) => c.noticedLine,
-        offer: (c) => `New hands on data usually means new copies of it. We build ${c.need} as one controlled path, so access is granted rather than assumed and there is a record of what moved.`,
-        ask: () => "Is that worth a short conversation?",
-      },
-      {
-        subject: (c) => `Data handling behind ${possessive(c.company)} new ${c.isPlural ? "roles" : "role"}`,
-        opening: (c) => c.sawLine,
-        offer: (c) => `Work stood up in a hurry tends to end up spread across spreadsheets and personal exports. We build ${c.need} once, in one place, with access controlled and movement logged.`,
-        ask: () => "Would it help to see how we handle that?",
-      },
-    ] },
+        (c) => `Data handling behind ${possessive(c.company)} new ${c.isPlural ? "roles" : "role"}`,
+        (c) => `${c.company}: keeping that work off personal exports`,
+        (c) => `One controlled path for ${c.bareNoun}`,
+      ],
+      offers: [
+        (c) => `New hands on data usually means new copies of it. We build ${c.need} as one controlled path, so access is granted rather than assumed and there is a record of what moved.`,
+        (c) => `Work stood up in a hurry tends to end up spread across spreadsheets and personal exports. We build ${c.need} once, in one place, with access controlled and movement logged.`,
+        (c) => `Every new person doing this work is another set of credentials and another local copy. We build ${c.need} so the data stays in one place and people are given a view of it rather than a download.`,
+        (c) => `We build ${c.need} with the access model decided up front, so an audit is a query rather than an archaeology exercise.`,
+      ],
+      asks: [
+        "Is that worth a short conversation?",
+        "Would it help to see how we handle that?",
+        "Where does that data sit at the moment?",
+        "Is that a live concern there, or already covered?",
+      ] },
   },
   {
     test: /\b(coo|chief operating\w*|operations|operational|ops|supply chain|procurement|logistics|delivery|process|plant|manufactur\w*|merchandis\w*|managed services|service delivery|fulfilment|fulfillment)\b/i,
-    angle: { key: "operations", variants: [
-      {
-        subject: (c) => `${c.company}: the repeatable half of ${c.bareNoun}`,
-        opening: (c) => c.sawLine,
-        offer: (c) => `Work like this usually splits in two: the part that repeats and the part that needs judgement. We build and run ${c.need} so a smaller team covers the rest.`,
-        ask: () => "Worth twenty minutes to work out where that line sits?",
-      },
-      {
-        subject: (c) => `Covering ${c.bareNoun} at ${c.company}`,
-        opening: (c) => c.noticedLine,
-        offer: (c) => `We build ${c.need} so the routine part runs itself and the people you already have handle the exceptions.`,
-        ask: () => "Which part of that eats the most time right now?",
-      },
-    ] },
+    angle: { key: "operations",
+      subjects: [
+        (c) => `${c.company}: the repeatable half of ${c.bareNoun}`,
+        (c) => `Covering ${c.bareNoun} at ${c.company}`,
+        (c) => `${c.company}: the part of that work that repeats`,
+        (c) => `Doing ${c.bareNoun} with the team you have`,
+      ],
+      offers: [
+        (c) => `Work like this usually splits in two: the part that repeats and the part that needs judgement. We build and run ${c.need} so a smaller team covers the rest.`,
+        (c) => `We build ${c.need} so the routine part runs itself and the people you already have handle the exceptions.`,
+        () => `Most of the hours in work like this go on assembling and checking rather than deciding. We take the assembling, on a schedule, and leave the deciding with your team.`,
+        (c) => `We automate ${c.need} end to end and put the exceptions in a queue, so the volume stops scaling with headcount.`,
+      ],
+      asks: [
+        "Worth twenty minutes to work out where that line sits?",
+        "Which part of that eats the most time right now?",
+        "How much of that is done by hand today?",
+        "Would it help to map which half is which?",
+      ] },
   },
   {
     test: /\b(chro|chief people\w*|chief human\w*|people|talent|recruit\w*|hr\b|human resources|staffing|workforce)\b/i,
-    angle: { key: "people", variants: [
-      {
-        subject: (c) => `${c.company}: cover for ${c.bareNoun} while you search`,
-        opening: (c) => c.sawLine,
-        offer: (c) => `The gap between posting and a productive start is usually where the backlog builds. We stand up ${c.need} in the meantime, and it keeps working whoever you hire.`,
-        ask: () => "Is the wait the painful part here?",
-      },
-      {
-        subject: (c) => `${c.bareNoun} and time to hire at ${c.company}`,
-        opening: (c) => c.noticedLine,
-        offer: (c) => `Technical roles like these often sit open for months and the work waits the whole time. We build and run ${c.need} so the output starts now, which takes pressure off the search rather than replacing it.`,
-        ask: () => "Would it help to have that running while you hire?",
-      },
-    ] },
+    angle: { key: "people",
+      subjects: [
+        (c) => `${c.company}: cover for ${c.bareNoun} while you search`,
+        (c) => `${c.bareNoun} and time to hire at ${c.company}`,
+        (c) => `${c.company}: the work while the search runs`,
+        (c) => `Taking pressure off ${c.bareNoun}`,
+      ],
+      offers: [
+        (c) => `The gap between posting and a productive start is usually where the backlog builds. We stand up ${c.need} in the meantime, and it keeps working whoever you hire.`,
+        (c) => `Technical roles like these often sit open for months and the work waits the whole time. We build and run ${c.need} so the output starts now, which takes pressure off the search rather than replacing it.`,
+        (c) => `A search that has to be filled fast tends to be filled badly. We cover ${c.need} with a system so the hire can be the right one rather than the available one.`,
+        (c) => `We build ${c.need} so the role you eventually fill is the interesting half of the job, which is an easier role to hire for.`,
+      ],
+      asks: [
+        "Is the wait the painful part here?",
+        "Would it help to have that running while you hire?",
+        "How long have those been open?",
+        "Is the search the bottleneck, or the work itself?",
+      ] },
   },
   {
     test: /\b(cmo|marketing|brand|demand gen\w*|growth|communications|media|advertis\w*)\b/i,
-    angle: { key: "marketing", variants: [
-      {
-        subject: (c) => `Getting numbers out of ${c.company} faster`,
-        opening: (c) => c.noticedLine,
-        offer: (c) => `Waiting on a hire usually means waiting on the numbers too. We build ${c.need} so what you need to decide with shows up without anyone assembling it by hand.`,
-        ask: () => "What reporting do you chase most often?",
-      },
-      {
-        subject: (c) => `${c.company}: reporting behind ${c.bareNoun}`,
-        opening: (c) => c.sawLine,
-        offer: (c) => `Teams often feel this first as reporting that lands late and never quite reconciles. We build ${c.need} so the numbers arrive on a schedule, from one source.`,
-        ask: () => "Is reporting turnaround a problem worth solving there?",
-      },
-    ] },
+    angle: { key: "marketing",
+      subjects: [
+        (c) => `Getting numbers out of ${c.company} faster`,
+        (c) => `${c.company}: reporting behind ${c.bareNoun}`,
+        (c) => `${c.company}: numbers that arrive on their own`,
+        (c) => `One source for ${possessive(c.company)} reporting`,
+      ],
+      offers: [
+        (c) => `Waiting on a hire usually means waiting on the numbers too. We build ${c.need} so what you need to decide with shows up without anyone assembling it by hand.`,
+        (c) => `Teams often feel this first as reporting that lands late and never quite reconciles. We build ${c.need} so the numbers arrive on a schedule, from one source.`,
+        (c) => `The cost of slow reporting is usually decisions made on last month's picture. We build ${c.need} so the current one is always there.`,
+        (c) => `We build ${c.need} so the weekly number is produced rather than compiled, and it says the same thing wherever you read it.`,
+      ],
+      asks: [
+        "What reporting do you chase most often?",
+        "Is reporting turnaround a problem worth solving there?",
+        "How long does the weekly picture take to put together?",
+        "Would faster numbers actually change a decision for you?",
+      ] },
   },
   {
     // Anyone senior enough to weigh a hire against a build. Last, so a more specific angle wins first.
     test: /\b(ceo|chief executive\w*|founder|co-founder|president|owner|managing partner|managing director|executive director|operating partner|value creation\w*|partner|principal|chief of staff|general manager|gm\b|cpo|chief strategy\w*|chief revenue\w*|cro|chief commercial\w*|chief transformation\w*|board|vp sales|sales)\b/i,
-    angle: { key: "executive", variants: [
-      {
-        subject: (c) => `${c.company}: ${c.bareNoun}, or a system`,
-        opening: (c) => c.sawLine,
-        offer: (c) => `That is a permanent cost for work that largely repeats. We build and run ${c.need} instead, so the output arrives without growing the team, and the decision stays reversible.`,
-        ask: () => "Worth twenty minutes to compare the two?",
-      },
-      {
-        subject: (c) => `Before ${c.company} fills ${c.bareNoun}`,
-        opening: (c) => c.noticedLine,
-        offer: (c) => `Hiring is the obvious answer and not always the cheaper one. We build ${c.need} as a system you own, which costs a build rather than a payroll line and can be undone if it does not earn its place.`,
-        ask: () => "Would it be useful to see what that looks like for you?",
-      },
-    ] },
+    angle: { key: "executive",
+      subjects: [
+        (c) => `${c.company}: ${c.bareNoun}, or a system`,
+        (c) => `Before ${c.company} fills ${c.bareNoun}`,
+        (c) => `${c.company}: a reversible version of that decision`,
+        (c) => `${c.bareNoun}, without growing the team`,
+      ],
+      offers: [
+        (c) => `That is a permanent cost for work that largely repeats. We build and run ${c.need} instead, so the output arrives without growing the team, and the decision stays reversible.`,
+        (c) => `Hiring is the obvious answer and not always the cheaper one. We build ${c.need} as a system you own, which costs a build rather than a payroll line and can be undone if it does not earn its place.`,
+        (c) => `Headcount is the hardest decision to reverse. We build ${c.need} first, so you find out what the work actually needs before committing to a permanent seat.`,
+        (c) => `We build and run ${c.need}, so the output starts in weeks rather than after a search, a notice period and a new hire's first quarter.`,
+      ],
+      asks: [
+        "Worth twenty minutes to compare the two?",
+        "Would it be useful to see what that looks like for you?",
+        "Is that decision already made, or still open?",
+        "Happy to walk through how we would scope it, if useful.",
+      ] },
   },
 ];
 
-const FALLBACK: Angle = { key: "general", variants: [
-  {
-    subject: (c) => `${c.company} and ${c.bareNoun}`,
-    opening: (c) => c.sawLine,
-    offer: (c) => `We build and run ${c.need}, so that work gets done as a system rather than a hire. It runs on a schedule, from one source, and your team owns it.`,
-    ask: () => "Is that worth a short conversation?",
-  },
-  {
-    subject: (c) => `${c.company}: ${c.bareNoun} without the hire`,
-    opening: (c) => c.noticedLine,
-    offer: (c) => `We build ${c.need} and run it, so the output starts without waiting on a hire, and keeps working once one lands.`,
-    ask: () => "Happy to explain how that works if it is useful.",
-  },
-] };
+const FALLBACK: Angle = { key: "general",
+  subjects: [
+    (c) => `${c.company} and ${c.bareNoun}`,
+    (c) => `${c.company}: ${c.bareNoun} without the hire`,
+    (c) => `A system for that work at ${c.company}`,
+  ],
+  offers: [
+    (c) => `We build and run ${c.need}, so that work gets done as a system rather than a hire. It runs on a schedule, from one source, and your team owns it.`,
+    (c) => `We build ${c.need} and run it, so the output starts without waiting on a hire, and keeps working once one lands.`,
+    (c) => `We take ${c.need} and put it on a system you own, so the routine part stops needing a person and the rest gets easier to staff.`,
+  ],
+  asks: [
+    "Is that worth a short conversation?",
+    "Happy to explain how that works if it is useful.",
+    "Would a quick walkthrough be useful?",
+  ] };
 
 /** Which angle a title gets. Exported so the choice can be tested directly. */
 export function angleFor(title: string): string {
@@ -319,11 +368,18 @@ function needPhrase(roles: string[], operatingNeed?: string | null): string {
   return "the reporting and data work";
 }
 
-/** A stable 0..n-1 choice, so the same contact always gets the same wording. */
-function variantFor(seed: string, count: number): number {
+/**
+ * A stable 0..n-1 choice, so the same contact always gets the same wording.
+ *
+ * `rotate` is added AFTER the hash rather than mixed into the seed. Mixing it in still left two colleagues
+ * on the same angle a one-in-four chance of drawing the same pitch — measured at 40 collisions in 480
+ * drafts, which is the mail merge this exists to avoid. Rotating guarantees that consecutive positions at
+ * one company land on different copy while the hash still spreads unrelated people across the pool.
+ */
+function variantFor(seed: string, count: number, rotate = 0): number {
   let hash = 0;
   for (let index = 0; index < seed.length; index += 1) hash = (hash * 31 + seed.charCodeAt(index)) >>> 0;
-  return count > 0 ? hash % count : 0;
+  return count > 0 ? (hash + rotate) % count : 0;
 }
 
 /** ", open for the last 25 days" when the signal carries a number of days, otherwise nothing. */
@@ -373,7 +429,22 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
   const angle = ANGLES.find((entry) => entry.test.test(decodeEntities(input.personTitle)))?.angle ?? FALLBACK;
   // Seeded on the company as well as the person: seeding on the person alone sent one subject line to 103
   // different companies.
-  const variant = angle.variants[variantFor(`${input.personName}|${company}|${angle.key}`, angle.variants.length)];
+  // Each part is seeded separately, so four subjects, four pitches and four asks give sixty-four
+  // combinations per angle rather than four. Still stable: the same person always gets the same draft.
+  // The base is the company and the angle, SHARED by colleagues, and the position rotates away from it.
+  // Hashing the person's name instead gave each colleague an independent draw from a pool of four, so a
+  // real pair landed on identical copy a quarter of the time — measured at 40 collisions in 480 drafts.
+  // Rotating a shared base makes four colleagues four different letters by construction.
+  // With no position to work from, the name is the rotation: still spread, just not guaranteed.
+  const rotate = typeof input.variantSalt === "number"
+    ? Math.abs(Math.trunc(input.variantSalt))
+    : variantFor(input.personName, 997);
+  const seed = `${company}|${angle.key}|${typeof input.variantSalt === "string" ? input.variantSalt : ""}`;
+  const subjectLine = angle.subjects[variantFor(`${seed}|subject`, angle.subjects.length, rotate)];
+  const offerLine = angle.offers[variantFor(`${seed}|offer`, angle.offers.length, rotate)];
+  const askLine = angle.asks[variantFor(`${seed}|ask`, angle.asks.length, rotate)];
+  // Which of the two openings, also independently.
+  const opening = variantFor(`${seed}|open`, 2, rotate) === 0 ? context.sawLine : context.noticedLine;
 
   const senderName = decodeEntities(input.senderName ?? "").trim();
   const senderTitle = decodeEntities(input.senderTitle ?? "").trim();
@@ -384,17 +455,17 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
   const body = [
     `Hi ${first},`,
     "",
-    `${intro} ${variant.opening(context)}`,
+    `${intro} ${opening}`,
     "",
-    variant.offer(context),
+    offerLine(context),
     "",
-    variant.ask(context),
+    askLine,
     "",
     "Thank you,",
   ].join("\n");
 
   // A subject built from a role phrase can start lowercase ("those three roles vs a system").
-  const subject = fitSubject(variant.subject(context)).replace(/^[a-z]/, (char) => char.toUpperCase());
+  const subject = fitSubject(subjectLine(context)).replace(/^[a-z]/, (char) => char.toUpperCase());
   return { subject, body };
 }
 

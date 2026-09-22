@@ -47,8 +47,17 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
     const roles = rolesFromSignal(raw);
 
+    // Where this person sits among the colleagues drafted off the same signal. It rotates the copy pools, so
+    // writing to four people one at a time produces four different letters rather than four draws from the
+    // same small pool — which is how a CEO and a President ended up with the same pitch word for word.
+    const { data: siblings } = await db.from("cards").select("person_id").eq("signal_id", card.signal_id)
+      .not("person_id", "is", null).order("created_at");
+    const order = (siblings ?? []).map((row) => row.person_id as string);
+    const position = order.indexOf(personId);
+
     const profile = await senderProfile(db, user.owner);
     const draft = composeContactDraft({
+      variantSalt: position >= 0 ? position : order.length,
       company: account?.name ?? "",
       personName: person.full_name as string,
       personTitle: (person.title as string) ?? "",

@@ -47,8 +47,8 @@ test("colleagues at one company get genuinely different emails, not one note ren
   // Each speaks to what that person owns.
   // Intent, not exact wording — the copy should be free to change without the test lying about it.
   assert.match(cfo.body, /cost|payroll|salary|recruiting/i, "finance should talk about money");
-  assert.match(cto.body, /build|stack|infrastructure|scheduling|scripts/i, "engineering should talk about the build");
-  assert.match(ceo.body, /team|headcount|hiring|permanent cost/i, "an executive should talk about growing the team");
+  assert.match(cto.body, /build|stack|infrastructure|schedul\w*|pipeline|tests|scripts/i, "engineering should talk about the build");
+  assert.match(ceo.body, /team|headcount|hir\w*|permanent cost/i, "an executive should talk about the hire itself");
 });
 
 test("every draft is sendable: real company, real role, no placeholders, no link", () => {
@@ -152,4 +152,58 @@ test("role titles are read from the signal's job field, not a key that never exi
   assert.deepEqual(rolesFromSignal(null), []);
   assert.deepEqual(rolesFromSignal({}), []);
   assert.deepEqual(rolesFromSignal({ job: { title: "  " } }), [], "a blank title is not a role");
+});
+
+test("colleagues at one company never get the same pitch, subject or ask", () => {
+  // The measured failure: 480 drafts shared 4 pitch paragraphs, and a CEO, a Co-Founder and a President at
+  // one company received a byte-identical subject, pitch and ask. Only the name differed.
+  const company = "Consero Global";
+  const team = [
+    ["Ashley Honeyman", "Chief Operating Officer"],
+    ["Bridget Howard", "VP - Marketing"],
+    ["David Sawatzky", "Chief Executive Officer"],
+    ["Jeanine Nosker", "Co-Founder"],
+    ["Brock Kahanyshyn", "Chief Information Security Officer"],
+    ["Jennifer Daniel", "Chief Financial Officer"],
+  ] as const;
+  const drafts = team.map(([personName, personTitle], index) =>
+    composeContactDraft({ company, personName, personTitle, roles: ["Data Engineer"], operatingNeed: "reporting", senderName: "Suuchi Ramesh", senderTitle: "COO", variantSalt: index }));
+
+  const pitch = (body: string) => body.split("\n\n")[2];
+  const ask = (body: string) => body.split("\n\n")[3];
+  assert.equal(new Set(drafts.map((d) => pitch(d.body))).size, team.length, "every colleague needs a different pitch");
+  assert.equal(new Set(drafts.map((d) => ask(d.body))).size, team.length, "every colleague needs a different ask");
+  assert.equal(new Set(drafts.map((d) => d.subject)).size, team.length, "every colleague needs a different subject");
+});
+
+test("four colleagues on the SAME angle still get four different letters", () => {
+  // The hard case, and the one that was reported: a CEO, a Co-Founder and a President all read as the same
+  // angle, so nothing about their titles can separate them. Their position in the company's list has to.
+  const team = ["Chief Executive Officer", "Co-Founder", "President", "Managing Director"];
+  const drafts = team.map((personTitle, index) =>
+    composeContactDraft({ company: "Consero Global", personName: `Person ${index}`, personTitle, roles: ["Data Engineer"], variantSalt: index }));
+  assert.equal(new Set(drafts.map((d) => d.body.split("\n\n")[2])).size, 4, "four positions, four pitches");
+  assert.equal(new Set(drafts.map((d) => d.body.split("\n\n")[3])).size, 4, "four positions, four asks");
+  assert.equal(new Set(drafts.map((d) => d.subject)).size, 4, "four positions, four subjects");
+});
+
+test("the same person always gets the same draft, and the salt does not change that", () => {
+  const args = { company: "Acme", personName: "Lee Park", personTitle: "CFO", roles: ["Data Engineer"], variantSalt: 2 };
+  assert.deepEqual(composeContactDraft(args), composeContactDraft(args), "regenerating must not reword it");
+});
+
+test("the copy pools are deep enough that the list does not read as one letter", () => {
+  // Seeding subject, pitch and ask separately is what turns four options into sixty-four combinations.
+  const seen = new Set<string>();
+  const titles = ["CEO", "CFO", "CTO", "COO", "CISO", "CMO", "Chief People Officer", "Head of Surety"];
+  for (let company = 0; company < 30; company += 1) {
+    for (const [index, title] of titles.entries()) {
+      const draft = composeContactDraft({ company: `Company ${company}`, personName: `Person ${index}`, personTitle: title, roles: ["Data Engineer"], variantSalt: index });
+      seen.add(draft.body.split("\n\n").slice(2, 4).join(" "));
+    }
+  }
+  // The ceiling is 8 angles x 4 pitches x 4 asks = 128 pairs; a sweep of 8 titles cannot reach all of
+  // them. Before this change the same sweep produced 8. Thirty is a floor that a regression back towards
+  // paired variants would break immediately.
+  assert.ok(seen.size >= 30, `expected a wide spread of pitch and ask pairs, got ${seen.size}`);
 });
