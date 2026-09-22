@@ -17,7 +17,7 @@ function linkedinSearch(name: string, company: string) {
 }
 
 /** Company details and everyone on file there, loaded on demand for the one-screen prospect flow. */
-export function CompanyTeam({ domain, company, activeId, onSelect, compact, loggedIds }: { domain: string; company: string; activeId?: string; onSelect?: (person: TeamPerson) => void; compact?: boolean; loggedIds?: Set<string> }) {
+export function CompanyTeam({ domain, company, activeId, onSelect, compact, loggedIds, busyId }: { domain: string; company: string; activeId?: string; onSelect?: (person: TeamPerson) => void; compact?: boolean; loggedIds?: Set<string>; busyId?: string | null }) {
   const [team, setTeam] = useState<{ domain: string; data: Team } | null>(null);
   const [open, setOpen] = useState(false);
   // Collapse the expanded team list when the component is reused for a different company. React's
@@ -60,6 +60,7 @@ export function CompanyTeam({ domain, company, activeId, onSelect, compact, logg
           <span className="avatar">{(loggedIds?.has(person.id) || person.sentAt) ? "✓" : initials(person.full_name)}</span>
           <div className="focus-team-id"><strong>{person.full_name}{(loggedIds?.has(person.id) || person.sentAt)
             ? <Link className="focus-team-flag is-sent" href={`/activity?person=${person.id}&name=${encodeURIComponent(person.full_name)}`} onClick={(event) => event.stopPropagation()} title={person.sentAt ? `Emailed ${new Date(person.sentAt).toLocaleDateString()} — open in History` : "Already written to — open in History"}>sent &#8599;</Link>
+            : busyId === person.id ? <em className="focus-team-flag">opening…</em>
             : activeId === person.id ? <em className="focus-team-flag">writing to</em> : null}</strong><small>{person.title || "title unknown"}</small></div>
           <div className="focus-team-contact">
             {person.email ? <span title={person.email_status}>{person.email}</span> : null}

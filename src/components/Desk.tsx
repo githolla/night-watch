@@ -16,6 +16,8 @@ type Followup = { id: string; step: number; channel: string; title: string; deta
 
 type Card = InsightCard & {
   id: string;
+  /** Which signal this card came from. Two cards share it when they are two people at one company. */
+  signal_id?: string | null;
   status: string;
   brief: string;
   assigned_to: string;
@@ -166,6 +168,9 @@ export function Desk({
   const [kind, setKind] = useState<"top" | "all" | "job" | "social">(initialCards.length > SHORTLIST ? "top" : "all");
   // A different contact at the same company, chosen from the "everyone on file" list, to retarget the draft to.
   const [alt, setAlt] = useState<{ cardId: string; person: AltContact } | null>(null);
+  // Where clicking a colleague came from, so there is a way back to them.
+  const [cameFrom, setCameFrom] = useState<{ cardId: string; name: string } | null>(null);
+  const [openingContact, setOpeningContact] = useState<string | null>(null);
   const [logged, setLogged] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
   // The left list can show just today's worklist, or every active (un-worked) prospect so older
@@ -275,6 +280,37 @@ export function Desk({
     // without waiting for a reload.
     if (who && "id" in who && who.id) setLogged((current) => new Set(current).add(who.id as string));
     setNotice(json.warning ?? `Sent. The email to ${json.to ?? who.full_name} is recorded and replies are being watched.`);
+  }
+
+  /**
+   * Open a colleague on their OWN card, writing them their own email if they do not have one.
+   *
+   * Every contact at a company used to share one card and one draft: picking a colleague showed the first
+   * contact's note with the greeting swapped, so eight people had one email between them, and any edit
+   * landed on somebody else's draft. Each person now gets their own card — their own pitch, written for
+   * what their role owns, and their own send, follow-ups and History with it.
+   *
+   * It costs nothing: the draft is composed from what is already on file, with no model call.
+   */
+  async function openContact(person: AltContact, from: Card) {
+    if (person.id && from.people.id === person.id) { setAlt(null); setCameFrom(null); return; }
+    // Their card may already be loaded — switch straight to it rather than asking the server.
+    const loaded = cards.find((item) => item.people.id === person.id && (from.signal_id ? item.signal_id === from.signal_id : item.signals.source_url === from.signals.source_url));
+    if (loaded) { setAlt(null); setCameFrom({ cardId: from.id, name: from.people.full_name }); setFocusId(loaded.id); setNotice(`Writing to ${person.full_name}.`); return; }
+    if (demo) { setAlt({ cardId: from.id, person }); setNotice(`Writing to ${person.full_name}.`); return; }
+    setOpeningContact(person.id);
+    const response = await fetch(`/api/cards/${from.id}/draft-for`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ personId: person.id }) });
+    const json = await response.json().catch(() => ({}));
+    setOpeningContact(null);
+    // Couldn't give them their own card? Fall back to the old behaviour rather than leaving the click dead:
+    // the first contact's note, retargeted, with the composer saying plainly that is what it is.
+    if (!response.ok || !json?.card?.id) { setAlt({ cardId: from.id, person }); setNotice(json?.error ?? `Writing to ${person.full_name}.`); return; }
+    const fresh = json.card as Card;
+    setCards((current) => current.some((item) => item.id === fresh.id) ? current.map((item) => item.id === fresh.id ? { ...item, ...fresh } : item) : [...current, fresh]);
+    setAlt(null);
+    setCameFrom({ cardId: from.id, name: from.people.full_name });
+    setFocusId(fresh.id);
+    setNotice(json.existing ? `Writing to ${person.full_name} — this is their own draft.` : `Wrote ${person.full_name} their own email, aimed at what their role owns.`);
   }
 
   async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string, target?: { id?: string; full_name: string }, onCardOverride?: { id: string }) {
@@ -977,7 +1013,7 @@ export function Desk({
                   {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">View signal &amp; company details &#8599;</Link>}
                 </div>
 
-                {focusCard.accounts.domain && <CompanyTeam compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id} loggedIds={logged} onSelect={(person) => { if (person.full_name === focusCard.people.full_name) { setAlt(null); return; } setAlt({ cardId: focusCard.id, person }); setNotice(`Writing to ${person.full_name}.`); }} />}
+                {focusCard.accounts.domain && <CompanyTeam compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id ?? focusCard.people.id} busyId={openingContact} loggedIds={logged} onSelect={(person) => void openContact(person, focusCard)} />}
               </section>
 
               {/* RIGHT — draft with Email / LinkedIn tabs */}
@@ -986,7 +1022,11 @@ export function Desk({
                 <div className="deskwork-draft-to">
                   <span className="avatar sm">{initials(contact.full_name)}</span>
                   <div><strong>{contact.full_name}</strong><small>{contact.title || "title unknown"} · {focusCard.accounts.name}</small></div>
-                  {altContact ? <button type="button" className="focus-who-reset" onClick={() => setAlt(null)}>&#8617; {focusCard.people.full_name.split(/\s+/)[0]}</button> : <span className="deskwork-selected">Selected contact</span>}
+                  {altContact
+                    ? <button type="button" className="focus-who-reset" onClick={() => setAlt(null)}>&#8617; {focusCard.people.full_name.split(/\s+/)[0]}</button>
+                    : cameFrom && cameFrom.cardId !== focusCard.id
+                      ? <button type="button" className="focus-who-reset" title={`Back to ${cameFrom.name}`} onClick={() => { setFocusId(cameFrom.cardId); setCameFrom(null); setNotice(""); }}>&#8617; {cameFrom.name.split(/\s+/)[0]}</button>
+                      : <span className="deskwork-selected">Selected contact</span>}
                 </div>
 
                 <div className="deskwork-tabs">
@@ -1047,7 +1087,7 @@ export function Desk({
                             : <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>}
                         </div>
                         <label className="compose-field"><span>Greeting</span><div className="compose-greet">Hi&nbsp;<input value={cur.first} placeholder="first name" readOnly={!!altContact} title={altContact ? `The draft is saved once, for ${focusCard.people.full_name}. The greeting becomes ${cur.first} when you copy or open it for ${altContact.full_name}.` : undefined} onChange={(event) => apply({ first: event.target.value })} onBlur={persist} />,</div></label>
-                        {altContact && <p className="compose-sig">This is {primaryFirst}&rsquo;s note with the name swapped. {altContact.full_name.split(/\s+/)[0]} gets their own, written for their role, once <strong>Draft tools &rarr; Write a draft for every contact</strong> has run.</p>}
+                        {altContact && <p className="compose-sig">Couldn&rsquo;t open {altContact.full_name.split(/\s+/)[0]} on their own draft, so this is {primaryFirst}&rsquo;s note with the name swapped. Pick them again to retry, or run <strong>Draft tools &rarr; Write a draft for every contact</strong>.</p>}
                         <label className="compose-field"><span>Message — make it specific to this person &amp; company</span><textarea className="focus-msg-body" rows={8} value={cur.message} placeholder="Write the pitch for this contact." onChange={(event) => apply({ message: event.target.value })} onBlur={persist} /></label>
                         <label className="compose-field"><span>Sign-off</span><input value={cur.signoff} placeholder="Thank you," onChange={(event) => apply({ signoff: event.target.value })} onBlur={persist} /></label>
                         <p className="compose-sig">— Your Nine-67 signature (your name, title &amp; contact) is added automatically. Change it in <Link href="/settings" className="focus-link">Settings → identity</Link>.</p>
