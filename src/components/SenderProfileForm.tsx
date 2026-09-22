@@ -28,6 +28,10 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   // Same sanitizer the server applies on save and on render — one definition, so the preview can't show
   // something safer than what is stored. The previous hand-rolled version missed `<img src=x/onerror=…>`.
   const previewHtml = sanitizeSignatureHtml(signature);
+  // A <style> block or an external stylesheet is removed on save: CSS can carry its own ways of loading
+  // and executing things, so only styles written on the element itself survive. Say so, because otherwise
+  // the signature simply renders in the wrong font and colour with no explanation.
+  const usesStylesheet = /<\s*style\b|<\s*link\b[^>]*stylesheet/i.test(signature);
 
   async function onUpload(event: React.ChangeEvent<HTMLInputElement>) {
     setUploadErr("");
@@ -91,6 +95,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
         <span className="sender-profile-lead" style={{ margin: 0 }}>{isHtmlSig ? "Using your uploaded HTML signature." : "Using the built-in Nine-67 block below."}</span>
         {uploadErr && <span className="sender-profile-err">{uploadErr}</span>}
       </div>
+      {usesStylesheet && <p className="panel-watch">This signature sets its font and colour in a <code>&lt;style&gt;</code> block, which is removed for safety &mdash; so it will render in the wrong font. Re-export it with <strong>inline styles</strong> (<code>style=&quot;font-family:…;color:…&quot;</code> on each element), which most email clients produce by default and which is kept exactly as pasted.</p>}
       <p className="sender-profile-preview"><span>From line</span><code>{preview}</code></p>
       {isHtmlSig
         ? <div className="sig-preview" aria-label="Signature preview" dangerouslySetInnerHTML={{ __html: previewHtml }} />
