@@ -49,6 +49,8 @@ type Card = InsightCard & {
 
 export type DeskContext = {
   today: string;
+  /** Seat → the name that seat sends as, so nothing shows an operator the internal slug for their own seat. */
+  seatNames?: Record<string, string>;
   targetTotal: number;
   activeAccounts: number;
   /** Companies on the reach-out list — the desk's own scope, matching the Companies nav count. */
@@ -217,6 +219,13 @@ export function Desk({
   const hasSourceResults = (context?.recentSignals.length ?? 0) > 0;
   const cardIndex = Math.max(0, cards.findIndex((item) => item.id === card?.id));
   const focusIndex = focusCard ? focusPool.findIndex((item) => item.id === focusCard.id) : -1;
+  // "jenna" is a seat, not a person: the operator on it is Suuchi. Show the name that seat sends as,
+  // falling back to the slug only when no profile has been filled in.
+  const seatLabel = (owner: string | null | undefined) => {
+    const seat = (owner ?? "").trim();
+    if (!seat) return "Unassigned";
+    return context?.seatNames?.[seat] || `${seat.charAt(0).toUpperCase()}${seat.slice(1)}`;
+  };
   const listSynced = !context || context.activeAccounts === context.targetTotal;
   const run = describeRun(context?.lastRun ?? null);
   const coverage = context?.coverage;
@@ -796,7 +805,7 @@ export function Desk({
             <div className="desk-context-bar">
               <div><span>DOSSIER</span><strong>{String(cardIndex + 1).padStart(2, "0")} / {String(cards.length).padStart(2, "0")}</strong></div>
               <div><span>SIGNAL</span><strong>{card.signals.type?.replaceAll("_", " ") ?? "Market change"}</strong></div>
-              <div><span>OWNER</span><strong>{card.assigned_to}</strong></div>
+              <div><span>OWNER</span><strong>{seatLabel(card.assigned_to)}</strong></div>
               <div><span>STATUS</span><strong>{card.status}</strong></div>
               <div className="desk-nav">
                 <Link href="/runs" className="desk-nav-runs">Runs</Link>
@@ -894,7 +903,7 @@ export function Desk({
                   <dl className="contact-route">
                     <div><dt>Email</dt><dd>{card.people.email ?? "Not available"} <span className="badge">{emailStateLabel(card.people.email_status)}</span></dd></div>
                     <div><dt>Relationship</dt><dd>{card.people.path_score}/10 &middot; {card.people.connection_status}</dd></div>
-                    <div><dt>Assigned owner</dt><dd>{card.assigned_to}</dd></div>
+                    <div><dt>Assigned owner</dt><dd>{seatLabel(card.assigned_to)}</dd></div>
                   </dl>
                   {card.people.linkedin_url && <a href={card.people.linkedin_url} target="_blank" rel="noreferrer">Inspect public profile &uarr;</a>}
                 </div>

@@ -132,8 +132,18 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   const active = activeAccounts ?? 0;
   const researched = researchedAccounts ?? 0;
   const batchSize = nightlyBatchSize();
+  // Seat → the name that seat sends as, so the worklist says "Suuchi Ramesh" rather than the internal slug
+  // "jenna". History already did this; the worklist and the dossier were still showing the raw seat, which
+  // is the kind of thing a person notices immediately when it is their own prospect list.
+  const { data: seatRows } = await admin().from("sender_profiles").select("owner,from_name");
+  const seatNames: Record<string, string> = {};
+  for (const row of (seatRows ?? []) as Array<{ owner: string; from_name: string | null }>) {
+    if (row.from_name?.trim()) seatNames[row.owner] = row.from_name.trim();
+  }
+
   const context: DeskContext = {
     today,
+    seatNames,
     targetTotal: activeTargetAccounts.length,
     activeAccounts: active,
     listedCompanies: listedOutreach ?? 0,
