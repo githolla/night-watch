@@ -54,6 +54,7 @@ export function auditDraft(row: AuditRow): Fault[] {
   // — Is there an email at all —
   if (!body) { say("no-body", "No message written yet."); return faults; }
   if (!subject) say("no-subject", "No subject line, so it cannot be sent.");
+  else if (/without (?:the |a )?hire|instead of (?:a |the )?hire|routine part stops needing a person|without growing the team/i.test(`${subject} ${body}`)) say("retired-positioning", "This draft still pitches replacing hires instead of delivering working applications.");
   else if (PLACEHOLDER_SUBJECT.test(subject)) say("placeholder-subject", `The subject is still “${subject}”.`);
   else if (subject.length > SUBJECT_LIMIT) say("subject-long", `The subject is ${subject.length} characters; anything past about ${SUBJECT_LIMIT} is cut off in the inbox.`, false);
 

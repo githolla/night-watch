@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-const VERSION = "nw.proof-copy-20260922-v1";
+const VERSION = "nw.proof-copy-20260922-v2";
 
 /** Update saved drafts after the desk is usable; never make rendering wait for writes. */
 export function RefreshDraftCopy() {
@@ -18,10 +18,11 @@ export function RefreshDraftCopy() {
           const result = await response.json();
           if (!response.ok || result.failed) throw new Error(result.error || "Some drafts could not be updated. Reload to retry.");
           changed += result.repaired ?? 0;
+          if (!cancelled && result.updates?.length) window.dispatchEvent(new CustomEvent("night-watch:draft-updates", { detail: result.updates }));
           if (result.done) {
             if (cancelled) return;
             try { sessionStorage.setItem(VERSION, "done"); } catch { /* storage optional */ }
-            setMessage(changed ? `Updated ${changed} drafts. Sent emails and valid hand-edited drafts were preserved.` : "Draft copy is up to date; valid hand-edited drafts were preserved.");
+            setMessage(changed ? `Updated ${changed} drafts; unchanged previews refreshed automatically. Sent emails and valid hand-edited drafts were preserved.` : "Draft copy is up to date; valid hand-edited drafts were preserved.");
             if (changed) setHasUpdates(true);
             return;
           }

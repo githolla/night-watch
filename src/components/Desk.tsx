@@ -160,6 +160,20 @@ export function Desk({
   scan?: import("react").ReactNode;
 }) {
   const [cards, setCards] = useState(initialCards);
+  useEffect(() => {
+    const receive = (event: Event) => {
+      const updates = (event as CustomEvent<Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string }>>).detail;
+      setCards(current => current.map(card => {
+        const change = updates.find(update => update.id === card.id);
+        // Never replace a local edit or a card sent while background repair was running.
+        if (!change || !["new", "approved", "edited"].includes(card.status) || card.email_subject !== change.beforeSubject || card.email_body !== change.beforeBody) return card;
+        return { ...card, email_subject: change.subject, email_body: change.body };
+      }));
+    };
+    window.addEventListener("night-watch:draft-updates", receive);
+    return () => window.removeEventListener("night-watch:draft-updates", receive);
+  }, []);
+
   // One-at-a-time by default: the desk opens on the next prospect to work, not a list.
   // `selected` = a full-detail deep dive; `browse` = the searchable list of everyone.
   const [selected, setSelected] = useState<string | undefined>(selectedId);

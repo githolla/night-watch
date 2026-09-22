@@ -74,6 +74,7 @@ export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000) {
     profiles.set(owner, await senderProfile(db, owner).catch(() => null));
   }
 
+  const updates: Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string }> = [];
   let repaired = 0;
   let failed = 0;
   let done = true;
@@ -110,10 +111,14 @@ export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000) {
       .eq("id", row.id).eq("status", row.status).in("status", open);
     update = row.email_body === null ? update.is("email_body", null) : update.eq("email_body", row.email_body);
     update = row.email_subject === null ? update.is("email_subject", null) : update.eq("email_subject", row.email_subject);
-    const { error } = await update;
-    if (error) failed += 1; else repaired += 1;
+    const { data: saved, error } = await update.select("id");
+    if (error) failed += 1;
+    else if (saved?.length) {
+      repaired += 1;
+      updates.push({ id: row.id, beforeSubject: row.email_subject, beforeBody: row.email_body, subject: draft.subject, body: draft.body });
+    }
   }
-  return { checked: rows.length, repaired, failed, done };
+  return { checked: rows.length, repaired, failed, done, updates };
 }
 
 const toAuditRow = (row: Row): AuditRow => ({

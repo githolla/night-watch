@@ -283,3 +283,12 @@ test("the worklist writer uses authored company copy and the assigned sender gre
   const colleague = composeContactDraft({ company: "Aprio", personName: "Alex Example", personTitle: "CFO", variantSalt: 1 });
   assert.notEqual(colleague.subject, draft.subject);
 });
+
+test("commercial strategy gets relevant proof, never a finance or hire-replacement pitch", () => {
+  assert.equal(angleFor("Head of Commercial Strategy"), "commercial");
+  for (let variantSalt = 0; variantSalt < 8; variantSalt++) {
+    const draft = composeContactDraft({ company: "Trinity Life Sciences", personName: "Eric Sholk", personTitle: "Head of Commercial Strategy", roles: ["Senior Business Analyst", "Manager, Sales Ops"], operatingNeed: "financial reporting and reconciliation", senderName: "Josh Lee", variantSalt });
+    assert.doesNotMatch(draft.subject + draft.body, /without the hire|stops needing a person|financial reporting and reconciliation|instead of filling|without growing the team/i);
+    assert.match(draft.body, /proposal|commercial/i);
+  }
+});
