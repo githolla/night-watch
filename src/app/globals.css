@@ -2153,3 +2153,6 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 /* The ordered walkthrough in the sequence tester. */
 .test-steps{margin:0 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:5px}
 .test-steps li{font:500 13px/1.55 var(--sans);color:var(--ink)}
+/* Who the prospect is, on the worklist row — several people at one company each have their own card. */
+.deskwork-row-who{color:var(--ink-soft);font-weight:600}
+.deskwork-row-id small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

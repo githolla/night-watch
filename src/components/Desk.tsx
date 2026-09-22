@@ -421,6 +421,15 @@ export function Desk({
     acc[key].score = Math.max(acc[key].score, item.score);
     return acc;
   }, {})).sort((a, b) => b.score - a.score).slice(0, 4);
+  // The list searches the company, the person, their title and their address — "see companies but also
+  // search for people". Every term must match somewhere, so "quantiphi cfo" narrows rather than widens.
+  const listNeedle = query.trim().toLowerCase();
+  const listed = listNeedle
+    ? focusPool.filter((item) => {
+        const haystack = `${item.accounts.name} ${item.accounts.domain ?? ""} ${item.people.full_name} ${item.people.title ?? ""} ${item.people.email ?? ""}`.toLowerCase();
+        return listNeedle.split(/\s+/).every((word) => haystack.includes(word));
+      })
+    : focusPool;
   const draft = focusCard ? primaryDraft(focusCard) : null;
   // The contact currently being written to — the card's person by default, or one picked from the team list.
   const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
@@ -926,20 +935,28 @@ export function Desk({
           <div className="deskwork-grid">
             {/* LEFT — companies */}
             <aside className="deskwork-list">
-              <div className="deskwork-list-head"><span>Companies <b>{focusPool.length}</b></span><span className="deskwork-sort">By fit ↓</span></div>
+              <div className="deskwork-list-head"><span>{listNeedle ? <>Matches <b>{listed.length}</b></> : <>Companies <b>{focusPool.length}</b></>}</span><span className="deskwork-sort">{listNeedle ? "By fit" : "By fit ↓"}</span></div>
               <div className="deskwork-scope" role="tablist" aria-label="Which prospects to list">
                 <button type="button" role="tab" aria-selected={listScope === "today"} className={listScope === "today" ? "is-on" : ""} onClick={() => setListScope("today")}>Today <b>{todo.length}</b></button>
                 <button type="button" role="tab" aria-selected={listScope === "all"} className={listScope === "all" ? "is-on" : ""} onClick={() => setListScope("all")} title="Every active prospect, not just today's — nothing is lost">All active <b>{actionable.length}</b></button>
               </div>
-              <input className="deskwork-search" placeholder={listScope === "all" ? "Search all prospects" : "Find a company"} value={query} onChange={(event) => setQuery(event.target.value)} />
+              <input className="deskwork-search" placeholder="Search a company, a person or a job title" value={query} onChange={(event) => setQuery(event.target.value)} />
               <div className="deskwork-list-scroll">
-                {(query.trim() ? focusPool.filter((item) => `${item.accounts.name} ${item.people.full_name}`.toLowerCase().includes(query.trim().toLowerCase())) : focusPool).map((item) => (
+                {listed.map((item) => (
                   <button type="button" key={item.id} className={`deskwork-row ${focusCard && item.id === focusCard.id ? "is-active" : ""}`} onClick={() => pick(item.id)}>
                     <span className="avatar sm">{initials(item.accounts.name)}</span>
-                    <span className="deskwork-row-id"><strong>{item.accounts.name}</strong><small>{signalLabel(item)}{item.working ? " · working" : ""}</small></span>
+                    <span className="deskwork-row-id">
+                      <strong>{item.accounts.name}</strong>
+                      {/* Who, not just where. Several people at one company each have their own card now, so
+                          without this the list repeats a company name and a search for a person finds a row
+                          that does not say it found them. */}
+                      <small className="deskwork-row-who">{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small>
+                      <small>{signalLabel(item)}{item.working ? " · working" : ""}</small>
+                    </span>
                     <em className="deskwork-row-fit">{item.score}</em>
                   </button>
                 ))}
+                {!!focusPool.length && listNeedle && !listed.length && <p className="deskwork-empty">Nothing here matches &ldquo;{query.trim()}&rdquo;. {listScope === "today" ? "Try “All active” — today's list is only a slice of the prospects on file." : "Try a shorter word, or part of an email address."}</p>}
                 {!focusPool.length && <p className="deskwork-empty">{listScope === "all" ? "No active prospects yet — new ones land here after the next scan." : "All caught up for today — switch to “All active” to work ahead, or new prospects land after the next scan."}</p>}
               </div>
             </aside>
