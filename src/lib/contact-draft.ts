@@ -39,6 +39,8 @@ type Context = {
   company: string;
   /** What they are hiring, ready to follow "I saw X is hiring …": "a Data Engineer role", "three roles, A and B". */
   hiring: string;
+  /** The same fact as a state, ready to follow "I noticed X has …": "three roles open, including A and B". */
+  openPhrase: string;
   /** How to refer back to it: "the Data Engineer role", "those three roles", "that work". */
   noun: string;
   /** The same, safe to start a clause: no leading article. */
@@ -319,16 +321,20 @@ function tidyRole(raw: string): string {
 const COUNT_PREFIX = /^\s*(?:\d{1,3}|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:new\s+|open\s+)?roles?\b\s*(?:including|incl\.?|such as|like)?\s*[:,–—-]?\s*/i;
 
 /**
- * One string that is really a list becomes the list. Only split when the count prefix proves it is one:
- * plenty of genuine titles carry a comma ("Manager, Sales Ops"), and splitting those invents roles that
- * were never posted.
+ * A string that is really a list of roles is DROPPED, not split.
+ *
+ * Splitting it on commas looked reasonable and was not: "6 roles: Senior Business Analyst, Manager, Sales
+ * Ops, Solutions Analyst" became five roles including a "Manager" and a "Sales Ops" that nobody posted —
+ * the real opening is "Manager, Sales Ops". Commas inside a title are indistinguishable from commas
+ * between titles, so any split invents openings some of the time, and an invented job title in a cold
+ * email is worse than no job title. The separate entries under `responsibilities` carry the real ones; if
+ * there are none, the draft says "that work", which is true.
  */
 function expandRoleList(value: string): string[] {
-  const match = value.match(COUNT_PREFIX);
-  if (!match) return [value];
-  const rest = value.slice(match[0].length).trim();
-  if (!rest) return [];
-  return rest.split(/\s*[;,]\s*(?=[A-Z0-9])/).map((part) => part.trim()).filter(Boolean);
+  if (!COUNT_PREFIX.test(value)) return [value];
+  const rest = value.replace(COUNT_PREFIX, "").trim();
+  // A count prefix with a single title after it is safe: no comma, nothing to get wrong.
+  return rest && !/[;,]/.test(rest) ? [rest] : [];
 }
 
 // A req we should not price as headcount: an internship is not a hire being weighed against a build, and
@@ -351,18 +357,19 @@ function usableRoles(roles: string[]): string[] {
 }
 
 /** Every role phrase the templates need, each already carrying its own article and number. */
-function roleContext(roles: string[]): Pick<Context, "hiring" | "noun" | "bareNoun" | "pronoun" | "rolesDo" | "count"> {
+function roleContext(roles: string[]): Pick<Context, "hiring" | "openPhrase" | "noun" | "bareNoun" | "pronoun" | "rolesDo" | "count"> {
   const list = usableRoles(roles);
   const count = list.length;
   if (count === 0) {
     // No role titles on file. Never substitute a placeholder into a slot built for a noun phrase — that is
     // what produced "the that role role" and "has for data and reporting work open".
-    return { hiring: "in data and reporting", noun: "that work", bareNoun: "that work", pronoun: "it", rolesDo: "that work needs", count: 0 };
+    return { hiring: "in data and reporting", openPhrase: "work open in data and reporting", noun: "that work", bareNoun: "that work", pronoun: "it", rolesDo: "that work needs", count: 0 };
   }
   if (count === 1) {
     const role = list[0];
     return {
       hiring: `${article(role)} ${role} role`,
+      openPhrase: `${article(role)} ${role} role open`,
       noun: `the ${role} role`,
       bareNoun: `the ${role} role`,
       pronoun: "it",
@@ -373,6 +380,8 @@ function roleContext(roles: string[]): Pick<Context, "hiring" | "noun" | "bareNo
   const named = list.slice(0, 2).join(" and ");
   return {
     hiring: count === 2 ? `two roles, ${named}` : `${numberWord(count)} roles, including ${named}`,
+    // The count leads and the names trail, so nothing can be appended straight onto a role title.
+    openPhrase: count === 2 ? `two roles open, ${named}` : `${numberWord(count)} roles open, including ${named}`,
     noun: `those ${numberWord(count)} roles`,
     bareNoun: `those ${numberWord(count)} roles`,
     pronoun: "them",
@@ -384,21 +393,25 @@ function roleContext(roles: string[]): Pick<Context, "hiring" | "noun" | "bareNo
 /**
  * A grammatical noun phrase for the work, derived from the roles being hired.
  *
- * This used to be sliced out of the signal's own prose, which produced "We build and run the that work
- * instead of adding headcount". A phrase built from the roles is always a phrase, and still specific
- * because the roles are.
+ * Every phrase here is a BARE noun phrase with no trailing clause. They each used to end in one — "the
+ * financial reporting and the reconciliation under it", "the pipelines and the reporting they feed" — and
+ * the templates carry on with a preposition of their own, so real drafts read "We put the financial
+ * reporting and the reconciliation under it behind one scheduled job" and "We cover the triage and the
+ * reporting on it with a system". That was the majority of pitches, not an edge case, and no rule caught it
+ * because nobody had thought to write that rule. A phrase that cannot collide reads correctly whatever
+ * follows it, and it is still specific, because the roles are.
  */
 function needPhrase(roles: string[], operatingNeed?: string | null): string {
   const text = `${roles.join(" ")} ${decodeEntities(operatingNeed ?? "")}`.toLowerCase();
-  if (/financ|account|revenue|invoic|billing|payroll/.test(text)) return "the financial reporting and the reconciliation under it";
-  if (/report/.test(text) && /data|pipeline|etl|warehouse|dbt|snowflake/.test(text)) return "the pipelines and the reporting they feed";
-  if (/pipeline|etl|warehouse|dbt|snowflake|data engineer/.test(text)) return "the data pipelines and the checks that keep them honest";
-  if (/analy/.test(text)) return "the analysis and the reporting around it";
-  if (/market|campaign|attribution/.test(text)) return "the campaign reporting and the attribution behind it";
-  if (/support|ticket|service desk|helpdesk/.test(text)) return "the triage and the reporting on it";
-  if (/secur|complian|audit|risk/.test(text)) return "the evidence gathering and the reporting on it";
-  if (/supply|logistics|inventory|procure/.test(text)) return "the stock and supplier reporting behind it";
-  if (/report/.test(text)) return "the reporting and the data work behind it";
+  if (/financ|account|revenue|invoic|billing|payroll/.test(text)) return "the financial reporting and reconciliation";
+  if (/report/.test(text) && /data|pipeline|etl|warehouse|dbt|snowflake/.test(text)) return "the data pipelines and reporting";
+  if (/pipeline|etl|warehouse|dbt|snowflake|data engineer/.test(text)) return "the data pipelines and their checks";
+  if (/analy/.test(text)) return "the analysis and reporting";
+  if (/market|campaign|attribution/.test(text)) return "the campaign reporting and attribution";
+  if (/support|ticket|service desk|helpdesk/.test(text)) return "the ticket triage and reporting";
+  if (/secur|complian|audit|risk/.test(text)) return "the evidence gathering and reporting";
+  if (/supply|logistics|inventory|procure/.test(text)) return "the stock and supplier reporting";
+  if (/report/.test(text)) return "the reporting and the data work";
   return "the reporting and data work";
 }
 
@@ -416,12 +429,12 @@ function variantFor(seed: string, count: number, rotate = 0): number {
   return count > 0 ? (hash + rotate) % count : 0;
 }
 
-/** ", open for the last 25 days" when the signal carries a number of days, otherwise nothing. */
-function daysOpenPhrase(whyNow?: string | null): string {
+/** How many days the roles have been open, when the signal says and the number is believable. */
+function daysOpen(whyNow?: string | null): number {
   const match = decodeEntities(whyNow ?? "").match(/(\d{1,3})\s*days?\b/);
-  if (!match) return "";
+  if (!match) return 0;
   const days = Number(match[1]);
-  return days >= 14 && days <= 365 ? `, open for the last ${days} days` : "";
+  return days >= 14 && days <= 365 ? days : 0;
 }
 
 /** Possessive that reads right for a company already ending in s: "Acme Holdings'", not "Holdings's". */
@@ -443,7 +456,10 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
   const first = firstNameOf(input.personName);
   const roles = input.roles ?? [];
   const parts = roleContext(roles);
-  const forDays = daysOpenPhrase(input.whyNow);
+  const days = daysOpen(input.whyNow);
+  // Its own sentence, so it can never be welded onto the end of another one. Suppressed when no role title
+  // is on file: "It has been open for 25 days" needs an "it" to refer to.
+  const daysNote = days && parts.count ? ` ${parts.count > 1 ? "They have" : "It has"} been open for ${days} days.` : "";
   // Whole sentences, built where the role count is known, rather than a phrase dropped into a slot. The
   // zero-role phrase is prepositional ("in data and reporting"), and splicing it into "I noticed … open at
   // X" produced "I noticed in data and reporting open at Acme" on the large majority of real drafts —
@@ -453,11 +469,11 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
     ...parts,
     isPlural: parts.count > 1,
     need: needPhrase(roles, input.operatingNeed),
-    sawLine: `I saw ${company} is hiring ${parts.hiring}${forDays}.`,
-    noticedLine: parts.count
-      // "open at X" already carries the word, so the days clause attaches to the role instead.
-      ? `I noticed ${parts.hiring} at ${company}${forDays || " open"}.`
-      : `I noticed ${company} is hiring ${parts.hiring}${forDays}.`,
+    // Two complete sentences, never one long one. Threading the company, the roles and the days into a
+    // single clause produced "I noticed five roles, including Senior Business Analyst and Manager at
+    // Trinity Life Sciences open." — a sentence that ends on an adjective with nothing to attach to.
+    sawLine: `I saw ${company} is hiring ${parts.hiring}.${daysNote}`,
+    noticedLine: `I noticed ${company} has ${parts.openPhrase}.${daysNote}`,
   };
 
   const angle = ANGLES.find((entry) => entry.test.test(decodeEntities(input.personTitle)))?.angle ?? FALLBACK;
