@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { angleFor, composeContactDraft } from "./contact-draft.ts";
+import { angleFor, composeContactDraft, rolesFromSignal } from "./contact-draft.ts";
 import { greetedName, stripLeadingGreeting } from "./clean.ts";
 
 const QUANTIPHI = {
@@ -101,4 +101,55 @@ test("the work is described as a phrase, never a fragment of the signal's prose"
   for (const sentence of sentences) {
     assert.ok((sentence.match(/headcount/gi) ?? []).length <= 1, `repeats headcount: ${sentence}`);
   }
+});
+
+test("EVERY draft is grammatical at every role count, especially zero", () => {
+  // Zero roles is the production case, not an edge case: signals.raw carries job titles under `job`, and
+  // for a long time the drafter read a key zod strips — so every draft was built with roles: [].
+  // Two composer rewrites fixed the symptom and this test is what should have caught the cause.
+  const TITLES = ["CEO", "Co-Founder", "CFO", "Chief Financial Officer", "CTO", "Chief Technology Officer",
+    "CIO", "Chief Digital Officer", "CISO", "COO", "Chief People Officer", "CMO", "VP - Marketing",
+    "VP, Corporate Development", "Managing Partner", "Head of Surety", "Chief Product Officer"];
+  const ROLE_SETS: string[][] = [
+    [],
+    ["Data Engineer"],
+    ["Analytics Engineer"],
+    ["Data Engineer - USA", "Business Analyst"],
+    ["Senior Data Engineer - DBT", "Financial Analyst", "Operations Manager"],
+  ];
+  const BROKEN = [
+    /\bthe a\b/i, /\bthe an\b/i, /\ba [aeiou]/, /\bthat role role\b/i, /\bthe that\b/i,
+    /\bin data and reporting open\b/i, /\bhas in data and reporting\b/i,
+    /\bthat work are\b/i, /\bopen, open\b/i, /\broles is filled\b/i, /\brole are filled\b/i,
+    /\bthose 1 roles?\b/i, /[ \t]{2,}/, /\bundefined\b/, /\bnull\b/, /\bNaN\b/, /[{}]/,
+  ];
+  let checked = 0;
+  for (const personTitle of TITLES) {
+    for (const roles of ROLE_SETS) {
+      for (const whyNow of ["", "6 data and reporting roles open for 25 days."]) {
+        const draft = composeContactDraft({ company: "Acme Holdings", personName: "Lee Park", personTitle, roles, whyNow });
+        for (const pattern of BROKEN) {
+          assert.ok(!pattern.test(draft.body), `body matches ${pattern} for ${personTitle} / ${roles.length} roles:\n${draft.body}`);
+          assert.ok(!pattern.test(draft.subject), `subject matches ${pattern} for ${personTitle} / ${roles.length} roles: ${draft.subject}`);
+        }
+        // Every sentence must start with a capital and end with punctuation.
+        for (const line of draft.body.split("\n").filter((l) => l.trim() && l !== "Thank you,")) {
+          assert.match(line.trim(), /^[A-Z“"]/, `line does not start capitalised: ${line}`);
+          assert.match(line.trim(), /[.?!,]$/, `line does not end punctuated: ${line}`);
+        }
+        checked += 1;
+      }
+    }
+  }
+  assert.ok(checked >= 150, `expected a broad sweep, checked ${checked}`);
+});
+
+test("role titles are read from the signal's job field, not a key that never exists", () => {
+  // raw.roles / raw.open_roles are stripped by the ScoutSignal schema; job.title is what survives.
+  assert.deepEqual(rolesFromSignal({ job: { title: "Senior Data Engineer", responsibilities: ["Build pipelines"] } }),
+    ["Senior Data Engineer", "Build pipelines"]);
+  assert.deepEqual(rolesFromSignal({ roles: ["Data Engineer"] }), [], "the old key carries nothing");
+  assert.deepEqual(rolesFromSignal(null), []);
+  assert.deepEqual(rolesFromSignal({}), []);
+  assert.deepEqual(rolesFromSignal({ job: { title: "  " } }), [], "a blank title is not a role");
 });

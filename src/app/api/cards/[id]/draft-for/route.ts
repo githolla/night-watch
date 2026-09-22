@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { composeContactDraft } from "@/lib/contact-draft";
+import { composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
 import { admin } from "@/lib/supabase/admin";
 import { senderProfile } from "@/lib/sender";
 import { z } from "zod";
@@ -44,8 +44,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const account = card.accounts as unknown as { name: string; domain: string } | null;
     const raw = (card.signals as unknown as { raw?: Record<string, unknown> } | null)?.raw ?? {};
     // Roles come from whichever shape the signal recorded them in.
-    const rawRoles = Array.isArray(raw.roles) ? raw.roles : Array.isArray(raw.open_roles) ? raw.open_roles : [];
-    const roles = rawRoles.map((role) => typeof role === "string" ? role : (role as { title?: string })?.title ?? "").filter(Boolean).slice(0, 6);
+
+    const roles = rolesFromSignal(raw);
 
     const profile = await senderProfile(db, user.owner);
     const draft = composeContactDraft({

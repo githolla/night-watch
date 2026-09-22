@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { composeContactDraft } from "@/lib/contact-draft";
+import { composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
 import { isRealContact } from "@/lib/clean";
 import { isLikelyPersonName } from "@/lib/pipeline";
 import { senderProfile } from "@/lib/sender";
@@ -71,7 +71,9 @@ export async function POST(request: Request) {
         db.from("people").select("id,full_name,title,level,email,email_status")
           .eq("account_id", card.account_id).eq("do_not_contact", false).not("email", "is", null)
           .order("level", { ascending: true }).order("full_name", { ascending: true }).limit(60),
-        db.from("cards").select("person_id").eq("signal_id", card.signal_id),
+        // Scoped to the ACCOUNT, not the signal: a company with two open signals would otherwise card the
+        // same top contacts twice, and the operator would send one human two cold emails days apart.
+        db.from("cards").select("person_id").eq("account_id", card.account_id),
       ]);
       // `taken` is the ONLY thing standing between this and overwriting a draft that has already been
       // edited or sent. supabase-js returns errors rather than throwing, so a failed read would have
@@ -93,8 +95,8 @@ export async function POST(request: Request) {
       if (!candidates.length) { skipped += 1; continue; }
 
       const raw = card.signals?.raw ?? {};
-      const rawRoles = Array.isArray(raw.roles) ? raw.roles : Array.isArray(raw.open_roles) ? raw.open_roles : [];
-      const roles = rawRoles.map((role) => typeof role === "string" ? role : (role as { title?: string })?.title ?? "").filter(Boolean).slice(0, 6);
+
+      const roles = rolesFromSignal(raw);
 
       const rows = candidates.map((person) => {
         const draft = composeContactDraft({

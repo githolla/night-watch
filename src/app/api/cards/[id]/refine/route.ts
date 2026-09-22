@@ -17,7 +17,7 @@ const input = z.object({
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    await requireUser();
+    const user = await requireUser();
     const { id } = await context.params;
     const payload = input.parse(await request.json());
     const db = admin();
@@ -25,7 +25,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (!card) throw new Error("Card not found");
     const person = card.people as unknown as { full_name: string; title: string } | null;
     const account = card.accounts as unknown as { name: string } | null;
-    const sender = await senderProfile(db, "josh");
+    // Whoever is signed in — this was hardcoded to one seat, so a teammate's rewrite came back
+    // introducing them as somebody else.
+    const sender = await senderProfile(db, user.owner);
     const tally = spendTally("refine_draft", { cardId: id, channel: payload.channel });
     const refined = await refineDraft({
       channel: payload.channel,
