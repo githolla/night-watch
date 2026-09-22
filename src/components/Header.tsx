@@ -21,6 +21,7 @@ const primary = [
   { href: "/people", label: "People", hint: "Every contact on file" },
 ];
 const more = [
+  { href: "/customized-emails", label: "443 customized emails", hint: "Review the company-specific drafts in your own greeting and signature" },
   { href: "/pipeline", label: "Pipeline", hint: "Qualified conversations and opportunities" },
   { href: "/activity", label: "History", hint: "Everything sent, and every reply" },
   { href: "/targets", label: "All companies", hint: "The full company table: search, filter, add or exclude" },
