@@ -6,22 +6,29 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Lock } from "lucide-react";
 import { FeedbackWidget } from "./FeedbackWidget";
 
-/** A clean top bar: the daily work first, everything else under More, workspace and user on the right. */
+/**
+ * A clean top bar: the daily work first, everything else under More, workspace and user on the right.
+ *
+ * Labels say what the page is, and no two of them compete. /desk was labelled "Outreach" while /outreach
+ * was labelled "Companies", so the label contradicted the address and two entries read as the company list
+ * — testers reported not being able to find a list that was in front of them twice. Each carries a one-line
+ * hint as its tooltip.
+ */
 const primary = [
-  { href: "/desk", label: "Outreach" },
-  { href: "/followups", label: "Follow-ups" },
-  { href: "/outreach", label: "Companies" },
-  { href: "/people", label: "People" },
+  { href: "/desk", label: "Desk", hint: "Today's worklist: write and send, one prospect at a time" },
+  { href: "/followups", label: "Follow-ups", hint: "Queued follow-ups and anything due now" },
+  { href: "/outreach", label: "Reach-out list", hint: "The companies being worked, by stage" },
+  { href: "/people", label: "People", hint: "Every contact on file" },
 ];
 const more = [
-  { href: "/pipeline", label: "Pipeline" },
-  { href: "/activity", label: "History" },
-  { href: "/targets", label: "All companies" },
-  { href: "/roles", label: "Job signals" },
-  { href: "/posts", label: "Employee posts" },
-  { href: "/runs", label: "Runs" },
-  { href: "/stats", label: "Results" },
-  { href: "/settings", label: "Settings" },
+  { href: "/pipeline", label: "Pipeline", hint: "Qualified conversations and opportunities" },
+  { href: "/activity", label: "History", hint: "Everything sent, and every reply" },
+  { href: "/targets", label: "All companies", hint: "The full company table: search, filter, add or exclude" },
+  { href: "/roles", label: "Job signals", hint: "Open roles found at target companies" },
+  { href: "/posts", label: "Employee posts", hint: "Public posts found from people at target companies" },
+  { href: "/runs", label: "Runs", hint: "Research runs and what each one cost" },
+  { href: "/stats", label: "Results", hint: "Replies, meetings and what is working" },
+  { href: "/settings", label: "Settings", hint: "Mailbox, identity, team and integrations" },
 ];
 
 export function Header() {
@@ -62,11 +69,11 @@ export function Header() {
         <nav className="appbar-nav">
           {primary.map((item) => {
             const count = countFor(item.href);
-            return <Link key={item.href} href={item.href} className={active(item.href) ? "is-active" : ""}>{item.label}{count ? <b className="nav-count">{count}</b> : null}</Link>;
+            return <Link key={item.href} href={item.href} title={item.hint} className={active(item.href) ? "is-active" : ""}>{item.label}{count ? <b className="nav-count">{count}</b> : null}</Link>;
           })}
           <div className={`appbar-more ${moreOpen ? "is-open" : ""}`} ref={moreRef}>
             <button type="button" onClick={() => setMoreOpen((open) => !open)} className={more.some((item) => active(item.href)) ? "is-active" : ""} aria-expanded={moreOpen}>More <ChevronDown size={14} strokeWidth={1.8} /></button>
-            {moreOpen && <div className="appbar-more-list">{more.map((item) => <Link key={item.href} href={item.href} className={active(item.href) ? "is-active" : ""}>{item.label}</Link>)}</div>}
+            {moreOpen && <div className="appbar-more-list">{more.map((item) => <Link key={item.href} href={item.href} title={item.hint} className={active(item.href) ? "is-active" : ""}>{item.label}<small>{item.hint}</small></Link>)}</div>}
           </div>
         </nav>
       </div>

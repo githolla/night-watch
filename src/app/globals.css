@@ -2144,3 +2144,8 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .draft-tool-row>span{font:700 10px/1 var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .draft-tool-row select{border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper);padding:7px 9px;font:500 13px/1.2 var(--sans);color:inherit}
 .draft-tool-row small{flex:1 1 220px;font:500 11.5px/1.45 var(--sans);color:var(--muted)}
+
+/* The More menu says what each page is, so a list nobody can find stops being a list nobody can find. */
+.appbar-more-list a{display:flex;flex-direction:column;gap:2px}
+.appbar-more-list a small{font:500 11px/1.4 var(--sans);color:var(--muted);white-space:normal;max-width:34ch}
+.appbar-more-list a:hover small,.appbar-more-list a.is-active small{color:inherit;opacity:.8}
