@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { dedupeParagraphs, similarText, sanitizeSignatureHtml, hasProposedTimes, stripProposedTimes, decodeEntities, foreignEmployer, greetedName, stripLeadingGreeting, isRoleAddress, looksLikeDocumentName, isRealContact } from "./clean.ts";
+import { dedupeParagraphs, similarText, sanitizeSignatureHtml, hasProposedTimes, stripProposedTimes, decodeEntities, foreignEmployer, greetedName, stripLeadingGreeting, isRoleAddress, looksLikeDocumentName, isRealContact, looksLikeMarketingPhrase } from "./clean.ts";
 import { sanitizeLinks } from "./sender.ts";
 
 test("the outbound cleaner never mangles a prospect's own words", () => {
@@ -236,6 +236,49 @@ test("a page title scraped as a contact is rejected", () => {
   }
   for (const name of ["Asif Hasan", "Jim Reesing", "Bridget Howard", "Reghu Hariharan", "Ashley Honeyman"]) {
     assert.equal(looksLikeDocumentName(name), false, `should be kept: ${name}`);
+  }
+});
+
+test("a call to action scraped as a contact is not a contact", () => {
+  // The one that reached a draft: "Discover Untapped Performance", titled "Your Industry Partner", at
+  // discover.performance@servicetitan.com. Three capitalised words pass a name test and the address is not
+  // a functional mailbox, so every existing check waved it through and the email opened "Hi Discover,".
+  assert.equal(isRealContact({ full_name: "Discover Untapped Performance", title: "Your Industry Partner", email: "discover.performance@servicetitan.com" }), false);
+  // The name alone is enough, and so is the title alone.
+  assert.equal(looksLikeMarketingPhrase("Discover Untapped Performance"), true);
+  assert.equal(looksLikeMarketingPhrase("Ara Mahdessian", "Your Industry Partner"), true);
+  for (const phrase of ["Unlock Your Potential", "Learn More", "Transform Your Operations", "Get Started Today", "Why ServiceTitan", "Our Solutions", "Proven Results", "Request a Demo", "Streamline Field Service"]) {
+    assert.equal(looksLikeMarketingPhrase(phrase), true, `"${phrase}" is a slogan, not a person`);
+  }
+});
+
+test("the marketing test does not throw away real people", () => {
+  // The expensive kind of mistake: a filter that quietly removes genuine contacts is worse than the slogan
+  // it was written to catch, because nothing on screen says anyone is missing. Every name and title here is
+  // from the real list.
+  const real: Array<[string, string]> = [
+    ["Ara Mahdessian", "CEO"],
+    ["Colin Boatwright", "Chief Information Officer"],
+    ["Aparna Deshpande", "President, Insights and Analytics"],
+    ["Eric Sholk", "Head of Commercial Strategy"],
+    ["Dawn Mueller", "Chief Marketing Officer"],
+    ["Herman Sanchez", "Executive Vice President, Clients"],
+    ["Arjun Kalyanpur", "Head of Product"],
+    ["Dave DiCamillo", "Chief Technology Officer, Co-Founder"],
+    ["Reghu Hariharan", "Chief Financial Officer"],
+    ["John Corcoran", "Founder"],
+    // First names that are also verbs or virtues, which a careless rule would eat.
+    ["Mark Sterling", "VP, Performance Marketing"],
+    ["Will Chase", "Director of Solutions Engineering"],
+    ["Grant Fielding", "Head of Analytics"],
+    ["Grace Okafor", "VP, Customer Success"],
+    ["Faith Nakamura", "Director, Platform Strategy"],
+    ["Drew Valentine", "Head of Automation"],
+    ["Joy Lindqvist", "Chief Value Officer"],
+  ];
+  for (const [full_name, title] of real) {
+    assert.equal(looksLikeMarketingPhrase(full_name, title), false, `"${full_name}" (${title}) is a real person`);
+    assert.equal(isRealContact({ full_name, title, email: `${full_name.split(" ")[0].toLowerCase()}@acme.com` }), true, `"${full_name}" should be writable`);
   }
 });
 

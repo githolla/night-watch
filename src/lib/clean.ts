@@ -259,9 +259,37 @@ export function looksLikeDocumentName(name: string | null | undefined): boolean 
   return DOCUMENT_WORD.test(decodeEntities(name));
 }
 
+/**
+ * Marketing copy scraped as a contact: "Discover Untapped Performance", titled "Your Industry Partner", at
+ * discover.performance@servicetitan.com. It defeats every other check here — three capitalised words look
+ * exactly like a name, and the address is not a functional mailbox — so it reached a draft addressed to
+ * "Hi Discover,". A call to action is its own shape and needs its own test.
+ */
+
+// No human's name begins with an imperative. Deliberately excludes verbs that are also common given names
+// (Mark, Will, Grant, Chase, Drew), and applies to the FIRST word only, so a surname is never caught by it.
+const CTA_OPENER = /^(discover|unlock|explore|learn|get|find|boost|grow|transform|maximis?e|maximize|optimis?e|optimize|elevate|accelerate|achieve|streamline|simplify|empower|enable|deliver|protect|secure|scale|modernis?e|modernize|automate|introducing|why|how|what|your|our|the|request|download|subscribe|register|schedule|explore|upgrade|reduce|increase|improve|eliminate|stop|start|ready|meet|see|book|claim|join|save|shop|watch)\b/i;
+
+// Words that are abstractions, not name parts. Kept to ones no person is called; "Grace", "Faith", "Hope",
+// "Joy", "Justice" and "Sage" are real names and are deliberately absent.
+const MARKETING_NOUN = /\b(untapped|performance|solutions?|innovation|excellence|potential|efficiency|productivity|transformation|insights?|results|success|roi|savings|expertise|capabilities|scalability|reliability|visibility|uptime|downtime|workflows?|automation|analytics|dashboards?|pipelines?|onboarding|integrations?|compliance|optimisation|optimization|strategy|roadmap|platform|ecosystem|synergy|synergies|value|advantage|benefits?|features?|pricing|quote|demo|trial|offer|promo|discount)\b/i;
+
+// A job title, not a slogan. No real title begins "Your" or "Our", and a strapline is not a role.
+const MARKETING_TITLE = /^(your|our)\b|\b(industry partner|solutions provider|leading provider|trusted partner|your partner|#\s?1\b)/i;
+
+/** True when a scraped "person" is really a call to action, a value proposition or a strapline. */
+export function looksLikeMarketingPhrase(name: string | null | undefined, title?: string | null): boolean {
+  const clean = decodeEntities(name).trim();
+  if (clean && (CTA_OPENER.test(clean) || MARKETING_NOUN.test(clean))) return true;
+  const role = decodeEntities(title ?? "").trim();
+  return Boolean(role) && MARKETING_TITLE.test(role);
+}
+
 /** Everything that disqualifies a scraped contact from being written to, in one place. */
-export function isRealContact(person: { full_name?: string | null; email?: string | null }): boolean {
+export function isRealContact(person: { full_name?: string | null; email?: string | null; title?: string | null }): boolean {
   if (looksLikeDocumentName(person.full_name)) return false;
+  // The title matters as much as the name: "Your Industry Partner" is a strapline wherever it is filed.
+  if (looksLikeMarketingPhrase(person.full_name, person.title)) return false;
   if (isRoleAddress(person.email)) return false;
   return true;
 }

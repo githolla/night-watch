@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { decodeEntities, foreignEmployer, looksLikeDocumentName } from "./clean.ts";
+import { decodeEntities, foreignEmployer, isRealContact, looksLikeDocumentName, looksLikeMarketingPhrase } from "./clean.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { findPerson, scout, type ScoutSignal, writeAngle } from "./agents.ts";
 import { matchPerson } from "./apollo.ts";
@@ -110,6 +110,10 @@ export async function upsertPerson(account: Account, candidate: { name: string; 
   if (!isLikelyPersonName(candidate.name)) return null;
   // Nor a page title that happens to be capitalised like a name ("Modern Slavery Statement").
   if (looksLikeDocumentName(candidate.name)) return null;
+  // Nor a call to action off the company's own website: "Discover Untapped Performance", filed under the
+  // title "Your Industry Partner". Three capitalised words pass every test above, so this one reached a
+  // real draft that opened "Hi Discover,".
+  if (looksLikeMarketingPhrase(candidate.name, candidate.title)) return null;
   // A research pass that reads about one company also meets executives quoted from others. Storing them
   // here means offering to email "CIO, Peterson Cheese" a pitch about Quantiphi's hiring.
   const elsewhere = foreignEmployer(candidate.title, account.name, account.domain);
@@ -636,11 +640,25 @@ export async function purgeJunkPosts() {
  */
 export async function purgeNonPeople() {
   const db = admin();
-  const { data, error } = await db.from("people").select("id,full_name").eq("do_not_contact", false);
-  if (error) return 0;
-  const bad = (data ?? []).filter((row) => !isLikelyPersonName(row.full_name as string)).map((row) => row.id as string);
-  for (let i = 0; i < bad.length; i += 200) await db.from("people").update({ do_not_contact: true }).in("id", bad.slice(i, i + 200));
-  return bad.length;
+  type Row = { id: string; full_name: string; title: string | null; email: string | null };
+  // Paged. This read had no range, so PostgREST capped it at 1000 rows and every sweep judged the same
+  // first thousand contacts while the rest were never examined at all.
+  const rows: Row[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await db.from("people").select("id,full_name,title,email").eq("do_not_contact", false).order("id").range(from, from + 999);
+    if (error) return { removed: 0, names: [] };
+    rows.push(...((data ?? []) as Row[]));
+    if ((data?.length ?? 0) < 1000) break;
+  }
+  // Was only a name-shape test, so a slogan in title case ("Discover Untapped Performance") survived every
+  // sweep. isRealContact is the whole rule — page titles, functional mailboxes and marketing copy — and
+  // running the same one here means the list and the purge can never disagree about who is a person.
+  const bad = rows.filter((row) => !isLikelyPersonName(row.full_name) || !isRealContact(row));
+  const ids = bad.map((row) => row.id);
+  for (let i = 0; i < ids.length; i += 200) await db.from("people").update({ do_not_contact: true }).in("id", ids.slice(i, i + 200));
+  // The names, not just the count: "we removed 43 contacts" is a number to take on trust, and the whole
+  // point of this is that the list can be checked rather than believed.
+  return { removed: ids.length, names: bad.slice(0, 200).map((row) => `${row.full_name}${row.title ? ` — ${row.title}` : ""}`) };
 }
 
 export async function recomputeAndSurface() {

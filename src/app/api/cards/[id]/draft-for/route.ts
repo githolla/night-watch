@@ -1,5 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
+import { isRealContact } from "@/lib/clean";
+import { isLikelyPersonName } from "@/lib/pipeline";
 import { admin } from "@/lib/supabase/admin";
 import { senderProfile } from "@/lib/sender";
 import { z } from "zod";
@@ -36,10 +38,19 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       .eq("id", id).single();
     if (cardError || !card) throw new Error("Card not found");
 
-    const { data: person, error: personError } = await db.from("people").select("id,full_name,title,account_id").eq("id", personId).maybeSingle();
+    const { data: person, error: personError } = await db.from("people").select("id,full_name,title,email,account_id").eq("id", personId).maybeSingle();
     if (personError) throw new Error(personError.message);
     if (!person) throw new Error("That contact is no longer on file.");
     if (person.account_id !== card.account_id) throw new Error("That contact works at a different company.");
+    // This route had no quality check at all, which is how "Discover Untapped Performance" — a call to
+    // action off the company's own site — got a real draft opening "Hi Discover,". The bulk drafter has
+    // applied these from the start; opening one contact by hand must apply the same rule.
+    const row = { full_name: person.full_name as string, title: (person.title as string) ?? null, email: (person.email as string) ?? null };
+    if (!isLikelyPersonName(row.full_name) || !isRealContact(row)) {
+      // Take it off the list for good rather than only refusing this once.
+      await db.from("people").update({ do_not_contact: true }).eq("id", personId);
+      return Response.json({ notAPerson: true, error: `“${row.full_name}” is not a person — it is a phrase from the company's website. It has been taken off the contact list.` }, { status: 400 });
+    }
 
     // Already has their own card? Hand it back as it stands. Nothing below may run.
     const { data: existing } = await db.from("cards").select("id").eq("signal_id", card.signal_id).eq("person_id", personId).maybeSingle();
@@ -67,7 +78,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       senderTitle: profile.title,
     });
 
-    const row = {
+    const newCard = {
       signal_id: card.signal_id,
       person_id: personId,
       account_id: card.account_id,
@@ -85,7 +96,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     };
     // ignoreDuplicates so a race can never take the DO UPDATE branch: the check above is a check, not a
     // guarantee, and nothing here may rewrite somebody else's draft.
-    const { error } = await db.from("cards").upsert(row, { onConflict: "signal_id,person_id", ignoreDuplicates: true });
+    const { error } = await db.from("cards").upsert(newCard, { onConflict: "signal_id,person_id", ignoreDuplicates: true });
     if (error) return Response.json({ error: error.message }, { status: 400 });
 
     const { data: saved } = await db.from("cards").select("id").eq("signal_id", card.signal_id).eq("person_id", personId).maybeSingle();

@@ -15,12 +15,14 @@ type Preview = { total: number; scanned: number; wouldChange: number; exact: boo
  * ones — letting you see the exact before and after on real drafts before anything is written.
  */
 export function RewriteDrafts() {
-  const [running, setRunning] = useState<"" | "rewrite" | "greeting" | "clean" | "contacts" | "redraft">("");
+  const [running, setRunning] = useState<"" | "rewrite" | "greeting" | "clean" | "contacts" | "redraft" | "people">("");
   const [msg, setMsg] = useState("");
   const [greeting, setGreeting] = useState("Hi {first},");
   const [preview, setPreview] = useState<{ tool: "clean" | "greeting"; data: Preview } | null>(null);
   const [previewing, setPreviewing] = useState<"" | "clean" | "greeting">("");
   const [perCompany, setPerCompany] = useState(4);
+  // The names taken off the contact list, so the result can be read rather than taken on trust.
+  const [purged, setPurged] = useState<string[] | null>(null);
 
   // The greeting field resets to the default on every reload, which reads as "my greeting didn't save."
   // Persist the last value locally so the panel reopens showing what the admin actually set.
@@ -149,6 +151,22 @@ export function RewriteDrafts() {
     finally { setRunning(""); }
   }
 
+  // Take everything off the contact list that is not a person, and show what went.
+  async function checkContacts() {
+    if (running) return;
+    if (!confirm("Check every contact on file and take off the ones that are not people — slogans, page titles and functional mailboxes? They stop being offered and stop being enriched. Nothing is deleted.")) return;
+    setRunning("people"); setMsg("Checking the contact list…"); setPurged(null);
+    try {
+      const res = await fetch("/api/admin/purge-people", { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) { setMsg(json.error ?? "Could not check the contact list."); return; }
+      const names = (json.names ?? []) as string[];
+      setPurged(names);
+      setMsg(json.removed ? `Took ${json.removed} off the list.` : "Every contact on file looks like a person.");
+    } catch { setMsg("Could not check the contact list — try again."); }
+    finally { setRunning(""); }
+  }
+
   const shown = preview?.data;
 
   return (
@@ -170,6 +188,23 @@ export function RewriteDrafts() {
         <div className="draft-tool-actions">
           <button type="button" className="btn primary" disabled={!!running} onClick={draftContacts}>{running === "contacts" ? "Writing…" : "Write the drafts"}</button>
         </div>
+      </section>
+
+      {/* 0a — nothing else matters if the list is not people. */}
+      <section className="draft-tool">
+        <header>
+          <div><h3>Check the contact list</h3><p>Websites put their own sales copy in the same place as their people, so phrases get filed as contacts: &ldquo;Discover Untapped Performance&rdquo;, titled &ldquo;Your Industry Partner&rdquo;. Three capitalised words look exactly like a name. This finds them and takes them off.</p></div>
+          <span className="panel-cost is-free">Free</span>
+        </header>
+        <p className="panel-watch">Also catches page titles scraped as people (&ldquo;Modern Slavery Statement&rdquo;) and functional mailboxes (recruiting@, service@). They are marked do-not-contact, never deleted &mdash; and every name is listed below so you can see exactly what went.</p>
+        <div className="draft-tool-actions">
+          <button type="button" className="btn" disabled={!!running} onClick={checkContacts}>{running === "people" ? "Checking…" : "Check the contact list"}</button>
+        </div>
+        {purged && purged.length > 0 && (
+          <ul className="draft-tool-list">
+            {purged.map((name) => <li key={name}>{name}</li>)}
+          </ul>
+        )}
       </section>
 
       {/* 0b — makes the list read as one voice. */}

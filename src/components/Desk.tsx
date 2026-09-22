@@ -173,6 +173,8 @@ export function Desk({
   // to do with.
   const [cameFrom, setCameFrom] = useState<{ cardId: string; name: string; company: string } | null>(null);
   const [openingContact, setOpeningContact] = useState<string | null>(null);
+  // Bumped to force the company's people list to reload, after one of them turns out not to be a person.
+  const [teamStamp, setTeamStamp] = useState(0);
   const [logged, setLogged] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
   // The left list can show just today's worklist, or every active (un-worked) prospect so older
@@ -304,6 +306,10 @@ export function Desk({
     const response = await fetch(`/api/cards/${from.id}/draft-for`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ personId: person.id }) });
     const json = await response.json().catch(() => ({}));
     setOpeningContact(null);
+    // Not a person at all — a slogan off the company's website that was filed as a contact. Say so and
+    // leave the panel where it is; falling back would put a draft on screen addressed to "Hi Discover,".
+    // The server has already taken it off the list, so reload the team so it disappears.
+    if (json?.notAPerson) { setNotice(json.error as string); setTeamStamp((n) => n + 1); return; }
     // Couldn't give them their own card? Fall back to the old behaviour rather than leaving the click dead:
     // the first contact's note, retargeted, with the composer saying plainly that is what it is.
     if (!response.ok || !json?.card?.id) { setAlt({ cardId: from.id, person }); setNotice(json?.error ?? `Writing to ${person.full_name}.`); return; }
@@ -1015,7 +1021,7 @@ export function Desk({
                   {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">View signal &amp; company details &#8599;</Link>}
                 </div>
 
-                {focusCard.accounts.domain && <CompanyTeam compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id ?? focusCard.people.id} busyId={openingContact} loggedIds={logged} onSelect={(person) => void openContact(person, focusCard)} />}
+                {focusCard.accounts.domain && <CompanyTeam key={`${focusCard.accounts.domain}:${teamStamp}`} compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id ?? focusCard.people.id} busyId={openingContact} loggedIds={logged} onSelect={(person) => void openContact(person, focusCard)} />}
               </section>
 
               {/* RIGHT — draft with Email / LinkedIn tabs */}
