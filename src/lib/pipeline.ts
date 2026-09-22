@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { decodeEntities, foreignEmployer, isRealContact, looksLikeCompanyBrand, looksLikeDocumentName, looksLikeMarketingPhrase } from "./clean.ts";
+import { repairBrokenDrafts } from "./draft-repair.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { findPerson, scout, type ScoutSignal, writeAngle } from "./agents.ts";
 import { matchPerson } from "./apollo.ts";
@@ -667,6 +668,11 @@ export async function recomputeAndSurface() {
   const db = admin();
   await purgeJunkPosts().catch(() => undefined);
   await purgeNonPeople().catch(() => undefined);
+  // Anything that cannot be sent as it stands is rewritten here rather than waiting to be found by hand.
+  // The audit knows what is broken and the writer knows how to write a correct one; leaving a human to
+  // carry the result from one to the other is how sixty drafts kept the subject "TEST" for a day.
+  const repair = await repairBrokenDrafts().catch(() => null);
+  if (repair?.repaired) console.warn(`[night-watch] rewrote ${repair.repaired} draft(s) that could not be sent as they stood`);
   const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(type,observed_at,raw),accounts(outreach)").in("status", ["new", "approved", "edited", "snoozed"]);
   for (const card of cards ?? []) {
     const signal = card.signals as unknown as { type?: string; observed_at: string; raw?: { operating_need?: unknown } | null };

@@ -209,7 +209,7 @@ export function RewriteDrafts() {
       {/* The three that fix a list end to end, in the order they should be pressed. Everything below them is
           a single change you reach for on purpose; these are a sequence, and running them out of order wastes
           the work — rewriting before the fake contacts are gone just writes emails to them. */}
-      <p className="draft-tools-lead">Three steps put the whole list right: take off anything that is not a person, rewrite every un-sent draft with the same writer, then read back what is still wrong. Each is free and uses no AI. The rest below are single changes to reach for on purpose.</p>
+      <p className="draft-tools-lead"><strong>Steps 1 and 2 now run on their own</strong> &mdash; every night, and whenever the worklist refreshes. Anything filed as a contact that is not a person comes off, and any draft that could not be sent as it stands is rewritten. The buttons are here for when you do not want to wait for that. Step 3 reads the list back to you. All free, no AI. The rest below are single changes to reach for on purpose.</p>
 
 {/* 0a — nothing else matters if the list is not people. */}
       <section className="draft-tool">
@@ -217,7 +217,7 @@ export function RewriteDrafts() {
           <div><h3><em className="draft-step">Step 1</em>Check the contact list</h3><p>Websites put their own sales copy in the same place as their people, so phrases get filed as contacts: &ldquo;Discover Untapped Performance&rdquo;, titled &ldquo;Your Industry Partner&rdquo;. Three capitalised words look exactly like a name. This finds them and takes them off.</p></div>
           <span className="panel-cost is-free">Free</span>
         </header>
-        <p className="panel-watch">Also catches page titles scraped as people (&ldquo;Modern Slavery Statement&rdquo;) and functional mailboxes (recruiting@, service@). They are marked do-not-contact, never deleted &mdash; and every name is listed below so you can see exactly what went.</p>
+        <p className="panel-watch">Also catches page titles scraped as people (&ldquo;Modern Slavery Statement&rdquo;) and functional mailboxes (recruiting@, service@). They are marked do-not-contact, never deleted &mdash; and every name is listed below so you can see exactly what went. This already runs with every refresh; press it to do it now.</p>
         <div className="draft-tool-actions">
           <button type="button" className="btn" disabled={!!running} onClick={checkContacts}>{running === "people" ? "Checking…" : "Check the contact list"}</button>
         </div>
@@ -234,7 +234,7 @@ export function RewriteDrafts() {
           <div><h3><em className="draft-step">Step 2</em>Make every draft read the same way</h3><p>The contact a company arrived with kept whatever was written for them at the time, while their colleagues got the per-person writer &mdash; so working down the list you met one email with the greeting doubled into the first line, the next with no subject, the next written properly. This puts all of them through the same writer.</p></div>
           <span className="panel-cost is-free">Free</span>
         </header>
-        <p className="panel-watch">Each contact is written to about what their role owns, from their company&rsquo;s own signal, with no AI call. <strong>It replaces drafts you have edited by hand.</strong> Emails already sent are never touched.</p>
+        <p className="panel-watch">Each contact is written to about what their role owns, from their company&rsquo;s own signal, with no AI call. <strong>It replaces drafts you have edited by hand.</strong> Emails already sent are never touched. A refresh already rewrites any draft that <em>could not be sent</em> &mdash; a placeholder subject, the wrong name in the greeting; this one rewrites every un-sent draft, whether it was broken or not.</p>
         <div className="draft-tool-actions">
           <button type="button" className="btn" disabled={!!running} onClick={redraftAll}>{running === "redraft" ? "Rewriting…" : "Rewrite every un-sent draft"}</button>
         </div>
