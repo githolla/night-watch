@@ -1,3 +1,4 @@
+import customizedEmails from "../../data/customized-emails.json" with { type: "json" };
 import { decodeEntities } from "./clean.ts";
 
 /**
@@ -549,6 +550,12 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
   const fill = (template: string) => template.replace(/\{first\}/gi, first).replace(/\{name\}/gi, fullName || first);
   const greeting = fill((input.greeting ?? "").trim() || DEFAULT_GREETING);
   const signoff = ((input.signoff ?? "").trim() || DEFAULT_SIGNOFF);
+
+  // Use the authored company copy for its first contact; colleagues keep their role-specific angles.
+  const custom = (input.variantSalt == null || input.variantSalt === 0)
+    ? customizedEmails.find((draft) => draft.company.toLowerCase() === input.company.trim().toLowerCase())
+    : undefined;
+  if (custom) return { subject: custom.subject, body: [greeting, intro, custom.message, signoff].filter(Boolean).join("\n\n") };
 
   const body = [
     greeting,

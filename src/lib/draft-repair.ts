@@ -44,7 +44,7 @@ export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000) {
   for (let from = 0; from < limit; from += 500) {
     const { data, error } = await db.from("cards")
       .select("id,status,signal_id,email_subject,email_body,why_now,assigned_to,signals(raw),accounts(name),people(full_name,title,email)")
-      .in("status", open).not("email_body", "is", null).order("id").range(from, from + 499);
+      .in("status", open).order("id").range(from, from + 499);
     // Never let a failed read look like a clean list.
     if (error) return { checked: 0, repaired: 0, failed: 0, done: false };
     rows.push(...((data ?? []) as unknown as Row[]));
@@ -105,9 +105,12 @@ export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000) {
     // Bounded to the open statuses at write time too: the read and the write are seconds apart, and a card
     // sent in between must not have its record overwritten with a draft. Bounded to the status we READ as
     // well, so a card somebody edits mid-pass keeps their words rather than ours.
-    const { error } = await db.from("cards")
+    let update = db.from("cards")
       .update({ email_subject: draft.subject, email_body: draft.body })
       .eq("id", row.id).eq("status", row.status).in("status", open);
+    update = row.email_body === null ? update.is("email_body", null) : update.eq("email_body", row.email_body);
+    update = row.email_subject === null ? update.is("email_subject", null) : update.eq("email_subject", row.email_subject);
+    const { error } = await update;
     if (error) failed += 1; else repaired += 1;
   }
   return { checked: rows.length, repaired, failed, done };

@@ -271,3 +271,15 @@ test("the copy pools are deep enough that the list does not read as one letter",
   // paired variants would break immediately.
   assert.ok(seen.size >= 30, `expected a wide spread of pitch and ask pairs, got ${seen.size}`);
 });
+
+
+test("the worklist writer uses authored company copy and the assigned sender greeting", () => {
+  const draft = composeContactDraft({ company: "Aprio", personName: "Richard Kopelman", personTitle: "CEO", variantSalt: 0, senderName: "Suuchi Ramesh", greeting: "Hello {first},", signoff: "Best regards," });
+  assert.equal(draft.subject, "one intake after integration");
+  assert.ok(draft.body.startsWith("Hello Richard,"));
+  assert.ok(draft.body.includes("Suuchi Ramesh"));
+  assert.ok(draft.body.includes("shared document checklist"));
+  assert.ok(draft.body.endsWith("Best regards,"));
+  const colleague = composeContactDraft({ company: "Aprio", personName: "Alex Example", personTitle: "CFO", variantSalt: 1 });
+  assert.notEqual(colleague.subject, draft.subject);
+});

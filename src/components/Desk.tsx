@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
-import { greetedName, hasProposedTimes, sanitizeCopy, SIGNOFF_OPENERS, stripLeadingGreeting, stripProposedTimes } from "@/lib/clean";
+import { hasProposedTimes, sanitizeCopy, stripProposedTimes } from "@/lib/clean";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { CadencePlanner } from "./CadencePlanner";
 import { CompanyTeam } from "./CompanyTeam";
@@ -193,7 +193,6 @@ export function Desk({
   const [editing, setEditing] = useState<{ email: boolean; linkedin: boolean }>({ email: true, linkedin: true });
   const [lastRefine, setLastRefine] = useState<{ cardId: string; channel: "email" | "linkedin"; beforeBody: string; afterBody: string; beforeSubject: string; afterSubject: string } | null>(null);
   const [channelTab, setChannelTab] = useState<"email" | "linkedin">("email");
-  const [compose, setCompose] = useState<{ cardId: string; who: string; first: string; message: string; signoff: string } | null>(null);
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
   // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
@@ -650,7 +649,6 @@ export function Desk({
     const body = stripProposedTimes(focusCard.email_body);
     editFocus("email_body", body);
     saveField("email_body", body);
-    setCompose(null);
     if (!demo) await fetch(`/api/cards/${focusCard.id}/propose-times`, { method: "DELETE" }).catch(() => undefined);
     setNotice("Removed the proposed times. Nothing will be auto-booked from a reply for this prospect.");
   };
@@ -668,7 +666,6 @@ export function Desk({
       saveField("email_body", body);
       // Drop the composer's cached parse so the editor re-reads this new body; otherwise a blur would
       // reassemble from the stale pre-insert text and wipe the times just added.
-      setCompose(null);
       setNotice("Added open times from your calendar — edit as you like, then send. Didn't mean to? Press “Remove times” to take them back out.");
     } catch { setNotice("Could not reach your calendar."); }
     finally { setProposing(false); }
@@ -689,7 +686,6 @@ export function Desk({
       setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_subject: json.subject ?? item.linkedin_subject, linkedin_message: json.body }) } : item));
       // Reset the composer's cached parse so the Edit view shows the refined text (and a later blur can't
       // reassemble the pre-refine draft over it).
-      if (channel === "email") setCompose(null);
       setLastRefine({ cardId: focusCard.id, channel, beforeBody: body, afterBody: (json.body as string) ?? body, beforeSubject: subject ?? "", afterSubject: (json.subject as string) ?? subject ?? "" });
       setNotice("Refined — changes are highlighted. Edit further or copy to send.");
       markWorking(true);
@@ -1073,30 +1069,6 @@ export function Desk({
                 <div className="deskwork-scroll">
                 {channelTab === "email" ? (
                   editing.email && !sentAlready ? (() => {
-                    const fname = contact.full_name.split(/\s+/)[0] || "there";
-                    // Greeting follows the SELECTED contact, not the name baked into the drafted body (which
-                    // was written to the company's first contact). Re-seed whenever the card OR the contact
-                    // changes; the message/sign-off come from the stored body with its old greeting stripped.
-                    const who = ("id" in contact && contact.id ? contact.id : contact.full_name) as string;
-                    // Parse the stored body as-is. Cleaning it here looked harmless but meant merely opening
-                    // a card and clicking a field silently rewrote the saved draft on blur.
-                    const parsed = parseEmail(focusCard.email_body ?? "", fname);
-                    const cur = compose && compose.cardId === focusCard.id && compose.who === who
-                      ? compose
-                      : { cardId: focusCard.id, who, first: fname, message: parsed.message, signoff: parsed.signoff };
-                    // A card has ONE stored email_body, shared by every contact at the company. Writing the
-                    // alternate's name into it corrupted the primary's draft: pick a colleague, type one
-                    // character, and the primary's saved greeting became "Hi <colleague>,". Store the
-                    // primary's greeting and let adapt()/retarget swap the name in at display and send time
-                    // — the same rule refine() already follows for the body.
-                    const primaryFirst = focusCard.people.full_name.split(/\s+/)[0] || "there";
-                    const storedFirst = (next: string) => (altContact ? primaryFirst : next);
-                    const apply = (patchObj: Partial<{ first: string; message: string; signoff: string }>) => {
-                      const next = { ...cur, ...patchObj, cardId: focusCard.id, who };
-                      setCompose(next);
-                      editFocus("email_body", assembleEmail(storedFirst(next.first), next.message, next.signoff));
-                    };
-                    const persist = () => saveField("email_body", assembleEmail(storedFirst(cur.first), cur.message, cur.signoff));
                     return (
                       <div className="deskwork-edit deskwork-compose">
                         <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
@@ -1116,10 +1088,7 @@ export function Desk({
                             ? <button type="button" className="focus-apply-all" title={`Put the subject back: “${subjectFallback}”`} onClick={() => restoreSubject(false)}>Restore subject</button>
                             : <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>}
                         </div>
-                        <label className="compose-field"><span>Greeting</span><div className="compose-greet">Hi&nbsp;<input value={cur.first} placeholder="first name" readOnly={!!altContact} title={altContact ? `The draft is saved once, for ${focusCard.people.full_name}. The greeting becomes ${cur.first} when you copy or open it for ${altContact.full_name}.` : undefined} onChange={(event) => apply({ first: event.target.value })} onBlur={persist} />,</div></label>
-                        {altContact && <p className="compose-sig">Couldn&rsquo;t open {altContact.full_name.split(/\s+/)[0]} on their own draft, so this is {primaryFirst}&rsquo;s note with the name swapped. Pick them again to retry, or run <strong>Draft tools &rarr; Write a draft for every contact</strong>.</p>}
-                        <label className="compose-field"><span>Message — make it specific to this person &amp; company</span><textarea className="focus-msg-body" rows={8} value={cur.message} placeholder="Write the pitch for this contact." onChange={(event) => apply({ message: event.target.value })} onBlur={persist} /></label>
-                        <label className="compose-field"><span>Sign-off</span><input value={cur.signoff} placeholder="Thank you," onChange={(event) => apply({ signoff: event.target.value })} onBlur={persist} /></label>
+                        <label className="compose-field"><span>Email — your saved greeting, message and sign-off</span><textarea className="focus-msg-body" rows={14} value={adapt(focusCard.email_body ?? "")} readOnly={!!altContact} onChange={(event) => editFocus("email_body", event.target.value)} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
                         <p className="compose-sig">— Your Nine-67 signature (your name, title &amp; contact) is added automatically. Change it in <Link href="/settings" className="focus-link">Settings → identity</Link>.</p>
                       </div>
                     );
@@ -1333,43 +1302,3 @@ function retarget(text: string, fromName: string, toName: string) {
 
 
 
-/** Split a stored email body into the pieces the composer edits: greeting first name, message, sign-off.
- *  Heuristic — a leading "Hi <name>," and a trailing "Thanks,/Best,…" block are pulled out; the rest is the message. */
-function parseEmail(body: string, fallbackFirst: string): { first: string; message: string; signoff: string } {
-  const raw = (body || "").replace(/\r/g, "").trim();
-  if (!raw) return { first: fallbackFirst, message: "", signoff: "Thank you," };
-  let first = fallbackFirst;
-  // Pull off a leading greeting whether it sits on its own line ("Hi Kate,\n\n…") OR runs inline with
-  // the message ("Hi Kate, saw your…"). Stripping it here is what stops the name showing twice — once
-  // in the Greeting field and again at the start of the Message.
-  // Accept the shapes drafts actually use, including a greeting that runs into the first sentence
-  // ("Hi Asif, Nice to meet you."), which is what the writing model produces. See clean.ts for the tests.
-  const greeted = greetedName(raw);
-  if (greeted) first = greeted;
-  const work = stripLeadingGreeting(raw);
-  const afterGreet = work.trim();
-  let rest = afterGreet;
-  let signoff = "Thank you,";
-  const rl = rest.split("\n");
-  for (let i = rl.length - 1; i >= 0 && i >= rl.length - 3; i--) {
-    if (SIGNOFF_OPENERS.test(rl[i])) {
-      signoff = rl.slice(i).join("\n").trim();
-      rest = rl.slice(0, i).join("\n").trim();
-      break;
-    }
-  }
-  // Never drop the body: if pulling out a sign-off (or greeting) left the message empty but there was
-  // real content, keep the whole thing as the message. This is what made the email look like it
-  // "disappeared" when opening it to edit.
-  if (!rest.trim()) { rest = afterGreet; signoff = ""; }
-  return { first, message: rest, signoff };
-}
-
-/** Rebuild the email body from the composer pieces. The Greeting field is authoritative: any greeting still
- *  carried by the message is removed first, so the chosen contact's name always wins (previously a greeting
- *  the parser hadn't recognised was left in place and the new one was skipped entirely). */
-function assembleEmail(first: string, message: string, signoff: string): string {
-  const m = stripLeadingGreeting((message || "").trim()).trim();
-  const so = (signoff || "").trim();
-  return `Hi ${(first || "there").trim()},\n\n${m}${so ? `\n\n${so}` : ""}`;
-}

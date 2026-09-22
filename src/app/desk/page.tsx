@@ -1,3 +1,4 @@
+import { repairBrokenDrafts } from "@/lib/draft-repair";
 import { Desk, type DeskContext } from "@/components/Desk";
 import { ScanControl } from "@/components/ScanControl";
 import { MigrationRequired } from "@/components/MigrationRequired";
@@ -17,6 +18,7 @@ import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 type Params = { card?: string; status?: string; priority?: string; new?: string; source?: string; account?: string };
 
@@ -33,6 +35,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     const pending = await pendingMigrations(admin());
     if (pending.length) return <MigrationRequired pending={pending} />;
   }
+  await repairBrokenDrafts(2000, 15_000);
   const db = admin();
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = daysAgoIso(1);
