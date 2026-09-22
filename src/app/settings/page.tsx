@@ -90,10 +90,10 @@ export default async function Settings() {
     }] : []),
     ...(isAdmin ? [{
       id: "drafts", label: "Draft tools", icon: <PenLine />,
-      blurb: "Apply one change to every email still waiting to be sent, instead of opening them one at a time.",
+      blurb: "Check every email still waiting to be sent, and put the whole list right in three steps instead of opening them one at a time.",
       content: <>
         <div className="settings-moved">
-          <p>Also on <strong>Outreach</strong>, behind <strong>Draft tools</strong> in the desk header &mdash; the same three tools, next to the drafts they change.</p>
+          <p>Also on <strong>Outreach</strong>, behind <strong>Draft tools</strong> in the header &mdash; the same tools, next to the drafts they change.</p>
           <Link className="btn" href="/desk">Open Outreach</Link>
         </div>
         <div className="feature-center"><RewriteDrafts /></div>

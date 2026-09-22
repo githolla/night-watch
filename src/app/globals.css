@@ -2090,6 +2090,9 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 /* What a check actually removed, by name, so the result can be read rather than taken on trust. */
 .draft-tool-list{margin:12px 0 0;padding:10px 13px 10px 30px;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);font:500 13px/1.7 var(--sans);color:var(--ink-soft)}
 .draft-tool-list li{margin:0}
+/* The running order for the three tools that fix a list end to end. */
+.draft-tools-lead{margin:0 0 16px;max-width:70ch;font:500 14px/1.6 var(--sans);color:var(--ink-soft)}
+.draft-step{display:inline-block;margin-right:9px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);font:700 11px/1.5 var(--sans);letter-spacing:.04em;text-transform:uppercase;font-style:normal;color:var(--accent-ink,var(--ink))}
 .draft-tool-list li strong{color:var(--ink)}
 /* One named fault under the draft it belongs to. Blocking ones read as blocking. */
 .audit-fault{display:block;margin-top:2px;padding-left:11px;border-left:2px solid var(--line-strong);font:500 12px/1.5 var(--sans);color:var(--ink-soft)}

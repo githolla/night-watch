@@ -206,29 +206,44 @@ export function RewriteDrafts() {
 
   return (
     <div className="draft-tools">
-      {/* 0 — writes the list you actually work. */}
+      {/* The three that fix a list end to end, in the order they should be pressed. Everything below them is
+          a single change you reach for on purpose; these are a sequence, and running them out of order wastes
+          the work — rewriting before the fake contacts are gone just writes emails to them. */}
+      <p className="draft-tools-lead">Three steps put the whole list right: take off anything that is not a person, rewrite every un-sent draft with the same writer, then read back what is still wrong. Each is free and uses no AI. The rest below are single changes to reach for on purpose.</p>
+
+{/* 0a — nothing else matters if the list is not people. */}
       <section className="draft-tool">
         <header>
-          <div><h3>Write a draft for every contact</h3><p>Everyone worth emailing at every company gets their own draft, aimed at what their role owns: a CFO is asked about cost, an engineering lead about what gets built, a CEO about headcount. Same evidence, different email.</p></div>
+          <div><h3><em className="draft-step">Step 1</em>Check the contact list</h3><p>Websites put their own sales copy in the same place as their people, so phrases get filed as contacts: &ldquo;Discover Untapped Performance&rdquo;, titled &ldquo;Your Industry Partner&rdquo;. Three capitalised words look exactly like a name. This finds them and takes them off.</p></div>
           <span className="panel-cost is-free">Free</span>
         </header>
-        <p className="panel-watch">Written from each company&rsquo;s own signal, with no AI call, so the whole list costs nothing. Anything already drafted or sent is left alone. The new drafts appear under <strong>All active</strong> on the desk rather than today&rsquo;s worklist.</p>
-        <label className="draft-tool-row">
-          <span>People per company</span>
-          <select value={perCompany} onChange={(event) => setPerCompany(Number(event.target.value))}>
-            {[2, 3, 4, 5, 6, 8, 10].map((count) => <option key={count} value={count}>{count}</option>)}
-          </select>
-          <small>Most senior first, verified addresses ahead of guessed ones &mdash; a company can carry forty contacts and you don&rsquo;t want all of them on the desk.</small>
-        </label>
+        <p className="panel-watch">Also catches page titles scraped as people (&ldquo;Modern Slavery Statement&rdquo;) and functional mailboxes (recruiting@, service@). They are marked do-not-contact, never deleted &mdash; and every name is listed below so you can see exactly what went.</p>
         <div className="draft-tool-actions">
-          <button type="button" className="btn primary" disabled={!!running} onClick={draftContacts}>{running === "contacts" ? "Writing…" : "Write the drafts"}</button>
+          <button type="button" className="btn" disabled={!!running} onClick={checkContacts}>{running === "people" ? "Checking…" : "Check the contact list"}</button>
+        </div>
+        {purged && purged.length > 0 && (
+          <ul className="draft-tool-list">
+            {purged.map((name) => <li key={name}>{name}</li>)}
+          </ul>
+        )}
+      </section>
+
+{/* 0b — makes the list read as one voice. */}
+      <section className="draft-tool">
+        <header>
+          <div><h3><em className="draft-step">Step 2</em>Make every draft read the same way</h3><p>The contact a company arrived with kept whatever was written for them at the time, while their colleagues got the per-person writer &mdash; so working down the list you met one email with the greeting doubled into the first line, the next with no subject, the next written properly. This puts all of them through the same writer.</p></div>
+          <span className="panel-cost is-free">Free</span>
+        </header>
+        <p className="panel-watch">Each contact is written to about what their role owns, from their company&rsquo;s own signal, with no AI call. <strong>It replaces drafts you have edited by hand.</strong> Emails already sent are never touched.</p>
+        <div className="draft-tool-actions">
+          <button type="button" className="btn" disabled={!!running} onClick={redraftAll}>{running === "redraft" ? "Rewriting…" : "Rewrite every un-sent draft"}</button>
         </div>
       </section>
 
-      {/* 0 — read before you write: what is actually wrong, by name. */}
+{/* 0 — read before you write: what is actually wrong, by name. */}
       <section className="draft-tool">
         <header>
-          <div><h3>Audit every draft</h3><p>Reads every un-sent email on file and checks it against every rule at once: greets the right person, names the company, has a real subject, no placeholder left in, no link in the body, no role list read as a job title, within the length the send route accepts, and addressed to someone who is actually a person.</p></div>
+          <div><h3><em className="draft-step">Step 3</em>Audit every draft</h3><p>Reads every un-sent email on file and checks it against every rule at once: greets the right person, names the company, has a real subject, no placeholder left in, no link in the body, no role list read as a job title, within the length the send route accepts, and addressed to someone who is actually a person.</p></div>
           <span className="panel-cost is-free">Free</span>
         </header>
         <p className="panel-watch">Read-only &mdash; nothing is written, nothing is sent, no AI is called. It names each draft that fails and says why, so the list can be checked rather than taken on trust.</p>
@@ -252,32 +267,22 @@ export function RewriteDrafts() {
         )}
       </section>
 
-      {/* 0a — nothing else matters if the list is not people. */}
+{/* 0 — writes the list you actually work. */}
       <section className="draft-tool">
         <header>
-          <div><h3>Check the contact list</h3><p>Websites put their own sales copy in the same place as their people, so phrases get filed as contacts: &ldquo;Discover Untapped Performance&rdquo;, titled &ldquo;Your Industry Partner&rdquo;. Three capitalised words look exactly like a name. This finds them and takes them off.</p></div>
+          <div><h3>Write a draft for every contact</h3><p>Everyone worth emailing at every company gets their own draft, aimed at what their role owns: a CFO is asked about cost, an engineering lead about what gets built, a CEO about headcount. Same evidence, different email.</p></div>
           <span className="panel-cost is-free">Free</span>
         </header>
-        <p className="panel-watch">Also catches page titles scraped as people (&ldquo;Modern Slavery Statement&rdquo;) and functional mailboxes (recruiting@, service@). They are marked do-not-contact, never deleted &mdash; and every name is listed below so you can see exactly what went.</p>
+        <p className="panel-watch">Written from each company&rsquo;s own signal, with no AI call, so the whole list costs nothing. Anything already drafted or sent is left alone. The new drafts appear under <strong>All active</strong> on the desk rather than today&rsquo;s worklist.</p>
+        <label className="draft-tool-row">
+          <span>People per company</span>
+          <select value={perCompany} onChange={(event) => setPerCompany(Number(event.target.value))}>
+            {[2, 3, 4, 5, 6, 8, 10].map((count) => <option key={count} value={count}>{count}</option>)}
+          </select>
+          <small>Most senior first, verified addresses ahead of guessed ones &mdash; a company can carry forty contacts and you don&rsquo;t want all of them on the desk.</small>
+        </label>
         <div className="draft-tool-actions">
-          <button type="button" className="btn" disabled={!!running} onClick={checkContacts}>{running === "people" ? "Checking…" : "Check the contact list"}</button>
-        </div>
-        {purged && purged.length > 0 && (
-          <ul className="draft-tool-list">
-            {purged.map((name) => <li key={name}>{name}</li>)}
-          </ul>
-        )}
-      </section>
-
-      {/* 0b — makes the list read as one voice. */}
-      <section className="draft-tool">
-        <header>
-          <div><h3>Make every draft read the same way</h3><p>The contact a company arrived with kept whatever was written for them at the time, while their colleagues got the per-person writer &mdash; so working down the list you met one email with the greeting doubled into the first line, the next with no subject, the next written properly. This puts all of them through the same writer.</p></div>
-          <span className="panel-cost is-free">Free</span>
-        </header>
-        <p className="panel-watch">Each contact is written to about what their role owns, from their company&rsquo;s own signal, with no AI call. <strong>It replaces drafts you have edited by hand.</strong> Emails already sent are never touched.</p>
-        <div className="draft-tool-actions">
-          <button type="button" className="btn" disabled={!!running} onClick={redraftAll}>{running === "redraft" ? "Rewriting…" : "Rewrite every un-sent draft"}</button>
+          <button type="button" className="btn primary" disabled={!!running} onClick={draftContacts}>{running === "contacts" ? "Writing…" : "Write the drafts"}</button>
         </div>
       </section>
 
