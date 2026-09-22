@@ -60,7 +60,10 @@ function likeLiteral(value: string) {
 
 /** Service names, value props and section headings scraped off a company site that must never be stored as people. */
 const NON_NAME = /\b(service|services|solution|solutions|advisory|advisor|consult\w*|manag\w*|expertise|strateg\w*|operational|operations|optimi\w*|costs?|reduc\w*|virtual|infrastructure|objectives?|commitment|support|analytics|intelligence|compliance|security|cloud|network\w*|assessment|roadmap|transformation|efficiency|productivity|governance|onboarding|outsourc\w*|helpdesk|migration|backup|recovery|hosting|monitoring|automation|integration|platform|dashboard|program|department|division|team|group|practice|leaders?|leadership|executives?|functional|enterprise|capabilities|inc|llc|corp|ltd|solutions?)\b/i;
-const NAME_PARTICLE = /^(de|del|della|van|von|der|di|da|la|le|bin|al|el|mac|mc|st|o')$/i;
+const NAME_PARTICLE = /^(de|del|della|van|von|der|den|di|da|das|dos|do|du|la|le|ten|ter|bin|bint|ibn|abu|al|el|mac|mc|st|o')$/i;
+// Sentence connectors only count against a name when they are lowercase. "An Chen", "Nguyen The Anh" and
+// "Michael A Johnson" are names; "Reduced Operational Costs for Your Team" is not.
+const CONNECTOR = /(?:^|\s)(and|to|with|without|the|for|of|an?|your|our|that|this)(?:\s|$)/;
 /**
  * Whether a scraped string is plausibly a real person's name, not a service line or value prop like
  * "Strategic IT Guidance" or "Reduced Operational Costs". Real names are 2-4 capitalized tokens with no
@@ -70,11 +73,17 @@ export function isLikelyPersonName(raw: string): boolean {
   const name = (raw ?? "").trim();
   if (!name) return false;
   const words = name.split(/\s+/);
-  if (words.length < 2 || words.length > 5) return false;
-  if (/[0-9@/&|,:•·]/.test(name)) return false;
+  // Up to six tokens: "Abdul Rahman bin Mohammed Al Saud" is a name.
+  if (words.length < 2 || words.length > 6) return false;
+  if (/[0-9@/&|:•·]/.test(name)) return false;
   if (NON_NAME.test(name)) return false;
-  if (/\b(and|to|with|without|the|for|of|an?|your|our|that|this)\b/i.test(name)) return false;
-  return words.every((word) => NAME_PARTICLE.test(word) || /^[A-Z][A-Za-z'’.-]*$/.test(word));
+  // Lowercase connectors only. The old test was case-insensitive and rejected "An Chen" (安), "Nguyen The
+  // Anh" (Thế) and every middle initial rendered without a period — the standard LinkedIn/Apollo shape.
+  if (CONNECTOR.test(name)) return false;
+  // Unicode-aware. The previous class was [A-Z][A-Za-z'’.-]*, so every accented or non-Latin name failed:
+  // José Álvarez, Nguyễn Văn Minh, Björn Håkansson, Şule Yılmaz, Łukasz Kowalski. Combined with
+  // purgeNonPeople that silently and permanently deleted them.
+  return words.every((word) => NAME_PARTICLE.test(word) || /^[\p{Lu}\p{Lo}][\p{L}\p{M}'’.-]*$/u.test(word));
 }
 
 async function mapPerson(account: Account, signal: ScoutSignal, recordCost: (costUsd: number) => void) {
@@ -615,12 +624,22 @@ export async function purgeJunkPosts() {
   }
 }
 
-/** Remove rows scraped as people that are really service lines or value props ("Strategic IT Guidance"). Their cards cascade away. */
+/**
+ * Take rows scraped as people that are really service lines or value props ("Strategic IT Guidance") out of
+ * outreach.
+ *
+ * It MARKS them rather than deleting them. A name test is a heuristic, and this one was ASCII-only for
+ * months — every accented or non-Latin name failed it, so this function was permanently deleting exactly
+ * the contacts it should have been most careful with, and their cards cascaded away with them. A wrong
+ * verdict must be recoverable: do_not_contact keeps them off every outreach path while leaving the row, its
+ * history and its cards intact.
+ */
 export async function purgeNonPeople() {
   const db = admin();
-  const { data } = await db.from("people").select("id,full_name");
+  const { data, error } = await db.from("people").select("id,full_name").eq("do_not_contact", false);
+  if (error) return 0;
   const bad = (data ?? []).filter((row) => !isLikelyPersonName(row.full_name as string)).map((row) => row.id as string);
-  for (let i = 0; i < bad.length; i += 200) await db.from("people").delete().in("id", bad.slice(i, i + 200));
+  for (let i = 0; i < bad.length; i += 200) await db.from("people").update({ do_not_contact: true }).in("id", bad.slice(i, i + 200));
   return bad.length;
 }
 

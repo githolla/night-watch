@@ -2,12 +2,15 @@ import { decodeEntities } from "./clean.ts";
 
 /**
  * A first-touch email written for ONE person, from what is already on file. No model call: the angle comes
- * from what that person's role owns, and every concrete detail comes from the company's own signal.
+ * from what that person's role owns, the specifics from the roles the company has open.
  *
- * The desk previously held one draft per company and swapped the name on it, so three colleagues received
- * the same note with a different greeting — which reads as a mail merge the moment two of them compare.
- * Here a CFO is asked about cost per hire, an engineering leader about what gets built, and a CEO about
- * headcount, off the same evidence.
+ * One draft per company with the name swapped reads as a mail merge the moment two colleagues compare, so a
+ * CFO is asked about cost, an engineering leader about what gets built, a CEO about growing the team.
+ *
+ * Grammar is assembled, not interpolated. An earlier version built sentences by dropping a phrase into a
+ * slot ("the ${roleList}") and produced "I saw the a Data Engineer opening", "a Audit Data Analyst",
+ * "that role role", and plural copy about a single role — on roughly a third of drafts. Every phrase here
+ * therefore carries its own article and number, and the templates never prepend one.
  */
 
 export type ContactDraftInput = {
@@ -24,142 +27,159 @@ export type ContactDraftInput = {
   senderTitle?: string | null;
 };
 
+type Context = {
+  company: string;
+  /** What they are hiring, ready to follow "I saw X is hiring …": "a Data Engineer role", "three roles, A and B". */
+  hiring: string;
+  /** How to refer back to it: "the Data Engineer role", "those three roles", "that work". */
+  noun: string;
+  /** The same, safe to start a clause: no leading article. */
+  bareNoun: string;
+  /** "it" / "them" */
+  pronoun: string;
+  /** "that role does" / "those roles do" */
+  rolesDo: string;
+  count: number;
+  /** What we would build, as a noun phrase carrying its own article. */
+  need: string;
+  /** "for the last 25 days" when the signal says so, otherwise empty. */
+  forDays: string;
+};
+
 type Variant = {
-  subject: (context: Context) => string;
-  opening: (context: Context) => string;
-  offer: (context: Context) => string;
-  ask: string;
+  subject: (c: Context) => string;
+  opening: (c: Context) => string;
+  offer: (c: Context) => string;
+  ask: (c: Context) => string;
 };
 
 type Angle = { key: string; variants: Variant[] };
 
-type Context = { company: string; roleList: string; roleCount: number; firstRole: string; need: string };
-
-/** "a Data Engineer role" / "those 3 roles" — whichever reads better in a sentence. */
-const roleNoun = (c: Context) => (c.roleCount > 1 ? `those ${c.roleCount} roles` : `the ${c.firstRole} role`);
-
 /**
- * Two ways to make the same point per angle. Co-founders and a CEO share an angle — at Quantiphi there
- * are four of them — and one wording for all of them is the mail merge this feature exists to avoid.
- * The choice is a stable hash of the person's name, so a contact's draft never changes under them.
+ * Titles are matched as PREFIXES, not whole words. The previous table wrapped stems in \b…\b, so
+ * "chief technolog" matched nothing in "Chief Technology Officer" (125 mentions on the list fell through to
+ * the generic angle), and "treasur" missed "Treasurer", "recruit" missed "Recruiter".
  */
 const ANGLES: Array<{ test: RegExp; angle: Angle }> = [
   {
-    test: /\b(cfo|chief financial|controller|treasur|vp,? finance|finance|accounting|fp&a)\b/i,
+    // Money. Checked before technology so "VP, Finance Transformation" is finance, not transformation.
+    test: /\b(cfo|chief financial\w*|controller\w*|treasur\w*|finance\w*|financial\w*|accounting|fp&a|chief accounting\w*)\b/i,
     angle: { key: "finance", variants: [
       {
-        subject: (c) => `The cost of ${roleNoun(c)}`,
-        opening: (c) => `I saw ${c.company} is hiring ${c.roleList}.`,
-        offer: (c) => `Before that becomes salary, it is worth pricing the alternative. We build and run ${c.need}, so the output arrives without the headcount and the cost is a build rather than a permanent line on payroll.`,
-        ask: "Would a rough cost comparison be useful?",
+        subject: (c) => `${c.company}: the cost of ${c.bareNoun}`,
+        opening: (c) => `I saw ${c.company} is hiring ${c.hiring}${c.forDays}.`,
+        offer: (c) => `Before that becomes salary it is worth pricing the alternative. We build and run ${c.need}, so the output arrives without the headcount and the cost is a build rather than a permanent line on payroll.`,
+        ask: () => "Would a rough cost comparison be useful?",
       },
       {
-        subject: (c) => `${roleNoun(c).replace(/^the /, "")} vs a system`,
-        opening: (c) => `I noticed ${c.roleList} open at ${c.company}.`,
-        offer: (c) => `Fully loaded, roles like those run well past their salary once you count recruiting, ramp and the months the work waits. We build ${c.need} instead, once, and run it.`,
-        ask: "Happy to put rough numbers side by side if that is useful.",
+        subject: (c) => `${c.bareNoun} at ${c.company}, or a system`,
+        opening: (c) => `I noticed ${c.hiring} open at ${c.company}${c.forDays}.`,
+        offer: (c) => `Fully loaded, a role like that runs well past its salary once recruiting, ramp and the months of waiting are counted. We build ${c.need} once instead, and run it.`,
+        ask: () => "Happy to put rough numbers side by side if that helps.",
       },
     ] },
   },
   {
-    test: /\b(cto|chief technolog|chief information officer|cio|vp,? engineering|head of engineering|engineering|architect|platform|infrastructure|devops|data engineer)\b/i,
+    // Whoever owns what gets built.
+    test: /\b(cto|chief technolog\w*|chief information officer|cio|chief digital\w*|chief data\w*|chief analytics\w*|chief ai\w*|chief innovation\w*|chief knowledge\w*|chief product\w*|engineering|engineer|architect\w*|platform\w*|infrastructure|devops|technolog\w*|technical|digital|ecommerce|e-commerce|data|analytics|bi\b|business intelligence|it\b|information technology|software|cloud|product)\b/i,
     angle: { key: "engineering", variants: [
       {
-        subject: (c) => `Building ${roleNoun(c)} instead of filling it`,
-        opening: (c) => `I saw the ${c.roleList} ${c.roleCount > 1 ? "openings" : "opening"} at ${c.company}.`,
-        offer: (c) => `We build ${c.need} as real infrastructure, owned end to end: scheduling, checks that fail loudly, and the dashboards on top. It is the work those roles would do, running as a system rather than maintained by hand.`,
-        ask: "Happy to sketch how we would structure it. Worth a look?",
+        subject: (c) => `${c.company}: building ${c.bareNoun} instead of filling ${c.pronoun}`,
+        opening: (c) => `I saw ${c.company} is hiring ${c.hiring}${c.forDays}.`,
+        offer: (c) => `We build ${c.need} as real infrastructure, owned end to end: scheduling, checks that fail loudly, and the reporting on top. That is the work the postings describe, running as a system rather than maintained by hand.`,
+        ask: () => "Happy to sketch how we would structure it. Worth a look?",
       },
       {
-        subject: (c) => `${c.company}: the build behind ${roleNoun(c)}`,
-        opening: (c) => `I saw ${c.company} is hiring ${c.roleList}.`,
-        offer: (c) => `Most teams end up carrying this as scripts on someone's laptop until a hire lands. We build ${c.need} properly, in your stack, with the handover documented so your team owns it rather than inherits it.`,
-        ask: "What does that work run on at the moment?",
+        subject: (c) => `The build behind ${c.company}'s open ${c.count === 1 ? "role" : "roles"}`,
+        opening: (c) => `I noticed ${c.hiring} open at ${c.company}${c.forDays}.`,
+        offer: (c) => `We build ${c.need} and hand it over documented, so it is something your team owns rather than inherits. It runs whether or not the hire lands.`,
+        ask: () => "What does that work run on at the moment?",
       },
     ] },
   },
   {
-    test: /\b(ciso|chief information security|security|risk|compliance|privacy|audit)\b/i,
+    test: /\b(ciso|chief information security\w*|chief security\w*|security|infosec|cyber\w*|risk|compliance|privacy|audit|chief claims\w*)\b/i,
     angle: { key: "security", variants: [
       {
-        subject: (c) => `Data handling behind ${c.company}'s new roles`,
-        opening: (c) => `I noticed ${c.company} is hiring ${c.roleList}.`,
-        offer: (c) => `When this work gets stood up in a hurry it spreads across spreadsheets and personal scripts. We build ${c.need} once, with access controlled, movement logged and nothing living on a laptop.`,
-        ask: "Is that worth a short conversation?",
+        subject: (c) => `${c.company}: who touches the data once ${c.bareNoun} ${c.count === 1 ? "is" : "are"} filled`,
+        opening: (c) => `I noticed ${c.company} is hiring ${c.hiring}${c.forDays}.`,
+        offer: (c) => `New hands on data usually means new copies of it. We build ${c.need} as one controlled path, so access is granted rather than assumed and there is a record of what moved.`,
+        ask: () => "Is that worth a short conversation?",
       },
       {
-        subject: (c) => `Who touches the data once ${roleNoun(c)} lands`,
-        opening: (c) => `I saw ${c.roleList} open at ${c.company}.`,
-        offer: (c) => `New hands on data usually means new copies of it. We build ${c.need} as one controlled path, so access is granted rather than assumed and there is a record of what moved.`,
-        ask: "Would it help to see how we handle that?",
+        subject: (c) => `Data handling behind ${c.company}'s new ${c.count === 1 ? "role" : "roles"}`,
+        opening: (c) => `I saw ${c.hiring} open at ${c.company}${c.forDays}.`,
+        offer: (c) => `Work stood up in a hurry tends to end up spread across spreadsheets and personal exports. We build ${c.need} once, in one place, with access controlled and movement logged.`,
+        ask: () => "Would it help to see how we handle that?",
       },
     ] },
   },
   {
-    test: /\b(coo|chief operating|operations|ops|supply chain|procurement|delivery|process)\b/i,
+    test: /\b(coo|chief operating\w*|operations|operational|ops|supply chain|procurement|logistics|delivery|process|plant|manufactur\w*|merchandis\w*|managed services|service delivery|fulfilment|fulfillment)\b/i,
     angle: { key: "operations", variants: [
       {
-        subject: (c) => `Doing that work without ${roleNoun(c)}`,
-        opening: (c) => `I saw ${c.company} has ${c.roleList} open.`,
-        offer: (c) => `Most of what those roles do day to day is the same few steps repeated. We automate ${c.need} so the routine part runs itself and the people you have handle the exceptions.`,
-        ask: "Which of those steps eats the most time right now?",
+        subject: (c) => `${c.company}: the repeatable half of ${c.bareNoun}`,
+        opening: (c) => `I saw ${c.company} has ${c.hiring} open${c.forDays}.`,
+        offer: (c) => `Work like this usually splits in two: the part that repeats and the part that needs judgement. We build and run ${c.need} so a smaller team covers the rest.`,
+        ask: () => "Worth twenty minutes to work out where that line sits?",
       },
       {
-        subject: (c) => `${c.company}: the repeatable half of ${roleNoun(c)}`,
-        opening: (c) => `I noticed ${c.roleList} open at ${c.company}.`,
-        offer: (c) => `Before hiring for all of it, it is worth splitting the work: the part that repeats and the part that needs judgement. We build and run ${c.need} so a smaller team covers the rest.`,
-        ask: "Worth twenty minutes to work out where that line sits?",
+        subject: (c) => `Covering ${c.bareNoun} at ${c.company}`,
+        opening: (c) => `I noticed ${c.hiring} open at ${c.company}${c.forDays}.`,
+        offer: (c) => `We build ${c.need} so the routine part runs itself and the people you already have handle the exceptions.`,
+        ask: () => "Which part of that eats the most time right now?",
       },
     ] },
   },
   {
-    test: /\b(chro|chief people|people|talent|recruit|hr|human resources)\b/i,
+    test: /\b(chro|chief people\w*|chief human\w*|people|talent|recruit\w*|hr\b|human resources|staffing|workforce)\b/i,
     angle: { key: "people", variants: [
       {
-        subject: (c) => `${roleNoun(c)} and time to hire`,
-        opening: (c) => `I saw ${c.roleList} open at ${c.company}.`,
-        offer: (c) => `Technical roles like these often sit open for months, and the work waits the whole time. We build and run ${c.need} so the output starts now, which takes pressure off the search rather than replacing it.`,
-        ask: "Would it help to have that running while you hire?",
+        subject: (c) => `${c.company}: cover for ${c.bareNoun} while you search`,
+        opening: (c) => `I saw ${c.hiring} open at ${c.company}${c.forDays}.`,
+        offer: (c) => `The gap between posting and a productive start is usually where the backlog builds. We stand up ${c.need} in the meantime, and it keeps working whoever you hire.`,
+        ask: () => "Is the wait the painful part here?",
       },
       {
-        subject: (c) => `Cover for ${roleNoun(c)} while you search`,
-        opening: (c) => `I noticed ${c.company} is hiring ${c.roleList}.`,
-        offer: (c) => `The gap between posting and a productive start is usually where the backlog builds. We stand up ${c.need} in the meantime, and it keeps working whoever you hire.`,
-        ask: "Is the wait the painful part here?",
+        subject: (c) => `${c.bareNoun} and time to hire at ${c.company}`,
+        opening: (c) => `I noticed ${c.company} is hiring ${c.hiring}${c.forDays}.`,
+        offer: (c) => `Technical roles like these often sit open for months and the work waits the whole time. We build and run ${c.need} so the output starts now, which takes pressure off the search rather than replacing it.`,
+        ask: () => "Would it help to have that running while you hire?",
       },
     ] },
   },
   {
-    test: /\b(cmo|marketing|brand|demand gen|growth|communications)\b/i,
+    test: /\b(cmo|marketing|brand|demand gen\w*|growth|communications|media|advertis\w*)\b/i,
     angle: { key: "marketing", variants: [
       {
-        subject: (c) => `Reporting behind ${c.company}'s data hires`,
-        opening: (c) => `I saw ${c.company} is hiring ${c.roleList}.`,
-        offer: (c) => `Teams like yours usually feel that first as reporting that lands late and never quite reconciles. We build ${c.need} so the numbers arrive on a schedule, from one source.`,
-        ask: "Is reporting turnaround a problem worth solving there?",
+        subject: (c) => `Getting numbers out of ${c.company} faster`,
+        opening: (c) => `I noticed ${c.hiring} open at ${c.company}${c.forDays}.`,
+        offer: (c) => `Waiting on a hire usually means waiting on the numbers too. We build ${c.need} so what you need to decide with shows up without anyone assembling it by hand.`,
+        ask: () => "What reporting do you chase most often?",
       },
       {
-        subject: (c) => `Getting numbers out of ${c.company} faster`,
-        opening: (c) => `I noticed ${c.roleList} open at ${c.company}.`,
-        offer: (c) => `Waiting on a hire usually means waiting on the numbers too. We build ${c.need} so what you need to decide with shows up without anyone assembling it by hand.`,
-        ask: "What reporting do you chase most often?",
+        subject: (c) => `${c.company}: reporting behind ${c.bareNoun}`,
+        opening: (c) => `I saw ${c.company} is hiring ${c.hiring}${c.forDays}.`,
+        offer: (c) => `Teams often feel this first as reporting that lands late and never quite reconciles. We build ${c.need} so the numbers arrive on a schedule, from one source.`,
+        ask: () => "Is reporting turnaround a problem worth solving there?",
       },
     ] },
   },
   {
-    test: /\b(ceo|founder|co-founder|president|owner|managing director|chief executive)\b/i,
+    // Anyone senior enough to weigh a hire against a build. Last, so a more specific angle wins first.
+    test: /\b(ceo|chief executive\w*|founder|co-founder|president|owner|managing partner|managing director|executive director|operating partner|value creation\w*|partner|principal|chief of staff|general manager|gm\b|cpo|chief strategy\w*|chief revenue\w*|cro|chief commercial\w*|chief transformation\w*|board|vp sales|sales)\b/i,
     angle: { key: "executive", variants: [
       {
-        subject: (c) => `${roleNoun(c).replace(/^the /, "").replace(/^those /, "")}, or a system`,
-        opening: (c) => `I saw ${c.company} has ${c.roleList} open.`,
-        offer: (c) => `That is a permanent cost for work that mostly repeats. We build and run ${c.need} instead, so the output arrives without growing the team, and the decision stays reversible.`,
-        ask: "Worth twenty minutes to compare the two?",
+        subject: (c) => `${c.company}: ${c.bareNoun}, or a system`,
+        opening: (c) => `I saw ${c.company} has ${c.hiring} open${c.forDays}.`,
+        offer: (c) => `That is a permanent cost for work that largely repeats. We build and run ${c.need} instead, so the output arrives without growing the team, and the decision stays reversible.`,
+        ask: () => "Worth twenty minutes to compare the two?",
       },
       {
-        subject: (c) => `Before ${c.company} fills ${roleNoun(c)}`,
-        opening: (c) => `I noticed ${c.roleList} open at ${c.company}.`,
-        offer: (c) => `Hiring is the obvious answer and it is not always the cheaper one. We build ${c.need} as a system you own, which costs a build rather than a payroll line and can be undone if it does not earn its place.`,
-        ask: "Would it be useful to see what that looks like for you?",
+        subject: (c) => `Before ${c.company} fills ${c.bareNoun}`,
+        opening: (c) => `I noticed ${c.hiring} open at ${c.company}${c.forDays}.`,
+        offer: (c) => `Hiring is the obvious answer and not always the cheaper one. We build ${c.need} as a system you own, which costs a build rather than a payroll line and can be undone if it does not earn its place.`,
+        ask: () => "Would it be useful to see what that looks like for you?",
       },
     ] },
   },
@@ -167,16 +187,16 @@ const ANGLES: Array<{ test: RegExp; angle: Angle }> = [
 
 const FALLBACK: Angle = { key: "general", variants: [
   {
-    subject: (c) => `${c.firstRole} at ${c.company}`,
-    opening: (c) => `I saw ${c.company} is hiring ${c.roleList}.`,
-    offer: (c) => `We build and run ${c.need}, so that work gets done as a system rather than a hire.`,
-    ask: "Is that worth a short conversation?",
+    subject: (c) => `${c.company} and ${c.bareNoun}`,
+    opening: (c) => `I saw ${c.company} is hiring ${c.hiring}${c.forDays}.`,
+    offer: (c) => `We build and run ${c.need}, so that work gets done as a system rather than a hire. It runs on a schedule, from one source, and your team owns it.`,
+    ask: () => "Is that worth a short conversation?",
   },
   {
-    subject: (c) => `${c.company} and ${roleNoun(c)}`,
-    opening: (c) => `I noticed ${c.roleList} open at ${c.company}.`,
-    offer: (c) => `We build ${c.need} and run it, so the output starts without waiting on a hire.`,
-    ask: "Happy to explain how that works if it is useful.",
+    subject: (c) => `${c.company}: ${c.bareNoun} without the hire`,
+    opening: (c) => `I noticed ${c.hiring} open at ${c.company}${c.forDays}.`,
+    offer: (c) => `We build ${c.need} and run it, so the output starts without waiting on a hire, and keeps working once one lands.`,
+    ask: () => "Happy to explain how that works if it is useful.",
   },
 ] };
 
@@ -186,6 +206,92 @@ export function angleFor(title: string): string {
   return (ANGLES.find((entry) => entry.test.test(clean))?.angle ?? FALLBACK).key;
 }
 
+/** "a" or "an", by how the word is said rather than merely spelled. */
+function article(word: string): string {
+  const first = word.trim().replace(/^[^A-Za-z]+/, "");
+  if (!first) return "a";
+  // Initialisms said letter by letter: an SDR, an ML Engineer, an IT Manager.
+  if (/^[A-Z]{2,}\b/.test(first) && /^[AEFHILMNORSX]/.test(first)) return "an";
+  if (/^(u[bcgkmnprst]|uni|use|user|usu|euro|one|once)/i.test(first)) return "a";
+  if (/^(hon|hour|heir)/i.test(first)) return "an";
+  return /^[aeiou]/i.test(first) ? "an" : "a";
+}
+
+const COUNT_WORD = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const numberWord = (count: number) => COUNT_WORD[count] ?? String(count);
+
+/**
+ * A posting title trimmed to something that reads inside a sentence: no parenthetical, no location or
+ * employment-type tail, no trailing requisition code. A subject line built from an untrimmed title was being
+ * cut mid-word at 120 characters.
+ */
+function tidyRole(raw: string): string {
+  let role = decodeEntities(raw)
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\[[^\]]*\]/g, " ")
+    .replace(/\s*[-–—|,]\s*(remote|hybrid|onsite|on-site|full[- ]time|part[- ]time|contract|temporary|permanent|usa?|u\.s\.?|uk|canada|emea|apac|anywhere|multiple locations)\b.*$/i, "")
+    .replace(/\s*[-–—|]\s*[A-Z][a-z]+(?:[ ,]+[A-Z]{2})?\s*$/, "")
+    .replace(/\s*[-–—|]?\s*\b(req|requisition|job)\s*#?\s*\d+\b.*$/i, "")
+    .replace(/[\s,;:.\-–—|]+$/, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  // Still long? Cut on a word boundary, never mid-word.
+  if (role.length > 44) {
+    const cut = role.slice(0, 44);
+    role = cut.slice(0, cut.lastIndexOf(" ") > 12 ? cut.lastIndexOf(" ") : 44).replace(/[\s,;:.-]+$/, "");
+  }
+  return role;
+}
+
+// A req we should not price as headcount: an internship is not a hire being weighed against a build, and
+// pitching "we automate that" about a recruiter to the person hiring the recruiter contradicts itself.
+const NOT_A_HEADCOUNT_DECISION = /\b(intern|internship|apprentice|co-?op|graduate programme|summer analyst|volunteer)\b/i;
+
+function usableRoles(roles: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of roles) {
+    if (NOT_A_HEADCOUNT_DECISION.test(decodeEntities(raw))) continue;
+    const role = tidyRole(raw);
+    if (!role || role.length < 3) continue;
+    const key = role.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(role);
+  }
+  return out;
+}
+
+/** Every role phrase the templates need, each already carrying its own article and number. */
+function roleContext(roles: string[]): Pick<Context, "hiring" | "noun" | "bareNoun" | "pronoun" | "rolesDo" | "count"> {
+  const list = usableRoles(roles);
+  const count = list.length;
+  if (count === 0) {
+    // No role titles on file. Never substitute a placeholder into a slot built for a noun phrase — that is
+    // what produced "the that role role" and "has for data and reporting work open".
+    return { hiring: "in data and reporting", noun: "that work", bareNoun: "that work", pronoun: "it", rolesDo: "that work needs", count: 0 };
+  }
+  if (count === 1) {
+    const role = list[0];
+    return {
+      hiring: `${article(role)} ${role} role`,
+      noun: `the ${role} role`,
+      bareNoun: `the ${role} role`,
+      pronoun: "it",
+      rolesDo: "that role does",
+      count: 1,
+    };
+  }
+  const named = list.slice(0, 2).join(" and ");
+  return {
+    hiring: count === 2 ? `two roles, ${named}` : `${numberWord(count)} roles, including ${named}`,
+    noun: `those ${numberWord(count)} roles`,
+    bareNoun: `those ${numberWord(count)} roles`,
+    pronoun: "them",
+    rolesDo: "those roles do",
+    count,
+  };
+}
 
 /**
  * A grammatical noun phrase for the work, derived from the roles being hired.
@@ -196,45 +302,60 @@ export function angleFor(title: string): string {
  */
 function needPhrase(roles: string[], operatingNeed?: string | null): string {
   const text = `${roles.join(" ")} ${decodeEntities(operatingNeed ?? "")}`.toLowerCase();
-  if (/financ|account|revenue|invoic/.test(text)) return "the financial reporting and the reconciliation under it";
+  if (/financ|account|revenue|invoic|billing|payroll/.test(text)) return "the financial reporting and the reconciliation under it";
   if (/report/.test(text) && /data|pipeline|etl|warehouse|dbt|snowflake/.test(text)) return "the pipelines and the reporting they feed";
   if (/pipeline|etl|warehouse|dbt|snowflake|data engineer/.test(text)) return "the data pipelines and the checks that keep them honest";
   if (/analy/.test(text)) return "the analysis and the reporting around it";
   if (/market|campaign|attribution/.test(text)) return "the campaign reporting and the attribution behind it";
   if (/support|ticket|service desk|helpdesk/.test(text)) return "the triage and the reporting on it";
   if (/secur|complian|audit|risk/.test(text)) return "the evidence gathering and the reporting on it";
+  if (/supply|logistics|inventory|procure/.test(text)) return "the stock and supplier reporting behind it";
   if (/report/.test(text)) return "the reporting and the data work behind it";
   return "the reporting and data work";
 }
 
-/** A stable 0..n-1 choice per person, so the same contact always gets the same wording. */
+/** A stable 0..n-1 choice, so the same contact always gets the same wording. */
 function variantFor(seed: string, count: number): number {
   let hash = 0;
   for (let index = 0; index < seed.length; index += 1) hash = (hash * 31 + seed.charCodeAt(index)) >>> 0;
   return count > 0 ? hash % count : 0;
 }
 
+/** "for the last 25 days" when the signal carries a number of days, otherwise nothing. */
+function daysOpenPhrase(whyNow?: string | null): string {
+  const match = decodeEntities(whyNow ?? "").match(/(\d{1,3})\s*days?\b/);
+  if (!match) return "";
+  const days = Number(match[1]);
+  return days >= 14 && days <= 365 ? `, open for the last ${days} days` : "";
+}
+
 const firstNameOf = (name: string) => decodeEntities(name).trim().split(/\s+/)[0] || "there";
 
-/** Tidy a role title enough to sit inside a sentence. */
-function readableRoles(roles: string[]): { list: string; first: string; count: number } {
-  const cleaned = [...new Set(roles.map((role) => decodeEntities(role).replace(/\s*[-–—]\s*(USA|US|Remote|Hybrid|Onsite).*$/i, "").trim()).filter(Boolean))];
-  const count = cleaned.length;
-  if (!count) return { list: "for data and reporting work", first: "that role", count: 0 };
-  if (count === 1) return { list: `a ${cleaned[0]}`, first: cleaned[0], count: 1 };
-  if (count === 2) return { list: `a ${cleaned[0]} and a ${cleaned[1]}`, first: cleaned[0], count: 2 };
-  return { list: `${count} roles including ${cleaned[0]} and ${cleaned[1]}`, first: cleaned[0], count };
+/** Cut a subject to fit without ever ending mid-word. */
+function fitSubject(subject: string, limit = 110): string {
+  const clean = subject.replace(/\s{2,}/g, " ").trim();
+  if (clean.length <= limit) return clean;
+  const cut = clean.slice(0, limit);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > 20 ? cut.slice(0, space) : cut).replace(/[\s,;:.\-–—]+$/, "")}…`;
 }
 
 export function composeContactDraft(input: ContactDraftInput): { subject: string; body: string } {
   const company = decodeEntities(input.company).trim() || "your team";
   const first = firstNameOf(input.personName);
-  const roles = readableRoles(input.roles ?? []);
-  const need = needPhrase(input.roles ?? [], input.operatingNeed);
-  const context: Context = { company, roleList: roles.list, roleCount: roles.count, firstRole: roles.first, need };
+  const roles = input.roles ?? [];
+  const context: Context = {
+    company,
+    ...roleContext(roles),
+    need: needPhrase(roles, input.operatingNeed),
+    forDays: daysOpenPhrase(input.whyNow),
+  };
 
   const angle = ANGLES.find((entry) => entry.test.test(decodeEntities(input.personTitle)))?.angle ?? FALLBACK;
-  const variant = angle.variants[variantFor(`${input.personName}|${angle.key}`, angle.variants.length)];
+  // Seeded on the company as well as the person: seeding on the person alone sent one subject line to 103
+  // different companies.
+  const variant = angle.variants[variantFor(`${input.personName}|${company}|${angle.key}`, angle.variants.length)];
+
   const senderName = decodeEntities(input.senderName ?? "").trim();
   const senderTitle = decodeEntities(input.senderTitle ?? "").trim();
   const intro = senderName
@@ -248,12 +369,12 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
     "",
     variant.offer(context),
     "",
-    variant.ask,
+    variant.ask(context),
     "",
     "Thank you,",
   ].join("\n");
 
-  // A subject built from a role phrase can start lowercase ("those 3 roles vs a system").
-  const subject = variant.subject(context).slice(0, 120).replace(/^[a-z]/, (char) => char.toUpperCase());
+  // A subject built from a role phrase can start lowercase ("those three roles vs a system").
+  const subject = fitSubject(variant.subject(context)).replace(/^[a-z]/, (char) => char.toUpperCase());
   return { subject, body };
 }

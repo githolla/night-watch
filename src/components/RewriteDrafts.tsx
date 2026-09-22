@@ -105,16 +105,21 @@ export function RewriteDrafts() {
     if (!confirm(`Write a draft for up to ${perCompany} people at every company on the list? Each gets their own, aimed at what their role owns. Nothing already drafted or sent is touched, and it uses no AI credits.`)) return;
     setRunning("contacts"); setMsg("Writing drafts…");
     try {
-      let offset = 0, written = 0;
-      for (let i = 0; i < 60; i++) {
-        const res = await fetch("/api/admin/draft-contacts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ offset, perCompany }) });
+      // One timestamp for the whole drain: every row this writes would otherwise match the source filter
+      // and the run would keep finding its own output.
+      const before = new Date().toISOString();
+      let offset = 0, written = 0, failed = 0, done = false;
+      for (let i = 0; i < 200; i++) {
+        const res = await fetch("/api/admin/draft-contacts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ offset, perCompany, before }) });
         const json = await res.json();
         if (!res.ok) { setMsg(json.error ?? "Could not write the drafts."); return; }
-        written += json.written ?? 0; offset = json.offset ?? offset;
+        written += json.written ?? 0; failed += json.failed ?? 0; offset = json.offset ?? offset;
         setMsg(`Checked ${offset} compan${offset === 1 ? "y" : "ies"}, wrote ${written} draft${written === 1 ? "" : "s"}…`);
-        if (json.done) break;
+        if (json.done) { done = true; break; }
       }
-      setMsg(`Done — ${written} contact${written === 1 ? "" : "s"} now have their own draft. Reload the desk and work the list.`);
+      // Never report an exhausted loop as a finished run.
+      if (!done) { setMsg(`Stopped after ${offset} companies with ${written} drafts written — there are more to do. Press it again to carry on.`); return; }
+      setMsg(`Done — ${written} contact${written === 1 ? "" : "s"} now have their own draft${failed ? `; ${failed} compan${failed === 1 ? "y" : "ies"} were skipped after a database error` : ""}. Reload the desk and switch the list to “All active” to see them.`);
     } catch { setMsg("Could not write the drafts — try again."); }
     finally { setRunning(""); }
   }
@@ -129,13 +134,13 @@ export function RewriteDrafts() {
           <div><h3>Write a draft for every contact</h3><p>Everyone worth emailing at every company gets their own draft, aimed at what their role owns: a CFO is asked about cost, an engineering lead about what gets built, a CEO about headcount. Same evidence, different email.</p></div>
           <span className="panel-cost is-free">Free</span>
         </header>
-        <p className="panel-watch">Written from each company&rsquo;s own signal, with no AI call, so the whole list costs nothing. Anything already drafted or sent is left alone.</p>
+        <p className="panel-watch">Written from each company&rsquo;s own signal, with no AI call, so the whole list costs nothing. Anything already drafted or sent is left alone. The new drafts appear under <strong>All active</strong> on the desk rather than today&rsquo;s worklist.</p>
         <label className="draft-tool-row">
           <span>People per company</span>
           <select value={perCompany} onChange={(event) => setPerCompany(Number(event.target.value))}>
             {[2, 3, 4, 5, 6, 8, 10].map((count) => <option key={count} value={count}>{count}</option>)}
           </select>
-          <small>Most senior first &mdash; a company can carry forty contacts and you don&rsquo;t want all of them on the desk.</small>
+          <small>Most senior first, verified addresses ahead of guessed ones &mdash; a company can carry forty contacts and you don&rsquo;t want all of them on the desk.</small>
         </label>
         <div className="draft-tool-actions">
           <button type="button" className="btn primary" disabled={!!running} onClick={draftContacts}>{running === "contacts" ? "Writing…" : "Write the drafts"}</button>
