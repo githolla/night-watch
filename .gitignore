@@ -14,3 +14,7 @@ coverage/
 *-check.ts
 *-check.mjs
 scratch-*.ts
+
+# The exported sales list. Generated from the target file by scripts/export-sales-list.ts, so it is a
+# copy rather than a source — committing it would give the same list two places to disagree.
+nine67-sales-list.csv
