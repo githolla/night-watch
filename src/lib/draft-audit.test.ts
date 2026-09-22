@@ -36,6 +36,18 @@ test("every fault that actually reached a prospect tonight is caught", () => {
   assert.ok(rules({ body: "Hi Jim,\n\nWe build {need} for you.\n\nThank you," }).includes("placeholder"));
 });
 
+test("the two grammar faults that shipped are rules now, not hindsight", () => {
+  // Both of these were live in real drafts and no rule caught them, because every rule had been written
+  // from a fault already seen on a screenshot.
+  const rules = (body: string) => auditDraft(row({ body })).map((fault) => fault.rule);
+  assert.ok(rules("Hi Jim,\n\nWe put the financial reporting and the reconciliation under it behind one scheduled job at Quantiphi.\n\nThank you,").includes("preposition-pileup"));
+  assert.ok(rules("Hi Jim,\n\nWe cover the triage and the reporting on it with a system at Quantiphi.\n\nThank you,").includes("preposition-pileup"));
+  assert.ok(rules("Hi Jim,\n\nI noticed five roles, including Senior Business Analyst and Manager at Quantiphi Life Sciences open.\n\nThank you,").includes("stranded-open"));
+  // And neither fires on prose that is fine.
+  const clean = rules("Hi Jim,\n\nI noticed Quantiphi has three roles open, including Data Engineer. We put the data pipelines and their checks behind one scheduled job.\n\nThank you,");
+  assert.ok(!clean.includes("preposition-pileup") && !clean.includes("stranded-open"), clean.join(","));
+});
+
 test("the audit does not invent faults the drafts do not have", () => {
   // Reported on the real list: "never names Q2 Holdings" on an email saying Q2 throughout, and the same for
   // The RealReal written as RealReal. A check that cries wolf is as useless as one that stays silent.

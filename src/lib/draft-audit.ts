@@ -90,6 +90,16 @@ export function auditDraft(row: AuditRow): Fault[] {
   if (/\b(\w+) \1\b/i.test(text)) say("doubled-word", `A word is repeated: “${text.match(/\b(\w+) \1\b/i)?.[0]}”.`);
   if (/\b(a) +[aeiou]/i.test(text) && !/\b(a) +(one|use|user|uni|euro|u[bcgkmnprst])/i.test(text)) say("article", "“a” is used before a vowel sound.", false);
   if (/\b(Apply|Req #|Requisition)\b/i.test(text)) say("posting-junk", "Boilerplate from the job posting is still in the text.", false);
+  // "We put the financial reporting and the reconciliation under it behind one scheduled job" — one phrase
+  // ending in a preposition, followed by another. It read as a typo and was in most of the drafts.
+  if (/\b(under|behind|around|over|into|on|with|from) (it|them) (behind|under|around|over|into|on|with|from|first|once|end)\b/i.test(text)) {
+    say("preposition-pileup", "Two prepositions run together, so the sentence does not parse.");
+  }
+  // "I noticed five roles, including Senior Business Analyst and Manager at Trinity Life Sciences open." —
+  // a sentence that ends on an adjective with nothing left to attach it to.
+  if (/\bat [A-Z][^.!?]{0,60}\bopen\.(?:\s|$)/.test(text)) {
+    say("stranded-open", "A sentence ends on “open” with nothing for it to attach to.");
+  }
   // Two identical paragraphs — a greeting or opener that saved twice.
   const paragraphs = body.split(/\n\s*\n/).map((part) => part.trim()).filter(Boolean);
   if (new Set(paragraphs).size !== paragraphs.length) say("repeat-paragraph", "The same paragraph appears twice.");

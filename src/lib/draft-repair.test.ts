@@ -29,6 +29,23 @@ test("a draft that cannot be sent is taken over; one with only a nit is left alo
   assert.equal(isSendable(auditDraft(nit)), true, "but it does not trigger a rewrite");
 });
 
+test("an untouched draft follows the writer; a worked-on one keeps its words", () => {
+  // The failure this rule exists for: a phrasing fault was fixed in the writer and the drafts on screen
+  // kept the old wording, because improving the writer does not change text already in the database and
+  // nothing went back over it. Status is the whole decision, so it is worth stating plainly.
+  const decides = (status: string, faults: number) => status === "new" || faults > 0;
+  const blocking = auditDraft(row({ subject: "TEST" })).filter((f) => f.blocking).length;
+  const fine = auditDraft(row({})).filter((f) => f.blocking).length;
+  assert.equal(fine, 0);
+  // Untouched: rewritten whether or not anything is wrong, so it stays current with the writer.
+  assert.equal(decides("new", fine), true);
+  // Worked on and sound: left exactly as the operator wrote it.
+  assert.equal(decides("edited", fine), false);
+  assert.equal(decides("approved", fine), false);
+  // Worked on but unsendable: taken over, because it cannot go out as it stands.
+  assert.equal(decides("edited", blocking), true);
+});
+
 test("what the repair writes in their place passes the audit", () => {
   // A repair that produced another broken draft would loop every night, rewriting the same rows forever.
   for (const personTitle of ["CEO", "Chief Financial Officer", "CTO", "COO", "CISO", "CMO", "Chief People Officer", "Head of Surety"]) {

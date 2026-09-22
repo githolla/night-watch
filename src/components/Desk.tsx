@@ -688,7 +688,20 @@ export function Desk({
     finally { setRefining(null); }
   };
   // Persist an inline edit to the focused card's draft field, and mark the prospect as being worked.
-  const saveField = (key: "email_subject" | "email_body" | "linkedin_message" | "linkedin_subject", value: string) => { void patchFocus({ [key]: value }); markWorking(true); };
+  /**
+   * Saving a draft field marks the card EDITED, not just changed.
+   *
+   * Without that, "new" did not mean untouched — an operator could rewrite a whole email and the card still
+   * read as freshly generated. The nightly pass keeps untouched drafts current with the writer, so it needs
+   * to be able to tell the two apart; otherwise it either leaves stale prose in place forever or overwrites
+   * somebody's own words. Only a card still awaiting a decision is promoted: an approved or sent one keeps
+   * the status it earned.
+   */
+  const saveField = (key: "email_subject" | "email_body" | "linkedin_message" | "linkedin_subject", value: string) => {
+    const promote = focusCard?.status === "new" ? { status: "edited" } : {};
+    void patchFocus({ [key]: value, ...promote });
+    markWorking(true);
+  };
   // Shared "someone is on this" flag so the two people on the desk don't message the same prospect. Best-effort.
   function markWorking(on: boolean) {
     if (!focusCard) return;
