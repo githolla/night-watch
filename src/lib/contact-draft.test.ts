@@ -198,6 +198,19 @@ test("the greeting and sign-off belong to the sender, not to the writer", () => 
   // The pitch between them is the same: only the manners differ.
   assert.equal(suuchi.body.split("\n\n")[3], josh.body.split("\n\n")[3]);
 
+  // The introduction is theirs too, and it is the same line on every draft that seat sends.
+  const withIntro = composeContactDraft({ ...args, intro: "{name} here, {title} at Nine-67.", senderName: "Suuchi Ramesh", senderTitle: "COO" });
+  assert.ok(withIntro.body.includes("Suuchi Ramesh here, COO at Nine-67."), withIntro.body);
+  // A seat with no name set introduces nobody rather than introducing a comma. That is the ONLY reason two
+  // drafts on one list should differ here — the sender used to vary because whoever pressed a bulk tool had
+  // their identity stamped on every card it touched.
+  const nameless = composeContactDraft({ ...args, intro: "I am {name}, {title} at Nine-67." });
+  assert.ok(nameless.body.includes("I am with Nine-67."), nameless.body);
+  assert.ok(!/,\s*,|\s,/.test(nameless.body), nameless.body);
+  // A seat with a name but no title does not leave a dangling comma either.
+  const noTitle = composeContactDraft({ ...args, intro: "I am {name}, {title} at Nine-67.", senderName: "Josh Lee" });
+  assert.ok(noTitle.body.includes("I am Josh Lee at Nine-67."), noTitle.body);
+
   // {name} is the whole name, and a seat that has set nothing still gets a real greeting.
   assert.ok(composeContactDraft({ ...args, greeting: "Dear {name}," }).body.startsWith("Dear Ara Mahdessian,"));
   const unset = composeContactDraft(args);

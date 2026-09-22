@@ -78,6 +78,7 @@ export async function repairBrokenDrafts(limit = 2000) {
       senderTitle: profiles.get(row.assigned_to)?.title ?? null,
       greeting: profiles.get(row.assigned_to)?.greeting ?? null,
       signoff: profiles.get(row.assigned_to)?.signoff ?? null,
+      intro: profiles.get(row.assigned_to)?.intro ?? null,
     });
     // Bounded to the open statuses at write time too: the read and the write are seconds apart, and a card
     // sent in between must not have its record overwritten with a draft.

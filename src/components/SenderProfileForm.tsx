@@ -4,7 +4,7 @@ import { useState } from "react";
 import { PanelGuide } from "./PanelGuide";
 import { sanitizeSignatureHtml } from "@/lib/clean";
 
-type Profile = { from_name: string; title: string; signature: string; website: string; location: string; cc: string[]; greeting: string; signoff: string };
+type Profile = { from_name: string; title: string; signature: string; website: string; location: string; cc: string[]; greeting: string; signoff: string; intro: string };
 
 /**
  * The identity outreach emails present as: the name and title on the From line, the CC list, and the signature
@@ -19,6 +19,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   const [cc, setCc] = useState(initial.cc.join(", "));
   const [greeting, setGreeting] = useState(initial.greeting);
   const [signoff, setSignoff] = useState(initial.signoff);
+  const [intro, setIntro] = useState(initial.intro);
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
@@ -64,7 +65,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
     setWarning("");
     const list = cc.split(/[,\s]+/).map((value) => value.trim()).filter(Boolean);
     try {
-      const response = await fetch("/api/settings/sender", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ from_name: fromName, title, signature, website, location, cc: list, greeting, signoff }) });
+      const response = await fetch("/api/settings/sender", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ from_name: fromName, title, signature, website, location, cc: list, greeting, signoff, intro }) });
       const json = await response.json().catch(() => ({}));
       if (!response.ok) { setState("error"); setError(json.error ?? "Could not save."); return; }
       // A save can succeed in part: the greeting columns arrive with a repair script the operator runs by
@@ -92,7 +93,9 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
         <label><span>Greeting &mdash; how your drafts open</span><input value={greeting} onChange={(event) => setGreeting(event.target.value)} placeholder="Hi {first}," maxLength={160} /></label>
         <label><span>Sign-off &mdash; how they close</span><input value={signoff} onChange={(event) => setSignoff(event.target.value)} placeholder="Thank you," maxLength={160} /></label>
       </div>
-      <p className="sender-profile-note">Yours alone &mdash; the drafts written for your worklist open and close the way you do, and another seat&rsquo;s open the way they do. Write <code>{"{first}"}</code> where the contact&rsquo;s first name goes and <code>{"{name}"}</code> for their full name: <em>Hi {"{first}"},</em> reaches Ara as <em>Hi Ara,</em>. Leave either blank for <em>Hi {"{first}"},</em> and <em>Thank you,</em>.</p>
+      <label className="sender-profile-full"><span>Introduction &mdash; the first line of the message</span><input value={intro} onChange={(event) => setIntro(event.target.value)} placeholder="I am {name}, {title} at Nine-67." maxLength={300} /></label>
+      {!fromName.trim() && <p className="sender-profile-warn">Set a sender name above, or your drafts cannot introduce you &mdash; they open &ldquo;I am with Nine-67.&rdquo; instead, which is why the sender appears in some emails and not others.</p>}
+      <p className="sender-profile-note">Yours alone &mdash; the drafts written for your worklist open and close the way you do, and another seat&rsquo;s open the way they do. Write <code>{"{first}"}</code> where the contact&rsquo;s first name goes and <code>{"{name}"}</code> for their full name: <em>Hi {"{first}"},</em> reaches Ara as <em>Hi Ara,</em>. Leave any of them blank for <em>Hi {"{first}"},</em>, <em>Thank you,</em> and <em>I am {"{name}"}, {"{title}"} at Nine-67.</em> In the introduction, <code>{"{name}"}</code> and <code>{"{title}"}</code> are your own.</p>
 
       <label className="sender-profile-full"><span>CC (comma-separated — the team gets a copy of every send)</span><input value={cc} onChange={(event) => setCc(event.target.value)} placeholder="josh@nine-67.com, diego@nine-67.com" /></label>
       <label className="sender-profile-full">

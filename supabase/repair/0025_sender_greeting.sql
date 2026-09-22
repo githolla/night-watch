@@ -1,4 +1,4 @@
--- Per-seat greeting and sign-off.
+-- Per-seat greeting, sign-off and introduction.
 --
 -- The draft writer supplies the argument, not the manners: how an email opens and closes belongs to the
 -- person sending it, so Suuchi's drafts read the way she writes and Josh's read the way he does. Every
@@ -11,11 +11,16 @@
 
 alter table public.sender_profiles add column if not exists greeting text;
 alter table public.sender_profiles add column if not exists signoff  text;
+alter table public.sender_profiles add column if not exists intro    text;
 
 comment on column public.sender_profiles.greeting is 'Opening line for this seat''s drafts. {first} and {name} are filled per contact. Empty means "Hi {first},".';
 comment on column public.sender_profiles.signoff  is 'Closing line for this seat''s drafts. Empty means "Thank you,".';
+comment on column public.sender_profiles.intro    is 'First line of the message for this seat. {name} and {title} are the sender''s own. Empty means "I am {name}, {title} at Nine-67.".';
 
 -- What each seat has set, to confirm the change landed.
-select owner, coalesce(nullif(greeting, ''), '(default: Hi {first},)') as greeting,
-              coalesce(nullif(signoff,  ''), '(default: Thank you,)')  as signoff
+select owner,
+       coalesce(nullif(from_name, ''), '(NOT SET — drafts cannot introduce this seat)') as from_name,
+       coalesce(nullif(greeting,  ''), '(default: Hi {first},)')                        as greeting,
+       coalesce(nullif(signoff,   ''), '(default: Thank you,)')                         as signoff,
+       coalesce(nullif(intro,     ''), '(default: I am {name}, {title} at Nine-67.)')   as intro
 from public.sender_profiles order by owner;

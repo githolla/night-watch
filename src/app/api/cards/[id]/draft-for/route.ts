@@ -3,6 +3,7 @@ import { composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
 import { isRealContact } from "@/lib/clean";
 import { isLikelyPersonName } from "@/lib/pipeline";
 import { admin } from "@/lib/supabase/admin";
+import type { Owner } from "@/lib/types";
 import { senderProfile } from "@/lib/sender";
 import { z } from "zod";
 
@@ -65,7 +66,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
     const account = card.accounts as unknown as { name: string; domain: string } | null;
     const raw = (card.signals as unknown as { raw?: Record<string, unknown> } | null)?.raw ?? {};
-    const profile = await senderProfile(db, user.owner);
+    // The seat the CARD belongs to, not whoever pressed the button. Using the presser meant a list carried
+    // two voices at once: cards written by a tool introduced whoever ran it, cards rewritten by the nightly
+    // pass introduced their own seat, and a seat with no name set produced "I am with Nine-67." So the same
+    // company had the sender named in some emails and not in others.
+    const profile = await senderProfile(db, (card.assigned_to as Owner) ?? user.owner);
     const draft = composeContactDraft({
       variantSalt: position,
       company: account?.name ?? "",
@@ -78,6 +83,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       senderTitle: profile.title,
       greeting: profile.greeting,
       signoff: profile.signoff,
+      intro: profile.intro,
     });
 
     const newCard = {

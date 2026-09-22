@@ -2,11 +2,12 @@ import { requireUser } from "@/lib/auth";
 import { composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
 import { senderProfile } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
+import type { Owner } from "@/lib/types";
 
 export const maxDuration = 300;
 
 type CardRow = {
-  id: string; signal_id: string; why_now: string | null;
+  id: string; signal_id: string; why_now: string | null; assigned_to: string;
   signals: { raw: Record<string, unknown> | null } | null;
   accounts: { name: string } | null;
   people: { full_name: string; title: string | null } | null;
@@ -49,7 +50,13 @@ export async function POST(request: Request) {
     if (error) return Response.json({ error: error.message }, { status: 400 });
     const cards = (data ?? []) as unknown as CardRow[];
 
-    const profile = await senderProfile(db, user.owner);
+    // Per card's assigned seat, not whoever pressed the button: a draft introduces the person who will send
+    // it, so rewriting Jenna's cards under Josh's identity would put the wrong name in her first line — and
+    // mixing the two across one list is what made the sender appear in some emails and not others.
+    const profiles = new Map<string, Awaited<ReturnType<typeof senderProfile>>>();
+    for (const owner of new Set(cards.map((card) => card.assigned_to).filter(Boolean))) {
+      profiles.set(owner, await senderProfile(db, owner as Owner));
+    }
     // Position within the signal, so two colleagues drafted off one signal draw different copy. Worked out
     // per page from the whole signal's cards, not the page, or everyone on page two would start at nought.
     const signalIds = Array.from(new Set(cards.map((card) => card.signal_id).filter(Boolean)));
@@ -83,10 +90,11 @@ export async function POST(request: Request) {
         whyNow: card.why_now,
         operatingNeed: typeof raw.operating_need === "string" ? raw.operating_need : null,
         roles: rolesFromSignal(raw),
-        senderName: profile.fromName,
-        senderTitle: profile.title,
-        greeting: profile.greeting,
-        signoff: profile.signoff,
+        senderName: profiles.get(card.assigned_to)?.fromName ?? null,
+        senderTitle: profiles.get(card.assigned_to)?.title ?? null,
+        greeting: profiles.get(card.assigned_to)?.greeting ?? null,
+        signoff: profiles.get(card.assigned_to)?.signoff ?? null,
+        intro: profiles.get(card.assigned_to)?.intro ?? null,
       });
       // Bounded to the open statuses again at write time: the read and the write are seconds apart, and a
       // card sent in between must not have its record overwritten with a draft.

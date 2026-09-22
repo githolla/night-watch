@@ -48,6 +48,7 @@ export default async function Settings() {
     cc: Array.isArray(sender?.cc) ? (sender!.cc as string[]) : [],
     greeting: (sender?.greeting as string | null) ?? "",
     signoff: (sender?.signoff as string | null) ?? "",
+    intro: (sender?.intro as string | null) ?? "",
   };
   const slackConnected = Boolean(process.env.SLACK_BOT_TOKEN && process.env.SLACK_SIGNING_SECRET && process.env.SLACK_CHANNEL_ID);
   const googleConfig = {

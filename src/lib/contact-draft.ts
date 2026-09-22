@@ -34,6 +34,12 @@ export type ContactDraftInput = {
   /** The sender's own sign-off. Same idea; falls back to "Thank you,". */
   signoff?: string | null;
   /**
+   * How the sender introduces themselves, with {name} and {title} for their own. Falls back to
+   * "I am {name}, {title} at Nine-67." — and, when no name is on file for that seat, to a line with no
+   * name in it, because a sentence introducing nobody is worse than none.
+   */
+  intro?: string | null;
+  /**
    * This contact's position in the company's list, which is what keeps two colleagues on the same angle off
    * the same wording. Pass a number and it rotates the copy pools, so positions 0..3 are guaranteed to draw
    * four different pitches; leave it out and the choice falls back to a hash of the name, which collides
@@ -459,9 +465,26 @@ function fitSubject(subject: string, limit = 110): string {
   return `${(space > 20 ? cut.slice(0, space) : cut).replace(/[\s,;:.\-–—]+$/, "")}…`;
 }
 
+/**
+ * Fill a seat's own tokens: their name and their title.
+ *
+ * A missing title takes its punctuation with it. Substituting an empty string left "I am Josh Lee, at
+ * Nine-67." on every draft from a seat that had filled in a name but not a title.
+ */
+function fillSender(template: string, name: string, title: string): string {
+  return template
+    .replace(/[,;:–—-]?[ \t]*\{title\}/gi, (match) => (title ? match.replace(/\{title\}/i, title) : ""))
+    .replace(/[,;:–—-]?[ \t]*\{name\}/gi, (match) => (name ? match.replace(/\{name\}/i, name) : ""))
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+([,.;:])/g, "$1")
+    .replace(/,\s*([,.])/g, "$1")
+    .trim();
+}
+
 /** What a seat that has not set its own opening line gets. */
 export const DEFAULT_GREETING = "Hi {first},";
 export const DEFAULT_SIGNOFF = "Thank you,";
+export const DEFAULT_INTRO = "I am {name}, {title} at Nine-67.";
 
 export function composeContactDraft(input: ContactDraftInput): { subject: string; body: string } {
   const company = decodeEntities(input.company).trim() || "your team";
@@ -510,8 +533,14 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
 
   const senderName = decodeEntities(input.senderName ?? "").trim();
   const senderTitle = decodeEntities(input.senderTitle ?? "").trim();
+  // The seat's own line, same as the greeting. When no name is set the template would introduce nobody, so
+  // the nameless line stands in — which is the ONLY reason two drafts on one list should ever differ here.
+  // They used to differ for a worse reason: whoever pressed a bulk tool had their identity stamped on every
+  // card it touched, while the nightly pass used each card's own seat.
   const intro = senderName
-    ? `I am ${senderName}${senderTitle ? `, ${senderTitle}` : ""} at Nine-67.`
+    ? (input.intro ?? "").trim()
+        ? fillSender((input.intro ?? "").trim(), senderName, senderTitle)
+        : `I am ${senderName}${senderTitle ? `, ${senderTitle}` : ""} at Nine-67.`
     : "I am with Nine-67.";
 
   // The greeting and the sign-off belong to the sender, not to this writer. {first} and {name} are filled

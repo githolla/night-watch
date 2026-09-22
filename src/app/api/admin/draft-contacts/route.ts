@@ -4,6 +4,7 @@ import { isRealContact } from "@/lib/clean";
 import { isLikelyPersonName } from "@/lib/pipeline";
 import { senderProfile } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
+import type { Owner } from "@/lib/types";
 
 export const maxDuration = 300;
 
@@ -61,7 +62,16 @@ export async function POST(request: Request) {
     if (sourceError) return Response.json({ error: sourceError.message }, { status: 400 });
     const cards = (data ?? []) as unknown as CardRow[];
 
-    const profile = await senderProfile(db, user.owner);
+    // Looked up per card's assigned seat, not once for whoever pressed the button: a draft introduces the
+    // person who will send it. Cached, since a page of cards is usually one or two seats.
+    const profiles = new Map<string, Awaited<ReturnType<typeof senderProfile>>>();
+    const profileFor = async (owner: string) => {
+      const cached = profiles.get(owner);
+      if (cached) return cached;
+      const fresh = await senderProfile(db, owner as Owner);
+      profiles.set(owner, fresh);
+      return fresh;
+    };
     let written = 0;
     let skipped = 0;
     let failed = 0;
@@ -121,6 +131,7 @@ export async function POST(request: Request) {
 
       const roles = rolesFromSignal(raw);
 
+      const profile = await profileFor(card.assigned_to);
       const rows = candidates.map((person, index) => {
         const draft = composeContactDraft({
           // Two colleagues who land on the same angle must not draw the same wording by chance.
@@ -135,6 +146,7 @@ export async function POST(request: Request) {
           senderTitle: profile.title,
           greeting: profile.greeting,
           signoff: profile.signoff,
+          intro: profile.intro,
         });
         return {
           signal_id: card.signal_id, person_id: person.id, account_id: card.account_id,
