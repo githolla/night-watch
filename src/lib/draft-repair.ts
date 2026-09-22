@@ -53,9 +53,9 @@ export async function repairBrokenDrafts(limit = 2000) {
 
   // Each card's own seat: the draft introduces the sender by name, so repairing Jenna's card with Josh's
   // profile would put the wrong person's name in the first line of her email. Looked up once per seat.
-  const profiles = new Map<string, { fromName: string; title: string }>();
+  const profiles = new Map<string, Awaited<ReturnType<typeof senderProfile>> | null>();
   for (const owner of new Set(broken.map((row) => row.assigned_to))) {
-    profiles.set(owner, await senderProfile(db, owner).catch(() => ({ fromName: "", title: "" })));
+    profiles.set(owner, await senderProfile(db, owner).catch(() => null));
   }
 
   let repaired = 0;
@@ -76,6 +76,8 @@ export async function repairBrokenDrafts(limit = 2000) {
       roles: rolesFromSignal(raw),
       senderName: profiles.get(row.assigned_to)?.fromName ?? null,
       senderTitle: profiles.get(row.assigned_to)?.title ?? null,
+      greeting: profiles.get(row.assigned_to)?.greeting ?? null,
+      signoff: profiles.get(row.assigned_to)?.signoff ?? null,
     });
     // Bounded to the open statuses at write time too: the read and the write are seconds apart, and a card
     // sent in between must not have its record overwritten with a draft.

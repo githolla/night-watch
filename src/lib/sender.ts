@@ -8,11 +8,17 @@ import { dedupeParagraphs, similarText, sanitizeSignatureHtml } from "./clean.ts
  * address), a signature appended to the body, and a CC list. Stored per owner
  * slot; the mailbox address itself is the owner's Gmail connection.
  */
-export type SenderProfile = { fromName: string; title: string; signature: string; website: string; location: string; cc: string[] };
-const EMPTY: SenderProfile = { fromName: "", title: "", signature: "", website: "", location: "", cc: [] };
+export type SenderProfile = { fromName: string; title: string; signature: string; website: string; location: string; cc: string[]; greeting: string; signoff: string };
+/** What a seat that has set nothing gets. Kept here so the writer and the settings form agree. */
+export const DEFAULT_GREETING = "Hi {first},";
+export const DEFAULT_SIGNOFF = "Thank you,";
+const EMPTY: SenderProfile = { fromName: "", title: "", signature: "", website: "", location: "", cc: [], greeting: DEFAULT_GREETING, signoff: DEFAULT_SIGNOFF };
 
 export async function senderProfile(db: SupabaseClient, owner: Owner): Promise<SenderProfile> {
-  const { data } = await db.from("sender_profiles").select("from_name,title,signature,website,location,cc").eq("owner", owner).maybeSingle();
+  // select("*") rather than a column list: greeting and signoff are added by a repair script the operator
+  // runs by hand, and naming a column that does not exist yet fails the whole read — which would take the
+  // sender's name and signature off every email until the SQL was applied.
+  const { data } = await db.from("sender_profiles").select("*").eq("owner", owner).maybeSingle();
   if (!data) return EMPTY;
   return {
     fromName: (data.from_name as string | null) ?? "",
@@ -21,6 +27,8 @@ export async function senderProfile(db: SupabaseClient, owner: Owner): Promise<S
     website: (data.website as string | null) ?? "",
     location: (data.location as string | null) ?? "",
     cc: Array.isArray(data.cc) ? (data.cc as string[]) : [],
+    greeting: ((data.greeting as string | null) ?? "").trim() || DEFAULT_GREETING,
+    signoff: ((data.signoff as string | null) ?? "").trim() || DEFAULT_SIGNOFF,
   };
 }
 

@@ -186,6 +186,25 @@ test("a genuine title carrying a comma is not split into two invented roles", ()
   assert.deepEqual(rolesFromSignal({ job: { title: "Manager, Sales Ops" } }), ["Manager, Sales Ops"]);
 });
 
+test("the greeting and sign-off belong to the sender, not to the writer", () => {
+  const args = { company: "Acme", personName: "Ara Mahdessian", personTitle: "CEO", roles: ["Data Engineer"], variantSalt: 0 };
+  // Two seats, two voices, same argument underneath.
+  const suuchi = composeContactDraft({ ...args, greeting: "Hello {first} —", signoff: "Best,", senderName: "Suuchi Ramesh", senderTitle: "COO" });
+  const josh = composeContactDraft({ ...args, greeting: "Hi {first},", signoff: "Thank you,", senderName: "Josh Lee", senderTitle: "FDE/COO" });
+  assert.ok(suuchi.body.startsWith("Hello Ara —"), suuchi.body);
+  assert.ok(suuchi.body.trimEnd().endsWith("Best,"), suuchi.body);
+  assert.ok(josh.body.startsWith("Hi Ara,"), josh.body);
+  assert.ok(josh.body.trimEnd().endsWith("Thank you,"), josh.body);
+  // The pitch between them is the same: only the manners differ.
+  assert.equal(suuchi.body.split("\n\n")[3], josh.body.split("\n\n")[3]);
+
+  // {name} is the whole name, and a seat that has set nothing still gets a real greeting.
+  assert.ok(composeContactDraft({ ...args, greeting: "Dear {name}," }).body.startsWith("Dear Ara Mahdessian,"));
+  const unset = composeContactDraft(args);
+  assert.ok(unset.body.startsWith("Hi Ara,"), unset.body);
+  assert.ok(unset.body.trimEnd().endsWith("Thank you,"), unset.body);
+});
+
 test("colleagues at one company never get the same pitch, subject or ask", () => {
   // The measured failure: 480 drafts shared 4 pitch paragraphs, and a CEO, a Co-Founder and a President at
   // one company received a byte-identical subject, pitch and ask. Only the name differed.

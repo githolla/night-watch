@@ -33,7 +33,9 @@ export default async function Settings() {
     db.from("cards").select("*", { count: "exact", head: true }).eq("surfaced_on", today),
     db.from("message_experiments").select("*", { count: "exact", head: true }),
     db.from("touches").select("*", { count: "exact", head: true }).not("reply_at", "is", null),
-    db.from("sender_profiles").select("from_name,title,signature,website,location,cc").eq("owner", me.owner).maybeSingle(),
+    // select("*"): greeting and signoff arrive with a repair script run by hand, and naming a column that
+    // is not there yet fails the whole read, blanking the identity form.
+    db.from("sender_profiles").select("*").eq("owner", me.owner).maybeSingle(),
   ]);
   const { count: feedbackCount } = me.role === "admin" ? await admin().from("feedback").select("*", { count: "exact", head: true }) : { count: 0 };
   const senderEmail = (connections ?? []).find((row) => row.owner === me.owner)?.email ?? me.email ?? null;
@@ -44,6 +46,8 @@ export default async function Settings() {
     website: (sender?.website as string | null) ?? "",
     location: (sender?.location as string | null) ?? "",
     cc: Array.isArray(sender?.cc) ? (sender!.cc as string[]) : [],
+    greeting: (sender?.greeting as string | null) ?? "",
+    signoff: (sender?.signoff as string | null) ?? "",
   };
   const slackConnected = Boolean(process.env.SLACK_BOT_TOKEN && process.env.SLACK_SIGNING_SECRET && process.env.SLACK_CHANNEL_ID);
   const googleConfig = {

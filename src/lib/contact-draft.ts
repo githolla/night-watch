@@ -26,6 +26,14 @@ export type ContactDraftInput = {
   senderName?: string | null;
   senderTitle?: string | null;
   /**
+   * The sender's own opening line, with {first} where the contact's first name goes. Each seat sets their
+   * own, so Suuchi's drafts open the way she writes and Josh's open the way he does — the writer supplies
+   * the argument, not the manners. Left out, it falls back to "Hi {first},".
+   */
+  greeting?: string | null;
+  /** The sender's own sign-off. Same idea; falls back to "Thank you,". */
+  signoff?: string | null;
+  /**
    * This contact's position in the company's list, which is what keeps two colleagues on the same angle off
    * the same wording. Pass a number and it rotates the copy pools, so positions 0..3 are guaranteed to draw
    * four different pitches; leave it out and the choice falls back to a hash of the name, which collides
@@ -451,6 +459,10 @@ function fitSubject(subject: string, limit = 110): string {
   return `${(space > 20 ? cut.slice(0, space) : cut).replace(/[\s,;:.\-–—]+$/, "")}…`;
 }
 
+/** What a seat that has not set its own opening line gets. */
+export const DEFAULT_GREETING = "Hi {first},";
+export const DEFAULT_SIGNOFF = "Thank you,";
+
 export function composeContactDraft(input: ContactDraftInput): { subject: string; body: string } {
   const company = decodeEntities(input.company).trim() || "your team";
   const first = firstNameOf(input.personName);
@@ -502,8 +514,15 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
     ? `I am ${senderName}${senderTitle ? `, ${senderTitle}` : ""} at Nine-67.`
     : "I am with Nine-67.";
 
+  // The greeting and the sign-off belong to the sender, not to this writer. {first} and {name} are filled
+  // per contact; everything else is exactly what that seat set in their own settings.
+  const fullName = decodeEntities(input.personName).trim();
+  const fill = (template: string) => template.replace(/\{first\}/gi, first).replace(/\{name\}/gi, fullName || first);
+  const greeting = fill((input.greeting ?? "").trim() || DEFAULT_GREETING);
+  const signoff = ((input.signoff ?? "").trim() || DEFAULT_SIGNOFF);
+
   const body = [
-    `Hi ${first},`,
+    greeting,
     "",
     `${intro} ${opening}`,
     "",
@@ -511,7 +530,7 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
     "",
     askLine,
     "",
-    "Thank you,",
+    signoff,
   ].join("\n");
 
   // A subject built from a role phrase can start lowercase ("those three roles vs a system").

@@ -85,6 +85,8 @@ export async function POST(request: Request) {
         roles: rolesFromSignal(raw),
         senderName: profile.fromName,
         senderTitle: profile.title,
+        greeting: profile.greeting,
+        signoff: profile.signoff,
       });
       // Bounded to the open statuses again at write time: the read and the write are seconds apart, and a
       // card sent in between must not have its record overwritten with a draft.

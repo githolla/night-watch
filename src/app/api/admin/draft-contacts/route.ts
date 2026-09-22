@@ -133,6 +133,8 @@ export async function POST(request: Request) {
           roles,
           senderName: profile.fromName,
           senderTitle: profile.title,
+          greeting: profile.greeting,
+          signoff: profile.signoff,
         });
         return {
           signal_id: card.signal_id, person_id: person.id, account_id: card.account_id,

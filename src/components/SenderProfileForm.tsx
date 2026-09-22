@@ -4,7 +4,7 @@ import { useState } from "react";
 import { PanelGuide } from "./PanelGuide";
 import { sanitizeSignatureHtml } from "@/lib/clean";
 
-type Profile = { from_name: string; title: string; signature: string; website: string; location: string; cc: string[] };
+type Profile = { from_name: string; title: string; signature: string; website: string; location: string; cc: string[]; greeting: string; signoff: string };
 
 /**
  * The identity outreach emails present as: the name and title on the From line, the CC list, and the signature
@@ -17,8 +17,11 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   const [location, setLocation] = useState(initial.location);
   const [signature, setSignature] = useState(initial.signature);
   const [cc, setCc] = useState(initial.cc.join(", "));
+  const [greeting, setGreeting] = useState(initial.greeting);
+  const [signoff, setSignoff] = useState(initial.signoff);
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [error, setError] = useState("");
+  const [warning, setWarning] = useState("");
   const [testing, setTesting] = useState(false);
   const [testMsg, setTestMsg] = useState("");
   const [uploadErr, setUploadErr] = useState("");
@@ -58,11 +61,15 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   async function save() {
     setState("saving");
     setError("");
+    setWarning("");
     const list = cc.split(/[,\s]+/).map((value) => value.trim()).filter(Boolean);
     try {
-      const response = await fetch("/api/settings/sender", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ from_name: fromName, title, signature, website, location, cc: list }) });
+      const response = await fetch("/api/settings/sender", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ from_name: fromName, title, signature, website, location, cc: list, greeting, signoff }) });
       const json = await response.json().catch(() => ({}));
       if (!response.ok) { setState("error"); setError(json.error ?? "Could not save."); return; }
+      // A save can succeed in part: the greeting columns arrive with a repair script the operator runs by
+      // hand, and saying "Saved" over the top of that would be a lie.
+      setWarning((json.warning as string) ?? "");
       setState("saved");
     } catch { setState("error"); setError("Could not save."); }
   }
@@ -81,6 +88,12 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
         <label><span>Website</span><input value={website} onChange={(event) => setWebsite(event.target.value)} placeholder="www.nine-67.com" maxLength={160} /></label>
         <label><span>Location</span><input value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Pennsylvania, USA | ET (UTC-5 / UTC-4)" maxLength={160} /></label>
       </div>
+      <div className="sender-profile-grid">
+        <label><span>Greeting &mdash; how your drafts open</span><input value={greeting} onChange={(event) => setGreeting(event.target.value)} placeholder="Hi {first}," maxLength={160} /></label>
+        <label><span>Sign-off &mdash; how they close</span><input value={signoff} onChange={(event) => setSignoff(event.target.value)} placeholder="Thank you," maxLength={160} /></label>
+      </div>
+      <p className="sender-profile-note">Yours alone &mdash; the drafts written for your worklist open and close the way you do, and another seat&rsquo;s open the way they do. Write <code>{"{first}"}</code> where the contact&rsquo;s first name goes and <code>{"{name}"}</code> for their full name: <em>Hi {"{first}"},</em> reaches Ara as <em>Hi Ara,</em>. Leave either blank for <em>Hi {"{first}"},</em> and <em>Thank you,</em>.</p>
+
       <label className="sender-profile-full"><span>CC (comma-separated — the team gets a copy of every send)</span><input value={cc} onChange={(event) => setCc(event.target.value)} placeholder="josh@nine-67.com, diego@nine-67.com" /></label>
       <label className="sender-profile-full">
         <span>Your signature — paste your own HTML signature to use it as-is (it overrides the built-in block), or plain text as a fallback</span>
@@ -116,7 +129,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
       <div className="sender-profile-actions">
         <button type="button" className="btn primary" onClick={save} disabled={state === "saving"}>{state === "saving" ? "Saving…" : "Save identity"}</button>
         <button type="button" className="btn" onClick={sendTest} disabled={testing} title="Send a sample email to your own inbox">{testing ? "Sending…" : "Send test to myself"}</button>
-        {state === "saved" && <span className="sender-profile-ok">Saved.</span>}
+        {state === "saved" && (warning ? <span className="sender-profile-warn">{warning}</span> : <span className="sender-profile-ok">Saved.</span>)}
         {state === "error" && <span className="sender-profile-err">{error}</span>}
         {testMsg && <span className={/check your inbox/.test(testMsg) ? "sender-profile-ok" : "sender-profile-err"}>{testMsg}</span>}
       </div>

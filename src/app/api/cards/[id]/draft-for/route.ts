@@ -76,6 +76,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       roles: rolesFromSignal(raw),
       senderName: profile.fromName,
       senderTitle: profile.title,
+      greeting: profile.greeting,
+      signoff: profile.signoff,
     });
 
     const newCard = {

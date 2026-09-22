@@ -2091,6 +2091,10 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .draft-tool-list{margin:12px 0 0;padding:10px 13px 10px 30px;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper);font:500 13px/1.7 var(--sans);color:var(--ink-soft)}
 .draft-tool-list li{margin:0}
 /* The running order for the three tools that fix a list end to end. */
+/* A save that only partly landed: the greeting columns need a repair script run by hand. */
+.sender-profile-warn{font:600 13px/1.5 var(--sans);color:var(--danger,#b4331f)}
+.sender-profile-note{margin:6px 0 14px;max-width:70ch;font:500 13px/1.6 var(--sans);color:var(--ink-soft)}
+.sender-profile-note code{padding:1px 5px;border-radius:4px;background:var(--accent-soft);font:600 12px/1.4 var(--mono,monospace)}
 .draft-tools-lead{margin:0 0 16px;max-width:70ch;font:500 14px/1.6 var(--sans);color:var(--ink-soft)}
 .draft-step{display:inline-block;margin-right:9px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);font:700 11px/1.5 var(--sans);letter-spacing:.04em;text-transform:uppercase;font-style:normal;color:var(--accent-ink,var(--ink))}
 .draft-tool-list li strong{color:var(--ink)}
