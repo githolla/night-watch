@@ -41,7 +41,9 @@ export async function POST(request: Request) {
     const db = admin();
 
     const { data, count, error } = await db.from("cards")
-      .select("id,signal_id,why_now,signals(raw),accounts(name),people(full_name,title)", { count: "exact" })
+      // assigned_to is READ below to decide whose voice each draft is written in. It was missing here while
+      // the row type declared it, so TypeScript was satisfied and every card arrived with it undefined.
+      .select("id,signal_id,why_now,assigned_to,signals(raw),accounts(name),people(full_name,title)", { count: "exact" })
       .in("status", OPEN)
       .lt("created_at", before)
       .order("id", { ascending: true })
