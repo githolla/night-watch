@@ -198,7 +198,7 @@ export function Desk({
   const [query, setQuery] = useState("");
   // The left list can show just today's worklist, or every active (un-worked) prospect so older
   // companies are never "lost" — the one-at-a-time flow still works from whichever pool is showing.
-  const [listScope, setListScope] = useState<"today" | "all">("today");
+  const listScope = "all" as const;
   const [busy, setBusy] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
@@ -404,7 +404,6 @@ export function Desk({
   const pick = (id: string) => {
     // If the picked prospect isn't in today's worklist, switch to the "All active" scope so it's in the
     // walked pool (and Next/Prev behave) instead of falling back to a different card.
-    if (listScope === "today" && !todo.some((item) => item.id === id) && actionable.some((item) => item.id === id)) setListScope("all");
     // Do NOT touch `selected` here: it is the view switch (a non-empty `selected` opens the full-detail
     // dossier), so setting it sent every click on a company into the dossier instead of the worklist.
     // The two views staying in step is handled by each write naming its own card, not by syncing these.
@@ -479,7 +478,7 @@ export function Desk({
   const totalSignals = totalRoles + totalPosts;
   const companiesWatched = context?.listedCompanies ?? 0;
   const deskDateShort = context ? new Date(`${context.today}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "";
-  const headline = priorityCount > 0 ? `${priorityCount} high-fit ${priorityCount === 1 ? "prospect" : "prospects"} to work.` : cards.length ? "A clean worklist for today." : "Nothing needs you right now.";
+  const headline = priorityCount > 0 ? `${priorityCount} high-fit ${priorityCount === 1 ? "prospect" : "prospects"} to work.` : cards.length ? "Your selected companies." : "Nothing needs you right now.";
   const subline = totalSignals > 0 ? `${totalSignals.toLocaleString()} signals tracked across ${companiesWatched.toLocaleString()} companies.` : "";
   // For the analyst's-note rail: how many signals point at manual/reporting work, and the busiest companies.
   const manualCount = cards.filter((item) => /manual|report|reconcil|spreadsheet|data entry|intake|routing|invoice|dashboard/i.test(`${item.signals.raw?.operating_need ?? ""} ${item.why_now ?? ""}`)).length;
@@ -779,7 +778,7 @@ export function Desk({
                   <strong>{coverage!.signalsFound.toLocaleString()}</strong>
                   <small>Companies with a saved source</small>
                 </Link>
-                <Link href="/desk" className="coverage-tile is-ok">
+                <Link href="/outreach" className="coverage-tile is-ok">
                   <span>DOSSIERS READY</span>
                   <strong>{coverage!.dossiersReady.toLocaleString()}</strong>
                   <small>Open cards awaiting a decision</small>
@@ -976,7 +975,7 @@ export function Desk({
             <div className="overview-main">
               <div className="ask-bar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search prospects by name, title or company" aria-label="Search prospects" /></div>
               <div className="list-filters" role="tablist" aria-label="Filter by signal">
-                <button type="button" role="tab" aria-selected={kind === "top"} className={kind === "top" ? "is-on" : ""} onClick={() => setKind("top")}>Worklist <b>{Math.min(SHORTLIST, actionable.length)}</b></button>
+                <button type="button" role="tab" aria-selected={kind === "top"} className={kind === "top" ? "is-on" : ""} onClick={() => setKind("top")}>Selected companies <b>{Math.min(SHORTLIST, actionable.length)}</b></button>
                 <button type="button" role="tab" aria-selected={kind === "all"} className={kind === "all" ? "is-on" : ""} onClick={() => setKind("all")}>All <b>{cards.length}</b></button>
                 <button type="button" role="tab" aria-selected={kind === "job"} className={kind === "job" ? "is-on" : ""} onClick={() => setKind("job")}>Job posts <b>{jobCount}</b></button>
                 <button type="button" role="tab" aria-selected={kind === "social"} className={kind === "social" ? "is-on" : ""} onClick={() => setKind("social")}>Social posts <b>{socialCount}</b></button>
@@ -1025,7 +1024,7 @@ export function Desk({
       ) : (
         <div className="deskwork">
           <header className="deskwork-head">
-            <div><span className="overview-kick">Your worklist</span><h1>Start the right conversation.</h1></div>
+            <div><span className="overview-kick">Your reach-out list</span><h1>Start the right conversation.</h1></div>
             <div className="deskwork-head-right"><span>Night Watch</span><strong>{todo.length} {todo.length === 1 ? "prospect" : "prospects"} ready</strong><div className="deskwork-head-actions">{tools}<button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview &rarr;</button></div></div>
           </header>
 
@@ -1033,10 +1032,6 @@ export function Desk({
             {/* LEFT — companies */}
             <aside className="deskwork-list">
               <div className="deskwork-list-head"><span>{listNeedle ? <>Matches <b>{listed.length}</b></> : <>Companies <b>{focusPool.length}</b></>}</span><span className="deskwork-sort">{listNeedle ? "By fit" : "By fit ↓"}</span></div>
-              <div className="deskwork-scope" role="tablist" aria-label="Which prospects to list">
-                <button type="button" role="tab" aria-selected={listScope === "today"} className={listScope === "today" ? "is-on" : ""} onClick={() => setListScope("today")}>Today <b>{todo.length}</b></button>
-                <button type="button" role="tab" aria-selected={listScope === "all"} className={listScope === "all" ? "is-on" : ""} onClick={() => setListScope("all")} title="Every active prospect, not just today's — nothing is lost">All active <b>{actionable.length}</b></button>
-              </div>
               <input className="deskwork-search" placeholder="Search a company, a person or a job title" value={query} onChange={(event) => setQuery(event.target.value)} />
               <div className="deskwork-list-scroll">
                 {listed.map((item) => (
@@ -1053,7 +1048,7 @@ export function Desk({
                     <em className="deskwork-row-fit">{item.score}</em>
                   </button>
                 ))}
-                {!!focusPool.length && listNeedle && !listed.length && <p className="deskwork-empty">Nothing here matches &ldquo;{query.trim()}&rdquo;. {listScope === "today" ? "Try “All active” — today's list is only a slice of the prospects on file." : "Try a shorter word, or part of an email address."}</p>}
+                {!!focusPool.length && listNeedle && !listed.length && <p className="deskwork-empty">Nothing here matches &ldquo;{query.trim()}&rdquo;. Try a shorter word, or part of an email address.</p>}
                 {!focusPool.length && <p className="deskwork-empty">{listScope === "all" ? "No active prospects yet — new ones land here after the next scan." : "All caught up for today — switch to “All active” to work ahead, or new prospects land after the next scan."}</p>}
               </div>
             </aside>
@@ -1064,7 +1059,7 @@ export function Desk({
                 <header className="deskwork-co">
                   <span className="avatar">{initials(focusCard.accounts.name)}</span>
                   <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{signalLabel(focusCard)}{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p></div>
-                  <Link href="/desk" className="focus-link">All 25 companies</Link>
+                  <Link href="/outreach" className="focus-link">All 25 companies</Link>
                 </header>
 
                 <div className="deskwork-opening">

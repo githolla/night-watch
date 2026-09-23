@@ -6,18 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Lock } from "lucide-react";
 import { FeedbackWidget } from "./FeedbackWidget";
 
-/**
- * A clean top bar: the daily work first, everything else under More, workspace and user on the right.
- *
- * Labels say what the page is, and no two of them compete. /desk was labelled "Outreach" while /outreach
- * was labelled "Companies", so the label contradicted the address and two entries read as the company list
- * — testers reported not being able to find a list that was in front of them twice. Each carries a one-line
- * hint as its tooltip.
- */
 const primary = [
-  { href: "/desk", label: "Worklist", hint: "Today's prospects: write and send, one at a time" },
+  { href: "/outreach", label: "Reach-out list", hint: "The selected companies and their custom emails" },
   { href: "/followups", label: "Follow-ups", hint: "Queued follow-ups and anything due now" },
-  { href: "/outreach", label: "Reach-out list", hint: "The companies being worked, by stage" },
   { href: "/people", label: "People", hint: "Every contact on file" },
 ];
 const more = [
@@ -33,7 +24,7 @@ const more = [
 
 export function Header() {
   const pathname = usePathname();
-  const active = (href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/desk" && pathname === "/") || (href === "/outreach" && pathname.startsWith("/accounts"));
+  const active = (href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/outreach" && pathname === "/") || (href === "/outreach" && pathname.startsWith("/accounts"));
   const [moreOpen, setMoreOpen] = useState(false);
   const [counts, setCounts] = useState<{ today: number; companies: number; followups: number } | null>(null);
   const [me, setMe] = useState<{ name: string; email: string; role: string } | null>(null);
@@ -56,13 +47,13 @@ export function Header() {
     return () => window.removeEventListener("click", onClick);
   }, []);
 
-  const countFor = (href: string) => href === "/desk" ? 25 : href === "/outreach" ? 25 : href === "/followups" ? counts?.followups : undefined;
+  const countFor = (href: string) => href === "/outreach" ? 25 : href === "/followups" ? counts?.followups : undefined;
 
   return (
     <>
     <header className="appbar" aria-label="Navigation">
       <div className="appbar-left">
-        <Link href="/desk" className="appbar-brand" title="Night Watch">
+        <Link href="/outreach" className="appbar-brand" title="Night Watch">
           <span className="brand-moon" aria-hidden />
           <strong>nightwatch<i>.</i></strong>
         </Link>

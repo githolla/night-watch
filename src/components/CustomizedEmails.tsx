@@ -17,7 +17,7 @@ export function CustomizedEmails({ drafts, greeting, signoff, signature, sender,
       const response = await fetch("/api/desk/priority-draft", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ domain: draft.domain }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not open the draft");
-      router.push(`/desk?card=${result.id}`);
+      router.push(`/outreach?card=${result.id}`);
     } catch (error) { setCopied(error instanceof Error ? error.message : "Could not open draft"); setOpening(false); }
   }
   const [alternateFor, setAlternateFor] = useState<Record<number, boolean>>({});
@@ -34,7 +34,7 @@ export function CustomizedEmails({ drafts, greeting, signoff, signature, sender,
   const initials = (value: string) => value.split(/\s+/).slice(0, 2).map(word => word[0]).join("");
   return <main className="deskwork curated-worklist">
     <header className="deskwork-head">
-      <div><span className="overview-kick">Your worklist</span><h1>Start the right conversation.</h1></div>
+      <div><span className="overview-kick">Your reach-out list</span><h1>Start the right conversation.</h1></div>
       <div className="deskwork-head-right"><span>Nine-67</span><strong>{drafts.length} selected companies</strong><a className="deskwork-overview" href="/settings">Sender settings ↗</a></div>
     </header>
     <div className="deskwork-grid">
