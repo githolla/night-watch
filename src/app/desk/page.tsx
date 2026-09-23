@@ -1,3 +1,4 @@
+import { recipientResearch } from "@/lib/recipient-research";
 import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
 import { curatedDomains } from "@/lib/curated-worklist";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
@@ -196,7 +197,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   const workingCutoff = new Date().getTime() - 30 * 60 * 1000;
   const surfaced = (cardRows ?? []).sort((a, b) => curatedDomains.indexOf(a.accounts.domain) - curatedDomains.indexOf(b.accounts.domain))
     // Never surface a card whose contact is a marketing phrase, not a real person.
-    .filter((card) => { const person = card.people as { full_name?: string } | null; return person?.full_name ? isLikelyPersonName(person.full_name) : false; });
+    .filter((card) => { const person = card.people as { full_name?: string } | null; return person?.full_name ? isLikelyPersonName(person.full_name) && Boolean(recipientResearch(card.accounts.domain, person.full_name)) : false; });
 
   // The follow-up sequence for each surfaced card, so the desk can show it inline under the draft.
   const followupsByCard = new Map<string, Array<{ id: string; step: number; channel: string; title: string; detail: string; subject: string | null; body: string; status: string; scheduledAt: string; forPerson: string; forPersonId: string }>>();

@@ -1,3 +1,5 @@
+import { isCuratedDomain } from "@/lib/curated-worklist";
+import { recipientResearch } from "@/lib/recipient-research";
 import { requireUser } from "@/lib/auth";
 import { composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
 import { isRealContact } from "@/lib/clean";
@@ -51,6 +53,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       // Take it off the list for good rather than only refusing this once.
       await db.from("people").update({ do_not_contact: true }).eq("id", personId);
       return Response.json({ notAPerson: true, error: `“${row.full_name}” is not a person — it is a phrase from the company's website. It has been taken off the contact list.` }, { status: 400 });
+    }
+
+    const selectedAccount = card.accounts as unknown as { domain: string } | null;
+    if (isCuratedDomain(selectedAccount?.domain) && !recipientResearch(selectedAccount?.domain, person.full_name)) {
+      return Response.json({ error: "This worklist is limited to the researched buyer for each selected company." }, { status: 400 });
     }
 
     // Already has their own card? Hand it back as it stands. Nothing below may run.

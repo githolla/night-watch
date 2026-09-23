@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { cleanRoleTitle, greetedName, sanitizeCopy, SIGNOFF_OPENERS, stripLeadingGreeting } from "./clean.ts";
+import { isRealContact, cleanRoleTitle, greetedName, sanitizeCopy, SIGNOFF_OPENERS, stripLeadingGreeting } from "./clean.ts";
 
 test("strips ATS requisition ids from a title", () => {
   assert.equal(cleanRoleTitle("Lead Data Engineer A1wuq000001tvyf2ae"), "Lead Data Engineer");
@@ -40,4 +40,11 @@ test("a seat's own sign-off is still recognised as a sign-off", () => {
   // A sentence is not a sign-off, however it starts.
   assert.ok(!SIGNOFF_OPENERS.test("We build the reporting and data work."));
   assert.ok(!SIGNOFF_OPENERS.test("Worth twenty minutes to compare the two?"));
+});
+
+test("department labels from the worklist are not people", () => {
+  for (const full_name of ["Domestic Sales", "Human Resources", "Advanced Manufacturing Engineering", "Mbaf Mold-Direct"]) {
+    assert.equal(isRealContact({ full_name, title: "Director, Supplier Quality" }), false, full_name);
+  }
+  assert.equal(isRealContact({ full_name: "Dave Gizewicz", title: "Chief Operating Officer" }), true);
 });

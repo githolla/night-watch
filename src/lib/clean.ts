@@ -337,6 +337,8 @@ export function looksLikeCompanyBrand(name: string | null | undefined, company: 
 
 /** Everything that disqualifies a scraped contact from being written to, in one place. */
 export function isRealContact(person: { full_name?: string | null; email?: string | null; title?: string | null }): boolean {
+  const name = decodeEntities(person.full_name ?? "").trim();
+  if (/^(?:(?:domestic|international|regional|inside|outside|technical)\s+sales|human\s+resources|(?:advanced\s+)?manufacturing\s+engineering|mbaf\s+mold[- ]direct)$/i.test(name)) return false;
   if (looksLikeDocumentName(person.full_name)) return false;
   // The title matters as much as the name: "Your Industry Partner" is a strapline wherever it is filed.
   if (looksLikeMarketingPhrase(person.full_name, person.title)) return false;

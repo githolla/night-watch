@@ -1,3 +1,5 @@
+import { isCuratedDomain } from "@/lib/curated-worklist";
+import { recipientResearch } from "@/lib/recipient-research";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { isLikelyPersonName } from "@/lib/pipeline";
@@ -26,6 +28,7 @@ export async function GET(request: Request) {
         // And the ones that are not a person at all: a functional mailbox (recruiting@, service@) or a page
         // title scraped as a contact ("Modern Slavery Statement").
         .filter((person) => isRealContact(person))
+        .filter((person) => !isCuratedDomain(domain) || Boolean(recipientResearch(domain, person.full_name)))
         // And the company's own products, filed under its own name: "ModMed Pay" at ModMed.
         .filter((person) => !looksLikeCompanyBrand(person.full_name, account.name as string))
       : [];
