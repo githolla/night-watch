@@ -2216,3 +2216,10 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 @media (max-width: 700px) { .email-tone-comparison { grid-template-columns: 1fr; } }
 
 .email-tone-buttons a[aria-current="page"] { background: #eee8dc; border-color: #a6742b; color: #312819; }
+
+.email-test-panel { padding: 10px 16px; border-bottom: 1px solid #e8e5df; font-size: 13px; }
+.email-test-panel summary { cursor: pointer; font-weight: 600; }
+.email-test-panel p { margin: 10px 0; line-height: 1.5; }
+.email-test-panel small { display: block; color: #756e64; margin-top: 8px; }
+.email-test-panel button { padding: 6px 10px; border: 1px solid #d9d5ce; border-radius: 7px; background: white; cursor: pointer; }
+.email-test-panel button:disabled { opacity: .5; cursor: wait; }

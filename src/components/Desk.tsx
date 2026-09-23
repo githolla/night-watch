@@ -15,6 +15,7 @@ import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
 import { hasProposedTimes, sanitizeCopy, stripProposedTimes } from "@/lib/clean";
 import { PRIORITY_THRESHOLD } from "@/lib/scoring";
+import { TestEmailButton } from "./TestEmailButton";
 import { CadencePlanner } from "./CadencePlanner";
 import { CompanyTeam } from "./CompanyTeam";
 import { MessageComposer } from "./MessageComposer";
@@ -1138,6 +1139,8 @@ export function Desk({
                     <button type="button" disabled={busy} onClick={applyTone}>Use this version</button>{" "}<button type="button" disabled={busy} onClick={() => setTonePreview(null)}>Keep current</button>
                   </div>}
                 </section>}
+
+                {channelTab === "email" && !altContact && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={focusCard.email_subject ?? ""} body={focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
 
                 <div className="deskwork-scroll">
                 {channelTab === "email" ? (

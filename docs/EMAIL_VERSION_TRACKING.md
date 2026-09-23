@@ -13,3 +13,9 @@ New in-app Gmail sends, scheduled sends and send-now follow-ups include a one-pi
 An open means the image was requested. Proxies, security scanners, forwarded emails and the sender's own email client may trigger it; blocked images may hide a real open. History shows the detection timestamp. Version open rates use the original message only; follow-up detections remain visible on those messages in history. Manual/external sends and old messages have no tracking pixel and cannot be tracked retroactively.
 
 Tests cover exact/edited attribution, sender substitution, wrong-recipient protection, first-send denominators, follow-up deduplication, OOO exclusion, source/date filters and encrypted token validation. The local browser fixture exercises analytics/history display without sending mail. A signed-in production send/receive test is still needed to verify actual Gmail and database behavior together.
+
+## Self-test
+
+Open a contact draft, expand **Test email & tracking**, then choose **Send test to myself**. The server resolves the recipient from the signed-in seat's Gmail connection, ignores recipient/CC overrides, and sends no CCs. Subject begins `[Night Watch test]`. Open that message with images enabled, then choose **Check test status**. The latest test can be recovered after a refresh; status reads are owner- and card-scoped.
+
+Tests store source `test` and never insert touches, update the contact/card, or enroll a cadence. Gmail sent-sync excludes the test subject prefix. Five requests per ten minutes are allowed per sender. Tests use the actual Gmail and pixel paths, but are excluded from prospect analytics.

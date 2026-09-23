@@ -3,12 +3,12 @@ import { savedVariants, renderSavedVariant } from './outreach-variants.ts';
 import { outreachBody } from './outreach-ending.ts';
 
 export const SAVED_VERSION_MODEL = 'saved-email-v1';
-export type VersionMeta = { schema: typeof SAVED_VERSION_MODEL; versionId: string; label: string; edited: boolean; revision: string; domain: string; personId: string; source: 'selection' | 'gmail' | 'manual' | 'followup'; };
+export type VersionMeta = { schema: typeof SAVED_VERSION_MODEL; versionId: string; label: string; edited: boolean; revision: string; domain: string; personId: string; source: 'selection' | 'gmail' | 'manual' | 'followup' | 'test'; };
 export type VersionSnapshot = { subject: string; body: string; dimensions: unknown };
 export function versionMeta(value: unknown): VersionMeta | null {
   if (!value || typeof value !== 'object') return null;
   const v = value as Partial<VersionMeta>;
-  return v.schema === SAVED_VERSION_MODEL && typeof v.label === 'string' && typeof v.versionId === 'string' && typeof v.personId === 'string' && typeof v.domain === 'string' && typeof v.edited === 'boolean' && typeof v.revision === 'string' && ['selection','gmail','manual','followup'].includes(v.source ?? '') ? v as VersionMeta : null;
+  return v.schema === SAVED_VERSION_MODEL && typeof v.label === 'string' && typeof v.versionId === 'string' && typeof v.personId === 'string' && typeof v.domain === 'string' && typeof v.edited === 'boolean' && typeof v.revision === 'string' && ['selection','gmail','manual','followup','test'].includes(v.source ?? '') ? v as VersionMeta : null;
 }
 const normalize = (text: string) => text.replace(/\s+/g, ' ').trim();
 /** Greeting/signature and the signed-in sender's name are not editorial changes. */

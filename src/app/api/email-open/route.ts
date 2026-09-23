@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const db = admin();
     const { data } = await db.from('message_variants').select('experiment_id,dimensions').eq('id', id).maybeSingle();
     const meta = versionMeta(data?.dimensions);
-    if (data && meta && ['gmail', 'followup'].includes(meta.source)) {
+    if (data && meta && ['gmail', 'followup', 'test'].includes(meta.source)) {
       // Atomic first detection only. Reloads/proxies cannot inflate an open count.
       // No IP addresses, user-agent fingerprint or location is collected.
       await db.from('message_experiments').update({ context: JSON.stringify({ firstOpenAt: new Date().toISOString() }) }).eq('id', data.experiment_id).eq('model', SAVED_VERSION_MODEL).eq('context', '');

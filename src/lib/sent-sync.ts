@@ -28,6 +28,8 @@ export async function runSentSync(): Promise<{ scanned: number; logged: number }
       scanned++;
       let meta: { to: string; subject: string; threadId: string; dateMs: number };
       try { meta = await messageMeta(token, msg.id); } catch { continue; }
+      // Self-tests must never be imported as prospect outreach.
+      if (meta.subject.startsWith("[Night Watch test] ")) continue;
       const to = addressOf(meta.to);
       if (!to || !to.includes("@")) continue;
 

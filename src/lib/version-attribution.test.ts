@@ -77,3 +77,11 @@ test('an unchanged archived selection stays unedited even after the draft bank c
  const result=identifyVersion({...base,subject:archived.subject,body:archived.body},archived);
  assert.equal(result.label,'Personal'); assert.equal(result.edited,false); assert.equal(result.revision,selectedMeta.revision);
 });
+
+test('self-test metadata is readable but is never an outreach cohort',()=>{
+ const testMeta=identifyVersion({...base,source:'test'},selected);
+ assert.equal(versionMeta(testMeta)?.source,'test');
+ assert.equal(testMeta.label,'Personal');
+ const record=touch({message_variants:{subject:'[Night Watch test] '+draft.subject,dimensions:testMeta,message_experiments:{context:''}}});
+ assert.equal(aggregateVersions([record]).rows.length,0);
+});
