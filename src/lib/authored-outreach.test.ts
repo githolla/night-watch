@@ -28,3 +28,15 @@ test("a customized sender introduction is retained; the default is not repeated"
   assert.match(composeContactDraft({ ...args, intro: "{name} here, {title} at Nine-67." }).body, /Suuchi Ramesh here, CEO at Nine-67/);
   assert.doesNotMatch(composeContactDraft({ ...args, intro: "I am {name}, {title} at Nine-67." }).body, /I am Suuchi/);
 });
+
+test("person-specific research requires both the right domain and exact buyer", () => {
+  const args = { company: "Huge", domain: "hugeinc.com", personTitle: "Chief Client Officer" };
+  const lauren = composeContactDraft({ ...args, personName: "Lauren DeGeorge", greeting: "Hello {first},", signoff: "Best," });
+  assert.match(lauren.body, /Your conversation with Josh/);
+  assert.ok(lauren.body.startsWith("Hello Lauren,"));
+  assert.ok(lauren.body.endsWith("Best,"));
+  const lisa = composeContactDraft({ ...args, personName: "Lisa De Bonis" });
+  assert.doesNotMatch(lisa.body, /Your conversation with Josh/);
+  assert.notEqual(authoredDraft("Huge", "commercial", "other.example", "Lauren DeGeorge")?.subject, lauren.subject);
+  assert.notEqual(authoredDraft("Huge", "commercial", undefined, "Lauren DeGeorge")?.subject, lauren.subject);
+});

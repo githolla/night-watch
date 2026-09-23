@@ -1,3 +1,4 @@
+import priorityDrafts from "../../data/priority-outreach.json" with { type: "json" };
 import companyDrafts from "../../data/customized-emails.json" with { type: "json" };
 import additionalDrafts from "../../data/additional-outreach.json" with { type: "json" };
 
@@ -25,7 +26,9 @@ const NEARBY: Record<BuyerRole, BuyerRole[]> = {
   general: ["executive", "operations", "commercial"],
 };
 /** Select by buyer responsibility, never card ordering or an arbitrary word-rotation seed. */
-export function authoredDraft(company: string, role: string, domain?: string | null): AuthoredVariant | undefined {
+export function authoredDraft(company: string, role: string, domain?: string | null, personName?: string | null): AuthoredVariant | undefined {
+  const priority = personName && domain ? priorityDrafts.find(item => domainKey(item.domain) === domainKey(domain) && nameKey(item.buyer.name) === nameKey(personName)) : undefined;
+  if (priority) return priority;
   const row = authoredCompany(company, domain);
   if (!row?.targetRole) return undefined;
   const variants = [row, ...(row.alternate ? [row.alternate] : []), ...(row.variants ?? [])];

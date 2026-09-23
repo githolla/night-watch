@@ -507,7 +507,7 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
   const greeting = fill((input.greeting ?? "").trim() || DEFAULT_GREETING);
   const signoff = ((input.signoff ?? "").trim() || DEFAULT_SIGNOFF);
 
-  const custom = authoredDraft(company, angle.key, input.domain);
+  const custom = authoredDraft(company, angle.key, input.domain, input.personName);
   if (custom) {
     // Keep an explicitly customized introduction; the default repeats what the signature already says.
     const configuredIntro = (input.intro ?? "").trim();

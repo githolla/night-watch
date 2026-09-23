@@ -43,7 +43,7 @@ export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000, afterI
     for (const touch of touches ?? []) contacted.add(`${touch.card_id}:${touch.person_id}`);
   }
   const broken = rows.filter(row => shouldRefreshDraft(row.status,
-    Boolean(authoredDraft(row.accounts?.name ?? "", angleFor(row.people?.title ?? ""), row.accounts?.domain)),
+    Boolean(authoredDraft(row.accounts?.name ?? "", angleFor(row.people?.title ?? ""), row.accounts?.domain, row.people?.full_name)),
     !isSendable(auditDraft(toAuditRow(row))), contacted.has(`${row.id}:${row.person_id}`)));
   if (!broken.length) return { checked: rows.length, repaired: 0, failed: 0, done: exhausted, nextCursor: rows.at(-1)?.id ?? afterId };
 

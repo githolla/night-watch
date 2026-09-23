@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-const VERSION = "nw.swarm-copy-20260922-v1";
+const VERSION = "nw.named-buyers-20260923-v1";
 
 /** Update saved drafts after the desk is usable; never make rendering wait for writes. */
 export function RefreshDraftCopy() {

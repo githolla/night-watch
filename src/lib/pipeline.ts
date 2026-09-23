@@ -304,7 +304,7 @@ export async function persistSignal(account: Account, item: ScoutSignal, outcome
 
   const draft = await writeAngle({ account, signal: item, person, score: scored }, recordCost);
   const assigned: Owner = "josh";
-  if (authoredDraft(account.name, angleFor(person.title ?? ""), account.domain)) {
+  if (authoredDraft(account.name, angleFor(person.title ?? ""), account.domain, person.full_name)) {
     const profile = await senderProfile(db, assigned);
     const reviewed = composeContactDraft({ company: account.name, domain: account.domain, personName: person.full_name, personTitle: person.title ?? "", senderName: profile.fromName, senderTitle: profile.title, greeting: profile.greeting, signoff: profile.signoff, intro: profile.intro });
     draft.email_subject = reviewed.subject;

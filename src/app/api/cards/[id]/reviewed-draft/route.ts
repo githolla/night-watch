@@ -19,7 +19,7 @@ export async function POST(_request: Request, context: { params: Promise<{ id: s
     const account = card.accounts as unknown as { name: string; domain: string } | null;
     const person = card.people as unknown as { full_name: string; title: string } | null;
     if (!account || !person) throw new Error("The company or contact is missing.");
-    const reviewed = authoredDraft(account.name, angleFor(person.title ?? ""), account.domain);
+    const reviewed = authoredDraft(account.name, angleFor(person.title ?? ""), account.domain, person.full_name);
     if (!reviewed) return Response.json({ error: "There is no reviewed company draft for this buyer role yet." }, { status: 404 });
     const sender = await senderProfile(db, user.owner);
     const draft = composeContactDraft({ company: account.name, domain: account.domain, personName: person.full_name, personTitle: person.title ?? "", senderName: sender.fromName, senderTitle: sender.title, greeting: sender.greeting, signoff: sender.signoff, intro: sender.intro });

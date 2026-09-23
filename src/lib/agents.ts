@@ -353,7 +353,7 @@ export async function refineDraft(input: { channel: "email" | "linkedin"; compan
   const ask = input.instruction?.trim()
     ? `Apply this instruction from the sender: "${input.instruction.trim()}". Otherwise rewrite it to read like a real founder's note.`
     : `Rewrite it to read like a real founder's personal note — keep only the factual hook (the specific thing seen); fix anything that sounds like AI vendor copy. Vary the closing question; never use the word "teardown", and never put a link in the body (the website is in the signature).`;
-  const reference = authoredDraft(input.company, angleFor(input.title), input.domain);
+  const reference = authoredDraft(input.company, angleFor(input.title), input.domain, input.person);
   const greeting = (input.greeting || "Hi {first},").replace(/\{first\}/gi, first).replace(/\{name\}/gi, input.person);
   const intro = `Preserve this greeting exactly: ${greeting}. End with the sender's sign-off: ${input.signoff || "Thank you,"}. Do not add a generic self-introduction. ${input.intro && input.intro !== "I am {name}, {title} at Nine-67." ? `Honor the saved introduction: ${input.intro}` : ""} ${reference ? `Reviewed company/buyer reference: ${JSON.stringify(reference)}. Keep its commercial reasoning; adapt to the actual recipient and user's instruction rather than mechanically copying it.` : ""}`;
 
