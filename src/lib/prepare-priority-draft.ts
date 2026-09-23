@@ -1,3 +1,4 @@
+import { wasAutomaticallyArchived } from "./curated-card-state.ts";
 import { admin } from "@/lib/supabase/admin";
 import { curatedDrafts } from "@/lib/curated-worklist";
 import { domainKey } from "@/lib/recipient-research";
@@ -44,7 +45,14 @@ export async function preparePriorityDraft(domain: string, me: AppUser, db = adm
     const draft = composeContactDraft({ company: selected.company, domain: selected.domain, personName: person.full_name, personTitle: selected.buyer.title, senderName: profile.fromName, senderTitle: profile.title, greeting: profile.greeting, signoff: profile.signoff, intro: profile.intro });
     const saved = await db.from("cards").upsert({ signal_id: signal.data.id, account_id: account.id, person_id: person.id, score: 0, score_breakdown: {}, brief: selected.fit, why_now: selected.trigger.fact, channel: "email_first", email_subject: draft.subject, email_body: draft.body, assigned_to: me.owner, status: "new" }, { onConflict: "signal_id,person_id", ignoreDuplicates: true });
     if (saved.error) throw saved.error;
-    const card = await db.from("cards").select("id").eq("signal_id", signal.data.id).eq("person_id", person.id).single();
+    const card = await db.from("cards").select("id,status,dismiss_reason,score_breakdown").eq("signal_id", signal.data.id).eq("person_id", person.id).single();
     if (card.error) throw card.error;
+    if (wasAutomaticallyArchived(card.data)) {
+      // Preserve the saved subject/body, ownership and history. Account/contact restrictions
+      // and prior outreach were checked above; dismissed and sent cards never enter here.
+      const restored = await db.from("cards").update({ status: "new", dismiss_reason: null })
+        .eq("id", card.data.id).eq("status", "archived");
+      if (restored.error) throw restored.error;
+    }
     return Response.json({ id: card.data.id });
 }

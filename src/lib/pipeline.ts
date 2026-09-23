@@ -1,3 +1,4 @@
+import { isSelectedDraft } from "./curated-card-state.ts";
 import { authoredDraft } from "./authored-outreach.ts";
 import { angleFor, composeContactDraft } from "./contact-draft.ts";
 import { senderProfile } from "./sender.ts";
@@ -683,10 +684,12 @@ export async function recomputeAndSurface() {
   const repair = await repairBrokenDrafts().catch(() => null);
   if (repair?.repaired) console.warn(`[night-watch] brought ${repair.repaired} draft(s) back in line with the writer`);
   if (repair && !repair.done) console.warn("[night-watch] draft repair ran out of time; the next pass continues where it stopped");
-  const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(type,observed_at,raw),accounts(outreach)").in("status", ["new", "approved", "edited", "snoozed"]);
+  const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(type,observed_at,raw,hash),accounts(outreach,domain,status)").in("status", ["new", "approved", "edited", "snoozed"]);
   for (const card of cards ?? []) {
-    const signal = card.signals as unknown as { type?: string; observed_at: string; raw?: { operating_need?: unknown } | null };
-    const account = card.accounts as unknown as { outreach?: boolean | null } | null;
+    const signal = card.signals as unknown as { type?: string; hash?: string; observed_at: string; raw?: { operating_need?: unknown } | null };
+    const account = card.accounts as unknown as { outreach?: boolean | null; domain?: string; status?: string } | null;
+    // The operator selected these accounts explicitly; research scores must not remove them.
+    if (account?.status === "active" && isSelectedDraft(account.domain, signal.hash)) continue;
     // The reach-out list is Tier A. A dossier for a company the cut holds or removed is retired, not sent.
     if (account && account.outreach === false) {
       await db.from("cards").update({ status: "archived", dismiss_reason: "Not on the reach-out list. Promote the company on its page if it belongs there." }).eq("id", card.id);

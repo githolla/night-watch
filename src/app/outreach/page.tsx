@@ -1,3 +1,4 @@
+import { wasAutomaticallyArchived } from "@/lib/curated-card-state";
 import { senderProfile } from "@/lib/sender";
 import { senderFirstName } from "@/lib/outreach-ending";
 import { recipientResearch } from "@/lib/recipient-research";
@@ -44,12 +45,12 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   const db = admin();
   // Populate the selected companies into the original editor once. Existing
   // drafts, sent records, and contact restrictions remain untouched.
-  const existing = await db.from("cards").select("signals!inner(hash),people(full_name)").like("signals.hash", "operator-shortlist-20260923:%");
+  const existing = await db.from("cards").select("status,dismiss_reason,score_breakdown,signals!inner(hash),people(full_name)").like("signals.hash", "operator-shortlist-20260923:%");
   if (existing.error) throw existing.error;
   const prepared = new Set((existing.data ?? []).filter(row => {
     const hash = (row.signals as unknown as { hash: string }).hash;
     const person = row.people as unknown as { full_name: string } | null;
-    return Boolean(recipientResearch(hash.split(":")[1], person?.full_name));
+    return !wasAutomaticallyArchived(row) && Boolean(recipientResearch(hash.split(":")[1], person?.full_name));
   }).map(row => (row.signals as unknown as { hash: string }).hash));
   const missing = curatedDomains.filter(domain => !prepared.has(`operator-shortlist-20260923:${domain}`));
   for (let start = 0; start < missing.length; start += 5) {
