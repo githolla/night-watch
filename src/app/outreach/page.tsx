@@ -24,6 +24,8 @@ import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
+// Allow the one-time preparation of newly selected companies to finish.
+export const maxDuration = 60;
 
 type Params = { card?: string; status?: string; priority?: string; new?: string; source?: string; account?: string };
 

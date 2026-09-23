@@ -1,6 +1,9 @@
 "use client";
 import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
+import { dateLabel, sourceDomain } from "@/lib/dossier-data";
+import { focusedAccount, revenueLabel, sortReachouts, type ReachoutSort } from "@/lib/reachout-sort";
+import { focusedContact } from "@/lib/focused-contact";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
 
 import { useEffect, useState, type ReactNode } from "react";
@@ -187,7 +190,11 @@ export function Desk({
   const [selected, setSelected] = useState<string | undefined>(selectedId);
   // The one-at-a-time prospect flow is home; "All prospects" opens the full list on demand.
   const [browse, setBrowse] = useState(false);
-  const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? initialCards[0]?.id);
+  const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? sortReachouts(initialCards, "revenue-desc")[0]?.id);
+  const [listSort, setListSort] = useState<ReachoutSort>("revenue-desc");
+  const changeSort = (value: ReachoutSort) => {
+    setListSort(value);
+  };
   // Start on a tight worklist — the top prospects only — and let the chips widen it when it is cleared.
   const [kind, setKind] = useState<"top" | "all" | "job" | "social">(initialCards.length > SHORTLIST ? "top" : "all");
   // A different contact at the same company, chosen from the "everyone on file" list, to retarget the draft to.
@@ -231,7 +238,12 @@ export function Desk({
   const todo = (daily.length ? daily : byKind).filter((item) => !WORKED_STATUSES.includes(item.status));
   // The pool the one-at-a-time flow walks: today's worklist, or every active prospect in "All". Verified
   // (sendable) prospects first so the operator works the ones they can send in one click.
-  const focusPool = verifiedFirst(listScope === "all" ? actionable : todo);
+  const sortedPool = sortReachouts(listScope === "all" ? actionable : todo, listSort);
+  // One row per company. Keep a selected colleague visible without duplicating the company.
+  const focusPool = sortedPool.filter(item => {
+    const colleagues = sortedPool.filter(other => other.accounts.domain === item.accounts.domain);
+    return item.id === (colleagues.find(other => other.id === focusId) ?? colleagues[0]).id;
+  });
   const active = selected ? cards.find((item) => item.id === selected) : undefined;
   // Land on the picked card even if it isn't in the current pool (e.g. picked from the "All"/Overview list
   // while the scope is "today"), rather than silently showing focusPool[0] — a different company.
@@ -452,7 +464,7 @@ export function Desk({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cardIndex, cards.length, active, browse, focusIndex, focusPool.length]);
+  }, [cardIndex, cards.length, active, browse, focusIndex, focusPool.length, listSort]);
 
   // Jump to the top when you open a prospect or come back to the list.
   useEffect(() => {
@@ -1030,14 +1042,15 @@ export function Desk({
       ) : (
         <div className="deskwork">
           <header className="deskwork-head">
-            <div><span className="overview-kick">Your reach-out list</span><h1>Start the right conversation.</h1></div>
-            <div className="deskwork-head-right"><span>Night Watch</span><strong>{todo.length} {todo.length === 1 ? "prospect" : "prospects"} ready</strong><div className="deskwork-head-actions">{tools}<button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview &rarr;</button></div></div>
+            <div><span className="overview-kick">Your reach-out list</span><h1>Start the right conversation.</h1><p className="reachout-subtitle">{curatedDomains.length} operating companies · $10M to $100M annual revenue · Individual contact drafts</p></div>
+            <div className="deskwork-head-right"><span>Night Watch</span><strong>{focusPool.length} companies to review</strong><div className="deskwork-head-actions">{tools}<button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview &rarr;</button></div></div>
           </header>
 
           <div className="deskwork-grid">
             {/* LEFT — companies */}
             <aside className="deskwork-list">
-              <div className="deskwork-list-head"><span>{listNeedle ? <>Matches <b>{listed.length}</b></> : <>Companies <b>{focusPool.length}</b></>}</span><span className="deskwork-sort">{listNeedle ? "By fit" : "By fit ↓"}</span></div>
+              <div className="deskwork-list-head"><span>{listNeedle ? <>Matches <b>{listed.length}</b></> : <>Companies <b>{new Set(focusPool.map(item => item.accounts.domain)).size}</b></>}</span></div>
+              <label className="reachout-sort-label">Sort by<select aria-label="Sort companies" className="reachout-sort" value={listSort} onChange={event => changeSort(event.target.value as ReachoutSort)}><option value="revenue-desc">Revenue: highest first</option><option value="revenue-asc">Revenue: lowest first</option><option value="name">Company: A to Z</option><option value="verified">Verified email first</option></select></label>
               <input className="deskwork-search" placeholder="Search a company, a person or a job title" value={query} onChange={(event) => setQuery(event.target.value)} />
               <div className="deskwork-list-scroll">
                 {listed.map((item) => (
@@ -1049,9 +1062,9 @@ export function Desk({
                           without this the list repeats a company name and a search for a person finds a row
                           that does not say it found them. */}
                       <small className="deskwork-row-who">{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small>
-                      <small>{signalLabel(item)}{item.working ? " · working" : ""}</small>
+                      <small>{revenueLabel(item.accounts.domain) ? `${revenueLabel(item.accounts.domain)} revenue · 2025` : signalLabel(item)}{item.working ? " · working" : ""}</small>
                     </span>
-                    <em className="deskwork-row-fit">{item.score}</em>
+                    <span className={`reachout-email-dot ${item.people.email_status === "verified" ? "verified" : item.people.email ? "published" : "missing"}`} title={item.people.email_status === "verified" ? "Verified email" : item.people.email ? "Email needs verification" : "Email not found"} aria-label={item.people.email_status === "verified" ? "Verified email" : item.people.email ? "Email needs verification" : "Email not found"} />
                   </button>
                 ))}
                 {!!focusPool.length && listNeedle && !listed.length && <p className="deskwork-empty">Nothing here matches &ldquo;{query.trim()}&rdquo;. Try a shorter word, or part of an email address.</p>}
@@ -1069,12 +1082,13 @@ export function Desk({
                 </header>
 
                 <div className="deskwork-opening">
+                  {focusedAccount(focusCard.accounts.domain) && <div className="reachout-account-facts"><a href={focusedAccount(focusCard.accounts.domain)!.revenue.sourceUrl} target="_blank" rel="noreferrer"><strong>{revenueLabel(focusCard.accounts.domain)}</strong><span>2025 reported revenue ↗</span></a><span>{focusedAccount(focusCard.accounts.domain)!.sector}</span></div>}
                   <span className="overview-kick">{research ? "Buyer research" : "Signal context"}</span>
                   {research ? <>
                     <p className="deskwork-opening-lead">{research.trigger.fact}</p>
                     <p className="deskwork-opening-need"><b>Potential relevance:</b> {research.hypothesis}</p>
-                    <p><b>{research.disposition === "hold" ? "Hold outreach" : "Fit assessment"}:</b> {research.fit}</p>
-                    <a href={research.trigger.sourceUrl} target="_blank" rel="noreferrer">Company source · {research.trigger.date}</a>{" · "}<a href={research.buyer.sourceUrl} target="_blank" rel="noreferrer">Buyer source</a>
+                    {!focusedAccount(focusCard.accounts.domain) && <p><b>{research.disposition === "hold" ? "Hold outreach" : "Fit assessment"}:</b> {research.fit}</p>}
+                    <div className="reachout-sources"><a href={research.trigger.sourceUrl} target="_blank" rel="noreferrer">{sourceDomain(research.trigger.sourceUrl)} ↗</a>{research.buyer.sourceUrl !== research.trigger.sourceUrl && <a href={research.buyer.sourceUrl} target="_blank" rel="noreferrer">Leadership source ↗</a>}<small>{dateLabel(research.trigger.date) ? `Published ${dateLabel(research.trigger.date)} · ` : "Publication date not confirmed · "}Researched {dateLabel(research.researchDate)}</small></div>
                   </> : <>
                     <p className="deskwork-opening-lead">{sanitizeCopy(focusCard.signals.type === "job_cluster" || focusCard.signals.type === "job_post" ? focusCard.signals.summary : focusCard.why_now || nextLine(focusCard))}</p>
                     <p className="deskwork-opening-need">This signal needs buyer-level qualification. Hiring does not establish budget, an outsourcing need or a reason to replace the role.</p>
@@ -1090,8 +1104,8 @@ export function Desk({
                 <div className="deskwork-draft-top"><span className="overview-kick">{sentAlready ? "Sent email" : "Outreach draft"}</span><span className="deskwork-draft-topright">{focusCard.invite_link ? <a className="deskwork-booked" href={focusCard.invite_link.startsWith("http") ? focusCard.invite_link : undefined} target="_blank" rel="noreferrer">📅 Meeting booked</a> : null}<a className="deskwork-brief-link" href={`/brief/${focusCard.id}`} target="_blank" rel="noreferrer">Call brief ↗</a></span></div>
                 {!sentAlready && channelTab === "email" && <div className="notice" style={{ margin: "12px 16px" }}>
                   {research ? <>
-                    <strong>{research.disposition === "hold" ? "Hold — direct buyer fit not established." : "Research available for this recipient."}</strong>{" "}
-                    {matchesResearch ? (research.disposition === "hold" ? "The draft explores a possible partnership; it is not a qualified sales pitch." : "This draft uses the researched version. Buyer demand and reply performance remain untested.") : "The saved draft differs from the researched version."}
+                    <strong>{research.disposition === "hold" ? "Hold: buyer fit needs review." : "Written for this contact."}</strong>{" "}
+                    {matchesResearch ? "Review and make it yours before sending." : "Your saved edits are preserved."}
                     {!matchesResearch && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : research.disposition === "hold" ? "Load optional partnership draft" : "Use researched draft"}</button>}
                   </> : <><strong>Not individually researched.</strong> This recipient is outside the named-buyer research set. Review the opening, relevance and proof before sending.</>}
                 </div>}
@@ -1123,6 +1137,10 @@ export function Desk({
                     return (
                       <div className="deskwork-edit deskwork-compose">
                         <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
+                        <div className={`reachout-address-status ${contact.email_status === "verified" ? "verified" : ""}`}>
+                          {contact.email_status === "verified" ? "Verified email" : contact.email ? "Published or saved address. Mailbox not verified." : "Email not found. This draft is ready to edit; add a confirmed address before sending."}
+                          {contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailSourceUrl && <a href={focusedContact(focusCard.accounts.domain ?? "", contact.full_name)!.emailSourceUrl!} target="_blank" rel="noreferrer">Address source ↗</a>}
+                        </div>
                         <div className="focus-subject-row">
                           <input
                             className="focus-msg-subject"
@@ -1140,7 +1158,7 @@ export function Desk({
                             : <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>}
                         </div>
                         <label className="compose-field"><span>Email · your saved greeting and message</span><textarea className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
-                        <p className="compose-sig">{senderName}</p>
+                        <p className="compose-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</p>
                       </div>
                     );
                   })() : (
@@ -1152,7 +1170,7 @@ export function Desk({
                       {sentAlready && <div className="deskwork-sent-note">This email has been sent{focusCard.people.full_name ? ` to ${contact.full_name}` : ""}. It is kept here as a record &mdash; the follow-ups below are what happens next.</div>}
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("email", emailStyle(brief ? outreachBody(adapt(emailDraft)) : adapt(emailDraft)) || "No email draft yet — press Refine to write one.")}</div>
-                      <div className="deskwork-doc-sig">{senderName}</div>
+                      <div className="deskwork-doc-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</div>
                     </div>
                   )
                 ) : (
@@ -1322,6 +1340,8 @@ function signalGroup(item: Card): "job" | "social" | "other" {
 
 /** A short, human "how fresh" for the intent signal — the reason a reach-out is timely. */
 function signalWhen(item: Card) {
+  const focused = focusedAccount(item.accounts.domain);
+  if (focused) return dateLabel(focused.trigger.date) ? `published ${dateLabel(focused.trigger.date)}` : "date not confirmed";
   const r = item.signals.raw as { post?: { published_at?: string | null; published?: string | null }; source?: { published_at?: string | null } } | undefined;
   const raw = r?.post?.published_at ?? r?.post?.published ?? r?.source?.published_at ?? item.signals.observed_at;
   if (!raw) return null;
@@ -1350,6 +1370,3 @@ function retarget(text: string, fromName: string, toName: string) {
   const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return text.replace(new RegExp(`\\b${escaped}\\b`, "g"), to);
 }
-
-
-

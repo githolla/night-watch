@@ -1,5 +1,1295 @@
 [
   {
+    "domain": "ansararestaurantgroup.com",
+    "brief": {
+      "account_id": "rev-ansararestaurantgroup",
+      "company": "Ansara Restaurant Group",
+      "send_wave": 1,
+      "why_now": "Ansara Restaurant Group operates restaurants in Michigan and northwest Ohio under Victor Ansara.",
+      "company_profile": {
+        "what_they_do": "Restaurant operations",
+        "hq": "",
+        "size": {
+          "text": "$93.5M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Victor Ansara",
+          "title": "President & CEO",
+          "since": "",
+          "source_url": "https://www.ansararestaurantgroup.com/story.html"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-ansararestaurantgroup-c1",
+          "first_name": "Victor",
+          "last_name": "Ansara",
+          "title": "President & CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A location report becomes useful when someone owns the next action. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-ansararestaurantgroup-f1",
+        "reasoning": "$93.5M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Ansara Restaurant Group operates restaurants in Michigan and northwest Ohio under Victor Ansara.",
+          "fact_id": "rev-ansararestaurantgroup-f1"
+        },
+        "problem": "A location report becomes useful when someone owns the next action. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A location report becomes useful when someone owns the next action.",
+        "reframe": "A location report becomes useful when someone owns the next action.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "from location reports to action"
+        ],
+        "touch_1_cta": "Would a short example of that location review be useful?",
+        "must_cite_one_of": [
+          "rev-ansararestaurantgroup-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-ansararestaurantgroup-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A location report becomes useful when someone owns the next action. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-ansararestaurantgroup",
+      "company": "Ansara Restaurant Group",
+      "industry": "Restaurant operations",
+      "revenue_band": "$93.5M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Ansara Restaurant Group operates restaurants in Michigan and northwest Ohio under Victor Ansara.",
+          "date": null,
+          "fact_id": "rev-ansararestaurantgroup-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-ansararestaurantgroup-f1",
+          "statement": "Ansara Restaurant Group operates restaurants in Michigan and northwest Ohio under Victor Ansara.",
+          "source_url": "https://www.ansararestaurantgroup.com/story.html",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-ansararestaurantgroup-c1",
+        "first_name": "Victor",
+        "last_name": "Ansara",
+        "title": "President & CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "metrowire.net",
+    "brief": {
+      "account_id": "rev-metrowire",
+      "company": "Metro Wire & Cable",
+      "send_wave": 1,
+      "why_now": "Metro Wire supplies wire and cable through distribution centers in Michigan, Georgia and Iowa.",
+      "company_profile": {
+        "what_they_do": "Wire and cable distribution",
+        "hq": "",
+        "size": {
+          "text": "$93.2M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Devin Ezop",
+          "title": "President & CEO",
+          "since": "",
+          "source_url": "https://metrowire.net/careers/about-careers/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-metrowire-c1",
+          "first_name": "Devin",
+          "last_name": "Ezop",
+          "title": "President & CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A faster quote starts with checking customer specifications against available stock. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-metrowire-f1",
+        "reasoning": "$93.2M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Metro Wire supplies wire and cable through distribution centers in Michigan, Georgia and Iowa.",
+          "fact_id": "rev-metrowire-f1"
+        },
+        "problem": "A faster quote starts with checking customer specifications against available stock. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A faster quote starts with checking customer specifications against available stock.",
+        "reframe": "A faster quote starts with checking customer specifications against available stock.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "cable specs to a quote"
+        ],
+        "touch_1_cta": "Would you like to see how we'd approach one type of cable request?",
+        "must_cite_one_of": [
+          "rev-metrowire-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-metrowire-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A faster quote starts with checking customer specifications against available stock. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-metrowire",
+      "company": "Metro Wire & Cable",
+      "industry": "Wire and cable distribution",
+      "revenue_band": "$93.2M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Metro Wire supplies wire and cable through distribution centers in Michigan, Georgia and Iowa.",
+          "date": null,
+          "fact_id": "rev-metrowire-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-metrowire-f1",
+          "statement": "Metro Wire supplies wire and cable through distribution centers in Michigan, Georgia and Iowa.",
+          "source_url": "https://metrowire.net/careers/about-careers/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-metrowire-c1",
+        "first_name": "Devin",
+        "last_name": "Ezop",
+        "title": "President & CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "wolverinetruckgroup.com",
+    "brief": {
+      "account_id": "rev-wolverinetruckgroup",
+      "company": "Wolverine Truck Sales",
+      "send_wave": 1,
+      "why_now": "Wolverine Truck Group operates three Michigan locations providing truck sales, parts, service and body repair.",
+      "company_profile": {
+        "what_they_do": "Commercial truck sales and repair",
+        "hq": "",
+        "size": {
+          "text": "$88.3M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Lynn Terry",
+          "title": "President",
+          "since": "",
+          "source_url": "https://www.wolverinetruckgroup.com/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-wolverinetruckgroup-c1",
+          "first_name": "Lynn",
+          "last_name": "Terry",
+          "title": "President",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A repair order should bring parts status and required paperwork together. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-wolverinetruckgroup-f1",
+        "reasoning": "$88.3M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Wolverine Truck Group operates three Michigan locations providing truck sales, parts, service and body repair.",
+          "fact_id": "rev-wolverinetruckgroup-f1"
+        },
+        "problem": "A repair order should bring parts status and required paperwork together. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A repair order should bring parts status and required paperwork together.",
+        "reframe": "A repair order should bring parts status and required paperwork together.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "getting the repair order moving"
+        ],
+        "touch_1_cta": "Would a service-order example be useful to your team?",
+        "must_cite_one_of": [
+          "rev-wolverinetruckgroup-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-wolverinetruckgroup-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A repair order should bring parts status and required paperwork together. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-wolverinetruckgroup",
+      "company": "Wolverine Truck Sales",
+      "industry": "Commercial truck sales and repair",
+      "revenue_band": "$88.3M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Wolverine Truck Group operates three Michigan locations providing truck sales, parts, service and body repair.",
+          "date": null,
+          "fact_id": "rev-wolverinetruckgroup-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-wolverinetruckgroup-f1",
+          "statement": "Wolverine Truck Group operates three Michigan locations providing truck sales, parts, service and body repair.",
+          "source_url": "https://www.wolverinetruckgroup.com/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-wolverinetruckgroup-c1",
+        "first_name": "Lynn",
+        "last_name": "Terry",
+        "title": "President",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "mcstamp.com",
+    "brief": {
+      "account_id": "rev-mcstamp",
+      "company": "Motor City Stamping",
+      "send_wave": 1,
+      "why_now": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+      "company_profile": {
+        "what_they_do": "Automotive stamping and assembly manufacturing",
+        "hq": "",
+        "size": {
+          "text": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Judith Kucway",
+          "title": "CEO & CFO",
+          "since": "",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-mcstamp-c1",
+          "first_name": "Judith",
+          "last_name": "Kucway",
+          "title": "CEO & CFO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-mcstamp-f1",
+        "reasoning": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+          "fact_id": "rev-mcstamp-f1"
+        },
+        "problem": "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A changed customer schedule matters when the team can see which production orders need a decision.",
+        "reframe": "A changed customer schedule matters when the team can see which production orders need a decision.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "when the customer schedule changes"
+        ],
+        "touch_1_cta": "Would you be open to looking at one real schedule change together?",
+        "must_cite_one_of": [
+          "rev-mcstamp-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-mcstamp-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-mcstamp",
+      "company": "Motor City Stamping",
+      "industry": "Automotive stamping and assembly manufacturing",
+      "revenue_band": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+          "date": null,
+          "fact_id": "rev-mcstamp-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-mcstamp-f1",
+          "statement": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-mcstamp-c1",
+        "first_name": "Judith",
+        "last_name": "Kucway",
+        "title": "CEO & CFO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "evansdist.com",
+    "brief": {
+      "account_id": "rev-evansdist",
+      "company": "Evans Distribution Systems",
+      "send_wave": 1,
+      "why_now": "Evans implemented a new transportation management system across asset and non-asset operations in 2025.",
+      "company_profile": {
+        "what_they_do": "Logistics and fulfillment",
+        "hq": "",
+        "size": {
+          "text": "$84M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "John A. Evans",
+          "title": "President & CEO",
+          "since": "",
+          "source_url": "https://www.evansdist.com/2025-a-balancing-act-evans-distribution-systems/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-evansdist-c1",
+          "first_name": "John",
+          "last_name": "A. Evans",
+          "title": "President & CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A shipment exception needs an owner and a customer update, not another screen. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-evansdist-f1",
+        "reasoning": "$84M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Evans implemented a new transportation management system across asset and non-asset operations in 2025.",
+          "fact_id": "rev-evansdist-f1"
+        },
+        "problem": "A shipment exception needs an owner and a customer update, not another screen. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A shipment exception needs an owner and a customer update, not another screen.",
+        "reframe": "A shipment exception needs an owner and a customer update, not another screen.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "after the TMS rollout"
+        ],
+        "touch_1_cta": "Would a short example of that workflow be useful for your operations team?",
+        "must_cite_one_of": [
+          "rev-evansdist-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-evansdist-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A shipment exception needs an owner and a customer update, not another screen. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-evansdist",
+      "company": "Evans Distribution Systems",
+      "industry": "Logistics and fulfillment",
+      "revenue_band": "$84M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Evans implemented a new transportation management system across asset and non-asset operations in 2025.",
+          "date": "2026-01-14",
+          "fact_id": "rev-evansdist-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-evansdist-f1",
+          "statement": "Evans implemented a new transportation management system across asset and non-asset operations in 2025.",
+          "source_url": "https://www.evansdist.com/2025-a-balancing-act-evans-distribution-systems/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2026-01-14"
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-evansdist-c1",
+        "first_name": "John",
+        "last_name": "A. Evans",
+        "title": "President & CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "bellforklift.com",
+    "brief": {
+      "account_id": "rev-bellforklift",
+      "company": "Bell Fork Lift",
+      "send_wave": 1,
+      "why_now": "Bell Fork Lift provides equipment, rentals, parts and repair service across Michigan.",
+      "company_profile": {
+        "what_they_do": "Material handling equipment and field service",
+        "hq": "",
+        "size": {
+          "text": "$82M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Kristen Bell",
+          "title": "Co-owner & Vice President",
+          "since": "",
+          "source_url": "https://www.bellforklift.com/history/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-bellforklift-c1",
+          "first_name": "Kristen",
+          "last_name": "Bell",
+          "title": "Co-owner & Vice President",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "Technician notes can become a checked parts request and work order before the next handoff. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-bellforklift-f1",
+        "reasoning": "$82M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Bell Fork Lift provides equipment, rentals, parts and repair service across Michigan.",
+          "fact_id": "rev-bellforklift-f1"
+        },
+        "problem": "Technician notes can become a checked parts request and work order before the next handoff. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "Technician notes can become a checked parts request and work order before the next handoff.",
+        "reframe": "Technician notes can become a checked parts request and work order before the next handoff.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "after the service visit"
+        ],
+        "touch_1_cta": "Would a working example for a service visit be worth a look?",
+        "must_cite_one_of": [
+          "rev-bellforklift-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-bellforklift-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "Technician notes can become a checked parts request and work order before the next handoff. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-bellforklift",
+      "company": "Bell Fork Lift",
+      "industry": "Material handling equipment and field service",
+      "revenue_band": "$82M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Bell Fork Lift provides equipment, rentals, parts and repair service across Michigan.",
+          "date": null,
+          "fact_id": "rev-bellforklift-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-bellforklift-f1",
+          "statement": "Bell Fork Lift provides equipment, rentals, parts and repair service across Michigan.",
+          "source_url": "https://www.bellforklift.com/history/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-bellforklift-c1",
+        "first_name": "Kristen",
+        "last_name": "Bell",
+        "title": "Co-owner & Vice President",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "tngworldwide.com",
+    "brief": {
+      "account_id": "rev-tngworldwide",
+      "company": "TNG Worldwide",
+      "send_wave": 1,
+      "why_now": "TNG Worldwide manufactures and distributes beauty and personal-care products.",
+      "company_profile": {
+        "what_they_do": "Beauty and personal-care products",
+        "hq": "",
+        "size": {
+          "text": "$76.1M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Larry Gaynor",
+          "title": "Founder & CEO",
+          "since": "",
+          "source_url": "https://tngworldwide.com/a-team-of-experts/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-tngworldwide-c1",
+          "first_name": "Larry",
+          "last_name": "Gaynor",
+          "title": "Founder & CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A product change should reach every listing with the same approved information. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-tngworldwide-f1",
+        "reasoning": "$76.1M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "TNG Worldwide manufactures and distributes beauty and personal-care products.",
+          "fact_id": "rev-tngworldwide-f1"
+        },
+        "problem": "A product change should reach every listing with the same approved information. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A product change should reach every listing with the same approved information.",
+        "reframe": "A product change should reach every listing with the same approved information.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "one product change, every listing"
+        ],
+        "touch_1_cta": "Would an example using one product family be worth a look?",
+        "must_cite_one_of": [
+          "rev-tngworldwide-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-tngworldwide-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A product change should reach every listing with the same approved information. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-tngworldwide",
+      "company": "TNG Worldwide",
+      "industry": "Beauty and personal-care products",
+      "revenue_band": "$76.1M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "TNG Worldwide manufactures and distributes beauty and personal-care products.",
+          "date": null,
+          "fact_id": "rev-tngworldwide-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-tngworldwide-f1",
+          "statement": "TNG Worldwide manufactures and distributes beauty and personal-care products.",
+          "source_url": "https://tngworldwide.com/a-team-of-experts/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-tngworldwide-c1",
+        "first_name": "Larry",
+        "last_name": "Gaynor",
+        "title": "Founder & CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "lrmanagement.com",
+    "brief": {
+      "account_id": "rev-lrmanagement",
+      "company": "LR Management Services",
+      "send_wave": 1,
+      "why_now": "LR Management operates residential properties and coordinates property management services.",
+      "company_profile": {
+        "what_they_do": "Residential property operations",
+        "hq": "",
+        "size": {
+          "text": "$70M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Leslie Etterbeek",
+          "title": "Founder & CEO",
+          "since": "",
+          "source_url": "https://www.lrmanagement.com/management"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-lrmanagement-c1",
+          "first_name": "Leslie",
+          "last_name": "Etterbeek",
+          "title": "Founder & CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A maintenance request needs a clear owner and vendor follow-up through completion. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-lrmanagement-f1",
+        "reasoning": "$70M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "LR Management operates residential properties and coordinates property management services.",
+          "fact_id": "rev-lrmanagement-f1"
+        },
+        "problem": "A maintenance request needs a clear owner and vendor follow-up through completion. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A maintenance request needs a clear owner and vendor follow-up through completion.",
+        "reframe": "A maintenance request needs a clear owner and vendor follow-up through completion.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "from resident request to resolution"
+        ],
+        "touch_1_cta": "Would an example of that maintenance handoff be useful?",
+        "must_cite_one_of": [
+          "rev-lrmanagement-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-lrmanagement-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A maintenance request needs a clear owner and vendor follow-up through completion. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-lrmanagement",
+      "company": "LR Management Services",
+      "industry": "Residential property operations",
+      "revenue_band": "$70M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "LR Management operates residential properties and coordinates property management services.",
+          "date": null,
+          "fact_id": "rev-lrmanagement-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-lrmanagement-f1",
+          "statement": "LR Management operates residential properties and coordinates property management services.",
+          "source_url": "https://www.lrmanagement.com/management",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-lrmanagement-c1",
+        "first_name": "Leslie",
+        "last_name": "Etterbeek",
+        "title": "Founder & CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "gutherielumber.com",
+    "brief": {
+      "account_id": "rev-gutherielumber",
+      "company": "Gutherie Lumber",
+      "send_wave": 1,
+      "why_now": "Gutherie combines building-material delivery with wall-panel manufacturing and I-joist cutting.",
+      "company_profile": {
+        "what_they_do": "Building materials distribution",
+        "hq": "",
+        "size": {
+          "text": "$65.9M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Mel Gutherie",
+          "title": "President",
+          "since": "",
+          "source_url": "https://gutherielumber.com/our-history/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-gutherielumber-c1",
+          "first_name": "Mel",
+          "last_name": "Gutherie",
+          "title": "President",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A changed builder order should show its effect on cutting and delivery together. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-gutherielumber-f1",
+        "reasoning": "$65.9M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Gutherie combines building-material delivery with wall-panel manufacturing and I-joist cutting.",
+          "fact_id": "rev-gutherielumber-f1"
+        },
+        "problem": "A changed builder order should show its effect on cutting and delivery together. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A changed builder order should show its effect on cutting and delivery together.",
+        "reframe": "A changed builder order should show its effect on cutting and delivery together.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "when the builder changes plans"
+        ],
+        "touch_1_cta": "Would a short example around an order change be helpful?",
+        "must_cite_one_of": [
+          "rev-gutherielumber-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-gutherielumber-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A changed builder order should show its effect on cutting and delivery together. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-gutherielumber",
+      "company": "Gutherie Lumber",
+      "industry": "Building materials distribution",
+      "revenue_band": "$65.9M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Gutherie combines building-material delivery with wall-panel manufacturing and I-joist cutting.",
+          "date": null,
+          "fact_id": "rev-gutherielumber-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-gutherielumber-f1",
+          "statement": "Gutherie combines building-material delivery with wall-panel manufacturing and I-joist cutting.",
+          "source_url": "https://gutherielumber.com/our-history/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-gutherielumber-c1",
+        "first_name": "Mel",
+        "last_name": "Gutherie",
+        "title": "President",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "vicarirestaurants.com",
+    "brief": {
+      "account_id": "rev-vicarirestaurants",
+      "company": "Joe Vicari Restaurant Group",
+      "send_wave": 1,
+      "why_now": "Joe Vicari Restaurant Group operates multiple restaurant concepts including Andiamo and Joe Muer Seafood.",
+      "company_profile": {
+        "what_they_do": "Restaurant operations",
+        "hq": "",
+        "size": {
+          "text": "$63.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Rosalie Vicari",
+          "title": "Owner",
+          "since": "",
+          "source_url": "https://vicarirestaurants.com/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-vicarirestaurants-c1",
+          "first_name": "Rosalie",
+          "last_name": "Vicari",
+          "title": "Owner",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A daily operating review should identify the cost exception that needs a decision. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-vicarirestaurants-f1",
+        "reasoning": "$63.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Joe Vicari Restaurant Group operates multiple restaurant concepts including Andiamo and Joe Muer Seafood.",
+          "fact_id": "rev-vicarirestaurants-f1"
+        },
+        "problem": "A daily operating review should identify the cost exception that needs a decision. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A daily operating review should identify the cost exception that needs a decision.",
+        "reframe": "A daily operating review should identify the cost exception that needs a decision.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "the exceptions in yesterday’s numbers"
+        ],
+        "touch_1_cta": "Would a sample daily review be worth a look?",
+        "must_cite_one_of": [
+          "rev-vicarirestaurants-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-vicarirestaurants-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A daily operating review should identify the cost exception that needs a decision. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-vicarirestaurants",
+      "company": "Joe Vicari Restaurant Group",
+      "industry": "Restaurant operations",
+      "revenue_band": "$63.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Joe Vicari Restaurant Group operates multiple restaurant concepts including Andiamo and Joe Muer Seafood.",
+          "date": null,
+          "fact_id": "rev-vicarirestaurants-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-vicarirestaurants-f1",
+          "statement": "Joe Vicari Restaurant Group operates multiple restaurant concepts including Andiamo and Joe Muer Seafood.",
+          "source_url": "https://vicarirestaurants.com/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-vicarirestaurants-c1",
+        "first_name": "Rosalie",
+        "last_name": "Vicari",
+        "title": "Owner",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
     "domain": "caymanchem.com",
     "brief": {
       "account_id": "rev-caymanchem",
@@ -138,6 +1428,264 @@
         "first_name": "Kirk",
         "last_name": "Maxey",
         "title": "President & CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "domesticuniform.com",
+    "brief": {
+      "account_id": "rev-domesticuniform",
+      "company": "Domestic Uniform Rental",
+      "send_wave": 1,
+      "why_now": "Domestic Uniform supplies recurring uniform, linen and facility-service programs.",
+      "company_profile": {
+        "what_they_do": "Uniform and textile rental services",
+        "hq": "",
+        "size": {
+          "text": "$61.8M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Mark Colton",
+          "title": "President",
+          "since": "",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-domesticuniform-c1",
+          "first_name": "Mark",
+          "last_name": "Colton",
+          "title": "President",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A delivery discrepancy should connect the customer report to the route record and a resolution. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-domesticuniform-f1",
+        "reasoning": "$61.8M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Domestic Uniform supplies recurring uniform, linen and facility-service programs.",
+          "fact_id": "rev-domesticuniform-f1"
+        },
+        "problem": "A delivery discrepancy should connect the customer report to the route record and a resolution. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A delivery discrepancy should connect the customer report to the route record and a resolution.",
+        "reframe": "A delivery discrepancy should connect the customer report to the route record and a resolution.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "closing a delivery discrepancy"
+        ],
+        "touch_1_cta": "Would an example of that customer-to-route handoff be useful?",
+        "must_cite_one_of": [
+          "rev-domesticuniform-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-domesticuniform-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A delivery discrepancy should connect the customer report to the route record and a resolution. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-domesticuniform",
+      "company": "Domestic Uniform Rental",
+      "industry": "Uniform and textile rental services",
+      "revenue_band": "$61.8M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Domestic Uniform supplies recurring uniform, linen and facility-service programs.",
+          "date": null,
+          "fact_id": "rev-domesticuniform-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-domesticuniform-f1",
+          "statement": "Domestic Uniform supplies recurring uniform, linen and facility-service programs.",
+          "source_url": "https://www.domesticuniform.com/our-products/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-domesticuniform-c1",
+        "first_name": "Mark",
+        "last_name": "Colton",
+        "title": "President",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "spraguepest.com",
+    "brief": {
+      "account_id": "rev-spraguepest",
+      "company": "Sprague Pest Solutions",
+      "send_wave": 1,
+      "why_now": "Sprague named Ross Treleven chairman in August 2026 and identifies AJ Treleven as executive vice president.",
+      "company_profile": {
+        "what_they_do": "Commercial pest management",
+        "hq": "",
+        "size": {
+          "text": "$59.1M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "AJ Treleven",
+          "title": "Executive Vice President",
+          "since": "",
+          "source_url": "https://www.spraguepest.com/ross-treleven-named-chairman/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-spraguepest-c1",
+          "first_name": "AJ",
+          "last_name": "Treleven",
+          "title": "Executive Vice President",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A commercial audit packet should connect service evidence and corrective actions. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-spraguepest-f1",
+        "reasoning": "$59.1M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Sprague named Ross Treleven chairman in August 2026 and identifies AJ Treleven as executive vice president.",
+          "fact_id": "rev-spraguepest-f1"
+        },
+        "problem": "A commercial audit packet should connect service evidence and corrective actions. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A commercial audit packet should connect service evidence and corrective actions.",
+        "reframe": "A commercial audit packet should connect service evidence and corrective actions.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "the evidence behind the audit"
+        ],
+        "touch_1_cta": "Would an example of that audit-preparation workflow be useful?",
+        "must_cite_one_of": [
+          "rev-spraguepest-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-spraguepest-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A commercial audit packet should connect service evidence and corrective actions. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-spraguepest",
+      "company": "Sprague Pest Solutions",
+      "industry": "Commercial pest management",
+      "revenue_band": "$59.1M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Sprague named Ross Treleven chairman in August 2026 and identifies AJ Treleven as executive vice president.",
+          "date": "2026-08-13",
+          "fact_id": "rev-spraguepest-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-spraguepest-f1",
+          "statement": "Sprague named Ross Treleven chairman in August 2026 and identifies AJ Treleven as executive vice president.",
+          "source_url": "https://www.spraguepest.com/ross-treleven-named-chairman/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2026-08-13"
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-spraguepest-c1",
+        "first_name": "AJ",
+        "last_name": "Treleven",
+        "title": "Executive Vice President",
         "persona": "ceo",
         "contact_rank": 1
       }
@@ -432,18 +1980,18 @@
     }
   },
   {
-    "domain": "mcstamp.com",
+    "domain": "rottler.com",
     "brief": {
-      "account_id": "rev-mcstamp",
-      "company": "Motor City Stamping",
+      "account_id": "rev-rottler",
+      "company": "Rottler Pest Solutions",
       "send_wave": 1,
-      "why_now": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+      "why_now": "Rottler operates a family-owned pest management business led by Mike Rottler.",
       "company_profile": {
-        "what_they_do": "Automotive stamping and assembly manufacturing",
+        "what_they_do": "Pest control and field services",
         "hq": "",
         "size": {
-          "text": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
-          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+          "text": "$46.911M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf"
         },
         "ownership": {
           "type": "private",
@@ -453,18 +2001,18 @@
       },
       "leaders": [
         {
-          "name": "Judith Kucway",
-          "title": "CEO & CFO",
+          "name": "Mike Rottler",
+          "title": "Chairman & CEO",
           "since": "",
-          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+          "source_url": "https://www.rottler.com/meet-team/mike-rottler/"
         }
       ],
       "contacts": [
         {
-          "contact_id": "rev-mcstamp-c1",
-          "first_name": "Judith",
-          "last_name": "Kucway",
-          "title": "CEO & CFO",
+          "contact_id": "rev-rottler-c1",
+          "first_name": "Mike",
+          "last_name": "Rottler",
+          "title": "Chairman & CEO",
           "persona": "ceo",
           "contact_rank": 1
         }
@@ -474,29 +2022,29 @@
         "touch_1_cta_type": "interest",
         "persona": "ceo",
         "value_driver": "time back for operating teams",
-        "angle": "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem.",
-        "primary_signal_fact_id": "rev-mcstamp-f1",
-        "reasoning": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+        "angle": "A repeat service issue should reach the branch with its history and a next action. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-rottler-f1",
+        "reasoning": "$46.911M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
       },
       "pain_hypothesis": {
         "current_state": {
-          "text": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
-          "fact_id": "rev-mcstamp-f1"
+          "text": "Rottler operates a family-owned pest management business led by Mike Rottler.",
+          "fact_id": "rev-rottler-f1"
         },
-        "problem": "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem.",
+        "problem": "A repeat service issue should reach the branch with its history and a next action. This is a possible workflow to explore, not a confirmed problem.",
         "implication": "Potential checking and coordination effort; not confirmed.",
-        "future_state": "A changed customer schedule matters when the team can see which production orders need a decision.",
-        "reframe": "A changed customer schedule matters when the team can see which production orders need a decision.",
+        "future_state": "A repeat service issue should reach the branch with its history and a next action.",
+        "reframe": "A repeat service issue should reach the branch with its history and a next action.",
         "workflows": [],
         "confidence": "low"
       },
       "email_guidance": {
         "subject_ideas": [
-          "when the customer schedule changes"
+          "spotting the repeat service issue"
         ],
-        "touch_1_cta": "Would you be open to looking at one real schedule change together?",
+        "touch_1_cta": "Would a sample of that branch review be useful?",
         "must_cite_one_of": [
-          "rev-mcstamp-f1"
+          "rev-rottler-f1"
         ],
         "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
         "avoid": [
@@ -512,14 +2060,14 @@
         "method": "Public source review; published business addresses are not deliverability verified.",
         "cited_claims": [
           {
-            "fact_id": "rev-mcstamp-f1",
+            "fact_id": "rev-rottler-f1",
             "verdict": "SUPPORTED",
             "note": "Workflow need remains a hypothesis."
           }
         ]
       },
       "pain_clues_from_research": [
-        "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem."
+        "A repeat service issue should reach the branch with its history and a next action. This is a possible workflow to explore, not a confirmed problem."
       ],
       "research_gaps": [
         "Published addresses have not been checked for deliverability.",
@@ -527,52 +2075,52 @@
       ]
     },
     "dossier": {
-      "account_id": "rev-mcstamp",
-      "company": "Motor City Stamping",
-      "industry": "Automotive stamping and assembly manufacturing",
-      "revenue_band": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "account_id": "rev-rottler",
+      "company": "Rottler Pest Solutions",
+      "industry": "Pest control and field services",
+      "revenue_band": "$46.911M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
       "signals": [
         {
           "signal_type": "other",
-          "summary": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+          "summary": "Rottler operates a family-owned pest management business led by Mike Rottler.",
           "date": null,
-          "fact_id": "rev-mcstamp-f1",
+          "fact_id": "rev-rottler-f1",
           "strength": 0.5
         }
       ],
       "facts": [
         {
-          "fact_id": "rev-mcstamp-f1",
-          "statement": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
-          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+          "fact_id": "rev-rottler-f1",
+          "statement": "Rottler operates a family-owned pest management business led by Mike Rottler.",
+          "source_url": "https://www.rottler.com/meet-team/mike-rottler/",
           "retrieved_at": "2026-09-23T00:00:00Z",
           "published_date": null
         }
       ],
       "prior_touches": [],
       "contact": {
-        "contact_id": "rev-mcstamp-c1",
-        "first_name": "Judith",
-        "last_name": "Kucway",
-        "title": "CEO & CFO",
+        "contact_id": "rev-rottler-c1",
+        "first_name": "Mike",
+        "last_name": "Rottler",
+        "title": "Chairman & CEO",
         "persona": "ceo",
         "contact_rank": 1
       }
     }
   },
   {
-    "domain": "channellock.com",
+    "domain": "eclipsemold.com",
     "brief": {
-      "account_id": "rev-channellock",
-      "company": "Channellock",
-      "send_wave": 2,
-      "why_now": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
+      "account_id": "rev-eclipsemold",
+      "company": "Eclipse Mold",
+      "send_wave": 1,
+      "why_now": "Eclipse Mold provides mold building, repair, injection molding and component assembly.",
       "company_profile": {
-        "what_they_do": "Hand tool manufacturing",
+        "what_they_do": "Tooling and injection molding",
         "hq": "",
         "size": {
-          "text": "$46.7M annual revenue (estimated). Operating business; buying intent and budget not confirmed.",
-          "source_url": "https://growjo.com/company/Channellock"
+          "text": "$45M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
         },
         "ownership": {
           "type": "private",
@@ -582,34 +2130,20 @@
       },
       "leaders": [
         {
-          "name": "Jon DeArment",
-          "title": "EVP, Manufacturing & Engineering",
-          "since": "",
-          "source_url": "https://www.channellock.com/pressreleases/leadership-transition/"
-        },
-        {
-          "name": "Jimmy Bromley",
+          "name": "Steve Craprotta",
           "title": "President",
           "since": "",
-          "source_url": "https://www.channellock.com/pressreleases/leadership-transition/"
+          "source_url": "https://www.eclipsemold.com/home/"
         }
       ],
       "contacts": [
         {
-          "contact_id": "rev-channellock-c1",
-          "first_name": "Jon",
-          "last_name": "DeArment",
-          "title": "EVP, Manufacturing & Engineering",
-          "persona": "ceo",
-          "contact_rank": 1
-        },
-        {
-          "contact_id": "rev-channellock-c2",
-          "first_name": "Jimmy",
-          "last_name": "Bromley",
+          "contact_id": "rev-eclipsemold-c1",
+          "first_name": "Steve",
+          "last_name": "Craprotta",
           "title": "President",
           "persona": "ceo",
-          "contact_rank": 2
+          "contact_rank": 1
         }
       ],
       "router_output": {
@@ -617,30 +2151,29 @@
         "touch_1_cta_type": "interest",
         "persona": "ceo",
         "value_driver": "time back for operating teams",
-        "angle": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up. This is a possible workflow to explore, not a confirmed problem.",
-        "primary_signal_fact_id": "rev-channellock-f1",
-        "reasoning": "$46.7M annual revenue (estimated). Operating business; buying intent and budget not confirmed."
+        "angle": "A tooling revision should arrive with the affected jobs and decisions attached. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-eclipsemold-f1",
+        "reasoning": "$45M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
       },
       "pain_hypothesis": {
         "current_state": {
-          "text": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
-          "fact_id": "rev-channellock-f1"
+          "text": "Eclipse Mold provides mold building, repair, injection molding and component assembly.",
+          "fact_id": "rev-eclipsemold-f1"
         },
-        "problem": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up. This is a possible workflow to explore, not a confirmed problem.",
+        "problem": "A tooling revision should arrive with the affected jobs and decisions attached. This is a possible workflow to explore, not a confirmed problem.",
         "implication": "Potential checking and coordination effort; not confirmed.",
-        "future_state": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up.",
-        "reframe": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up.",
+        "future_state": "A tooling revision should arrive with the affected jobs and decisions attached.",
+        "reframe": "A tooling revision should arrive with the affected jobs and decisions attached.",
         "workflows": [],
         "confidence": "low"
       },
       "email_guidance": {
         "subject_ideas": [
-          "AI on the shop floor",
-          "a practical AI starting point"
+          "the latest tooling revision"
         ],
-        "touch_1_cta": "Would you be open to comparing that with how your team runs a shift review?",
+        "touch_1_cta": "Would an example of that revision handoff be useful?",
         "must_cite_one_of": [
-          "rev-channellock-f1"
+          "rev-eclipsemold-f1"
         ],
         "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
         "avoid": [
@@ -656,50 +2189,1081 @@
         "method": "Public source review; published business addresses are not deliverability verified.",
         "cited_claims": [
           {
-            "fact_id": "rev-channellock-f1",
+            "fact_id": "rev-eclipsemold-f1",
             "verdict": "SUPPORTED",
             "note": "Workflow need remains a hypothesis."
           }
         ]
       },
       "pain_clues_from_research": [
-        "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up. This is a possible workflow to explore, not a confirmed problem."
+        "A tooling revision should arrive with the affected jobs and decisions attached. This is a possible workflow to explore, not a confirmed problem."
       ],
       "research_gaps": [
         "Published addresses have not been checked for deliverability.",
-        "Missing addresses remain blank; no inferred email patterns.",
-        "Third-party annual revenue estimate, not company-confirmed. Retained as a conditional match; source master band was $50-100M."
+        "Missing addresses remain blank; no inferred email patterns."
       ]
     },
     "dossier": {
-      "account_id": "rev-channellock",
-      "company": "Channellock",
-      "industry": "Hand tool manufacturing",
-      "revenue_band": "$46.7M annual revenue (estimated). Operating business; buying intent and budget not confirmed.",
+      "account_id": "rev-eclipsemold",
+      "company": "Eclipse Mold",
+      "industry": "Tooling and injection molding",
+      "revenue_band": "$45M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
       "signals": [
         {
           "signal_type": "other",
-          "summary": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
-          "date": "2025-03-27",
-          "fact_id": "rev-channellock-f1",
-          "strength": 0.2
+          "summary": "Eclipse Mold provides mold building, repair, injection molding and component assembly.",
+          "date": null,
+          "fact_id": "rev-eclipsemold-f1",
+          "strength": 0.5
         }
       ],
       "facts": [
         {
-          "fact_id": "rev-channellock-f1",
-          "statement": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
-          "source_url": "https://www.channellock.com/pressreleases/leadership-transition/",
+          "fact_id": "rev-eclipsemold-f1",
+          "statement": "Eclipse Mold provides mold building, repair, injection molding and component assembly.",
+          "source_url": "https://www.eclipsemold.com/home/",
           "retrieved_at": "2026-09-23T00:00:00Z",
-          "published_date": "2025-03-27"
+          "published_date": null
         }
       ],
       "prior_touches": [],
       "contact": {
-        "contact_id": "rev-channellock-c1",
-        "first_name": "Jon",
-        "last_name": "DeArment",
-        "title": "EVP, Manufacturing & Engineering",
+        "contact_id": "rev-eclipsemold-c1",
+        "first_name": "Steve",
+        "last_name": "Craprotta",
+        "title": "President",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "genoilcorp.com",
+    "brief": {
+      "account_id": "rev-genoilcorp",
+      "company": "Gen Oil",
+      "send_wave": 1,
+      "why_now": "Gen Oil delivers commercial and industrial fuels and diesel exhaust fluid.",
+      "company_profile": {
+        "what_they_do": "Commercial fuel distribution",
+        "hq": "",
+        "size": {
+          "text": "$44.5M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Keith Albertie",
+          "title": "President",
+          "since": "",
+          "source_url": "https://www.genoilcorp.com/fuel-delivery/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-genoilcorp-c1",
+          "first_name": "Keith",
+          "last_name": "Albertie",
+          "title": "President",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "The delivery ticket should reconcile with the order before an invoice needs correcting. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-genoilcorp-f1",
+        "reasoning": "$44.5M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Gen Oil delivers commercial and industrial fuels and diesel exhaust fluid.",
+          "fact_id": "rev-genoilcorp-f1"
+        },
+        "problem": "The delivery ticket should reconcile with the order before an invoice needs correcting. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "The delivery ticket should reconcile with the order before an invoice needs correcting.",
+        "reframe": "The delivery ticket should reconcile with the order before an invoice needs correcting.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "from fuel ticket to invoice"
+        ],
+        "touch_1_cta": "Would you like to see the checks that first version could make?",
+        "must_cite_one_of": [
+          "rev-genoilcorp-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-genoilcorp-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "The delivery ticket should reconcile with the order before an invoice needs correcting. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-genoilcorp",
+      "company": "Gen Oil",
+      "industry": "Commercial fuel distribution",
+      "revenue_band": "$44.5M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Gen Oil delivers commercial and industrial fuels and diesel exhaust fluid.",
+          "date": null,
+          "fact_id": "rev-genoilcorp-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-genoilcorp-f1",
+          "statement": "Gen Oil delivers commercial and industrial fuels and diesel exhaust fluid.",
+          "source_url": "https://www.genoilcorp.com/fuel-delivery/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-genoilcorp-c1",
+        "first_name": "Keith",
+        "last_name": "Albertie",
+        "title": "President",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "go-forth.com",
+    "brief": {
+      "account_id": "rev-go-forth",
+      "company": "Go-Forth Home Services",
+      "send_wave": 1,
+      "why_now": "Go-Forth provides pest control and other home services under owner and CEO Chase Hazelwood.",
+      "company_profile": {
+        "what_they_do": "Pest control and home services",
+        "hq": "",
+        "size": {
+          "text": "$41M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Chase Hazelwood",
+          "title": "Owner & CEO",
+          "since": "",
+          "source_url": "https://www.go-forth.com/our-company/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-go-forth-c1",
+          "first_name": "Chase",
+          "last_name": "Hazelwood",
+          "title": "Owner & CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A customer request should reach the right service team with its context intact. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-go-forth-f1",
+        "reasoning": "$41M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Go-Forth provides pest control and other home services under owner and CEO Chase Hazelwood.",
+          "fact_id": "rev-go-forth-f1"
+        },
+        "problem": "A customer request should reach the right service team with its context intact. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A customer request should reach the right service team with its context intact.",
+        "reframe": "A customer request should reach the right service team with its context intact.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "the handoff between service teams"
+        ],
+        "touch_1_cta": "Would you like to see an example of that intake workflow?",
+        "must_cite_one_of": [
+          "rev-go-forth-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-go-forth-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A customer request should reach the right service team with its context intact. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-go-forth",
+      "company": "Go-Forth Home Services",
+      "industry": "Pest control and home services",
+      "revenue_band": "$41M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Go-Forth provides pest control and other home services under owner and CEO Chase Hazelwood.",
+          "date": null,
+          "fact_id": "rev-go-forth-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-go-forth-f1",
+          "statement": "Go-Forth provides pest control and other home services under owner and CEO Chase Hazelwood.",
+          "source_url": "https://www.go-forth.com/our-company/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-go-forth-c1",
+        "first_name": "Chase",
+        "last_name": "Hazelwood",
+        "title": "Owner & CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "michiganbox.com",
+    "brief": {
+      "account_id": "rev-michiganbox",
+      "company": "Michigan Box",
+      "send_wave": 1,
+      "why_now": "Michigan Box manufactures corrugated packaging for food and industrial uses and holds ISO 9001 certification.",
+      "company_profile": {
+        "what_they_do": "Corrugated packaging manufacturing",
+        "hq": "",
+        "size": {
+          "text": "$40M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Joseph Fontana",
+          "title": "CEO",
+          "since": "",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-michiganbox-c1",
+          "first_name": "Joseph",
+          "last_name": "Fontana",
+          "title": "CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "Packaging specifications should reach estimating complete and ready to check. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-michiganbox-f1",
+        "reasoning": "$40M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Michigan Box manufactures corrugated packaging for food and industrial uses and holds ISO 9001 certification.",
+          "fact_id": "rev-michiganbox-f1"
+        },
+        "problem": "Packaging specifications should reach estimating complete and ready to check. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "Packaging specifications should reach estimating complete and ready to check.",
+        "reframe": "Packaging specifications should reach estimating complete and ready to check.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "a box ready to price"
+        ],
+        "touch_1_cta": "Would you like a short outline using a typical packaging request?",
+        "must_cite_one_of": [
+          "rev-michiganbox-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-michiganbox-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "Packaging specifications should reach estimating complete and ready to check. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-michiganbox",
+      "company": "Michigan Box",
+      "industry": "Corrugated packaging manufacturing",
+      "revenue_band": "$40M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Michigan Box manufactures corrugated packaging for food and industrial uses and holds ISO 9001 certification.",
+          "date": null,
+          "fact_id": "rev-michiganbox-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-michiganbox-f1",
+          "statement": "Michigan Box manufactures corrugated packaging for food and industrial uses and holds ISO 9001 certification.",
+          "source_url": "https://www.michiganbox.com/wp-content/uploads/2025/05/MBC-ISO-Cert.pdf",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-michiganbox-c1",
+        "first_name": "Joseph",
+        "last_name": "Fontana",
+        "title": "CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "almetals.com",
+    "brief": {
+      "account_id": "rev-almetals",
+      "company": "Almetals / Chain Industries",
+      "send_wave": 1,
+      "why_now": "Almetals processes and distributes metal from Michigan and Georgia as part of Chain Industries.",
+      "company_profile": {
+        "what_they_do": "Metal processing and distribution",
+        "hq": "",
+        "size": {
+          "text": "$36M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Jim Chain",
+          "title": "President",
+          "since": "",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-almetals-c1",
+          "first_name": "Jim",
+          "last_name": "Chain",
+          "title": "President",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "An alloy and gauge request needs a stock match and the right supporting documents. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-almetals-f1",
+        "reasoning": "$36M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Almetals processes and distributes metal from Michigan and Georgia as part of Chain Industries.",
+          "fact_id": "rev-almetals-f1"
+        },
+        "problem": "An alloy and gauge request needs a stock match and the right supporting documents. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "An alloy and gauge request needs a stock match and the right supporting documents.",
+        "reframe": "An alloy and gauge request needs a stock match and the right supporting documents.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "before the coil quote"
+        ],
+        "touch_1_cta": "Would you like to see what that first version could handle?",
+        "must_cite_one_of": [
+          "rev-almetals-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-almetals-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "An alloy and gauge request needs a stock match and the right supporting documents. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-almetals",
+      "company": "Almetals / Chain Industries",
+      "industry": "Metal processing and distribution",
+      "revenue_band": "$36M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Almetals processes and distributes metal from Michigan and Georgia as part of Chain Industries.",
+          "date": null,
+          "fact_id": "rev-almetals-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-almetals-f1",
+          "statement": "Almetals processes and distributes metal from Michigan and Georgia as part of Chain Industries.",
+          "source_url": "https://almetals.com/about-us.aspx",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-almetals-c1",
+        "first_name": "Jim",
+        "last_name": "Chain",
+        "title": "President",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "englishgardens.com",
+    "brief": {
+      "account_id": "rev-englishgardens",
+      "company": "English Gardens",
+      "send_wave": 1,
+      "why_now": "English Gardens operates garden centers, floral services and landscape installation.",
+      "company_profile": {
+        "what_they_do": "Garden retail and landscaping",
+        "hq": "",
+        "size": {
+          "text": "$36M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "John Darin",
+          "title": "CEO",
+          "since": "",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-englishgardens-c1",
+          "first_name": "John",
+          "last_name": "Darin",
+          "title": "CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A stock decision should connect seasonal demand with what another location already has. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-englishgardens-f1",
+        "reasoning": "$36M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "English Gardens operates garden centers, floral services and landscape installation.",
+          "fact_id": "rev-englishgardens-f1"
+        },
+        "problem": "A stock decision should connect seasonal demand with what another location already has. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A stock decision should connect seasonal demand with what another location already has.",
+        "reframe": "A stock decision should connect seasonal demand with what another location already has.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "before the next stock transfer"
+        ],
+        "touch_1_cta": "Would a sample of that daily stock review be useful?",
+        "must_cite_one_of": [
+          "rev-englishgardens-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-englishgardens-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A stock decision should connect seasonal demand with what another location already has. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-englishgardens",
+      "company": "English Gardens",
+      "industry": "Garden retail and landscaping",
+      "revenue_band": "$36M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "English Gardens operates garden centers, floral services and landscape installation.",
+          "date": null,
+          "fact_id": "rev-englishgardens-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-englishgardens-f1",
+          "statement": "English Gardens operates garden centers, floral services and landscape installation.",
+          "source_url": "https://www.englishgardens.com/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-englishgardens-c1",
+        "first_name": "John",
+        "last_name": "Darin",
+        "title": "CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "bramanpest.com",
+    "brief": {
+      "account_id": "rev-bramanpest",
+      "company": "Braman Termite & Pest Elimination",
+      "send_wave": 1,
+      "why_now": "Braman announced the acquisition of Fusion Pest Management in August 2025.",
+      "company_profile": {
+        "what_they_do": "Pest management and field services",
+        "hq": "",
+        "size": {
+          "text": "$26M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Jerry Lazarus",
+          "title": "President",
+          "since": "",
+          "source_url": "https://bramanpest.com/news/fusion-pest-management-expanding-residential-reach/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-bramanpest-c1",
+          "first_name": "Jerry",
+          "last_name": "Lazarus",
+          "title": "President",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "An acquired customer history should stay usable through the service handoff. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-bramanpest-f1",
+        "reasoning": "$26M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Braman announced the acquisition of Fusion Pest Management in August 2025.",
+          "fact_id": "rev-bramanpest-f1"
+        },
+        "problem": "An acquired customer history should stay usable through the service handoff. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "An acquired customer history should stay usable through the service handoff.",
+        "reframe": "An acquired customer history should stay usable through the service handoff.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "keeping the customer history together"
+        ],
+        "touch_1_cta": "Would an example of that customer handoff be helpful?",
+        "must_cite_one_of": [
+          "rev-bramanpest-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-bramanpest-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "An acquired customer history should stay usable through the service handoff. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-bramanpest",
+      "company": "Braman Termite & Pest Elimination",
+      "industry": "Pest management and field services",
+      "revenue_band": "$26M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Braman announced the acquisition of Fusion Pest Management in August 2025.",
+          "date": "2025-08-01",
+          "fact_id": "rev-bramanpest-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-bramanpest-f1",
+          "statement": "Braman announced the acquisition of Fusion Pest Management in August 2025.",
+          "source_url": "https://bramanpest.com/news/fusion-pest-management-expanding-residential-reach/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2025-08-01"
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-bramanpest-c1",
+        "first_name": "Jerry",
+        "last_name": "Lazarus",
+        "title": "President",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "versacor.com",
+    "brief": {
+      "account_id": "rev-versacor",
+      "company": "Versacor Enterprises",
+      "send_wave": 1,
+      "why_now": "Versacor is a commercial pest management business founded by the Eicher family and led by Jason Eicher.",
+      "company_profile": {
+        "what_they_do": "Commercial pest management",
+        "hq": "",
+        "size": {
+          "text": "$25.0406M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Jason Eicher",
+          "title": "President",
+          "since": "",
+          "source_url": "https://versacor.com/company-history/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-versacor-c1",
+          "first_name": "Jason",
+          "last_name": "Eicher",
+          "title": "President",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "An inspection finding needs a responsible owner and evidence that the action is complete. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-versacor-f1",
+        "reasoning": "$25.0406M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Versacor is a commercial pest management business founded by the Eicher family and led by Jason Eicher.",
+          "fact_id": "rev-versacor-f1"
+        },
+        "problem": "An inspection finding needs a responsible owner and evidence that the action is complete. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "An inspection finding needs a responsible owner and evidence that the action is complete.",
+        "reframe": "An inspection finding needs a responsible owner and evidence that the action is complete.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "after the inspection finding"
+        ],
+        "touch_1_cta": "Would a short example of that follow-up workflow be useful?",
+        "must_cite_one_of": [
+          "rev-versacor-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-versacor-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "An inspection finding needs a responsible owner and evidence that the action is complete. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-versacor",
+      "company": "Versacor Enterprises",
+      "industry": "Commercial pest management",
+      "revenue_band": "$25.0406M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Versacor is a commercial pest management business founded by the Eicher family and led by Jason Eicher.",
+          "date": null,
+          "fact_id": "rev-versacor-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-versacor-f1",
+          "statement": "Versacor is a commercial pest management business founded by the Eicher family and led by Jason Eicher.",
+          "source_url": "https://versacor.com/company-history/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-versacor-c1",
+        "first_name": "Jason",
+        "last_name": "Eicher",
+        "title": "President",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "nativepestmanagement.com",
+    "brief": {
+      "account_id": "rev-nativepestmanagement",
+      "company": "Native Pest Management",
+      "send_wave": 1,
+      "why_now": "Native announced Kelly Moseley’s promotion to chief revenue officer in July 2026.",
+      "company_profile": {
+        "what_they_do": "Pest management and field services",
+        "hq": "",
+        "size": {
+          "text": "$18.0608M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Luke Lewis",
+          "title": "Founder & CEO",
+          "since": "",
+          "source_url": "https://www.nativepestmanagement.com/blog/native-pest-management-promotes-kelly-moseley-to-chief-revenue-officer/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-nativepestmanagement-c1",
+          "first_name": "Luke",
+          "last_name": "Lewis",
+          "title": "Founder & CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "Growth should preserve the customer promise from the first call through follow-up. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-nativepestmanagement-f1",
+        "reasoning": "$18.0608M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Native announced Kelly Moseley’s promotion to chief revenue officer in July 2026.",
+          "fact_id": "rev-nativepestmanagement-f1"
+        },
+        "problem": "Growth should preserve the customer promise from the first call through follow-up. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "Growth should preserve the customer promise from the first call through follow-up.",
+        "reframe": "Growth should preserve the customer promise from the first call through follow-up.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "after the first call"
+        ],
+        "touch_1_cta": "Would a sample of that first-call handoff be useful?",
+        "must_cite_one_of": [
+          "rev-nativepestmanagement-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-nativepestmanagement-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "Growth should preserve the customer promise from the first call through follow-up. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-nativepestmanagement",
+      "company": "Native Pest Management",
+      "industry": "Pest management and field services",
+      "revenue_band": "$18.0608M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Native announced Kelly Moseley’s promotion to chief revenue officer in July 2026.",
+          "date": "2026-07-22",
+          "fact_id": "rev-nativepestmanagement-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-nativepestmanagement-f1",
+          "statement": "Native announced Kelly Moseley’s promotion to chief revenue officer in July 2026.",
+          "source_url": "https://www.nativepestmanagement.com/blog/native-pest-management-promotes-kelly-moseley-to-chief-revenue-officer/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2026-07-22"
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-nativepestmanagement-c1",
+        "first_name": "Luke",
+        "last_name": "Lewis",
+        "title": "Founder & CEO",
         "persona": "ceo",
         "contact_rank": 1
       }

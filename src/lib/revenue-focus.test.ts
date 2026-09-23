@@ -11,8 +11,8 @@ import { outreachQualityFailures } from './outreach-quality.ts';
 import { lintEmail } from '../../tools/email-writer/src/lint.ts';
 
 test('active revenue focus is supported and excludes the superseded enterprise set', () => {
-  assert.equal(focus.length, 5);
-  assert.equal(focus.filter(row => row.revenue.status === 'reported').length, 4);
+  assert.equal(focus.length, 25);
+  assert.equal(focus.filter(row => row.revenue.status === 'reported').length, 25);
   for (const row of focus) {
     assert.ok(row.revenue.usdMillions >= 10 && row.revenue.usdMillions <= 100);
     assert.ok(row.revenue.sourceUrl.startsWith('https://'));
@@ -37,7 +37,7 @@ test('each researched colleague has their own draft and the active sender ending
       assert.doesNotMatch(draft.body, /[—–]|Thank you,/);
     }
   }
-  assert.equal(messages.size, 9);
+  assert.equal(messages.size, 28);
 });
 test('published email evidence cannot become a verified or guessed address', () => {
   const patch = publishedEmailPatch('caymanchem.com', 'Kirk Maxey', { email: null });

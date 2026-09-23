@@ -1,0 +1,413 @@
+[
+  {
+    "company": "Evans Distribution Systems",
+    "name": "John A. Evans",
+    "title": "President & CEO",
+    "email": "jevans@evansdist.com",
+    "email_source": "https://www.commtrex.com/transloading/location/20074.html",
+    "note": "Industry directory; publication date unknown",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "0 evansdist-com.mail.protection.outlook.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146788+00:00"
+  },
+  {
+    "company": "Metro Wire & Cable",
+    "name": "Devin Ezop",
+    "title": "President & CEO",
+    "email": "devinezop@metrowire.net",
+    "email_source": "https://www.michmca.org/images/TCCO_MonroeBlock-Contractor_List.pdf",
+    "note": "2018 contractor directory; older address",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "0 metrowire-net.mail.protection.outlook.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146952+00:00"
+  },
+  {
+    "company": "Bell Fork Lift",
+    "name": "Kristen Bell",
+    "title": "Co-owner & Vice President",
+    "email": null,
+    "email_source": null,
+    "note": "No substantiated direct leadership email found",
+    "status": "not_found",
+    "syntax_valid": null,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": null
+  },
+  {
+    "company": "Michigan Box",
+    "name": "Joseph Fontana",
+    "title": "CEO",
+    "email": null,
+    "email_source": null,
+    "note": "Only generic company inbox found",
+    "status": "not_found",
+    "syntax_valid": null,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": null
+  },
+  {
+    "company": "Cayman Chemical",
+    "name": "Kirk Maxey",
+    "title": "President & CEO",
+    "email": "kmaxey@caymanchem.com",
+    "email_source": "https://kirkmaxey.com/about/",
+    "note": "Published on founder website; publication date unknown",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "0 caymanchem-com.mail.protection.outlook.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146955+00:00"
+  },
+  {
+    "company": "Chrysan Industries",
+    "name": "Glenn Gerhard",
+    "title": "President & CFO",
+    "email": null,
+    "email_source": null,
+    "note": "Published sales contact found, excluded from leadership targets",
+    "status": "not_found",
+    "syntax_valid": null,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": null
+  },
+  {
+    "company": "Motor City Stamping",
+    "name": "Judith Kucway",
+    "title": "CEO & CFO",
+    "email": null,
+    "email_source": null,
+    "note": "Only masked addresses and suggested patterns found",
+    "status": "not_found",
+    "syntax_valid": null,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": null
+  },
+  {
+    "company": "Eclipse Mold",
+    "name": "Steve Craprotta",
+    "title": "President",
+    "email": "steve@eclipsemold.com",
+    "email_source": "https://faqet-e-verdha.cybo.com/US-biz/eclipse-mold-inc",
+    "note": "Third-party directory uses old VP title; role now President per 2026 company release; address needs confirmation",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "0 eclipsemold-com.mail.eo.outlook.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146958+00:00"
+  },
+  {
+    "company": "Gutherie Lumber",
+    "name": "Mel Gutherie",
+    "title": "President",
+    "email": null,
+    "email_source": null,
+    "note": "Generic inbox and older employee contacts found; no substantiated executive address",
+    "status": "not_found",
+    "syntax_valid": null,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": null
+  },
+  {
+    "company": "Almetals / Chain Industries",
+    "name": "Jim Chain",
+    "title": "President",
+    "email": "jmchain@almetals.com",
+    "email_source": "https://www.linkedin.com/in/jim-chain-38206436",
+    "note": "Self-published in professional LinkedIn post; exact publication date unknown",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "20 alt1.aspmx.l.google.com.",
+      "30 alt2.aspmx.l.google.com.",
+      "50 aspmx3.googlemail.com.",
+      "10 aspmx.l.google.com.",
+      "40 aspmx2.googlemail.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146960+00:00"
+  },
+  {
+    "company": "Domestic Uniform Rental",
+    "name": "Mark Colton",
+    "title": "President",
+    "email": "mcolton@domesticuniform.com",
+    "email_source": "https://casedocs.omniagentsolutions.com/cmsvol2/pub_46996/569121_622-0.pdf",
+    "note": "Historical 2016 business contact; also indexed in 2025 filing; needs mailbox verification",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "10 mx.zoho.com.",
+      "20 mx2.zoho.com.",
+      "50 mx3.zoho.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146962+00:00"
+  },
+  {
+    "company": "Wolverine Truck Sales",
+    "name": "Lynn Terry",
+    "title": "President",
+    "email": "lynn.terry@wolverinefordsales.com",
+    "email_source": "https://www.allbiz.com/business/wolverine-freightliner-dearborn-inc-313-849-0800",
+    "note": "HOLD: no MX or A records returned; do not use this address",
+    "status": "hold_no_mail_routing",
+    "syntax_valid": true,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146963+00:00"
+  },
+  {
+    "company": "Gen Oil",
+    "name": "Keith Albertie",
+    "title": "President",
+    "email": null,
+    "email_source": null,
+    "note": "Only shared orders mailbox found; not assigned to Keith",
+    "status": "not_found",
+    "syntax_valid": null,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": null
+  },
+  {
+    "company": "TNG Worldwide",
+    "name": "Larry Gaynor",
+    "title": "Founder & CEO",
+    "email": "coach@tngworldwide.com",
+    "email_source": "https://www.larrygaynor.com/contact-3",
+    "note": "Explicit Contact Larry address on his professional website; coaching/contact mailbox, not verified private executive inbox",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "10 my-mx.email-protect.gosecure.net."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146966+00:00"
+  },
+  {
+    "company": "English Gardens",
+    "name": "John Darin",
+    "title": "CEO",
+    "email": "jdarin@englishgardens.com",
+    "email_source": "https://www.englishgardens.com/wp-content/uploads/wysiwyg/PDF/EG_AugustNews_2015_small.pdf",
+    "note": "Self-published company newsletter from August 2015; older address",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "10 englishgardens.in.tmes.trendmicro.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146968+00:00"
+  },
+  {
+    "company": "LR Management Services",
+    "name": "Leslie Etterbeek",
+    "title": "Founder & CEO",
+    "email": "leslie@lrmanagement.com",
+    "email_source": "https://gmaronline.com/find-strategic-partner",
+    "note": "Named professional association listing; publication date unknown",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "10 lrmanagement-com.mx1.arsmtp.com.",
+      "20 lrmanagement-com.mx2.arsmtp.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146970+00:00"
+  },
+  {
+    "company": "Joe Vicari Restaurant Group",
+    "name": "Rosalie Vicari",
+    "title": "Owner",
+    "email": "rovicari@vicarirestaurants.com",
+    "email_source": "https://cloud.tctimes.com/ez_read/archives/2020/120220_W.pdf",
+    "note": "Named business contact in December 2, 2020 newspaper; older address",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "0 vicarirestaurants-com.mail.protection.outlook.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146971+00:00"
+  },
+  {
+    "company": "Ansara Restaurant Group",
+    "name": "Victor Ansara",
+    "title": "President & CEO",
+    "email": "victor@ansararestaurantgroup.com",
+    "email_source": "https://www.house.mi.gov/Document/?DocumentId=45433&DocumentType=CommitteeTestimony",
+    "note": "Named contact in Michigan House committee testimony; publication date not confirmed",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "0 ansararestaurantgroup-com.mail.protection.outlook.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146973+00:00"
+  },
+  {
+    "company": "Alta Pest Control",
+    "name": "Chris Langlois",
+    "title": "CEO",
+    "email": null,
+    "email_source": null,
+    "note": "No acceptable substantiated direct executive email found; excluded patterns, shared inboxes and questionable source",
+    "status": "not_found",
+    "syntax_valid": null,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": null
+  },
+  {
+    "company": "Sprague Pest Solutions",
+    "name": "AJ Treleven",
+    "title": "Executive Vice President",
+    "email": "atreleven@spraguepest.com",
+    "email_source": "https://apps.des.wa.gov/contracting/27523%20State%20Contract%20Sprague%20-%20signed.pdf",
+    "note": "Named business contact in signed state contract; current EVP role confirmed in August 2026 company announcement",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "0 spraguepest-com.mail.protection.outlook.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146974+00:00"
+  },
+  {
+    "company": "Rottler Pest Solutions",
+    "name": "Mike Rottler",
+    "title": "Chairman & CEO",
+    "email": "mrottler@rottler.com",
+    "email_source": "https://www.allbiz.com/business/rottler-pest-solutions_8n-314-426-6100",
+    "note": "Third-party business directory; address not independently confirmed",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "0 rottler-com.mail.protection.outlook.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146976+00:00"
+  },
+  {
+    "company": "Go-Forth Home Services",
+    "name": "Chase Hazelwood",
+    "title": "Owner & CEO",
+    "email": null,
+    "email_source": null,
+    "note": "No substantiated direct executive email found; shared and masked addresses excluded",
+    "status": "not_found",
+    "syntax_valid": null,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": null
+  },
+  {
+    "company": "Versacor Enterprises",
+    "name": "Jason Eicher",
+    "title": "President",
+    "email": null,
+    "email_source": null,
+    "note": "Business permit contact found for another employee; no substantiated executive address",
+    "status": "not_found",
+    "syntax_valid": null,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": null
+  },
+  {
+    "company": "Braman Termite & Pest Elimination",
+    "name": "Gerald (Jerry) Lazarus",
+    "title": "President",
+    "email": "glazarus@bramanpest.com",
+    "email_source": "https://portal.ct.gov/-/media/DEEP/pesticides/Supervisors-by-Cat-3-31-20.pdf",
+    "note": "2020 professional licensing list; also listed in government contractor directory; older address",
+    "status": "published_mailbox_unverified",
+    "syntax_valid": true,
+    "mx_records": [
+      "20 mx2-us1.ppe-hosted.com.",
+      "10 mx1-us1.ppe-hosted.com."
+    ],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": "2026-09-23T20:03:27.146978+00:00"
+  },
+  {
+    "company": "Native Pest Management",
+    "name": "Luke Lewis",
+    "title": "Founder & CEO",
+    "email": null,
+    "email_source": null,
+    "note": "Only generic and sales inboxes found; no substantiated executive email",
+    "status": "not_found",
+    "syntax_valid": null,
+    "mx_records": [],
+    "mailbox_verified": false,
+    "verified_at": null,
+    "research_date": "2026-09-23",
+    "dns_checked_at_utc": null
+  }
+]

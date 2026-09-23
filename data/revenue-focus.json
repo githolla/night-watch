@@ -1,5 +1,814 @@
 [
   {
+    "company": "Ansara Restaurant Group",
+    "domain": "ansararestaurantgroup.com",
+    "sector": "Restaurant operations",
+    "revenue": {
+      "usdMillions": 93.5,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Ansara Restaurant Group operates restaurants in Michigan and northwest Ohio under Victor Ansara.",
+      "date": null,
+      "sourceUrl": "https://www.ansararestaurantgroup.com/story.html"
+    },
+    "reframe": "A location report becomes useful when someone owns the next action.",
+    "contacts": [
+      {
+        "name": "Victor Ansara",
+        "title": "President & CEO",
+        "sourceUrl": "https://www.ansararestaurantgroup.com/story.html",
+        "email": "victor@ansararestaurantgroup.com",
+        "emailSourceUrl": "https://www.house.mi.gov/Document/?DocumentId=45433&DocumentType=CommitteeTestimony",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "Named contact in Michigan House committee testimony; publication date not confirmed",
+        "subject": "from location reports to action",
+        "message": "With restaurants across Michigan and northwest Ohio, I'd like to help your managers spend less time pulling together location reports and more time closing the actions those reports create.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams. We recently helped one client deploy 20 applications.\n\nWe'd build a first version that brings one set of operating reports together, highlights exceptions and tracks the agreed action. We'd measure preparation time and follow-up completion, with managers checking the conclusions.\n\nWould a short example of that location review be useful?",
+        "contact_rank": 1,
+        "contact_id": "rev-ansararestaurantgroup-c1"
+      }
+    ],
+    "rank": 1,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A location report becomes useful when someone owns the next action. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$93.5M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Victor Ansara",
+      "title": "President & CEO",
+      "sourceUrl": "https://www.ansararestaurantgroup.com/story.html",
+      "email": "victor@ansararestaurantgroup.com"
+    },
+    "subject": "from location reports to action",
+    "message": "With restaurants across Michigan and northwest Ohio, I'd like to help your managers spend less time pulling together location reports and more time closing the actions those reports create.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams. We recently helped one client deploy 20 applications.\n\nWe'd build a first version that brings one set of operating reports together, highlights exceptions and tracks the agreed action. We'd measure preparation time and follow-up completion, with managers checking the conclusions.\n\nWould a short example of that location review be useful?",
+    "writerKit": {
+      "accountId": "rev-ansararestaurantgroup",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-ansararestaurantgroup-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-ansararestaurantgroup-f1",
+          "statement": "Ansara Restaurant Group operates restaurants in Michigan and northwest Ohio under Victor Ansara.",
+          "source_url": "https://www.ansararestaurantgroup.com/story.html",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A location report becomes useful when someone owns the next action.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "from location reports to action"
+      ],
+      "touch1Cta": "Would a short example of that location review be useful?"
+    }
+  },
+  {
+    "company": "Metro Wire & Cable",
+    "domain": "metrowire.net",
+    "sector": "Wire and cable distribution",
+    "revenue": {
+      "usdMillions": 93.2,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Metro Wire supplies wire and cable through distribution centers in Michigan, Georgia and Iowa.",
+      "date": null,
+      "sourceUrl": "https://metrowire.net/careers/about-careers/"
+    },
+    "reframe": "A faster quote starts with checking customer specifications against available stock.",
+    "contacts": [
+      {
+        "name": "Devin Ezop",
+        "title": "President & CEO",
+        "sourceUrl": "https://metrowire.net/careers/about-careers/",
+        "email": "devinezop@metrowire.net",
+        "emailSourceUrl": "https://www.michmca.org/images/TCCO_MonroeBlock-Contractor_List.pdf",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "2018 contractor directory; older address",
+        "subject": "cable specs to a quote",
+        "message": "Metro Wire serves customers from three distribution centers. I'd like to help your team turn a cable request into a checked quote without another round of searching through specifications and stock records.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version that reads an incoming request, checks the specifications against your approved product data and prepares the quote for review. We'd measure preparation time and corrections.\n\nWould you like to see how we'd approach one type of cable request?",
+        "contact_rank": 1,
+        "contact_id": "rev-metrowire-c1"
+      }
+    ],
+    "rank": 2,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A faster quote starts with checking customer specifications against available stock. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$93.2M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Devin Ezop",
+      "title": "President & CEO",
+      "sourceUrl": "https://metrowire.net/careers/about-careers/",
+      "email": "devinezop@metrowire.net"
+    },
+    "subject": "cable specs to a quote",
+    "message": "Metro Wire serves customers from three distribution centers. I'd like to help your team turn a cable request into a checked quote without another round of searching through specifications and stock records.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version that reads an incoming request, checks the specifications against your approved product data and prepares the quote for review. We'd measure preparation time and corrections.\n\nWould you like to see how we'd approach one type of cable request?",
+    "writerKit": {
+      "accountId": "rev-metrowire",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-metrowire-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-metrowire-f1",
+          "statement": "Metro Wire supplies wire and cable through distribution centers in Michigan, Georgia and Iowa.",
+          "source_url": "https://metrowire.net/careers/about-careers/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A faster quote starts with checking customer specifications against available stock.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "cable specs to a quote"
+      ],
+      "touch1Cta": "Would you like to see how we'd approach one type of cable request?"
+    }
+  },
+  {
+    "company": "Wolverine Truck Sales",
+    "domain": "wolverinetruckgroup.com",
+    "sector": "Commercial truck sales and repair",
+    "revenue": {
+      "usdMillions": 88.3,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Wolverine Truck Group operates three Michigan locations providing truck sales, parts, service and body repair.",
+      "date": null,
+      "sourceUrl": "https://www.wolverinetruckgroup.com/"
+    },
+    "reframe": "A repair order should bring parts status and required paperwork together.",
+    "contacts": [
+      {
+        "name": "Lynn Terry",
+        "title": "President",
+        "sourceUrl": "https://www.wolverinetruckgroup.com/",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "emailNote": "HOLD: no MX or A records returned; do not use this address",
+        "subject": "getting the repair order moving",
+        "message": "Wolverine runs service, parts and body work across three locations. I'd like to help with a specific handoff: getting the technician's findings, parts status and required paperwork together before the repair order moves on.\n\nAt Nine-67, our forward-deployed engineers build custom software with business teams. We're AI-first, and we handle the build through training and deployment.\n\nWe'd build a first version around one repair type, preparing the packet for your service team's review. We'd measure time spent gathering information and the number of incomplete handoffs, then train staff through launch.\n\nWould a service-order example be useful to your team?",
+        "contact_rank": 1,
+        "contact_id": "rev-wolverinetruckgroup-c1"
+      }
+    ],
+    "rank": 3,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A repair order should bring parts status and required paperwork together. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$88.3M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Lynn Terry",
+      "title": "President",
+      "sourceUrl": "https://www.wolverinetruckgroup.com/",
+      "email": null
+    },
+    "subject": "getting the repair order moving",
+    "message": "Wolverine runs service, parts and body work across three locations. I'd like to help with a specific handoff: getting the technician's findings, parts status and required paperwork together before the repair order moves on.\n\nAt Nine-67, our forward-deployed engineers build custom software with business teams. We're AI-first, and we handle the build through training and deployment.\n\nWe'd build a first version around one repair type, preparing the packet for your service team's review. We'd measure time spent gathering information and the number of incomplete handoffs, then train staff through launch.\n\nWould a service-order example be useful to your team?",
+    "writerKit": {
+      "accountId": "rev-wolverinetruckgroup",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-wolverinetruckgroup-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-wolverinetruckgroup-f1",
+          "statement": "Wolverine Truck Group operates three Michigan locations providing truck sales, parts, service and body repair.",
+          "source_url": "https://www.wolverinetruckgroup.com/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A repair order should bring parts status and required paperwork together.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "getting the repair order moving"
+      ],
+      "touch1Cta": "Would a service-order example be useful to your team?"
+    }
+  },
+  {
+    "company": "Motor City Stamping",
+    "domain": "mcstamp.com",
+    "sector": "Automotive stamping and assembly manufacturing",
+    "revenue": {
+      "usdMillions": 86.6,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2026 Crain's ranking, 2025 company revenue; corrected original motorcitystamping.com domain."
+    },
+    "trigger": {
+      "fact": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+      "date": null,
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+    },
+    "reframe": "A changed customer schedule matters when the team can see which production orders need a decision.",
+    "contacts": [
+      {
+        "name": "Judith Kucway",
+        "title": "CEO & CFO",
+        "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "subject": "when the customer schedule changes",
+        "message": "For a stamping and assembly business like Motor City, I'd start an AI conversation with a concrete example: a changed customer schedule and the production orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work alongside business and operations teams to build custom software that fits how they work.\n\nWe'd build a first version that compares a schedule update with open orders and flags the differences for a planner. We'd measure checking time and keep every production decision with your team. Then we'd refine it with users and train them through launch.\n\nWould you be open to looking at one real schedule change together?",
+        "contact_rank": 1,
+        "contact_id": "rev-mcstamp-c1"
+      }
+    ],
+    "rank": 4,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Judith Kucway",
+      "title": "CEO & CFO",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "email": null
+    },
+    "subject": "when the customer schedule changes",
+    "message": "For a stamping and assembly business like Motor City, I'd start an AI conversation with a concrete example: a changed customer schedule and the production orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work alongside business and operations teams to build custom software that fits how they work.\n\nWe'd build a first version that compares a schedule update with open orders and flags the differences for a planner. We'd measure checking time and keep every production decision with your team. Then we'd refine it with users and train them through launch.\n\nWould you be open to looking at one real schedule change together?",
+    "writerKit": {
+      "accountId": "rev-mcstamp",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-mcstamp-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-mcstamp-f1",
+          "statement": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A changed customer schedule matters when the team can see which production orders need a decision.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "when the customer schedule changes"
+      ],
+      "touch1Cta": "Would you be open to looking at one real schedule change together?"
+    }
+  },
+  {
+    "company": "Evans Distribution Systems",
+    "domain": "evansdist.com",
+    "sector": "Logistics and fulfillment",
+    "revenue": {
+      "usdMillions": 84,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Evans implemented a new transportation management system across asset and non-asset operations in 2025.",
+      "date": "2026-01-14",
+      "sourceUrl": "https://www.evansdist.com/2025-a-balancing-act-evans-distribution-systems/"
+    },
+    "reframe": "A shipment exception needs an owner and a customer update, not another screen.",
+    "contacts": [
+      {
+        "name": "John A. Evans",
+        "title": "President & CEO",
+        "sourceUrl": "https://www.evansdist.com/2025-a-balancing-act-evans-distribution-systems/",
+        "email": "jevans@evansdist.com",
+        "emailSourceUrl": "https://www.commtrex.com/transloading/location/20074.html",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "Industry directory; publication date unknown",
+        "subject": "after the TMS rollout",
+        "message": "You put a new TMS across Evans' transportation operations last year. I'd like to help with what happens around it: turning a shipment exception into a clear next action and customer update.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build a first version that gathers the exception, supporting records and responsible person in one place. Your team reviews the action. We'd measure time from flag to resolution.\n\nWould a short example of that workflow be useful for your operations team?",
+        "contact_rank": 1,
+        "contact_id": "rev-evansdist-c1"
+      }
+    ],
+    "rank": 5,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A shipment exception needs an owner and a customer update, not another screen. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$84M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "John A. Evans",
+      "title": "President & CEO",
+      "sourceUrl": "https://www.evansdist.com/2025-a-balancing-act-evans-distribution-systems/",
+      "email": "jevans@evansdist.com"
+    },
+    "subject": "after the TMS rollout",
+    "message": "You put a new TMS across Evans' transportation operations last year. I'd like to help with what happens around it: turning a shipment exception into a clear next action and customer update.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build a first version that gathers the exception, supporting records and responsible person in one place. Your team reviews the action. We'd measure time from flag to resolution.\n\nWould a short example of that workflow be useful for your operations team?",
+    "writerKit": {
+      "accountId": "rev-evansdist",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-evansdist-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-evansdist-f1",
+          "statement": "Evans implemented a new transportation management system across asset and non-asset operations in 2025.",
+          "source_url": "https://www.evansdist.com/2025-a-balancing-act-evans-distribution-systems/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2026-01-14"
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A shipment exception needs an owner and a customer update, not another screen.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "after the TMS rollout"
+      ],
+      "touch1Cta": "Would a short example of that workflow be useful for your operations team?"
+    }
+  },
+  {
+    "company": "Bell Fork Lift",
+    "domain": "bellforklift.com",
+    "sector": "Material handling equipment and field service",
+    "revenue": {
+      "usdMillions": 82,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Bell Fork Lift provides equipment, rentals, parts and repair service across Michigan.",
+      "date": null,
+      "sourceUrl": "https://www.bellforklift.com/history/"
+    },
+    "reframe": "Technician notes can become a checked parts request and work order before the next handoff.",
+    "contacts": [
+      {
+        "name": "Kristen Bell",
+        "title": "Co-owner & Vice President",
+        "sourceUrl": "https://www.bellforklift.com/history/",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "emailNote": "No substantiated direct leadership email found",
+        "subject": "after the service visit",
+        "message": "Bell's service business is a practical place to put AI to work. I'd start after the technician's visit, helping the office turn the notes into the right parts request and next step.\n\nAt Nine-67, our forward-deployed engineers build custom software with business teams. We're AI-first, and we handle the build through training and deployment.\n\nWe'd build around one service workflow, preparing a work order from technician notes for your team to check. We'd measure office handling time and incomplete handoffs, then train the people using it.\n\nWould a working example for a service visit be worth a look?",
+        "contact_rank": 1,
+        "contact_id": "rev-bellforklift-c1"
+      }
+    ],
+    "rank": 6,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "Technician notes can become a checked parts request and work order before the next handoff. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$82M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Kristen Bell",
+      "title": "Co-owner & Vice President",
+      "sourceUrl": "https://www.bellforklift.com/history/",
+      "email": null
+    },
+    "subject": "after the service visit",
+    "message": "Bell's service business is a practical place to put AI to work. I'd start after the technician's visit, helping the office turn the notes into the right parts request and next step.\n\nAt Nine-67, our forward-deployed engineers build custom software with business teams. We're AI-first, and we handle the build through training and deployment.\n\nWe'd build around one service workflow, preparing a work order from technician notes for your team to check. We'd measure office handling time and incomplete handoffs, then train the people using it.\n\nWould a working example for a service visit be worth a look?",
+    "writerKit": {
+      "accountId": "rev-bellforklift",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-bellforklift-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-bellforklift-f1",
+          "statement": "Bell Fork Lift provides equipment, rentals, parts and repair service across Michigan.",
+          "source_url": "https://www.bellforklift.com/history/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "Technician notes can become a checked parts request and work order before the next handoff.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "after the service visit"
+      ],
+      "touch1Cta": "Would a working example for a service visit be worth a look?"
+    }
+  },
+  {
+    "company": "TNG Worldwide",
+    "domain": "tngworldwide.com",
+    "sector": "Beauty and personal-care products",
+    "revenue": {
+      "usdMillions": 76.1,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "TNG Worldwide manufactures and distributes beauty and personal-care products.",
+      "date": null,
+      "sourceUrl": "https://tngworldwide.com/a-team-of-experts/"
+    },
+    "reframe": "A product change should reach every listing with the same approved information.",
+    "contacts": [
+      {
+        "name": "Larry Gaynor",
+        "title": "Founder & CEO",
+        "sourceUrl": "https://tngworldwide.com/a-team-of-experts/",
+        "email": "coach@tngworldwide.com",
+        "emailSourceUrl": "https://www.larrygaynor.com/contact-3",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "Explicit Contact Larry address on his professional website; coaching/contact mailbox, not verified private executive inbox",
+        "subject": "one product change, every listing",
+        "message": "TNG's product range gives AI a useful job beyond writing more content: checking that a product change reaches every listing accurately. I'd like to help your team keep approved information consistent as the catalog changes.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version that compares listings with the approved product record and queues differences for review. We'd measure review time and discrepancies caught, then train the team as we deploy.\n\nWould an example using one product family be worth a look?",
+        "contact_rank": 1,
+        "contact_id": "rev-tngworldwide-c1"
+      }
+    ],
+    "rank": 7,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A product change should reach every listing with the same approved information. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$76.1M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Larry Gaynor",
+      "title": "Founder & CEO",
+      "sourceUrl": "https://tngworldwide.com/a-team-of-experts/",
+      "email": "coach@tngworldwide.com"
+    },
+    "subject": "one product change, every listing",
+    "message": "TNG's product range gives AI a useful job beyond writing more content: checking that a product change reaches every listing accurately. I'd like to help your team keep approved information consistent as the catalog changes.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version that compares listings with the approved product record and queues differences for review. We'd measure review time and discrepancies caught, then train the team as we deploy.\n\nWould an example using one product family be worth a look?",
+    "writerKit": {
+      "accountId": "rev-tngworldwide",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-tngworldwide-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-tngworldwide-f1",
+          "statement": "TNG Worldwide manufactures and distributes beauty and personal-care products.",
+          "source_url": "https://tngworldwide.com/a-team-of-experts/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A product change should reach every listing with the same approved information.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "one product change, every listing"
+      ],
+      "touch1Cta": "Would an example using one product family be worth a look?"
+    }
+  },
+  {
+    "company": "LR Management Services",
+    "domain": "lrmanagement.com",
+    "sector": "Residential property operations",
+    "revenue": {
+      "usdMillions": 70,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "LR Management operates residential properties and coordinates property management services.",
+      "date": null,
+      "sourceUrl": "https://www.lrmanagement.com/management"
+    },
+    "reframe": "A maintenance request needs a clear owner and vendor follow-up through completion.",
+    "contacts": [
+      {
+        "name": "Leslie Etterbeek",
+        "title": "Founder & CEO",
+        "sourceUrl": "https://www.lrmanagement.com/management",
+        "email": "leslie@lrmanagement.com",
+        "emailSourceUrl": "https://gmaronline.com/find-strategic-partner",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "Named professional association listing; publication date unknown",
+        "subject": "from resident request to resolution",
+        "message": "For LR Management, I'd put AI close to the resident's maintenance request. The useful result is a clear owner, the relevant history and the next vendor follow-up, with your property team in control.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams. We recently helped one client deploy 20 applications.\n\nWe'd build around one request type across a small property group. We'd measure handling time and unresolved follow-ups, refine it with property managers and train staff before expanding.\n\nWould an example of that maintenance handoff be useful?",
+        "contact_rank": 1,
+        "contact_id": "rev-lrmanagement-c1"
+      }
+    ],
+    "rank": 8,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A maintenance request needs a clear owner and vendor follow-up through completion. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$70M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Leslie Etterbeek",
+      "title": "Founder & CEO",
+      "sourceUrl": "https://www.lrmanagement.com/management",
+      "email": "leslie@lrmanagement.com"
+    },
+    "subject": "from resident request to resolution",
+    "message": "For LR Management, I'd put AI close to the resident's maintenance request. The useful result is a clear owner, the relevant history and the next vendor follow-up, with your property team in control.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams. We recently helped one client deploy 20 applications.\n\nWe'd build around one request type across a small property group. We'd measure handling time and unresolved follow-ups, refine it with property managers and train staff before expanding.\n\nWould an example of that maintenance handoff be useful?",
+    "writerKit": {
+      "accountId": "rev-lrmanagement",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-lrmanagement-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-lrmanagement-f1",
+          "statement": "LR Management operates residential properties and coordinates property management services.",
+          "source_url": "https://www.lrmanagement.com/management",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A maintenance request needs a clear owner and vendor follow-up through completion.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "from resident request to resolution"
+      ],
+      "touch1Cta": "Would an example of that maintenance handoff be useful?"
+    }
+  },
+  {
+    "company": "Gutherie Lumber",
+    "domain": "gutherielumber.com",
+    "sector": "Building materials distribution",
+    "revenue": {
+      "usdMillions": 65.9,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Gutherie combines building-material delivery with wall-panel manufacturing and I-joist cutting.",
+      "date": null,
+      "sourceUrl": "https://gutherielumber.com/our-history/"
+    },
+    "reframe": "A changed builder order should show its effect on cutting and delivery together.",
+    "contacts": [
+      {
+        "name": "Mel Gutherie",
+        "title": "President",
+        "sourceUrl": "https://gutherielumber.com/our-history/",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "emailNote": "Generic inbox and older employee contacts found; no substantiated executive address",
+        "subject": "when the builder changes plans",
+        "message": "Gutherie's delivery, wall-panel and I-joist operations give a changed builder order several places to travel. I'd like to help your team see the effect on cutting and delivery before they confirm the change.\n\nAt Nine-67, our forward-deployed engineers build custom software with business teams. We're AI-first, and we handle the build through training and deployment.\n\nWe'd build a first pass that pulls the changed order and relevant schedules together for review. We'd measure checking time and unresolved handoffs, then refine it with the dispatch and production teams.\n\nWould a short example around an order change be helpful?",
+        "contact_rank": 1,
+        "contact_id": "rev-gutherielumber-c1"
+      }
+    ],
+    "rank": 9,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A changed builder order should show its effect on cutting and delivery together. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$65.9M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Mel Gutherie",
+      "title": "President",
+      "sourceUrl": "https://gutherielumber.com/our-history/",
+      "email": null
+    },
+    "subject": "when the builder changes plans",
+    "message": "Gutherie's delivery, wall-panel and I-joist operations give a changed builder order several places to travel. I'd like to help your team see the effect on cutting and delivery before they confirm the change.\n\nAt Nine-67, our forward-deployed engineers build custom software with business teams. We're AI-first, and we handle the build through training and deployment.\n\nWe'd build a first pass that pulls the changed order and relevant schedules together for review. We'd measure checking time and unresolved handoffs, then refine it with the dispatch and production teams.\n\nWould a short example around an order change be helpful?",
+    "writerKit": {
+      "accountId": "rev-gutherielumber",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-gutherielumber-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-gutherielumber-f1",
+          "statement": "Gutherie combines building-material delivery with wall-panel manufacturing and I-joist cutting.",
+          "source_url": "https://gutherielumber.com/our-history/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A changed builder order should show its effect on cutting and delivery together.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "when the builder changes plans"
+      ],
+      "touch1Cta": "Would a short example around an order change be helpful?"
+    }
+  },
+  {
+    "company": "Joe Vicari Restaurant Group",
+    "domain": "vicarirestaurants.com",
+    "sector": "Restaurant operations",
+    "revenue": {
+      "usdMillions": 63.6,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Joe Vicari Restaurant Group operates multiple restaurant concepts including Andiamo and Joe Muer Seafood.",
+      "date": null,
+      "sourceUrl": "https://vicarirestaurants.com/"
+    },
+    "reframe": "A daily operating review should identify the cost exception that needs a decision.",
+    "contacts": [
+      {
+        "name": "Rosalie Vicari",
+        "title": "Owner",
+        "sourceUrl": "https://vicarirestaurants.com/",
+        "email": "rovicari@vicarirestaurants.com",
+        "emailSourceUrl": "https://cloud.tctimes.com/ez_read/archives/2020/120220_W.pdf",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "Named business contact in December 2, 2020 newspaper; older address",
+        "subject": "the exceptions in yesterday’s numbers",
+        "message": "With different restaurant concepts in the Vicari group, I'd focus AI on the exceptions worth your attention in yesterday's numbers. The goal would be a decision to make, with the supporting detail already gathered.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version around one operating-cost review, connecting the relevant reports and flagging differences for your team. We'd measure review time and follow-up completion, then train the managers using it.\n\nWould a sample daily review be worth a look?",
+        "contact_rank": 1,
+        "contact_id": "rev-vicarirestaurants-c1"
+      }
+    ],
+    "rank": 10,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A daily operating review should identify the cost exception that needs a decision. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$63.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Rosalie Vicari",
+      "title": "Owner",
+      "sourceUrl": "https://vicarirestaurants.com/",
+      "email": "rovicari@vicarirestaurants.com"
+    },
+    "subject": "the exceptions in yesterday’s numbers",
+    "message": "With different restaurant concepts in the Vicari group, I'd focus AI on the exceptions worth your attention in yesterday's numbers. The goal would be a decision to make, with the supporting detail already gathered.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version around one operating-cost review, connecting the relevant reports and flagging differences for your team. We'd measure review time and follow-up completion, then train the managers using it.\n\nWould a sample daily review be worth a look?",
+    "writerKit": {
+      "accountId": "rev-vicarirestaurants",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-vicarirestaurants-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-vicarirestaurants-f1",
+          "statement": "Joe Vicari Restaurant Group operates multiple restaurant concepts including Andiamo and Joe Muer Seafood.",
+          "source_url": "https://vicarirestaurants.com/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A daily operating review should identify the cost exception that needs a decision.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "the exceptions in yesterday’s numbers"
+      ],
+      "touch1Cta": "Would a sample daily review be worth a look?"
+    }
+  },
+  {
     "company": "Cayman Chemical",
     "domain": "caymanchem.com",
     "sector": "Research chemical manufacturing",
@@ -44,7 +853,7 @@
         "contact_id": "rev-caymanchem-c2"
       }
     ],
-    "rank": 1,
+    "rank": 11,
     "researchDate": "2026-09-23",
     "targetRole": "executive",
     "proofKind": "owner-supplied-delivery",
@@ -94,6 +903,168 @@
     }
   },
   {
+    "company": "Domestic Uniform Rental",
+    "domain": "domesticuniform.com",
+    "sector": "Uniform and textile rental services",
+    "revenue": {
+      "usdMillions": 61.8,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Domestic Uniform supplies recurring uniform, linen and facility-service programs.",
+      "date": null,
+      "sourceUrl": "https://www.domesticuniform.com/our-products/"
+    },
+    "reframe": "A delivery discrepancy should connect the customer report to the route record and a resolution.",
+    "contacts": [
+      {
+        "name": "Mark Colton",
+        "title": "President",
+        "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+        "email": "mcolton@domesticuniform.com",
+        "emailSourceUrl": "https://casedocs.omniagentsolutions.com/cmsvol2/pub_46996/569121_622-0.pdf",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "Historical 2016 business contact; also indexed in 2025 filing; needs mailbox verification",
+        "subject": "closing a delivery discrepancy",
+        "message": "Domestic's recurring service creates a clear AI use case: connect a customer's missing-item report with the delivery record and the next action. I'd like to help your team close that loop with less chasing.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version for one discrepancy type, gathering the evidence and preparing a response for staff approval. We'd measure handling time and repeat contacts, then train the route-support team.\n\nWould an example of that customer-to-route handoff be useful?",
+        "contact_rank": 1,
+        "contact_id": "rev-domesticuniform-c1"
+      }
+    ],
+    "rank": 12,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A delivery discrepancy should connect the customer report to the route record and a resolution. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$61.8M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Mark Colton",
+      "title": "President",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "email": "mcolton@domesticuniform.com"
+    },
+    "subject": "closing a delivery discrepancy",
+    "message": "Domestic's recurring service creates a clear AI use case: connect a customer's missing-item report with the delivery record and the next action. I'd like to help your team close that loop with less chasing.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version for one discrepancy type, gathering the evidence and preparing a response for staff approval. We'd measure handling time and repeat contacts, then train the route-support team.\n\nWould an example of that customer-to-route handoff be useful?",
+    "writerKit": {
+      "accountId": "rev-domesticuniform",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-domesticuniform-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-domesticuniform-f1",
+          "statement": "Domestic Uniform supplies recurring uniform, linen and facility-service programs.",
+          "source_url": "https://www.domesticuniform.com/our-products/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A delivery discrepancy should connect the customer report to the route record and a resolution.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "closing a delivery discrepancy"
+      ],
+      "touch1Cta": "Would an example of that customer-to-route handoff be useful?"
+    }
+  },
+  {
+    "company": "Sprague Pest Solutions",
+    "domain": "spraguepest.com",
+    "sector": "Commercial pest management",
+    "revenue": {
+      "usdMillions": 59.1,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf",
+      "note": "2025 North American service revenue reported in PCT 2026."
+    },
+    "trigger": {
+      "fact": "Sprague named Ross Treleven chairman in August 2026 and identifies AJ Treleven as executive vice president.",
+      "date": "2026-08-13",
+      "sourceUrl": "https://www.spraguepest.com/ross-treleven-named-chairman/"
+    },
+    "reframe": "A commercial audit packet should connect service evidence and corrective actions.",
+    "contacts": [
+      {
+        "name": "AJ Treleven",
+        "title": "Executive Vice President",
+        "sourceUrl": "https://www.spraguepest.com/ross-treleven-named-chairman/",
+        "email": "atreleven@spraguepest.com",
+        "emailSourceUrl": "https://apps.des.wa.gov/contracting/27523%20State%20Contract%20Sprague%20-%20signed.pdf",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "Named business contact in signed state contract; current EVP role confirmed in August 2026 company announcement",
+        "subject": "the evidence behind the audit",
+        "message": "Sprague already has a customer portal and online logbook. I'd like to help with the work around an audit: turning service evidence and corrective actions into a packet your team can check without rebuilding the story.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build around one customer audit, pulling from approved records and linking each conclusion to its source. We'd measure preparation time and missing evidence, then refine and train with your team.\n\nWould an example of that audit-preparation workflow be useful?",
+        "contact_rank": 1,
+        "contact_id": "rev-spraguepest-c1"
+      }
+    ],
+    "rank": 13,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A commercial audit packet should connect service evidence and corrective actions. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$59.1M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "AJ Treleven",
+      "title": "Executive Vice President",
+      "sourceUrl": "https://www.spraguepest.com/ross-treleven-named-chairman/",
+      "email": "atreleven@spraguepest.com"
+    },
+    "subject": "the evidence behind the audit",
+    "message": "Sprague already has a customer portal and online logbook. I'd like to help with the work around an audit: turning service evidence and corrective actions into a packet your team can check without rebuilding the story.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build around one customer audit, pulling from approved records and linking each conclusion to its source. We'd measure preparation time and missing evidence, then refine and train with your team.\n\nWould an example of that audit-preparation workflow be useful?",
+    "writerKit": {
+      "accountId": "rev-spraguepest",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-spraguepest-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-spraguepest-f1",
+          "statement": "Sprague named Ross Treleven chairman in August 2026 and identifies AJ Treleven as executive vice president.",
+          "source_url": "https://www.spraguepest.com/ross-treleven-named-chairman/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2026-08-13"
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A commercial audit packet should connect service evidence and corrective actions.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "the evidence behind the audit"
+      ],
+      "touch1Cta": "Would an example of that audit-preparation workflow be useful?"
+    }
+  },
+  {
     "company": "Alta Pest Control",
     "domain": "altapestcontrol.com",
     "sector": "Pest control and field services",
@@ -138,7 +1109,7 @@
         "contact_id": "rev-altapestcontrol-c2"
       }
     ],
-    "rank": 2,
+    "rank": 14,
     "researchDate": "2026-09-23",
     "targetRole": "executive",
     "proofKind": "owner-supplied-delivery",
@@ -232,7 +1203,7 @@
         "contact_id": "rev-chrysanindustries-c2"
       }
     ],
-    "rank": 3,
+    "rank": 15,
     "researchDate": "2026-09-23",
     "targetRole": "executive",
     "proofKind": "owner-supplied-delivery",
@@ -282,73 +1253,74 @@
     }
   },
   {
-    "company": "Motor City Stamping",
-    "domain": "mcstamp.com",
-    "sector": "Automotive stamping and assembly manufacturing",
+    "company": "Rottler Pest Solutions",
+    "domain": "rottler.com",
+    "sector": "Pest control and field services",
     "revenue": {
-      "usdMillions": 86.6,
+      "usdMillions": 46.911,
       "year": 2025,
       "status": "reported",
-      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
-      "note": "2026 Crain's ranking, 2025 company revenue; corrected original motorcitystamping.com domain."
+      "sourceUrl": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf",
+      "note": "2025 North American service revenue reported in PCT 2026."
     },
     "trigger": {
-      "fact": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+      "fact": "Rottler operates a family-owned pest management business led by Mike Rottler.",
       "date": null,
-      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+      "sourceUrl": "https://www.rottler.com/meet-team/mike-rottler/"
     },
-    "reframe": "A changed customer schedule matters when the team can see which production orders need a decision.",
+    "reframe": "A repeat service issue should reach the branch with its history and a next action.",
     "contacts": [
       {
-        "name": "Judith Kucway",
-        "title": "CEO & CFO",
-        "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
-        "email": null,
-        "emailSourceUrl": null,
+        "name": "Mike Rottler",
+        "title": "Chairman & CEO",
+        "sourceUrl": "https://www.rottler.com/meet-team/mike-rottler/",
+        "email": "mrottler@rottler.com",
+        "emailSourceUrl": "https://www.allbiz.com/business/rottler-pest-solutions_8n-314-426-6100",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
-        "subject": "when the customer schedule changes",
-        "message": "For a stamping and assembly business like Motor City, I'd start an AI conversation with a concrete example: a changed customer schedule and the production orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work alongside business and operations teams to build custom software that fits how they work.\n\nWe'd build a first version that compares a schedule update with open orders and flags the differences for a planner. We'd measure checking time and keep every production decision with your team. Then we'd refine it with users and train them through launch.\n\nWould you be open to looking at one real schedule change together?",
+        "emailStatus": "published_unverified",
+        "emailNote": "Third-party business directory; address not independently confirmed",
+        "subject": "spotting the repeat service issue",
+        "message": "For Rottler, I'd give AI a practical assignment: help a branch recognize a repeat service issue and bring the history together before the next visit. The technician still makes the treatment decision.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version that groups related service notes and prepares the follow-up for a manager. We'd measure review time and unresolved cases, then refine it with the branch and train the team.\n\nWould a sample of that branch review be useful?",
         "contact_rank": 1,
-        "contact_id": "rev-mcstamp-c1"
+        "contact_id": "rev-rottler-c1"
       }
     ],
-    "rank": 4,
+    "rank": 16,
     "researchDate": "2026-09-23",
     "targetRole": "executive",
     "proofKind": "owner-supplied-delivery",
-    "hypothesis": "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem.",
-    "fit": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "hypothesis": "A repeat service issue should reach the branch with its history and a next action. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$46.911M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
       "Missing addresses remain blank; no inferred email patterns."
     ],
     "buyer": {
-      "name": "Judith Kucway",
-      "title": "CEO & CFO",
-      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
-      "email": null
+      "name": "Mike Rottler",
+      "title": "Chairman & CEO",
+      "sourceUrl": "https://www.rottler.com/meet-team/mike-rottler/",
+      "email": "mrottler@rottler.com"
     },
-    "subject": "when the customer schedule changes",
-    "message": "For a stamping and assembly business like Motor City, I'd start an AI conversation with a concrete example: a changed customer schedule and the production orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work alongside business and operations teams to build custom software that fits how they work.\n\nWe'd build a first version that compares a schedule update with open orders and flags the differences for a planner. We'd measure checking time and keep every production decision with your team. Then we'd refine it with users and train them through launch.\n\nWould you be open to looking at one real schedule change together?",
+    "subject": "spotting the repeat service issue",
+    "message": "For Rottler, I'd give AI a practical assignment: help a branch recognize a repeat service issue and bring the history together before the next visit. The technician still makes the treatment decision.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version that groups related service notes and prepares the follow-up for a manager. We'd measure review time and unresolved cases, then refine it with the branch and train the team.\n\nWould a sample of that branch review be useful?",
     "writerKit": {
-      "accountId": "rev-mcstamp",
+      "accountId": "rev-rottler",
       "frame": "gap_selling",
       "sendWave": 1,
       "factIds": [
-        "rev-mcstamp-f1"
+        "rev-rottler-f1"
       ],
       "facts": [
         {
-          "fact_id": "rev-mcstamp-f1",
-          "statement": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
-          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+          "fact_id": "rev-rottler-f1",
+          "statement": "Rottler operates a family-owned pest management business led by Mike Rottler.",
+          "source_url": "https://www.rottler.com/meet-team/mike-rottler/",
           "retrieved_at": "2026-09-23T00:00:00Z",
           "published_date": null
         }
       ],
       "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
-      "reframe": "A changed customer schedule matters when the team can see which production orders need a decision.",
+      "reframe": "A repeat service issue should reach the branch with its history and a next action.",
       "avoid": [
         "Never claim the proposed workflow is a confirmed pain.",
         "Never invent ROI, software integrations already built, or current buying intent.",
@@ -356,93 +1328,161 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "when the customer schedule changes"
+        "spotting the repeat service issue"
       ],
-      "touch1Cta": "Would you be open to looking at one real schedule change together?"
+      "touch1Cta": "Would a sample of that branch review be useful?"
     }
   },
   {
-    "company": "Channellock",
-    "domain": "channellock.com",
-    "sector": "Hand tool manufacturing",
+    "company": "Eclipse Mold",
+    "domain": "eclipsemold.com",
+    "sector": "Tooling and injection molding",
     "revenue": {
-      "usdMillions": 46.7,
-      "year": null,
-      "status": "estimated",
-      "sourceUrl": "https://growjo.com/company/Channellock",
-      "note": "Third-party annual revenue estimate, not company-confirmed. Retained as a conditional match; source master band was $50-100M."
+      "usdMillions": 45,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
     },
     "trigger": {
-      "fact": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
-      "date": "2025-03-27",
-      "sourceUrl": "https://www.channellock.com/pressreleases/leadership-transition/"
+      "fact": "Eclipse Mold provides mold building, repair, injection molding and component assembly.",
+      "date": null,
+      "sourceUrl": "https://www.eclipsemold.com/home/"
     },
-    "reframe": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up.",
+    "reframe": "A tooling revision should arrive with the affected jobs and decisions attached.",
     "contacts": [
       {
-        "name": "Jon DeArment",
-        "title": "EVP, Manufacturing & Engineering",
-        "sourceUrl": "https://www.channellock.com/pressreleases/leadership-transition/",
-        "email": "jdearment@channellock.com",
-        "emailSourceUrl": "https://hardwaregroupassociation.com/wp-content/uploads/2025/12/HGA-Directory_2026.pdf",
+        "name": "Steve Craprotta",
+        "title": "President",
+        "sourceUrl": "https://www.eclipsemold.com/home/",
+        "email": "steve@eclipsemold.com",
+        "emailSourceUrl": "https://faqet-e-verdha.cybo.com/US-biz/eclipse-mold-inc",
         "emailPublishedDate": null,
         "emailStatus": "published_unverified",
-        "subject": "AI on the shop floor",
-        "message": "Your move into manufacturing and engineering puts you close to where an AI tool has to earn its place: helping the people making the tools. I'd start with the production notes that supervisors already use.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers work alongside operations teams to build custom software and train the people using it.\n\nWe'd build a first version that groups recurring interruptions from those notes and tracks the agreed follow-up. We'd measure preparation time for shift reviews, with supervisors checking every conclusion.\n\nWould you be open to comparing that with how your team runs a shift review?",
+        "emailNote": "Third-party directory uses old VP title; role now President per 2026 company release; address needs confirmation",
+        "subject": "the latest tooling revision",
+        "message": "Eclipse handles both tooling and production. I'd like to help with the handoff when a tooling revision changes what the next team needs to do, without asking people to search through an email chain.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version that connects a revision to affected jobs and flags decisions for the responsible engineer. We'd measure checking time. Your team retains technical approval, and we handle training through launch.\n\nWould an example of that revision handoff be useful?",
         "contact_rank": 1,
-        "contact_id": "rev-channellock-c1"
-      },
+        "contact_id": "rev-eclipsemold-c1"
+      }
+    ],
+    "rank": 17,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A tooling revision should arrive with the affected jobs and decisions attached. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$45M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Steve Craprotta",
+      "title": "President",
+      "sourceUrl": "https://www.eclipsemold.com/home/",
+      "email": "steve@eclipsemold.com"
+    },
+    "subject": "the latest tooling revision",
+    "message": "Eclipse handles both tooling and production. I'd like to help with the handoff when a tooling revision changes what the next team needs to do, without asking people to search through an email chain.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build a first version that connects a revision to affected jobs and flags decisions for the responsible engineer. We'd measure checking time. Your team retains technical approval, and we handle training through launch.\n\nWould an example of that revision handoff be useful?",
+    "writerKit": {
+      "accountId": "rev-eclipsemold",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-eclipsemold-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-eclipsemold-f1",
+          "statement": "Eclipse Mold provides mold building, repair, injection molding and component assembly.",
+          "source_url": "https://www.eclipsemold.com/home/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A tooling revision should arrive with the affected jobs and decisions attached.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "the latest tooling revision"
+      ],
+      "touch1Cta": "Would an example of that revision handoff be useful?"
+    }
+  },
+  {
+    "company": "Gen Oil",
+    "domain": "genoilcorp.com",
+    "sector": "Commercial fuel distribution",
+    "revenue": {
+      "usdMillions": 44.5,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Gen Oil delivers commercial and industrial fuels and diesel exhaust fluid.",
+      "date": null,
+      "sourceUrl": "https://www.genoilcorp.com/fuel-delivery/"
+    },
+    "reframe": "The delivery ticket should reconcile with the order before an invoice needs correcting.",
+    "contacts": [
       {
-        "name": "Jimmy Bromley",
+        "name": "Keith Albertie",
         "title": "President",
-        "sourceUrl": "https://www.channellock.com/pressreleases/leadership-transition/",
+        "sourceUrl": "https://www.genoilcorp.com/fuel-delivery/",
         "email": null,
         "emailSourceUrl": null,
         "emailPublishedDate": null,
         "emailStatus": "not_found",
-        "subject": "a practical AI starting point",
-        "message": "You put operational efficiency and financial discipline at the center of your introduction as Channellock's president. I'd like to explore an AI project you could judge on both.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work with leaders and operations teams to build custom software. We recently helped one client deploy 20 applications.\n\nWe'd build around one production review: connect recurring interruptions in shift notes to the follow-up your supervisors agree on. We'd measure preparation time saved and whether actions get closed, then train the team through deployment.\n\nWould a project like that be worth exploring with Jon?",
-        "contact_rank": 2,
-        "contact_id": "rev-channellock-c2"
+        "emailNote": "Only shared orders mailbox found; not assigned to Keith",
+        "subject": "from fuel ticket to invoice",
+        "message": "For Gen Oil, I'd start with something concrete: a fuel delivery ticket that is ready to invoice. AI could help check it against the order and flag differences before the office has to chase them.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build a first pass for one delivery workflow, matching tickets and orders for staff approval. We'd measure checking time and corrections, refine it with your office team and handle training through deployment.\n\nWould you like to see the checks that first version could make?",
+        "contact_rank": 1,
+        "contact_id": "rev-genoilcorp-c1"
       }
     ],
-    "rank": 5,
+    "rank": 18,
     "researchDate": "2026-09-23",
     "targetRole": "executive",
     "proofKind": "owner-supplied-delivery",
-    "hypothesis": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up. This is a possible workflow to explore, not a confirmed problem.",
-    "fit": "$46.7M annual revenue (estimated). Operating business; buying intent and budget not confirmed.",
+    "hypothesis": "The delivery ticket should reconcile with the order before an invoice needs correcting. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$44.5M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns.",
-      "Third-party annual revenue estimate, not company-confirmed. Retained as a conditional match; source master band was $50-100M."
+      "Missing addresses remain blank; no inferred email patterns."
     ],
     "buyer": {
-      "name": "Jon DeArment",
-      "title": "EVP, Manufacturing & Engineering",
-      "sourceUrl": "https://www.channellock.com/pressreleases/leadership-transition/",
-      "email": "jdearment@channellock.com"
+      "name": "Keith Albertie",
+      "title": "President",
+      "sourceUrl": "https://www.genoilcorp.com/fuel-delivery/",
+      "email": null
     },
-    "subject": "AI on the shop floor",
-    "message": "Your move into manufacturing and engineering puts you close to where an AI tool has to earn its place: helping the people making the tools. I'd start with the production notes that supervisors already use.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers work alongside operations teams to build custom software and train the people using it.\n\nWe'd build a first version that groups recurring interruptions from those notes and tracks the agreed follow-up. We'd measure preparation time for shift reviews, with supervisors checking every conclusion.\n\nWould you be open to comparing that with how your team runs a shift review?",
+    "subject": "from fuel ticket to invoice",
+    "message": "For Gen Oil, I'd start with something concrete: a fuel delivery ticket that is ready to invoice. AI could help check it against the order and flag differences before the office has to chase them.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build a first pass for one delivery workflow, matching tickets and orders for staff approval. We'd measure checking time and corrections, refine it with your office team and handle training through deployment.\n\nWould you like to see the checks that first version could make?",
     "writerKit": {
-      "accountId": "rev-channellock",
+      "accountId": "rev-genoilcorp",
       "frame": "gap_selling",
-      "sendWave": 2,
+      "sendWave": 1,
       "factIds": [
-        "rev-channellock-f1"
+        "rev-genoilcorp-f1"
       ],
       "facts": [
         {
-          "fact_id": "rev-channellock-f1",
-          "statement": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
-          "source_url": "https://www.channellock.com/pressreleases/leadership-transition/",
+          "fact_id": "rev-genoilcorp-f1",
+          "statement": "Gen Oil delivers commercial and industrial fuels and diesel exhaust fluid.",
+          "source_url": "https://www.genoilcorp.com/fuel-delivery/",
           "retrieved_at": "2026-09-23T00:00:00Z",
-          "published_date": "2025-03-27"
+          "published_date": null
         }
       ],
       "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
-      "reframe": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up.",
+      "reframe": "The delivery ticket should reconcile with the order before an invoice needs correcting.",
       "avoid": [
         "Never claim the proposed workflow is a confirmed pain.",
         "Never invent ROI, software integrations already built, or current buying intent.",
@@ -450,10 +1490,576 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "AI on the shop floor",
-        "a practical AI starting point"
+        "from fuel ticket to invoice"
       ],
-      "touch1Cta": "Would you be open to comparing that with how your team runs a shift review?"
+      "touch1Cta": "Would you like to see the checks that first version could make?"
+    }
+  },
+  {
+    "company": "Go-Forth Home Services",
+    "domain": "go-forth.com",
+    "sector": "Pest control and home services",
+    "revenue": {
+      "usdMillions": 41,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf",
+      "note": "2025 North American service revenue reported in PCT 2026."
+    },
+    "trigger": {
+      "fact": "Go-Forth provides pest control and other home services under owner and CEO Chase Hazelwood.",
+      "date": null,
+      "sourceUrl": "https://www.go-forth.com/our-company/"
+    },
+    "reframe": "A customer request should reach the right service team with its context intact.",
+    "contacts": [
+      {
+        "name": "Chase Hazelwood",
+        "title": "Owner & CEO",
+        "sourceUrl": "https://www.go-forth.com/our-company/",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "emailNote": "No substantiated direct executive email found; shared and masked addresses excluded",
+        "subject": "the handoff between service teams",
+        "message": "Go-Forth's range of home services makes the first customer handoff worth getting right. I'd like to help staff identify the right service team and carry the request's context with it, without another retelling.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams. We recently helped one client deploy 20 applications.\n\nWe'd build a first version for one type of request, preparing the routing and supporting notes for staff approval. We'd measure handling time and rerouted requests, then train the people answering and dispatching.\n\nWould you like to see an example of that intake workflow?",
+        "contact_rank": 1,
+        "contact_id": "rev-go-forth-c1"
+      }
+    ],
+    "rank": 19,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A customer request should reach the right service team with its context intact. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$41M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Chase Hazelwood",
+      "title": "Owner & CEO",
+      "sourceUrl": "https://www.go-forth.com/our-company/",
+      "email": null
+    },
+    "subject": "the handoff between service teams",
+    "message": "Go-Forth's range of home services makes the first customer handoff worth getting right. I'd like to help staff identify the right service team and carry the request's context with it, without another retelling.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams. We recently helped one client deploy 20 applications.\n\nWe'd build a first version for one type of request, preparing the routing and supporting notes for staff approval. We'd measure handling time and rerouted requests, then train the people answering and dispatching.\n\nWould you like to see an example of that intake workflow?",
+    "writerKit": {
+      "accountId": "rev-go-forth",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-go-forth-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-go-forth-f1",
+          "statement": "Go-Forth provides pest control and other home services under owner and CEO Chase Hazelwood.",
+          "source_url": "https://www.go-forth.com/our-company/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A customer request should reach the right service team with its context intact.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "the handoff between service teams"
+      ],
+      "touch1Cta": "Would you like to see an example of that intake workflow?"
+    }
+  },
+  {
+    "company": "Michigan Box",
+    "domain": "michiganbox.com",
+    "sector": "Corrugated packaging manufacturing",
+    "revenue": {
+      "usdMillions": 40,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Michigan Box manufactures corrugated packaging for food and industrial uses and holds ISO 9001 certification.",
+      "date": null,
+      "sourceUrl": "https://www.michiganbox.com/wp-content/uploads/2025/05/MBC-ISO-Cert.pdf"
+    },
+    "reframe": "Packaging specifications should reach estimating complete and ready to check.",
+    "contacts": [
+      {
+        "name": "Joseph Fontana",
+        "title": "CEO",
+        "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "emailNote": "Only generic company inbox found",
+        "subject": "a box ready to price",
+        "message": "For Michigan Box, I'd put AI close to estimating. A customer sends dimensions, materials and delivery requirements; the useful result is a request your estimator can price, with missing information clearly marked.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build that first pass around one packaging category, checking incoming specifications against your rules. Your estimator keeps approval. We'd measure preparation time and how often requests need another round of clarification.\n\nWould you like a short outline using a typical packaging request?",
+        "contact_rank": 1,
+        "contact_id": "rev-michiganbox-c1"
+      }
+    ],
+    "rank": 20,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "Packaging specifications should reach estimating complete and ready to check. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$40M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Joseph Fontana",
+      "title": "CEO",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "email": null
+    },
+    "subject": "a box ready to price",
+    "message": "For Michigan Box, I'd put AI close to estimating. A customer sends dimensions, materials and delivery requirements; the useful result is a request your estimator can price, with missing information clearly marked.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build that first pass around one packaging category, checking incoming specifications against your rules. Your estimator keeps approval. We'd measure preparation time and how often requests need another round of clarification.\n\nWould you like a short outline using a typical packaging request?",
+    "writerKit": {
+      "accountId": "rev-michiganbox",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-michiganbox-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-michiganbox-f1",
+          "statement": "Michigan Box manufactures corrugated packaging for food and industrial uses and holds ISO 9001 certification.",
+          "source_url": "https://www.michiganbox.com/wp-content/uploads/2025/05/MBC-ISO-Cert.pdf",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "Packaging specifications should reach estimating complete and ready to check.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "a box ready to price"
+      ],
+      "touch1Cta": "Would you like a short outline using a typical packaging request?"
+    }
+  },
+  {
+    "company": "Almetals / Chain Industries",
+    "domain": "almetals.com",
+    "sector": "Metal processing and distribution",
+    "revenue": {
+      "usdMillions": 36,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "Almetals processes and distributes metal from Michigan and Georgia as part of Chain Industries.",
+      "date": null,
+      "sourceUrl": "https://almetals.com/about-us.aspx"
+    },
+    "reframe": "An alloy and gauge request needs a stock match and the right supporting documents.",
+    "contacts": [
+      {
+        "name": "Jim Chain",
+        "title": "President",
+        "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+        "email": "jmchain@almetals.com",
+        "emailSourceUrl": "https://www.linkedin.com/in/jim-chain-38206436",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "Self-published in professional LinkedIn post; exact publication date unknown",
+        "subject": "before the coil quote",
+        "message": "Almetals' mix of alloys, gauges and widths makes an incoming coil request an interesting AI starting point. I'd focus on preparing the right stock match and supporting documents for your team's review.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build around one product family, using your approved specifications and inventory records. We'd measure quote preparation time and mismatches caught before release. We stay through user feedback, training and deployment.\n\nWould you like to see what that first version could handle?",
+        "contact_rank": 1,
+        "contact_id": "rev-almetals-c1"
+      }
+    ],
+    "rank": 21,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "An alloy and gauge request needs a stock match and the right supporting documents. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$36M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Jim Chain",
+      "title": "President",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "email": "jmchain@almetals.com"
+    },
+    "subject": "before the coil quote",
+    "message": "Almetals' mix of alloys, gauges and widths makes an incoming coil request an interesting AI starting point. I'd focus on preparing the right stock match and supporting documents for your team's review.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build around one product family, using your approved specifications and inventory records. We'd measure quote preparation time and mismatches caught before release. We stay through user feedback, training and deployment.\n\nWould you like to see what that first version could handle?",
+    "writerKit": {
+      "accountId": "rev-almetals",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-almetals-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-almetals-f1",
+          "statement": "Almetals processes and distributes metal from Michigan and Georgia as part of Chain Industries.",
+          "source_url": "https://almetals.com/about-us.aspx",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "An alloy and gauge request needs a stock match and the right supporting documents.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "before the coil quote"
+      ],
+      "touch1Cta": "Would you like to see what that first version could handle?"
+    }
+  },
+  {
+    "company": "English Gardens",
+    "domain": "englishgardens.com",
+    "sector": "Garden retail and landscaping",
+    "revenue": {
+      "usdMillions": 36,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2025 reported revenue in Crain’s 2026 ranking."
+    },
+    "trigger": {
+      "fact": "English Gardens operates garden centers, floral services and landscape installation.",
+      "date": null,
+      "sourceUrl": "https://www.englishgardens.com/"
+    },
+    "reframe": "A stock decision should connect seasonal demand with what another location already has.",
+    "contacts": [
+      {
+        "name": "John Darin",
+        "title": "CEO",
+        "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+        "email": "jdarin@englishgardens.com",
+        "emailSourceUrl": "https://www.englishgardens.com/wp-content/uploads/wysiwyg/PDF/EG_AugustNews_2015_small.pdf",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "Self-published company newsletter from August 2015; older address",
+        "subject": "before the next stock transfer",
+        "message": "English Gardens combines seasonal retail with work in customers' gardens. I'd start an AI project with a daily decision: what to replenish, what to transfer and what needs a buyer's attention.\n\nAt Nine-67, our forward-deployed engineers build custom software with business teams. We're AI-first, and we handle the build through training and deployment.\n\nWe'd build a first version that brings demand and available stock together for one category. Buyers approve every action. We'd measure preparation time and how quickly flagged items get resolved, then train the team.\n\nWould a sample of that daily stock review be useful?",
+        "contact_rank": 1,
+        "contact_id": "rev-englishgardens-c1"
+      }
+    ],
+    "rank": 22,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A stock decision should connect seasonal demand with what another location already has. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$36M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "John Darin",
+      "title": "CEO",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "email": "jdarin@englishgardens.com"
+    },
+    "subject": "before the next stock transfer",
+    "message": "English Gardens combines seasonal retail with work in customers' gardens. I'd start an AI project with a daily decision: what to replenish, what to transfer and what needs a buyer's attention.\n\nAt Nine-67, our forward-deployed engineers build custom software with business teams. We're AI-first, and we handle the build through training and deployment.\n\nWe'd build a first version that brings demand and available stock together for one category. Buyers approve every action. We'd measure preparation time and how quickly flagged items get resolved, then train the team.\n\nWould a sample of that daily stock review be useful?",
+    "writerKit": {
+      "accountId": "rev-englishgardens",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-englishgardens-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-englishgardens-f1",
+          "statement": "English Gardens operates garden centers, floral services and landscape installation.",
+          "source_url": "https://www.englishgardens.com/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A stock decision should connect seasonal demand with what another location already has.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "before the next stock transfer"
+      ],
+      "touch1Cta": "Would a sample of that daily stock review be useful?"
+    }
+  },
+  {
+    "company": "Braman Termite & Pest Elimination",
+    "domain": "bramanpest.com",
+    "sector": "Pest management and field services",
+    "revenue": {
+      "usdMillions": 26,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf",
+      "note": "2025 North American service revenue reported in PCT 2026."
+    },
+    "trigger": {
+      "fact": "Braman announced the acquisition of Fusion Pest Management in August 2025.",
+      "date": "2025-08-01",
+      "sourceUrl": "https://bramanpest.com/news/fusion-pest-management-expanding-residential-reach/"
+    },
+    "reframe": "An acquired customer history should stay usable through the service handoff.",
+    "contacts": [
+      {
+        "name": "Jerry Lazarus",
+        "title": "President",
+        "sourceUrl": "https://bramanpest.com/news/fusion-pest-management-expanding-residential-reach/",
+        "email": "glazarus@bramanpest.com",
+        "emailSourceUrl": "https://portal.ct.gov/-/media/DEEP/pesticides/Supervisors-by-Cat-3-31-20.pdf",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "emailNote": "2020 professional licensing list; also listed in government contractor directory; older address",
+        "subject": "keeping the customer history together",
+        "message": "Braman's Fusion acquisition makes customer history a relevant AI starting point. I'd like to help your team bring service notes and open commitments together as customers move between teams, with a person checking the handoff.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build around one group of customer records, preparing a sourced summary and flagging gaps. We'd measure review time and incomplete handoffs, then train the team before widening the rollout.\n\nWould an example of that customer handoff be helpful?",
+        "contact_rank": 1,
+        "contact_id": "rev-bramanpest-c1"
+      }
+    ],
+    "rank": 23,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "An acquired customer history should stay usable through the service handoff. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$26M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Jerry Lazarus",
+      "title": "President",
+      "sourceUrl": "https://bramanpest.com/news/fusion-pest-management-expanding-residential-reach/",
+      "email": "glazarus@bramanpest.com"
+    },
+    "subject": "keeping the customer history together",
+    "message": "Braman's Fusion acquisition makes customer history a relevant AI starting point. I'd like to help your team bring service notes and open commitments together as customers move between teams, with a person checking the handoff.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand operations and build custom software alongside the people doing the work.\n\nWe'd build around one group of customer records, preparing a sourced summary and flagging gaps. We'd measure review time and incomplete handoffs, then train the team before widening the rollout.\n\nWould an example of that customer handoff be helpful?",
+    "writerKit": {
+      "accountId": "rev-bramanpest",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-bramanpest-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-bramanpest-f1",
+          "statement": "Braman announced the acquisition of Fusion Pest Management in August 2025.",
+          "source_url": "https://bramanpest.com/news/fusion-pest-management-expanding-residential-reach/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2025-08-01"
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "An acquired customer history should stay usable through the service handoff.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "keeping the customer history together"
+      ],
+      "touch1Cta": "Would an example of that customer handoff be helpful?"
+    }
+  },
+  {
+    "company": "Versacor Enterprises",
+    "domain": "versacor.com",
+    "sector": "Commercial pest management",
+    "revenue": {
+      "usdMillions": 25.040596,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf",
+      "note": "2025 North American service revenue reported in PCT 2026."
+    },
+    "trigger": {
+      "fact": "Versacor is a commercial pest management business founded by the Eicher family and led by Jason Eicher.",
+      "date": null,
+      "sourceUrl": "https://versacor.com/company-history/"
+    },
+    "reframe": "An inspection finding needs a responsible owner and evidence that the action is complete.",
+    "contacts": [
+      {
+        "name": "Jason Eicher",
+        "title": "President",
+        "sourceUrl": "https://versacor.com/company-history/",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "emailNote": "Business permit contact found for another employee; no substantiated executive address",
+        "subject": "after the inspection finding",
+        "message": "Versacor's commercial work gives AI a concrete place to help: following an inspection finding through to the evidence that it was resolved. I'd focus on the office coordination while your specialists retain the judgment.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build a first version that connects findings, responsible people and follow-up records for review. We'd measure preparation time and overdue actions, then refine it with your team and train them through deployment.\n\nWould a short example of that follow-up workflow be useful?",
+        "contact_rank": 1,
+        "contact_id": "rev-versacor-c1"
+      }
+    ],
+    "rank": 24,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "An inspection finding needs a responsible owner and evidence that the action is complete. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$25.0406M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Jason Eicher",
+      "title": "President",
+      "sourceUrl": "https://versacor.com/company-history/",
+      "email": null
+    },
+    "subject": "after the inspection finding",
+    "message": "Versacor's commercial work gives AI a concrete place to help: following an inspection finding through to the evidence that it was resolved. I'd focus on the office coordination while your specialists retain the judgment.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers build custom software with operations teams and stay through adoption.\n\nWe'd build a first version that connects findings, responsible people and follow-up records for review. We'd measure preparation time and overdue actions, then refine it with your team and train them through deployment.\n\nWould a short example of that follow-up workflow be useful?",
+    "writerKit": {
+      "accountId": "rev-versacor",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-versacor-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-versacor-f1",
+          "statement": "Versacor is a commercial pest management business founded by the Eicher family and led by Jason Eicher.",
+          "source_url": "https://versacor.com/company-history/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "An inspection finding needs a responsible owner and evidence that the action is complete.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "after the inspection finding"
+      ],
+      "touch1Cta": "Would a short example of that follow-up workflow be useful?"
+    }
+  },
+  {
+    "company": "Native Pest Management",
+    "domain": "nativepestmanagement.com",
+    "sector": "Pest management and field services",
+    "revenue": {
+      "usdMillions": 18.060797,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf",
+      "note": "2025 North American service revenue reported in PCT 2026."
+    },
+    "trigger": {
+      "fact": "Native announced Kelly Moseley’s promotion to chief revenue officer in July 2026.",
+      "date": "2026-07-22",
+      "sourceUrl": "https://www.nativepestmanagement.com/blog/native-pest-management-promotes-kelly-moseley-to-chief-revenue-officer/"
+    },
+    "reframe": "Growth should preserve the customer promise from the first call through follow-up.",
+    "contacts": [
+      {
+        "name": "Luke Lewis",
+        "title": "Founder & CEO",
+        "sourceUrl": "https://www.nativepestmanagement.com/blog/native-pest-management-promotes-kelly-moseley-to-chief-revenue-officer/",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "emailNote": "Only generic and sales inboxes found; no substantiated executive email",
+        "subject": "after the first call",
+        "message": "Native's growth is a good reason to put AI close to the first customer call. I'd focus on keeping the promise made on that call visible to the service team and through the follow-up.\n\nAt Nine-67, our forward-deployed engineers build custom software with business teams. We're AI-first, and we handle the build through training and deployment.\n\nWe'd build a first version that prepares a checked handoff from approved call notes and flags open commitments. We'd measure review time and missed follow-ups, then train the team as we deploy.\n\nWould a sample of that first-call handoff be useful?",
+        "contact_rank": 1,
+        "contact_id": "rev-nativepestmanagement-c1"
+      }
+    ],
+    "rank": 25,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "Growth should preserve the customer promise from the first call through follow-up. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$18.0608M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Luke Lewis",
+      "title": "Founder & CEO",
+      "sourceUrl": "https://www.nativepestmanagement.com/blog/native-pest-management-promotes-kelly-moseley-to-chief-revenue-officer/",
+      "email": null
+    },
+    "subject": "after the first call",
+    "message": "Native's growth is a good reason to put AI close to the first customer call. I'd focus on keeping the promise made on that call visible to the service team and through the follow-up.\n\nAt Nine-67, our forward-deployed engineers build custom software with business teams. We're AI-first, and we handle the build through training and deployment.\n\nWe'd build a first version that prepares a checked handoff from approved call notes and flags open commitments. We'd measure review time and missed follow-ups, then train the team as we deploy.\n\nWould a sample of that first-call handoff be useful?",
+    "writerKit": {
+      "accountId": "rev-nativepestmanagement",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-nativepestmanagement-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-nativepestmanagement-f1",
+          "statement": "Native announced Kelly Moseley’s promotion to chief revenue officer in July 2026.",
+          "source_url": "https://www.nativepestmanagement.com/blog/native-pest-management-promotes-kelly-moseley-to-chief-revenue-officer/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2026-07-22"
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "Growth should preserve the customer promise from the first call through follow-up.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "after the first call"
+      ],
+      "touch1Cta": "Would a sample of that first-call handoff be useful?"
     }
   }
 ]
