@@ -1,6 +1,8 @@
-# Revised 25 outreach emails
+# Revised 25 cold outreach emails
 
-Bodies follow the supplied account briefs: implication, mandatory reframe, a proposed build with a measure, and a final CTA question. Greeting and sender first name are appended by the application. Publication dates are data fields, not inferred from retrieval dates.
+These recipients have no prior knowledge of Nine-67. Each email introduces the firm, explains the company-specific hypothesis, and asks one direct question. The app supplies the saved greeting and sender first name. These are proposed tests, not claims of diagnosed problems or guaranteed results.
+
+Proof: the 20-application deployment and delivery process were supplied by Josh. Proposal, reporting and account-view examples are supported by [Nine-67 case studies](https://www.nine-67.com/case-study). Financial application examples are supported by the supplied deployment overview.
 
 ## Turn 14 Distribution
 
@@ -8,11 +10,13 @@ Recipient: Erin Robbins · President & Chief Operating Officer
 
 Subject: new brand onboarding
 
-A new vendor line can wait on data cleanup even with Turn 14's four distribution centers ready. Wholesale growth also depends on how fast a vendor's catalog becomes sellable.
+Four distribution centers give Turn 14 room to grow. A new vendor's catalog still has to become sellable before that capacity earns anything.
 
-We'd build an agent that checks vendor files against your catalog format and flags missing fitment data for purchasing to approve. We'd track days from file receipt to the first dealer order.
+At Nine-67, we build custom software for operating teams, then train the people using it. We recently helped one client deploy 20 applications across its business.
 
-Would it be a bad idea to map how long a new vendor line takes to go live?
+We'd build a catalog checker that flags missing fitment and product data before purchasing reviews a vendor file. Your team would approve the entries. We'd start with one brand and measure days from file receipt to a live listing.
+
+Does getting a new brand live still take much manual work?
 
 ## G&W Electric
 
@@ -20,23 +24,27 @@ Recipient: Dave Gizewicz · Chief Operating Officer (also CEO, G&W Altea)
 
 Subject: Romeoville and processes
 
-Romeoville adds production space, but incomplete orders could still consume time before work reaches the floor. John Mueller described investing in space, people and processes. Processes are where agents could add capacity without another manual check.
+John Mueller described G&W's investment as space, people and processes. With the added space in Romeoville, order preparation seems worth examining alongside production capacity.
 
-We'd build an agent that checks purchase orders against product requirements and flags gaps for your team to approve. We'd measure preparation time on one product line.
+Nine-67 builds custom software with operating teams, from a first working version through training and deployment. Our recent work with one client included 20 deployed applications.
 
-Would it be a bad idea to test one agent on order intake before Romeoville hits full volume?
+We'd build a check for missing details in purchase orders before they reach your team for approval. Starting with one product line would let us measure preparation time and corrections before expanding it.
+
+Is order intake a process you'd want to improve, or is it already working well?
 
 ## Shure
 
 Recipient: Jerome Nolasco · Vice President of Information Technology
 
-Subject: governing the first agents
+Subject: AI governance at Shure
 
-AI governance at Shure could become a queue of tool approvals before anyone tests useful work. Governing a few production workflows early lets your team design governance from real use.
+Your remit at Shure includes enterprise AI governance. One way to make those rules practical is to test them on a few production workflows early, with real users and clear approval steps.
 
-We'd build an agent that checks product content against engineering specs and flags unsupported claims. Marketing keeps approval; your team sets access and records decisions. We'd measure review time and missed claims against today's process.
+At Nine-67, we build custom software with business teams and their IT counterparts. Our proposal workspace flags unsupported claims for reviewers before submission.
 
-Is the first set of governed AI workflows already chosen, or still open?
+We'd build a similar check for product content against approved engineering specs. Marketing would keep final approval; your team would set access rules. We'd compare review time and missed claims with the current process.
+
+Have you already picked the first workflows for that kind of test?
 
 ## Lufkin Industries
 
@@ -44,23 +52,27 @@ Recipient: Brent Baumann · Chief Executive Officer
 
 Subject: hours of manual entry
 
-A finished service job can still wait to become an invoice when its report needs rekeying. Lufkin's own release describes software eliminating hours of manual data entry for customers. Applying that principle internally could protect service margin too.
+Lufkin describes its software as eliminating hours of manual data entry for customers. The same principle could be useful between a completed service job and its invoice.
 
-We'd build an agent that checks service reports against contract terms and drafts invoices for manager approval. We'd measure time from completed report to approved invoice.
+Nine-67 builds custom software for operating teams. We work with leaders to choose the first project, test a working version with users, and train the team before deployment.
 
-Is the internal side of that automation on the plan, or parked for later?
+We'd build a tool that checks service reports against contract terms and prepares invoices for approval. Your managers would retain billing decisions. We'd measure the time from completed report to approved invoice.
+
+Is reducing that internal paperwork on your plan?
 
 ## Mayville Engineering Company
 
 Recipient: Craig D. Nichols · Senior Vice President, Operations and Supply Chain
 
-Subject: several hundred hires
+Subject: capacity without headcount
 
-MEC's plan to add several hundred people could give estimators more paperwork too. Agents cannot run lasers, but they can take quoting preparation off people whose judgment is needed elsewhere.
+MEC has described hiring and training more operators while outsourcing some production work. Quoting and supplier follow-ups are another place to look for capacity without pulling experienced people away from decisions.
 
-We'd build an agent that checks incoming quote requests for missing drawings and specs, then prepares a review packet. Your estimators keep pricing decisions. We'd measure preparation time per quote.
+At Nine-67, we build custom software around that kind of work. Our proposal workspace checks requirements and flags missing information before a reviewer signs off.
 
-Would it be a bad idea to take quoting admin off the estimators before Q4?
+We'd build a tool that checks quote requests for missing drawings and specs, then prepares the estimator's review packet. Pricing stays with your estimators. We'd measure preparation time per quote.
+
+Is quote preparation taking time your estimators could better spend elsewhere?
 
 ## Sugar Creek Packing
 
@@ -68,23 +80,27 @@ Recipient: Derek Boesken · Vice President of Operations and Supply Chain
 
 Subject: spec changes per customer
 
-Across SugarCreek's six US plants, one customer spec change can mean checking several production documents. For a co-packer, document work per customer can become a capacity limit before line time does.
+A customer spec change at SugarCreek can affect more than one of your six plants. Document work per customer may be as important to capacity as time on the line.
 
-We'd build an agent that checks each new spec against the approved one and flags instructions that need review. QA keeps approval of every change. We'd measure review time and missed changes using one customer's past requests.
+Nine-67 builds custom software with operating teams. We start with one workflow, refine a working version with its users, and train them as it goes live.
 
-How are customer spec changes tracked across the six plants today?
+We'd build a comparison of new and approved specs that flags changed instructions for QA. Your team would approve every change. Testing past requests would show review time and anything the check missed.
+
+How much manual checking does a customer spec change require today?
 
 ## Bossard Americas
 
 Recipient: David Jones · CEO, Bossard Americas
 
-Subject: before D365 lands
+Subject: document processing, Americas
 
-Bossard's Americas growth can bring more order paperwork while Dynamics 365 rolls out across the group. AI document processing need not wait for the new ERP; one intake workflow could be tested alongside it.
+Bossard's Americas sales growth can bring more order paperwork. Document processing is one place to test improvements without waiting for a new ERP rollout to finish.
 
-We'd build an agent that checks customer purchase orders for missing details and prepares orders for staff approval. Your IT team would review the integration. We'd measure review time and corrections per order.
+At Nine-67, we build custom software around the systems a business already uses. We recently helped one client deploy 20 applications, with users involved in development and training.
 
-Is AI document processing already scoped for the Americas, or waiting on D365?
+We'd build a tool that checks purchase orders for missing details and prepares them for staff approval. Your IT team would review the connection to existing systems. We'd measure review time and corrections on one order type.
+
+Is document processing already in scope for the Americas?
 
 ## Clarience Technologies
 
@@ -92,11 +108,13 @@ Recipient: Robert Willing · EVP, Chief Financial Officer
 
 Subject: Clarience value creation
 
-Across Clarience's 29 brands, checking the same freight charge separately could hide a shared cost problem. Agents can consolidate the work before systems are consolidated, which may help during Leonard Green's investment.
+Across Clarience's 29 brands, a group cost review can start with gathering files rather than comparing costs. There's a chance to consolidate the work before the systems are consolidated.
 
-We'd build an agent that checks freight invoices against agreed rates across two brands and flags discrepancies. Your logistics team decides what to dispute. We'd measure confirmed overcharges and review hours.
+Nine-67 builds custom software for operating and finance teams. For one client, we deployed a forecast builder and a client-profitability application.
 
-Is AI part of the value creation plan, or parked for year two?
+We'd build a freight-invoice check across two brands, matching charges to agreed rates and flagging differences. Your team would decide what to dispute. We'd measure confirmed overcharges and hours spent reviewing invoices.
+
+Is freight review a useful place to test that approach across brands?
 
 ## Smart Care Equipment Solutions
 
@@ -104,11 +122,13 @@ Recipient: Veronica Lubatkin · President and Chief Financial Officer
 
 Subject: work order to cash
 
-Smart Care's Turbo Tech rollout makes the work between a service visit and its invoice worth examining. In field service, DSO can be decided at the work order, before collections ever sees it.
+Turbo Tech's flat-rate service offering makes a complete work order especially useful for billing. The time to collect payment starts there, before an invoice ever reaches collections.
 
-We'd build an agent that checks completed work orders for missing parts, labor and approval records, then prepares the billing packet. Your team approves release. We'd measure days from completed service to invoice.
+At Nine-67, we build custom software with operating and finance teams. We develop a first version with the people doing the work, then train them as it goes live.
 
-Is billing speed on your first 90-day list, or already handled?
+We'd build a check for missing parts, labor and approval records before a completed job goes to billing. Staff would approve release. We'd measure days from completed service to invoice.
+
+Does missing work-order information still hold up billing?
 
 ## Lazer Logistics
 
@@ -116,23 +136,27 @@ Recipient: Josh Lee · President
 
 Subject: after Uncle Phil
 
-Uncle Phil AI gives Lazer's managers guidance, but gathering evidence that an issue is resolved can still take time. With AI already in the yard, the office behind the yard is another place to test for margin.
+Lazer's Uncle Phil AI puts more guidance in site managers' hands. The office behind the yard may offer another useful test: the work required to confirm a flagged issue is actually resolved.
 
-We'd build an agent alongside your tools to gather maintenance records behind flagged issues. Site managers confirm each fix. We'd measure time spent assembling evidence per closed issue.
+Nine-67 builds custom software alongside internal teams. We recently helped a client deploy 20 applications, working with leaders and users through training and launch.
 
-Is the back office on the AI roadmap, or is LLOS the focus through 2027?
+We'd build a small addition to your existing tools that gathers maintenance records for a manager to review. Managers would confirm the fix. We'd measure the time spent assembling evidence per issue.
+
+Is that follow-through already covered by your internal team?
 
 ## PLS Logistics Services
 
 Recipient: Steven Bergan · President
 
-Subject: PLS and AGL
+Subject: customs paperwork
 
-Adding AGL's customs and drayage services can mean more checking before a shipment reaches its next leg. An early integration win could come from the documents, without waiting for the systems to change.
+AGL adds customs and drayage work to PLS. An early integration win could be in the documents moving between teams, before their systems are brought together.
 
-We'd build an agent that checks customs packets for missing releases and drafts requests for your coordinator to approve. We'd measure document preparation time and shipments held for incomplete paperwork.
+At Nine-67, we build custom software around operating workflows. In our proposal work, software checks documents for missing requirements before the team approves the response.
 
-Would it be a bad idea to test one agent on AGL customs docs before year end?
+We'd build a check for missing releases in customs packets and prepare requests for your coordinators to approve. We'd start with one shipment type and measure preparation time and paperwork holds.
+
+Is customs paperwork worth a closer look as AGL joins your operations?
 
 ## BlueGrace Logistics
 
@@ -140,11 +164,13 @@ Recipient: Adam Blankenship · President & Chief Operating Officer
 
 Subject: Truk TMS onboarding
 
-Bringing Truk TMS into BlueGrace can add claims paperwork alongside the customer accounts. After an acquisition, margin can sit in claims and onboarding even when the quote already benefits from AI.
+Bringing Truk TMS into BlueGrace adds work beyond quoting. Claims and onboarding are places where the cost of an acquisition can show up one document at a time.
 
-We'd build an agent that assembles delivery records and proof of loss for each claim, flagging gaps before your team reviews it. Staff keep settlement decisions. We'd measure preparation time and incomplete submissions.
+Nine-67 builds custom software for operating teams, including the testing and training needed to put it into daily use.
 
-Would it be a bad idea to run one agent on the claims queue before peak?
+We'd build a claims packet that gathers delivery records and proof of loss, then flags missing evidence. Your staff would keep settlement decisions. A first version for one claim type would let us measure preparation time and incomplete submissions.
+
+Are claims still taking much manual preparation as the businesses come together?
 
 ## TA Services
 
@@ -152,11 +178,13 @@ Recipient: Chris Bahr · Executive Vice President and CIO
 
 Subject: dispatch and documentation
 
-TA's next phase with SMC3 could leave completed deliveries waiting on paperwork before billing. Documentation work can start with agents reading the documents now. A system replacement can follow.
+TA's next phase with SMC3 includes documentation modernization. That work could start with reading the documents already arriving, before a system replacement.
 
-We'd build an agent that matches proof of delivery to each load, flags missing signatures and prepares the billing packet. Your billing team approves release. We'd measure time from delivery to a complete packet on one lane.
+At Nine-67, we build custom software for operating teams. We work through a first version with users and include training when it goes live.
 
-Would it be a bad idea to start documentation with agents before a new system?
+We'd build a check that matches proof of delivery to each load and flags missing signatures before billing reviews the packet. We'd test one lane, measuring time from delivery to a complete packet and any missed exceptions.
+
+Is proof-of-delivery paperwork a useful starting point for that work?
 
 ## Transervice Logistics
 
@@ -164,11 +192,13 @@ Recipient: Gregg Nierenberg · President and CEO
 
 Subject: stop tracking, start deciding
 
-Turning technician notes into work orders can take time away from managing repairs at Transervice. FleetChAIn's message, stop tracking and start deciding, could apply to your own maintenance office too.
+FleetChAIn's 'stop tracking, start deciding' message could apply inside Transervice's maintenance office too. A technician's notes still need to become a record someone can act on.
 
-We'd build an agent that drafts work-order updates from technician notes and parts records. Shop managers approve the record and keep repair decisions. We'd measure administrative time per completed job.
+Nine-67 builds custom software with operating teams. We choose a first project with leaders, refine it with users, and train the team through deployment.
 
-Is the internal side on the roadmap, or is FleetChAIn the focus this year?
+We'd build a tool that prepares work-order updates from technician notes and parts records. Shop managers would approve the record and retain repair decisions. We'd measure administrative time per completed job.
+
+Is that internal paperwork on your improvement list?
 
 ## Montway Auto Transport
 
@@ -176,35 +206,41 @@ Recipient: Alberto Anguiano · Chief Operating Officer
 
 Subject: future-proofing operations
 
-Bringing brands together at Montway can leave your team answering more questions across shipment records. Future-proofing a brokerage includes how many conversations each person can handle well. Volume is only part of it.
+Your Montway remit includes integration and future-proofing operations. In a brokerage, part of that is how many conversations each person can handle well when a shipment changes.
 
-We'd build an agent that checks pickup-change requests against shipment records and drafts carrier inquiries. Your team approves schedule changes. We'd measure handling time and repeat contacts for that request type.
+At Nine-67, we build custom software with operating teams, including testing with users and training before launch.
 
-Is AI part of the future-proofing plan, or still being scoped?
+We'd build a tool that checks pickup-change requests against shipment records and prepares carrier inquiries. Your team would approve schedule changes. We'd start with that single request type and measure handling time and repeat contacts.
+
+Are pickup changes still a source of repeated work for your team?
 
 ## DecoPac
 
 Recipient: Cindy Hampton · Chief Executive Officer
 
-Subject: DecoPac 100-day plan
+Subject: new formats, same team
 
-DecoPac's plans for more dessert formats and channels can mean more licensing paperwork. In a 100-day plan, agents could make expansion a margin lever instead of simply a hiring plan.
+Your plan to expand DecoPac's dessert formats and channels could add more licensing checks per product. Expansion can become a margin lever if that paperwork doesn't grow at the same pace.
 
-We'd build an agent that prepares packets from approved artwork and flags missing rights or channel details. Your licensing team approves each packet. We'd measure preparation time and packets returned for missing information.
+Nine-67 builds custom software with operating teams. We recently helped one client deploy 20 applications, from choosing priorities through user training.
 
-Is AI in the Sentinel 100-day plan, or parked for later?
+We'd build a tool that prepares licensing packets from approved artwork and flags missing rights or channel details. Your team would keep approval. We'd measure preparation time and packets returned for missing information.
+
+Is licensing paperwork part of the expansion plan you'd like to simplify?
 
 ## Cooper's Hawk Winery & Restaurants
 
 Recipient: Dave Harris · Chief Technology Officer
 
-Subject: 888,000 members
+Subject: Wine Club service
 
-With 888,000 Wine Club members, routine pickup changes can become a sizeable service queue. In a membership business, each service request is a retention moment worth getting right.
+Cooper's Hawk's Wine Club turns a routine pickup request into a membership service moment. Making those requests easy matters to retention as well as the service team's workload.
 
-We'd build an agent that checks pickup requests against club rules and prepares changes for staff approval. We'd test historical requests first, measuring handling time and repeat contacts before any live changes.
+At Nine-67, we build custom software for operating teams. For a services firm, we put an account-risk view into production in a month.
 
-Would it be a bad idea to look at Wine Club requests before the holiday rush?
+We'd build a tool that checks pickup requests against club rules and prepares changes for staff approval. We'd test past requests first, measuring handling time and repeat contacts before making live changes.
+
+Are routine Wine Club requests still taking more staff time than you'd like?
 
 ## Build-A-Bear Workshop
 
@@ -212,23 +248,27 @@ Recipient: Voin Todorovic · CFO and Chief Administrative Officer
 
 Subject: the next leg of SG&A
 
-Build-A-Bear's plan for at least 50 net new locations can add corporate reporting work even where partners supply store staff. Structural SG&A savings can come from changing how work is done, rather than adjusting headcount.
+Build-A-Bear's planned new locations can add reporting work even when partners provide store staff. Structural SG&A savings depend partly on how that work is done, as the business grows.
 
-We'd build an agent that collects partner reports and flags missing entries before finance reviews the numbers. Finance retains approval. We'd measure hours per completed report.
+Nine-67 builds custom software for operating and finance teams. Our client-reporting application prepares editable reports for a person to review.
 
-Is structural SG&A on the CAO agenda this year, or later?
+We'd build a reporting check that gathers partner submissions and flags missing entries before finance reviews the numbers. We'd test one report, measuring preparation hours and follow-up requests. Your team would retain approval.
+
+Is partner reporting an area you'd want to simplify as locations grow?
 
 ## J.Jill
 
 Recipient: Viv Rettke · Chief Growth Officer (AI, data analytics, direct)
 
-Subject: after the Q2 call
+Subject: AI capacity at J.Jill
 
-J.Jill's AI planning launch could create another queue: recommendations that need a planner's second look. The planning system is the visible AI. Smaller workflows around it shape how much capacity it creates.
+J.Jill's AI planning launch puts a new system in planners' hands. The smaller workflows around it will help determine how much capacity it gives them back.
 
-We'd build an agent alongside your team that gathers sales and stock details for flagged recommendations. Planners keep allocation decisions. We'd measure review time and unresolved exceptions in one category.
+At Nine-67, we build custom software alongside internal teams and train users as it goes live.
 
-Is the next set of AI workflows already picked, or still open?
+We'd build a review packet for flagged recommendations, gathering the sales and stock details a planner needs to decide. Your team would keep allocation decisions. We'd test one category and measure review time and unresolved exceptions before expanding.
+
+Have you already chosen who will build those supporting workflows?
 
 ## Duluth Holdings
 
@@ -236,11 +276,13 @@ Recipient: David Homolka · SVP of Talent, Retail Store Operations, Contact Cent
 
 Subject: contact center after Omni
 
-Duluth's nearly 25% reduction in variable fulfillment cost per unit makes costs after shipment worth examining too. With leaner teams, taking routine contacts off the team is a better test than asking people to go faster.
+Duluth's fulfillment consolidation has reduced cost per unit. Taking routine contacts off the service team could extend that work beyond the warehouse, without asking people to handle requests faster.
 
-We'd build an agent that checks order and carrier events and drafts status replies, flagging exceptions for staff. We'd measure handling time and repeat contacts.
+Nine-67 builds custom software with operating teams. We test a first version with users and train them before deployment.
 
-Would it be a bad idea to take where-is-my-order off the team before holiday?
+We'd build an order-status tool that checks carrier events and prepares replies, leaving exceptions with your staff. We'd measure handling time and repeat contacts against past requests before putting it into use.
+
+Are order-status questions still a sizeable part of your contact-center workload?
 
 ## FIGS
 
@@ -248,23 +290,27 @@ Recipient: Mark Bixby · Chief Technology Officer
 
 Subject: 27 new markets
 
-Adding 27 markets can bring delivery questions that look similar but need different answers by country. The cost of fast international growth can appear in exceptions before it reaches headcount plans.
+With FIGS in 85 markets, a delivery question can require a different answer by country. The cost of fast international growth can show up in exceptions before headcount plans catch up.
 
-We'd build an agent that combines order details, carrier events and approved country policies into draft responses. Your team approves refunds or reshipments. We'd measure handling time and repeat contacts by market.
+At Nine-67, we build custom software with operating teams, from a working first version through training and deployment.
 
-Would it be a bad idea to map exception volume by market before Q4?
+We'd build a tool that combines order details, carrier events and approved country policies into a draft response. Staff would retain refund and reshipment decisions. We'd measure handling time and repeat contacts in one market first.
+
+Is handling those country-specific exceptions already covered on your roadmap?
 
 ## Tecovas
 
 Recipient: Kevin Harwood · Chief Technology Officer
 
-Subject: wholesale at 25 to 30%
+Subject: after allocation
 
-Tecovas' wholesale expansion can mean rework when an order misses a store's shipping rules. With AI already in allocation, wholesale compliance is a new test beyond DTC.
+Tecovas has already put AI to work in allocation. Wholesale compliance presents a different set of rules from DTC, and could be a useful next project for your engineers.
 
-We'd build an agent alongside your engineers that checks orders against retailer rules and flags gaps. Your team approves corrections. We'd measure review time and missed rules on one retailer's orders.
+Nine-67 builds custom software alongside internal teams. Our proposal workspace checks documents against requirements and flags gaps for human review.
 
-Is wholesale ops on the AI list, or handled for now?
+We'd build a check of wholesale orders against retailer shipping rules. Your team would approve corrections. We'd start with one retailer and measure review time and missed requirements before extending it.
+
+Would extra engineering capacity for that work be useful, or is it covered?
 
 ## The Lovesac Company
 
@@ -272,23 +318,27 @@ Recipient: Jacob Pat · Chief Technology and Digital Transformation Officer
 
 Subject: CRM go-live
 
-Lovesac's Q3 CRM rollout and White Glove expansion could leave staff linking delivery updates to customer records by hand. Testing agents at CRM launch can avoid retrofitting them after workflows harden.
+Lovesac's CRM launch is a chance to shape how delivery cases get handled before the workflows harden. Adding automation at launch could avoid having to retrofit it later.
 
-We'd build an agent that gathers delivery updates and case history, then drafts the next action. Staff approve it. We'd measure handling time and repeat contacts on one delivery case type.
+At Nine-67, we build custom software with business and IT teams. We recently helped one client deploy 20 applications, including user training.
 
-Would it be a bad idea to add one agent before the CRM workflows set?
+We'd build a delivery-case summary that gathers updates and customer history, then prepares the next action for staff approval. We'd start with one case type and measure handling time and repeat contacts.
+
+Is that delivery-case work already covered in the CRM rollout?
 
 ## Thrive Market
 
 Recipient: Scott Lescher · Chief Operating Officer
 
-Subject: the AI members don't see
+Subject: vendor ops
 
-With more than 1,000 brands, late or short shipments can multiply supplier follow-ups at Thrive Market. Members see the AI in their experience; another margin opportunity sits in the supply chain they never see.
+Thrive's Syndigo work addresses vendor onboarding and product information. Another place to look for margin is the supply chain work after an order is placed, which the member never sees.
 
-We'd build an agent that compares purchase orders with receipts and gathers supplier updates on discrepancies. Your team approves the next action. We'd measure follow-up time and unresolved shortages.
+Nine-67 builds custom software for operating teams. We work with users on a first version, refine it with them, and train them through deployment.
 
-Is the supply chain side on the AI roadmap, or member-facing first?
+We'd build a check of purchase orders against receipts, gathering supplier updates on shortages for your team's review. We'd measure follow-up time and unresolved discrepancies with a small supplier group.
+
+Are those supplier follow-ups still handled largely by hand?
 
 ## Mister Car Wash
 
@@ -296,8 +346,10 @@ Recipient: Jedidiah Gold · Chief Financial Officer
 
 Subject: after the take-private
 
-With UWC representing 76% of Mister Car Wash's Q1 wash sales, a billing issue can risk more than the service cost. In a subscription business, each churn risk is a service moment that could protect the recurring base.
+Mister Car Wash's recurring membership base makes a billing issue more than a service cost. In a subscription business, that service moment can become a churn risk.
 
-We'd build an agent that checks billing history and drafts corrections for staff approval. We'd measure handling time and repeat issues on one request type.
+At Nine-67, we build custom software with operating and finance teams, from a first working version through training and launch.
 
-Is AI in the post-close plan, or parked for later?
+We'd build a billing-review tool that gathers payment history and prepares a correction for staff approval. We'd start with one recurring issue, measuring handling time and repeat problems before expanding it.
+
+Is membership billing a process you'd want to simplify in the post-close plan?

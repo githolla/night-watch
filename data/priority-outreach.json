@@ -14,9 +14,9 @@
       "sourceUrl": "https://www.turn14.com/about"
     },
     "hypothesis": "Warehouse capacity scaled. The back office that feeds it (vendor data, dealer setup, dealer questions) usually scales by adding people. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
+    "proofKind": "20-applications",
     "subject": "new brand onboarding",
-    "message": "A new vendor line can wait on data cleanup even with Turn 14's four distribution centers ready. Wholesale growth also depends on how fast a vendor's catalog becomes sellable.\n\nWe'd build an agent that checks vendor files against your catalog format and flags missing fitment data for purchasing to approve. We'd track days from file receipt to the first dealer order.\n\nWould it be a bad idea to map how long a new vendor line takes to go live?",
+    "message": "Four distribution centers give Turn 14 room to grow. A new vendor's catalog still has to become sellable before that capacity earns anything.\n\nAt Nine-67, we build custom software for operating teams, then train the people using it. We recently helped one client deploy 20 applications across its business.\n\nWe'd build a catalog checker that flags missing fitment and product data before purchasing reviews a vendor file. Your team would approve the entries. We'd start with one brand and measure days from file receipt to a live listing.\n\nDoes getting a new brand live still take much manual work?",
     "fit": "Wave 3. throughput and capacity without adding headcount. Demand and budget not confirmed.",
     "limitations": [
       "Tucker takeover is Nov 2023: context only, never lead with it.",
@@ -44,7 +44,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "The constraint in wholesale growth is rarely the DC. It is how fast a new vendor's catalog or a new dealer's account becomes sellable.",
       "avoid": [
         "Tucker takeover is Nov 2023: context only, never lead with it.",
@@ -74,9 +74,9 @@
       "sourceUrl": "https://www.gwelectric.com/news/gw-electric-expands-north-american-manufacturing-capacity-as-grid-modernization-accelerates/"
     },
     "hypothesis": "Moving product lines between plants during a demand surge usually strains order handling, service coordination and ERP data work. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
+    "proofKind": "20-applications",
     "subject": "Romeoville and processes",
-    "message": "Romeoville adds production space, but incomplete orders could still consume time before work reaches the floor. John Mueller described investing in space, people and processes. Processes are where agents could add capacity without another manual check.\n\nWe'd build an agent that checks purchase orders against product requirements and flags gaps for your team to approve. We'd measure preparation time on one product line.\n\nWould it be a bad idea to test one agent on order intake before Romeoville hits full volume?",
+    "message": "John Mueller described G&W's investment as space, people and processes. With the added space in Romeoville, order preparation seems worth examining alongside production capacity.\n\nNine-67 builds custom software with operating teams, from a first working version through training and deployment. Our recent work with one client included 20 deployed applications.\n\nWe'd build a check for missing details in purchase orders before they reach your team for approval. Starting with one product line would let us measure preparation time and corrections before expanding it.\n\nIs order intake a process you'd want to improve, or is it already working well?",
     "fit": "Wave 2. throughput and capacity without adding headcount. Demand and budget not confirmed.",
     "limitations": [
       "Do not assert Gizewicz was CFO (third-party only).",
@@ -110,7 +110,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "The owner said G&W is investing in space, people and processes. Space and people are visible. Processes are where agents now add capacity without another JDE seat.",
       "avoid": [
         "Do not assert Gizewicz was CFO (third-party only).",
@@ -139,9 +139,9 @@
       "sourceUrl": "https://www.shure.com/en-US/newsroom/shure-bolsters-leadership-2026"
     },
     "hypothesis": "New IT leaders in this seat usually inherit a complex SAP S/4, SAP Commerce and Salesforce estate and a queue of AI requests from every function. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
-    "subject": "governing the first agents",
-    "message": "AI governance at Shure could become a queue of tool approvals before anyone tests useful work. Governing a few production workflows early lets your team design governance from real use.\n\nWe'd build an agent that checks product content against engineering specs and flags unsupported claims. Marketing keeps approval; your team sets access and records decisions. We'd measure review time and missed claims against today's process.\n\nIs the first set of governed AI workflows already chosen, or still open?",
+    "proofKind": "case-study",
+    "subject": "AI governance at Shure",
+    "message": "Your remit at Shure includes enterprise AI governance. One way to make those rules practical is to test them on a few production workflows early, with real users and clear approval steps.\n\nAt Nine-67, we build custom software with business teams and their IT counterparts. Our proposal workspace flags unsupported claims for reviewers before submission.\n\nWe'd build a similar check for product content against approved engineering specs. Marketing would keep final approval; your team would set access rules. We'd compare review time and missed claims with the current process.\n\nHave you already picked the first workflows for that kind of test?",
     "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "Do not guess prior employers of Nolasco or McPhee.",
@@ -168,7 +168,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "Governance-first leaders move fastest when they govern a few production workflows early, instead of approving tools. Governance gets designed from real use.",
       "avoid": [
         "Do not guess prior employers of Nolasco or McPhee.",
@@ -197,9 +197,9 @@
       "sourceUrl": "https://www.lufkin.com/lufkin-industries-announces-sale-of-north-america-downhole-business-to-q2-artificial-lift-services/"
     },
     "hypothesis": "Service-led models usually carry heavy field report, dispatch and performance-reporting paperwork. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
+    "proofKind": "process",
     "subject": "hours of manual entry",
-    "message": "A finished service job can still wait to become an invoice when its report needs rekeying. Lufkin's own release describes software eliminating hours of manual data entry for customers. Applying that principle internally could protect service margin too.\n\nWe'd build an agent that checks service reports against contract terms and drafts invoices for manager approval. We'd measure time from completed report to approved invoice.\n\nIs the internal side of that automation on the plan, or parked for later?",
+    "message": "Lufkin describes its software as eliminating hours of manual data entry for customers. The same principle could be useful between a completed service job and its invoice.\n\nNine-67 builds custom software for operating teams. We work with leaders to choose the first project, test a working version with users, and train the team before deployment.\n\nWe'd build a tool that checks service reports against contract terms and prepares invoices for approval. Your managers would retain billing decisions. We'd measure the time from completed report to approved invoice.\n\nIs reducing that internal paperwork on your plan?",
     "fit": "Wave 3. growth without proportional hiring. Demand and budget not confirmed.",
     "limitations": [
       "Verify Baumann is still CEO (last confirmed Mar 2025).",
@@ -236,7 +236,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "Lufkin's own release says its software eliminates hours of manual data entry for customers. The same principle applied internally is the fastest service margin lever.",
       "avoid": [
         "Verify Baumann is still CEO (last confirmed Mar 2025).",
@@ -267,9 +267,9 @@
       "sourceUrl": "https://www.investing.com/news/transcripts/earnings-call-transcript-mayville-engineering-beats-q2-2026-estimates-on-sales-93CH-4838464"
     },
     "hypothesis": "When labor is the constraint, planners, estimators and supervisors usually end up spending time on admin that grows with every launch. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
-    "subject": "several hundred hires",
-    "message": "MEC's plan to add several hundred people could give estimators more paperwork too. Agents cannot run lasers, but they can take quoting preparation off people whose judgment is needed elsewhere.\n\nWe'd build an agent that checks incoming quote requests for missing drawings and specs, then prepares a review packet. Your estimators keep pricing decisions. We'd measure preparation time per quote.\n\nWould it be a bad idea to take quoting admin off the estimators before Q4?",
+    "proofKind": "case-study",
+    "subject": "capacity without headcount",
+    "message": "MEC has described hiring and training more operators while outsourcing some production work. Quoting and supplier follow-ups are another place to look for capacity without pulling experienced people away from decisions.\n\nAt Nine-67, we build custom software around that kind of work. Our proposal workspace checks requirements and flags missing information before a reviewer signs off.\n\nWe'd build a tool that checks quote requests for missing drawings and specs, then prepares the estimator's review packet. Pricing stays with your estimators. We'd measure preparation time per quote.\n\nIs quote preparation taking time your estimators could better spend elsewhere?",
     "fit": "Wave 1. cycle time and error rates on core workflows. Demand and budget not confirmed.",
     "limitations": [
       "No CIO found; do not address IT.",
@@ -295,7 +295,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "Agents do not run lasers. They can take quoting, scheduling inputs and supplier follow-ups off the people you cannot hire more of.",
       "avoid": [
         "No CIO found; do not address IT.",
@@ -323,9 +323,9 @@
       "sourceUrl": "https://sugarcreek.com/about-us/"
     },
     "hypothesis": "Co-packers usually manage each customer's specs, allergen and food safety documents, and price changes by email and spreadsheet. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
+    "proofKind": "process",
     "subject": "spec changes per customer",
-    "message": "Across SugarCreek's six US plants, one customer spec change can mean checking several production documents. For a co-packer, document work per customer can become a capacity limit before line time does.\n\nWe'd build an agent that checks each new spec against the approved one and flags instructions that need review. QA keeps approval of every change. We'd measure review time and missed changes using one customer's past requests.\n\nHow are customer spec changes tracked across the six plants today?",
+    "message": "A customer spec change at SugarCreek can affect more than one of your six plants. Document work per customer may be as important to capacity as time on the line.\n\nNine-67 builds custom software with operating teams. We start with one workflow, refine a working version with its users, and train them as it goes live.\n\nWe'd build a comparison of new and approved specs that flags changed instructions for QA. Your team would approve every change. Testing past requests would show review time and anything the check missed.\n\nHow much manual checking does a customer spec change require today?",
     "fit": "Wave 3. cycle time and error rates on core workflows. Demand and budget not confirmed.",
     "limitations": [
       "Do not say 'recently migrated to SAP' (case study undated).",
@@ -351,7 +351,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "For a co-packer, the hidden capacity limit is often document work per customer, not line time.",
       "avoid": [
         "Do not say 'recently migrated to SAP' (case study undated).",
@@ -379,9 +379,9 @@
       "sourceUrl": "https://www.investing.com/news/transcripts/earnings-call-transcript-bossard-posts-strong-h1-2026-growth-shares-jump-8-93CH-4803679"
     },
     "hypothesis": "When volume rebounds during an ERP migration, document work (POs, certificates, invoices, price updates) usually lands on people in the old system. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
-    "subject": "before D365 lands",
-    "message": "Bossard's Americas growth can bring more order paperwork while Dynamics 365 rolls out across the group. AI document processing need not wait for the new ERP; one intake workflow could be tested alongside it.\n\nWe'd build an agent that checks customer purchase orders for missing details and prepares orders for staff approval. Your IT team would review the integration. We'd measure review time and corrections per order.\n\nIs AI document processing already scoped for the Americas, or waiting on D365?",
+    "proofKind": "20-applications",
+    "subject": "document processing, Americas",
+    "message": "Bossard's Americas sales growth can bring more order paperwork. Document processing is one place to test improvements without waiting for a new ERP rollout to finish.\n\nAt Nine-67, we build custom software around the systems a business already uses. We recently helped one client deploy 20 applications, with users involved in development and training.\n\nWe'd build a tool that checks purchase orders for missing details and prepares them for staff approval. Your IT team would review the connection to existing systems. We'd measure review time and corrections on one order type.\n\nIs document processing already in scope for the Americas?",
     "fit": "Wave 2. growth without proportional hiring. Demand and budget not confirmed.",
     "limitations": [
       "US D365 timing unknown; do not assume it.",
@@ -414,7 +414,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "AI document processing does not need the new ERP first. Built on top, it becomes part of the migration instead of a project after it.",
       "avoid": [
         "US D365 timing unknown; do not assume it.",
@@ -443,9 +443,9 @@
       "sourceUrl": "https://clariencetechnologies.com/news/team-penske-grows-relationship-with-clarience-technologies/"
     },
     "hypothesis": "Roll-ups this size usually carry separate catalogs, procurement and compliance work per brand. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
+    "proofKind": "case-study",
     "subject": "Clarience value creation",
-    "message": "Across Clarience's 29 brands, checking the same freight charge separately could hide a shared cost problem. Agents can consolidate the work before systems are consolidated, which may help during Leonard Green's investment.\n\nWe'd build an agent that checks freight invoices against agreed rates across two brands and flags discrepancies. Your logistics team decides what to dispute. We'd measure confirmed overcharges and review hours.\n\nIs AI part of the value creation plan, or parked for year two?",
+    "message": "Across Clarience's 29 brands, a group cost review can start with gathering files rather than comparing costs. There's a chance to consolidate the work before the systems are consolidated.\n\nNine-67 builds custom software for operating and finance teams. For one client, we deployed a forecast builder and a client-profitability application.\n\nWe'd build a freight-invoice check across two brands, matching charges to agreed rates and flagging differences. Your team would decide what to dispute. We'd measure confirmed overcharges and hours spent reviewing invoices.\n\nIs freight review a useful place to test that approach across brands?",
     "fit": "Wave 1. margin and cost-to-serve. Demand and budget not confirmed.",
     "limitations": [
       "Exact close date and value unverified; say 'Leonard Green's investment'.",
@@ -478,7 +478,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "In a multi-brand roll-up, agents can consolidate the work before the systems are consolidated.",
       "avoid": [
         "Exact close date and value unverified; say 'Leonard Green's investment'.",
@@ -506,8 +506,8 @@
       "sourceUrl": "https://dailycoffeenews.com/2026/09/17/smart-care-unifies-five-coffee-equipment-service-brands-as-turbo-tech/"
     },
     "subject": "work order to cash",
-    "message": "Smart Care's Turbo Tech rollout makes the work between a service visit and its invoice worth examining. In field service, DSO can be decided at the work order, before collections ever sees it.\n\nWe'd build an agent that checks completed work orders for missing parts, labor and approval records, then prepares the billing packet. Your team approves release. We'd measure days from completed service to invoice.\n\nIs billing speed on your first 90-day list, or already handled?",
-    "proofKind": "proposed_workflow",
+    "message": "Turbo Tech's flat-rate service offering makes a complete work order especially useful for billing. The time to collect payment starts there, before an invoice ever reaches collections.\n\nAt Nine-67, we build custom software with operating and finance teams. We develop a first version with the people doing the work, then train them as it goes live.\n\nWe'd build a check for missing parts, labor and approval records before a completed job goes to billing. Staff would approve release. We'd measure days from completed service to invoice.\n\nDoes missing work-order information still hold up billing?",
+    "proofKind": "process",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
     "hypothesis": "Field service roll-ups usually run billing, dispatch and AP across many acquired brands with different habits. This is a hypothesis to test, not a confirmed problem at the company.",
     "fit": "Wave 1. margin and cost-to-serve. Demand and budget not confirmed.",
@@ -536,7 +536,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "In field service, DSO is decided at the work order, not in collections. Agents close that gap without more billers.",
       "avoid": [
         "Do not say 'congrats'.",
@@ -564,8 +564,8 @@
       "sourceUrl": "https://letsdatascience.com/news/lazer-logistics-deploys-uncle-phil-ai-for-yard-management-e973d3bb"
     },
     "subject": "after Uncle Phil",
-    "message": "Uncle Phil AI gives Lazer's managers guidance, but gathering evidence that an issue is resolved can still take time. With AI already in the yard, the office behind the yard is another place to test for margin.\n\nWe'd build an agent alongside your tools to gather maintenance records behind flagged issues. Site managers confirm each fix. We'd measure time spent assembling evidence per closed issue.\n\nIs the back office on the AI roadmap, or is LLOS the focus through 2027?",
-    "proofKind": "proposed_workflow",
+    "message": "Lazer's Uncle Phil AI puts more guidance in site managers' hands. The office behind the yard may offer another useful test: the work required to confirm a flagged issue is actually resolved.\n\nNine-67 builds custom software alongside internal teams. We recently helped a client deploy 20 applications, working with leaders and users through training and launch.\n\nWe'd build a small addition to your existing tools that gathers maintenance records for a manager to review. Managers would confirm the fix. We'd measure the time spent assembling evidence per issue.\n\nIs that follow-through already covered by your internal team?",
+    "proofKind": "20-applications",
     "proofSourceUrl": null,
     "hypothesis": "Operators usually aim AI at the field first. Billing, customer reporting and acquisition integration still scale with admin staff. This is a hypothesis to test, not a confirmed problem at the company.",
     "fit": "Wave 3. throughput and capacity without adding headcount. Demand and budget not confirmed.",
@@ -594,7 +594,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "Lazer already proved AI in the yard. The margin left is in the office behind the yard.",
       "avoid": [
         "They build tech in-house: never pitch a platform.",
@@ -621,9 +621,9 @@
       "date": "Source date not confirmed; researched 2026-09-23",
       "sourceUrl": "https://www.aol.com/articles/pls-logistics-services-acquires-agl-230500000.html"
     },
-    "subject": "PLS and AGL",
-    "message": "Adding AGL's customs and drayage services can mean more checking before a shipment reaches its next leg. An early integration win could come from the documents, without waiting for the systems to change.\n\nWe'd build an agent that checks customs packets for missing releases and drafts requests for your coordinator to approve. We'd measure document preparation time and shipments held for incomplete paperwork.\n\nWould it be a bad idea to test one agent on AGL customs docs before year end?",
-    "proofKind": "proposed_workflow",
+    "subject": "customs paperwork",
+    "message": "AGL adds customs and drayage work to PLS. An early integration win could be in the documents moving between teams, before their systems are brought together.\n\nAt Nine-67, we build custom software around operating workflows. In our proposal work, software checks documents for missing requirements before the team approves the response.\n\nWe'd build a check for missing releases in customs packets and prepare requests for your coordinators to approve. We'd start with one shipment type and measure preparation time and paperwork holds.\n\nIs customs paperwork worth a closer look as AGL joins your operations?",
+    "proofKind": "case-study",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
     "hypothesis": "Integrations like this usually focus on systems. The daily drag is customs entries, bookings and handoffs between two teams. This is a hypothesis to test, not a confirmed problem at the company.",
     "fit": "Wave 2. throughput and capacity without adding headcount. Demand and budget not confirmed.",
@@ -652,7 +652,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "The fastest integration wins come from the documents, not the systems.",
       "avoid": [
         "No CFO found; do not address finance.",
@@ -680,8 +680,8 @@
       "sourceUrl": "https://www.freightwaves.com/news/bluegrace-logistics-acquires-idaho-3pl-truk-tms"
     },
     "subject": "Truk TMS onboarding",
-    "message": "Bringing Truk TMS into BlueGrace can add claims paperwork alongside the customer accounts. After an acquisition, margin can sit in claims and onboarding even when the quote already benefits from AI.\n\nWe'd build an agent that assembles delivery records and proof of loss for each claim, flagging gaps before your team reviews it. Staff keep settlement decisions. We'd measure preparation time and incomplete submissions.\n\nWould it be a bad idea to run one agent on the claims queue before peak?",
-    "proofKind": "proposed_workflow",
+    "message": "Bringing Truk TMS into BlueGrace adds work beyond quoting. Claims and onboarding are places where the cost of an acquisition can show up one document at a time.\n\nNine-67 builds custom software for operating teams, including the testing and training needed to put it into daily use.\n\nWe'd build a claims packet that gathers delivery records and proof of loss, then flags missing evidence. Your staff would keep settlement decisions. A first version for one claim type would let us measure preparation time and incomplete submissions.\n\nAre claims still taking much manual preparation as the businesses come together?",
+    "proofKind": "process",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
     "hypothesis": "Each add-on brings customers to onboard and claims to process. Both usually scale with headcount. This is a hypothesis to test, not a confirmed problem at the company.",
     "fit": "Wave 1. throughput and capacity without adding headcount. Demand and budget not confirmed.",
@@ -710,7 +710,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "Most 3PLs put AI in the quote. The margin after an acquisition sits in claims and onboarding.",
       "avoid": [
         "They market AI heavily; do not explain AI to them.",
@@ -738,8 +738,8 @@
       "sourceUrl": "https://www.globenewswire.com/news-release/2026/01/20/3221908/0/en/TA-Achieves-30-LTL-Cost-Savings-and-99-Routing-Accuracy-with-SMC.html"
     },
     "subject": "dispatch and documentation",
-    "message": "TA's next phase with SMC3 could leave completed deliveries waiting on paperwork before billing. Documentation work can start with agents reading the documents now. A system replacement can follow.\n\nWe'd build an agent that matches proof of delivery to each load, flags missing signatures and prepares the billing packet. Your billing team approves release. We'd measure time from delivery to a complete packet on one lane.\n\nWould it be a bad idea to start documentation with agents before a new system?",
-    "proofKind": "proposed_workflow",
+    "message": "TA's next phase with SMC3 includes documentation modernization. That work could start with reading the documents already arriving, before a system replacement.\n\nAt Nine-67, we build custom software for operating teams. We work through a first version with users and include training when it goes live.\n\nWe'd build a check that matches proof of delivery to each load and flags missing signatures before billing reviews the packet. We'd test one lane, measuring time from delivery to a complete packet and any missed exceptions.\n\nIs proof-of-delivery paperwork a useful starting point for that work?",
+    "proofKind": "process",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
     "hypothesis": "In brokerage, documentation and shipment-change communication usually stay manual longest. This is a hypothesis to test, not a confirmed problem at the company.",
     "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
@@ -768,7 +768,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "Documentation modernization can start with agents reading the documents now, before a system replacement.",
       "avoid": [
         "Gamut/BCI ownership in 2026 unverified; say 'PS Logistics'.",
@@ -796,8 +796,8 @@
       "sourceUrl": "https://www.transervice.com/fleetchain-transervice/"
     },
     "subject": "stop tracking, start deciding",
-    "message": "Turning technician notes into work orders can take time away from managing repairs at Transervice. FleetChAIn's message, stop tracking and start deciding, could apply to your own maintenance office too.\n\nWe'd build an agent that drafts work-order updates from technician notes and parts records. Shop managers approve the record and keep repair decisions. We'd measure administrative time per completed job.\n\nIs the internal side on the roadmap, or is FleetChAIn the focus this year?",
-    "proofKind": "proposed_workflow",
+    "message": "FleetChAIn's 'stop tracking, start deciding' message could apply inside Transervice's maintenance office too. A technician's notes still need to become a record someone can act on.\n\nNine-67 builds custom software with operating teams. We choose a first project with leaders, refine it with users, and train the team through deployment.\n\nWe'd build a tool that prepares work-order updates from technician notes and parts records. Shop managers would approve the record and retain repair decisions. We'd measure administrative time per completed job.\n\nIs that internal paperwork on your improvement list?",
+    "proofKind": "process",
     "proofSourceUrl": null,
     "hypothesis": "Companies that productize decision intelligence for customers often still run maintenance admin and compliance by hand internally. This is a hypothesis to test, not a confirmed problem at the company.",
     "fit": "Wave 3. growth without proportional hiring. Demand and budget not confirmed.",
@@ -833,7 +833,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "The same logic you sell customers, stop tracking and start deciding, fits your own maintenance and compliance office.",
       "avoid": [
         "'New business acquisitions' may mean customer wins, not M&A.",
@@ -861,8 +861,8 @@
       "sourceUrl": "https://www.prnewswire.com/news-releases/montway-auto-transport-names-alberto-anguiano-as-chief-operating-officer-302670812.html"
     },
     "subject": "future-proofing operations",
-    "message": "Bringing brands together at Montway can leave your team answering more questions across shipment records. Future-proofing a brokerage includes how many conversations each person can handle well. Volume is only part of it.\n\nWe'd build an agent that checks pickup-change requests against shipment records and drafts carrier inquiries. Your team approves schedule changes. We'd measure handling time and repeat contacts for that request type.\n\nIs AI part of the future-proofing plan, or still being scoped?",
-    "proofKind": "proposed_workflow",
+    "message": "Your Montway remit includes integration and future-proofing operations. In a brokerage, part of that is how many conversations each person can handle well when a shipment changes.\n\nAt Nine-67, we build custom software with operating teams, including testing with users and training before launch.\n\nWe'd build a tool that checks pickup-change requests against shipment records and prepares carrier inquiries. Your team would approve schedule changes. We'd start with that single request type and measure handling time and repeat contacts.\n\nAre pickup changes still a source of repeated work for your team?",
+    "proofKind": "process",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
     "hypothesis": "A broker handling about 250,000 shipments a year with 365-day service usually spends most ops time on status updates, quote follow-ups and carrier matching. This is a hypothesis to test, not a confirmed problem at the company.",
     "fit": "Wave 1. throughput and capacity without adding headcount. Demand and budget not confirmed.",
@@ -898,7 +898,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "Future-proofing a brokerage is less about trucks than about how many conversations each person can handle well.",
       "avoid": [
         "Revenue not found.",
@@ -925,9 +925,9 @@
       "date": "Source date not confirmed; researched 2026-09-23",
       "sourceUrl": "https://peprofessional.com/2026/07/sentinel-takes-the-cake/"
     },
-    "subject": "DecoPac 100-day plan",
-    "message": "DecoPac's plans for more dessert formats and channels can mean more licensing paperwork. In a 100-day plan, agents could make expansion a margin lever instead of simply a hiring plan.\n\nWe'd build an agent that prepares packets from approved artwork and flags missing rights or channel details. Your licensing team approves each packet. We'd measure preparation time and packets returned for missing information.\n\nIs AI in the Sentinel 100-day plan, or parked for later?",
-    "proofKind": "proposed_workflow",
+    "subject": "new formats, same team",
+    "message": "Your plan to expand DecoPac's dessert formats and channels could add more licensing checks per product. Expansion can become a margin lever if that paperwork doesn't grow at the same pace.\n\nNine-67 builds custom software with operating teams. We recently helped one client deploy 20 applications, from choosing priorities through user training.\n\nWe'd build a tool that prepares licensing packets from approved artwork and flags missing rights or channel details. Your team would keep approval. We'd measure preparation time and packets returned for missing information.\n\nIs licensing paperwork part of the expansion plan you'd like to simplify?",
+    "proofKind": "20-applications",
     "proofSourceUrl": null,
     "hypothesis": "Expanding formats and channels across 25,000+ customer locations usually multiplies catalog, licensed design and account work. This is a hypothesis to test, not a confirmed problem at the company.",
     "fit": "Wave 1. growth without proportional hiring. Demand and budget not confirmed.",
@@ -971,7 +971,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "In a 100-day plan, agents turn expansion into a margin lever instead of a hiring plan.",
       "avoid": [
         "Revenue not found.",
@@ -1001,9 +1001,9 @@
       "sourceUrl": "https://www.globenewswire.com/news-release/2026/08/13/3344863/0/en/cooper-s-hawk-winery-restaurants-debuts-weeknight-dinner-menu.html"
     },
     "hypothesis": "Member service (billing, pickups, changes, questions) usually grows with the club and is handled by people. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
-    "subject": "888,000 members",
-    "message": "With 888,000 Wine Club members, routine pickup changes can become a sizeable service queue. In a membership business, each service request is a retention moment worth getting right.\n\nWe'd build an agent that checks pickup requests against club rules and prepares changes for staff approval. We'd test historical requests first, measuring handling time and repeat contacts before any live changes.\n\nWould it be a bad idea to look at Wine Club requests before the holiday rush?",
+    "proofKind": "case-study",
+    "subject": "Wine Club service",
+    "message": "Cooper's Hawk's Wine Club turns a routine pickup request into a membership service moment. Making those requests easy matters to retention as well as the service team's workload.\n\nAt Nine-67, we build custom software for operating teams. For a services firm, we put an account-risk view into production in a month.\n\nWe'd build a tool that checks pickup requests against club rules and prepares changes for staff approval. We'd test past requests first, measuring handling time and repeat contacts before making live changes.\n\nAre routine Wine Club requests still taking more staff time than you'd like?",
     "fit": "Wave 3. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "Verify Dave Harris is still CTO (last confirmed Jan 2025).",
@@ -1029,7 +1029,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "In a membership business, every service request is a retention moment. Agents make each one fast without adding staff per opening.",
       "avoid": [
         "Verify Dave Harris is still CTO (last confirmed Jan 2025).",
@@ -1058,9 +1058,9 @@
       "sourceUrl": "https://finance.yahoo.com/markets/stocks/articles/build-bear-workshop-q2-earnings-150450684.html"
     },
     "hypothesis": "Savings from incentive comp are not structural. The work that drives SG&A stays the same. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
+    "proofKind": "case-study",
     "subject": "the next leg of SG&A",
-    "message": "Build-A-Bear's plan for at least 50 net new locations can add corporate reporting work even where partners supply store staff. Structural SG&A savings can come from changing how work is done, rather than adjusting headcount.\n\nWe'd build an agent that collects partner reports and flags missing entries before finance reviews the numbers. Finance retains approval. We'd measure hours per completed report.\n\nIs structural SG&A on the CAO agenda this year, or later?",
+    "message": "Build-A-Bear's planned new locations can add reporting work even when partners provide store staff. Structural SG&A savings depend partly on how that work is done, as the business grows.\n\nNine-67 builds custom software for operating and finance teams. Our client-reporting application prepares editable reports for a person to review.\n\nWe'd build a reporting check that gathers partner submissions and flags missing entries before finance reviews the numbers. We'd test one report, measuring preparation hours and follow-up requests. Your team would retain approval.\n\nIs partner reporting an area you'd want to simplify as locations grow?",
     "fit": "Wave 2. margin and cost-to-serve. Demand and budget not confirmed.",
     "limitations": [
       "Stay neutral on the guidance cut; never gloat.",
@@ -1085,7 +1085,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "Structural SG&A savings come from changing how work is done, not from comp or headcount.",
       "avoid": [
         "Stay neutral on the guidance cut; never gloat.",
@@ -1114,9 +1114,9 @@
       "sourceUrl": "https://www.investing.com/news/transcripts/earnings-call-transcript-jjill-tops-q2-2026-estimates-shares-jump-premarket-93CH-4893635"
     },
     "hypothesis": "Once a CEO says it on a call, the AI owner usually has to show capacity gains across functions, not only in the vendor planning tool. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
-    "subject": "after the Q2 call",
-    "message": "J.Jill's AI planning launch could create another queue: recommendations that need a planner's second look. The planning system is the visible AI. Smaller workflows around it shape how much capacity it creates.\n\nWe'd build an agent alongside your team that gathers sales and stock details for flagged recommendations. Planners keep allocation decisions. We'd measure review time and unresolved exceptions in one category.\n\nIs the next set of AI workflows already picked, or still open?",
+    "proofKind": "process",
+    "subject": "AI capacity at J.Jill",
+    "message": "J.Jill's AI planning launch puts a new system in planners' hands. The smaller workflows around it will help determine how much capacity it gives them back.\n\nAt Nine-67, we build custom software alongside internal teams and train users as it goes live.\n\nWe'd build a review packet for flagged recommendations, gathering the sales and stock details a planner needs to decide. Your team would keep allocation decisions. We'd test one category and measure review time and unresolved exceptions before expanding.\n\nHave you already chosen who will build those supporting workflows?",
     "fit": "Wave 1. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "They are hiring AI talent: position as extra capacity, not replacement.",
@@ -1141,7 +1141,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "The planning system is the visible AI. Most of the capacity is in the smaller workflows around it.",
       "avoid": [
         "They are hiring AI talent: position as extra capacity, not replacement.",
@@ -1170,9 +1170,9 @@
       "sourceUrl": "https://finance.yahoo.com/markets/stocks/articles/duluth-q2-earnings-call-highlights-150429881.html"
     },
     "hypothesis": "Lean teams during an order management migration usually absorb more customer contacts, returns and exceptions. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
+    "proofKind": "process",
     "subject": "contact center after Omni",
-    "message": "Duluth's nearly 25% reduction in variable fulfillment cost per unit makes costs after shipment worth examining too. With leaner teams, taking routine contacts off the team is a better test than asking people to go faster.\n\nWe'd build an agent that checks order and carrier events and drafts status replies, flagging exceptions for staff. We'd measure handling time and repeat contacts.\n\nWould it be a bad idea to take where-is-my-order off the team before holiday?",
+    "message": "Duluth's fulfillment consolidation has reduced cost per unit. Taking routine contacts off the service team could extend that work beyond the warehouse, without asking people to handle requests faster.\n\nNine-67 builds custom software with operating teams. We test a first version with users and train them before deployment.\n\nWe'd build an order-status tool that checks carrier events and prepares replies, leaving exceptions with your staff. We'd measure handling time and repeat contacts against past requests before putting it into use.\n\nAre order-status questions still a sizeable part of your contact-center workload?",
     "fit": "Wave 2. cycle time and error rates on core workflows. Demand and budget not confirmed.",
     "limitations": [
       "Layoffs are sensitive: reference 'leaner teams', not cuts.",
@@ -1197,7 +1197,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "With fewer people, the best cost move is taking routine contacts off the team, not asking it to go faster.",
       "avoid": [
         "Layoffs are sensitive: reference 'leaner teams', not cuts.",
@@ -1226,9 +1226,9 @@
       "sourceUrl": "https://www.fool.com/earnings/call-transcripts/2026/08/13/figs-figs-q2-2026-earnings-call-transcript/"
     },
     "hypothesis": "Adding markets, TEAMS accounts and suppliers at this pace usually multiplies order, inventory and service exceptions. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
+    "proofKind": "process",
     "subject": "27 new markets",
-    "message": "Adding 27 markets can bring delivery questions that look similar but need different answers by country. The cost of fast international growth can appear in exceptions before it reaches headcount plans.\n\nWe'd build an agent that combines order details, carrier events and approved country policies into draft responses. Your team approves refunds or reshipments. We'd measure handling time and repeat contacts by market.\n\nWould it be a bad idea to map exception volume by market before Q4?",
+    "message": "With FIGS in 85 markets, a delivery question can require a different answer by country. The cost of fast international growth can show up in exceptions before headcount plans catch up.\n\nAt Nine-67, we build custom software with operating teams, from a working first version through training and deployment.\n\nWe'd build a tool that combines order details, carrier events and approved country policies into a draft response. Staff would retain refund and reshipment decisions. We'd measure handling time and repeat contacts in one market first.\n\nIs handling those country-specific exceptions already covered on your roadmap?",
     "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "Bixby title sourced from Simply Wall St; confirm on LinkedIn.",
@@ -1254,7 +1254,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "The cost of fast international growth shows up first in exceptions, not in headcount plans.",
       "avoid": [
         "Bixby title sourced from Simply Wall St; confirm on LinkedIn.",
@@ -1284,9 +1284,9 @@
       "sourceUrl": "https://www.retaildive.com/news/tecovas-ai-store-experience/815750/"
     },
     "hypothesis": "Wholesale brings EDI, POs, routing guides and chargebacks that DTC teams have never run. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
-    "subject": "wholesale at 25 to 30%",
-    "message": "Tecovas' wholesale expansion can mean rework when an order misses a store's shipping rules. With AI already in allocation, wholesale compliance is a new test beyond DTC.\n\nWe'd build an agent alongside your engineers that checks orders against retailer rules and flags gaps. Your team approves corrections. We'd measure review time and missed rules on one retailer's orders.\n\nIs wholesale ops on the AI list, or handled for now?",
+    "proofKind": "case-study",
+    "subject": "after allocation",
+    "message": "Tecovas has already put AI to work in allocation. Wholesale compliance presents a different set of rules from DTC, and could be a useful next project for your engineers.\n\nNine-67 builds custom software alongside internal teams. Our proposal workspace checks documents against requirements and flags gaps for human review.\n\nWe'd build a check of wholesale orders against retailer shipping rules. Your team would approve corrections. We'd start with one retailer and measure review time and missed requirements before extending it.\n\nWould extra engineering capacity for that work be useful, or is it covered?",
     "fit": "Wave 3. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "Peer tone; never explain AI to this CTO.",
@@ -1318,7 +1318,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "Tecovas already proved AI in allocation. Wholesale compliance is the next place it pays, and it is not a DTC muscle.",
       "avoid": [
         "Peer tone; never explain AI to this CTO.",
@@ -1347,9 +1347,9 @@
       "sourceUrl": "https://www.fool.com/earnings/call-transcripts/2026/09/10/lovesac-love-q2-2027-earnings-call-transcript/"
     },
     "hypothesis": "New delivery services usually create a spike in scheduling and service cases right as teams learn a new CRM. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
+    "proofKind": "20-applications",
     "subject": "CRM go-live",
-    "message": "Lovesac's Q3 CRM rollout and White Glove expansion could leave staff linking delivery updates to customer records by hand. Testing agents at CRM launch can avoid retrofitting them after workflows harden.\n\nWe'd build an agent that gathers delivery updates and case history, then drafts the next action. Staff approve it. We'd measure handling time and repeat contacts on one delivery case type.\n\nWould it be a bad idea to add one agent before the CRM workflows set?",
+    "message": "Lovesac's CRM launch is a chance to shape how delivery cases get handled before the workflows harden. Adding automation at launch could avoid having to retrofit it later.\n\nAt Nine-67, we build custom software with business and IT teams. We recently helped one client deploy 20 applications, including user training.\n\nWe'd build a delivery-case summary that gathers updates and customer history, then prepares the next action for staff approval. We'd start with one case type and measure handling time and repeat contacts.\n\nIs that delivery-case work already covered in the CRM rollout?",
     "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "Stay neutral on guidance cut and analyst downgrades.",
@@ -1381,7 +1381,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "Adding agents at CRM launch is cheaper than retrofitting them after the workflows harden.",
       "avoid": [
         "Stay neutral on guidance cut and analyst downgrades.",
@@ -1410,9 +1410,9 @@
       "sourceUrl": "https://www.businesswire.com/news/home/20250923519295/en/Syndigo-Announces-Partnership-with-Thrive-Market-to-Enhance-Product-Experience-and-Onboarding-Capabilities"
     },
     "hypothesis": "Member-facing AI usually moves first. Vendor onboarding, inbound exceptions and owned-brand sourcing still run on people. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
-    "subject": "the AI members don't see",
-    "message": "With more than 1,000 brands, late or short shipments can multiply supplier follow-ups at Thrive Market. Members see the AI in their experience; another margin opportunity sits in the supply chain they never see.\n\nWe'd build an agent that compares purchase orders with receipts and gathers supplier updates on discrepancies. Your team approves the next action. We'd measure follow-up time and unresolved shortages.\n\nIs the supply chain side on the AI roadmap, or member-facing first?",
+    "proofKind": "process",
+    "subject": "vendor ops",
+    "message": "Thrive's Syndigo work addresses vendor onboarding and product information. Another place to look for margin is the supply chain work after an order is placed, which the member never sees.\n\nNine-67 builds custom software for operating teams. We work with users on a first version, refine it with them, and train them through deployment.\n\nWe'd build a check of purchase orders against receipts, gathering supplier updates on shortages for your team's review. We'd measure follow-up time and unresolved discrepancies with a small supplier group.\n\nAre those supplier follow-ups still handled largely by hand?",
     "fit": "Wave 3. throughput and capacity without adding headcount. Demand and budget not confirmed.",
     "limitations": [
       "Revenue after Mar 2025 unverified.",
@@ -1445,7 +1445,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "The member sees the AI. The margin is in the supply chain the member never sees.",
       "avoid": [
         "Revenue after Mar 2025 unverified.",
@@ -1475,9 +1475,9 @@
       "sourceUrl": "https://www.nasdaq.com/press-release/mister-car-wash-announces-completion-take-private-leonard-green-partners-2026-05-19"
     },
     "hypothesis": "In a subscription model this size, billing questions, card declines and cancellations are handled across 550 sites and a help center. This is a hypothesis to test, not a confirmed problem at the company.",
-    "proofKind": "proposed_workflow",
+    "proofKind": "process",
     "subject": "after the take-private",
-    "message": "With UWC representing 76% of Mister Car Wash's Q1 wash sales, a billing issue can risk more than the service cost. In a subscription business, each churn risk is a service moment that could protect the recurring base.\n\nWe'd build an agent that checks billing history and drafts corrections for staff approval. We'd measure handling time and repeat issues on one request type.\n\nIs AI in the post-close plan, or parked for later?",
+    "message": "Mister Car Wash's recurring membership base makes a billing issue more than a service cost. In a subscription business, that service moment can become a churn risk.\n\nAt Nine-67, we build custom software with operating and finance teams, from a first working version through training and launch.\n\nWe'd build a billing-review tool that gathers payment history and prepares a correction for staff approval. We'd start with one recurring issue, measuring handling time and repeat problems before expanding it.\n\nIs membership billing a process you'd want to simplify in the post-close plan?",
     "fit": "Wave 1. margin and cost-to-serve. Demand and budget not confirmed.",
     "limitations": [
       "No post-close earnings calls; do not cite 2026 remarks beyond releases.",
@@ -1509,7 +1509,7 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "review": "Cold first touch: introduces Nine-67, uses a sourced company fact, presents an operating hypothesis, describes one proposed workflow and measurement, and ends with one reply question. No outcome or industry experience is implied beyond the stated evidence.",
       "reframe": "In a subscription business, each churn risk is a service moment. Agents protect the recurring base without adding site labor.",
       "avoid": [
         "No post-close earnings calls; do not cite 2026 remarks beyond releases.",

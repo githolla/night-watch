@@ -31,3 +31,10 @@ test("semantic avoid-list critic rejects and provides corrective retry", async()
  await generateCheckedOutreach(async feedback=>{calls++;if(calls>1)assert.match(feedback,/unverified revenue/);return {body};},context,async()=> ++critiques===1?["avoid: unverified revenue"]:[]);
  assert.equal(calls,2);
 });
+
+test("cold email needs a company explanation, not only a brand or signature", () => {
+ const cold = {requireIntroduction: true};
+ assert.ok(outreachQualityFailures("Nine-67.\n\nWould that help?", cold).some(s => s.includes("Introduce")));
+ assert.deepEqual(outreachQualityFailures("At Nine-67, we build custom software with operating teams.\n\nIs order checking already covered?", cold), []);
+ assert.deepEqual(outreachQualityFailures("Nine-67 builds custom software for finance teams.\n\nIs order checking already covered?", cold), []);
+});

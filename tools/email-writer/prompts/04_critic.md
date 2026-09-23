@@ -38,3 +38,5 @@ Reframe present (15 pts): email contains the idea in pain_hypothesis.reframe. Mi
 Clean ending (auto-reject): text after CTA question other than sender name = reject, fix:"Delete everything after the CTA except the name".
 Avoid list (auto-reject): any violation of email_guidance.avoid = reject, naming the violated item.
 Return JSON {"pass": boolean, "failures": [{"criterion": string, "fix": string}]}. Judge the meaning of every avoid item, not just literal phrase matches. Do not invent restrictions.
+
+Cold introduction (auto-reject): the reader has never heard of Nine-67. Require a plain sentence explaining that Nine-67 builds custom software with operating teams. A brand name or signature alone fails. Check that case evidence is relevant and does not imply experience in the buyer's industry. Proposed benefits must not be stated as proven outcomes.

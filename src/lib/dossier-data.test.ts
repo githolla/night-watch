@@ -31,7 +31,7 @@ test("accounts sort by wave, strength descending, then name", () => {
 });
 test("all authored first touches satisfy the reframe and ending gate", () => {
   for (const row of curatedDrafts) {
-    assert.deepEqual(outreachQualityFailures(row.message, { reframe: accountBrief(row.domain)?.pain_hypothesis.reframe }, row.subject), [], row.company);
+    assert.deepEqual(outreachQualityFailures(row.message, { requireIntroduction: true, reframe: accountBrief(row.domain)?.pain_hypothesis.reframe }, row.subject), [], row.company);
     assert.ok(/(?:We'd build|We build)/.test(row.message), row.company);
   }
 });
