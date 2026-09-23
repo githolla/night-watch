@@ -24,3 +24,12 @@ export function renderLinkedInVariant(variant: SavedVariant, senderName: string)
   const message = first ? variant.message.replaceAll("{sender}", first) : variant.message.replaceAll("I'm {sender} at Nine-67", "We're Nine-67");
   return { subject: emailStyle(variant.subject), body: emailStyle(message) };
 }
+
+/** Populate a missing current message from authored copy, preserving existing edits. */
+export function withDefaultLinkedIn<T extends { accounts: { domain?: string | null }; people: { full_name: string }; linkedin_message?: string | null; linkedin_subject?: string | null }>(card: T, senderName: string): T {
+  if (card.linkedin_message?.trim()) return card;
+  const variant = savedVariants(card.accounts.domain, card.people.full_name, "linkedin")[0];
+  if (!variant) return card;
+  const draft = renderLinkedInVariant(variant, senderName);
+  return { ...card, linkedin_message: draft.body, linkedin_subject: card.linkedin_subject?.trim() ? card.linkedin_subject : draft.subject };
+}

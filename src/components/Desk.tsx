@@ -2,7 +2,7 @@
 import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
 import { dateLabel, sourceDomain } from "@/lib/dossier-data";
-import { savedVariants, renderSavedVariant, renderLinkedInVariant, type SavedVariant } from "@/lib/outreach-variants";
+import { savedVariants, withDefaultLinkedIn, renderSavedVariant, renderLinkedInVariant, type SavedVariant } from "@/lib/outreach-variants";
 import { focusedAccount, revenueLabel, sortReachouts, type ReachoutSort } from "@/lib/reachout-sort";
 import { focusedContact } from "@/lib/focused-contact";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
@@ -176,7 +176,7 @@ export function Desk({
   context?: DeskContext;
   scan?: import("react").ReactNode;
 }) {
-  const [cards, setCards] = useState(initialCards);
+  const [cards, setCards] = useState(() => initialCards.map(card => withDefaultLinkedIn(card, senderName)));
   useEffect(() => {
     const receive = (event: Event) => {
       const updates = (event as CustomEvent<Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string }>>).detail;
@@ -305,7 +305,7 @@ export function Desk({
     const json = await response.json();
     setBusy(false);
     if (!response.ok) { alert(json.error); return false; }
-    setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...json } : item));
+    setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...json, ...(!("linkedin_message" in values) && !json.linkedin_message?.trim() ? { linkedin_message: item.linkedin_message, linkedin_subject: item.linkedin_subject } : {}) } : item));
     return true;
   }
   /** Write to the dossier's card (the one the dossier view renders). */
@@ -379,7 +379,7 @@ export function Desk({
     // Couldn't give them their own card? Fall back to the old behaviour rather than leaving the click dead:
     // the first contact's note, retargeted, with the composer saying plainly that is what it is.
     if (!response.ok || !json?.card?.id) { setNotice(json?.error ?? `Could not open ${person.full_name}’s own draft. Please retry.`); return; }
-    const fresh = json.card as Card;
+    const fresh = withDefaultLinkedIn(json.card as Card, senderName);
     setCards((current) => current.some((item) => item.id === fresh.id) ? current.map((item) => item.id === fresh.id ? { ...item, ...fresh } : item) : [...current, fresh]);
     setAlt(null);
     setCameFrom({ cardId: from.id, name: from.people.full_name, company: from.accounts.name });
@@ -760,7 +760,8 @@ export function Desk({
    */
   const saveField = (key: "email_subject" | "email_body" | "linkedin_message" | "linkedin_subject", value: string) => {
     const promote = focusCard?.status === "new" ? { status: "edited" } : {};
-    void patchFocus({ [key]: value, ...promote });
+    const linkedInPair = key === "linkedin_message" || key === "linkedin_subject" ? { linkedin_message: focusCard?.linkedin_message ?? "", linkedin_subject: focusCard?.linkedin_subject ?? "" } : {};
+    void patchFocus({ ...linkedInPair, [key]: value, ...promote });
     markWorking(true);
   };
   // Shared "someone is on this" flag so the two people on the desk don't message the same prospect. Best-effort.
