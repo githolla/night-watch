@@ -2235,3 +2235,6 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .email-test-panel small { display: block; color: #756e64; margin-top: 8px; }
 .email-test-panel button { padding: 6px 10px; border: 1px solid #d9d5ce; border-radius: 7px; background: white; cursor: pointer; }
 .email-test-panel button:disabled { opacity: .5; cursor: wait; }
+
+.outreach-saved-footer { margin-top: 24px; overflow-x: auto; }
+.outreach-saved-footer img { max-width: 100%; height: auto; }

@@ -1,3 +1,4 @@
+import { sanitizeSignatureHtml } from "./clean.ts";
 import { emailFirstName } from "./email-style.ts";
 
 type SignatureSettings = { fromName: string; signature?: string };
@@ -28,7 +29,22 @@ export function withOutreachName(body: string, profile: SignatureSettings): stri
   return [outreachBody(body), name].filter(Boolean).join("\n\n");
 }
 
+/** Only the explicitly saved footer is appended; do not invent a branded block. */
+export function outreachFooterHtml(profile: SignatureSettings): string {
+  const signature = profile.signature?.trim() ?? "";
+  if (!signature) return "";
+  if (/<[a-z][a-z0-9-]*(\s[^>]*)?\/?>/i.test(signature)) return sanitizeSignatureHtml(signature);
+  return signature.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
+}
+
+export function withOutreachSignature(body: string, profile: SignatureSettings): string {
+  const footer = outreachFooterHtml(profile).replace(/<br\s*\/?>|<\/(?:div|p|tr|table)>/gi, "\n").replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").trim();
+  return [withOutreachName(body, profile), footer].filter(Boolean).join("\n\n");
+}
+
 export function outreachEmailHtml(body: string, profile: SignatureSettings): string {
   const text = withOutreachName(body, profile).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  return `<div style="font:400 14px/1.65 Arial,Helvetica,sans-serif;color:#1a1712">${text.replace(/\n/g, "<br>")}</div>`;
+  const footer = outreachFooterHtml(profile);
+  return `<div style="font:400 14px/1.65 Arial,Helvetica,sans-serif;color:#1a1712">${text.replace(/\n/g, "<br>")}${footer ? `<div style="margin-top:24px">${footer}</div>` : ""}</div>`;
 }

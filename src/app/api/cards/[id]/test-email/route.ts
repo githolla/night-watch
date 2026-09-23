@@ -2,7 +2,7 @@ import { requireUser } from '@/lib/auth';
 import { admin } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/gmail';
 import { senderProfile, fromHeader, sanitizeLinks } from '@/lib/sender';
-import { withOutreachName, outreachEmailHtml } from '@/lib/outreach-ending';
+import { withOutreachSignature, outreachEmailHtml } from '@/lib/outreach-ending';
 import { trackedEmailHtml, firstOpenAt } from '@/lib/open-tracking';
 import { trackEmailVersion } from '@/lib/version-tracking';
 import { versionLabel, SAVED_VERSION_MODEL } from '@/lib/version-attribution';
@@ -27,7 +27,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (cardError || !card) throw new Error('This draft is no longer available.');
     const profile = await senderProfile(db, user.owner);
     const body = sanitizeLinks(payload.body);
-    const fullBody = withOutreachName(body, profile);
+    const fullBody = withOutreachSignature(body, profile);
     const versionId = await trackEmailVersion(db, { cardId: id, personId: card.person_id, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
     const html = trackedEmailHtml(outreachEmailHtml(body, profile), outboundBaseUrl(request), versionId);
     await sendEmail(user.owner, fromHeader(profile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, fullBody, undefined, [], html);

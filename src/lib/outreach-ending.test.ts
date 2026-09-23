@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { outreachBody, outreachEmailHtml, senderFirstName, withOutreachName } from "./outreach-ending.ts";
+import { outreachBody, outreachFooterHtml, withOutreachSignature, outreachEmailHtml, senderFirstName, withOutreachName } from "./outreach-ending.ts";
 import { composeContactDraft } from "./contact-draft.ts";
 
 test("curated draft ends at its CTA despite saved pleasantry", () => {
@@ -23,4 +23,19 @@ test("legacy signoff and full signature are replaced once, after final CTA", () 
   assert.equal(withOutreachName(expected, { fromName: "Josh Lee" }), expected);
   assert.match(outreachBody(original), /Is this worth a look\?$/);
   assert.doesNotMatch(outreachEmailHtml(original, { fromName: "Josh Lee" }), /Best,|COO|nine-67.com/);
+});
+
+
+test("uploaded footer survives outreach send rendering without restoring pleasantries", () => {
+  const profile = { fromName: "Josh Lee", signature: '<table><tr><td>Josh Lee<br>COO · Nine-67</td><td><img src="https://example.com/logo.png" onerror="alert(1)"></td></tr></table>' };
+  const body = "Hi Victor,\n\nWould this help?\n\nThanks,\nJosh";
+  const html = outreachEmailHtml(body, profile);
+  assert.match(html, /Would this help\?<br><br>Josh/);
+  assert.match(html, /<table>/);
+  assert.match(html, /https:\/\/example.com\/logo.png/);
+  assert.doesNotMatch(html, /onerror|Thanks,/);
+  assert.equal((html.match(/<table>/g) ?? []).length, 1);
+  assert.match(withOutreachSignature(body, profile), /Josh Lee\nCOO · Nine-67/);
+  assert.equal(outreachFooterHtml({ fromName: "Suuchi" }), "");
+  assert.doesNotMatch(outreachEmailHtml(body, { fromName: "Suuchi" }), /Josh|<table>/);
 });

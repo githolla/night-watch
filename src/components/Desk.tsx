@@ -156,6 +156,7 @@ export function Desk({
   initialCards,
   senderName = "",
   senderGreeting = "Hi {first},",
+  senderFooterHtml = "",
   selectedId,
   demo = false,
   gmailConnected = false,
@@ -166,6 +167,7 @@ export function Desk({
   initialCards: Card[];
   senderName?: string;
   senderGreeting?: string;
+  senderFooterHtml?: string;
   selectedId?: string;
   /** A page-level tool rendered in the desk header (Draft tools), passed in from the server page. */
   tools?: ReactNode;
@@ -1149,6 +1151,7 @@ export function Desk({
                     <h3>{tonePreview.subject}</h3>
                     <div className="email-version-body">{outreachBody(tonePreview.body)}</div>
                     <p className="email-version-signature">{senderName.trim().split(/\s+/)[0]}</p>
+                    {senderFooterHtml && <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} />}
                   </article>
                 ) : channelTab === "email" ? (
                   editing.email && !sentAlready ? (() => {
@@ -1177,6 +1180,7 @@ export function Desk({
                         </div>
                         <label className="compose-field"><span>Email · your saved greeting and message</span><textarea className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
                         <p className="compose-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</p>
+                    {senderFooterHtml && <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} />}
                       </div>
                     );
                   })() : (
@@ -1189,6 +1193,7 @@ export function Desk({
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("email", emailStyle(brief ? outreachBody(adapt(emailDraft)) : adapt(emailDraft)) || "No email draft yet. Choose a saved version or write your own.")}</div>
                       <div className="deskwork-doc-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</div>
+                    {senderFooterHtml && <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} />}
                     </div>
                   )
                 ) : (

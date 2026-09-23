@@ -1,6 +1,6 @@
 import { wasAutomaticallyArchived } from "@/lib/curated-card-state";
 import { senderProfile } from "@/lib/sender";
-import { senderFirstName } from "@/lib/outreach-ending";
+import { outreachFooterHtml, senderFirstName } from "@/lib/outreach-ending";
 import { recipientResearch } from "@/lib/recipient-research";
 import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
 import { curatedDomains } from "@/lib/curated-worklist";
@@ -261,6 +261,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
         initialCards={cards}
         senderName={senderFirstName(sender)}
         senderGreeting={sender.greeting}
+        senderFooterHtml={outreachFooterHtml(sender)}
         selectedId={params.card}
         gmailConnected={(gmailRows ?? []).some((row) => (row as { owner: string }).owner === me.owner)}
         context={context}

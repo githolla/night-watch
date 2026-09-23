@@ -10,7 +10,7 @@ import { emailHtml, fromHeader, sanitizeLinks, senderProfile, withSignature } fr
 import { outboundBaseUrl } from "@/lib/urls";
 import { admin } from "@/lib/supabase/admin";
 import { isCuratedDomain } from "@/lib/curated-worklist";
-import { outreachBody, withOutreachName, outreachEmailHtml } from "@/lib/outreach-ending";
+import { outreachBody, withOutreachSignature, outreachEmailHtml } from "@/lib/outreach-ending";
 
 const daysBetween = (iso: string | null | undefined) => (iso ? Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)) : 0);
 
@@ -71,7 +71,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const profile = await senderProfile(db, owner);
     const fromEmail = connection?.email ?? user.email ?? "";
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
-    const fullBody = curated ? withOutreachName(body, profile) : `${withSignature(body, profile, fromEmail)}\n\n${optOut}`;
+    const fullBody = curated ? withOutreachSignature(body, profile) : `${withSignature(body, profile, fromEmail)}\n\n${optOut}`;
     // Send multipart/alternative: a plain-text part (spam filters prefer it) AND an HTML part carrying the
     // branded signature, so the sender's signature actually renders in the recipient's client.
     const html = curated ? outreachEmailHtml(body, profile) : emailHtml(body, profile, fromEmail, optOut);
