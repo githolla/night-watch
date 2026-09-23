@@ -1,800 +1,668 @@
 [
   {
-    "company": "Aprio",
-    "domain": "aprio.com",
-    "researchedAt": "2026-09-23",
+    "company": "Turn 14 Distribution",
+    "domain": "turn14.com",
     "buyer": {
-      "name": "Cheri Husney",
-      "title": "Chief Growth Officer, Partner",
-      "sourceUrl": "https://www.aprio.com/about/our-people/",
-      "verification": "Current official leadership directory; undated; accessed 2026-09-23",
+      "name": "Mike Hall",
+      "title": "Vice President of Operations",
+      "sourceUrl": "https://www.turn14.com/about",
       "email": null
     },
     "trigger": {
-      "fact": "Aprio announced its acquisition of CAVU Advisors, expanding federal-contractor advisory and accounting capabilities. CAVU brings Unanet and Deltek expertise.",
-      "date": "2026-04-01",
-      "sourceUrl": "https://www.aprio.com/insights-events/aprio-acquires-cavu-advisors-bringing-unmatched-advisory-and-accounting-power-to-federal-contractors-ins-newsroom/"
+      "fact": "Turn 14 operates four distribution centers and promises same-day fulfillment of in-stock orders, with seven-day operations and late shipping cutoffs.",
+      "date": null,
+      "sourceUrl": "https://www.turn14.com/about",
+      "type": "Current operating context, not a recent event"
     },
-    "hypothesis": "The growth office may benefit from making acquired specialist experience searchable and usable in proposals across the wider firm. Acquisition establishes relevance, not evidence that proposal preparation is broken.",
-    "proofKind": "proposals",
-    "subject": "Making CAVU expertise easier to sell",
-    "message": "CAVU brings Aprio more federal-contractor expertise. One commercial opportunity is making that experience easy for the wider firm to use when the right proposal arrives.\n\nNine-67 built a proposal workspace that finds relevant approved work and checks responses for gaps before submission. For Aprio, I would start with one government-contracting proposal type and let the specialists shape it.\n\nWould seeing that case study be useful as you bring the expanded capability to market?",
-    "fit": "High: named growth owner, verified capability expansion, directly relevant professional-services proposal proof.",
-    "limitations": [
-      "No recipient email guessed or verified.",
-      "Acquisition is an April event, not described as new this week.",
-      "No claim that Aprio lacks proposal tools or has a specific current bottleneck.",
-      "Case-study workspace is built; no unsupported claim of measured win-rate improvement."
-    ],
-    "researchDate": "2026-09-23",
-    "targetRole": "Chief Growth Officer, Partner",
-    "wordCount": 73
-  },
-  {
-    "company": "Armanino",
-    "domain": "armanino.com",
-    "researchedAt": "2026-09-23",
-    "buyer": {
-      "name": "Tony Caleca",
-      "title": "Chief Growth Officer, Armanino Advisory LLC",
-      "sourceUrl": "https://www.armanino.com/company/people/tony-caleca/",
-      "verification": "Current official profile and leadership directory; accessed 2026-09-23",
-      "email": null
-    },
-    "trigger": {
-      "fact": "Step Up Consulting joined Armanino on February 2, 2026; the UKG practice brings implementation, optimization and managed services under one direction.",
-      "date": "2026-02-02",
-      "sourceUrl": "https://www.armanino.com/company/mergers-acquisitions/step-up-consulting-joins-armanino/"
-    },
-    "hypothesis": "A growth leader explicitly responsible for client expansion may value an application that turns the new UKG capability into accountable existing-client introductions. This is a proposed commercial workflow, not evidence of an actual referral gap.",
-    "proofKind": "accounts",
-    "subject": "The next introduction for the UKG team",
-    "message": "Step Up expanded Armanino's UKG offering from implementation through managed services. For your client-expansion team, a useful application could connect an existing client's stated workforce needs to the right specialist, with an owner for the introduction.\n\nNine-67 has built account-level decision tools for a professional-services firm, using its existing systems. We could shape a first version around that one referral path.\n\nIs activating existing client relationships a priority for the UKG practice?",
-    "fit": "Medium-high: specific acquired capability and growth-owner remit; Armanino has significant internal digital capability, so differentiate as focused execution instead of broad AI education.",
-    "limitations": [
-      "No recipient email guessed.",
-      "February acquisition is dated explicitly in research and not presented as breaking news.",
-      "No claim that Armanino lacks client-referral systems.",
-      "Proposed referral application is not claimed as an existing Nine-67 delivered product."
-    ],
-    "researchDate": "2026-09-23",
-    "targetRole": "Chief Growth Officer, Armanino Advisory LLC",
-    "wordCount": 72
-  },
-  {
-    "company": "Cherry Bekaert",
-    "domain": "cbh.com",
-    "researchedAt": "2026-09-23",
-    "buyer": {
-      "name": "Kurt W. Taves",
-      "title": "Chief Operating Officer, Partner, Cherry Bekaert Advisory LLC",
-      "sourceUrl": "https://www.cbh.com/about/leadership/",
-      "verification": "Current official leadership directory; accessed 2026-09-23",
-      "email": null
-    },
-    "trigger": {
-      "fact": "Cherry Bekaert welcomed AcctZen, adding accounting, financial-management and ERP implementation experience, including Sage Intacct and QuickBooks.",
-      "date": "2026-09-18",
-      "sourceUrl": "https://www.cbh.com/newsroom/cherry-bekaert-expands-services-with-acctzen/"
-    },
-    "hypothesis": "A newly combined delivery capability may benefit from a single view of client commitments and capacity during operational integration. No private integration difficulty is known.",
+    "hypothesis": "A deadline-driven fulfillment operation may value a clear decision queue for orders at risk of missing cutoff. There is no evidence that current exception handling is inadequate.",
     "proofKind": "delivery",
-    "subject": "Client commitments as AcctZen joins",
-    "message": "AcctZen joining Cherry Bekaert brings accounting and ERP delivery closer together. One operating question is how to keep client commitments and available specialist capacity visible as the teams connect.\n\nNine-67 has deployed a resource-allocation application with a client. We could start with one combined delivery team, build a view around the decisions it actually makes, and train the users as we deploy.\n\nWould comparing that approach with your integration plans be useful?",
-    "fit": "High: five-day-old official event, COO ownership, a bounded operational use case matched to an actual delivered application.",
+    "subject": "Orders close to cutoff",
+    "message": "Your same-day shipping promise makes the last hour before cutoff an interesting place to look. For Turn 14, we could build a view of orders needing a decision, what is holding each one up and who can clear it.\n\nNine-67 has deployed resource-allocation and collaboration tools with a client. We would build this with your warehouse team around one exception type.\n\nAre cutoff exceptions already easy to act on, or worth comparing approaches?",
+    "fit": "High operational specificity and verified operations buyer; evidence is adjacent, not a logistics case study.",
     "limitations": [
-      "No email address guessed.",
-      "Resource-allocation deployment is owner-supplied evidence, not a publicly measured case study.",
-      "The email does not assert an integration problem or claim efficiency savings.",
-      "Cherry Bekaert has existing technology practices and a Fieldguide partnership; scope complements delivery coordination instead of pitching audit automation."
+      "No guessed email.",
+      "Company information is evergreen and undated.",
+      "No claim of missed shipments or an existing systems gap.",
+      "Proposed warehouse use is not a previously delivered Nine-67 application."
     ],
+    "targetRole": "operations",
     "researchDate": "2026-09-23",
-    "targetRole": "Chief Operating Officer, Partner, Cherry Bekaert Advisory LLC",
-    "wordCount": 72
+    "sector": "Industrial and automotive parts distribution",
+    "rank": 1
   },
   {
-    "company": "Citrin Cooperman",
-    "domain": "citrincooperman.com",
-    "researchedAt": "2026-09-23",
+    "company": "G&W Electric",
+    "domain": "gwelectric.com",
     "buyer": {
-      "name": "Alan Badey",
-      "title": "Chief Executive Officer",
-      "sourceUrl": "https://www.citrincooperman.com/In-Focus-Resource-Center/Building-Whats-Next-Strategic-Shifts-Redefining-Accounting",
-      "verification": "CEO role identified in official June 18, 2026 publication and official leadership directory; accessed 2026-09-23",
+      "name": "Dave Gizewicz",
+      "title": "Chief Operating Officer, G&W Electric; CEO, G&W Altea",
+      "sourceUrl": "https://www.gwelectric.com/news/gw-electric-expands-gw-altea-facility-in-ferrara-italy-to-meet-growing-sensor-demand/",
       "email": null
     },
     "trigger": {
-      "fact": "Citrin Cooperman acquired Browne Consulting, adding roughly 60 professionals and expanding life-sciences and biotech advisory.",
-      "date": "2026-02-10",
-      "sourceUrl": "https://www.citrincooperman.com/In-Focus-Resource-Center/Citrin-Cooperman-Acquires-Browne-Consulting"
+      "fact": "G&W expanded its Ferrara sensor facility with additional production and warehousing plus dedicated R&D space. The announcement identifies Dave Gizewicz as COO.",
+      "date": "2026-06-30",
+      "sourceUrl": "https://www.gwelectric.com/news/gw-electric-expands-gw-altea-facility-in-ferrara-italy-to-meet-growing-sensor-demand/"
     },
-    "hypothesis": "For an acquisitive professional-services firm, a repeatable application around client commitments and ownership may help leaders see whether specialist capability is becoming usable across the firm. Need is unverified.",
-    "proofKind": "20-applications",
-    "subject": "An operating view across new practices",
-    "message": "Browne adds a specialist life-sciences team to Citrin Cooperman. An application worth testing could show which client commitments need attention as practices connect, with an accountable partner behind each one.\n\nNine-67 recently helped one client deploy 20 applications. We work with leaders to choose the first priority, then build, iterate with users and train the team through deployment.\n\nIs a repeatable operating view across acquired practices on your agenda?",
-    "fit": "Medium: verified acquisition and CEO interest in data-driven client value; executive relevance but less immediate than the fresh Cherry Bekaert trigger.",
+    "hypothesis": "An expanded facility combining R&D and manufacturing may need clear acceptance of engineering changes into production. No actual handoff problem is known.",
+    "proofKind": "delivery",
+    "subject": "From Ferrara R&D to the production floor",
+    "message": "Ferrara now has more production space and its own R&D area. One practical place we could help is the handoff when an engineering change reaches production: the right revision, open questions and the person approving the change together.\n\nNine-67 has deployed a collaboration workspace with a client. We would build this version with your engineers and production leads.\n\nIs that handoff already well covered, or would a short outline be useful?",
+    "fit": "High: recent physical expansion, named operating owner, specific engineering-to-production workflow.",
     "limitations": [
-      "Integration leader Michael DeVito appears on a secondary official leadership page, but his linked profile returns a generic people search; not used as a confidently verified current buyer.",
       "No recipient email guessed.",
-      "No claim about current Browne integration progress or problems.",
-      "20-application delivery comes from the user; do not identify that private client."
+      "Collaboration proof is from owner-supplied client work, not a manufacturing case.",
+      "No automated technical approval or safety decision proposed."
     ],
+    "targetRole": "operations",
     "researchDate": "2026-09-23",
-    "proofSourceUrl": null,
-    "targetRole": "Chief Executive Officer",
-    "wordCount": 69
+    "sector": "Electrical equipment manufacturing",
+    "rank": 2
   },
   {
-    "company": "Eide Bailly",
-    "domain": "eidebailly.com",
-    "researchedAt": "2026-09-23",
+    "company": "Shure",
+    "domain": "shure.com",
     "buyer": {
-      "name": "Andy M. Spillum",
-      "title": "Partner / Chief Operating Officer",
-      "sourceUrl": "https://www.eidebailly.com/people/leadership",
-      "verification": "Current official leadership directory plus June 2026 investment announcement; accessed 2026-09-23",
+      "name": "Monique Rezaei",
+      "title": "Senior Director, Channel Sales, North America",
+      "sourceUrl": "https://www.shure.com/en-US/newsroom/shure-appoints-monique-rezaei-as-sales-channel-leader-in-north-america",
       "email": null
     },
     "trigger": {
-      "fact": "Eide Bailly announced a definitive investment agreement with Reverence Capital to support talent, technology and capabilities; the announcement retained existing CEO and COO leadership.",
-      "date": "2026-06-23",
-      "sourceUrl": "https://www.eidebailly.com/insights/firm-news/2026/reverence-capital-partners-investment"
+      "fact": "Shure appointed Monique Rezaei to lead North American channel sales, with a focus on partner engagement and growth across AV, collaboration and IT.",
+      "date": "2026-09-01",
+      "sourceUrl": "https://www.shure.com/en-US/newsroom/shure-appoints-monique-rezaei-as-sales-channel-leader-in-north-america"
     },
-    "hypothesis": "As leaders prioritize operating investments, a concrete client-retention application may be more useful than a broad AI discussion. This is an investment-priority hypothesis, not a claim of account attrition or missing reporting.",
+    "hypothesis": "A new channel leader may value a partner review that connects relationship concerns to revenue and an accountable follow-up. No existing channel reporting gap is established.",
     "proofKind": "accounts",
-    "subject": "Which client needs attention this week?",
-    "message": "Your Reverence announcement puts technology investment alongside growth and client service. A concrete place to start could be the weekly decision about which client relationship needs partner attention.\n\nNine-67 put account ratings and revenue exposure in one view for a professional-services firm; it reached production in a month. For Eide Bailly, we would shape the first version around the decisions your market leaders make.\n\nWould the case study be useful when comparing operating investments?",
-    "fit": "High: COO tied to service-line and market performance; direct professional-services account-risk proof and public investment priority.",
+    "subject": "Which partner needs attention next?",
+    "message": "Your new role brings Shure's North American partner relationships together. A useful first view might show which partner needs attention, the revenue involved and the next agreed action.\n\nNine-67 built an account-health view for a professional-services firm that went live in a month. We could adapt the approach with your channel managers, using the information they already work with.\n\nWould seeing that example be useful as you set up your partner reviews?",
+    "fit": "High: current named commercial leader, fresh appointment and a single account-management decision.",
     "limitations": [
-      "The investment announcement described an agreement, with expected Q3 close. Closing was not independently verified; the email does not say it closed.",
-      "One-month delivery belongs to one Nine-67 case, not a promised Eide Bailly timeline.",
-      "No recipient email guessed."
+      "No recipient email guessed.",
+      "Case study is professional services, not audio manufacturing or channel sales.",
+      "One month is historical proof, not a promised delivery time for Shure."
     ],
+    "targetRole": "commercial",
     "researchDate": "2026-09-23",
-    "targetRole": "Partner / Chief Operating Officer",
-    "wordCount": 74
+    "sector": "Professional audio electronics manufacturing",
+    "rank": 3
   },
   {
-    "company": "Elliott Davis",
-    "domain": "elliottdavis.com",
-    "researchedAt": "2026-09-23",
+    "company": "Lufkin Industries",
+    "domain": "lufkin.com",
     "buyer": {
-      "name": "Luanne Runge",
-      "title": "Chief Operating Officer, Elliott Davis Advisory, LLC",
-      "sourceUrl": "https://www.elliottdavis.com/people/luanne-runge",
-      "verification": "Official current profile identifies COO and oversight of legal, risk, HR and technology; current leadership directory corroborates role; accessed 2026-09-23",
-      "email": "luanne.runge@elliottdavis.com",
-      "emailSourceUrl": "https://www.elliottdavis.com/people/luanne-runge",
-      "emailStatus": "Publicly listed business email; deliverability not tested"
+      "name": "Craig Guillory",
+      "title": "Vice President International Sales & Operations",
+      "sourceUrl": "https://www.lufkin.com/pdo-awards-lufkin-contract/",
+      "email": null
     },
     "trigger": {
-      "fact": "Elliott Davis appointed Blake Clifton to support a targeted acquisition strategy, following its partnership with Flexpoint Ford.",
-      "date": "2026-01-27",
-      "sourceUrl": "https://www.elliottdavis.com/insights/elliott-davis-strengthens-growth-engine"
+      "fact": "PDO awarded Lufkin a multi-year contract covering equipment, deployment services and production support in South Oman. Craig Guillory is named as VP International Sales & Operations.",
+      "date": "2026-02-24",
+      "sourceUrl": "https://www.lufkin.com/pdo-awards-lufkin-contract/"
     },
-    "hypothesis": "The COO oversees both HR and technology, making acceptance of a new-team onboarding handoff a specific cross-functional decision she can own. No actual integration delay or deficiency is established.",
+    "hypothesis": "A performance contract with recurring customer reviews creates a specific reporting opportunity. Lufkin already reports strong performance, so pitch preparation support without implying poor delivery.",
+    "proofKind": "reporting",
+    "subject": "Preparing the next PDO review",
+    "message": "The PDO contract includes equipment, field deployment and ongoing support. That gives each performance review several teams' work to bring together.\n\nNine-67 built a reporting tool with editable presentation and spreadsheet exports, leaving the final review with the account team. For Lufkin, we could start with one customer review pack and build around the evidence your team already uses.\n\nIs preparing those packs already straightforward, or would the example be useful?",
+    "fit": "High: official named buyer owns both sales and operations; a real performance-contract context supports customer-reporting relevance.",
+    "limitations": [
+      "No recipient email guessed.",
+      "Reporting case is built and ready, not claimed deployed or proven in oilfield operations.",
+      "No well-control, engineering or safety decisions are automated by the proposed reporting tool.",
+      "Contract announcement is February, not breaking news."
+    ],
+    "targetRole": "commercial",
+    "researchDate": "2026-09-23",
+    "sector": "Oilfield equipment manufacturing and field service",
+    "rank": 4
+  },
+  {
+    "company": "Mayville Engineering Company",
+    "domain": "mecinc.com",
+    "buyer": {
+      "name": "Craig D. Nichols",
+      "title": "Senior Vice President, Operations and Supply Chain",
+      "sourceUrl": "https://ir.mecinc.com/governance/board-of-directors/person-details/default.aspx?ItemId=f9666a86-a7e4-4fcd-bf7b-90d09550b1ad",
+      "email": null
+    },
+    "trigger": {
+      "fact": "MEC reported stronger orders and growing data-center programs, alongside selective allocation of capacity to higher-margin work.",
+      "date": "2026-08-05",
+      "sourceUrl": "https://www.mecinc.com/news/mayville-engineering-company-announces-second-quarter-2026-results/"
+    },
+    "hypothesis": "The explicit choice to prioritize capacity creates a plausible need to compare competing programs with assumptions visible. Existing planning capability is unknown.",
+    "proofKind": "finance",
+    "subject": "Choosing the next production slot",
+    "message": "MEC's August update says you are reserving capacity for higher-margin programs as data-center work grows. We could help put the options behind that decision in one place: available hours, delivery commitments and the assumptions behind each program's margin.\n\nNine-67 has deployed forecasting and resource-allocation tools with a client. Your planners would shape the first version.\n\nCan your team compare those tradeoffs in one view today?",
+    "fit": "High: directly stated current operating decision and confirmed operations executive.",
+    "limitations": [
+      "No guessed email.",
+      "Adjacent planning proof is not a manufacturing scheduling case study.",
+      "No assertion that MEC lacks planning software or that savings are guaranteed."
+    ],
+    "targetRole": "operations",
+    "researchDate": "2026-09-23",
+    "sector": "Contract metal manufacturing",
+    "rank": 5
+  },
+  {
+    "company": "Sugar Creek Packing",
+    "domain": "sugarcreek.com",
+    "buyer": {
+      "name": "Daniel Hammer",
+      "title": "President",
+      "sourceUrl": "https://www.sugarcreek.com/our-team/",
+      "email": null
+    },
+    "trigger": {
+      "fact": "SugarCreek operates a pilot plant and culinary center opened in 2024. President Daniel Hammer oversees product development, culinary, sales and customer service.",
+      "date": null,
+      "sourceUrl": "https://sugarcreek.com/about-us/",
+      "type": "Current operating context; facility opened in 2024, exact opening date not established"
+    },
+    "hypothesis": "Because development and customer commitments share one leader, moving a tested product into production is a plausible cross-functional application opportunity. No actual launch delay is known.",
     "proofKind": "20-applications",
-    "subject": "The HR-to-technology handoff in integration",
-    "message": "Elliott Davis's acquisition strategy makes the handoff between incoming teams, HR and technology a useful place to look for repeatable work. Your remit brings those functions together.\n\nNine-67 recently helped a client deploy 20 applications. For this, I would start with one onboarding workflow: required inputs, access decisions, an accountable owner and clear acceptance by the receiving team. We would build and train with its users.\n\nWould a proposed first scope for that handoff be useful?",
-    "fit": "High role specificity; medium timing strength because the strategic announcement is January, not a fresh acquisition.",
+    "subject": "From pilot run to first customer order",
+    "message": "SugarCreek's pilot plant brings product ideas into the kitchen. We could help with the next handoff: putting the agreed recipe, packaging decisions, open approvals and first-order date in one place for the launch team.\n\nNine-67 recently helped one client deploy 20 applications. We build with the people doing the work and train them as the tool goes live.\n\nIs that launch handoff already covered, or worth a closer look?",
+    "fit": "High role fit: president directly oversees both product development and commercial functions; proposal is administrative coordination.",
     "limitations": [
-      "Public email is sourced, not inferred; deliverability remains untested.",
-      "No claim about a specific pending or completed acquisition.",
-      "The proposed onboarding workflow is not presented as a previously delivered Nine-67 case.",
-      "20-app evidence is owner supplied with no promised rollout speed or ROI."
+      "No recipient email guessed.",
+      "The CSV named John Richardson as CEO; current official site identifies Michael Richardson as CEO. Daniel Hammer is chosen for explicit relevant remit.",
+      "20-app count is user-supplied and not manufacturing-specific.",
+      "Food safety, recipe approval and quality release remain human decisions; proposed app gathers status only."
     ],
+    "targetRole": "operations",
     "researchDate": "2026-09-23",
-    "proofSourceUrl": null,
-    "targetRole": "Chief Operating Officer, Elliott Davis Advisory, LLC",
-    "wordCount": 76
+    "sector": "Food manufacturing",
+    "rank": 6
   },
   {
-    "company": "Brainlabs",
-    "domain": "brainlabsdigital.com",
+    "company": "Bossard Americas",
+    "domain": "bossard.com",
     "buyer": {
-      "name": "Sean Seamer",
-      "title": "Global COO and North America CEO",
-      "sourceUrl": "https://www.brainlabsdigital.com/leadership-team/"
+      "name": "Brendan Nolan",
+      "title": "General Manager, Bossard U.S.",
+      "sourceUrl": "https://americas.bossard.com/media-kit-bossard-americas/",
+      "email": null
     },
     "trigger": {
-      "fact": "Brainlabs acquired Exverus to expand its US full-service agency-of-record capability; its current operating model organizes specialists into Client Hives.",
-      "date": "2025-07-22",
-      "sourceUrl": "https://www.prnewswire.com/news-releases/brainlabs-enhances-ai-powered-full-funnel-media-capabilities-with-acquisition-of-exverus-media-302508871.html"
+      "fact": "Bossard combines fastener supply, assembly engineering and inventory services. Its current media kit identifies Brendan Nolan as U.S. general manager with business-development and procurement responsibilities.",
+      "date": null,
+      "sourceUrl": "https://americas.bossard.com/media-kit-bossard-americas/",
+      "type": "Current operating context, not a new event"
     },
-    "hypothesis": "Hypothesis: a shared account review could help a regional/global operator reconcile local relationship judgments as more disciplines serve one client. No evidence establishes that Brainlabs lacks this view.",
+    "hypothesis": "Proposals spanning supply and engineering can require coordination of approved technical and commercial inputs. Actual proposal friction is not established.",
+    "proofKind": "proposals",
+    "subject": "The RFQ that needs more than a price",
+    "message": "Bossard brings engineering and inventory services into the fastening quote. We could help gather the approved technical answers, commercial terms and missing information before the team sends a response.\n\nNine-67 built a proposal workspace that checks a draft against the requirements and flags gaps for review. For Bossard, we would start with one type of customer RFQ.\n\nWould that example be useful to your sales and procurement teams?",
+    "fit": "Medium-high: named general manager spans business development and procurement; direct transfer of proposal-review capability, without claiming engineering expertise.",
+    "limitations": [
+      "No recipient email guessed.",
+      "Evergreen operating context, no fabricated announcement date.",
+      "Nine-67 proposal proof is built professional-services work, not demonstrated fastener quoting.",
+      "Technical acceptance and pricing remain with Bossard."
+    ],
+    "targetRole": "commercial",
+    "researchDate": "2026-09-23",
+    "sector": "Industrial fastening and assembly distribution",
+    "rank": 7
+  },
+  {
+    "company": "Clarience Technologies",
+    "domain": "clarience.com",
+    "officialWebsite": "https://clariencetechnologies.com/",
+    "buyer": {
+      "name": "David McKean",
+      "title": "Executive Vice President, Supply Chain and Chief Procurement Officer",
+      "sourceUrl": "https://clariencetechnologies.com/team/david-mckean/",
+      "email": null
+    },
+    "trigger": {
+      "fact": "Clarience manufactures transportation equipment across multiple brands, with in-house circuit-board assembly, molding and global distribution. Its current leadership page names David McKean as supply-chain executive and CPO.",
+      "date": null,
+      "sourceUrl": "https://clariencetechnologies.com/about-us/",
+      "type": "Current operating context, not a new event"
+    },
+    "hypothesis": "A procurement leader across multiple manufacturing businesses may benefit from a shared view of supplier exceptions and their impact on customer commitments. No current shortage or reporting gap is asserted.",
+    "proofKind": "reporting",
+    "subject": "One supplier issue across several plants",
+    "message": "Clarience brings several manufacturing businesses together. When a supplier issue touches more than one plant, we could help put the affected orders, next decisions and responsible buyers in one review.\n\nNine-67 built a reporting tool with editable presentation and spreadsheet exports. For your team, we would start with one supplier review and the data your buyers already use.\n\nWould that be useful, or can you already see the impact across plants easily?",
+    "fit": "High operational fit: named current supply-chain and procurement leader at a physical transportation-equipment manufacturer; no telemetry-product pitch.",
+    "limitations": [
+      "No recipient email guessed.",
+      "Domain clarience.com is retained from the supplied sales list for matching; verified official sources are at clariencetechnologies.com.",
+      "Operating context is undated and not presented as a fresh development.",
+      "Nine-67 reporting proof is built and ready, not claimed deployed in manufacturing."
+    ],
+    "targetRole": "operations",
+    "researchDate": "2026-09-23",
+    "sector": "Transportation equipment manufacturing",
+    "rank": 8
+  },
+  {
+    "company": "Smart Care Equipment Solutions",
+    "domain": "smartcaresolutions.com",
+    "buyer": {
+      "name": "Veronica Lubatkin",
+      "title": "President and Chief Financial Officer",
+      "sourceUrl": "https://smartcaresolutions.com/about/leadership/"
+    },
+    "trigger": {
+      "fact": "Smart Care is growing its national equipment-service network through acquisitions while preserving local teams and customer relationships.",
+      "date": "Undated; checked 2026-09-23",
+      "sourceUrl": "https://smartcaresolutions.com/join-us/acquisitions/"
+    },
+    "subject": "Which service accounts need attention?",
+    "message": "Smart Care's acquisition approach keeps local service teams and customer relationships in place. For the national review, could regional managers' account concerns sit beside the revenue at risk?\n\nNine-67 built that view for a services firm using its existing systems. It went from kickoff to production in a month.\n\nI can send the case study if that would be useful for the way you review the growing network.",
     "proofKind": "accounts",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "subject": "A view across the Client Hives",
-    "message": "Brainlabs describes Client Hives built around each client, with Exverus broadening the US offering. That made me think about the internal account review: can leadership see one commercial picture while keeping each team's judgment visible?\n\nWe built an account-risk application for a professional-services firm that reached production in a month.\n\nWould seeing that example be useful for comparing how your regional and client leaders review a shared account?",
-    "fit": "Medium: relevant operating buyer and services proof; strong in-house technology means a bounded internal use case must earn its place.",
-    "limitations": [
-      "Acquisition is from July 2025, not a recent event; do not frame it as breaking news.",
-      "Cortex already supports media work. Do not offer generic media intelligence or imply Client Hives are broken.",
-      "No named-person email was verified."
-    ],
-    "retrievedAt": "2026-09-23",
-    "additionalSources": [
-      {
-        "url": "https://www.brainlabsdigital.com/home/",
-        "supports": "Client Hives and Cortex in the current operating model"
-      },
-      {
-        "url": "https://www.brainlabsdigital.com/brainlabs-acquires-exverus-ai-media-agency/",
-        "supports": "Company-hosted acquisition announcement"
-      }
-    ],
-    "recipientEmail": null,
+    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
+    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
+    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "targetRole": "operations",
     "researchDate": "2026-09-23",
-    "targetRole": "Global COO and North America CEO",
+    "sector": "Logistics and physical services",
+    "rank": 9,
     "wordCount": 68
   },
   {
-    "company": "DEPT",
-    "domain": "deptagency.com",
+    "company": "Lazer Logistics",
+    "domain": "lazerlogistics.com",
     "buyer": {
-      "name": "Andrew Dimitriou",
-      "title": "Global Chief Client & Growth Officer",
-      "sourceUrl": "https://www.dept.global/en-au/event/cannes-lions-2026/"
+      "name": "Phil Newsome",
+      "title": "Chief Operating Officer",
+      "sourceUrl": "https://www.lazerlogistics.com/about"
     },
     "trigger": {
-      "fact": "DEPT appointed Roy Armale Chief Product Officer effective April 2, 2026, following its DEPT Studios launch.",
-      "date": "2026-03-27",
-      "sourceUrl": "https://www.dept.global/insight/dept-appoints-roy-armale-as-chief-product-officer/"
+      "fact": "Lazer operates yard logistics across more than 700 locations and has its own NexusYMS.",
+      "date": "Undated; checked 2026-09-23",
+      "sourceUrl": "https://www.lazerlogistics.com/about"
     },
-    "hypothesis": "Hypothesis: adding packaged products to multidisciplinary services increases the importance of selecting the right approved evidence for a pursuit. This is a commercial preparation hypothesis, not an assertion that DEPT proposals are inefficient.",
-    "proofKind": "proposals",
-    "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "subject": "The evidence behind the combined offer",
-    "message": "With DEPT Studios and the new product leadership, your growth team has more ways to shape a client engagement. The proposal still has to explain why this particular combination fits.\n\nNine-67 built a workspace that finds relevant approved experience and checks a response for missing requirements.\n\nWould a look at that workflow be useful for your pursuit team? The comparison would be one combined product-and-services proposal, with your team keeping the strategy and final judgment.",
-    "fit": "Medium: clear commercial remit, but DEPT has significant internal build capability; test proposal operations fit before discussing a project.",
-    "limitations": [
-      "Roy Armale is a verified new product leader, but this email is deliberately addressed to Andrew, who owns client/growth work.",
-      "Do not use old 2021 COO appointments as current contact evidence.",
-      "No buyer email verified."
-    ],
-    "retrievedAt": "2026-09-23",
-    "additionalSources": [
-      {
-        "url": "https://www.deptagency.com/insight/when-uncertainty-becomes-consumers-new-reality-brands-need-to-earn-their-place-in-it/",
-        "supports": "June 25, 2026 Andrew Dimitriou byline confirms Chief Client & Growth Officer"
-      }
-    ],
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "targetRole": "Global Chief Client & Growth Officer",
-    "wordCount": 75
-  },
-  {
-    "company": "Tinuiti",
-    "domain": "tinuiti.com",
-    "buyer": {
-      "name": "Wes Harris",
-      "title": "Global Chief Operating Officer",
-      "sourceUrl": "https://tinuiti.com/people/"
-    },
-    "trigger": {
-      "fact": "Tinuiti appointed Wes Harris Global COO, explicitly connecting product and client delivery as broader enterprise assignments grow.",
-      "date": "2026-09-10",
-      "sourceUrl": "https://tinuiti.com/about/news/tinuiti-names-wes-harris-global-chief-operating-officer-as-agency-scales-for-next-phase-of-enterprise-growth/"
-    },
-    "hypothesis": "Hypothesis: the newly formalized COO remit creates a timely opportunity to select one cross-functional operating workflow, with leadership reviewing concrete decisions instead of carrying the build. No public source confirms an active procurement need.",
+    "subject": "Following through on site issues",
+    "message": "With Lazer operating more than 700 locations, I'm interested in what happens after a site issue is spotted: who owns the fix, when it's due, and whether the same problem appears elsewhere.\n\nWe recently helped one client deploy 20 applications. We build with the operators, test working versions in their day, and train the team before handing over.\n\nIs that follow-through already handled in NexusYMS, or does it sit elsewhere?",
     "proofKind": "20-applications",
     "proofSourceUrl": null,
-    "subject": "One workflow for the new remit",
-    "message": "Your appointment announcement connects Product and Client Delivery as Tinuiti takes on broader enterprise assignments. One practical starting point could be the review where those teams agree what to deliver next, with owners and decisions in one place.\n\nWe recently helped one client deploy 20 applications. Leaders set priorities; we build working versions, iterate with users and train teams through deployment.\n\nWould a one-page scope for that operating review be useful as you shape the remit?",
-    "fit": "High relative to this cohort: very recent mandate, named operating owner and a bounded proposed application. Not evidence of purchase intent.",
-    "limitations": [
-      "The proposed operating-review application is a suggested scope, not a Nine-67 case-study claim.",
-      "Current official page lists Wes Harris. The June 23, 2025 announcement named Alejandro Clabiorne COO, Client Delivery; do not treat that older announcement as proof of the current global COO.",
-      "20 applications is user-supplied evidence, not independently claimed on the public case page.",
-      "One-page scope is an offer to prepare, not an existing asset. No verified email."
-    ],
-    "retrievedAt": "2026-09-23",
-    "additionalSources": [
-      {
-        "url": "https://tinuiti.com/about/news/tinuiti-expands-leadership-team-to-drive-nextgen-client-solutions-and-operational-excellence-appoints-alejandro-clabiorne-as-chief-operating-officer-client-delivery/",
-        "supports": "Older June 2025 role has different name and scope"
-      }
-    ],
-    "recipientEmail": null,
+    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
+    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
+    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "targetRole": "operations",
     "researchDate": "2026-09-23",
-    "targetRole": "Global Chief Operating Officer",
-    "wordCount": 76
+    "sector": "Logistics and physical services",
+    "rank": 10,
+    "wordCount": 70
   },
   {
-    "company": "R/GA",
-    "domain": "rga.com",
+    "company": "PLS Logistics Services",
+    "domain": "plslogistics.com",
     "buyer": {
-      "name": "Sadie Thoma",
-      "title": "Global Chief Business Officer",
-      "sourceUrl": "https://www.rga.com/about"
-    },
-    "trigger": {
-      "fact": "R/GA announced independence, outcome-based remuneration and more flexible team structures with a $50M innovation fund.",
-      "date": "2025-03-04",
-      "sourceUrl": "https://www.rga.com/news/rga-independent-management-private-equity-partnership"
-    },
-    "hypothesis": "Hypothesis: outcome-based commercial arrangements make a review joining relationship judgment and financial exposure especially relevant. This does not establish that R/GA has visibility gaps.",
-    "proofKind": "accounts",
-    "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "subject": "The account view behind outcome pricing",
-    "message": "R/GA's independence announcement put outcome-based remuneration and flexible teams on the agenda. For a commercial leader, that makes the account review an interesting place to connect the relationship and financial picture.\n\nWe built an application that puts account ratings beside revenue exposure, using a professional-services firm's existing systems.\n\nWould seeing that view be useful as a comparison for your own commercial reviews? The account owner keeps the judgment; the application brings the context together.",
-    "fit": "Medium: good commercial mechanism fit, but the strategic announcement is over a year old and current priority is unverified.",
-    "limitations": [
-      "March 2025 announcement is strategic context, not a new September 2026 trigger.",
-      "Do not offer generic AI brand/product development; R/GA builds that itself.",
-      "Wes Harris is now confirmed at Tinuiti, so an old R/GA COO contact should not receive this copy.",
-      "No verified buyer email."
-    ],
-    "retrievedAt": "2026-09-23",
-    "additionalSources": [],
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "targetRole": "Global Chief Business Officer",
-    "wordCount": 74
-  },
-  {
-    "company": "Real Chemistry",
-    "domain": "realchemistry.com",
-    "buyer": {
-      "name": "Kevin Johnson",
-      "title": "Group President & Managing Partner",
-      "sourceUrl": "https://www.realchemistry.com/about/who-we-are/"
-    },
-    "trigger": {
-      "fact": "Real Chemistry announced its entry into APAC through the acquisition of Spurwing Communications in Singapore.",
-      "date": "2026-07-07",
-      "sourceUrl": "https://www.realchemistry.com/real-chemistry-enters-apac-with-spurwing-acquisition/"
-    },
-    "hypothesis": "Hypothesis: a growing regional footprint could make one client-review format with local team editing a useful delivery tool. It is not evidence of fragmented reporting, and medical/clinical content is out of scope.",
-    "proofKind": "reporting",
-    "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "subject": "One client review across regions",
-    "message": "With Spurwing bringing Real Chemistry into APAC, a useful operating question is what a shared client review should standardize and what the local team should shape.\n\nOur reporting application produces editable branded slides and spreadsheets, with the account team reviewing the result.\n\nFor your integrated teams, I'd compare that with one business-review deliverable across regions. Would seeing the example be useful? Your specialists would keep the interpretation and the final client conversation.",
-    "fit": "Medium-high: verified expansion and a buyer whose official remit connects account leaders and integrated teams. The reporting need remains a hypothesis.",
-    "limitations": [
-      "Do not claim clinical, regulatory or medical-review expertise from Nine-67 general professional-services proof.",
-      "The official site has a July 7 summary; the underlying US announcement was released July 6. The date field reflects the cited official summary.",
-      "JJ Schmuckler appeared in a July 2025 Real Chemistry appointment release but is now shown as Code and Theory president in April 2026. Do not send to that stale role.",
-      "No buyer email verified."
-    ],
-    "retrievedAt": "2026-09-23",
-    "additionalSources": [
-      {
-        "url": "https://www.realchemistry.com/article/real-chemistry-appoints-new-leaders-to-drive-innovation-and-global-scale",
-        "supports": "July 2025 historical JJ appointment, superseded by Code and Theory April 2026 publication"
-      },
-      {
-        "url": "https://www.codeandtheory.com/",
-        "supports": "Current company homepage features new president JJ Schmuckler in April 2026"
-      }
-    ],
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "targetRole": "Group President & Managing Partner",
-    "wordCount": 72
-  },
-  {
-    "company": "Code and Theory",
-    "domain": "codeandtheory.com",
-    "buyer": {
-      "name": "JJ Schmuckler",
+      "name": "Steven Bergan",
       "title": "President",
-      "sourceUrl": "https://www.codeandtheory.com/"
+      "sourceUrl": "https://www.plslogistics.com/resources/news/steven-bergan-pls-logistics-president/"
     },
     "trigger": {
-      "fact": "The company homepage features JJ Schmuckler as its new president in April 2026 and Adobe collaborations for finance brands in May and sports content in July.",
-      "date": "2026-07",
-      "sourceUrl": "https://www.codeandtheory.com/"
+      "fact": "PLS operates freight brokerage and managed transportation; its president oversees operations and service expansion.",
+      "date": "Undated; checked 2026-09-23",
+      "sourceUrl": "https://www.plslogistics.com/about-us/"
     },
-    "hypothesis": "Hypothesis: several adjacent industry offers give commercial leadership a concrete reason to evaluate how approved proof is selected for a particular pursuit. Do not presume a content-workflow deficiency or sell their own service back to them.",
-    "proofKind": "proposals",
-    "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "subject": "The proof for the next pursuit",
-    "message": "Code and Theory's Adobe work now spans finance brands and sports content. For the next pursuit, the useful evidence may sit across several kinds of work rather than in one standard credentials deck.\n\nNine-67 built a proposal workspace that retrieves approved material and checks requirements before submission.\n\nWould a look help your growth team compare how it assembles that evidence? I'd start with one pursuit; your team would keep the positioning and creative argument.",
-    "fit": "Medium: direct commercial ownership and specific portfolio context, but significant build overlap. Evaluate internal proposal operations only.",
-    "limitations": [
-      "The official homepage identifies the president through an April 2026 headline and JJ/Michael image caption; corroborating linked coverage identifies JJ explicitly.",
-      "Mike Treff is current CEO on official careers page; old founder-name labels should not be treated as current CEO evidence.",
-      "Do not claim Adobe work is an acquisition or newly completed client outcome.",
-      "Date precision is month only because that is what the official homepage shows.",
-      "No buyer email verified."
-    ],
-    "retrievedAt": "2026-09-23",
-    "additionalSources": [
-      {
-        "url": "https://www.codeandtheory.com/careers",
-        "supports": "Current CEO Mike Treff"
-      },
-      {
-        "url": "https://www.adweek.com/agencies/code-and-theorys-new-president-will-help-cmos-navigate-ai-complexity/",
-        "supports": "Company-linked corroboration of JJ name and president title; not needed for operational claims"
-      }
-    ],
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "targetRole": "President",
-    "wordCount": 74
-  },
-  {
-    "company": "Huge",
-    "domain": "hugeinc.com",
-    "buyer": {
-      "name": "Lauren DeGeorge",
-      "title": "Chief Client Officer",
-      "sourceUrl": "https://www.hugeinc.com/ideas/makers/josh-campo-and-lauren-degeorge"
-    },
-    "trigger": {
-      "fact": "Huge introduced Josh Campo as CEO and Lauren DeGeorge as Chief Client Officer; their January interview describes simpler offerings connected to client outcomes.",
-      "date": "2026-01-09",
-      "sourceUrl": "https://www.hugeinc.com/ideas/makers/josh-campo-and-lauren-degeorge"
-    },
-    "hypothesis": "Hypothesis: outcome-focused client engagements make a shared commercial and relationship review useful to the new client leader. This is adjacent internal tooling, not a claim Huge needs help building client products.",
-    "proofKind": "accounts",
-    "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "subject": "The account conversation behind outcomes",
-    "message": "Your conversation with Josh about connecting Huge's offerings to client outcomes made me think about the internal account review: the relationship owner's view alongside the financial picture.\n\nWe built that kind of account application for a professional-services firm and took it to production in a month.\n\nWould the example be useful to compare with how your client leaders review an engagement? It's a concrete view we can show, with account-team judgment kept in the process.",
-    "fit": "Medium-high for Lauren/internal client operations; low for a generic technology pitch to Huge.",
-    "limitations": [
-      "Lisa De Bonis from the supplied desk/source is not the current Huge CEO: the January 9, 2026 company article identifies Josh Campo as newly appointed CEO, and the current company page confirms Josh and Lauren roles.",
-      "Do not alter saved contact records without a deliberate contact verification step; this draft belongs to Lauren only.",
-      "No implication that the one-month result guarantees Huge delivery timing.",
-      "No buyer email verified."
-    ],
-    "retrievedAt": "2026-09-23",
-    "additionalSources": [
-      {
-        "url": "https://www.hugeinc.com/company",
-        "supports": "Current leadership roles"
-      },
-      {
-        "url": "https://www.hugeinc.com/solutions",
-        "supports": "Strong in-house products, platforms and AI activation capabilities; avoid duplicative pitch"
-      }
-    ],
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "targetRole": "Chief Client Officer",
-    "wordCount": 75
-  },
-  {
-    "company": "PMG",
-    "domain": "pmg.com",
-    "buyer": {
-      "name": "Andrea Terrassa",
-      "title": "Chief Operating Officer",
-      "sourceUrl": "https://www.pmg.com/insights-and-news/andrea-terrassa-as-chief-operating-officer-pmg"
-    },
-    "trigger": {
-      "fact": "PMG appointed Kate Rush Sheehy to lead its travel practice, describing demand for integrated client work and an operating model connecting planning through measurement.",
-      "date": "2026-09-03",
-      "sourceUrl": "https://www.pmg.com/insights-and-news/kate-rush-sheehy-joins-pmg-to-lead-travel-practice"
-    },
-    "hypothesis": "Hypothesis: adding specialist practice leadership creates a concrete occasion to test a bounded internal cross-practice decision workflow. PMG already has Alli and forward-deployed engineers, so this is a conditional internal delivery fit, not a missing capability.",
-    "proofKind": "20-applications",
-    "proofSourceUrl": null,
-    "subject": "One cross-practice decision",
-    "message": "PMG's travel-practice announcement describes bringing more capabilities around a client's business. For your operating team, I'd explore one internal decision in that model: how a cross-practice commitment gets an owner and a clear next step.\n\nWe recently helped a client deploy 20 applications, building with leaders, iterating with users and training through rollout.\n\nIs an internal workflow like that worth scoping together, or is it already covered? We could start with one operating review.",
-    "fit": "Medium-low: named COO and current integrated-delivery signal, but strong overlapping engineering and operationalization capabilities. Qualify first; deprioritize if internal tooling is covered.",
-    "limitations": [
-      "Alli already supports planning, execution and measurement. Do not pitch a generic marketing operating system.",
-      "The travel-practice announcement identifies PMG forward-deployed engineering capability; external supplier need is unproven.",
-      "Andrea appointment is March 20, 2025, corroborated by current About leadership listing. The outreach trigger is September 3, 2026, not her appointment.",
-      "20 applications is user-supplied proof; proposed cross-practice tool is hypothetical.",
-      "No buyer email verified."
-    ],
-    "retrievedAt": "2026-09-23",
-    "additionalSources": [
-      {
-        "url": "https://www.pmg.com/about",
-        "supports": "Current COO Andrea Terrassa listing and existing Alli capabilities"
-      }
-    ],
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "targetRole": "Chief Operating Officer",
-    "wordCount": 74
-  },
-  {
-    "company": "Consero Global",
-    "domain": "conseroglobal.com",
-    "buyer": {
-      "name": "Ashley Honeyman",
-      "title": "Chief Financial and Operating Officer",
-      "sourceUrl": "https://conseroglobal.com/about/team/",
-      "verifiedAt": "2026-09-23"
-    },
-    "trigger": {
-      "fact": "Consero acquired ProVisio to expand its Senior Living finance and accounting business.",
-      "date": "2026-08-05",
-      "sourceUrl": "https://conseroglobal.com/press/consero-acquires-provisio/"
-    },
-    "hypothesis": "A CF/OO overseeing an expanded vertical may value consistent account-risk review across delivery teams; no current visibility gap is established.",
-    "proofKind": "accounts",
-    "subject": "Account risk across the senior-living team",
-    "message": "Consero's ProVisio acquisition adds another team to the senior-living business. I wondered how you want client risk to show up in your operating reviews as that group grows.\n\nNine-67 delivered a tool for a services firm that connects account ratings with revenue exposure, using the systems it already had.\n\nWould an example of that account-review view be useful as you bring the teams together?",
-    "fit": "High: current acquisition, verified finance/operations buyer, close professional-services proof.",
-    "limitations": "Do not pitch finance automation generally: Consero already has SIMPL and Fusion Lab. Integration pain is a hypothesis, not a reported problem. No verified personal email.",
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "wordCount": 64,
-    "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "proofSourceNote": "Public Nine-67 case study, accessed2026-09-23; readiness distinctions preserved.",
-    "freshnessDays": 49,
-    "targetRole": "Chief Financial and Operating Officer"
-  },
-  {
-    "company": "Platform Accounting Group",
-    "domain": "platformag.com",
-    "buyer": {
-      "name": "Johanna Nielsen",
-      "title": "Chief Financial Officer",
-      "sourceUrl": "https://platformag.com/platform-accounting-group-utah-names-johanna-nielsen-as-chief-financial-officer/",
-      "verifiedAt": "2026-09-23"
-    },
-    "trigger": {
-      "fact": "Platform appointed Johanna Nielsen CFO; the announcement reports more than 50 firms across 17 states and a locally autonomous model.",
-      "date": "2026-09-10",
-      "sourceUrl": "https://platformag.com/platform-accounting-group-utah-names-johanna-nielsen-as-chief-financial-officer/"
-    },
-    "hypothesis": "A newly appointed CFO may want a consistent commercial-risk view while preserving local autonomy; this is a fit hypothesis, not a claim about existing reporting.",
-    "proofKind": "accounts",
-    "subject": "A shared view without changing local tools",
-    "message": "Your appointment announcement puts local autonomy alongside financial discipline across more than 50 firms. That made me think of a specific application we delivered.\n\nNine-67 connected account ratings and revenue exposure for a professional-services firm without replacing its project or finance systems. Local teams kept setting the ratings; leadership got a shared view.\n\nWould that example be useful as you shape the financial view you want at Platform?",
-    "fit": "High: very fresh named-buyer trigger and unusually close fit between decentralized model and demonstrated existing-system integration.",
-    "limitations": "The older /about-2/ page still lists Ryan Bateman as CFO. The dated September10 announcement supersedes it. No claim Johanna lacks a shared view; no email guessed.",
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "wordCount": 68,
-    "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "proofSourceNote": "Public Nine-67 case study, accessed2026-09-23; readiness distinctions preserved.",
-    "freshnessDays": 13,
-    "targetRole": "Chief Financial Officer"
-  },
-  {
-    "company": "Harbor Global",
-    "domain": "harborglobal.com",
-    "buyer": {
-      "name": "Justin Farmer",
-      "title": "Practice Group Leader, Enterprise Solutions",
-      "sourceUrl": "https://harborglobal.com/about/leadership/",
-      "verifiedAt": "2026-09-23"
-    },
-    "trigger": {
-      "fact": "Harbor acquired iTrain; its team joins Enterprise Solutions, expanding training and adoption delivery across the US and UK.",
-      "date": "2026-07-07",
-      "sourceUrl": "https://harborglobal.com/about/news/harbor-acquires-itrain-adding-uk-legal-technology-training-and-ai-enablement-capabilities/"
-    },
-    "hypothesis": "The acquiring practice leader may need an internal view of readiness and ownership across implementation and adoption teams; Harbor already sells adoption expertise, so this must be an internal delivery conversation.",
-    "proofKind": "20-applications",
-    "subject": "The handoff from implementation to adoption",
-    "message": "With iTrain joining Enterprise Solutions, your team now spans more of the work between implementation and sustained use. An internal delivery view could make the handoff explicit: what is live, who is trained, and what still needs an owner.\n\nNine-67 recently helped one client deploy 20 applications, building with leaders and iterating with users through training and rollout.\n\nIs that cross-team delivery view already covered at Harbor?",
-    "fit": "Medium-high: specific acquiring practice buyer; recognizes existing training capability and offers internal coordination rather than generic AI education.",
-    "limitations": "Harbor has its own engineering and adoption teams, so external-delivery appetite is unverified. No proof of missing tracking or poor adoption;20apps is user-supplied evidence, not attributed to Harbor or a named case-study client.",
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "wordCount": 67,
-    "proofSourceUrl": null,
-    "proofSourceNote": "User-supplied delivery process/20-application engagement; no inferred client identity, timeframe or ROI.",
-    "freshnessDays": 78,
-    "targetRole": "Practice Group Leader, Enterprise Solutions"
-  },
-  {
-    "company": "Smith + Howard",
-    "domain": "smith-howard.com",
-    "buyer": {
-      "name": "J. Sean Spitzer",
-      "title": "President & Chief Operating Officer",
-      "sourceUrl": "https://www.smith-howard.com/company/leadership/",
-      "verifiedAt": "2026-09-23"
-    },
-    "trigger": {
-      "fact": "Smith + Howard announced a TPG investment agreement supporting national expansion and operational technology; closing was expected in Q3, not confirmed in this source.",
-      "date": "2026-06-09",
-      "sourceUrl": "https://www.smith-howard.com/smith-howard-announces-significant-investment-from-tpg/"
-    },
-    "hypothesis": "A national services COO may prioritize one repeatable operating application across offices while preserving partner-led service.",
-    "proofKind": "20-applications",
-    "subject": "One operating priority through deployment",
-    "message": "Smith + Howard's TPG announcement specifically connects national growth with better workflows and more capacity for professionals. One practical place to start could be a view of client work that needs intervention across offices, with the next action assigned.\n\nWe recently helped a client deploy 20 applications, working with leaders on priorities and with users through iteration and training.\n\nIs there one cross-office operating decision you want a working tool around?",
-    "fit": "High: explicit investment in operational technology and verified operating buyer; business application delivery fits better than generalized AI training.",
-    "limitations": "Do not say the TPG transaction closed; only agreement and expected Q3 close verified. No actual cross-office visibility gap established. Twenty-app engagement has no supplied timeframe or ROI.",
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "wordCount": 71,
-    "proofSourceUrl": null,
-    "proofSourceNote": "User-supplied delivery process/20-application engagement; no inferred client identity, timeframe or ROI.",
-    "freshnessDays": 106,
-    "targetRole": "President & Chief Operating Officer"
-  },
-  {
-    "company": "Sorren",
-    "domain": "sorren.com",
-    "buyer": {
-      "name": "Julie Cummings",
-      "title": "National Human Capital Advisory Managing Partner",
-      "sourceUrl": "https://sorren.com/corporate-consulting/",
-      "verifiedAt": "2026-09-23"
-    },
-    "trigger": {
-      "fact": "Sorren launched Human Capital Advisory Services led by Julie Cummings.",
-      "date": "2026-07-15",
-      "sourceUrl": "https://sorren.com/insights/human-capital-advisory-services/"
-    },
-    "hypothesis": "A new advisory-practice leader may need a repeatable client-deliverable workflow as the practice forms; the proposed reporting use is hypothetical, not evidence of existing workload.",
+    "subject": "A shorter path to the shipper review",
+    "message": "PLS serves shippers through both brokerage and managed transportation. For an account review, could the team start with the shipment results already in an editable customer deck, then add its explanation?\n\nNine-67 built a reporting application that produces branded PowerPoint and Excel files for the team to review.\n\nWould you like to see that example? The first question is whether preparing those reviews takes enough time to warrant changing it.",
     "proofKind": "reporting",
-    "subject": "From workforce findings to the client review",
-    "message": "Your new Human Capital Advisory practice at Sorren brings workforce questions into the business conversation. I had a concrete idea for the client deliverable: an editable report that lets advisers shape the recommendations before it goes out.\n\nNine-67 built a reporting tool with branded PowerPoint and Excel exports; the account team controls publication.\n\nWould that example be useful as you decide what should be repeatable across the new practice's engagements?",
-    "fit": "Medium-high: named leader of a newly launched practice and narrow report-production deliverable; avoids selling workforce expertise to an expert.",
-    "limitations": "Current Corporate Consulting page confirms role; July launch is two months old, not a new appointment this week. No claim of an HR-specific deployed Nine-67 product. Reporting example is built/ready, not stated deployed.",
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "wordCount": 70,
     "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "proofSourceNote": "Public Nine-67 case study, accessed2026-09-23; readiness distinctions preserved.",
-    "freshnessDays": 70,
-    "targetRole": "National Human Capital Advisory Managing Partner"
-  },
-  {
-    "company": "Integreon",
-    "domain": "integreon.com",
-    "buyer": {
-      "name": "Rahul Malhotra",
-      "title": "Chief Financial Officer",
-      "sourceUrl": "https://www.integreon.com/who-we-are/meet-the-team/",
-      "verifiedAt": "2026-09-23"
-    },
-    "trigger": {
-      "fact": "Integreon published guidance on September11 for presenting AI investments as costs, returns and explicit scenario assumptions.",
-      "date": "2026-09-11",
-      "sourceUrl": "https://www.integreon.com/how-to-translate-ai-roi-into-a-business-case-the-c-suite-will-fund/"
-    },
-    "hypothesis": "A CFO at a firm publishing a business-case framework may be interested in operationalizing that framework for internal investment reviews; content is company viewpoint, not Rahul-authored or proof of internal deficiency.",
-    "proofKind": "process",
-    "subject": "Keeping the assumptions with the decision",
-    "message": "Integreon's September piece on AI business cases makes a useful distinction between a projected return and the assumptions behind it. A small application could keep those assumptions attached to each investment as actual costs and results arrive.\n\nNine-67 would build the first version around one finance review, then iterate with its users through training and deployment.\n\nWould a sketch of that forecast-versus-actual review be useful to you?",
-    "fit": "Medium: fresh corporate content and verified CFO; proposed artifact offers a meaningful reply without claiming industry results.",
-    "limitations": "Do not attribute article to Rahul; credited to Integreon. Published thought leadership is not buying intent. No observed internal tooling gap or verified ROI. This is a proposed first deliverable, not claimed past proof.",
-    "recipientEmail": null,
+    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
+    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
+    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "targetRole": "operations",
     "researchDate": "2026-09-23",
-    "wordCount": 67,
-    "proofSourceUrl": null,
-    "proofSourceNote": "User-supplied delivery process/20-application engagement; no inferred client identity, timeframe or ROI.",
-    "freshnessDays": 12,
-    "targetRole": "Chief Financial Officer"
+    "sector": "Logistics and physical services",
+    "rank": 11,
+    "wordCount": 70
   },
   {
-    "company": "UnitedLex",
-    "domain": "unitedlex.com",
+    "company": "BlueGrace Logistics",
+    "domain": "mybluegrace.com",
     "buyer": {
-      "name": "Steve Schley",
-      "title": "Chief Revenue Officer",
-      "sourceUrl": "https://unitedlex.com/about-unitedlex/leadership/steve-schley/",
-      "verifiedAt": "2026-09-23"
+      "name": "Jason Lockard",
+      "title": "Chief Commercial Officer",
+      "sourceUrl": "https://mybluegrace.com/leadership/"
     },
     "trigger": {
-      "fact": "UnitedLex launched AI Advisory Solutions with a focus on governed enterprise adoption.",
-      "date": "2026-03-04",
-      "sourceUrl": "https://unitedlex.com/news/unitedlex-launches-ai-advisory-solutions-to-help-legal-teams-make-defensible-roi-driven-decisions/"
+      "fact": "BlueGrace sells transportation services across multiple modes, with Jason Lockard responsible for commercial strategy.",
+      "date": "2025-10; context only",
+      "sourceUrl": "https://mybluegrace.com/news/jason-lockard-named-chief-commercial-officer/"
     },
-    "hypothesis": "A CRO selling an expanded advisory offering may benefit from consistent approved evidence in proposals; no current sales-process deficiency is known.",
+    "subject": "Before the next shipper proposal",
+    "message": "BlueGrace's range of transportation services gives your team several ways to answer a shipper's brief. Could a proposal start with the right approved service examples, with missing requirements flagged for the seller?\n\nThat's a workflow Nine-67 has built for a services firm. The team keeps control of the promises and the final response.\n\nHappy to send the case study. Is proposal preparation something your commercial team is working on?",
     "proofKind": "proposals",
-    "subject": "The evidence behind an AI advisory proposal",
-    "message": "UnitedLex's AI Advisory offering puts defensible decisions at the center of the client conversation. I wondered whether the same discipline could help the commercial response: showing which approved experience supports each commitment before a proposal goes out.\n\nNine-67 built a workspace that connects requirements with approved prior work and flags unsupported claims for review.\n\nWould an example of that evidence-to-proposal flow be useful to your team?",
-    "fit": "Medium-high proof fit to commercial decision; avoids competing with UnitedLex AI advisory by focusing on its own proposal operations.",
-    "limitations": "March4 launch is over six months old; use as active-offering relevance, not a fresh announcement. Current bio confirms CRO, superseding2024 EVP IP announcement. External build appetite unverified; no email guessed.",
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "wordCount": 66,
     "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "proofSourceNote": "Public Nine-67 case study, accessed2026-09-23; readiness distinctions preserved.",
-    "freshnessDays": 203,
-    "targetRole": "Chief Revenue Officer"
-  },
-  {
-    "company": "Veritext",
-    "domain": "veritext.com",
-    "buyer": {
-      "name": "Joseph Baker",
-      "title": "Chief Operating Officer",
-      "sourceUrl": "https://www.veritext.com/about-us/executive-team-2/",
-      "verifiedAt": "2026-09-23"
-    },
-    "trigger": {
-      "fact": "Veritext announced Ohio Reporting had joined its business; the acquisition archive lists several other regional additions on the same date.",
-      "date": "2026-07-01",
-      "sourceUrl": "https://www.veritext.com/veritext-welcomes-ohio-based-ohio-reporting/"
-    },
-    "hypothesis": "A COO integrating regional service teams may value a bounded internal transition view; client disruption or poor integration is not established.",
-    "proofKind": "process",
-    "subject": "A transition view for regional teams",
-    "message": "With Ohio Reporting joining Veritext, I thought one useful application might sit around the transition: which client commitments are accounted for, what needs a central-team decision, and who owns it.\n\nNine-67 would build that view with one regional team, put a working version into their review, and refine it through training and deployment.\n\nIs that operating handoff already covered, or would a sample transition view be useful?",
-    "fit": "Medium: recent regional expansion and operating buyer; narrow internal coordination proposal rather than transcription or legal-product pitch.",
-    "limitations": "Veritext already has MyVeritext and scheduling tools. Do not imply replacement or dissatisfaction. No proven Nine-67 court-reporting case study; first application explicitly proposed, not claimed delivered.",
-    "recipientEmail": null,
+    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
+    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
+    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "targetRole": "operations",
     "researchDate": "2026-09-23",
-    "wordCount": 67,
-    "proofSourceUrl": null,
-    "proofSourceNote": "User-supplied delivery process/20-application engagement; no inferred client identity, timeframe or ROI.",
-    "freshnessDays": 84,
-    "targetRole": "Chief Operating Officer"
-  },
-  {
-    "company": "Amsive",
-    "domain": "amsive.com",
-    "buyer": {
-      "name": "Kristina Tucker",
-      "title": "EVP, Client Experience & Brand Delivery",
-      "sourceUrl": "https://www.amsive.com/about/",
-      "verifiedAt": "2026-09-23"
-    },
-    "trigger": {
-      "fact": "Amsive formalized Amsive Health, combining healthcare strategy, media, creative, data and production expertise.",
-      "date": "2026-01-14",
-      "sourceUrl": "https://www.amsive.com/insights/news/amsive-announces-amsive-health-formalizing-its-healthcare-marketing-practice-to-drive-accelerated-growth-for-health-plans-health-systems-and-providers/"
-    },
-    "hypothesis": "A cross-discipline client-experience leader may find a reviewable client-output workflow useful; Amsive Health relevance does not establish reporting friction.",
-    "proofKind": "reporting",
-    "subject": "One client story across the disciplines",
-    "message": "Amsive Health brings strategy, media, creative and production into a connected offering. The client report could be one place to make that connection tangible: a consistent starting point that the account team can still shape.\n\nWe built a reporting tool with editable branded presentation exports and a human review step before anything reaches the client.\n\nWould that example be useful for the client-experience side of the healthcare practice?",
-    "fit": "Medium: named client-experience owner, close reporting proof, genuine cross-discipline use; January launch is weaker urgency than latest acquisition triggers.",
-    "limitations": "Do not present January launch as recent news. No healthcare-specific performance or compliance claims. Current corporate bio verifies role, but ownership of Amsive Health specifically is not asserted. Reporting example built/ready only.",
-    "recipientEmail": null,
-    "researchDate": "2026-09-23",
-    "wordCount": 68,
-    "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "proofSourceNote": "Public Nine-67 case study, accessed2026-09-23; readiness distinctions preserved.",
-    "freshnessDays": 252,
-    "targetRole": "EVP, Client Experience & Brand Delivery"
-  },
-  {
-    "company": "PKF O’Connor Davies",
-    "domain": "pkfod.com",
-    "buyer": {
-      "name": "Michael Hayes",
-      "title": "Chief Revenue Officer",
-      "sourceUrl": "https://www.pkfod.com/insights/pkf-oconnor-davies-announces-key-leadership-appointments-to-drive-strategic-growth/"
-    },
-    "trigger": {
-      "fact": "January leadership announcement gives Hayes firmwide revenue responsibility across service lines.",
-      "date": "2026-01-08",
-      "sourceUrl": "https://www.pkfod.com/insights/pkf-oconnor-davies-announces-key-leadership-appointments-to-drive-strategic-growth/"
-    },
-    "hypothesis": "A firmwide revenue remit may benefit from retrieving approved specialist evidence for cross-service proposals. No process deficiency established.",
-    "proofKind": "proposals",
-    "subject": "Making specialist experience usable firmwide",
-    "message": "Your firmwide revenue remit brings together service lines that each have their own strongest client stories. A useful proposal tool could help a pursuit team find the right approved experience without asking every specialist to start again.\n\nNine-67 built a workspace that retrieves prior work and flags missing requirements and unsupported claims before review.\n\nWould the proposal example be relevant to how you want teams selling across the firm?",
-    "fit": "Medium: relevant remit and demonstrated proposal workflow; January appointment is context, not fresh urgency.",
-    "limitations": "Role verified from January announcement only; reconfirm before outreach. No recipient address verified.",
-    "recipientEmail": null,
-    "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "researchDate": "2026-09-23",
-    "targetRole": "Chief Revenue Officer",
+    "sector": "Logistics and physical services",
+    "rank": 12,
     "wordCount": 69
   },
   {
-    "company": "Wipfli",
-    "domain": "wipfli.com",
+    "company": "TA Services",
+    "domain": "taservices.com",
     "buyer": {
-      "name": "Kristy Britt",
-      "title": "Chief Financial Officer and Partner",
-      "sourceUrl": "https://www.wipfli.com/about-wipfli/partners-and-associates/Kristy%20Britt"
+      "name": "Scott Schell",
+      "title": "President and CEO",
+      "sourceUrl": "https://www.taservices.com/about/our-team/"
     },
     "trigger": {
-      "fact": "Wipfli appointed Kristy Britt CFO to lead internal finance strategy and operational efficiency.",
-      "date": "2026-07-14",
-      "sourceUrl": "https://www.wipfli.com/news/2026/wipfli-cfo-kristy-britt-named-chief-financial-officer"
+      "fact": "TA combines brokerage, managed transportation, warehousing and cross-border services.",
+      "date": "Undated; checked 2026-09-23",
+      "sourceUrl": "https://www.taservices.com/about/"
     },
-    "hypothesis": "A new finance leader may want partner judgment alongside financial account exposure. Existing tooling is unknown.",
+    "subject": "One customer across several services",
+    "message": "TA combines warehousing, transportation and cross-border work. When a customer uses several of those services, could the account review bring each team's concerns together with the value of the relationship?\n\nNine-67 built an application that joins account ratings and revenue exposure without replacing the firm's existing systems.\n\nWould the example be useful? I'd start with one shared customer to see whether it adds anything to the review you already run.",
     "proofKind": "accounts",
-    "subject": "Partner judgment alongside revenue exposure",
-    "message": "Your new finance remit at Wipfli includes operational efficiency as the firm grows. One decision an internal application could support is which client relationships need attention before the financial results make that obvious.\n\nFor a professional-services firm, Nine-67 connected account-team ratings with revenue exposure in one view, using its existing systems.\n\nWould that case study be useful as you decide what belongs in your own operating reviews?",
-    "fit": "Medium: verified CFO and relevant proof; Wipfli already builds technology for clients, so external delivery appetite is unproven.",
-    "limitations": "No missing reporting capability claimed. Public business email listed on official profile; deliverability untested.",
-    "recipientEmail": "Kristy.Britt@wipfli.com",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
+    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
+    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
+    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "targetRole": "operations",
     "researchDate": "2026-09-23",
-    "targetRole": "Chief Financial Officer and Partner",
-    "wordCount": 67
+    "sector": "Logistics and physical services",
+    "rank": 13,
+    "wordCount": 70
+  },
+  {
+    "company": "Transervice Logistics",
+    "domain": "transervice.com",
+    "buyer": {
+      "name": "Gino Fontana",
+      "title": "Chief Operating Officer and EVP",
+      "sourceUrl": "https://www.transervice.com/our-team/"
+    },
+    "trigger": {
+      "fact": "Transervice operates dedicated transportation and fleet services with leadership across logistics and regional operations.",
+      "date": "Undated; checked 2026-09-23",
+      "sourceUrl": "https://www.transervice.com/our-team/"
+    },
+    "subject": "From fleet review to assigned action",
+    "message": "For Transervice's fleet operations, I'd start with one question: after a customer review, can the team see every agreed action, its owner and the next update in one place?\n\nNine-67 recently helped a client deploy 20 applications. We work with leaders on the priority, build a first version with the people doing the work, then train them through rollout.\n\nIs keeping those commitments together something your operations team wants to improve?",
+    "proofKind": "20-applications",
+    "proofSourceUrl": null,
+    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
+    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
+    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "targetRole": "operations",
+    "researchDate": "2026-09-23",
+    "sector": "Logistics and physical services",
+    "rank": 14,
+    "wordCount": 71
+  },
+  {
+    "company": "Montway Auto Transport",
+    "domain": "montway.com",
+    "buyer": {
+      "name": "Alberto Anguiano",
+      "title": "Chief Operating Officer",
+      "sourceUrl": "https://www.montway.com/executive-team"
+    },
+    "trigger": {
+      "fact": "Montway serves retail and business customers and emphasizes financial resilience alongside customer service.",
+      "date": "Undated; checked 2026-09-23",
+      "sourceUrl": "https://www.montway.com/our-reputation"
+    },
+    "subject": "When an account needs your attention",
+    "message": "Montway's account-services and field-sales teams see different parts of a business customer's experience. Could their concerns appear beside the account's revenue in the review you use to decide where to step in?\n\nNine-67 built that view for a services firm, connecting account ratings with financial data already on file.\n\nWould you like the case study? It would give us something concrete to compare with the way your team reviews business accounts.",
+    "proofKind": "accounts",
+    "proofSourceUrl": "https://www.nine-67.com/case-study",
+    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
+    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
+    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "targetRole": "operations",
+    "researchDate": "2026-09-23",
+    "sector": "Logistics and physical services",
+    "rank": 15,
+    "wordCount": 71
+  },
+  {
+    "company": "DecoPac",
+    "domain": "decopac.com",
+    "buyer": {
+      "name": "Cindy Hampton",
+      "title": "Chief Executive Officer",
+      "sourceUrl": "https://www.sentinelpartners.com/sentinel-capital-partners-acquires-decopac/"
+    },
+    "trigger": {
+      "fact": "Sentinel acquired DecoPac in July 2026; DecoPac supplies cake decorations to bakeries and foodservice operators.",
+      "date": "2026-07-07",
+      "sourceUrl": "https://www.sentinelpartners.com/sentinel-capital-partners-acquires-decopac/"
+    },
+    "subject": "Choosing the first operating project",
+    "message": "With Sentinel backing DecoPac's next phase, which operating job would you most like to get out of spreadsheets? One candidate is the weekly review of seasonal orders that need a decision before they ship.\n\nNine-67 recently helped a client deploy 20 applications. We agree the priority with leaders, build with the users, then iterate and train through launch.\n\nIs there a job like that your team already wants to tackle?",
+    "proofKind": "20-applications",
+    "proofSourceUrl": null,
+    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
+    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
+    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "targetRole": "operations",
+    "researchDate": "2026-09-23",
+    "sector": "Logistics and physical services",
+    "rank": 16,
+    "wordCount": 70
+  },
+  {
+    "rank": 17,
+    "company": "Cooper's Hawk Winery & Restaurants",
+    "domain": "chwinery.com",
+    "buyer": {
+      "name": "Tim McEnery",
+      "title": "Founder & CEO",
+      "sourceUrl": "https://chwinery.com/about/our-founder"
+    },
+    "trigger": {
+      "fact": "Current founder page describes76 restaurants and tasting rooms across14states plus a wine club exceeding874000 members.",
+      "date": null,
+      "sourceUrl": "https://chwinery.com/about/our-founder"
+    },
+    "hypothesis": "Wine-club service spans a restaurant/tasting-room network; an unresolved member-request view could help a regional team follow through, but no service problem is established.",
+    "proofKind": "20-applications",
+    "subject": "When a wine-club request crosses locations",
+    "message": "With Cooper's Hawk combining a wine club, tasting rooms and restaurants, a member's request can involve more than one team. We could build a screen showing the request, its owner and what the member was promised, then test it with one region.\n\nNine-67 recently helped a client deploy 20 applications, including training the teams.\n\nIs following those requests across teams already straightforward?",
+    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
+    "limitations": "Current official CEO verified. Context page undated, so no recent expansion claim. No verified regional operating buyer; CEO is a routing buyer.20apps user-supplied, not restaurant proof.",
+    "targetRole": "executive",
+    "researchDate": "2026-09-23",
+    "sector": "Restaurants and wine retail"
+  },
+  {
+    "rank": 18,
+    "company": "Build-A-Bear Workshop",
+    "domain": "buildabear.com",
+    "buyer": {
+      "name": "J. Christopher Hurt",
+      "title": "Chief Executive Officer",
+      "sourceUrl": "https://ir.buildabear.com/corporate-governance/management"
+    },
+    "trigger": {
+      "fact": "Chris Hurt became CEO on June11,2026 after leading operations and experience.",
+      "date": "2026-06-11",
+      "sourceUrl": "https://ir.buildabear.com/corporate-governance/management"
+    },
+    "hypothesis": "An operations-led CEO may value turning store observations into assigned follow-up; missing tooling not established.",
+    "proofKind": "reporting",
+    "subject": "Store feedback ready for the weekly review",
+    "message": "Your move from operations and experience into the CEO role made me wonder about the store review: which guest issues keep recurring, and who is fixing them.\n\nWe built a reporting tool with editable presentation exports, so the team can add its judgment before sharing it. At Build-A-Bear, we could start with one region's weekly review.\n\nWould a sample showing the issues and next actions be useful?",
+    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
+    "limitations": "Public reporting proof is built and ready, not claimed deployed or retail-specific. Store issue recurrence is a proposed review question, not established performance concern.",
+    "targetRole": "executive",
+    "researchDate": "2026-09-23",
+    "sector": "Experiential retail"
+  },
+  {
+    "rank": 19,
+    "company": "J.Jill",
+    "domain": "jjill.com",
+    "buyer": {
+      "name": "Mary Ellen Coyne",
+      "title": "Chief Executive Officer and President",
+      "sourceUrl": "https://investors.jjill.com/Investors-Relations/Corporate-Governance/Management-team/default.aspx/1000/"
+    },
+    "trigger": {
+      "fact": "September9 results report255 stores and47.1% of quarterly sales through direct-to-consumer.",
+      "date": "2026-09-09",
+      "sourceUrl": "https://investors.jjill.com/Investors-Relations/News-Events/News/News-details/2026/J-Jill-Inc--Announces-Second-Quarter-2026-Results/default.aspx"
+    },
+    "hypothesis": "With substantial stores andDTC, leaders may want a weekly report connecting channel results to proposed actions. No reporting gap inferred.",
+    "proofKind": "reporting",
+    "subject": "The decision after the channel numbers",
+    "message": "J.Jill's latest results put direct-to-consumer at nearly half of sales, alongside 255 stores. A useful weekly review could show where the two channels differ, the team's explanation and the action being proposed.\n\nNine-67 built a reporting tool that produces editable PowerPoint and Excel files, leaving the final judgment with the team.\n\nWould an example of that report-to-decision step be worth sending?",
+    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
+    "limitations": "CEO verified from official indexed governance page; page body incompletely renders. Metrics officialSep9release. No claim J.Jill lacks channel reporting; reporting proof from professional services, built/ready.",
+    "targetRole": "executive",
+    "researchDate": "2026-09-23",
+    "sector": "Apparel retail"
+  },
+  {
+    "rank": 20,
+    "company": "Duluth Holdings",
+    "domain": "duluthtrading.com",
+    "buyer": {
+      "name": "David Homolka",
+      "title": "Senior Vice President of Talent, Retail Store Operations, Contact Center Operations",
+      "sourceUrl": "https://ir.duluthtrading.com/corporate-governance/management-team"
+    },
+    "trigger": {
+      "fact": "Official management page assigns stores and contact center operations to David Homolka and states the No Bull return promise.",
+      "date": null,
+      "sourceUrl": "https://ir.duluthtrading.com/corporate-governance/management-team"
+    },
+    "hypothesis": "One owner spans two channels for return feedback; a product-level review could support decisions without changing the returns system. No recurring fault established.",
+    "proofKind": "reporting",
+    "subject": "What customers bring back, and why",
+    "message": "Your role covers both stores and the contact center. For Duluth's No Bull promise, could the feedback from those two places help identify which product issues deserve a closer look?\n\nWe built reporting software with editable exports. At Duluth, the first report could put return reasons beside staff comments, ready for the product team's review.\n\nIs that comparison already easy to make?",
+    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
+    "limitations": "Official current management page is undated. Return-policy context is current, not a new event. Proposed report is not a claim of proven retail outcomes.",
+    "targetRole": "operations",
+    "researchDate": "2026-09-23",
+    "sector": "Workwear retail"
+  },
+  {
+    "rank": 21,
+    "company": "FIGS",
+    "domain": "wearfigs.com",
+    "buyer": {
+      "name": "Sarah Oughtred",
+      "title": "Chief Financial Officer",
+      "sourceUrl": "https://ir.wearfigs.com/news/news-details/2026/FIGS-Releases-Second-Quarter-2026-Financial-Results/default.aspx"
+    },
+    "trigger": {
+      "fact": "FIGS reported67% international revenue growth in itsAugust6second-quarter release.",
+      "date": "2026-08-06",
+      "sourceUrl": "https://ir.wearfigs.com/news/news-details/2026/FIGS-Releases-Second-Quarter-2026-Financial-Results/default.aspx"
+    },
+    "hypothesis": "Growing international business may make country-level forecast assumptions a useful review application. No inadequate forecast claim.",
+    "proofKind": "reporting",
+    "subject": "The assumptions behind international growth",
+    "message": "FIGS reported 67% international revenue growth in Q2. For the next forecast review, we could put each market's sales assumptions beside actual results and the finance team's explanation of changes.\n\nWe've built reporting software with editable Excel and presentation exports, so people can challenge the numbers before sharing them.\n\nIs that country-by-country review already easy to prepare, or would an example be useful?",
+    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
+    "limitations": "CFO verified inAugust6release. Proposed country-review application not a claimed delivered retailforecast tool. Public reporting tool built/ready. International growth fact not evidence of finance workload.",
+    "targetRole": "finance",
+    "researchDate": "2026-09-23",
+    "sector": "Healthcare apparel"
+  },
+  {
+    "rank": 22,
+    "company": "Tecovas",
+    "domain": "tecovas.com",
+    "buyer": {
+      "name": "David Lafitte",
+      "title": "CEO and President",
+      "sourceUrl": "https://www.tecovas.com/p/tecovas-x-bass-pro-shop-press-release"
+    },
+    "trigger": {
+      "fact": "Tecovas announced a Bass Pro Shops and Cabelas retail partnership onJuly8,2026.",
+      "date": "2026-07-08",
+      "sourceUrl": "https://www.tecovas.com/p/tecovas-x-bass-pro-shop-press-release"
+    },
+    "hypothesis": "Wholesale partnership may create cross-company store-readiness decisions; no launch delay claimed.",
+    "proofKind": "20-applications",
+    "subject": "Getting each Bass Pro location ready",
+    "message": "The Bass Pro Shops partnership gives Tecovas a new set of locations to get ready. We could build a shared checklist where store setup, product availability and staff training each have an owner, with unresolved items visible before launch.\n\nNine-67 recently helped one client deploy 20 applications, working with its teams through testing and training.\n\nIs that location-by-location preparation already covered?",
+    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
+    "limitations": "CEO confirmed inJuly8release. Partnership is actual; suggested checklist and readiness fields are proposal.20apps supplied byuser, no retail rollout claim. No guessed email.",
+    "targetRole": "executive",
+    "researchDate": "2026-09-23",
+    "sector": "Footwear and apparel retail"
+  },
+  {
+    "rank": 23,
+    "company": "The Lovesac Company",
+    "domain": "lovesac.com",
+    "buyer": {
+      "name": "Mary Fox",
+      "title": "President",
+      "sourceUrl": "https://investor.lovesac.com/corporate-governance/management-team"
+    },
+    "trigger": {
+      "fact": "September 10 2026 results reported 284 showrooms and a planned concentration of new product introductions in the second half of fiscal 2027.",
+      "date": "2026-09-10",
+      "sourceUrl": "https://investor.lovesac.com/news-events/press-releases/detail/167/the-lovesac-company-reports-second-quarter-fiscal-2027"
+    },
+    "hypothesis": "A new-range review of repeated customer questions could help product teams support showroom staff. The need for this workflow is not established.",
+    "proofKind": "reporting",
+    "subject": "What customers ask after a new launch",
+    "message": "Lovesac's September update outlined a busy second half of product launches across 284 showrooms. After a launch, we could gather the questions customers ask, group the ones coming up repeatedly and give the product team a short list to answer.\n\nNine-67 has built reporting software with editable presentation exports, so store leaders can add context before the review.\n\nWould that be useful for one new range?",
+    "fit": "Physical furniture retailer with verified senior operating buyer and a current launch schedule; specific workflow need and budget unconfirmed.",
+    "limitations": "Mary Fox is currently listed as President on the official management page. Proposed customer-question review is a hypothesis, not an asserted problem. Reporting case is transferable build evidence, not claimed furniture experience. No email address inferred.",
+    "targetRole": "operations",
+    "researchDate": "2026-09-23",
+    "sector": "Furniture retail"
+  },
+  {
+    "rank": 24,
+    "company": "Thrive Market",
+    "domain": "thrivemarket.com",
+    "buyer": {
+      "name": "Nick Green",
+      "title": "CEO and Co-Founder",
+      "sourceUrl": "https://thrivemarket.com/blog/2025-mission-impact-report"
+    },
+    "trigger": {
+      "fact": "Thrive Markets shipping help page updated July 16 2026 lists three fulfillment centers serving West Coast, Midwest and East Coast orders.",
+      "date": "2026-07-16",
+      "sourceUrl": "https://help.thrivemarket.com/hc/en-us/articles/360036910672-Where-is-my-order-shipping-from"
+    },
+    "hypothesis": "A cross-team view could connect member delivery complaints to the warehouse follow-up. No existing service or system defect claimed.",
+    "proofKind": "account-view",
+    "subject": "Following a delivery issue back to its source",
+    "message": "Thrive ships from Reno, Batesville and Hanover Township. If a member reports a delivery problem, can the service team see what happened and whether the fulfillment team has followed up?\n\nFor another client, we put an account view into production in a month. Here, we could start with the member's report, the order and the follow-up in one screen.\n\nIs that already covered?",
+    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
+    "limitations": "CEO verified in April 2026 official impact report. CEO is a routing buyer; no named fulfillment owner verified. Account-view case is a cross-industry analogy, not a grocery deployment or a promised one-month schedule.",
+    "targetRole": "executive",
+    "researchDate": "2026-09-23",
+    "sector": "Online grocery retail"
+  },
+  {
+    "rank": 25,
+    "company": "Mister Car Wash",
+    "domain": "mistercarwash.com",
+    "buyer": {
+      "name": "Joseph Matheny",
+      "title": "Chief Innovation Officer",
+      "sourceUrl": "https://ir.mistercarwash.com/company-info/management-team"
+    },
+    "trigger": {
+      "fact": "Mister Car Wash reported 548 locations as of December 31 2025 in its February 18 2026 full-year results.",
+      "date": "2026-02-18",
+      "sourceUrl": "https://ir.mistercarwash.com/news-releases/news-release-details/mister-car-wash-announces-fourth-quarter-and-full-year-2025"
+    },
+    "hypothesis": "A regional review of repeated equipment faults could guide repair decisions. Equipment data access and need are unconfirmed. Avoid duplicating existing employee communications platform.",
+    "proofKind": "20-applications",
+    "subject": "Which equipment problems keep coming back?",
+    "message": "Mister ended 2025 with 548 locations. For a regional equipment review, we could show repeat faults, previous repairs and the sites still waiting on a decision, so managers can decide what to fix next.\n\nNine-67 recently helped a client deploy 20 applications. We work with the people using each one, test a first version and train the team.\n\nWould that review be useful in one region?",
+    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
+    "limitations": "Current official management search index identifies Matheny; direct page fetch failed. Role also confirmed in May 19 2026 official filing. Location count explicitly historical. No claim of known equipment problems, prior car-wash experience or failed communications tooling.",
+    "targetRole": "operations",
+    "researchDate": "2026-09-23",
+    "sector": "Car wash operations"
   }
 ]

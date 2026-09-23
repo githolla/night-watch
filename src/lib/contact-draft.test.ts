@@ -191,7 +191,7 @@ test("the greeting and sign-off belong to the sender, not to the writer", () => 
   // Two seats, two voices, same argument underneath.
   const suuchi = composeContactDraft({ ...args, greeting: "Hello {first} —", signoff: "Best,", senderName: "Suuchi Ramesh", senderTitle: "COO" });
   const josh = composeContactDraft({ ...args, greeting: "Hi {first},", signoff: "Thank you,", senderName: "Josh Lee", senderTitle: "FDE/COO" });
-  assert.ok(suuchi.body.startsWith("Hello Ara —"), suuchi.body);
+  assert.ok(suuchi.body.startsWith("Hello Ara,"), suuchi.body);
   assert.ok(suuchi.body.trimEnd().endsWith("Best,"), suuchi.body);
   assert.ok(josh.body.startsWith("Hi Ara,"), josh.body);
   assert.ok(josh.body.trimEnd().endsWith("Thank you,"), josh.body);

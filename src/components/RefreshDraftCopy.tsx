@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-const VERSION = "nw.named-buyers-20260923-v1";
+const VERSION = "nw.recipient-research-20260923-v2";
 
 /** Update saved drafts after the desk is usable; never make rendering wait for writes. */
 export function RefreshDraftCopy() {
@@ -12,7 +12,7 @@ export function RefreshDraftCopy() {
       try { if (sessionStorage.getItem(VERSION) === "done") return; } catch { /* storage optional */ }
       let changed = 0;
       let cursor: string | undefined;
-      setMessage("Updating untouched drafts with the reviewed company and buyer-role copy. You can keep using the worklist.");
+      setMessage("Checking untouched drafts for newer copy. Research coverage is shown beside each email.");
       try {
         for (let pass = 0; pass < 30 && !cancelled; pass++) {
           const response = await fetch("/api/desk/repair-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ cursor }) });
@@ -24,7 +24,7 @@ export function RefreshDraftCopy() {
           if (result.done) {
             if (cancelled) return;
             try { sessionStorage.setItem(VERSION, "done"); } catch { /* storage optional */ }
-            setMessage(changed ? `Updated ${changed} drafts; unchanged previews refreshed automatically. Sent emails and valid hand-edited drafts were preserved.` : "Draft copy is up to date; valid hand-edited drafts were preserved.");
+            setMessage(changed ? `Updated ${changed} drafts; unchanged previews refreshed automatically. Sent, edited and approved drafts were preserved. Check the research note beside each email.` : "Refresh complete; no untouched drafts changed. This does not confirm buyer fit or person-specific research. Edited and approved drafts were preserved.");
             if (changed) setHasUpdates(true);
             return;
           }

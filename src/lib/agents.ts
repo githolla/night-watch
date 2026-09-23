@@ -1,3 +1,4 @@
+import { emailStyle } from "./email-style.ts";
 import { authoredDraft } from "./authored-outreach.ts";
 import { angleFor } from "./contact-draft.ts";
 import { OUTREACH_EVIDENCE } from "./outreach-proof.ts";
@@ -114,7 +115,7 @@ const angle = z.object({
 export type OutreachDraft = z.infer<typeof angle>;
 /** Strip any fabricated/foreign links from a draft so only the real homepage can reach a prospect. */
 function cleanDraft(draft: OutreachDraft): OutreachDraft {
-  return { ...draft, email_body: sanitizeLinks(draft.email_body), linkedin_message: sanitizeLinks(draft.linkedin_message), linkedin_note: sanitizeLinks(draft.linkedin_note), linkedin_comment: sanitizeLinks(draft.linkedin_comment) };
+  return { ...draft, email_subject: emailStyle(draft.email_subject), email_body: emailStyle(sanitizeLinks(draft.email_body)), linkedin_message: sanitizeLinks(draft.linkedin_message), linkedin_note: sanitizeLinks(draft.linkedin_note), linkedin_comment: sanitizeLinks(draft.linkedin_comment) };
 }
 
 function client() {
@@ -300,7 +301,8 @@ export async function findPerson(account: string, signal: ScoutSignal, recordUsa
 const WRITING_MAX_TOKENS = 4_000;
 
 /** The rules every draft follows, whichever evidence it is written from. */
-const DRAFT_RULES = `Write a useful first-touch note from Nine-67 to this specific buyer. Optimize for a qualified reply, not a meeting demand or generic curiosity.
+const DRAFT_RULES = `
+Never use em dashes or en dashes in email text or subject lines. Write like a person: short, concrete sentences, contractions where natural, no "bounded", "leverage", "unlock", "transformative", or generic AI claims.Write a useful first-touch note from Nine-67 to this specific buyer. Optimize for a qualified reply, not a meeting demand or generic curiosity.
 APPROVED EVIDENCE: ${OUTREACH_EVIDENCE}
 First decide what this company SELLS and what this person OWNS. Never pitch a software vendor its own product capability, treat a consultancy as its end customer, or offer to replace employees. For established technology providers, explore a bounded INTERNAL operating workflow or an explicit delivery partnership, only when supported by the context.
 Choose one concrete business decision or handoff. State any unverified pain as a hypothesis, not inside knowledge. Connect it to a relevant delivered example or a clearly proposed first application. A process paragraph alone is not a reason to reply. Explain what the recipient would get from answering: a specific example, a useful comparison, or a scoped next step. Do not invent an attachment or an already-prepared personalized analysis.
@@ -364,8 +366,8 @@ export async function refineDraft(input: { channel: "email" | "linkedin"; compan
   const prompt = `You are rewriting a first-touch outreach ${input.channel} from Nine-67 (which works with leaders to build, iterate, train teams and deploy working business applications) to ${input.person}${input.title ? `, ${input.title}` : ""} at ${input.company}. Why now: ${input.whyNow || "—"}.\n\n${voice}\n\n${DRAFT_RULES}\n\n${OUTREACH_EVIDENCE}\n\n${avoid}\n\nHere is the current draft:\n${input.subject ? `Subject: ${input.subject}\n` : ""}${input.body}\n\n${ask} ${intro} ${subjectRule} Keep it ${input.channel === "email" ? "50-90 words" : "under 90 words"}, one clear low-friction question, plain text only. The ONLY link allowed is https://nine-67.com — keep it if present, never invent any other URL or path (no /case-study, /demo, etc.) and never link any other domain. Return JSON only: ${shape}.`;
   const json = await runWritingAgent(prompt, { model: writingModel(), maxTokens: 1_200 }, recordUsage) as { subject?: unknown; body?: unknown } | null;
   return {
-    subject: typeof json?.subject === "string" && json.subject.trim() ? json.subject.trim() : undefined,
-    body: sanitizeLinks(typeof json?.body === "string" && json.body.trim() ? json.body.trim() : input.body),
+    subject: typeof json?.subject === "string" && json.subject.trim() ? emailStyle(json.subject.trim()) : undefined,
+    body: emailStyle(sanitizeLinks(typeof json?.body === "string" && json.body.trim() ? json.body.trim() : input.body)),
   };
 }
 

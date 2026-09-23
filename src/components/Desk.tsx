@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { emailStyle } from "@/lib/email-style";
+import { recipientResearch, hasResearchCopy } from "@/lib/recipient-research";
 import { preservesCurrentDraft } from "@/lib/draft-update-policy";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
@@ -335,7 +337,7 @@ export function Desk({
     if (json?.notAPerson) { setNotice(json.error as string); setTeamStamp((n) => n + 1); return; }
     // Couldn't give them their own card? Fall back to the old behaviour rather than leaving the click dead:
     // the first contact's note, retargeted, with the composer saying plainly that is what it is.
-    if (!response.ok || !json?.card?.id) { setAlt({ cardId: from.id, person }); setNotice(json?.error ?? `Writing to ${person.full_name}.`); return; }
+    if (!response.ok || !json?.card?.id) { setNotice(json?.error ?? `Could not open ${person.full_name}’s own draft. Please retry.`); return; }
     const fresh = json.card as Card;
     setCards((current) => current.some((item) => item.id === fresh.id) ? current.map((item) => item.id === fresh.id ? { ...item, ...fresh } : item) : [...current, fresh]);
     setAlt(null);
@@ -501,6 +503,8 @@ export function Desk({
   // The contact currently being written to — the card's person by default, or one picked from the team list.
   const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
   const contact = altContact ?? (focusCard ? focusCard.people : null);
+  const research = recipientResearch(focusCard?.accounts.domain, contact?.full_name);
+  const matchesResearch = research ? hasResearchCopy(focusCard?.email_subject, focusCard?.email_body, research) : false;
   // "Already gone out" is a fact about a PERSON, not about the card. The card is marked sent the moment its
   // first email leaves, but a colleague who has not been written to still needs an editable draft and a Send
   // button — otherwise picking them showed a read-only record of somebody else's email.
@@ -1060,13 +1064,20 @@ export function Desk({
                 <header className="deskwork-co">
                   <span className="avatar">{initials(focusCard.accounts.name)}</span>
                   <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{signalLabel(focusCard)}{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p></div>
-                  <span className="deskwork-co-fit">{focusCard.score}<small>FIT</small></span>
+                  <Link href="/desk" className="focus-link">All 25 companies</Link>
                 </header>
 
                 <div className="deskwork-opening">
-                  <span className="overview-kick">The opening</span>
-                  <p className="deskwork-opening-lead">{sanitizeCopy(focusCard.why_now || nextLine(focusCard))}</p>
-                  {focusCard.signals.raw?.operating_need && <p className="deskwork-opening-need"><b>Nine-67 could build:</b> {sanitizeCopy(focusCard.signals.raw.operating_need)}</p>}
+                  <span className="overview-kick">{research ? "Buyer research" : "Signal context"}</span>
+                  {research ? <>
+                    <p className="deskwork-opening-lead">{research.trigger.fact}</p>
+                    <p className="deskwork-opening-need"><b>Potential relevance:</b> {research.hypothesis}</p>
+                    <p><b>{research.disposition === "hold" ? "Hold outreach" : "Fit assessment"}:</b> {research.fit}</p>
+                    <a href={research.trigger.sourceUrl} target="_blank" rel="noreferrer">Company source · {research.trigger.date}</a>{" · "}<a href={research.buyer.sourceUrl} target="_blank" rel="noreferrer">Buyer source</a>
+                  </> : <>
+                    <p className="deskwork-opening-lead">{sanitizeCopy(focusCard.signals.type === "job_cluster" || focusCard.signals.type === "job_post" ? focusCard.signals.summary : focusCard.why_now || nextLine(focusCard))}</p>
+                    <p className="deskwork-opening-need">This signal needs buyer-level qualification. Hiring does not establish budget, an outsourcing need or a reason to replace the role.</p>
+                  </>}
                   {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">View signal &amp; company details &#8599;</Link>}
                 </div>
 
@@ -1076,6 +1087,13 @@ export function Desk({
               {/* RIGHT — draft with Email / LinkedIn tabs */}
               <section className="deskwork-draft">
                 <div className="deskwork-draft-top"><span className="overview-kick">{sentAlready ? "Sent email" : "Outreach draft"}</span><span className="deskwork-draft-topright">{focusCard.invite_link ? <a className="deskwork-booked" href={focusCard.invite_link.startsWith("http") ? focusCard.invite_link : undefined} target="_blank" rel="noreferrer">📅 Meeting booked</a> : null}<a className="deskwork-brief-link" href={`/brief/${focusCard.id}`} target="_blank" rel="noreferrer">Call brief ↗</a></span></div>
+                {!sentAlready && channelTab === "email" && <div className="notice" style={{ margin: "12px 16px" }}>
+                  {research ? <>
+                    <strong>{research.disposition === "hold" ? "Hold — direct buyer fit not established." : "Research available for this recipient."}</strong>{" "}
+                    {matchesResearch ? (research.disposition === "hold" ? "The draft explores a possible partnership; it is not a qualified sales pitch." : "This draft uses the researched version. Buyer demand and reply performance remain untested.") : "The saved draft differs from the researched version."}
+                    {!matchesResearch && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : research.disposition === "hold" ? "Load optional partnership draft" : "Use researched draft"}</button>}
+                  </> : <><strong>Not individually researched.</strong> This recipient is outside the named-buyer research set. Review the opening, relevance and proof before sending.</>}
+                </div>}
                 <div className="deskwork-draft-to">
                   <span className="avatar sm">{initials(contact.full_name)}</span>
                   <div><strong>{contact.full_name}</strong><small>{contact.title || "title unknown"} · {focusCard.accounts.name}</small></div>
@@ -1091,7 +1109,7 @@ export function Desk({
                   <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => setChannelTab("linkedin")}><i className="li-mark">in</i> LinkedIn</button>
                   <div className="deskwork-tools">
                     {!sentAlready && <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>}
-                    {channelTab === "email" && !sentAlready && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : "Reviewed draft"}</button>}
+                    {channelTab === "email" && !sentAlready && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : research ? "Researched draft" : "Company draft"}</button>}
                     <button type="button" disabled={refining === channelTab} onClick={() => channelTab === "email" ? refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined) : refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === channelTab ? "Refining…" : "Refine"}</button>
                     {channelTab === "email" && <button type="button" disabled={proposing} title={timesInDraft ? "Take the proposed times back out of this email" : "Only if you want them: insert open times from your connected calendar into this one email"} onClick={timesInDraft ? removeMeetingTimes : proposeMeetingTimes}>{proposing ? "Checking…" : timesInDraft ? "Remove times" : "Propose times"}</button>}
                     <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy</button>
@@ -1107,12 +1125,12 @@ export function Desk({
                         <div className="focus-subject-row">
                           <input
                             className="focus-msg-subject"
-                            value={focusCard.email_subject ?? ""}
+                            value={emailStyle(focusCard.email_subject ?? "")}
                             placeholder={subjectFallback || "Subject line (optimized for a reply)"}
                             // The value as it stood before this edit is the restore point, so backspacing it
                             // away character by character brings back the whole line, not the last letter.
                             onFocus={(event) => rememberSubject(focusCard.id, event.target.value)}
-                            onChange={(event) => editFocus("email_subject", event.target.value)}
+                            onChange={(event) => editFocus("email_subject", emailStyle(event.target.value))}
                             // Leaving the field empty saves the subject back rather than saving a blank one.
                             onBlur={(event) => { if (event.target.value.trim()) saveField("email_subject", event.target.value); else restoreSubject(true); }}
                           />
@@ -1120,7 +1138,7 @@ export function Desk({
                             ? <button type="button" className="focus-apply-all" title={`Put the subject back: “${subjectFallback}”`} onClick={() => restoreSubject(false)}>Restore subject</button>
                             : <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>}
                         </div>
-                        <label className="compose-field"><span>Email — your saved greeting, message and sign-off</span><textarea className="focus-msg-body" rows={14} value={adapt(focusCard.email_body ?? "")} readOnly={!!altContact} onChange={(event) => editFocus("email_body", event.target.value)} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
+                        <label className="compose-field"><span>Email — your saved greeting, message and sign-off</span><textarea className="focus-msg-body" rows={14} value={emailStyle(adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
                         <p className="compose-sig">— Your Nine-67 signature (your name, title &amp; contact) is added automatically. Change it in <Link href="/settings" className="focus-link">Settings → identity</Link>.</p>
                       </div>
                     );
@@ -1132,7 +1150,7 @@ export function Desk({
                       </div>
                       {sentAlready && <div className="deskwork-sent-note">This email has been sent{focusCard.people.full_name ? ` to ${contact.full_name}` : ""}. It is kept here as a record &mdash; the follow-ups below are what happens next.</div>}
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
-                      <div className="deskwork-doc-body">{bodyView("email", adapt(emailDraft) || "No email draft yet — press Refine to write one.")}</div>
+                      <div className="deskwork-doc-body">{bodyView("email", emailStyle(adapt(emailDraft)) || "No email draft yet — press Refine to write one.")}</div>
                       <div className="deskwork-doc-sig">— Your Nine-67 signature (name, title &amp; contact) is added automatically when this sends.</div>
                     </div>
                   )

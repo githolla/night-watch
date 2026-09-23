@@ -1,4 +1,5 @@
-import priorityDrafts from "../../data/priority-outreach.json" with { type: "json" };
+import { recipientResearch, domainKey } from "./recipient-research.ts";
+export { domainKey } from "./recipient-research.ts";
 import companyDrafts from "../../data/customized-emails.json" with { type: "json" };
 import additionalDrafts from "../../data/additional-outreach.json" with { type: "json" };
 
@@ -7,7 +8,6 @@ export type AuthoredVariant = { targetRole: string; subject: string; message: st
 export type AuthoredCompany = AuthoredVariant & { company: string; domain: string; alternate?: AuthoredVariant; variants?: AuthoredVariant[]; rationale?: string };
 const rows = [...companyDrafts, ...additionalDrafts] as unknown as AuthoredCompany[];
 const nameKey = (name: string) => name.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]/g, "");
-export const domainKey = (value: string) => value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[/:?#]/)[0];
 const byDomain = new Map(rows.map(row => [domainKey(row.domain), row]));
 const byName = new Map(rows.map(row => [nameKey(row.company), row]));
 export function authoredCompany(company: string, domain?: string | null): AuthoredCompany | undefined {
@@ -27,7 +27,7 @@ const NEARBY: Record<BuyerRole, BuyerRole[]> = {
 };
 /** Select by buyer responsibility, never card ordering or an arbitrary word-rotation seed. */
 export function authoredDraft(company: string, role: string, domain?: string | null, personName?: string | null): AuthoredVariant | undefined {
-  const priority = personName && domain ? priorityDrafts.find(item => domainKey(item.domain) === domainKey(domain) && nameKey(item.buyer.name) === nameKey(personName)) : undefined;
+  const priority = recipientResearch(domain, personName);
   if (priority) return priority;
   const row = authoredCompany(company, domain);
   if (!row?.targetRole) return undefined;

@@ -1,3 +1,4 @@
+import { emailStyle } from "./email-style.ts";
 import { decrypt } from "./crypto.ts";import { admin } from "./supabase/admin.ts";import type { Owner } from "./types.ts";
 // Trim every value: credentials pasted into a dashboard often carry a stray newline or space,
 // which Google rejects as invalid_client / redirect_uri_mismatch. Never send that whitespace.
@@ -45,7 +46,7 @@ const base64url=(s:string)=>Buffer.from(s).toString("base64url");
 // RFC 2047 encoded-word for header values with non-ASCII (e.g. an em dash in the subject),
 // so Gmail doesn't mojibake them into "Ã¢Â€Â".
 const encodeHeaderWord=(s:string)=>/[^\x00-\x7F]/.test(s)?`=?UTF-8?B?${Buffer.from(s,"utf8").toString("base64")}?=`:s;
-export async function sendEmail(owner:Owner,from:string,to:string,subject:string,body:string,threadId?:string,cc?:string[],html?:string,listUnsubscribe?:string){const token=await accessToken(owner);
+export async function sendEmail(owner:Owner,from:string,to:string,subject:string,body:string,threadId?:string,cc?:string[],html?:string,listUnsubscribe?:string){subject=emailStyle(subject);body=emailStyle(body);if(html)html=emailStyle(html);const token=await accessToken(owner);
   // Strip CR/LF from every header value — a newline in the subject/address is header injection (Bcc, extra Content-Type…).
   const hv=(v:string)=>String(v).replace(/[\r\n]+/g," ").trim();
   const head=[`From: ${hv(from)}`,`To: ${hv(to)}`];if(cc&&cc.length)head.push(`Cc: ${cc.map(hv).filter(Boolean).join(", ")}`);head.push(`Subject: ${encodeHeaderWord(hv(subject))}`,"MIME-Version: 1.0");

@@ -1,3 +1,5 @@
+import PriorityEmailsPage from "@/app/priority-emails/page";
+import { curatedDomains } from "@/lib/curated-worklist";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
 import { Desk, type DeskContext } from "@/components/Desk";
 import { ScanControl } from "@/components/ScanControl";
@@ -26,6 +28,7 @@ const OPEN_STATUSES = ["new", "approved", "edited"];
 
 export default async function DeskPage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
+  if (!params.card) return PriorityEmailsPage();
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) {
     redirect("/setup");
   }
@@ -49,8 +52,9 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     .select("*,accounts!inner(*),people(*),signals!inner(*)")
     .not("signals.raw->>operating_need", "is", null)
     // The desk is the reach-out list only.
-    .eq("accounts.outreach", true)
+    .in("accounts.domain", curatedDomains)
     .order("score", { ascending: false });
+  query = params.card ? query.eq("id", params.card) : query;
   query = params.status ? query.eq("status", params.status) : query.in("status", OPEN_STATUSES);
   if (params.priority === "high") query = query.gte("score", PRIORITY_THRESHOLD);
   if (params.new === "today") query = query.eq("surfaced_on", today);
