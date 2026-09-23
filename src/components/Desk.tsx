@@ -2,7 +2,7 @@
 import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
 import { dateLabel, sourceDomain } from "@/lib/dossier-data";
-import { emailTones, type EmailTone } from "@/lib/email-tones";
+import { savedVariants, renderSavedVariant, type SavedVariant } from "@/lib/outreach-variants";
 import { focusedAccount, revenueLabel, sortReachouts, type ReachoutSort } from "@/lib/reachout-sort";
 import { focusedContact } from "@/lib/focused-contact";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
@@ -154,6 +154,7 @@ function describeRun(run: RunSummary | null) {
 export function Desk({
   initialCards,
   senderName = "",
+  senderGreeting = "Hi {first},",
   selectedId,
   demo = false,
   gmailConnected = false,
@@ -163,6 +164,7 @@ export function Desk({
 }: {
   initialCards: Card[];
   senderName?: string;
+  senderGreeting?: string;
   selectedId?: string;
   /** A page-level tool rendered in the desk header (Draft tools), passed in from the server page. */
   tools?: ReactNode;
@@ -217,34 +219,24 @@ export function Desk({
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
   // Separate from `busy` so a blur-triggered autosave can't disable the Send button mid-click.
   const [sending, setSending] = useState(false);
-  const [toneLoading, setToneLoading] = useState<EmailTone | null>(null);
-  const [tonePreview, setTonePreview] = useState<{ cardId: string; tone: EmailTone; original: string; subject: string; body: string } | null>(null);
-  async function previewTone(tone: EmailTone) {
-    if (!focusCard || altContact || toneLoading) return;
-    const target = focusCard;
-    setToneLoading(tone);
-    setTonePreview(null);
-    try {
-      const response = await fetch(`/api/cards/${target.id}/refine`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel: "email", tone, subject: target.email_subject ?? "", body: target.email_body ?? "", personName: target.people.full_name, personTitle: target.people.title ?? "" }) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Could not create this version.");
-      setTonePreview({ cardId: target.id, tone, original: target.email_body ?? "", subject: target.email_subject ?? "", body: result.body });
-    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not create this version."); }
-    finally { setToneLoading(null); }
+  const [tonePreview, setTonePreview] = useState<{ cardId: string; label: string; original: string; originalSubject: string; subject: string; body: string } | null>(null);
+  function previewTone(variant: SavedVariant) {
+    if (!focusCard || altContact) return;
+    const draft = renderSavedVariant(variant, focusCard.people.full_name, senderName, senderGreeting);
+    setTonePreview({ cardId: focusCard.id, label: variant.label, original: focusCard.email_body ?? "", originalSubject: focusCard.email_subject ?? "", ...draft });
   }
   async function applyTone() {
     if (!tonePreview || !focusCard || tonePreview.cardId !== focusCard.id) return;
-    if ((focusCard.email_body ?? "") !== tonePreview.original || (focusCard.email_subject ?? "") !== tonePreview.subject) {
-      setNotice("You edited the draft. Choose a tone again to use your latest text.");
+    if ((focusCard.email_body ?? "") !== tonePreview.original || (focusCard.email_subject ?? "") !== tonePreview.originalSubject) {
+      setNotice("You edited the draft. Review the saved version again before replacing your latest text.");
       setTonePreview(null);
       return;
     }
     try {
-      const saved = await patchOn(focusCard.id, { email_body: tonePreview.body, status: "edited" });
+      const saved = await patchOn(focusCard.id, { email_subject: tonePreview.subject, email_body: tonePreview.body, status: "edited" });
       if (saved) setTonePreview(null);
     } catch { setNotice("Could not save this version. Your original is unchanged."); }
   }
-  const [refining, setRefining] = useState<"email" | "linkedin" | null>(null);
   // Open the composer in edit mode so every email/message is directly editable before sending;
   // the tools row flips it to a read-only "Preview" of exactly how it will go out.
   const [editing, setEditing] = useState<{ email: boolean; linkedin: boolean }>({ email: true, linkedin: true });
@@ -735,28 +727,6 @@ export function Desk({
     } catch { setNotice("Could not reach your calendar."); }
     finally { setProposing(false); }
   };
-  // Improve one draft with AI, in place: keep it a first-touch, tighten it, and write the result back to the card.
-  const refine = async (channel: "email" | "linkedin", body: string, subject?: string) => {
-    if (!focusCard) return;
-    if (!body.trim()) { setNotice("Write a draft first, then refine it."); return; }
-    setRefining(channel);
-    try {
-      // Refine always improves the PRIMARY contact's draft (the card's shared field). Writing an
-      // alternate-contact-tailored body here would corrupt the primary's draft; the alternate is handled at
-      // display/send time by adapt()/retarget, not persisted.
-      const target = focusCard.people;
-      const response = await fetch(`/api/cards/${focusCard.id}/refine`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, subject, body, personName: target.full_name, personTitle: target.title }) });
-      const json = await response.json();
-      if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Could not refine."); return; }
-      setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, status: "edited", assigned_to: json.assigned_to ?? item.assigned_to, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_subject: json.subject ?? item.linkedin_subject, linkedin_message: json.body }) } : item));
-      // Reset the composer's cached parse so the Edit view shows the refined text (and a later blur can't
-      // reassemble the pre-refine draft over it).
-      setLastRefine({ cardId: focusCard.id, channel, beforeBody: body, afterBody: (json.body as string) ?? body, beforeSubject: subject ?? "", afterSubject: (json.subject as string) ?? subject ?? "" });
-      setNotice("Refined — changes are highlighted. Edit further or copy to send.");
-      markWorking(true);
-    } catch { setNotice("Could not refine."); }
-    finally { setRefining(null); }
-  };
   const [loadingReviewed, setLoadingReviewed] = useState(false);
   async function loadReviewedDraft() {
     if (!focusCard || loadingReviewed || altContact) return;
@@ -1154,18 +1124,17 @@ export function Desk({
                   <div className="deskwork-tools">
                     {!sentAlready && <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>}
                     {channelTab === "email" && !sentAlready && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : research ? "Researched draft" : "Company draft"}</button>}
-                    <button type="button" disabled={refining === channelTab} onClick={() => channelTab === "email" ? refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined) : refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === channelTab ? "Refining…" : "Refine"}</button>
                     {channelTab === "email" && <button type="button" disabled={proposing} title={timesInDraft ? "Take the proposed times back out of this email" : "Only if you want them: insert open times from your connected calendar into this one email"} onClick={timesInDraft ? removeMeetingTimes : proposeMeetingTimes}>{proposing ? "Checking…" : timesInDraft ? "Remove times" : "Propose times"}</button>}
                     <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy</button>
                   </div>
                 </div>
 
-                {channelTab === "email" && !sentAlready && <section className="email-tone-controls" aria-label="Email tone">
-                  <div className="email-tone-buttons"><strong>Try a tone</strong>{Object.entries(emailTones).map(([key, tone]) => <button type="button" key={key} title={tone.description} disabled={!!toneLoading || !!refining || !!altContact || busy} onClick={() => previewTone(key as EmailTone)}>{toneLoading === key ? "Writing…" : tone.label}</button>)}</div>
-                  <small>Preview a different voice before changing your draft.</small>
+                {channelTab === "email" && !sentAlready && !altContact && savedVariants(focusCard.accounts.domain, contact.full_name).length > 0 && <section className="email-tone-controls" aria-label="Saved email versions">
+                  <div className="email-tone-buttons"><strong>Saved versions</strong>{savedVariants(focusCard.accounts.domain, contact.full_name).map(variant => <button type="button" key={variant.id} disabled={busy} aria-pressed={tonePreview?.cardId === focusCard.id && tonePreview.label === variant.label} onClick={() => previewTone(variant)}>{variant.label}</button>)}</div>
+                  <small>Already written for this contact. Preview and choose, no AI generation.</small>
                   {tonePreview?.cardId === focusCard.id && !altContact && <div className="email-tone-preview">
-                    <strong>{emailTones[tonePreview.tone].label} version</strong>
-                    <div className="email-tone-comparison"><div><small>Current</small><p>{outreachBody(tonePreview.original)}</p></div><div><small>Alternative</small><p>{outreachBody(tonePreview.body)}</p><p>{senderName.trim().split(/\s+/)[0]}</p></div></div>
+                    <strong>{tonePreview.label} version</strong>
+                    <div className="email-tone-comparison"><div><small>Current</small><p><strong>{tonePreview.originalSubject}</strong></p><p>{outreachBody(tonePreview.original)}</p></div><div><small>Saved version</small><p><strong>{tonePreview.subject}</strong></p><p>{outreachBody(tonePreview.body)}</p><p>{senderName.trim().split(/\s+/)[0]}</p></div></div>
                     <button type="button" disabled={busy} onClick={applyTone}>Use this version</button>{" "}<button type="button" disabled={busy} onClick={() => setTonePreview(null)}>Keep current</button>
                   </div>}
                 </section>}
@@ -1208,7 +1177,7 @@ export function Desk({
                       </div>
                       {sentAlready && <div className="deskwork-sent-note">This email has been sent{focusCard.people.full_name ? ` to ${contact.full_name}` : ""}. It is kept here as a record &mdash; the follow-ups below are what happens next.</div>}
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
-                      <div className="deskwork-doc-body">{bodyView("email", emailStyle(brief ? outreachBody(adapt(emailDraft)) : adapt(emailDraft)) || "No email draft yet — press Refine to write one.")}</div>
+                      <div className="deskwork-doc-body">{bodyView("email", emailStyle(brief ? outreachBody(adapt(emailDraft)) : adapt(emailDraft)) || "No email draft yet. Choose a saved version or write your own.")}</div>
                       <div className="deskwork-doc-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</div>
                     </div>
                   )
@@ -1216,13 +1185,13 @@ export function Desk({
                   editing.linkedin ? (
                     <div className="deskwork-edit">
                       <input className="focus-msg-subject" value={focusCard.linkedin_subject ?? ""} placeholder="Subject (used for InMail)" onChange={(event) => editFocus("linkedin_subject", event.target.value)} onBlur={(event) => saveField("linkedin_subject", event.target.value)} />
-                      <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={11} placeholder="No LinkedIn message yet — press Refine to write one." onChange={(event) => editFocus("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
+                      <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={11} placeholder="No LinkedIn message yet. Write your message here." onChange={(event) => editFocus("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
                     </div>
                   ) : (
                     <div className="deskwork-doc">
                       <div className="deskwork-doc-head"><div className="mail-row"><span>Subject</span><b>{subjectView("linkedin", focusCard.linkedin_subject || subjectGuess(focusCard, "linkedin"))}</b></div></div>
                       {diffFor("linkedin") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
-                      <div className="deskwork-doc-body">{bodyView("linkedin", adapt(linkedinDraft) || "No LinkedIn message yet — press Refine to write one.")}</div>
+                      <div className="deskwork-doc-body">{bodyView("linkedin", adapt(linkedinDraft) || "No LinkedIn message yet. Write your message here.")}</div>
                     </div>
                   )
                 )}

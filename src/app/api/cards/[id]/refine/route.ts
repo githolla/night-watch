@@ -1,4 +1,3 @@
-import { toneInstruction } from "@/lib/email-tones";
 import { requireUser } from "@/lib/auth";
 import { refineDraft } from "@/lib/agents";
 import { senderProfile } from "@/lib/sender";
@@ -12,7 +11,6 @@ const input = z.object({
   channel: z.enum(["email", "linkedin"]),
   subject: z.string().max(200).optional(),
   body: z.string().min(1).max(4000),
-  tone: z.enum(["direct", "warm", "curious", "bold", "sales", "catchy", "playful", "cta"]).optional(),
   instruction: z.string().max(400).optional(),
   // When the desk targets a specific contact (name/title), personalize to them, not the card's default person.
   personName: z.string().max(120).optional(),
@@ -43,7 +41,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       whyNow: (card.why_now as string) ?? "",
       subject: payload.subject,
       body: payload.body,
-      instruction: payload.tone ? toneInstruction(payload.tone) : payload.instruction,
+      instruction: payload.instruction,
       senderName: sender.fromName,
       senderTitle: sender.title,
       greeting: sender.greeting,
@@ -51,7 +49,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       intro: sender.intro,
     }, tally.record);
     await tally.flush();
-    if (payload.tone) return Response.json({ ok: true, ...refined, subject: payload.subject, persisted: false });
     const patch = payload.channel === "email"
       ? { email_subject: refined.subject ?? payload.subject ?? null, email_body: refined.body }
       : { linkedin_subject: refined.subject ?? payload.subject ?? null, linkedin_message: refined.body };

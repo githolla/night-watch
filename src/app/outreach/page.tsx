@@ -260,6 +260,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       <Desk
         initialCards={cards}
         senderName={senderFirstName(sender)}
+        senderGreeting={sender.greeting}
         selectedId={params.card}
         gmailConnected={(gmailRows ?? []).some((row) => (row as { owner: string }).owner === me.owner)}
         context={context}
