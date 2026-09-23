@@ -1,3 +1,6 @@
+import { compareAccounts } from "@/lib/dossier-data";
+import { senderProfile } from "@/lib/sender";
+import { senderFirstName } from "@/lib/outreach-ending";
 import { recipientResearch } from "@/lib/recipient-research";
 import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
 import { curatedDomains } from "@/lib/curated-worklist";
@@ -56,6 +59,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       if (!result.ok && result.status !== 409) throw new Error((await result.json()).error);
     }
   }
+  const sender = await senderProfile(db, me.owner);
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = daysAgoIso(1);
 
@@ -199,7 +203,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   // day and has rolled forward, so it is marked as carried over rather than re-badged "new" every morning.
   const dayStart = `${today}T00:00:00`;
   const workingCutoff = new Date().getTime() - 30 * 60 * 1000;
-  const surfaced = (cardRows ?? []).sort((a, b) => curatedDomains.indexOf(a.accounts.domain) - curatedDomains.indexOf(b.accounts.domain))
+  const surfaced = (cardRows ?? []).sort((a, b) => compareAccounts(a.accounts.domain, b.accounts.domain, a.accounts.name, b.accounts.name))
     // Never surface a card whose contact is a marketing phrase, not a real person.
     .filter((card) => { const person = card.people as { full_name?: string } | null; return person?.full_name ? isLikelyPersonName(person.full_name) && Boolean(recipientResearch(card.accounts.domain, person.full_name)) : false; });
 
@@ -253,6 +257,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       {me.role === "admin" && <RefreshDraftCopy />}
       <Desk
         initialCards={cards}
+        senderName={senderFirstName(sender)}
         selectedId={params.card}
         gmailConnected={(gmailRows ?? []).some((row) => (row as { owner: string }).owner === me.owner)}
         context={context}

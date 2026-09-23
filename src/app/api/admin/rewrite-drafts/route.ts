@@ -8,7 +8,7 @@ export const maxDuration = 300;
 type CardRow = {
   id: string; why_now: string | null; email_subject: string | null; email_body: string | null; assigned_to: string;
   people: { full_name: string; title: string | null } | null;
-  accounts: { name: string } | null;
+  accounts: { name: string; domain: string } | null;
 };
 
 // Re-run every un-sent email draft through the founder-voice rewriter (Sonnet) so the whole worklist
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   for (const p of (profiles ?? []) as Array<{ owner: string; from_name: string | null; title: string | null }>)
     prof.set(p.owner, { name: p.from_name ?? "", title: p.title ?? "" });
 
-  const filter = () => db.from("cards").select("id,why_now,email_subject,email_body,assigned_to,people(full_name,title),accounts(name)", { count: "exact" })
+  const filter = () => db.from("cards").select("id,why_now,email_subject,email_body,assigned_to,people(full_name,title),accounts(name,domain)", { count: "exact" })
     .in("status", ["new", "approved", "edited"]).not("email_body", "is", null).lt("updated_at", cutoff);
 
   // Small batch, processed concurrently, so each request returns in seconds and the caller can show
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     try {
       const sender = prof.get(card.assigned_to) ?? { name: "", title: "" };
       const out = await refineDraft({
-        channel: "email", company: card.accounts?.name ?? "", person: card.people.full_name, title: card.people.title ?? "",
+        channel: "email", domain: card.accounts?.domain, company: card.accounts?.name ?? "", person: card.people.full_name, title: card.people.title ?? "",
         whyNow: card.why_now ?? "", subject: card.email_subject ?? undefined, body: card.email_body,
         senderName: sender.name, senderTitle: sender.title,
       }, tally.record);

@@ -2,6 +2,8 @@ import { emailStyle, emailFirstName } from "./email-style.ts";
 import { outreachProof } from "./outreach-proof.ts";
 import { authoredDraft } from "./authored-outreach.ts";
 import { decodeEntities } from "./clean.ts";
+import { isCuratedDomain } from "./curated-worklist.ts";
+import { outreachBody } from "./outreach-ending.ts";
 
 /**
  * A first-touch email written for ONE person, from what is already on file. No model call: the angle comes
@@ -513,7 +515,8 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
     // Keep an explicitly customized introduction; the default repeats what the signature already says.
     const configuredIntro = (input.intro ?? "").trim();
     const personalIntro = configuredIntro && configuredIntro !== "I am {name}, {title} at Nine-67." ? intro : "";
-    return { subject: emailStyle(custom.subject), body: emailStyle([greeting, personalIntro, custom.message, signoff].filter(Boolean).join("\n\n")) };
+    const message = [greeting, personalIntro, custom.message].filter(Boolean).join("\n\n");
+    return { subject: emailStyle(custom.subject), body: emailStyle(isCuratedDomain(input.domain) ? outreachBody(message) : `${message}\n\n${signoff}`) };
   }
 
   const body = [
@@ -540,7 +543,7 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
 
   // A subject built from a role phrase can start lowercase ("those three roles vs a system").
   const subject = fitSubject(subjectLine(context)).replace(/^[a-z]/, (char) => char.toUpperCase());
-  return { subject: emailStyle(subject), body: emailStyle(body) };
+  return { subject: emailStyle(subject), body: emailStyle(isCuratedDomain(input.domain) ? outreachBody(body) : body) };
 }
 
 /**

@@ -15,8 +15,8 @@
     },
     "hypothesis": "Warehouse capacity scaled. The back office that feeds it (vendor data, dealer setup, dealer questions) usually scales by adding people. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "getting new lines sellable",
-    "message": "A new vendor line can sit behind data cleanup even when Turn 14 has room across four distribution centers. The useful measure is time from receiving a price file to dealers being able to order.\n\nNine-67 could build an agent that checks vendor files against your catalog format, flags missing fitment data and prepares updates for purchasing to approve. Start with one vendor, and measure the review time.\n\nWould it be a bad idea to map that handoff on one incoming line?",
+    "subject": "new brand onboarding",
+    "message": "A new vendor line can wait on data cleanup even with Turn 14's four distribution centers ready. Wholesale growth also depends on how fast a vendor's catalog becomes sellable.\n\nWe'd build an agent that checks vendor files against your catalog format and flags missing fitment data for purchasing to approve. We'd track days from file receipt to the first dealer order.\n\nWould it be a bad idea to map how long a new vendor line takes to go live?",
     "fit": "Wave 3. throughput and capacity without adding headcount. Demand and budget not confirmed.",
     "limitations": [
       "Tucker takeover is Nov 2023: context only, never lead with it.",
@@ -44,7 +44,19 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Removed an unsupported claim that their back office is understaffed. Capacity issue is a possibility, not a diagnosis. One proposed workflow, purchasing retains approval, no historical Nine-67 result claimed."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "The constraint in wholesale growth is rarely the DC. It is how fast a new vendor's catalog or a new dealer's account becomes sellable.",
+      "avoid": [
+        "Tucker takeover is Nov 2023: context only, never lead with it.",
+        "Do not claim a revenue figure (not found).",
+        "Do not describe hiring as a surge (weak signal).",
+        "Tucker deal terms are unverified."
+      ],
+      "subjectIdeas": [
+        "new brand onboarding",
+        "dealer setup speed"
+      ],
+      "touch1Cta": "Would it be a bad idea to map how long a new vendor line takes to go live?"
     }
   },
   {
@@ -63,8 +75,8 @@
     },
     "hypothesis": "Moving product lines between plants during a demand surge usually strains order handling, service coordination and ERP data work. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "Viper order intake",
-    "message": "With Viper production moving to Romeoville, an incomplete order could still leave the new capacity waiting. The next hold-up may be getting an order ready to build.\n\nNine-67 could build an agent that checks purchase orders against product rules and flags missing information before your team approves the order. We would measure how much checking it removes on one product line.\n\nIs order intake worth a look at G&W, or is that handoff already working well?",
+    "subject": "Romeoville and processes",
+    "message": "Romeoville adds production space, but incomplete orders could still consume time before work reaches the floor. John Mueller described investing in space, people and processes. Processes are where agents could add capacity without another manual check.\n\nWe'd build an agent that checks purchase orders against product requirements and flags gaps for your team to approve. We'd measure preparation time on one product line.\n\nWould it be a bad idea to test one agent on order intake before Romeoville hits full volume?",
     "fit": "Wave 2. throughput and capacity without adding headcount. Demand and budget not confirmed.",
     "limitations": [
       "Do not assert Gizewicz was CFO (third-party only).",
@@ -81,7 +93,8 @@
       "frame": "gap_selling",
       "sendWave": 2,
       "factIds": [
-        "gw-f0"
+        "gw-f0",
+        "gw-f1"
       ],
       "facts": [
         {
@@ -89,9 +102,26 @@
           "statement": "Opened a 291,305 sq ft facility (about 30,000 sq ft office) at 1135 Arbor Drive, Romeoville, IL. Viper and Viper-HV production is moving there, and the Bolingbrook facility will be expanded for molding capacity.",
           "source_url": "https://www.gwelectric.com/news/gw-electric-expands-north-american-manufacturing-capacity-as-grid-modernization-accelerates/",
           "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "gw-f1",
+          "statement": "John Mueller: 'As demand grows...we are investing in space, people and processes.' Hyperscaler/AI data center demand and supply chain challenges were cited as pressures.",
+          "source_url": "https://www.tdworld.com/utility-business/news/55402671/gw-electric-expands-north-american-footprint-with-291000-square-foot-illinois-facility-to-boost-grid-manufacturing-capacity",
+          "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Corrected plant move to completed tense per verification. Removed false urgency about reaching full volume and any assertion that JDE is migrating. Hypothetical bottleneck is hedged; order approval remains human."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "The owner said G&W is investing in space, people and processes. Space and people are visible. Processes are where agents now add capacity without another JDE seat.",
+      "avoid": [
+        "Do not assert Gizewicz was CFO (third-party only).",
+        "Revenue is a ZoomInfo estimate; do not cite.",
+        "Do not call JDE work a migration (unconfirmed)."
+      ],
+      "subjectIdeas": [
+        "Romeoville and processes",
+        "space, people, processes"
+      ],
+      "touch1Cta": "Would it be a bad idea to test one agent on order intake before Romeoville hits full volume?"
     }
   },
   {
@@ -111,7 +141,7 @@
     "hypothesis": "New IT leaders in this seat usually inherit a complex SAP S/4, SAP Commerce and Salesforce estate and a queue of AI requests from every function. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
     "subject": "governing the first agents",
-    "message": "With AI governance in your brief at Shure, tool reviews can take time away from testing real work. Start with one small task. The approval rules become easier to test.\n\nNine-67 could build an agent that checks product content against engineering specs and flags unsupported claims, with marketing approving every change. Your team would set its access and keep a record of each decision.\n\nIs the first governed workflow already chosen, or is product content worth comparing with the other candidates?",
+    "message": "AI governance at Shure could become a queue of tool approvals before anyone tests useful work. Governing a few production workflows early lets your team design governance from real use.\n\nWe'd build an agent that checks product content against engineering specs and flags unsupported claims. Marketing keeps approval; your team sets access and records decisions. We'd measure review time and missed claims against today's process.\n\nIs the first set of governed AI workflows already chosen, or still open?",
     "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "Do not guess prior employers of Nolasco or McPhee.",
@@ -138,7 +168,18 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Addresses Jerome Nolasco, not prior channel-sales buyer. Does not assert a Shure ERP transformation program or internal governance failure. Reframe is practical approval design, with a specific human-controlled proposal rather than vague governance consulting."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "Governance-first leaders move fastest when they govern a few production workflows early, instead of approving tools. Governance gets designed from real use.",
+      "avoid": [
+        "Do not guess prior employers of Nolasco or McPhee.",
+        "Do not say an ERP program exists (inferred).",
+        "Tariff price rise is from a music press article, older than 12 months; context only."
+      ],
+      "subjectIdeas": [
+        "governing the first agents",
+        "AI governance at Shure"
+      ],
+      "touch1Cta": "Is the first set of governed AI workflows already chosen, or still open?"
     }
   },
   {
@@ -157,8 +198,8 @@
     },
     "hypothesis": "Service-led models usually carry heavy field report, dispatch and performance-reporting paperwork. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "after the field work",
-    "message": "Lufkin's focus on software, automation and service puts more weight on what happens after a technician finishes the job. If the report still needs rekeying, completed work can wait to become an invoice.\n\nThat handoff is worth measuring separately from field productivity. Nine-67 could build an agent that reads the service report, checks contract terms and drafts the invoice for a service manager to approve.\n\nIs shortening that gap on the plan, or already handled?",
+    "subject": "hours of manual entry",
+    "message": "A finished service job can still wait to become an invoice when its report needs rekeying. Lufkin's own release describes software eliminating hours of manual data entry for customers. Applying that principle internally could protect service margin too.\n\nWe'd build an agent that checks service reports against contract terms and drafts invoices for manager approval. We'd measure time from completed report to approved invoice.\n\nIs the internal side of that automation on the plan, or parked for later?",
     "fit": "Wave 3. growth without proportional hiring. Demand and budget not confirmed.",
     "limitations": [
       "Verify Baumann is still CEO (last confirmed Mar 2025).",
@@ -178,7 +219,8 @@
       "frame": "command_of_message",
       "sendWave": 3,
       "factIds": [
-        "lufkin-f2"
+        "lufkin-f2",
+        "lufkin-f1"
       ],
       "facts": [
         {
@@ -186,9 +228,28 @@
           "statement": "Sold its North America Downhole (pump and rods) business to Q2 Artificial Lift Services to focus on 'Software, Automation, Surface Equipment and comprehensive service'. Piper Sandler advised.",
           "source_url": "https://www.lufkin.com/lufkin-industries-announces-sale-of-north-america-downhole-business-to-q2-artificial-lift-services/",
           "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "lufkin-f1",
+          "statement": "Released SROD V9.5.0 rod lift design software. The CEO said it 'automates key design development requirements'; file import 'eliminates hours of manual data entry'.",
+          "source_url": "https://www.lufkin.com/lufkin-introduces-srod-v9-5-0/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Uses 2025 strategic focus as context, never new news. No claim about actual billing delays, headcount decline, or KPS exit. CEO status last confirmed March 2025 remains a contact verification caveat before sending."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "Lufkin's own release says its software eliminates hours of manual data entry for customers. The same principle applied internally is the fastest service margin lever.",
+      "avoid": [
+        "Verify Baumann is still CEO (last confirmed Mar 2025).",
+        "The divestiture is Mar 2025: use as context, not as news.",
+        "Do not mention headcount decline (third-party estimate, sensitive).",
+        "Do not speculate about a KPS exit.",
+        "President/CFO/VP names are from The Org; verify before sending."
+      ],
+      "subjectIdeas": [
+        "hours of manual entry",
+        "service margin"
+      ],
+      "touch1Cta": "Is the internal side of that automation on the plan, or parked for later?"
     }
   },
   {
@@ -207,8 +268,8 @@
     },
     "hypothesis": "When labor is the constraint, planners, estimators and supervisors usually end up spending time on admin that grows with every launch. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "protecting launch time",
-    "message": "MEC's plan to add several hundred people by year end could put another load on the people running launches. Chasing missing tooling or material updates takes time away from clearing the actual blocker.\n\nNine-67 could build an agent that gathers those updates into a daily exception list for one launch. Your program manager would check it and decide what needs action. The measure would be hours spent collecting status.\n\nWould it be a bad idea to test that against one launch?",
+    "subject": "several hundred hires",
+    "message": "MEC's plan to add several hundred people could give estimators more paperwork too. Agents cannot run lasers, but they can take quoting preparation off people whose judgment is needed elsewhere.\n\nWe'd build an agent that checks incoming quote requests for missing drawings and specs, then prepares a review packet. Your estimators keep pricing decisions. We'd measure preparation time per quote.\n\nWould it be a bad idea to take quoting admin off the estimators before Q4?",
     "fit": "Wave 1. cycle time and error rates on core workflows. Demand and budget not confirmed.",
     "limitations": [
       "No CIO found; do not address IT.",
@@ -234,7 +295,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Removed suggestion that AI replaces production operators and avoided negative margin language. Reframe distinguishes gathering status from solving blockers. Uses corrected hiring statement without falsely attributing unemployment quotes to CFO."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "Agents do not run lasers. They can take quoting, scheduling inputs and supplier follow-ups off the people you cannot hire more of.",
+      "avoid": [
+        "No CIO found; do not address IT.",
+        "Do not claim knowledge of their ERP."
+      ],
+      "subjectIdeas": [
+        "several hundred hires",
+        "capacity without headcount"
+      ],
+      "touch1Cta": "Would it be a bad idea to take quoting admin off the estimators before Q4?"
     }
   },
   {
@@ -253,8 +324,8 @@
     },
     "hypothesis": "Co-packers usually manage each customer's specs, allergen and food safety documents, and price changes by email and spreadsheet. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "the next spec revision",
-    "message": "Across SugarCreek's six US facilities, a customer spec change could create more work than the edit itself. Finding every affected instruction is often the slower part.\n\nNine-67 could build an agent that compares each revision with the approved version and flags the production documents that may need changing. QA would review the differences and approve any updates. We would start with one customer's revision history.\n\nHow are those changes checked across plants today?",
+    "subject": "spec changes per customer",
+    "message": "Across SugarCreek's six US plants, one customer spec change can mean checking several production documents. For a co-packer, document work per customer can become a capacity limit before line time does.\n\nWe'd build an agent that checks each new spec against the approved one and flags instructions that need review. QA keeps approval of every change. We'd measure review time and missed changes using one customer's past requests.\n\nHow are customer spec changes tracked across the six plants today?",
     "fit": "Wave 3. cycle time and error rates on core workflows. Demand and budget not confirmed.",
     "limitations": [
       "Do not say 'recently migrated to SAP' (case study undated).",
@@ -280,7 +351,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Low-confidence signal warrants exploratory question, not claimed urgency. Does not imply unsafe practices, missed changes, or recent SAP migration. Agent suggests affected documents; QA retains judgment and approval."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "For a co-packer, the hidden capacity limit is often document work per customer, not line time.",
+      "avoid": [
+        "Do not say 'recently migrated to SAP' (case study undated).",
+        "Do not cite revenue beyond 'billion-dollar' claim."
+      ],
+      "subjectIdeas": [
+        "spec changes per customer",
+        "co-pack paperwork"
+      ],
+      "touch1Cta": "How are customer spec changes tracked across the six plants today?"
     }
   },
   {
@@ -299,8 +380,8 @@
     },
     "hypothesis": "When volume rebounds during an ERP migration, document work (POs, certificates, invoices, price updates) usually lands on people in the old system. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "Americas document intake",
-    "message": "Bossard's 17.3% Americas sales growth in local currency can bring more order paperwork while the group is rolling out Dynamics 365. Document review may be worth separating from the ERP timetable.\n\nNine-67 could build an agent that reads customer purchase orders, flags missing details and prepares an order for your team to approve. We would first test one intake queue and measure review time, with your IT team checking the fit.\n\nIs that already part of the Americas plan, or still open?",
+    "subject": "before D365 lands",
+    "message": "Bossard's Americas growth can bring more order paperwork while Dynamics 365 rolls out across the group. AI document processing need not wait for the new ERP; one intake workflow could be tested alongside it.\n\nWe'd build an agent that checks customer purchase orders for missing details and prepares orders for staff approval. Your IT team would review the integration. We'd measure review time and corrections per order.\n\nIs AI document processing already scoped for the Americas, or waiting on D365?",
     "fit": "Wave 2. growth without proportional hiring. Demand and budget not confirmed.",
     "limitations": [
       "US D365 timing unknown; do not assume it.",
@@ -333,7 +414,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "No assumption that US deployment is pending or delayed. Growth explicitly refers to H1. Does not promise compatibility without checking or claim their documented AI effort is absent."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "AI document processing does not need the new ERP first. Built on top, it becomes part of the migration instead of a project after it.",
+      "avoid": [
+        "US D365 timing unknown; do not assume it.",
+        "Do not name the new CFO (unverified)."
+      ],
+      "subjectIdeas": [
+        "before D365 lands",
+        "document processing, Americas"
+      ],
+      "touch1Cta": "Is AI document processing already scoped for the Americas, or waiting on D365?"
     }
   },
   {
@@ -353,8 +444,8 @@
     },
     "hypothesis": "Roll-ups this size usually carry separate catalogs, procurement and compliance work per brand. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "freight costs across brands",
-    "message": "Across Clarience's 29 brands, small freight billing errors could add up without looking material at any one business. Comparing the same charge across brands may reveal more than reviewing each invoice alone.\n\nNine-67 could build an agent that checks freight invoices against agreed rates and flags discrepancies for your logistics team to approve or dispute. We would start with one charge type across two brands.\n\nIs that kind of shared cost check already in place, or worth scoping?",
+    "subject": "Clarience value creation",
+    "message": "Across Clarience's 29 brands, checking the same freight charge separately could hide a shared cost problem. Agents can consolidate the work before systems are consolidated, which may help during Leonard Green's investment.\n\nWe'd build an agent that checks freight invoices against agreed rates across two brands and flags discrepancies. Your logistics team decides what to dispute. We'd measure confirmed overcharges and review hours.\n\nIs AI part of the value creation plan, or parked for year two?",
     "fit": "Wave 1. margin and cost-to-serve. Demand and budget not confirmed.",
     "limitations": [
       "Exact close date and value unverified; say 'Leonard Green's investment'.",
@@ -370,7 +461,8 @@
       "frame": "command_of_message",
       "sendWave": 1,
       "factIds": [
-        "clarience-f6"
+        "clarience-f6",
+        "clarience-f0"
       ],
       "facts": [
         {
@@ -378,9 +470,25 @@
           "statement": "Expanded Team Penske partnership for the 2026 INDYCAR season. Portfolio described as 29 subsidiary brands.",
           "source_url": "https://clariencetechnologies.com/news/team-penske-grows-relationship-with-clarience-technologies/",
           "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "clarience-f0",
+          "statement": "Turkish Competition Board authorized Leonard Green & Partners' indirect acquisition of sole control of Clarience Technologies LLC, then controlled by Genstar Capital, through Clarity Parent LLC.",
+          "source_url": "https://www.erdem-erdem.av.tr/en/insights/recent-keynotes-of-august-2025",
+          "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Uses sourced 29-brand portfolio rather than uncertain PE close timing. Avoids assuming fragmented systems or existing invoice errors. CFO-specific cost mechanism and bounded proposal; discrepancy handling remains with logistics. Deliberately departs from required PE fact to avoid unsupported close claim."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "In a multi-brand roll-up, agents can consolidate the work before the systems are consolidated.",
+      "avoid": [
+        "Exact close date and value unverified; say 'Leonard Green's investment'.",
+        "No public AI statements; do not imply any."
+      ],
+      "subjectIdeas": [
+        "Clarience value creation",
+        "29 brands, one back office"
+      ],
+      "touch1Cta": "Is AI part of the value creation plan, or parked for year two?"
     }
   },
   {
@@ -397,8 +505,8 @@
       "date": "Source date not confirmed; researched 2026-09-23",
       "sourceUrl": "https://dailycoffeenews.com/2026/09/17/smart-care-unifies-five-coffee-equipment-service-brands-as-turbo-tech/"
     },
-    "subject": "Turbo Tech job margins",
-    "message": "Smart Care's move to flat-rate speed-oven pricing could make a repeat visit expensive before finance sees it. Bringing five brands under Turbo Tech makes the cost of each job worth checking early.\n\nThe useful starting point is the service record. Nine-67 could build an agent that compares technician notes, parts and return visits against the agreed rate. Your finance team would approve any billing changes.\n\nWorth testing that on one set of Turbo Tech jobs, or is job-margin review already covered?",
+    "subject": "work order to cash",
+    "message": "Smart Care's Turbo Tech rollout makes the work between a service visit and its invoice worth examining. In field service, DSO can be decided at the work order, before collections ever sees it.\n\nWe'd build an agent that checks completed work orders for missing parts, labor and approval records, then prepares the billing packet. Your team approves release. We'd measure days from completed service to invoice.\n\nIs billing speed on your first 90-day list, or already handled?",
     "proofKind": "proposed_workflow",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
     "hypothesis": "Field service roll-ups usually run billing, dispatch and AP across many acquired brands with different habits. This is a hypothesis to test, not a confirmed problem at the company.",
@@ -428,7 +536,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Removed unsupported claims about billing delays. Chose flat-rate job economics for the CFO rather than generic acquisition integration."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "In field service, DSO is decided at the work order, not in collections. Agents close that gap without more billers.",
+      "avoid": [
+        "Do not say 'congrats'.",
+        "350k service events is a 2022 Audax figure; do not cite as current."
+      ],
+      "subjectIdeas": [
+        "work order to cash",
+        "first 90 days at Smart Care"
+      ],
+      "touch1Cta": "Is billing speed on your first 90-day list, or already handled?"
     }
   },
   {
@@ -445,8 +563,8 @@
       "date": "Source date not confirmed; researched 2026-09-23",
       "sourceUrl": "https://letsdatascience.com/news/lazer-logistics-deploys-uncle-phil-ai-for-yard-management-e973d3bb"
     },
-    "subject": "after Uncle Phil flags it",
-    "message": "With Uncle Phil AI giving Lazer's site managers guidance, the next time cost may be gathering evidence that an issue was resolved. A recommendation and a closed action are different things.\n\nNine-67 could build an agent alongside your existing tools that gathers the maintenance record or inspection result behind a flagged issue. The site manager would confirm the fix before it closes.\n\nIs that follow-through worth testing at one site, or does LLOS already handle it?",
+    "subject": "after Uncle Phil",
+    "message": "Uncle Phil AI gives Lazer's managers guidance, but gathering evidence that an issue is resolved can still take time. With AI already in the yard, the office behind the yard is another place to test for margin.\n\nWe'd build an agent alongside your tools to gather maintenance records behind flagged issues. Site managers confirm each fix. We'd measure time spent assembling evidence per closed issue.\n\nIs the back office on the AI roadmap, or is LLOS the focus through 2027?",
     "proofKind": "proposed_workflow",
     "proofSourceUrl": null,
     "hypothesis": "Operators usually aim AI at the field first. Billing, customer reporting and acquisition integration still scale with admin staff. This is a hypothesis to test, not a confirmed problem at the company.",
@@ -476,7 +594,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Acknowledges existing AI; no replacement-platform pitch, dates, deployment counts or claim that LLOS lacks this function."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "Lazer already proved AI in the yard. The margin left is in the office behind the yard.",
+      "avoid": [
+        "They build tech in-house: never pitch a platform.",
+        "Uncle Phil source is a news aggregator; say 'Uncle Phil AI' without dates or stats."
+      ],
+      "subjectIdeas": [
+        "after Uncle Phil",
+        "the office behind the yard"
+      ],
+      "touch1Cta": "Is the back office on the AI roadmap, or is LLOS the focus through 2027?"
     }
   },
   {
@@ -493,8 +621,8 @@
       "date": "Source date not confirmed; researched 2026-09-23",
       "sourceUrl": "https://www.aol.com/articles/pls-logistics-services-acquires-agl-230500000.html"
     },
-    "subject": "AGL shipment handoffs",
-    "message": "Adding AGL's ocean, customs and drayage services to PLS could increase the time spent checking whether a shipment is ready for its next leg. One missing release can outweigh several on-time updates.\n\nNine-67 could build an agent that checks the documents for one port-to-truck handoff, flags missing releases and drafts the request. Your coordinator would approve the request and decide when the load can move.\n\nWorth comparing that with an AGL handoff, or is the process already settled?",
+    "subject": "PLS and AGL",
+    "message": "Adding AGL's customs and drayage services can mean more checking before a shipment reaches its next leg. An early integration win could come from the documents, without waiting for the systems to change.\n\nWe'd build an agent that checks customs packets for missing releases and drafts requests for your coordinator to approve. We'd measure document preparation time and shipments held for incomplete paperwork.\n\nWould it be a bad idea to test one agent on AGL customs docs before year end?",
     "proofKind": "proposed_workflow",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
     "hypothesis": "Integrations like this usually focus on systems. The daily drag is customs entries, bookings and handoffs between two teams. This is a hypothesis to test, not a confirmed problem at the company.",
@@ -524,7 +652,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Removed unsupported claims of current delays and integration failure. Restricts agent to document review and drafts, leaving release decisions with coordinators."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "The fastest integration wins come from the documents, not the systems.",
+      "avoid": [
+        "No CFO found; do not address finance.",
+        "Bielawski current status unverified."
+      ],
+      "subjectIdeas": [
+        "PLS and AGL",
+        "customs paperwork"
+      ],
+      "touch1Cta": "Would it be a bad idea to test one agent on AGL customs docs before year end?"
     }
   },
   {
@@ -542,7 +680,7 @@
       "sourceUrl": "https://www.freightwaves.com/news/bluegrace-logistics-acquires-idaho-3pl-truk-tms"
     },
     "subject": "Truk TMS onboarding",
-    "message": "Bringing Truk TMS into BlueGrace could mean more time spent turning customer instructions into rules for each account. A migrated account can still carry instructions that never made it into the system.\n\nNine-67 could build an agent that checks a new customer's routing instructions against the proposed setup. Your team would review any conflicts before approval. We'd start with one account.\n\nIs checking those instructions part of the integration plan, or already handled?",
+    "message": "Bringing Truk TMS into BlueGrace can add claims paperwork alongside the customer accounts. After an acquisition, margin can sit in claims and onboarding even when the quote already benefits from AI.\n\nWe'd build an agent that assembles delivery records and proof of loss for each claim, flagging gaps before your team reviews it. Staff keep settlement decisions. We'd measure preparation time and incomplete submissions.\n\nWould it be a bad idea to run one agent on the claims queue before peak?",
     "proofKind": "proposed_workflow",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
     "hypothesis": "Each add-on brings customers to onboard and claims to process. Both usually scale with headcount. This is a hypothesis to test, not a confirmed problem at the company.",
@@ -572,7 +710,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Avoids explaining AI to an experienced AI adopter. Names a narrow acquired-account workflow without asserting their migration has defects."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "Most 3PLs put AI in the quote. The margin after an acquisition sits in claims and onboarding.",
+      "avoid": [
+        "They market AI heavily; do not explain AI to them.",
+        "Warburg stake size unverified; say 'Warburg Pincus-backed'."
+      ],
+      "subjectIdeas": [
+        "Truk TMS onboarding",
+        "claims after add-ons"
+      ],
+      "touch1Cta": "Would it be a bad idea to run one agent on the claims queue before peak?"
     }
   },
   {
@@ -589,8 +737,8 @@
       "date": "Source date not confirmed; researched 2026-09-23",
       "sourceUrl": "https://www.globenewswire.com/news-release/2026/01/20/3221908/0/en/TA-Achieves-30-LTL-Cost-Savings-and-99-Routing-Accuracy-with-SMC.html"
     },
-    "subject": "after SMC3",
-    "message": "TA's next phase with SMC3 could shorten the wait between delivery and billing by tackling documentation. Better pricing alone cannot clear a missing document.\n\nOne document flow could be tested before a wider system change. Nine-67 could build an agent that matches proof of delivery to the load, flags missing signatures and prepares the billing packet. Your billing team would approve release.\n\nWould a test on one document flow fit the modernization plan, or is that work already assigned?",
+    "subject": "dispatch and documentation",
+    "message": "TA's next phase with SMC3 could leave completed deliveries waiting on paperwork before billing. Documentation work can start with agents reading the documents now. A system replacement can follow.\n\nWe'd build an agent that matches proof of delivery to each load, flags missing signatures and prepares the billing packet. Your billing team approves release. We'd measure time from delivery to a complete packet on one lane.\n\nWould it be a bad idea to start documentation with agents before a new system?",
     "proofKind": "proposed_workflow",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
     "hypothesis": "In brokerage, documentation and shipment-change communication usually stay manual longest. This is a hypothesis to test, not a confirmed problem at the company.",
@@ -620,7 +768,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Changed assertion of manual work to a conditional. Does not present TA savings as Nine-67 results or imply an announced replacement project."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "Documentation modernization can start with agents reading the documents now, before a system replacement.",
+      "avoid": [
+        "Gamut/BCI ownership in 2026 unverified; say 'PS Logistics'.",
+        "Do not use the 30% savings number as ours."
+      ],
+      "subjectIdeas": [
+        "dispatch and documentation",
+        "after SMC3"
+      ],
+      "touch1Cta": "Would it be a bad idea to start documentation with agents before a new system?"
     }
   },
   {
@@ -637,8 +795,8 @@
       "date": "Source date not confirmed; researched 2026-09-23",
       "sourceUrl": "https://www.transervice.com/fleetchain-transervice/"
     },
-    "subject": "FleetChAIn and work orders",
-    "message": "Turning technician notes into work orders may take time away from managing repairs at Transervice. FleetChAIn's focus on decisions could fit this work too.\n\nThe first task could be preparing the record, with repair decisions staying in the shop. Nine-67 could build an agent that drafts work-order updates from technician notes and parts used. A shop manager would approve them.\n\nIs that internal workflow on the roadmap, or is FleetChAIn the priority for now?",
+    "subject": "stop tracking, start deciding",
+    "message": "Turning technician notes into work orders can take time away from managing repairs at Transervice. FleetChAIn's message, stop tracking and start deciding, could apply to your own maintenance office too.\n\nWe'd build an agent that drafts work-order updates from technician notes and parts records. Shop managers approve the record and keep repair decisions. We'd measure administrative time per completed job.\n\nIs the internal side on the roadmap, or is FleetChAIn the focus this year?",
     "proofKind": "proposed_workflow",
     "proofSourceUrl": null,
     "hypothesis": "Companies that productize decision intelligence for customers often still run maintenance admin and compliance by hand internally. This is a hypothesis to test, not a confirmed problem at the company.",
@@ -675,7 +833,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Avoids treating customer wins as acquisitions or inferring current manual systems as fact. Does not call FleetChAIn a software platform."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "The same logic you sell customers, stop tracking and start deciding, fits your own maintenance and compliance office.",
+      "avoid": [
+        "'New business acquisitions' may mean customer wins, not M&A.",
+        "CFO current status unverified."
+      ],
+      "subjectIdeas": [
+        "stop tracking, start deciding",
+        "FleetChAIn inside"
+      ],
+      "touch1Cta": "Is the internal side on the roadmap, or is FleetChAIn the focus this year?"
     }
   },
   {
@@ -692,8 +860,8 @@
       "date": "Source date not confirmed; researched 2026-09-23",
       "sourceUrl": "https://www.prnewswire.com/news-releases/montway-auto-transport-names-alberto-anguiano-as-chief-operating-officer-302670812.html"
     },
-    "subject": "M.A.P. exception handoffs",
-    "message": "Across the brands you're integrating at Montway, the costly handoff may be the customer question that quoting and tracking in M.A.P. cannot answer.\n\nThat is a smaller starting point than automating every conversation. Nine-67 could build an agent that checks a pickup-change request against the shipment record and drafts the carrier inquiry. Your operations team would approve schedule changes.\n\nIs that exception work part of your integration plan, or already handled?",
+    "subject": "future-proofing operations",
+    "message": "Bringing brands together at Montway can leave your team answering more questions across shipment records. Future-proofing a brokerage includes how many conversations each person can handle well. Volume is only part of it.\n\nWe'd build an agent that checks pickup-change requests against shipment records and drafts carrier inquiries. Your team approves schedule changes. We'd measure handling time and repeat contacts for that request type.\n\nIs AI part of the future-proofing plan, or still being scoped?",
     "proofKind": "proposed_workflow",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
     "hypothesis": "A broker handling about 250,000 shipments a year with 365-day service usually spends most ops time on status updates, quote follow-ups and carrier matching. This is a hypothesis to test, not a confirmed problem at the company.",
@@ -730,7 +898,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Removed unsupported shipment volumes and claims of an existing AI roadmap. Targets COO integration responsibility while preserving human scheduling authority."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "Future-proofing a brokerage is less about trucks than about how many conversations each person can handle well.",
+      "avoid": [
+        "Revenue not found.",
+        "No explicit AI statements; do not claim any."
+      ],
+      "subjectIdeas": [
+        "future-proofing operations",
+        "250,000 conversations"
+      ],
+      "touch1Cta": "Is AI part of the future-proofing plan, or still being scoped?"
     }
   },
   {
@@ -747,8 +925,8 @@
       "date": "Source date not confirmed; researched 2026-09-23",
       "sourceUrl": "https://peprofessional.com/2026/07/sentinel-takes-the-cake/"
     },
-    "subject": "new formats, approval work",
-    "message": "DecoPac's plan for more dessert formats and new channels could multiply approval work across its licensed designs. A finished design may still be waiting on the paperwork needed to sell it.\n\nNine-67 could build an agent that prepares submission packets from approved artwork and flags missing rights or channel details. Your licensing team would approve every submission. That gives the expansion a specific workflow to test.\n\nIs that approval work worth a look, or already running the way you want?",
+    "subject": "DecoPac 100-day plan",
+    "message": "DecoPac's plans for more dessert formats and channels can mean more licensing paperwork. In a 100-day plan, agents could make expansion a margin lever instead of simply a hiring plan.\n\nWe'd build an agent that prepares packets from approved artwork and flags missing rights or channel details. Your licensing team approves each packet. We'd measure preparation time and packets returned for missing information.\n\nIs AI in the Sentinel 100-day plan, or parked for later?",
     "proofKind": "proposed_workflow",
     "proofSourceUrl": null,
     "hypothesis": "Expanding formats and channels across 25,000+ customer locations usually multiplies catalog, licensed design and account work. This is a hypothesis to test, not a confirmed problem at the company.",
@@ -770,7 +948,8 @@
       "sendWave": 1,
       "factIds": [
         "decopac-f2",
-        "decopac-f3"
+        "decopac-f3",
+        "decopac-f0"
       ],
       "facts": [
         {
@@ -784,9 +963,26 @@
           "statement": "Sentinel describes DecoPac as having \"an in-house design team and extensive licensed IP portfolio spanning entertainment, professional sports, and other brands.\"",
           "source_url": "https://www.sentinelpartners.com/sentinel-capital-partners-acquires-decopac/",
           "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "decopac-f0",
+          "statement": "Sentinel Capital Partners acquired DecoPac from Kohlberg. The deal terms were not disclosed.",
+          "source_url": "https://www.prnewswire.com/news-releases/sentinel-capital-partners-acquires-decopac-302819011.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Avoids invented 100-day plan or licensed-rights judgments by AI. Keeps design and approval authority with licensing staff; tests a capacity implication rather than asserting a bottleneck."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "In a 100-day plan, agents turn expansion into a margin lever instead of a hiring plan.",
+      "avoid": [
+        "Revenue not found.",
+        "CFO/CIO names from The Org only; verify.",
+        "Customer labor quote is about bakeries, not DecoPac staff."
+      ],
+      "subjectIdeas": [
+        "DecoPac 100-day plan",
+        "new formats, same team"
+      ],
+      "touch1Cta": "Is AI in the Sentinel 100-day plan, or parked for later?"
     }
   },
   {
@@ -806,8 +1002,8 @@
     },
     "hypothesis": "Member service (billing, pickups, changes, questions) usually grows with the club and is handled by people. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "Wine Club requests",
-    "message": "At 888,000 Wine Club members, even a small share of pickup changes could create a large service queue at Cooper's Hawk. The hard part is knowing which changes are safe to make.\n\nNine-67 builds agents with operating teams: one could check pickup requests against club rules and prepare the change for staff approval. We would test it on past requests before allowing any live changes.\n\nWorth comparing that approach with your current Wine Club process, or is it already covered?",
+    "subject": "888,000 members",
+    "message": "With 888,000 Wine Club members, routine pickup changes can become a sizeable service queue. In a membership business, each service request is a retention moment worth getting right.\n\nWe'd build an agent that checks pickup requests against club rules and prepares changes for staff approval. We'd test historical requests first, measuring handling time and repeat contacts before any live changes.\n\nWould it be a bad idea to look at Wine Club requests before the holiday rush?",
     "fit": "Wave 3. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "Verify Dave Harris is still CTO (last confirmed Jan 2025).",
@@ -833,7 +1029,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Removed unsupported service backlog claim and urgency. Proposed pickup workflow rather than claiming an existing system defect. Dave Harris current title needs reconfirmation before sending."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "In a membership business, every service request is a retention moment. Agents make each one fast without adding staff per opening.",
+      "avoid": [
+        "Verify Dave Harris is still CTO (last confirmed Jan 2025).",
+        "Latest revenue is 2024 Technomic; do not cite as current."
+      ],
+      "subjectIdeas": [
+        "888,000 members",
+        "Wine Club service"
+      ],
+      "touch1Cta": "Would it be a bad idea to look at Wine Club requests before the holiday rush?"
     }
   },
   {
@@ -853,8 +1059,8 @@
     },
     "hypothesis": "Savings from incentive comp are not structural. The work that drives SG&A stays the same. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "partner reporting workload",
-    "message": "Build-A-Bear's plan for at least 50 net new locations could add reporting work even where partners supply the store staff. That corporate workload can grow quietly.\n\nThe opportunity may be in how partner reports reach finance, before anyone starts reviewing the numbers. Nine-67 could build an agent to collect those reports and flag missing entries. Finance would approve the checked numbers.\n\nIs reducing the work per partner report on your agenda, or is that process already where you want it?",
+    "subject": "the next leg of SG&A",
+    "message": "Build-A-Bear's plan for at least 50 net new locations can add corporate reporting work even where partners supply store staff. Structural SG&A savings can come from changing how work is done, rather than adjusting headcount.\n\nWe'd build an agent that collects partner reports and flags missing entries before finance reviews the numbers. Finance retains approval. We'd measure hours per completed report.\n\nIs structural SG&A on the CAO agenda this year, or later?",
     "fit": "Wave 2. margin and cost-to-serve. Demand and budget not confirmed.",
     "limitations": [
       "Stay neutral on the guidance cut; never gloat.",
@@ -879,7 +1085,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Avoided insensitive guidance-cut opener and unproven savings. Connects partner growth to a hedged corporate cost implication for CFO/CAO."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "Structural SG&A savings come from changing how work is done, not from comp or headcount.",
+      "avoid": [
+        "Stay neutral on the guidance cut; never gloat.",
+        "No AI statements found; do not imply any."
+      ],
+      "subjectIdeas": [
+        "the next leg of SG&A",
+        "after the guidance reset"
+      ],
+      "touch1Cta": "Is structural SG&A on the CAO agenda this year, or later?"
     }
   },
   {
@@ -899,8 +1115,8 @@
     },
     "hypothesis": "Once a CEO says it on a call, the AI owner usually has to show capacity gains across functions, not only in the vendor planning tool. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "around the planning launch",
-    "message": "J.Jill's AI planning and allocation launch could shift work into exception handling: deciding which recommendations need a second look before stock moves.\n\nThat work deserves a test alongside the planning model. Nine-67 can add engineers to build that check. An agent could gather sales and stock details for each flagged item. Your planners would approve any change.\n\nWould testing that on one product category help the launch, or is exception handling already covered?",
+    "subject": "after the Q2 call",
+    "message": "J.Jill's AI planning launch could create another queue: recommendations that need a planner's second look. The planning system is the visible AI. Smaller workflows around it shape how much capacity it creates.\n\nWe'd build an agent alongside your team that gathers sales and stock details for flagged recommendations. Planners keep allocation decisions. We'd measure review time and unresolved exceptions in one category.\n\nIs the next set of AI workflows already picked, or still open?",
     "fit": "Wave 1. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "They are hiring AI talent: position as extra capacity, not replacement.",
@@ -925,7 +1141,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Does not pitch replacement planning system or staff replacement. Conditional inference addresses CTO remit and concrete approval boundary."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "The planning system is the visible AI. Most of the capacity is in the smaller workflows around it.",
+      "avoid": [
+        "They are hiring AI talent: position as extra capacity, not replacement.",
+        "Do not name their vendors (unknown)."
+      ],
+      "subjectIdeas": [
+        "after the Q2 call",
+        "AI capacity at J.Jill"
+      ],
+      "touch1Cta": "Is the next set of AI workflows already picked, or still open?"
     }
   },
   {
@@ -945,8 +1171,8 @@
     },
     "hypothesis": "Lean teams during an order management migration usually absorb more customer contacts, returns and exceptions. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "after the fulfillment savings",
-    "message": "Duluth has cut variable fulfillment cost per unit by nearly 25%. Repeated order-status contacts could still add labor after the parcel leaves the building.\n\nCost per shipped order may be worth tracking through the last customer contact. Nine-67 could build an agent that checks order and carrier events, drafts the answer and flags cases needing staff approval. Start with one request type and measure repeat contacts.\n\nIs that contact-center work on your list, or already handled?",
+    "subject": "contact center after Omni",
+    "message": "Duluth's nearly 25% reduction in variable fulfillment cost per unit makes costs after shipment worth examining too. With leaner teams, taking routine contacts off the team is a better test than asking people to go faster.\n\nWe'd build an agent that checks order and carrier events and drafts status replies, flagging exceptions for staff. We'd measure handling time and repeat contacts.\n\nWould it be a bad idea to take where-is-my-order off the team before holiday?",
     "fit": "Wave 2. cycle time and error rates on core workflows. Demand and budget not confirmed.",
     "limitations": [
       "Layoffs are sensitive: reference 'leaner teams', not cuts.",
@@ -971,7 +1197,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Removed layoff references. Uses documented fulfillment efficiency to suggest measuring a different cost, without asserting contact-center failure."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "With fewer people, the best cost move is taking routine contacts off the team, not asking it to go faster.",
+      "avoid": [
+        "Layoffs are sensitive: reference 'leaner teams', not cuts.",
+        "StockAnalysis CEO name conflict; ignore it."
+      ],
+      "subjectIdeas": [
+        "contact center after Omni",
+        "same work, fewer people"
+      ],
+      "touch1Cta": "Would it be a bad idea to take where-is-my-order off the team before holiday?"
     }
   },
   {
@@ -991,8 +1227,8 @@
     },
     "hypothesis": "Adding markets, TEAMS accounts and suppliers at this pace usually multiplies order, inventory and service exceptions. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "exceptions across new markets",
-    "message": "Adding 27 markets this year could expose FIGS' team to delivery exceptions that look similar but need different answers by country.\n\nA useful first test would separate what can be checked from what needs judgment. Nine-67 could build an agent to pull the order, carrier events and approved country policy into a draft response. Your team would approve refunds or reshipments.\n\nWorth testing on one international market, or is that already covered in your roadmap?",
+    "subject": "27 new markets",
+    "message": "Adding 27 markets can bring delivery questions that look similar but need different answers by country. The cost of fast international growth can appear in exceptions before it reaches headcount plans.\n\nWe'd build an agent that combines order details, carrier events and approved country policies into draft responses. Your team approves refunds or reshipments. We'd measure handling time and repeat contacts by market.\n\nWould it be a bad idea to map exception volume by market before Q4?",
     "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "Bixby title sourced from Simply Wall St; confirm on LinkedIn.",
@@ -1018,7 +1254,18 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "No sensitive supplier allegation, invented systems, or results. Mark Bixby title needs independent confirmation before sending."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "The cost of fast international growth shows up first in exceptions, not in headcount plans.",
+      "avoid": [
+        "Bixby title sourced from Simply Wall St; confirm on LinkedIn.",
+        "Never mention the CBP withhold release order or Jordan supplier in copy (sensitive).",
+        "Use 'supplier shifts' only in general terms."
+      ],
+      "subjectIdeas": [
+        "27 new markets",
+        "exceptions at 85 markets"
+      ],
+      "touch1Cta": "Would it be a bad idea to map exception volume by market before Q4?"
     }
   },
   {
@@ -1038,8 +1285,8 @@
     },
     "hypothesis": "Wholesale brings EDI, POs, routing guides and chargebacks that DTC teams have never run. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "wholesale order checks",
-    "message": "Tecovas' wholesale expansion could bring a new kind of rework: an order can be right for your system and still miss a retailer's shipping rules.\n\nGiven the Boot Runner build, the question seems to be which workflow deserves engineering time next. Nine-67 could add engineers to build that order check. An agent would flag orders that miss retailer rules for your team to approve.\n\nIs wholesale order checking worth a look, or is that already built?",
+    "subject": "wholesale at 25 to 30%",
+    "message": "Tecovas' wholesale expansion can mean rework when an order misses a store's shipping rules. With AI already in allocation, wholesale compliance is a new test beyond DTC.\n\nWe'd build an agent alongside your engineers that checks orders against retailer rules and flags gaps. Your team approves corrections. We'd measure review time and missed rules on one retailer's orders.\n\nIs wholesale ops on the AI list, or handled for now?",
     "fit": "Wave 3. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "Peer tone; never explain AI to this CTO.",
@@ -1071,7 +1318,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Respects existing in-house AI capability. No AI tutorial or replacement tools. Proposed workflow and rework risk explicitly conditional."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "Tecovas already proved AI in allocation. Wholesale compliance is the next place it pays, and it is not a DTC muscle.",
+      "avoid": [
+        "Peer tone; never explain AI to this CTO.",
+        "They build in-house with Claude and Cursor: offer engineers, not tools."
+      ],
+      "subjectIdeas": [
+        "wholesale at 25 to 30%",
+        "after allocation"
+      ],
+      "touch1Cta": "Is wholesale ops on the AI list, or handled for now?"
     }
   },
   {
@@ -1091,8 +1348,8 @@
     },
     "hypothesis": "New delivery services usually create a spike in scheduling and service cases right as teams learn a new CRM. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "delivery cases in CRM",
-    "message": "Lovesac's Q3 CRM rollout and national White Glove expansion could leave service teams connecting customer records to delivery exceptions by hand.\n\nThe useful test is whether the new record helps someone resolve a case. Nine-67 could build an agent to read delivery updates and pull the case history. Staff would approve its draft action. It would work with the CRM you're implementing.\n\nWorth testing one delivery case alongside the rollout, or is that workflow already settled?",
+    "subject": "CRM go-live",
+    "message": "Lovesac's Q3 CRM rollout and White Glove expansion could leave staff linking delivery updates to customer records by hand. Testing agents at CRM launch can avoid retrofitting them after workflows harden.\n\nWe'd build an agent that gathers delivery updates and case history, then drafts the next action. Staff approve it. We'd measure handling time and repeat contacts on one delivery case type.\n\nWould it be a bad idea to add one agent before the CRM workflows set?",
     "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
       "Stay neutral on guidance cut and analyst downgrades.",
@@ -1124,7 +1381,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Avoided unsupported CRM vendor name and guaranteed retrofit savings. Conditional operational implication tied to two simultaneous changes."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "Adding agents at CRM launch is cheaper than retrofitting them after the workflows harden.",
+      "avoid": [
+        "Stay neutral on guidance cut and analyst downgrades.",
+        "Do not cite Salesforce as confirmed CRM vendor (job posting only)."
+      ],
+      "subjectIdeas": [
+        "CRM go-live",
+        "agents at launch"
+      ],
+      "touch1Cta": "Would it be a bad idea to add one agent before the CRM workflows set?"
     }
   },
   {
@@ -1144,8 +1411,8 @@
     },
     "hypothesis": "Member-facing AI usually moves first. Vendor onboarding, inbound exceptions and owned-brand sourcing still run on people. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "inbound order exceptions",
-    "message": "With more than 1,000 brands on Thrive Market, a small share of late or short shipments could create substantial supplier follow-up work.\n\nSyndigo covers vendor onboarding; the next question may be what happens after the purchase order. Nine-67 could build an agent to check what was ordered against what arrived and pull supplier updates. Your team would approve its draft action.\n\nIs inbound exception handling on your AI roadmap, or is another supply-chain workflow more pressing?",
+    "subject": "the AI members don't see",
+    "message": "With more than 1,000 brands, late or short shipments can multiply supplier follow-ups at Thrive Market. Members see the AI in their experience; another margin opportunity sits in the supply chain they never see.\n\nWe'd build an agent that compares purchase orders with receipts and gathers supplier updates on discrepancies. Your team approves the next action. We'd measure follow-up time and unresolved shortages.\n\nIs the supply chain side on the AI roadmap, or member-facing first?",
     "fit": "Wave 3. throughput and capacity without adding headcount. Demand and budget not confirmed.",
     "limitations": [
       "Revenue after Mar 2025 unverified.",
@@ -1178,7 +1445,18 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Does not repitch Sierra customer support or Syndigo onboarding. Keeps proposed workflow separate from known capabilities and hedges operational burden."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "The member sees the AI. The margin is in the supply chain the member never sees.",
+      "avoid": [
+        "Revenue after Mar 2025 unverified.",
+        "CFO current status unverified.",
+        "They use Sierra; never pitch customer service."
+      ],
+      "subjectIdeas": [
+        "the AI members don't see",
+        "vendor ops"
+      ],
+      "touch1Cta": "Is the supply chain side on the AI roadmap, or member-facing first?"
     }
   },
   {
@@ -1198,8 +1476,8 @@
     },
     "hypothesis": "In a subscription model this size, billing questions, card declines and cancellations are handled across 550 sites and a help center. This is a hypothesis to test, not a confirmed problem at the company.",
     "proofKind": "proposed_workflow",
-    "subject": "UWC service economics",
-    "message": "With UWC accounting for 76% of Mister Car Wash's Q1 wash sales, a routine billing issue could put more at risk than the service cost.\n\nSince the take-private, one useful technology test may be cost per resolved member issue alongside retention. Nine-67 could build an agent to check billing history and draft a fix. Staff would approve it; we would measure both costs and retention.\n\nIs that worth testing on one billing request type, or is member service already where you want it?",
+    "subject": "after the take-private",
+    "message": "With UWC representing 76% of Mister Car Wash's Q1 wash sales, a billing issue can risk more than the service cost. In a subscription business, each churn risk is a service moment that could protect the recurring base.\n\nWe'd build an agent that checks billing history and drafts corrections for staff approval. We'd measure handling time and repeat issues on one request type.\n\nIs AI in the post-close plan, or parked for later?",
     "fit": "Wave 1. margin and cost-to-serve. Demand and budget not confirmed.",
     "limitations": [
       "No post-close earnings calls; do not cite 2026 remarks beyond releases.",
@@ -1231,7 +1509,17 @@
           "retrieved_at": "2026-09-23T00:00:00Z"
         }
       ],
-      "review": "Kept Q1 date on percentage. No claim of current churn problem, post-close earnings commentary, or invented savings. CFO economic lens."
+      "review": "Reviewed against the supplied reframe, subject ideas, CTA and avoid rules. Proposed workflows and outcomes are hypotheses, not claims of a diagnosed problem or promised results.",
+      "reframe": "In a subscription business, each churn risk is a service moment. Agents protect the recurring base without adding site labor.",
+      "avoid": [
+        "No post-close earnings calls; do not cite 2026 remarks beyond releases.",
+        "COO status unverified."
+      ],
+      "subjectIdeas": [
+        "after the take-private",
+        "protecting the 76%"
+      ],
+      "touch1Cta": "Is AI in the post-close plan, or parked for later?"
     }
   }
 ]

@@ -1,3 +1,5 @@
+import { accountBrief } from "./dossier-data.ts";
+import { generateCheckedOutreach, REQUIRED_WRITER_BEATS, REQUIRED_CRITIC_RUBRIC, type OutreachQualityContext } from "./outreach-quality.ts";
 import { emailStyle } from "./email-style.ts";
 import { authoredDraft } from "./authored-outreach.ts";
 import { angleFor } from "./contact-draft.ts";
@@ -301,22 +303,45 @@ export async function findPerson(account: string, signal: ScoutSignal, recordUsa
 const WRITING_MAX_TOKENS = 4_000;
 
 /** The rules every draft follows, whichever evidence it is written from. */
-const DRAFT_RULES = `
+const DRAFT_RULES = `${REQUIRED_WRITER_BEATS}
+
 Never use em dashes or en dashes in email text or subject lines. Write like a person: short, concrete sentences, contractions where natural, no "bounded", "leverage", "unlock", "transformative", or generic AI claims.Write a useful first-touch note from Nine-67 to this specific buyer. Optimize for a qualified reply, not a meeting demand or generic curiosity.
 APPROVED EVIDENCE: ${OUTREACH_EVIDENCE}
 First decide what this company SELLS and what this person OWNS. Never pitch a software vendor its own product capability, treat a consultancy as its end customer, or offer to replace employees. For established technology providers, explore a bounded INTERNAL operating workflow or an explicit delivery partnership, only when supported by the context.
 Choose one concrete business decision or handoff. State any unverified pain as a hypothesis, not inside knowledge. Connect it to a relevant delivered example or a clearly proposed first application. A process paragraph alone is not a reason to reply. Explain what the recipient would get from answering: a specific example, a useful comparison, or a scoped next step. Do not invent an attachment or an already-prepared personalized analysis.
-Use 55-100 words plus the saved greeting/sign-off. Name the company naturally. Use plain short subjects (3-7 words where possible), not a job title list or a slogan. Vary the structure based on the argument: relevant proof first, a company observation first, or a useful point of view first. Do not force every draft into the same three-paragraph skeleton. Use the 20-app engagement only when scale is relevant, not by quota. Do not add a default self-introduction; the signature identifies the sender. Preserve any explicitly supplied personal introduction, greeting and sign-off.
+Use 50-90 words plus the saved greeting. End with the CTA question; the app adds the sender name. Name the company naturally. Use plain short subjects (3-7 words where possible), not a job title list or a slogan. Follow the four required beats in order. Vary phrasing naturally while preserving that order. Use the 20-app engagement only when scale is relevant, not by quota. Do not add a default self-introduction; the signature identifies the sender. Preserve any explicitly supplied personal introduction and greeting. Never add a sign-off pleasantry.
 One easy-to-answer question with a concrete reason to respond. No demand to diagnose their whole business, no "what keeps you up at night", no "worth a chat", no "is this on your radar". No fake familiarity, congratulatory filler, unsupported ROI, guaranteed results, or claim that every case is deployed. Never infer a firm's internal problems from a job posting. An old posting is context, not proof of a current vacancy.
 LinkedIn must take a different angle from email. Connection note under200 characters; message60-100words; comment only when responding to an actual supplied post. No URLs in the first-touch body; signature handles the site. No invented recipient or sender role.
 Return JSON only: {"brief":"","why_now":"","channel":"email_first","linkedin_comment":"","linkedin_note":"","linkedin_message":"","linkedin_subject":"","email_subject":"","email_body":""}.`;
 
 
+function qualityContext(domain?: string, senderName?: string): OutreachQualityContext {
+  const brief = domain ? accountBrief(domain) : undefined;
+  return { reframe: brief?.pain_hypothesis.reframe, avoid: brief?.email_guidance.avoid, subjectIdeas: brief?.email_guidance.subject_ideas, cta: brief?.email_guidance.touch_1_cta, senderName };
+}
+function qualityPrompt(context: OutreachQualityContext) {
+  return `Mandatory account brief: ${JSON.stringify({ pain_hypothesis: { reframe: context.reframe }, email_guidance: { avoid: context.avoid, subject_ideas: context.subjectIdeas, touch_1_cta: context.cta } })}`;
+}
+async function criticFailures(draft: {body: string; subject?: string}, context: OutreachQualityContext, recordUsage?: UsageRecorder): Promise<string[]> {
+  if (!context.reframe && !context.avoid?.length) return [];
+  const result = await runWritingAgent(`${REQUIRED_CRITIC_RUBRIC}\n${qualityPrompt(context)}\nDraft: ${JSON.stringify(draft)}`, { model: writingModel(), maxTokens: 1200 }, recordUsage);
+  const verdict = z.object({ pass: z.boolean(), failures: z.array(z.object({ criterion: z.string(), fix: z.string() })) }).parse(result);
+  return verdict.pass && !verdict.failures.length ? [] : verdict.failures.length ? verdict.failures.map(item => `${item.criterion}: ${item.fix}`) : ["Critic rejected the draft. Follow the complete account brief."];
+}
+async function checkedAngle(prompt: string, context: OutreachQualityContext, recordUsage?: UsageRecorder): Promise<OutreachDraft> {
+  const result = await generateCheckedOutreach(async feedback => {
+    const {response} = await completeTurn({model: writingModel(), max_tokens: WRITING_MAX_TOKENS}, `${prompt}\n${qualityPrompt(context)}\n${feedback}`, recordUsage);
+    const draft = angle.parse(jsonFrom(response));
+    return {body: draft.email_body, subject: draft.email_subject, draft};
+  }, context, draft => criticFailures(draft, context, recordUsage));
+  return cleanDraft(result.draft);
+}
+
 export async function writeAngle(input: unknown, recordUsage?: UsageRecorder): Promise<OutreachDraft> {
-  const { response } = await completeTurn({
-    model: writingModel(), max_tokens: WRITING_MAX_TOKENS,
-  }, `Draft outreach from this source-backed dossier: ${JSON.stringify(input)}. Ground every line in the supplied post or source. Treat the dossier's operating_need as a hypothesis to assess, not a claim to repeat. Use relevant Nine-67 proof and a proposed internal workflow. Do not reproduce legacy hiring-replacement language from the dossier. Channel: intro for path 10; linkedin_only without verified email; linkedin_first for LinkedIn signals; otherwise email_first. ${DRAFT_RULES}`, recordUsage);
-  return cleanDraft(angle.parse(jsonFrom(response)));
+  const record = typeof input === "object" && input !== null ? input as Record<string, unknown> : {};
+  const account = typeof record.account === "object" && record.account !== null ? record.account as Record<string, unknown> : {};
+  const domain = typeof record.domain === "string" ? record.domain : typeof account.domain === "string" ? account.domain : undefined;
+  return checkedAngle(`Draft outreach from this source-backed dossier: ${JSON.stringify(input)}. Ground every line in the supplied post or source. Treat the dossier's operating_need as a hypothesis to assess, not a claim to repeat. Use relevant Nine-67 proof and a proposed internal workflow. Do not reproduce legacy hiring-replacement language from the dossier. Channel: intro for path 10; linkedin_only without verified email; linkedin_first for LinkedIn signals; otherwise email_first. ${DRAFT_RULES}`, qualityContext(domain), recordUsage);
 }
 
 export type BriefDraftInput = {
@@ -335,10 +360,7 @@ export type BriefDraftInput = {
  * system for instead. Everything in the input was found on a public page.
  */
 export async function writeOutreachFromBrief(input: BriefDraftInput, recordUsage?: UsageRecorder): Promise<OutreachDraft> {
-  const { response } = await completeTurn({
-    model: writingModel(), max_tokens: WRITING_MAX_TOKENS,
-  }, `Draft first-touch outreach for the person below, from a research brief. Everything here was found on public pages; use only what is here. ${JSON.stringify(input)}\n\nNine-67 builds and runs AI and automation for operating teams at $50M-1B companies, working with leaders and users through iteration, training and deployment. Lead with the specific thing seen: their own post or quote when there is one (quote a phrase of it), otherwise the role they are hiring for, otherwise the concrete development in "happening". Then connect the relevant workflow to an approved delivery example. Never claim to replace the roles they are hiring. The brief's opener is a starting point, not copy to paste. If person.quotes is empty, linkedin_comment must be empty. Channel: linkedin_only when emailState is none; linkedin_first when emailState is unverified or when the evidence is their own post; otherwise email_first. ${DRAFT_RULES}`, recordUsage);
-  return cleanDraft(angle.parse(jsonFrom(response)));
+  return checkedAngle(`Draft first-touch outreach for the person below, from a research brief. Everything here was found on public pages; use only what is here. ${JSON.stringify(input)}\n\nNine-67 builds and runs AI and automation for operating teams at $50M-1B companies, working with leaders and users through iteration, training and deployment. Lead with the likely consequence of the source-backed situation, then the required reframe. Attribute public quotes by name. Then connect the relevant workflow to an approved delivery example. Never claim to replace the roles they are hiring. The brief's opener is a starting point, not copy to paste. If person.quotes is empty, linkedin_comment must be empty. Channel: linkedin_only when emailState is none; linkedin_first when emailState is unverified or when the evidence is their own post; otherwise email_first. ${DRAFT_RULES}`, qualityContext(input.company.domain), recordUsage);
 }
 
 /**
@@ -357,18 +379,24 @@ export async function refineDraft(input: { channel: "email" | "linkedin"; compan
     : `Rewrite it to read like a real founder's personal note — keep only the factual hook (the specific thing seen); fix anything that sounds like AI vendor copy. Vary the closing question; never use the word "teardown", and never put a link in the body (the website is in the signature).`;
   const reference = authoredDraft(input.company, angleFor(input.title), input.domain, input.person);
   const greeting = (input.greeting || "Hi {first},").replace(/\{first\}/gi, first).replace(/\{name\}/gi, input.person);
-  const intro = `Preserve this greeting exactly: ${greeting}. End with the sender's sign-off: ${input.signoff || "Thank you,"}. Do not add a generic self-introduction. ${input.intro && input.intro !== "I am {name}, {title} at Nine-67." ? `Honor the saved introduction: ${input.intro}` : ""} ${reference ? `Reviewed company/buyer reference: ${JSON.stringify(reference)}. Keep its commercial reasoning; adapt to the actual recipient and user's instruction rather than mechanically copying it.` : ""}`;
+  const intro = `Preserve this greeting exactly: ${greeting}. End with the CTA question. Do not add a sign-off or name; the app appends the sender name. Do not add a generic self-introduction. ${input.intro && input.intro !== "I am {name}, {title} at Nine-67." ? `Honor the saved introduction: ${input.intro}` : ""} ${reference ? `Reviewed company/buyer reference: ${JSON.stringify(reference)}. Keep its commercial reasoning; adapt to the actual recipient and user's instruction rather than mechanically copying it.` : ""}`;
 
   const subjectRule = input.channel === "email"
-    ? "Write a subject line optimized to get a reply: specific to them, plain, sentence case (never all-lowercase), under about eight words, no clickbait."
+    ? "Write a subject line optimized to get a reply: specific to them, plain, lowercase except proper nouns, under about eight words, no clickbait. Use a supplied subject idea when available."
     : "Write a short LinkedIn subject line of 3-6 words for an InMail: specific and human, no clickbait.";
   const shape = input.channel === "email" ? `{"subject":"a reply-optimized subject line","body":"the email"}` : `{"subject":"a short subject line","body":"the LinkedIn message"}`;
   const prompt = `You are rewriting a first-touch outreach ${input.channel} from Nine-67 (which works with leaders to build, iterate, train teams and deploy working business applications) to ${input.person}${input.title ? `, ${input.title}` : ""} at ${input.company}. Why now: ${input.whyNow || "—"}.\n\n${voice}\n\n${DRAFT_RULES}\n\n${OUTREACH_EVIDENCE}\n\n${avoid}\n\nHere is the current draft:\n${input.subject ? `Subject: ${input.subject}\n` : ""}${input.body}\n\n${ask} ${intro} ${subjectRule} Keep it ${input.channel === "email" ? "50-90 words" : "under 90 words"}, one clear low-friction question, plain text only. The ONLY link allowed is https://nine-67.com — keep it if present, never invent any other URL or path (no /case-study, /demo, etc.) and never link any other domain. Return JSON only: ${shape}.`;
-  const json = await runWritingAgent(prompt, { model: writingModel(), maxTokens: 1_200 }, recordUsage) as { subject?: unknown; body?: unknown } | null;
-  return {
-    subject: typeof json?.subject === "string" && json.subject.trim() ? emailStyle(json.subject.trim()) : undefined,
-    body: emailStyle(sanitizeLinks(typeof json?.body === "string" && json.body.trim() ? json.body.trim() : input.body)),
+  const context = qualityContext(input.domain, input.senderName);
+  const generate = async (feedback: string) => {
+    const json = await runWritingAgent(`${prompt}\n${qualityPrompt(context)}\n${feedback}`, { model: writingModel(), maxTokens: 1_200 }, recordUsage) as { subject?: unknown; body?: unknown } | null;
+    if (typeof json?.body !== "string" || !json.body.trim()) throw new Error("Writer returned no draft body");
+    return {subject: typeof json.subject === "string" ? json.subject.trim() : undefined, body: json.body.trim()};
   };
+  const result = input.channel === "email"
+    ? await generateCheckedOutreach(generate, context, draft => criticFailures(draft, context, recordUsage))
+    : await generate("");
+  return { subject: result.subject ? emailStyle(result.subject) : undefined, body: emailStyle(sanitizeLinks(result.body)) };
+
 }
 
 const jobSearchOutput = z.object({

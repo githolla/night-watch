@@ -1,5 +1,7 @@
+import { refineDraft } from "@/lib/agents";
+import { outreachQualityFailures } from "@/lib/outreach-quality";
 import { isCuratedDomain } from "@/lib/curated-worklist";
-import { recipientResearch } from "@/lib/recipient-research";
+import { accountBrief, briefContact } from "@/lib/dossier-data";
 import { requireUser } from "@/lib/auth";
 import { composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
 import { isRealContact } from "@/lib/clean";
@@ -33,7 +35,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   try {
     const user = await requireUser();
     const { id } = await context.params;
-    const { personId } = input.parse(await request.json());
+    let { personId } = input.parse(await request.json());
     const db = admin();
 
     const { data: card, error: cardError } = await db.from("cards")
@@ -41,9 +43,24 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       .eq("id", id).single();
     if (cardError || !card) throw new Error("Card not found");
 
-    const { data: person, error: personError } = await db.from("people").select("id,full_name,title,email,account_id").eq("id", personId).maybeSingle();
+    const domain = (card.accounts as unknown as { domain: string } | null)?.domain;
+    const named = accountBrief(domain)?.contacts.find(contact => contact.contact_id === personId);
+    if (named) {
+      const fullName = `${named.first_name} ${named.last_name}`;
+      let found = await db.from("people").select("id").eq("account_id", card.account_id).ilike("full_name", fullName).maybeSingle();
+      if (found.error) throw found.error;
+      if (!found.data) {
+        const inserted = await db.from("people").insert({ account_id: card.account_id, full_name: fullName, first_name: named.first_name, last_name: named.last_name, title: named.title, level: "owner", email_status: "none" });
+        if (inserted.error && inserted.error.code !== "23505") throw inserted.error;
+        found = await db.from("people").select("id").eq("account_id", card.account_id).ilike("full_name", fullName).single();
+      }
+      if (!found.data) throw new Error("Could not prepare this contact.");
+      personId = found.data.id;
+    }
+    const { data: person, error: personError } = await db.from("people").select("id,full_name,title,email,account_id,do_not_contact").eq("id", personId).maybeSingle();
     if (personError) throw new Error(personError.message);
     if (!person) throw new Error("That contact is no longer on file.");
+    if (person.do_not_contact) throw new Error("This contact is marked do not contact.");
     if (person.account_id !== card.account_id) throw new Error("That contact works at a different company.");
     // This route had no quality check at all, which is how "Discover Untapped Performance" — a call to
     // action off the company's own site — got a real draft opening "Hi Discover,". The bulk drafter has
@@ -56,7 +73,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     }
 
     const selectedAccount = card.accounts as unknown as { domain: string } | null;
-    if (isCuratedDomain(selectedAccount?.domain) && !recipientResearch(selectedAccount?.domain, person.full_name)) {
+    if (isCuratedDomain(selectedAccount?.domain) && !briefContact(selectedAccount?.domain, person.full_name)) {
       return Response.json({ error: "This worklist is limited to the researched buyer for each selected company." }, { status: 400 });
     }
 
@@ -78,7 +95,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // pass introduced their own seat, and a seat with no name set produced "I am with Nine-67." So the same
     // company had the sender named in some emails and not in others.
     const profile = await senderProfile(db, (card.assigned_to as Owner) ?? user.owner);
-    const draft = composeContactDraft({
+    let draft = composeContactDraft({
       variantSalt: position,
       company: account?.name ?? "",
       domain: account?.domain,
@@ -94,6 +111,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       intro: profile.intro,
     });
 
+    const brief = accountBrief(account?.domain);
+    if (brief && outreachQualityFailures(draft.body, { reframe: brief.pain_hypothesis.reframe }, draft.subject).length) {
+      const checked = await refineDraft({ channel: "email", company: account?.name ?? "", domain: account?.domain, person: person.full_name, title: person.title ?? "", whyNow: card.why_now, body: draft.body, subject: draft.subject, senderName: profile.fromName, greeting: profile.greeting, instruction: `Write for this contact's responsibilities. ${brief.email_guidance.contact_2_angle}` });
+      draft = { body: checked.body, subject: checked.subject ?? draft.subject };
+    }
     const newCard = {
       signal_id: card.signal_id,
       person_id: personId,

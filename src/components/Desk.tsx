@@ -1,4 +1,7 @@
 "use client";
+import { accountBrief, compareAccounts, primaryFact, dateLabel } from "@/lib/dossier-data";
+import { BuyerResearch } from "./BuyerResearch";
+import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
 
 import { useEffect, useState, type ReactNode } from "react";
 import { emailStyle } from "@/lib/email-style";
@@ -146,6 +149,7 @@ function describeRun(run: RunSummary | null) {
 
 export function Desk({
   initialCards,
+  senderName = "",
   selectedId,
   demo = false,
   gmailConnected = false,
@@ -154,6 +158,7 @@ export function Desk({
   tools,
 }: {
   initialCards: Card[];
+  senderName?: string;
   selectedId?: string;
   /** A page-level tool rendered in the desk header (Draft tools), passed in from the server page. */
   tools?: ReactNode;
@@ -226,7 +231,8 @@ export function Desk({
   const todo = (daily.length ? daily : byKind).filter((item) => !WORKED_STATUSES.includes(item.status));
   // The pool the one-at-a-time flow walks: today's worklist, or every active prospect in "All". Verified
   // (sendable) prospects first so the operator works the ones they can send in one click.
-  const focusPool = verifiedFirst(listScope === "all" ? actionable : todo);
+  const ordered = [...(listScope === "all" ? actionable : todo)].sort((a, b) => compareAccounts(a.accounts.domain ?? "", b.accounts.domain ?? "", a.accounts.name, b.accounts.name));
+  const focusPool = ordered.filter((item, index) => ordered.findIndex(other => other.accounts.domain === item.accounts.domain) === index);
   const active = selected ? cards.find((item) => item.id === selected) : undefined;
   // Land on the picked card even if it isn't in the current pool (e.g. picked from the "All"/Overview list
   // while the scope is "today"), rather than silently showing focusPool[0] — a different company.
@@ -503,6 +509,8 @@ export function Desk({
   const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
   const contact = altContact ?? (focusCard ? focusCard.people : null);
   const research = recipientResearch(focusCard?.accounts.domain, contact?.full_name);
+  const brief = accountBrief(focusCard?.accounts.domain);
+  const publishedDate = dateLabel(primaryFact(focusCard?.accounts.domain)?.published_date);
   const matchesResearch = research ? hasResearchCopy(focusCard?.email_subject, focusCard?.email_body, research) : false;
   // "Already gone out" is a fact about a PERSON, not about the card. The card is marked sent the moment its
   // first email leaves, but a colleague who has not been written to still needs an editable draft and a Send
@@ -600,7 +608,7 @@ export function Desk({
   };
   // Copy a draft to the clipboard, then offer to log it to the history — copying is how a manual send starts.
   const copyAndLog = async (channel: "email" | "linkedin") => {
-    const text = adapt(channel === "email" ? emailDraft : linkedinDraft);
+    const text = channel === "email" && brief ? withOutreachName(adapt(emailDraft), { fromName: senderName }) : adapt(channel === "email" ? emailDraft : linkedinDraft);
     await copyText(text, channel === "email" ? "Email" : "LinkedIn message");
     if (text.trim()) await recordTouch(channel === "email" ? "email" : "message", text);
   };
@@ -1025,7 +1033,7 @@ export function Desk({
         <div className="deskwork">
           <header className="deskwork-head">
             <div><span className="overview-kick">Your reach-out list</span><h1>Start the right conversation.</h1></div>
-            <div className="deskwork-head-right"><span>Night Watch</span><strong>{todo.length} {todo.length === 1 ? "prospect" : "prospects"} ready</strong><div className="deskwork-head-actions">{tools}<button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview &rarr;</button></div></div>
+            <div className="deskwork-head-right"><span>Night Watch</span><strong>{focusPool.length} {focusPool.length === 1 ? "prospect" : "prospects"} ready</strong><div className="deskwork-head-actions">{tools}<button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview &rarr;</button></div></div>
           </header>
 
           <div className="deskwork-grid">
@@ -1058,25 +1066,20 @@ export function Desk({
               <section className="deskwork-mid">
                 <header className="deskwork-co">
                   <span className="avatar">{initials(focusCard.accounts.name)}</span>
-                  <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{signalLabel(focusCard)}{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p></div>
+                  <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{signalLabel(focusCard)}{brief ? ` · spotted ${publishedDate ?? "date not confirmed"}` : signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p></div>
                   <Link href="/outreach" className="focus-link">All 25 companies</Link>
                 </header>
 
                 <div className="deskwork-opening">
-                  <span className="overview-kick">{research ? "Buyer research" : "Signal context"}</span>
-                  {research ? <>
-                    <p className="deskwork-opening-lead">{research.trigger.fact}</p>
-                    <p className="deskwork-opening-need"><b>Potential relevance:</b> {research.hypothesis}</p>
-                    <p><b>{research.disposition === "hold" ? "Hold outreach" : "Fit assessment"}:</b> {research.fit}</p>
-                    <a href={research.trigger.sourceUrl} target="_blank" rel="noreferrer">Company source · {research.trigger.date}</a>{" · "}<a href={research.buyer.sourceUrl} target="_blank" rel="noreferrer">Buyer source</a>
-                  </> : <>
+                  <span className="overview-kick">{brief ? "Buyer research" : "Signal context"}</span>
+                  {brief ? <BuyerResearch domain={focusCard.accounts.domain ?? ""} /> : <>
                     <p className="deskwork-opening-lead">{sanitizeCopy(focusCard.signals.type === "job_cluster" || focusCard.signals.type === "job_post" ? focusCard.signals.summary : focusCard.why_now || nextLine(focusCard))}</p>
                     <p className="deskwork-opening-need">This signal needs buyer-level qualification. Hiring does not establish budget, an outsourcing need or a reason to replace the role.</p>
                   </>}
                   {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">View signal &amp; company details &#8599;</Link>}
                 </div>
 
-                {focusCard.accounts.domain && <CompanyTeam key={`${focusCard.accounts.domain}:${teamStamp}`} compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id ?? focusCard.people.id} busyId={openingContact} loggedIds={logged} onSelect={(person) => void openContact(person, focusCard)} />}
+                {focusCard.accounts.domain && <CompanyTeam key={`${focusCard.accounts.domain}:${teamStamp}`} compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id ?? focusCard.people.id} activeName={contact.full_name} busyId={openingContact} loggedIds={logged} onSelect={(person) => void openContact(person, focusCard)} />}
               </section>
 
               {/* RIGHT — draft with Email / LinkedIn tabs */}
@@ -1133,8 +1136,8 @@ export function Desk({
                             ? <button type="button" className="focus-apply-all" title={`Put the subject back: “${subjectFallback}”`} onClick={() => restoreSubject(false)}>Restore subject</button>
                             : <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>}
                         </div>
-                        <label className="compose-field"><span>Email — your saved greeting, message and sign-off</span><textarea className="focus-msg-body" rows={14} value={emailStyle(adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
-                        <p className="compose-sig">— Your Nine-67 signature (your name, title &amp; contact) is added automatically. Change it in <Link href="/settings" className="focus-link">Settings → identity</Link>.</p>
+                        <label className="compose-field"><span>Email · your saved greeting and message</span><textarea className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
+                        <p className="compose-sig">{senderName}</p>
                       </div>
                     );
                   })() : (
@@ -1145,8 +1148,8 @@ export function Desk({
                       </div>
                       {sentAlready && <div className="deskwork-sent-note">This email has been sent{focusCard.people.full_name ? ` to ${contact.full_name}` : ""}. It is kept here as a record &mdash; the follow-ups below are what happens next.</div>}
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
-                      <div className="deskwork-doc-body">{bodyView("email", emailStyle(adapt(emailDraft)) || "No email draft yet — press Refine to write one.")}</div>
-                      <div className="deskwork-doc-sig">— Your Nine-67 signature (name, title &amp; contact) is added automatically when this sends.</div>
+                      <div className="deskwork-doc-body">{bodyView("email", emailStyle(brief ? outreachBody(adapt(emailDraft)) : adapt(emailDraft)) || "No email draft yet — press Refine to write one.")}</div>
+                      <div className="deskwork-doc-sig">{senderName}</div>
                     </div>
                   )
                 ) : (

@@ -1,3 +1,4 @@
+import { isCuratedDomain } from "./curated-worklist.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import rows from "../../data/customized-emails.json" with { type: "json" };
@@ -17,7 +18,7 @@ test("all443 reviewed drafts are reachable for their intended buyer and pass sen
     assert.equal(reviewed?.subject, row.subject, row.company);
     const draft = composeContactDraft({ company: row.company, domain: row.domain, personName: "Alex Morgan", personTitle: row.targetRole, greeting: "Hello {first},", signoff: "Best," });
     assert.ok(draft.body.startsWith("Hello Alex,"));
-    assert.ok(draft.body.endsWith("Best,"));
+    assert.ok(isCuratedDomain(row.domain) ? draft.body.endsWith("?") : draft.body.endsWith("Best,"));
     assert.doesNotMatch(draft.body, /I am .*at Nine-67/);
     const faults = auditDraft({ id: String(row.id), status: "new", subject: draft.subject, body: draft.body, personName: "Alex Morgan", personTitle: row.targetRole, personEmail: "alex@example.com", company: row.company }).filter(fault => fault.blocking);
     assert.deepEqual(faults, [], `${row.company}: ${JSON.stringify(faults)}`);
@@ -34,7 +35,7 @@ test("person-specific research requires both the right domain and exact buyer", 
   const named = composeContactDraft({ ...args, personName: "Jerome Nolasco", greeting: "Hello {first},", signoff: "Best," });
   assert.match(named.body, /govern/i);
   assert.ok(named.body.startsWith("Hello Jerome,"));
-  assert.ok(named.body.endsWith("Best,"));
+  assert.ok(named.body.endsWith("?"));
   assert.notEqual(authoredDraft("Shure", "commercial", "shure.com", "Alex Smith")?.subject, named.subject);
   assert.notEqual(authoredDraft("Shure", "commercial", "other.example", "Jerome Nolasco")?.subject, named.subject);
   assert.notEqual(authoredDraft("Shure", "commercial", undefined, "Jerome Nolasco")?.subject, named.subject);

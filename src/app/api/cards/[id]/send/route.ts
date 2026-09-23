@@ -7,6 +7,8 @@ import { dailyCap, sendDayStart } from "@/lib/send-guards";
 import { emailHtml, fromHeader, sanitizeLinks, senderProfile, withSignature } from "@/lib/sender";
 import { outboundBaseUrl } from "@/lib/urls";
 import { admin } from "@/lib/supabase/admin";
+import { isCuratedDomain } from "@/lib/curated-worklist";
+import { outreachBody, withOutreachName, outreachEmailHtml } from "@/lib/outreach-ending";
 
 const daysBetween = (iso: string | null | undefined) => (iso ? Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)) : 0);
 
@@ -17,10 +19,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const parsed = sendInput.parse(await request.json());
     const subject = parsed.subject;
     // Strip any fabricated/foreign link the sender may have pasted in — only the real homepage may go out.
-    const body = sanitizeLinks(parsed.body);
+    let body = sanitizeLinks(parsed.body);
     const db = admin();
     const { data: card } = await db.from("cards").select("*,people(*),accounts(*)").eq("id", id).single();
     if (!card) throw new Error("Card not found");
+    const curated = isCuratedDomain(card.accounts?.domain);
+    if (curated) body = outreachBody(body);
     // Only a card still in an un-sent working state may be sent. An allowlist (not a denylist) so a card that
     // already replied / booked a meeting / was snoozed can't be re-sent a cold email through the API.
     // A card is marked sent the moment its first email goes out, but a company has more than one person
@@ -65,10 +69,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const profile = await senderProfile(db, owner);
     const fromEmail = connection?.email ?? user.email ?? "";
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
-    const fullBody = `${withSignature(body, profile, fromEmail)}\n\n${optOut}`;
+    const fullBody = curated ? withOutreachName(body, profile) : `${withSignature(body, profile, fromEmail)}\n\n${optOut}`;
     // Send multipart/alternative: a plain-text part (spam filters prefer it) AND an HTML part carrying the
     // branded signature, so the sender's signature actually renders in the recipient's client.
-    const html = emailHtml(body, profile, fromEmail, optOut);
+    const html = curated ? outreachEmailHtml(body, profile) : emailHtml(body, profile, fromEmail, optOut);
     const base = outboundBaseUrl(request);
     const unsubscribe = `${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(recipient.id))}`;
     const result = await sendEmail(owner, fromHeader(profile, fromEmail), recipient.email, subject, fullBody, undefined, profile.cc, html, unsubscribe);
