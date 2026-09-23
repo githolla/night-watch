@@ -71,3 +71,9 @@ test('open tokens are purpose-bound, encrypted and tamper resistant',()=>{
   assert.equal(firstOpenAt('bad'),null);
  } finally { if(before===undefined) delete process.env.TOKEN_ENCRYPTION_KEY;else process.env.TOKEN_ENCRYPTION_KEY=before; }
 });
+
+test('an unchanged archived selection stays unedited even after the draft bank changes',()=>{
+ const archived={subject:'An older subject',body:'Hi Victor,\n\nAn older approved question?',dimensions:selectedMeta};
+ const result=identifyVersion({...base,subject:archived.subject,body:archived.body},archived);
+ assert.equal(result.label,'Personal'); assert.equal(result.edited,false); assert.equal(result.revision,selectedMeta.revision);
+});

@@ -30,7 +30,7 @@ export function identifyVersion(input: { domain: string; personId: string; conta
     schema: SAVED_VERSION_MODEL,
     versionId: matching?.id ?? (validPrior ? prior.versionId : 'custom'),
     label: matching?.label ?? (validPrior ? prior.label : 'Custom / other'),
-    edited: !matching && Boolean(validPrior),
+    edited: !matching && Boolean(validPrior) && !(selected && normalize(selected.subject) === normalize(input.subject) && copyContent(selected.body) === copyContent(input.body)),
     revision: matching ? revision(matching.subject, matching.message) : validPrior ? prior.revision : revision(input.subject, input.body),
     domain: input.domain, personId: input.personId, source: input.source,
   };
