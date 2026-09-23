@@ -2170,3 +2170,17 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 /* Who the prospect is, on the worklist row — several people at one company each have their own card. */
 .deskwork-row-who{color:var(--ink-soft);font-weight:600}
 .deskwork-row-id small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* The curated list uses the same three-pane worklist as the draft editor. */
+.curated-research-card{padding:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper-bright);font-size:13px;line-height:1.6}
+.curated-research-card .deskwork-draft-to{padding:14px 0;border:0}
+.curated-research-card summary{cursor:pointer;font-weight:600}
+.curated-research-card p{margin:12px 0 0;color:var(--ink-soft)}
+.curated-email-document{padding:18px 20px;min-width:0}
+.curated-email-subject{display:grid;gap:8px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.curated-email-subject strong{font-size:15px;font-weight:600}
+.curated-email-body{white-space:pre-wrap;overflow-wrap:anywhere;font:400 15px/1.7 var(--sans);padding:20px 0;min-height:360px}
+.curated-copy-status{flex-basis:100%;margin:0;font-size:12px;overflow-wrap:anywhere}
+.curated-worklist .deskwork-draft-note{line-height:1.5}
+@media(min-width:1200px) and (max-width:1500px){.curated-worklist .deskwork-grid{grid-template-columns:230px minmax(0,.85fr) minmax(0,1.2fr)}.curated-worklist .deskwork-draft{grid-column:auto;position:sticky;max-height:calc(100vh - 92px);margin-top:0}}
+@media(max-width:600px){.curated-worklist .deskwork-head{gap:12px;flex-wrap:wrap}.curated-worklist .deskwork-head-right{align-items:flex-start}.curated-email-document{padding:16px}.curated-email-body{min-height:0}.curated-worklist .deskwork-co-name h2{font-size:21px}}

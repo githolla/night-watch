@@ -1,5 +1,5 @@
 import research from "../../../data/priority-outreach.json";
-const drafts = research.map((row, id) => ({ ...row, id, recipientName: row.buyer.name, buyerSourceUrl: row.buyer.sourceUrl, tier: row.sector, sourceUrl: row.trigger.sourceUrl, signal: row.trigger.fact, rationale: `${row.hypothesis} Limitations: ${Array.isArray(row.limitations) ? row.limitations.join(" ") : row.limitations}` }));
+const drafts = research.map((row, id) => ({ ...row, id, recipientName: row.buyer.name, buyerTitle: row.buyer.title, buyerSourceUrl: row.buyer.sourceUrl, tier: row.sector, sourceUrl: row.trigger.sourceUrl, signal: row.trigger.fact, rationale: `${row.hypothesis} Limitations: ${Array.isArray(row.limitations) ? row.limitations.join(" ") : row.limitations}` }));
 import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { senderProfile, renderSignatureText } from "@/lib/sender";
