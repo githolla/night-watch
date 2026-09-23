@@ -38,3 +38,9 @@ test("cold email needs a company explanation, not only a brand or signature", ()
  assert.deepEqual(outreachQualityFailures("At Nine-67, we build custom software with operating teams.\n\nIs order checking already covered?", cold), []);
  assert.deepEqual(outreachQualityFailures("Nine-67 builds custom software for finance teams.\n\nIs order checking already covered?", cold), []);
 });
+
+test("AI-first positioning includes the engineers who do the work", () => {
+ const context = {requireIntroduction: true, requireAIPositioning: true};
+ assert.ok(outreachQualityFailures("Nine-67 builds custom software.\n\nWant help?", context).some(s => s.includes("AI-first")));
+ assert.deepEqual(outreachQualityFailures("Nine-67 is an AI-first company. Our forward-deployed engineers work with operating teams. We build custom software with users.\n\nIs there a project you want help delivering?", context), []);
+});

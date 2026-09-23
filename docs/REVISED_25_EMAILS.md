@@ -1,6 +1,6 @@
 # Revised 25 cold outreach emails
 
-These recipients have no prior knowledge of Nine-67. Each email introduces the firm, explains the company-specific hypothesis, and asks one direct question. The app supplies the saved greeting and sender first name. These are proposed tests, not claims of diagnosed problems or guaranteed results.
+These recipients have no prior knowledge of Nine-67. Positioning supplied by Josh: AI-first, with forward-deployed engineers who understand business and operations, stay current with AI, and work through adoption. Each email introduces the firm, explains the company-specific hypothesis, and asks one direct question. The app supplies the saved greeting and sender first name. These are proposed tests, not claims of diagnosed problems or guaranteed results.
 
 Proof: the 20-application deployment and delivery process were supplied by Josh. Proposal, reporting and account-view examples are supported by [Nine-67 case studies](https://www.nine-67.com/case-study). Financial application examples are supported by the supplied deployment overview.
 
@@ -10,13 +10,13 @@ Recipient: Erin Robbins · President & Chief Operating Officer
 
 Subject: new brand onboarding
 
-Four distribution centers give Turn 14 room to grow. A new vendor's catalog still has to become sellable before that capacity earns anything.
+With Turn 14's four distribution centers, the next vendor launch also depends on how quickly a catalog becomes sellable. We can help your purchasing team put AI to work on that process.
 
-At Nine-67, we build custom software for operating teams, then train the people using it. We recently helped one client deploy 20 applications across its business.
+Nine-67 is an AI-first company. Our forward-deployed engineers work alongside business and operations teams. We build custom software, test it with users, and stay through training and launch.
 
-We'd build a catalog checker that flags missing fitment and product data before purchasing reviews a vendor file. Your team would approve the entries. We'd start with one brand and measure days from file receipt to a live listing.
+We recently helped one client deploy 20 applications. We'd take on the build with your team, starting with one brand and keeping you involved at the decisions that matter.
 
-Does getting a new brand live still take much manual work?
+Is vendor onboarding a project you'd want help moving forward?
 
 ## G&W Electric
 
@@ -24,27 +24,27 @@ Recipient: Dave Gizewicz · Chief Operating Officer (also CEO, G&W Altea)
 
 Subject: Romeoville and processes
 
-John Mueller described G&W's investment as space, people and processes. With the added space in Romeoville, order preparation seems worth examining alongside production capacity.
+John Mueller described G&W's investment as space, people and processes. We can help with the processes around production, starting with the work your team wants to improve most.
 
-Nine-67 builds custom software with operating teams, from a first working version through training and deployment. Our recent work with one client included 20 deployed applications.
+At Nine-67, we're an AI-first company with forward-deployed engineers who understand business and operations. We build custom software with the people doing the work, then train them as it goes live.
 
-We'd build a check for missing details in purchase orders before they reach your team for approval. Starting with one product line would let us measure preparation time and corrections before expanding it.
+We recently helped one client deploy 20 applications. We'd take responsibility for a first build at G&W, work directly with the users, and keep you involved at the key decisions.
 
-Is order intake a process you'd want to improve, or is it already working well?
+Is there an operations project you'd like help getting into use?
 
 ## Shure
 
 Recipient: Jerome Nolasco · Vice President of Information Technology
 
-Subject: AI governance at Shure
+Subject: from pilot to production
 
-Your remit at Shure includes enterprise AI governance. One way to make those rules practical is to test them on a few production workflows early, with real users and clear approval steps.
+We recently helped one client deploy 20 applications, including forecasting, resource planning and client profitability.
 
-At Nine-67, we build custom software with business teams and their IT counterparts. Our proposal workspace flags unsupported claims for reviewers before submission.
+Nine-67 is an AI-first company. Our forward-deployed engineers work directly with business leaders and their teams. We build custom software and stay through testing, training and production.
 
-We'd build a similar check for product content against approved engineering specs. Marketing would keep final approval; your team would set access rules. We'd compare review time and missed claims with the current process.
+Your background connects AI governance with real business use. We can help you bring a Shure priority into production, working directly with users and within the standards your team sets. We'd handle the build and adoption work.
 
-Have you already picked the first workflows for that kind of test?
+Is there an AI project you'd like help getting into production?
 
 ## Lufkin Industries
 
@@ -52,13 +52,13 @@ Recipient: Brent Baumann · Chief Executive Officer
 
 Subject: hours of manual entry
 
-Lufkin describes its software as eliminating hours of manual data entry for customers. The same principle could be useful between a completed service job and its invoice.
+Lufkin's software eliminates hours of manual data entry for customers. We can help apply that same thinking internally, starting with the work between a completed service job and its invoice.
 
-Nine-67 builds custom software for operating teams. We work with leaders to choose the first project, test a working version with users, and train the team before deployment.
+Nine-67 is an AI-first company. Our forward-deployed engineers understand operations and work directly with the team. We build custom software and stay through training and deployment.
 
-We'd build a tool that checks service reports against contract terms and prepares invoices for approval. Your managers would retain billing decisions. We'd measure the time from completed report to approved invoice.
+Our client work includes forecasting and profitability applications. We'd work directly with your service and finance teams, taking on the build while keeping you involved in the decisions that matter.
 
-Is reducing that internal paperwork on your plan?
+Is that service-to-invoice work something you'd want help improving?
 
 ## Mayville Engineering Company
 
@@ -66,13 +66,13 @@ Recipient: Craig D. Nichols · Senior Vice President, Operations and Supply Chai
 
 Subject: capacity without headcount
 
-MEC has described hiring and training more operators while outsourcing some production work. Quoting and supplier follow-ups are another place to look for capacity without pulling experienced people away from decisions.
+MEC is adding operators while outsourcing some production work. We can help with the quoting and supplier follow-ups around that effort, giving your experienced people better support for the decisions they own.
 
-At Nine-67, we build custom software around that kind of work. Our proposal workspace checks requirements and flags missing information before a reviewer signs off.
+At Nine-67, we're an AI-first company. Our forward-deployed engineers work alongside business and operations teams. We build custom software and train the people who will use it.
 
-We'd build a tool that checks quote requests for missing drawings and specs, then prepares the estimator's review packet. Pricing stays with your estimators. We'd measure preparation time per quote.
+We've deployed a resource-allocation application with a client. At MEC, we'd work directly with your team on one priority, build a first version they can test, and take it into use.
 
-Is quote preparation taking time your estimators could better spend elsewhere?
+Is there a capacity problem outside the production floor you'd want help tackling?
 
 ## Sugar Creek Packing
 
@@ -80,13 +80,13 @@ Recipient: Derek Boesken · Vice President of Operations and Supply Chain
 
 Subject: spec changes per customer
 
-A customer spec change at SugarCreek can affect more than one of your six plants. Document work per customer may be as important to capacity as time on the line.
+Across SugarCreek's six plants, a customer spec change brings document work as well as production decisions. We can help your team use AI on the paperwork while QA keeps control of the decisions.
 
-Nine-67 builds custom software with operating teams. We start with one workflow, refine a working version with its users, and train them as it goes live.
+Nine-67 is an AI-first company. Our forward-deployed engineers get into the business and operations before writing software. We build custom software with the team, refine it with them, and stay through training and launch.
 
-We'd build a comparison of new and approved specs that flags changed instructions for QA. Your team would approve every change. Testing past requests would show review time and anything the check missed.
+We'd follow one customer change with the people responsible for it, then take on the build. You'd have a first version to judge against actual requests before expanding it.
 
-How much manual checking does a customer spec change require today?
+Is customer-change paperwork a project you'd want help moving forward?
 
 ## Bossard Americas
 
@@ -94,13 +94,13 @@ Recipient: David Jones · CEO, Bossard Americas
 
 Subject: document processing, Americas
 
-Bossard's Americas sales growth can bring more order paperwork. Document processing is one place to test improvements without waiting for a new ERP rollout to finish.
+Bossard's Americas growth brings a useful opportunity to look at document processing. We can help your order team put AI to work without making a new ERP the starting requirement.
 
-At Nine-67, we build custom software around the systems a business already uses. We recently helped one client deploy 20 applications, with users involved in development and training.
+At Nine-67, we're an AI-first company with forward-deployed engineers who work directly with business teams. We build custom software around the work and stay through training and deployment.
 
-We'd build a tool that checks purchase orders for missing details and prepares them for staff approval. Your IT team would review the connection to existing systems. We'd measure review time and corrections on one order type.
+We recently helped one client deploy 20 applications. We'd work with your operations and IT teams on one order workflow, taking on development and keeping leaders involved at the key decisions.
 
-Is document processing already in scope for the Americas?
+Is there an order-processing project you'd like help getting into use?
 
 ## Clarience Technologies
 
@@ -108,13 +108,13 @@ Recipient: Robert Willing · EVP, Chief Financial Officer
 
 Subject: Clarience value creation
 
-Across Clarience's 29 brands, a group cost review can start with gathering files rather than comparing costs. There's a chance to consolidate the work before the systems are consolidated.
+Across Clarience's 29 brands, there's an opportunity to consolidate some finance work before the systems are consolidated. We can help your team turn that into a working application.
 
-Nine-67 builds custom software for operating and finance teams. For one client, we deployed a forecast builder and a client-profitability application.
+Nine-67 is an AI-first company. Our forward-deployed engineers work with business leaders and the people behind the numbers. We build custom software and stay through training and launch.
 
-We'd build a freight-invoice check across two brands, matching charges to agreed rates and flagging differences. Your team would decide what to dispute. We'd measure confirmed overcharges and hours spent reviewing invoices.
+We've deployed a forecast builder and a client-profitability application with a client. We'd work directly with your finance team on a first priority and handle the build, with your team owning the decisions.
 
-Is freight review a useful place to test that approach across brands?
+Is there a group finance workflow you'd like help taking off spreadsheets?
 
 ## Smart Care Equipment Solutions
 
@@ -122,13 +122,13 @@ Recipient: Veronica Lubatkin · President and Chief Financial Officer
 
 Subject: work order to cash
 
-Turbo Tech's flat-rate service offering makes a complete work order especially useful for billing. The time to collect payment starts there, before an invoice ever reaches collections.
+Turbo Tech's flat-rate service offer puts attention on the work from a completed visit to billing. We can help apply AI at the work order, before collections ever gets involved.
 
-At Nine-67, we build custom software with operating and finance teams. We develop a first version with the people doing the work, then train them as it goes live.
+At Nine-67, we're an AI-first company. Our forward-deployed engineers understand business and operations. We build custom software with the team and stay through testing, training and deployment.
 
-We'd build a check for missing parts, labor and approval records before a completed job goes to billing. Staff would approve release. We'd measure days from completed service to invoice.
+We'd work with the people completing and billing jobs, then take on one build. They'd test it against real work orders, with your team deciding what is ready to go live.
 
-Does missing work-order information still hold up billing?
+Is getting completed jobs to billing a project you'd want help with?
 
 ## Lazer Logistics
 
@@ -136,13 +136,13 @@ Recipient: Josh Lee · President
 
 Subject: after Uncle Phil
 
-Lazer's Uncle Phil AI puts more guidance in site managers' hands. The office behind the yard may offer another useful test: the work required to confirm a flagged issue is actually resolved.
+Lazer has already put AI in the yard with Uncle Phil. We can help your team extend that work into the office behind it, where managers gather records and close out issues.
 
-Nine-67 builds custom software alongside internal teams. We recently helped a client deploy 20 applications, working with leaders and users through training and launch.
+Nine-67 is an AI-first company with forward-deployed engineers who work alongside business and operations teams. We build custom software and stay through training and launch.
 
-We'd build a small addition to your existing tools that gathers maintenance records for a manager to review. Managers would confirm the fix. We'd measure the time spent assembling evidence per issue.
+We recently helped one client deploy 20 applications. Your team would choose the priority; we'd work alongside them and take responsibility for getting the first version built and into use.
 
-Is that follow-through already covered by your internal team?
+Is there a back-office project your team would welcome help delivering?
 
 ## PLS Logistics Services
 
@@ -150,13 +150,13 @@ Recipient: Steven Bergan · President
 
 Subject: customs paperwork
 
-AGL adds customs and drayage work to PLS. An early integration win could be in the documents moving between teams, before their systems are brought together.
+AGL adds customs and drayage to PLS. During integration, we can put AI to work on the documents moving between teams, without waiting for all systems to be brought together.
 
-At Nine-67, we build custom software around operating workflows. In our proposal work, software checks documents for missing requirements before the team approves the response.
+Nine-67 is an AI-first company. Our forward-deployed engineers work directly with business and operations teams. We build custom software around the work they actually do, then train them as it goes live.
 
-We'd build a check for missing releases in customs packets and prepare requests for your coordinators to approve. We'd start with one shipment type and measure preparation time and paperwork holds.
+We'd work directly with your coordinators on one shipment workflow, take on the build, and test it with them. You'd stay involved in the decisions without having to manage the development work.
 
-Is customs paperwork worth a closer look as AGL joins your operations?
+Is there an integration workflow you'd want help getting into use?
 
 ## BlueGrace Logistics
 
@@ -164,13 +164,13 @@ Recipient: Adam Blankenship · President & Chief Operating Officer
 
 Subject: Truk TMS onboarding
 
-Bringing Truk TMS into BlueGrace adds work beyond quoting. Claims and onboarding are places where the cost of an acquisition can show up one document at a time.
+The Truk TMS acquisition adds work in claims and onboarding alongside quoting. We can help your team use AI on that integration work while they keep serving customers.
 
-Nine-67 builds custom software for operating teams, including the testing and training needed to put it into daily use.
+At Nine-67, we're an AI-first company. Our forward-deployed engineers understand business and operations. We build custom software with the users and stay through training and launch.
 
-We'd build a claims packet that gathers delivery records and proof of loss, then flags missing evidence. Your staff would keep settlement decisions. A first version for one claim type would let us measure preparation time and incomplete submissions.
+Our client work includes a resource-allocation application and a collaboration workspace. We'd choose one priority with your team and take on the build, with their feedback shaping the first version.
 
-Are claims still taking much manual preparation as the businesses come together?
+Is there a claims or onboarding project you'd like help moving forward?
 
 ## TA Services
 
@@ -178,13 +178,13 @@ Recipient: Chris Bahr · Executive Vice President and CIO
 
 Subject: dispatch and documentation
 
-TA's next phase with SMC3 includes documentation modernization. That work could start with reading the documents already arriving, before a system replacement.
+TA's next phase with SMC3 includes documentation. We can help your team put AI to work on the documents arriving now, before a system replacement.
 
-At Nine-67, we build custom software for operating teams. We work through a first version with users and include training when it goes live.
+Nine-67 is an AI-first company. Our forward-deployed engineers work with business and operations teams. We build custom software, test it with users, and stay through training and deployment.
 
-We'd build a check that matches proof of delivery to each load and flags missing signatures before billing reviews the packet. We'd test one lane, measuring time from delivery to a complete packet and any missed exceptions.
+For a professional-services firm, we built a workspace that reads requirements and supports drafting and review. At TA, we'd apply that experience to a workflow your team chooses and handle the build with them.
 
-Is proof-of-delivery paperwork a useful starting point for that work?
+Is there a documentation project you'd like help getting into production?
 
 ## Transervice Logistics
 
@@ -192,13 +192,13 @@ Recipient: Gregg Nierenberg · President and CEO
 
 Subject: stop tracking, start deciding
 
-FleetChAIn's 'stop tracking, start deciding' message could apply inside Transervice's maintenance office too. A technician's notes still need to become a record someone can act on.
+FleetChAIn's 'stop tracking, start deciding' approach could also serve Transervice's maintenance office. We can help your shop managers put AI to work on the records behind those decisions.
 
-Nine-67 builds custom software with operating teams. We choose a first project with leaders, refine it with users, and train the team through deployment.
+At Nine-67, we're an AI-first company with forward-deployed engineers who understand business and operations. We build custom software with users and stay through training and launch.
 
-We'd build a tool that prepares work-order updates from technician notes and parts records. Shop managers would approve the record and retain repair decisions. We'd measure administrative time per completed job.
+We'd work with the managers using it, build a first version around their priority, and refine it against real jobs. Your team would keep the repair decisions; we'd take on development and adoption.
 
-Is that internal paperwork on your improvement list?
+Is there an internal maintenance workflow you'd like help moving forward?
 
 ## Montway Auto Transport
 
@@ -206,13 +206,13 @@ Recipient: Alberto Anguiano · Chief Operating Officer
 
 Subject: future-proofing operations
 
-Your Montway remit includes integration and future-proofing operations. In a brokerage, part of that is how many conversations each person can handle well when a shipment changes.
+Your Montway remit includes integration and future-proofing operations. We can help with the conversations around shipment changes, so each person has better support for handling them well.
 
-At Nine-67, we build custom software with operating teams, including testing with users and training before launch.
+Nine-67 is an AI-first company. Our forward-deployed engineers work alongside business and operations teams. We build custom software and stay through testing, training and launch.
 
-We'd build a tool that checks pickup-change requests against shipment records and prepares carrier inquiries. Your team would approve schedule changes. We'd start with that single request type and measure handling time and repeat contacts.
+We'd work directly with your coordinators on a request type they choose and take on the build. They'd test the first version against actual cases before any change reaches customers.
 
-Are pickup changes still a source of repeated work for your team?
+Is there a shipment-service workflow you'd like help putting AI to work on?
 
 ## DecoPac
 
@@ -220,13 +220,13 @@ Recipient: Cindy Hampton · Chief Executive Officer
 
 Subject: new formats, same team
 
-Your plan to expand DecoPac's dessert formats and channels could add more licensing checks per product. Expansion can become a margin lever if that paperwork doesn't grow at the same pace.
+DecoPac's plans for more formats and channels mean more work behind each launch. We can help use AI to make that expansion a margin lever, starting with a priority your team chooses.
 
-Nine-67 builds custom software with operating teams. We recently helped one client deploy 20 applications, from choosing priorities through user training.
+At Nine-67, we're an AI-first company. Our forward-deployed engineers work directly with business leaders and their teams. We build custom software and stay through user training and deployment.
 
-We'd build a tool that prepares licensing packets from approved artwork and flags missing rights or channel details. Your team would keep approval. We'd measure preparation time and packets returned for missing information.
+We recently helped one client deploy 20 applications. We'd work directly with your team and take on the build, keeping you involved in the business decisions rather than the development details.
 
-Is licensing paperwork part of the expansion plan you'd like to simplify?
+Is there a part of the expansion plan you'd like help getting into use?
 
 ## Cooper's Hawk Winery & Restaurants
 
@@ -234,13 +234,13 @@ Recipient: Dave Harris · Chief Technology Officer
 
 Subject: Wine Club service
 
-Cooper's Hawk's Wine Club turns a routine pickup request into a membership service moment. Making those requests easy matters to retention as well as the service team's workload.
+Wine Club service at Cooper's Hawk connects routine requests with member retention. We can help put AI to work on those service moments, with your team deciding where a person stays involved.
 
-At Nine-67, we build custom software for operating teams. For a services firm, we put an account-risk view into production in a month.
+Nine-67 is an AI-first company. Our forward-deployed engineers work with business teams, from understanding operations through training and launch. We build custom software that fits the way they work.
 
-We'd build a tool that checks pickup requests against club rules and prepares changes for staff approval. We'd test past requests first, measuring handling time and repeat contacts before making live changes.
+For a professional-services firm, we put an account-risk view into production in a month. We'd bring the same approach to a Wine Club priority: work with the users, build it, and stay through adoption.
 
-Are routine Wine Club requests still taking more staff time than you'd like?
+Is there a Wine Club project you'd like help getting off the list and into use?
 
 ## Build-A-Bear Workshop
 
@@ -248,13 +248,13 @@ Recipient: Voin Todorovic · CFO and Chief Administrative Officer
 
 Subject: the next leg of SG&A
 
-Build-A-Bear's planned new locations can add reporting work even when partners provide store staff. Structural SG&A savings depend partly on how that work is done, as the business grows.
+Build-A-Bear's location growth brings reporting work with it. We can help pursue structural SG&A savings by changing how that work gets done, starting with a workflow your finance team chooses.
 
-Nine-67 builds custom software for operating and finance teams. Our client-reporting application prepares editable reports for a person to review.
+At Nine-67, we're an AI-first company. Our forward-deployed engineers understand business and operations. We build custom software with the team and stay through training and launch.
 
-We'd build a reporting check that gathers partner submissions and flags missing entries before finance reviews the numbers. We'd test one report, measuring preparation hours and follow-up requests. Your team would retain approval.
+Our client-reporting application prepares reports people can review and edit. We'd work directly with your team on a first build and handle development, with finance retaining the checks and approvals.
 
-Is partner reporting an area you'd want to simplify as locations grow?
+Is there a reporting project you'd want help taking on this year?
 
 ## J.Jill
 
@@ -262,13 +262,13 @@ Recipient: Viv Rettke · Chief Growth Officer (AI, data analytics, direct)
 
 Subject: AI capacity at J.Jill
 
-J.Jill's AI planning launch puts a new system in planners' hands. The smaller workflows around it will help determine how much capacity it gives them back.
+J.Jill's AI planning project creates opportunities in the smaller workflows around the system. We can give your team extra engineering capacity to get those ideas built.
 
-At Nine-67, we build custom software alongside internal teams and train users as it goes live.
+Nine-67 is an AI-first company. Our forward-deployed engineers work alongside internal teams and understand the business behind the request. We build custom software and stay through user training and deployment.
 
-We'd build a review packet for flagged recommendations, gathering the sales and stock details a planner needs to decide. Your team would keep allocation decisions. We'd test one category and measure review time and unresolved exceptions before expanding.
+We'd choose one supporting workflow with your planners and engineers, take on the build, and refine it with the users. Your team sets the direction; we stay through deployment and adoption.
 
-Have you already chosen who will build those supporting workflows?
+Is there a workflow around the planning launch you'd welcome help delivering?
 
 ## Duluth Holdings
 
@@ -276,13 +276,13 @@ Recipient: David Homolka · SVP of Talent, Retail Store Operations, Contact Cent
 
 Subject: contact center after Omni
 
-Duluth's fulfillment consolidation has reduced cost per unit. Taking routine contacts off the service team could extend that work beyond the warehouse, without asking people to handle requests faster.
+Duluth has done substantial work on fulfillment costs. We can help extend that work into the contact center by taking routine contacts off the team, with exceptions staying in their hands.
 
-Nine-67 builds custom software with operating teams. We test a first version with users and train them before deployment.
+At Nine-67, we're an AI-first company. Our forward-deployed engineers work directly with business and operations teams. We build custom software with users and stay through training and deployment.
 
-We'd build an order-status tool that checks carrier events and prepares replies, leaving exceptions with your staff. We'd measure handling time and repeat contacts against past requests before putting it into use.
+We'd work directly with the people answering requests and build around one priority they choose. They'd test the first version against actual cases before it goes into use.
 
-Are order-status questions still a sizeable part of your contact-center workload?
+Is there a contact-center project you'd like help getting ready for the next busy season?
 
 ## FIGS
 
@@ -290,13 +290,13 @@ Recipient: Mark Bixby · Chief Technology Officer
 
 Subject: 27 new markets
 
-With FIGS in 85 markets, a delivery question can require a different answer by country. The cost of fast international growth can show up in exceptions before headcount plans catch up.
+FIGS reaching 85 markets creates different exceptions by country. We can help your team put AI to work on that part of international growth, starting with one market.
 
-At Nine-67, we build custom software with operating teams, from a working first version through training and deployment.
+Nine-67 is an AI-first company with forward-deployed engineers who work alongside business and operations teams. We build custom software and stay through testing, training and launch.
 
-We'd build a tool that combines order details, carrier events and approved country policies into a draft response. Staff would retain refund and reshipment decisions. We'd measure handling time and repeat contacts in one market first.
+We'd work directly with the people handling delivery requests, take on a first build, and test it against real cases. Your team would keep the decisions on refunds, reshipments and what goes live.
 
-Is handling those country-specific exceptions already covered on your roadmap?
+Is there a market where extra engineering help would be useful now?
 
 ## Tecovas
 
@@ -304,13 +304,13 @@ Recipient: Kevin Harwood · Chief Technology Officer
 
 Subject: after allocation
 
-Tecovas has already put AI to work in allocation. Wholesale compliance presents a different set of rules from DTC, and could be a useful next project for your engineers.
+Boot Runner shows how quickly your team can build. We can work alongside them on wholesale compliance, where the rules differ from DTC even with AI already working in allocation.
 
-Nine-67 builds custom software alongside internal teams. Our proposal workspace checks documents against requirements and flags gaps for human review.
+At Nine-67, we're an AI-first company. Our forward-deployed engineers work alongside internal teams and understand business operations. We build custom software and stay through user training and launch.
 
-We'd build a check of wholesale orders against retailer shipping rules. Your team would approve corrections. We'd start with one retailer and measure review time and missed requirements before extending it.
+We've built a proposal workspace that checks requirements and flags gaps for review. We'd bring that experience to a wholesale priority your engineers choose, taking on the build and working directly with users.
 
-Would extra engineering capacity for that work be useful, or is it covered?
+Is wholesale a place where your team would welcome extra engineering capacity?
 
 ## The Lovesac Company
 
@@ -318,13 +318,13 @@ Recipient: Jacob Pat · Chief Technology and Digital Transformation Officer
 
 Subject: CRM go-live
 
-Lovesac's CRM launch is a chance to shape how delivery cases get handled before the workflows harden. Adding automation at launch could avoid having to retrofit it later.
+Lovesac's CRM launch is a chance to build AI into customer-service workflows before they harden. We can help your team get one working now and avoid retrofitting it later.
 
-At Nine-67, we build custom software with business and IT teams. We recently helped one client deploy 20 applications, including user training.
+Nine-67 is an AI-first company. Our forward-deployed engineers understand business and operations. We build custom software with users and stay through training and launch.
 
-We'd build a delivery-case summary that gathers updates and customer history, then prepares the next action for staff approval. We'd start with one case type and measure handling time and repeat contacts.
+We recently helped one client deploy 20 applications. We'd take on a first build alongside your IT and service teams, with users shaping it and your leaders staying involved at the key decisions.
 
-Is that delivery-case work already covered in the CRM rollout?
+Is there a CRM workflow you'd like help getting into production?
 
 ## Thrive Market
 
@@ -332,13 +332,13 @@ Recipient: Scott Lescher · Chief Operating Officer
 
 Subject: vendor ops
 
-Thrive's Syndigo work addresses vendor onboarding and product information. Another place to look for margin is the supply chain work after an order is placed, which the member never sees.
+Thrive's Syndigo work addresses vendor onboarding. We can help with the supply chain work after it, where supplier follow-ups can affect margin without being visible to the member.
 
-Nine-67 builds custom software for operating teams. We work with users on a first version, refine it with them, and train them through deployment.
+At Nine-67, we're an AI-first company with forward-deployed engineers who understand business and operations. We build custom software with the team and stay through training and launch.
 
-We'd build a check of purchase orders against receipts, gathering supplier updates on shortages for your team's review. We'd measure follow-up time and unresolved discrepancies with a small supplier group.
+We'd work directly with the people handling discrepancies, build around one priority they choose, and test it against real cases. Your team would retain supplier decisions; we'd handle development and adoption.
 
-Are those supplier follow-ups still handled largely by hand?
+Is there a supplier-operations project you'd like help moving forward now?
 
 ## Mister Car Wash
 
@@ -346,10 +346,10 @@ Recipient: Jedidiah Gold · Chief Financial Officer
 
 Subject: after the take-private
 
-Mister Car Wash's recurring membership base makes a billing issue more than a service cost. In a subscription business, that service moment can become a churn risk.
+With Mister Car Wash now private, we can help turn a membership priority into working software. In a subscription business, a billing issue can make a routine service moment a churn risk.
 
-At Nine-67, we build custom software with operating and finance teams, from a first working version through training and launch.
+Nine-67 is an AI-first company. Our forward-deployed engineers work directly with business and operations teams. We build custom software and stay through testing, training and launch.
 
-We'd build a billing-review tool that gathers payment history and prepares a correction for staff approval. We'd start with one recurring issue, measuring handling time and repeat problems before expanding it.
+Our client work includes forecasting and profitability applications. We'd choose a first project with your team, take on the build, and keep you involved in the business decisions through launch.
 
-Is membership billing a process you'd want to simplify in the post-close plan?
+Is there a membership or finance project you'd like help getting into use?

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-const VERSION = "nw.recipient-research-20260923-cold-v3";
+const VERSION = "nw.recipient-research-20260923-ai-first-v5";
 
 /** Update saved drafts after the desk is usable; never make rendering wait for writes. */
 export function RefreshDraftCopy() {

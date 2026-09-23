@@ -788,6 +788,7 @@
       },
       "email_guidance": {
         "subject_ideas": [
+          "from pilot to production",
           "governing the first agents",
           "AI governance at Shure"
         ],

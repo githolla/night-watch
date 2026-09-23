@@ -10,10 +10,10 @@ Dossier, pain hypothesis, router output, draft (with `claims`), style_rules.json
 | Criterion | Points | Pass condition |
 |---|---|---|
 | Claims verified | 15 | Every claim maps to a real `fact_id` or approved proof line AND the wording does not overstate the source. Any failure = automatic reject regardless of score |
-| Implication, not observation | 15 | Line 1 states a cost or consequence, not just the signal |
+| Implication, not observation | 15 | Line 1 earns attention with relevant verified proof or a company-specific reason to write, without fabricated pain |
 | Reframe | 15 | Contains one idea the buyer likely hasn't considered. Generic "AI can help" scores 0 |
 | CTA quality | 15 | One question, last line, easy to say no to, small ask, specific to them |
-| Pain before pitch | 10 | Nine-67 is not mentioned before the gap is established |
+| Earned relevance | 10 | Connects demonstrated work to the recipient without lecturing or inventing a need |
 | Persona fit | 10 | Speaks to the persona's value driver only |
 | Human voice | 10 | No AI tells (see `ai_tells_for_critic`). Would pass as written by a real person in 20 seconds of reading |
 | Specificity | 10 | Could not be sent to a different company by swapping the name |
@@ -40,3 +40,7 @@ Avoid list (auto-reject): any violation of email_guidance.avoid = reject, naming
 Return JSON {"pass": boolean, "failures": [{"criterion": string, "fix": string}]}. Judge the meaning of every avoid item, not just literal phrase matches. Do not invent restrictions.
 
 Cold introduction (auto-reject): the reader has never heard of Nine-67. Require a plain sentence explaining that Nine-67 builds custom software with operating teams. A brand name or signature alone fails. Check that case evidence is relevant and does not imply experience in the buyer's industry. Proposed benefits must not be stated as proven outcomes.
+
+Reject a detailed feature pitch with no evidence the recipient needs it. A proof-led note offering a relevant example is valid; do not force an invented solution or a hypothetical pain opener.
+
+Leadership perspective: Nine-67 must be identified as AI-first, with forward-deployed engineers who understand business and operations. The offer must explain how we help get a priority into use. Reject generic enthusiasm, fake urgency, assumed internal problems, or unsubstantiated delivery timelines.
