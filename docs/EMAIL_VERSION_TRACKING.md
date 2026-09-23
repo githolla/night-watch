@@ -19,3 +19,12 @@ Tests cover exact/edited attribution, sender substitution, wrong-recipient prote
 Open a contact draft, expand **Test email & tracking**, then choose **Send test to myself**. The server resolves the recipient from the signed-in seat's Gmail connection, ignores recipient/CC overrides, and sends no CCs. Subject begins `[Night Watch test]`. Open that message with images enabled, then choose **Check test status**. The latest test can be recovered after a refresh; status reads are owner- and card-scoped.
 
 Tests store source `test` and never insert touches, update the contact/card, or enroll a cadence. Gmail sent-sync excludes the test subject prefix. Five requests per ten minutes are allowed per sender. Tests use the actual Gmail and pixel paths, but are excluded from prospect analytics.
+
+
+## Saved LinkedIn messages
+
+`data/linkedin-variants.json` contains four separately authored messages for each of the 28 named contacts. No model calls occur when previewing or applying them. The email and LinkedIn drafts are independent. LinkedIn uses no email footer.
+
+LinkedIn selection/send snapshots use `dimensions.channel = "linkedin"`; the existing experiment channel constraint uses its `connection` slot. They do not replace the card's email `active_variant_id`. Manual message history identifies exact saved copy or the latest same-owner/contact LinkedIn selection, retaining an edited marker. The sent snapshot stores the actual body and InMail subject.
+
+Opening LinkedIn and copying do not count as sends. Only Mark sent records the touch. Analytics shows LinkedIn separately under Marked sent / Both, and counts conversations separately by channel. LinkedIn has no open tracking or automated sending.

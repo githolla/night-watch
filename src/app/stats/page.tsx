@@ -70,7 +70,7 @@ export default async function Stats({ searchParams }: { searchParams: Promise<{ 
   let summary = aggregateVersions([]);
   let trackingError: string | undefined;
   try {
-    const tracked = await fetchAll<TrackedTouch>((from,to)=>db.from("touches").select("id,card_id,person_id,sent_by,sent_at,gmail_thread_id,reply_at,reply_classification,people(full_name),message_variants(subject,dimensions,message_experiments(context))").eq("channel","email").order("id").range(from,to) as unknown as PromiseLike<{ data: TrackedTouch[] | null; error: { message: string } | null }>);
+    const tracked = await fetchAll<TrackedTouch>((from,to)=>db.from("touches").select("id,card_id,person_id,sent_by,sent_at,gmail_thread_id,reply_at,reply_classification,people(full_name),message_variants(subject,dimensions,message_experiments(context))").in("channel",["email","linkedin_message"]).order("id").range(from,to) as unknown as PromiseLike<{ data: TrackedTouch[] | null; error: { message: string } | null }>);
     summary = aggregateVersions(tracked, { source, since: days === "all" ? undefined : reportSince(Number(days)) });
   } catch (error) { trackingError = error instanceof Error ? error.message : "Database unavailable"; }
   return <StatsView stats={stats} experiments={await loadExperimentStats(db)} versions={<VersionAnalytics summary={summary} error={trackingError} source={source} days={days} />} />;

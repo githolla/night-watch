@@ -10,7 +10,7 @@ export function aggregateVersions(touches: TrackedTouch[], options: { source?: '
   const groups = new Map<string, TrackedTouch[]>();
   for (const touch of touches) {
     if (!touch.sent_at) continue;
-    const key = `${touch.sent_by}:${touch.card_id}:${touch.person_id}`;
+    const key = `${versionMeta(touch.message_variants?.dimensions)?.channel ?? "email"}:${touch.sent_by}:${touch.card_id}:${touch.person_id}`;
     groups.set(key, [...(groups.get(key) ?? []), touch]);
   }
   const rows = new Map<string, { label: string; sent: number; gmail: number; manual: number; opens: number; replies: number; positive: number; ooo: number }>();

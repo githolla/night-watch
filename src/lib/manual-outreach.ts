@@ -1,4 +1,4 @@
-import { trackEmailVersion } from "@/lib/version-tracking";
+import { trackEmailVersion, trackLinkedInVersion } from "@/lib/version-tracking";
 import { admin } from "@/lib/supabase/admin";
 import { ensureFollowupCadence } from "@/lib/followups";
 import type { Owner } from "@/lib/types";
@@ -43,7 +43,7 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
     if ((count ?? 0) >= limits[channel]!) throw new Error("Daily LinkedIn action limit reached");
   }
 
-  const versionId = channel === "email" ? await trackEmailVersion(db, { cardId, personId: targetPersonId, owner, subject: subject ?? card.email_subject ?? "", body: body ?? "", source: "manual", followup }) : null;
+  const versionId = channel === "email" ? await trackEmailVersion(db, { cardId, personId: targetPersonId, owner, subject: subject ?? card.email_subject ?? "", body: body ?? "", source: "manual", followup }) : channel === "linkedin_message" ? await trackLinkedInVersion(db, { cardId, personId: targetPersonId, owner, subject: subject ?? "", body: body ?? "" }) : null;
   const { data, error } = await db.from("touches").insert({
     experiment_variant_id: versionId,
     card_id: cardId,

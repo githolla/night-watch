@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { savedVariants, renderSavedVariant } from './outreach-variants.ts';
+import { savedVariants, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
 import { identifyVersion, versionLabel, versionMeta } from './version-attribution.ts';
 import { aggregateVersions, type TrackedTouch } from './version-analytics.ts';
 import { trackedEmailHtml, openTrackingId, firstOpenAt } from './open-tracking.ts';
@@ -84,4 +84,19 @@ test('self-test metadata is readable but is never an outreach cohort',()=>{
  assert.equal(testMeta.label,'Personal');
  const record=touch({message_variants:{subject:'[Night Watch test] '+draft.subject,dimensions:testMeta,message_experiments:{context:''}}});
  assert.equal(aggregateVersions([record]).rows.length,0);
+});
+
+test('LinkedIn selection and edited sends retain their own version without changing email attribution', () => {
+ const li = renderLinkedInVariant(savedVariants(domain, 'Victor Ansara', 'linkedin')[3], 'Josh Lee');
+ const liBase = { ...base, ...li, channel: 'linkedin' as const, source: 'manual' as const };
+ const selection = { ...li, dimensions: identifyVersion({ ...liBase, source: 'selection' }) };
+ const result = identifyVersion(liBase, selection);
+ assert.equal(versionLabel(result), 'LinkedIn · Wildcard');
+ assert.equal(result.edited, false);
+ assert.equal(identifyVersion({ ...liBase, body: li.body.replace('Monday', 'weekly') }, selection).edited, true);
+ assert.equal(identifyVersion({ ...base, body: 'A custom email?' }, selection).versionId, 'custom');
+ const linkedinTouch = touch({ id: 'li1', gmail_thread_id: null, message_variants: { subject: li.subject, dimensions: result, message_experiments: { context: '' } } });
+ const report = aggregateVersions([touch(), linkedinTouch]);
+ assert.equal(report.rows.length, 2);
+ assert.equal(report.rows.find(r => r.label === 'LinkedIn · Wildcard')?.manual, 1);
 });

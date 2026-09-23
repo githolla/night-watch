@@ -2,7 +2,7 @@
 import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
 import { dateLabel, sourceDomain } from "@/lib/dossier-data";
-import { savedVariants, renderSavedVariant, type SavedVariant } from "@/lib/outreach-variants";
+import { savedVariants, renderSavedVariant, renderLinkedInVariant, type SavedVariant } from "@/lib/outreach-variants";
 import { focusedAccount, revenueLabel, sortReachouts, type ReachoutSort } from "@/lib/reachout-sort";
 import { focusedContact } from "@/lib/focused-contact";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
@@ -222,21 +222,21 @@ export function Desk({
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
   // Separate from `busy` so a blur-triggered autosave can't disable the Send button mid-click.
   const [sending, setSending] = useState(false);
-  const [tonePreview, setTonePreview] = useState<{ cardId: string; versionId: string; label: string; original: string; originalSubject: string; subject: string; body: string } | null>(null);
+  const [tonePreview, setTonePreview] = useState<{ channel: "email" | "linkedin"; cardId: string; versionId: string; label: string; original: string; originalSubject: string; subject: string; body: string } | null>(null);
   function previewTone(variant: SavedVariant) {
     if (!focusCard || altContact) return;
-    const draft = renderSavedVariant(variant, focusCard.people.full_name, senderName, senderGreeting);
-    setTonePreview({ cardId: focusCard.id, versionId: variant.id, label: variant.label, original: focusCard.email_body ?? "", originalSubject: focusCard.email_subject ?? "", ...draft });
+    const draft = channelTab === "linkedin" ? renderLinkedInVariant(variant, senderName) : renderSavedVariant(variant, focusCard.people.full_name, senderName, senderGreeting);
+    setTonePreview({ channel: channelTab, cardId: focusCard.id, versionId: variant.id, label: variant.label, original: (channelTab === "email" ? focusCard.email_body : focusCard.linkedin_message) ?? "", originalSubject: (channelTab === "email" ? focusCard.email_subject : focusCard.linkedin_subject) ?? "", ...draft });
   }
   async function applyTone() {
-    if (!tonePreview || !focusCard || tonePreview.cardId !== focusCard.id) return;
-    if ((focusCard.email_body ?? "") !== tonePreview.original || (focusCard.email_subject ?? "") !== tonePreview.originalSubject) {
+    if (!tonePreview || !focusCard || tonePreview.cardId !== focusCard.id || tonePreview.channel !== channelTab) return;
+    if (((channelTab === "email" ? focusCard.email_body : focusCard.linkedin_message) ?? "") !== tonePreview.original || ((channelTab === "email" ? focusCard.email_subject : focusCard.linkedin_subject) ?? "") !== tonePreview.originalSubject) {
       setNotice("You edited the draft. Review the saved version again before replacing your latest text.");
       setTonePreview(null);
       return;
     }
     try {
-      const saved = await patchOn(focusCard.id, { saved_variant_id: tonePreview.versionId, email_subject: tonePreview.subject, email_body: tonePreview.body, status: "edited" });
+      const saved = await patchOn(focusCard.id, { saved_variant_id: tonePreview.versionId, saved_variant_channel: channelTab, ...(channelTab === "email" ? { email_subject: tonePreview.subject, email_body: tonePreview.body } : { linkedin_subject: tonePreview.subject, linkedin_message: tonePreview.body }), status: "edited" });
       if (saved) setTonePreview(null);
     } catch { setNotice("Could not save this version. Your original is unchanged."); }
   }
@@ -403,7 +403,7 @@ export function Desk({
     if (demo) { setNotice(`${label} to ${who?.full_name ?? "contact"} recorded in demo mode.`); return; }
     setBusy(true);
     const channel = view === "email" ? "email" : view === "comment" ? "linkedin_comment" : view === "message" ? "linkedin_message" : "linkedin_request";
-    const response = await fetch(`/api/cards/${onCard.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body, personId, subject: view === "email" ? (cards.find(item => item.id === onCard.id)?.email_subject ?? "") : undefined }) });
+    const response = await fetch(`/api/cards/${onCard.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body, personId, subject: view === "email" ? (cards.find(item => item.id === onCard.id)?.email_subject ?? "") : view === "message" ? (cards.find(item => item.id === onCard.id)?.linkedin_subject ?? "") : undefined }) });
     const result = await response.json();
     setBusy(false);
     if (!response.ok) { if (isMissing(result.error)) dropStaleCard(); else setNotice(result.error ?? "Unable to record outreach."); return; }
@@ -543,7 +543,7 @@ export function Desk({
   // The contact currently being written to — the card's person by default, or one picked from the team list.
   const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
   const contact = altContact ?? (focusCard ? focusCard.people : null);
-  const previewingVersion = channelTab === "email" && !!tonePreview && tonePreview.cardId === focusCard?.id && !altContact;
+  const previewingVersion = tonePreview?.channel === channelTab && !!tonePreview && tonePreview.cardId === focusCard?.id && !altContact;
   const research = recipientResearch(focusCard?.accounts.domain, contact?.full_name);
   const brief = accountBrief(focusCard?.accounts.domain);
   const matchesResearch = research ? hasResearchCopy(focusCard?.email_subject, focusCard?.email_body, research) : false;
@@ -631,10 +631,11 @@ export function Desk({
   // LinkedIn has no send API, so open the person's LinkedIn and put the message on the clipboard — one paste, not a hunt.
   const openLinkedIn = async () => {
     const text = adapt(linkedinDraft || draftText);
-    try { await navigator.clipboard.writeText(text); } catch { /* the record still stands even if copy is blocked */ }
+    let copied = false;
+    try { await navigator.clipboard.writeText(text); copied = true; } catch { /* Tell the user to copy manually. */ }
     const href = linkedInHref();
     if (href) window.open(href, "_blank", "noopener,noreferrer");
-    recordTouch("connection", text);
+    setNotice(copied ? "Message copied. Paste it in LinkedIn, then use Mark sent after sending." : "LinkedIn opened. Copy the message manually, then use Mark sent after sending.");
   };
   const copyText = async (text: string, label: string) => {
     if (!text.trim()) { setNotice("Nothing to copy yet — write or refine a draft first."); return; }
@@ -1123,21 +1124,21 @@ export function Desk({
                 </div>
 
                 <div className="deskwork-tabs">
-                  <button type="button" className={`deskwork-tab ${channelTab === "email" ? "is-active" : ""}`} onClick={() => setChannelTab("email")}>✉ Email</button>
-                  <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => setChannelTab("linkedin")}><i className="li-mark">in</i> LinkedIn</button>
+                  <button type="button" className={`deskwork-tab ${channelTab === "email" ? "is-active" : ""}`} onClick={() => { setChannelTab("email"); setTonePreview(null); }}>✉ Email</button>
+                  <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => { setChannelTab("linkedin"); setTonePreview(null); }}><i className="li-mark">in</i> LinkedIn</button>
                   <div className="deskwork-tools" hidden={previewingVersion}>
-                    {!sentAlready && <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>}
+                    {(channelTab === "linkedin" || !sentAlready) && <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>}
                     {channelTab === "email" && !sentAlready && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : research ? "Researched draft" : "Company draft"}</button>}
                     {channelTab === "email" && <button type="button" disabled={proposing} title={timesInDraft ? "Take the proposed times back out of this email" : "Only if you want them: insert open times from your connected calendar into this one email"} onClick={timesInDraft ? removeMeetingTimes : proposeMeetingTimes}>{proposing ? "Checking…" : timesInDraft ? "Remove times" : "Propose times"}</button>}
                     <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy</button>
                   </div>
                 </div>
 
-                {channelTab === "email" && !sentAlready && !altContact && savedVariants(focusCard.accounts.domain, contact.full_name).length > 0 && <section className="email-versions" aria-label="Saved email versions">
-                  <div className="email-versions-heading"><span>Email versions</span><Link href="/stats#saved-versions">Analytics ↗</Link></div>
-                  <div className="email-version-tabs" role="group" aria-label="Choose an email version">
+                {(channelTab === "linkedin" || !sentAlready) && !altContact && savedVariants(focusCard.accounts.domain, contact.full_name, channelTab).length > 0 && <section className="email-versions" aria-label={`Saved ${channelTab === "email" ? "email" : "LinkedIn"} versions`}>
+                  <div className="email-versions-heading"><span>{channelTab === "email" ? "Email" : "LinkedIn"} versions</span><Link href={channelTab === "linkedin" ? "/stats?source=manual#saved-versions" : "/stats#saved-versions"}>Analytics ↗</Link></div>
+                  <div className="email-version-tabs" role="group" aria-label={`Choose ${channelTab === "email" ? "an email" : "a LinkedIn"} version`}>
                     <button type="button" className={!previewingVersion ? "is-active" : ""} aria-pressed={!previewingVersion} onClick={() => setTonePreview(null)}>Current draft</button>
-                    {savedVariants(focusCard.accounts.domain, contact.full_name).map(variant => <button type="button" key={variant.id} className={previewingVersion && tonePreview?.versionId === variant.id ? "is-active" : ""} disabled={busy} aria-pressed={previewingVersion && tonePreview?.versionId === variant.id} onClick={() => previewTone(variant)}>{variant.label}</button>)}
+                    {savedVariants(focusCard.accounts.domain, contact.full_name, channelTab).map(variant => <button type="button" key={variant.id} className={previewingVersion && tonePreview?.versionId === variant.id ? "is-active" : ""} disabled={busy} aria-pressed={previewingVersion && tonePreview?.versionId === variant.id} onClick={() => previewTone(variant)}>{variant.label}</button>)}
                   </div>
                 </section>}
 
@@ -1145,13 +1146,13 @@ export function Desk({
 
                 <div className="deskwork-scroll">
                 {previewingVersion && tonePreview ? (
-                  <article className="email-version-document" aria-label={`${tonePreview.label} email preview`}>
+                  <article className="email-version-document" aria-label={`${tonePreview.label} ${channelTab} preview`}>
                     <div className="email-version-caption"><span>{tonePreview.label} · Preview</span><span>{outreachBody(tonePreview.body).split(/\s+/).filter(Boolean).length} words</span></div>
-                    <div className="email-version-recipient"><span>To</span>{contact.full_name}{contact.email ? ` · ${contact.email}` : ""}</div>
-                    <h3>{tonePreview.subject}</h3>
+                    <div className="email-version-recipient"><span>To</span>{contact.full_name}{channelTab === "email" && contact.email ? ` · ${contact.email}` : ""}</div>
+                    {channelTab === "email" && <h3>{tonePreview.subject}</h3>}
                     <div className="email-version-body">{outreachBody(tonePreview.body)}</div>
-                    <p className="email-version-signature">{senderName.trim().split(/\s+/)[0]}</p>
-                    {senderFooterHtml && <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} />}
+                    {channelTab === "email" && <p className="email-version-signature">{senderName.trim().split(/\s+/)[0]}</p>}
+                    {channelTab === "email" && senderFooterHtml && <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} />}
                   </article>
                 ) : channelTab === "email" ? (
                   editing.email && !sentAlready ? (() => {
@@ -1180,7 +1181,7 @@ export function Desk({
                         </div>
                         <label className="compose-field"><span>Email · your saved greeting and message</span><textarea className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
                         <p className="compose-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</p>
-                    {senderFooterHtml && <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} />}
+                    {channelTab === "email" && senderFooterHtml && <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} />}
                       </div>
                     );
                   })() : (
@@ -1193,7 +1194,7 @@ export function Desk({
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("email", emailStyle(brief ? outreachBody(adapt(emailDraft)) : adapt(emailDraft)) || "No email draft yet. Choose a saved version or write your own.")}</div>
                       <div className="deskwork-doc-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</div>
-                    {senderFooterHtml && <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} />}
+                    {channelTab === "email" && senderFooterHtml && <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} />}
                     </div>
                   )
                 ) : (
@@ -1214,6 +1215,7 @@ export function Desk({
                 {!previewingVersion && (() => {
                   const seq = (focusCard.followups ?? []).filter((f) => (channelTab === "email" ? f.channel === "email" : f.channel !== "email"));
                   if (seq.length === 0) {
+                    if (channelTab === "linkedin") return <div className="deskwork-fu-hint">Open LinkedIn to copy and send this message. Use <b>Mark sent</b> afterward to record its version in History and Analytics.</div>;
                     return <div className="deskwork-fu-hint">Three follow-ups (spread over ~2 weeks, stopping the moment they reply) appear here once you send this {channelTab === "email" ? "email" : "message"} or mark it sent — or press <b>Automate</b> below to have Night Watch send them for you.</div>;
                   }
                   // A cadence belongs to ONE contact, not to the company. Showing it unlabelled under
@@ -1266,7 +1268,7 @@ export function Desk({
                       ? <button type="button" disabled={sending || !contact.email} className="btn primary" onClick={sendEmail}>{sending ? "Sending…" : "Send email"} →</button>
                       : <button type="button" disabled={busy} className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
                     <button type="button" disabled={busy} className="btn" title="Already sent (by you or the agent)? Log it to History without opening." onClick={() => markSent(channelTab)}>Mark sent</button>
-                    {contact.email && <button type="button" disabled={enrolling} className="btn" title="Hands-off: Night Watch sends this email and its follow-ups for you (day 0, 3, 7) and stops the moment they reply. Prefer to send it yourself? Use “Send email” — the same follow-ups still queue in the list above for you to copy." onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
+                    {channelTab === "email" && contact.email && <button type="button" disabled={enrolling} className="btn" title="Hands-off: Night Watch sends this email and its follow-ups for you (day 0, 3, 7) and stops the moment they reply. Prefer to send it yourself? Use “Send email” — the same follow-ups still queue in the list above for you to copy." onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
                     <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
                     <button type="button" disabled={busy} className="btn ghost danger" onClick={dismissCurrent}>Dismiss</button>
                   </div>

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import focus from '../../data/revenue-focus.json' with { type: 'json' };
-import { savedVariants, renderSavedVariant } from './outreach-variants.ts';
+import { savedVariants, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
 
 test('all 28 contacts have four complete, unique authored versions', () => {
   let count = 0;
@@ -33,4 +33,23 @@ test('authored introductions follow sender settings, with no invented fallback n
   const [variant] = savedVariants('ansararestaurantgroup.com', 'Victor Ansara');
   assert.match(renderSavedVariant(variant, 'Victor Ansara', 'Suuchi Ramesh').body, /I'm Suuchi at Nine-67/);
   assert.match(renderSavedVariant(variant, 'Victor Ansara', '').body, /We're Nine-67/);
+});
+
+test('all contacts have four distinct LinkedIn messages with no email footer or model call', () => {
+  let count = 0;
+  for (const account of focus) for (const contact of account.contacts) {
+    const variants = savedVariants(account.domain, contact.name, 'linkedin');
+    assert.deepEqual(variants.map(v => v.label), ['Personal', 'Business idea', 'With proof', 'Wildcard']);
+    assert.equal(new Set(variants.map(v => v.message)).size, 4);
+    for (const variant of variants) {
+      const rendered = renderLinkedInVariant(variant, 'Suuchi Ramesh');
+      assert.ok(rendered.body.length <= 1500);
+      assert.ok(rendered.body.trim().endsWith('?'));
+      assert.doesNotMatch(rendered.body, /[—–]|\{sender\}|<table|Thank you,|\bJosh\b/);
+      assert.ok(!savedVariants(account.domain, contact.name).some(email => email.message === variant.message));
+      count++;
+    }
+  }
+  assert.equal(count, 112);
+  assert.deepEqual(savedVariants('caymanchem.com', 'Unknown Person', 'linkedin'), []);
 });
