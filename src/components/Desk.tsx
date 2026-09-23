@@ -2,6 +2,7 @@
 import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
 import { dateLabel, sourceDomain } from "@/lib/dossier-data";
+import { emailTones, type EmailTone } from "@/lib/email-tones";
 import { focusedAccount, revenueLabel, sortReachouts, type ReachoutSort } from "@/lib/reachout-sort";
 import { focusedContact } from "@/lib/focused-contact";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
@@ -216,6 +217,33 @@ export function Desk({
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
   // Separate from `busy` so a blur-triggered autosave can't disable the Send button mid-click.
   const [sending, setSending] = useState(false);
+  const [toneLoading, setToneLoading] = useState<EmailTone | null>(null);
+  const [tonePreview, setTonePreview] = useState<{ cardId: string; tone: EmailTone; original: string; subject: string; body: string } | null>(null);
+  async function previewTone(tone: EmailTone) {
+    if (!focusCard || altContact || toneLoading) return;
+    const target = focusCard;
+    setToneLoading(tone);
+    setTonePreview(null);
+    try {
+      const response = await fetch(`/api/cards/${target.id}/refine`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel: "email", tone, subject: target.email_subject ?? "", body: target.email_body ?? "", personName: target.people.full_name, personTitle: target.people.title ?? "" }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Could not create this version.");
+      setTonePreview({ cardId: target.id, tone, original: target.email_body ?? "", subject: target.email_subject ?? "", body: result.body });
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not create this version."); }
+    finally { setToneLoading(null); }
+  }
+  async function applyTone() {
+    if (!tonePreview || !focusCard || tonePreview.cardId !== focusCard.id) return;
+    if ((focusCard.email_body ?? "") !== tonePreview.original || (focusCard.email_subject ?? "") !== tonePreview.subject) {
+      setNotice("You edited the draft. Choose a tone again to use your latest text.");
+      setTonePreview(null);
+      return;
+    }
+    try {
+      const saved = await patchOn(focusCard.id, { email_body: tonePreview.body, status: "edited" });
+      if (saved) setTonePreview(null);
+    } catch { setNotice("Could not save this version. Your original is unchanged."); }
+  }
   const [refining, setRefining] = useState<"email" | "linkedin" | null>(null);
   // Open the composer in edit mode so every email/message is directly editable before sending;
   // the tools row flips it to a read-only "Preview" of exactly how it will go out.
@@ -271,7 +299,7 @@ export function Desk({
     if (demo) {
       setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...values } : item));
       setNotice("Demo updated locally — nothing was saved or sent.");
-      return;
+      return true;
     }
     setBusy(true);
     const response = await fetch(`/api/cards/${cardId}`, {
@@ -281,8 +309,9 @@ export function Desk({
     });
     const json = await response.json();
     setBusy(false);
-    if (!response.ok) return alert(json.error);
+    if (!response.ok) { alert(json.error); return false; }
     setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...json } : item));
+    return true;
   }
   /** Write to the dossier's card (the one the dossier view renders). */
   const patch = (values: Record<string, unknown>) => patchOn(card.id, values);
@@ -1130,6 +1159,16 @@ export function Desk({
                     <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy</button>
                   </div>
                 </div>
+
+                {channelTab === "email" && !sentAlready && <section className="email-tone-controls" aria-label="Email tone">
+                  <div className="email-tone-buttons"><strong>Try a tone</strong>{Object.entries(emailTones).map(([key, tone]) => <button type="button" key={key} title={tone.description} disabled={!!toneLoading || !!refining || !!altContact || busy} onClick={() => previewTone(key as EmailTone)}>{toneLoading === key ? "Writing…" : tone.label}</button>)}</div>
+                  <small>Preview a different voice before changing your draft.</small>
+                  {tonePreview?.cardId === focusCard.id && !altContact && <div className="email-tone-preview">
+                    <strong>{emailTones[tonePreview.tone].label} version</strong>
+                    <div className="email-tone-comparison"><div><small>Current</small><p>{outreachBody(tonePreview.original)}</p></div><div><small>Alternative</small><p>{outreachBody(tonePreview.body)}</p><p>{senderName.trim().split(/\s+/)[0]}</p></div></div>
+                    <button type="button" disabled={busy} onClick={applyTone}>Use this version</button>{" "}<button type="button" disabled={busy} onClick={() => setTonePreview(null)}>Keep current</button>
+                  </div>}
+                </section>}
 
                 <div className="deskwork-scroll">
                 {channelTab === "email" ? (
