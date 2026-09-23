@@ -1,0 +1,231 @@
+{
+  "version": "1.0",
+  "length": {
+    "touch_1_words": {
+      "min": 50,
+      "max": 90
+    },
+    "touch_2_words": {
+      "min": 35,
+      "max": 70,
+      "min_sentences": 4
+    },
+    "touch_3_words": {
+      "min": 40,
+      "max": 90
+    },
+    "touch_4_words": {
+      "min": 15,
+      "max": 45
+    },
+    "subject_words": {
+      "min": 2,
+      "max": 5
+    },
+    "max_sentence_words": 26,
+    "max_reading_grade": 9
+  },
+  "format": {
+    "plain_text_only": true,
+    "links_allowed": {
+      "1": 0,
+      "2": 0,
+      "3": 1,
+      "4": 0
+    },
+    "question_marks_in_body": {
+      "min": 1,
+      "max": 1
+    },
+    "cta_must_be_last_line": true,
+    "em_dash_allowed": false,
+    "exclamation_marks_max": 0,
+    "subject_case": "lowercase except proper nouns"
+  },
+  "opener_rules": {
+    "must_not_start_with": [
+      "I noticed",
+      "I saw",
+      "Noticed",
+      "Saw that",
+      "Saw you",
+      "I came across",
+      "I was looking at",
+      "Hope this",
+      "I hope",
+      "My name is",
+      "I'm reaching out",
+      "I am reaching out",
+      "I wanted to",
+      "As a",
+      "Congrats on",
+      "Congratulations on"
+    ],
+    "must_state": "the implication of the signal (what it costs or risks), not the signal alone"
+  },
+  "banned_phrases": [
+    "hope this finds you well",
+    "hope you're doing well",
+    "hope all is well",
+    "I wanted to reach out",
+    "just circling back",
+    "circling back",
+    "just following up",
+    "just checking in",
+    "bumping this",
+    "touching base",
+    "quick call",
+    "quick chat",
+    "15 minutes of your time",
+    "hop on a call",
+    "pick your brain",
+    "leverage",
+    "synergy",
+    "streamline",
+    "revolutionize",
+    "game-changer",
+    "game changer",
+    "cutting-edge",
+    "cutting edge",
+    "unlock",
+    "empower",
+    "seamless",
+    "robust",
+    "in today's",
+    "fast-paced",
+    "ever-evolving",
+    "landscape",
+    "delve",
+    "elevate",
+    "supercharge",
+    "transformative",
+    "harness",
+    "best-in-class",
+    "world-class",
+    "innovative solution",
+    "I'd love to",
+    "would love to",
+    "let me know if you're interested",
+    "at your earliest convenience",
+    "limited time",
+    "act now",
+    "guaranteed",
+    "100%",
+    "free trial",
+    "no obligation",
+    "risk-free",
+    "never heard back",
+    "didn't hear back",
+    "per my last email",
+    "not just",
+    "here's the thing",
+    "the truth is",
+    "game plan",
+    "value add",
+    "value-add",
+    "solutions provider"
+  ],
+  "ai_tells_for_critic": [
+    "'not just X, but Y' construction",
+    "three stacked adjectives or a rule-of-three list with no specifics",
+    "rhetorical question immediately answered by the writer",
+    "compliment unrelated to the ask",
+    "line 1 restates the subject line",
+    "generic industry claim with no number, name, or specific",
+    "colon-led dramatic reveal",
+    "every sentence the same length and rhythm",
+    "sign-off pleasantry after the CTA"
+  ],
+  "cta_library": {
+    "no_oriented": [
+      "Would it be a bad idea to {small_action}?",
+      "Would it be crazy to {small_action}?",
+      "Is it a terrible idea to {small_action}?"
+    ],
+    "negative_reverse": [
+      "Worth a look, or is {thing} already set?",
+      "Is {topic} on the list this year, or parked for later?",
+      "Is this on your radar, or am I off base?"
+    ],
+    "poke_the_bear": [
+      "How do you currently decide {decision}?",
+      "How are you measuring {outcome} today?",
+      "Open to comparing notes?"
+    ],
+    "offer": [
+      "Want the one workflow we'd start with?",
+      "Should I send the scorecard we'd use for {company}?"
+    ],
+    "limited_choice": [
+      "Should I send the other two, or walk you through them in 20 minutes?",
+      "Easier to read it, or see it scored live?"
+    ],
+    "breakup": [
+      "Have you given up on {outcome} this year?",
+      "Should I close this out, or is {topic} a Q1 thing?"
+    ],
+    "specific_time": [
+      "{day1} at {time1} or {day2} at {time2}?"
+    ],
+    "cta_type_by_touch": {
+      "1": [
+        "no_oriented",
+        "negative_reverse",
+        "poke_the_bear"
+      ],
+      "2": [
+        "offer",
+        "no_oriented"
+      ],
+      "3": [
+        "limited_choice",
+        "offer"
+      ],
+      "4": [
+        "breakup"
+      ]
+    },
+    "banned_ctas": [
+      "Do you have 15 minutes",
+      "Can we hop on a call",
+      "calendar link",
+      "Let me know your availability",
+      "Let me know your thoughts",
+      "Interested?",
+      "Thoughts?",
+      "Would you be open to a call"
+    ]
+  },
+  "honesty_rules": [
+    "Every factual claim about the prospect must cite a dossier fact_id.",
+    "Every claim about Nine-67 results must come from approved_proof_lines.",
+    "No fake Re:/Fwd: subjects, invented referrals, false deadlines, or scarcity.",
+    "Hedge inferences with 'usually', 'often', 'tends to'. Never state an inference as a fact about them."
+  ],
+  "approved_proof_lines": [
+    "TODO: only results cleared for use. Example shape: 'We run the AI operating layer inside a national agency.'"
+  ],
+  "nine67_differentiators": [
+    "Engineers deployed inside the business, not slideware",
+    "Working agents shipped in weeks, not a strategy deck",
+    "Every workflow gets a number attached before we build it"
+  ],
+  "persona_value_drivers": {
+    "coo": "throughput and capacity without adding headcount",
+    "cfo": "margin and cost-to-serve",
+    "cio_cto": "shipping AI that works in production, governed and secure",
+    "ceo_founder": "growth without proportional hiring",
+    "pe_operating_partner": "EBITDA lift inside the hold period, repeatable across the portfolio",
+    "vp_ops": "cycle time and error rates on core workflows",
+    "vp_sales_revops": "pipeline and proposal throughput per rep",
+    "managing_partner": "billable leverage and partner time"
+  },
+  "sender": {
+    "names": [
+      "Barry",
+      "Jenna"
+    ],
+    "signature_template": "{first_name}\n{title}, Nine-67\n{physical_address}\nNot relevant? Reply \"no\" and I won't follow up.",
+    "physical_address": "TODO"
+  }
+}

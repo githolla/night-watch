@@ -31,11 +31,11 @@ test("a customized sender introduction is retained; the default is not repeated"
 
 test("person-specific research requires both the right domain and exact buyer", () => {
   const args = { company: "Shure", domain: "shure.com", personTitle: "Senior Director, Channel Sales" };
-  const named = composeContactDraft({ ...args, personName: "Monique Rezaei", greeting: "Hello {first},", signoff: "Best," });
-  assert.match(named.body, /North American partner relationships/);
-  assert.ok(named.body.startsWith("Hello Monique,"));
+  const named = composeContactDraft({ ...args, personName: "Jerome Nolasco", greeting: "Hello {first},", signoff: "Best," });
+  assert.match(named.body, /govern/i);
+  assert.ok(named.body.startsWith("Hello Jerome,"));
   assert.ok(named.body.endsWith("Best,"));
   assert.notEqual(authoredDraft("Shure", "commercial", "shure.com", "Alex Smith")?.subject, named.subject);
-  assert.notEqual(authoredDraft("Shure", "commercial", "other.example", "Monique Rezaei")?.subject, named.subject);
-  assert.notEqual(authoredDraft("Shure", "commercial", undefined, "Monique Rezaei")?.subject, named.subject);
+  assert.notEqual(authoredDraft("Shure", "commercial", "other.example", "Jerome Nolasco")?.subject, named.subject);
+  assert.notEqual(authoredDraft("Shure", "commercial", undefined, "Jerome Nolasco")?.subject, named.subject);
 });

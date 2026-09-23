@@ -3,120 +3,193 @@
     "company": "Turn 14 Distribution",
     "domain": "turn14.com",
     "buyer": {
-      "name": "Mike Hall",
-      "title": "Vice President of Operations",
+      "name": "Erin Robbins",
+      "title": "President & Chief Operating Officer",
       "sourceUrl": "https://www.turn14.com/about",
       "email": null
     },
     "trigger": {
-      "fact": "Turn 14 operates four distribution centers and promises same-day fulfillment of in-stock orders, with seven-day operations and late shipping cutoffs.",
-      "date": null,
-      "sourceUrl": "https://www.turn14.com/about",
-      "type": "Current operating context, not a recent event"
+      "fact": "The company operates 1.5 million square feet across four distribution centers: Hatfield PA, Arlington TX, Reno NV and Indianapolis IN.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.turn14.com/about"
     },
-    "hypothesis": "A deadline-driven fulfillment operation may value a clear decision queue for orders at risk of missing cutoff. There is no evidence that current exception handling is inadequate.",
-    "proofKind": "delivery",
-    "subject": "The orders that almost ship",
-    "message": "An order can be in stock and still miss the truck. With Turn 14's late cutoffs, the useful question is which exceptions a supervisor can still clear before the window closes.\n\nWe could build a small application that puts those orders in priority order, shows the missing decision and gets it to the right person. Your warehouse leads would test it on one exception type first.\n\nNine-67 has deployed resource-allocation and collaboration tools with a client. Which exception would your team most like to stop chasing before cutoff?",
-    "fit": "High operational specificity and verified operations buyer; evidence is adjacent, not a logistics case study.",
+    "hypothesis": "Warehouse capacity scaled. The back office that feeds it (vendor data, dealer setup, dealer questions) usually scales by adding people. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "getting new lines sellable",
+    "message": "A new vendor line can sit behind data cleanup even when Turn 14 has room across four distribution centers. The useful measure is time from receiving a price file to dealers being able to order.\n\nNine-67 could build an agent that checks vendor files against your catalog format, flags missing fitment data and prepares updates for purchasing to approve. Start with one vendor, and measure the review time.\n\nWould it be a bad idea to map that handoff on one incoming line?",
+    "fit": "Wave 3. throughput and capacity without adding headcount. Demand and budget not confirmed.",
     "limitations": [
-      "No guessed email.",
-      "Company information is evergreen and undated.",
-      "No claim of missed shipments or an existing systems gap.",
-      "Proposed warehouse use is not a previously delivered Nine-67 application."
+      "Tucker takeover is Nov 2023: context only, never lead with it.",
+      "Do not claim a revenue figure (not found).",
+      "Do not describe hiring as a surge (weak signal).",
+      "Tucker deal terms are unverified.",
+      "Confirm the recipient email before sending."
     ],
     "targetRole": "operations",
     "researchDate": "2026-09-23",
     "sector": "Industrial and automotive parts distribution",
-    "rank": 1
+    "rank": 1,
+    "writerKit": {
+      "accountId": "t14",
+      "frame": "gap_selling",
+      "sendWave": 3,
+      "factIds": [
+        "t14-f0"
+      ],
+      "facts": [
+        {
+          "fact_id": "t14-f0",
+          "statement": "The company operates 1.5 million square feet across four distribution centers: Hatfield PA, Arlington TX, Reno NV and Indianapolis IN.",
+          "source_url": "https://www.turn14.com/about",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Removed an unsupported claim that their back office is understaffed. Capacity issue is a possibility, not a diagnosis. One proposed workflow, purchasing retains approval, no historical Nine-67 result claimed."
+    }
   },
   {
     "company": "G&W Electric",
     "domain": "gwelectric.com",
     "buyer": {
       "name": "Dave Gizewicz",
-      "title": "Chief Operating Officer, G&W Electric; CEO, G&W Altea",
+      "title": "Chief Operating Officer (also CEO, G&W Altea)",
       "sourceUrl": "https://www.gwelectric.com/news/gw-electric-expands-gw-altea-facility-in-ferrara-italy-to-meet-growing-sensor-demand/",
       "email": null
     },
     "trigger": {
-      "fact": "G&W expanded its Ferrara sensor facility with additional production and warehousing plus dedicated R&D space. The announcement identifies Dave Gizewicz as COO.",
-      "date": "2026-06-30",
-      "sourceUrl": "https://www.gwelectric.com/news/gw-electric-expands-gw-altea-facility-in-ferrara-italy-to-meet-growing-sensor-demand/"
+      "fact": "Opened a 291,305 sq ft facility (about 30,000 sq ft office) at 1135 Arbor Drive, Romeoville, IL. Viper and Viper-HV production is moving there, and the Bolingbrook facility will be expanded for molding capacity.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.gwelectric.com/news/gw-electric-expands-north-american-manufacturing-capacity-as-grid-modernization-accelerates/"
     },
-    "hypothesis": "An expanded facility combining R&D and manufacturing may need clear acceptance of engineering changes into production. No actual handoff problem is known.",
-    "proofKind": "delivery",
-    "subject": "When a revision reaches the floor",
-    "message": "Adding production and R&D space in Ferrara brings a practical question: how does a change approved by engineering become the version everyone on the floor is actually using?\n\nNine-67 has deployed a collaboration workspace with a client. At G&W, a first application could connect a revision to the jobs it affects, unanswered questions and the production lead who needs to acknowledge it. Your engineers would retain approval.\n\nWhere would that be most useful: getting changes out, or knowing they have been picked up?",
-    "fit": "High: recent physical expansion, named operating owner, specific engineering-to-production workflow.",
+    "hypothesis": "Moving product lines between plants during a demand surge usually strains order handling, service coordination and ERP data work. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "Viper order intake",
+    "message": "With Viper production moving to Romeoville, an incomplete order could still leave the new capacity waiting. The next hold-up may be getting an order ready to build.\n\nNine-67 could build an agent that checks purchase orders against product rules and flags missing information before your team approves the order. We would measure how much checking it removes on one product line.\n\nIs order intake worth a look at G&W, or is that handoff already working well?",
+    "fit": "Wave 2. throughput and capacity without adding headcount. Demand and budget not confirmed.",
     "limitations": [
-      "No recipient email guessed.",
-      "Collaboration proof is from owner-supplied client work, not a manufacturing case.",
-      "No automated technical approval or safety decision proposed."
+      "Do not assert Gizewicz was CFO (third-party only).",
+      "Revenue is a ZoomInfo estimate; do not cite.",
+      "Do not call JDE work a migration (unconfirmed).",
+      "Confirm the recipient email before sending."
     ],
     "targetRole": "operations",
     "researchDate": "2026-09-23",
     "sector": "Electrical equipment manufacturing",
-    "rank": 2
+    "rank": 2,
+    "writerKit": {
+      "accountId": "gw",
+      "frame": "gap_selling",
+      "sendWave": 2,
+      "factIds": [
+        "gw-f0"
+      ],
+      "facts": [
+        {
+          "fact_id": "gw-f0",
+          "statement": "Opened a 291,305 sq ft facility (about 30,000 sq ft office) at 1135 Arbor Drive, Romeoville, IL. Viper and Viper-HV production is moving there, and the Bolingbrook facility will be expanded for molding capacity.",
+          "source_url": "https://www.gwelectric.com/news/gw-electric-expands-north-american-manufacturing-capacity-as-grid-modernization-accelerates/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Corrected plant move to completed tense per verification. Removed false urgency about reaching full volume and any assertion that JDE is migrating. Hypothetical bottleneck is hedged; order approval remains human."
+    }
   },
   {
     "company": "Shure",
     "domain": "shure.com",
     "buyer": {
-      "name": "Monique Rezaei",
-      "title": "Senior Director, Channel Sales, North America",
-      "sourceUrl": "https://www.shure.com/en-US/newsroom/shure-appoints-monique-rezaei-as-sales-channel-leader-in-north-america",
+      "name": "Jerome Nolasco",
+      "title": "Vice President of Information Technology",
+      "sourceUrl": "https://www.shure.com/en-US/newsroom/shure-bolsters-leadership-2026",
       "email": null
     },
     "trigger": {
-      "fact": "Shure appointed Monique Rezaei to lead North American channel sales, with a focus on partner engagement and growth across AV, collaboration and IT.",
-      "date": "2026-09-01",
-      "sourceUrl": "https://www.shure.com/en-US/newsroom/shure-appoints-monique-rezaei-as-sales-channel-leader-in-north-america"
+      "fact": "Hired Phil McPhee as VP of Operations and Chief Supply Chain Officer and Jerome Nolasco as VP of IT. Nolasco's expertise includes 'ERP and CRM transformation' and 'enterprise AI governance'.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.shure.com/en-US/newsroom/shure-bolsters-leadership-2026"
     },
-    "hypothesis": "A new channel leader may value a partner review that connects relationship concerns to revenue and an accountable follow-up. No existing channel reporting gap is established.",
-    "proofKind": "accounts",
-    "subject": "Before a partner misses its number",
-    "message": "A partner can still be hitting its number when the relationship starts slipping. Revenue alone won't tell your channel managers where to step in.\n\nAs you take on Shure's North American channel, is spotting those situations early a priority?\n\nNine-67 built an application for a client that brought account-team assessments together with revenue and budget context. It was in production within a month. For Shure, we could explore that approach with your channel managers, then build and refine it around how they actually work.\n\nWhat tells your team a partner needs attention before the numbers do?",
-    "fit": "High: current named commercial leader, fresh appointment and a single account-management decision.",
+    "hypothesis": "New IT leaders in this seat usually inherit a complex SAP S/4, SAP Commerce and Salesforce estate and a queue of AI requests from every function. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "governing the first agents",
+    "message": "With AI governance in your brief at Shure, tool reviews can take time away from testing real work. Start with one small task. The approval rules become easier to test.\n\nNine-67 could build an agent that checks product content against engineering specs and flags unsupported claims, with marketing approving every change. Your team would set its access and keep a record of each decision.\n\nIs the first governed workflow already chosen, or is product content worth comparing with the other candidates?",
+    "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
     "limitations": [
-      "No recipient email guessed.",
-      "Case study is professional services, not audio manufacturing or channel sales.",
-      "One month is historical proof, not a promised delivery time for Shure."
+      "Do not guess prior employers of Nolasco or McPhee.",
+      "Do not say an ERP program exists (inferred).",
+      "Tariff price rise is from a music press article, older than 12 months; context only.",
+      "Confirm the recipient email before sending."
     ],
-    "targetRole": "commercial",
+    "targetRole": "engineering",
     "researchDate": "2026-09-23",
     "sector": "Professional audio electronics manufacturing",
-    "rank": 3
+    "rank": 3,
+    "writerKit": {
+      "accountId": "shure",
+      "frame": "challenger",
+      "sendWave": 2,
+      "factIds": [
+        "shure-f0"
+      ],
+      "facts": [
+        {
+          "fact_id": "shure-f0",
+          "statement": "Hired Phil McPhee as VP of Operations and Chief Supply Chain Officer and Jerome Nolasco as VP of IT. Nolasco's expertise includes 'ERP and CRM transformation' and 'enterprise AI governance'.",
+          "source_url": "https://www.shure.com/en-US/newsroom/shure-bolsters-leadership-2026",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Addresses Jerome Nolasco, not prior channel-sales buyer. Does not assert a Shure ERP transformation program or internal governance failure. Reframe is practical approval design, with a specific human-controlled proposal rather than vague governance consulting."
+    }
   },
   {
     "company": "Lufkin Industries",
     "domain": "lufkin.com",
     "buyer": {
-      "name": "Craig Guillory",
-      "title": "Vice President International Sales & Operations",
-      "sourceUrl": "https://www.lufkin.com/pdo-awards-lufkin-contract/",
+      "name": "Brent Baumann",
+      "title": "Chief Executive Officer",
+      "sourceUrl": "https://www.lufkin.com/lufkin-appoints-brent-baumann-as-ceo/",
       "email": null
     },
     "trigger": {
-      "fact": "PDO awarded Lufkin a multi-year contract covering equipment, deployment services and production support in South Oman. Craig Guillory is named as VP International Sales & Operations.",
-      "date": "2026-02-24",
-      "sourceUrl": "https://www.lufkin.com/pdo-awards-lufkin-contract/"
+      "fact": "Sold its North America Downhole (pump and rods) business to Q2 Artificial Lift Services to focus on 'Software, Automation, Surface Equipment and comprehensive service'. Piper Sandler advised.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.lufkin.com/lufkin-industries-announces-sale-of-north-america-downhole-business-to-q2-artificial-lift-services/"
     },
-    "hypothesis": "A performance contract with recurring customer reviews creates a specific reporting opportunity. Lufkin already reports strong performance, so pitch preparation support without implying poor delivery.",
-    "proofKind": "reporting",
-    "subject": "One customer, three delivery commitments",
-    "message": "The PDO agreement covers equipment, deployment and production support. A customer review has to explain how all three are performing, not just collect three teams' updates.\n\nNine-67 built a reporting application that turns source material into editable PowerPoint and Excel outputs. For Lufkin, we could start with one review pack, tying each commitment to the supporting evidence and leaving the explanation with your account team.\n\nWhat takes more work today: assembling the evidence or resolving different accounts of what happened?",
-    "fit": "High: official named buyer owns both sales and operations; a real performance-contract context supports customer-reporting relevance.",
+    "hypothesis": "Service-led models usually carry heavy field report, dispatch and performance-reporting paperwork. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "after the field work",
+    "message": "Lufkin's focus on software, automation and service puts more weight on what happens after a technician finishes the job. If the report still needs rekeying, completed work can wait to become an invoice.\n\nThat handoff is worth measuring separately from field productivity. Nine-67 could build an agent that reads the service report, checks contract terms and drafts the invoice for a service manager to approve.\n\nIs shortening that gap on the plan, or already handled?",
+    "fit": "Wave 3. growth without proportional hiring. Demand and budget not confirmed.",
     "limitations": [
-      "No recipient email guessed.",
-      "Reporting case is built and ready, not claimed deployed or proven in oilfield operations.",
-      "No well-control, engineering or safety decisions are automated by the proposed reporting tool.",
-      "Contract announcement is February, not breaking news."
+      "Verify Baumann is still CEO (last confirmed Mar 2025).",
+      "The divestiture is Mar 2025: use as context, not as news.",
+      "Do not mention headcount decline (third-party estimate, sensitive).",
+      "Do not speculate about a KPS exit.",
+      "President/CFO/VP names are from The Org; verify before sending.",
+      "Confirm the recipient email before sending.",
+      "Reconfirm Brent Baumann’s current title before sending; the supplied appointment source is dated March 2025."
     ],
-    "targetRole": "commercial",
+    "targetRole": "executive",
     "researchDate": "2026-09-23",
     "sector": "Oilfield equipment manufacturing and field service",
-    "rank": 4
+    "rank": 4,
+    "writerKit": {
+      "accountId": "lufkin",
+      "frame": "command_of_message",
+      "sendWave": 3,
+      "factIds": [
+        "lufkin-f2"
+      ],
+      "facts": [
+        {
+          "fact_id": "lufkin-f2",
+          "statement": "Sold its North America Downhole (pump and rods) business to Q2 Artificial Lift Services to focus on 'Software, Automation, Surface Equipment and comprehensive service'. Piper Sandler advised.",
+          "source_url": "https://www.lufkin.com/lufkin-industries-announces-sale-of-north-america-downhole-business-to-q2-artificial-lift-services/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Uses 2025 strategic focus as context, never new news. No claim about actual billing delays, headcount decline, or KPS exit. CEO status last confirmed March 2025 remains a contact verification caveat before sending."
+    }
   },
   {
     "company": "Mayville Engineering Company",
@@ -124,122 +197,191 @@
     "buyer": {
       "name": "Craig D. Nichols",
       "title": "Senior Vice President, Operations and Supply Chain",
-      "sourceUrl": "https://ir.mecinc.com/governance/board-of-directors/person-details/default.aspx?ItemId=f9666a86-a7e4-4fcd-bf7b-90d09550b1ad",
+      "sourceUrl": "https://ir.mecinc.com/governance/executive-management/default.aspx",
       "email": null
     },
     "trigger": {
-      "fact": "MEC reported stronger orders and growing data-center programs, alongside selective allocation of capacity to higher-margin work.",
-      "date": "2026-08-05",
-      "sourceUrl": "https://www.mecinc.com/news/mayville-engineering-company-announces-second-quarter-2026-results/"
+      "fact": "CFO Rachele Lehr said MEC needs to 'ramp up our plans by several hundred people by the end of the year' and is leveraging third-party resources to help. CEO Jag Reddy cited tight labor markets (Defiance OH at 2.3% unemployment, Mayville WI at 2.9%) and said some work (laser, press brake, paint capacity) is being outsourced while new operators are hired and trained.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.investing.com/news/transcripts/earnings-call-transcript-mayville-engineering-beats-q2-2026-estimates-on-sales-93CH-4838464"
     },
-    "hypothesis": "The explicit choice to prioritize capacity creates a plausible need to compare competing programs with assumptions visible. Existing planning capability is unknown.",
-    "proofKind": "finance",
-    "subject": "Which program gets the next available hour?",
-    "message": "MEC's update describes growing data-center work and reserving capacity for higher-margin programs. The interesting decision is what to accept when two attractive programs need the same hours.\n\nWe could build a planning application that compares the choices using your delivery commitments, available capacity and margin assumptions. Planners would be able to change an assumption and see what moves before committing.\n\nNine-67 has deployed forecasting and resource-allocation tools with a client. Which assumption is hardest to trust when your team makes that call?",
-    "fit": "High: directly stated current operating decision and confirmed operations executive.",
+    "hypothesis": "When labor is the constraint, planners, estimators and supervisors usually end up spending time on admin that grows with every launch. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "protecting launch time",
+    "message": "MEC's plan to add several hundred people by year end could put another load on the people running launches. Chasing missing tooling or material updates takes time away from clearing the actual blocker.\n\nNine-67 could build an agent that gathers those updates into a daily exception list for one launch. Your program manager would check it and decide what needs action. The measure would be hours spent collecting status.\n\nWould it be a bad idea to test that against one launch?",
+    "fit": "Wave 1. cycle time and error rates on core workflows. Demand and budget not confirmed.",
     "limitations": [
-      "No guessed email.",
-      "Adjacent planning proof is not a manufacturing scheduling case study.",
-      "No assertion that MEC lacks planning software or that savings are guaranteed."
+      "No CIO found; do not address IT.",
+      "Do not claim knowledge of their ERP.",
+      "Confirm the recipient email before sending."
     ],
     "targetRole": "operations",
     "researchDate": "2026-09-23",
     "sector": "Contract metal manufacturing",
-    "rank": 5
+    "rank": 5,
+    "writerKit": {
+      "accountId": "mec",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "mec-f4"
+      ],
+      "facts": [
+        {
+          "fact_id": "mec-f4",
+          "statement": "CFO Rachele Lehr said MEC needs to 'ramp up our plans by several hundred people by the end of the year' and is leveraging third-party resources to help. CEO Jag Reddy cited tight labor markets (Defiance OH at 2.3% unemployment, Mayville WI at 2.9%) and said some work (laser, press brake, paint capacity) is being outsourced while new operators are hired and trained.",
+          "source_url": "https://www.investing.com/news/transcripts/earnings-call-transcript-mayville-engineering-beats-q2-2026-estimates-on-sales-93CH-4838464",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Removed suggestion that AI replaces production operators and avoided negative margin language. Reframe distinguishes gathering status from solving blockers. Uses corrected hiring statement without falsely attributing unemployment quotes to CFO."
+    }
   },
   {
     "company": "Sugar Creek Packing",
     "domain": "sugarcreek.com",
     "buyer": {
-      "name": "Daniel Hammer",
-      "title": "President",
+      "name": "Derek Boesken",
+      "title": "Vice President of Operations and Supply Chain",
       "sourceUrl": "https://www.sugarcreek.com/our-team/",
       "email": null
     },
     "trigger": {
-      "fact": "SugarCreek operates a pilot plant and culinary center opened in 2024. President Daniel Hammer oversees product development, culinary, sales and customer service.",
-      "date": null,
-      "sourceUrl": "https://sugarcreek.com/about-us/",
-      "type": "Current operating context; facility opened in 2024, exact opening date not established"
+      "fact": "The company lists six US facilities: Washington Court House OH, Dayton OH, Frontenac KS, Fairfield OH (sous vide, culinary center), Hamilton OH (sous vide, refrigerated/frozen warehouse) and Cambridge City IN (meatballs, sausage patties).",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://sugarcreek.com/about-us/"
     },
-    "hypothesis": "Because development and customer commitments share one leader, moving a tested product into production is a plausible cross-functional application opportunity. No actual launch delay is known.",
-    "proofKind": "20-applications",
-    "subject": "The gap between a good sample and a launch",
-    "message": "A product can work in the pilot plant before every decision needed for its first commercial order is settled. Your role across development, culinary and customer service gives you a view of that whole handoff.\n\nWe could build a launch application that connects the agreed specification, unresolved packaging decisions and approvals to the first-order date.\n\nNine-67 helped one client deploy 20 applications. We build with the teams doing the work, refine the first version and train them through rollout.\n\nWhich launch decision tends to need the most chasing?",
-    "fit": "High role fit: president directly oversees both product development and commercial functions; proposal is administrative coordination.",
+    "hypothesis": "Co-packers usually manage each customer's specs, allergen and food safety documents, and price changes by email and spreadsheet. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "the next spec revision",
+    "message": "Across SugarCreek's six US facilities, a customer spec change could create more work than the edit itself. Finding every affected instruction is often the slower part.\n\nNine-67 could build an agent that compares each revision with the approved version and flags the production documents that may need changing. QA would review the differences and approve any updates. We would start with one customer's revision history.\n\nHow are those changes checked across plants today?",
+    "fit": "Wave 3. cycle time and error rates on core workflows. Demand and budget not confirmed.",
     "limitations": [
-      "No recipient email guessed.",
-      "The CSV named John Richardson as CEO; current official site identifies Michael Richardson as CEO. Daniel Hammer is chosen for explicit relevant remit.",
-      "20-app count is user-supplied and not manufacturing-specific.",
-      "Food safety, recipe approval and quality release remain human decisions; proposed app gathers status only."
+      "Do not say 'recently migrated to SAP' (case study undated).",
+      "Do not cite revenue beyond 'billion-dollar' claim.",
+      "Confirm the recipient email before sending."
     ],
     "targetRole": "operations",
     "researchDate": "2026-09-23",
     "sector": "Food manufacturing",
-    "rank": 6
+    "rank": 6,
+    "writerKit": {
+      "accountId": "sugarcreek",
+      "frame": "poke_the_bear",
+      "sendWave": 3,
+      "factIds": [
+        "sugarcreek-f0"
+      ],
+      "facts": [
+        {
+          "fact_id": "sugarcreek-f0",
+          "statement": "The company lists six US facilities: Washington Court House OH, Dayton OH, Frontenac KS, Fairfield OH (sous vide, culinary center), Hamilton OH (sous vide, refrigerated/frozen warehouse) and Cambridge City IN (meatballs, sausage patties).",
+          "source_url": "https://sugarcreek.com/about-us/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Low-confidence signal warrants exploratory question, not claimed urgency. Does not imply unsafe practices, missed changes, or recent SAP migration. Agent suggests affected documents; QA retains judgment and approval."
+    }
   },
   {
     "company": "Bossard Americas",
     "domain": "bossard.com",
     "buyer": {
-      "name": "Brendan Nolan",
-      "title": "General Manager, Bossard U.S.",
-      "sourceUrl": "https://americas.bossard.com/media-kit-bossard-americas/",
+      "name": "David Jones",
+      "title": "CEO, Bossard Americas",
+      "sourceUrl": "https://www.bossard.com/us-en/about-us/company/united-states/organization/",
       "email": null
     },
     "trigger": {
-      "fact": "Bossard combines fastener supply, assembly engineering and inventory services. Its current media kit identifies Brendan Nolan as U.S. general manager with business-development and procurement responsibilities.",
-      "date": null,
-      "sourceUrl": "https://americas.bossard.com/media-kit-bossard-americas/",
-      "type": "Current operating context, not a new event"
+      "fact": "Americas H1 2026 sales CHF 123M, up 17.3% in local currency. Demand recovered in mechanical engineering, energy, e-mobility and data centers. US steel/aluminum tariff pass-through contributed about 2% to growth.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.investing.com/news/transcripts/earnings-call-transcript-bossard-posts-strong-h1-2026-growth-shares-jump-8-93CH-4803679"
     },
-    "hypothesis": "Proposals spanning supply and engineering can require coordination of approved technical and commercial inputs. Actual proposal friction is not established.",
-    "proofKind": "proposals",
-    "subject": "What holds up a complete RFQ response?",
-    "message": "A Bossard quote can depend on engineering advice and inventory arrangements as well as the fastener price. A quick response only helps if those commitments agree.\n\nNine-67 built a proposal application that checks requirements against approved material and flags missing answers or unsupported claims. For Bossard, we could test that approach on one RFQ type with engineering, procurement and the commercial team.\n\nThe team would keep control of technical and commercial approval. Which answer most often holds up a response that is otherwise ready?",
-    "fit": "Medium-high: named general manager spans business development and procurement; direct transfer of proposal-review capability, without claiming engineering expertise.",
+    "hypothesis": "When volume rebounds during an ERP migration, document work (POs, certificates, invoices, price updates) usually lands on people in the old system. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "Americas document intake",
+    "message": "Bossard's 17.3% Americas sales growth in local currency can bring more order paperwork while the group is rolling out Dynamics 365. Document review may be worth separating from the ERP timetable.\n\nNine-67 could build an agent that reads customer purchase orders, flags missing details and prepares an order for your team to approve. We would first test one intake queue and measure review time, with your IT team checking the fit.\n\nIs that already part of the Americas plan, or still open?",
+    "fit": "Wave 2. growth without proportional hiring. Demand and budget not confirmed.",
     "limitations": [
-      "No recipient email guessed.",
-      "Evergreen operating context, no fabricated announcement date.",
-      "Nine-67 proposal proof is built professional-services work, not demonstrated fastener quoting.",
-      "Technical acceptance and pricing remain with Bossard."
+      "US D365 timing unknown; do not assume it.",
+      "Do not name the new CFO (unverified).",
+      "Confirm the recipient email before sending."
     ],
-    "targetRole": "commercial",
+    "targetRole": "executive",
     "researchDate": "2026-09-23",
     "sector": "Industrial fastening and assembly distribution",
-    "rank": 7
+    "rank": 7,
+    "writerKit": {
+      "accountId": "bossard",
+      "frame": "challenger",
+      "sendWave": 2,
+      "factIds": [
+        "bossard-f1",
+        "bossard-f2"
+      ],
+      "facts": [
+        {
+          "fact_id": "bossard-f1",
+          "statement": "Americas H1 2026 sales CHF 123M, up 17.3% in local currency. Demand recovered in mechanical engineering, energy, e-mobility and data centers. US steel/aluminum tariff pass-through contributed about 2% to growth.",
+          "source_url": "https://www.investing.com/news/transcripts/earnings-call-transcript-bossard-posts-strong-h1-2026-growth-shares-jump-8-93CH-4803679",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "bossard-f2",
+          "statement": "Bossard is rolling out Microsoft Dynamics 365 ERP, with Switzerland, Spain and China deployments planned for H2 2026. Management cited AI-driven document processing and supply chain optimization.",
+          "source_url": "https://www.investing.com/news/transcripts/earnings-call-transcript-bossard-posts-strong-h1-2026-growth-shares-jump-8-93CH-4803679",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "No assumption that US deployment is pending or delayed. Growth explicitly refers to H1. Does not promise compatibility without checking or claim their documented AI effort is absent."
+    }
   },
   {
     "company": "Clarience Technologies",
     "domain": "clarience.com",
     "officialWebsite": "https://clariencetechnologies.com/",
     "buyer": {
-      "name": "David McKean",
-      "title": "Executive Vice President, Supply Chain and Chief Procurement Officer",
-      "sourceUrl": "https://clariencetechnologies.com/team/david-mckean/",
+      "name": "Robert Willing",
+      "title": "EVP, Chief Financial Officer",
+      "sourceUrl": "https://clariencetechnologies.com/team/",
       "email": null
     },
     "trigger": {
-      "fact": "Clarience manufactures transportation equipment across multiple brands, with in-house circuit-board assembly, molding and global distribution. Its current leadership page names David McKean as supply-chain executive and CPO.",
-      "date": null,
-      "sourceUrl": "https://clariencetechnologies.com/about-us/",
-      "type": "Current operating context, not a new event"
+      "fact": "Expanded Team Penske partnership for the 2026 INDYCAR season. Portfolio described as 29 subsidiary brands.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://clariencetechnologies.com/news/team-penske-grows-relationship-with-clarience-technologies/"
     },
-    "hypothesis": "A procurement leader across multiple manufacturing businesses may benefit from a shared view of supplier exceptions and their impact on customer commitments. No current shortage or reporting gap is asserted.",
-    "proofKind": "reporting",
-    "subject": "One supplier issue, several plant decisions",
-    "message": "When several businesses share a supplier, each plant can have a sensible local response without anyone seeing the combined exposure. Is that a decision your team has to piece together across Clarience's brands?\n\nWe could build a supplier exception application that connects affected orders, available alternatives and the decision each buyer needs. Start with one supplier and let the buyers test it against their current review.\n\nNine-67 has deployed resource-allocation and collaboration tools with a client. Where does the cross-plant picture take the most work to assemble?",
-    "fit": "High operational fit: named current supply-chain and procurement leader at a physical transportation-equipment manufacturer; no telemetry-product pitch.",
+    "hypothesis": "Roll-ups this size usually carry separate catalogs, procurement and compliance work per brand. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "freight costs across brands",
+    "message": "Across Clarience's 29 brands, small freight billing errors could add up without looking material at any one business. Comparing the same charge across brands may reveal more than reviewing each invoice alone.\n\nNine-67 could build an agent that checks freight invoices against agreed rates and flags discrepancies for your logistics team to approve or dispute. We would start with one charge type across two brands.\n\nIs that kind of shared cost check already in place, or worth scoping?",
+    "fit": "Wave 1. margin and cost-to-serve. Demand and budget not confirmed.",
     "limitations": [
-      "No recipient email guessed.",
-      "Domain clarience.com is retained from the supplied sales list for matching; verified official sources are at clariencetechnologies.com.",
-      "Operating context is undated and not presented as a fresh development.",
-      "Nine-67 reporting proof is built and ready, not claimed deployed in manufacturing."
+      "Exact close date and value unverified; say 'Leonard Green's investment'.",
+      "No public AI statements; do not imply any.",
+      "Confirm the recipient email before sending."
     ],
-    "targetRole": "operations",
+    "targetRole": "finance",
     "researchDate": "2026-09-23",
     "sector": "Transportation equipment manufacturing",
-    "rank": 8
+    "rank": 8,
+    "writerKit": {
+      "accountId": "clarience",
+      "frame": "command_of_message",
+      "sendWave": 1,
+      "factIds": [
+        "clarience-f6"
+      ],
+      "facts": [
+        {
+          "fact_id": "clarience-f6",
+          "statement": "Expanded Team Penske partnership for the 2026 INDYCAR season. Portfolio described as 29 subsidiary brands.",
+          "source_url": "https://clariencetechnologies.com/news/team-penske-grows-relationship-with-clarience-technologies/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Uses sourced 29-brand portfolio rather than uncertain PE close timing. Avoids assuming fragmented systems or existing invoice errors. CFO-specific cost mechanism and bounded proposal; discrepancy handling remains with logistics. Deliberately departs from required PE fact to avoid unsupported close claim."
+    }
   },
   {
     "company": "Smart Care Equipment Solutions",
@@ -247,51 +389,95 @@
     "buyer": {
       "name": "Veronica Lubatkin",
       "title": "President and Chief Financial Officer",
-      "sourceUrl": "https://smartcaresolutions.com/about/leadership/"
+      "sourceUrl": "https://www.businesswire.com/news/home/20260723212627/en/Smart-Care-Solutions-Names-New-President-Chief-Financial-Officer-and-Chief-People-Officer-to-Accelerate-Growth-and-Operational-Performance",
+      "email": null
     },
     "trigger": {
-      "fact": "Smart Care is growing its national equipment-service network through acquisitions while preserving local teams and customer relationships.",
-      "date": "Undated; checked 2026-09-23",
-      "sourceUrl": "https://smartcaresolutions.com/join-us/acquisitions/"
+      "fact": "Smart Care unified five coffee and speed-oven service brands (Turbo Technicians, EspressoMe, Dutton, Espresso Partners, VP Coffee) into the national Turbo Tech brand and launched Turbo Tech One flat-rate speed-oven pricing. Turbo Tech is about 15% of the business.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://dailycoffeenews.com/2026/09/17/smart-care-unifies-five-coffee-equipment-service-brands-as-turbo-tech/"
     },
-    "subject": "What the local team knows first",
-    "message": "Keeping local teams through an acquisition preserves something a financial rollup cannot show: what those teams know about the customer relationship.\n\nAs Smart Care grows, how does a local manager's concern reach the national review early enough to act?\n\nNine-67 built an application that put account-team assessments beside revenue exposure and budget context. It went into production within a month using the client's existing systems.\n\nThat could be a useful starting point for one region. Would an account-team view like that add anything to your current review?",
-    "proofKind": "accounts",
+    "subject": "Turbo Tech job margins",
+    "message": "Smart Care's move to flat-rate speed-oven pricing could make a repeat visit expensive before finance sees it. Bringing five brands under Turbo Tech makes the cost of each job worth checking early.\n\nThe useful starting point is the service record. Nine-67 could build an agent that compares technician notes, parts and return visits against the agreed rate. Your finance team would approve any billing changes.\n\nWorth testing that on one set of Turbo Tech jobs, or is job-margin review already covered?",
+    "proofKind": "proposed_workflow",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
-    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
-    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
-    "targetRole": "operations",
+    "hypothesis": "Field service roll-ups usually run billing, dispatch and AP across many acquired brands with different habits. This is a hypothesis to test, not a confirmed problem at the company.",
+    "fit": "Wave 1. margin and cost-to-serve. Demand and budget not confirmed.",
+    "limitations": [
+      "Do not say 'congrats'.",
+      "350k service events is a 2022 Audax figure; do not cite as current.",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "finance",
     "researchDate": "2026-09-23",
     "sector": "Logistics and physical services",
     "rank": 9,
-    "wordCount": 68
+    "wordCount": 68,
+    "writerKit": {
+      "accountId": "smartcare",
+      "frame": "challenger",
+      "sendWave": 1,
+      "factIds": [
+        "smartcare-f0"
+      ],
+      "facts": [
+        {
+          "fact_id": "smartcare-f0",
+          "statement": "Smart Care unified five coffee and speed-oven service brands (Turbo Technicians, EspressoMe, Dutton, Espresso Partners, VP Coffee) into the national Turbo Tech brand and launched Turbo Tech One flat-rate speed-oven pricing. Turbo Tech is about 15% of the business.",
+          "source_url": "https://dailycoffeenews.com/2026/09/17/smart-care-unifies-five-coffee-equipment-service-brands-as-turbo-tech/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Removed unsupported claims about billing delays. Chose flat-rate job economics for the CFO rather than generic acquisition integration."
+    }
   },
   {
     "company": "Lazer Logistics",
     "domain": "lazerlogistics.com",
     "buyer": {
-      "name": "Phil Newsome",
-      "title": "Chief Operating Officer",
-      "sourceUrl": "https://www.lazerlogistics.com/about"
+      "name": "Josh Lee",
+      "title": "President",
+      "sourceUrl": "https://www.lazerlogistics.com/blog/in-his-new-role-he-will-oversee-day-to-day-operations-and-continue-driving-lazers-mission-to-deliver-exceptional-results-for-its-customers",
+      "email": null
     },
     "trigger": {
-      "fact": "Lazer operates yard logistics across more than 700 locations and has its own NexusYMS.",
-      "date": "Undated; checked 2026-09-23",
-      "sourceUrl": "https://www.lazerlogistics.com/about"
+      "fact": "Deployed 'Uncle Phil AI', a coaching tool inside LLOS that combines telematics, in-cab video, maintenance, inspection and labor data to give site managers real-time guidance across about 750 sites.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://letsdatascience.com/news/lazer-logistics-deploys-uncle-phil-ai-for-yard-management-e973d3bb"
     },
-    "subject": "Fixing the same site problem twice",
-    "message": "At more than 700 locations, a fix made at one yard could be useful at several others. The question is how the next site finds it before working through the same problem again.\n\nLazer already has NexusYMS. We could explore a separate application for recurring operating issues: what happened, what worked and which locations should act on it.\n\nNine-67 helped one client deploy 20 applications, building and training with the users. Is sharing proven site fixes something your operations leaders want to improve?",
-    "proofKind": "20-applications",
+    "subject": "after Uncle Phil flags it",
+    "message": "With Uncle Phil AI giving Lazer's site managers guidance, the next time cost may be gathering evidence that an issue was resolved. A recommendation and a closed action are different things.\n\nNine-67 could build an agent alongside your existing tools that gathers the maintenance record or inspection result behind a flagged issue. The site manager would confirm the fix before it closes.\n\nIs that follow-through worth testing at one site, or does LLOS already handle it?",
+    "proofKind": "proposed_workflow",
     "proofSourceUrl": null,
-    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
-    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
-    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "hypothesis": "Operators usually aim AI at the field first. Billing, customer reporting and acquisition integration still scale with admin staff. This is a hypothesis to test, not a confirmed problem at the company.",
+    "fit": "Wave 3. throughput and capacity without adding headcount. Demand and budget not confirmed.",
+    "limitations": [
+      "They build tech in-house: never pitch a platform.",
+      "Uncle Phil source is a news aggregator; say 'Uncle Phil AI' without dates or stats.",
+      "Confirm the recipient email before sending."
+    ],
     "targetRole": "operations",
     "researchDate": "2026-09-23",
     "sector": "Logistics and physical services",
     "rank": 10,
-    "wordCount": 70
+    "wordCount": 70,
+    "writerKit": {
+      "accountId": "lazer",
+      "frame": "challenger",
+      "sendWave": 3,
+      "factIds": [
+        "lazer-f0"
+      ],
+      "facts": [
+        {
+          "fact_id": "lazer-f0",
+          "statement": "Deployed 'Uncle Phil AI', a coaching tool inside LLOS that combines telematics, in-cab video, maintenance, inspection and labor data to give site managers real-time guidance across about 750 sites.",
+          "source_url": "https://letsdatascience.com/news/lazer-logistics-deploys-uncle-phil-ai-for-yard-management-e973d3bb",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Acknowledges existing AI; no replacement-platform pitch, dates, deployment counts or claim that LLOS lacks this function."
+    }
   },
   {
     "company": "PLS Logistics Services",
@@ -299,103 +485,198 @@
     "buyer": {
       "name": "Steven Bergan",
       "title": "President",
-      "sourceUrl": "https://www.plslogistics.com/resources/news/steven-bergan-pls-logistics-president/"
+      "sourceUrl": "https://www.prnewswire.com/news-releases/steven-bergen-joins-pls-logistics-services-as-president-302384772.html",
+      "email": null
     },
     "trigger": {
-      "fact": "PLS operates freight brokerage and managed transportation; its president oversees operations and service expansion.",
-      "date": "Undated; checked 2026-09-23",
-      "sourceUrl": "https://www.plslogistics.com/about-us/"
+      "fact": "PLS acquired The AGL Group, an international freight forwarder based in Weymouth, MA, with 76 specialists and 600+ global partners. The deal adds international forwarding, drayage, ocean freight and customs brokerage. Terms were not disclosed, and AGL is now a wholly owned subsidiary.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.aol.com/articles/pls-logistics-services-acquires-agl-230500000.html"
     },
-    "subject": "Less review prep, more explanation",
-    "message": "A shipper review should explain what to change in the transportation program. Getting shipment results into slides is necessary work, but it is not the decision the customer is paying for.\n\nNine-67 built an application that produces branded, editable PowerPoint and Excel reports. At PLS, we could start with one recurring customer review, leaving the account team to explain the exceptions and recommend the next action.\n\nWhat would your team gain more from: faster preparation, or more consistent evidence behind its recommendations?",
-    "proofKind": "reporting",
+    "subject": "AGL shipment handoffs",
+    "message": "Adding AGL's ocean, customs and drayage services to PLS could increase the time spent checking whether a shipment is ready for its next leg. One missing release can outweigh several on-time updates.\n\nNine-67 could build an agent that checks the documents for one port-to-truck handoff, flags missing releases and drafts the request. Your coordinator would approve the request and decide when the load can move.\n\nWorth comparing that with an AGL handoff, or is the process already settled?",
+    "proofKind": "proposed_workflow",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
-    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
-    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "hypothesis": "Integrations like this usually focus on systems. The daily drag is customs entries, bookings and handoffs between two teams. This is a hypothesis to test, not a confirmed problem at the company.",
+    "fit": "Wave 2. throughput and capacity without adding headcount. Demand and budget not confirmed.",
+    "limitations": [
+      "No CFO found; do not address finance.",
+      "Bielawski current status unverified.",
+      "Confirm the recipient email before sending."
+    ],
     "targetRole": "operations",
     "researchDate": "2026-09-23",
     "sector": "Logistics and physical services",
     "rank": 11,
-    "wordCount": 70
+    "wordCount": 70,
+    "writerKit": {
+      "accountId": "pls",
+      "frame": "gap_selling",
+      "sendWave": 2,
+      "factIds": [
+        "pls-f0"
+      ],
+      "facts": [
+        {
+          "fact_id": "pls-f0",
+          "statement": "PLS acquired The AGL Group, an international freight forwarder based in Weymouth, MA, with 76 specialists and 600+ global partners. The deal adds international forwarding, drayage, ocean freight and customs brokerage. Terms were not disclosed, and AGL is now a wholly owned subsidiary.",
+          "source_url": "https://www.aol.com/articles/pls-logistics-services-acquires-agl-230500000.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Removed unsupported claims of current delays and integration failure. Restricts agent to document review and drafts, leaving release decisions with coordinators."
+    }
   },
   {
     "company": "BlueGrace Logistics",
     "domain": "mybluegrace.com",
     "buyer": {
-      "name": "Jason Lockard",
-      "title": "Chief Commercial Officer",
-      "sourceUrl": "https://mybluegrace.com/leadership/"
+      "name": "Adam Blankenship",
+      "title": "President & Chief Operating Officer",
+      "sourceUrl": "https://mybluegrace.com/leadership/",
+      "email": null
     },
     "trigger": {
-      "fact": "BlueGrace sells transportation services across multiple modes, with Jason Lockard responsible for commercial strategy.",
-      "date": "2025-10; context only",
-      "sourceUrl": "https://mybluegrace.com/news/jason-lockard-named-chief-commercial-officer/"
+      "fact": "Acquired Truk TMS, an Idaho-based LTL broker and longtime BlueGrace partner. Terms were not disclosed, and Truk TMS will be integrated into BlueGrace operations.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.freightwaves.com/news/bluegrace-logistics-acquires-idaho-3pl-truk-tms"
     },
-    "subject": "A proposal your delivery team can stand behind",
-    "message": "With BlueGrace's range of transportation services, a shipper proposal has to do two jobs: make a persuasive case and stay precise about what the team can deliver.\n\nNine-67 built a proposal application that checks a customer's requirements against approved material and highlights gaps or unsupported claims for review.\n\nWe could test it on one BlueGrace proposal type with the people who write and approve the response. Where does the team spend more time today: finding the right evidence or checking the commitments?",
-    "proofKind": "proposals",
+    "subject": "Truk TMS onboarding",
+    "message": "Bringing Truk TMS into BlueGrace could mean more time spent turning customer instructions into rules for each account. A migrated account can still carry instructions that never made it into the system.\n\nNine-67 could build an agent that checks a new customer's routing instructions against the proposed setup. Your team would review any conflicts before approval. We'd start with one account.\n\nIs checking those instructions part of the integration plan, or already handled?",
+    "proofKind": "proposed_workflow",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
-    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
-    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "hypothesis": "Each add-on brings customers to onboard and claims to process. Both usually scale with headcount. This is a hypothesis to test, not a confirmed problem at the company.",
+    "fit": "Wave 1. throughput and capacity without adding headcount. Demand and budget not confirmed.",
+    "limitations": [
+      "They market AI heavily; do not explain AI to them.",
+      "Warburg stake size unverified; say 'Warburg Pincus-backed'.",
+      "Confirm the recipient email before sending."
+    ],
     "targetRole": "operations",
     "researchDate": "2026-09-23",
     "sector": "Logistics and physical services",
     "rank": 12,
-    "wordCount": 69
+    "wordCount": 69,
+    "writerKit": {
+      "accountId": "bluegrace",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "bluegrace-f0"
+      ],
+      "facts": [
+        {
+          "fact_id": "bluegrace-f0",
+          "statement": "Acquired Truk TMS, an Idaho-based LTL broker and longtime BlueGrace partner. Terms were not disclosed, and Truk TMS will be integrated into BlueGrace operations.",
+          "source_url": "https://www.freightwaves.com/news/bluegrace-logistics-acquires-idaho-3pl-truk-tms",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Avoids explaining AI to an experienced AI adopter. Names a narrow acquired-account workflow without asserting their migration has defects."
+    }
   },
   {
     "company": "TA Services",
     "domain": "taservices.com",
     "buyer": {
-      "name": "Scott Schell",
-      "title": "President and CEO",
-      "sourceUrl": "https://www.taservices.com/about/our-team/"
+      "name": "Chris Bahr",
+      "title": "Executive Vice President and CIO",
+      "sourceUrl": "https://www.taservices.com/about/our-team/",
+      "email": null
     },
     "trigger": {
-      "fact": "TA combines brokerage, managed transportation, warehousing and cross-border services.",
-      "date": "Undated; checked 2026-09-23",
-      "sourceUrl": "https://www.taservices.com/about/"
+      "fact": "TA integrated SMC3's LTL platform into its planning, pricing and analytics systems. It reports a 30% transportation cost reduction after network redesign, 99% routing accuracy and 8.3% portfolio savings. Both firms plan to deepen collaboration 'through expanded API integrations, enhanced real-time visibility, and continued modernization of dispatch, documentation, and data access.'",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.globenewswire.com/news-release/2026/01/20/3221908/0/en/TA-Achieves-30-LTL-Cost-Savings-and-99-Routing-Accuracy-with-SMC.html"
     },
-    "subject": "When each service looks fine on its own",
-    "message": "A customer using TA's warehousing, transportation and cross-border services can have a different experience from the one any single team sees. Who brings those views together before the account review?\n\nNine-67 built an application that connects account-team assessments with revenue exposure and budget context. It reached production in a month without replacing the client's existing systems.\n\nFor TA, we could start with one shared customer and the leaders responsible for it. What tends to get missed when the services are reviewed separately?",
-    "proofKind": "accounts",
+    "subject": "after SMC3",
+    "message": "TA's next phase with SMC3 could shorten the wait between delivery and billing by tackling documentation. Better pricing alone cannot clear a missing document.\n\nOne document flow could be tested before a wider system change. Nine-67 could build an agent that matches proof of delivery to the load, flags missing signatures and prepares the billing packet. Your billing team would approve release.\n\nWould a test on one document flow fit the modernization plan, or is that work already assigned?",
+    "proofKind": "proposed_workflow",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
-    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
-    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
-    "targetRole": "operations",
+    "hypothesis": "In brokerage, documentation and shipment-change communication usually stay manual longest. This is a hypothesis to test, not a confirmed problem at the company.",
+    "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
+    "limitations": [
+      "Gamut/BCI ownership in 2026 unverified; say 'PS Logistics'.",
+      "Do not use the 30% savings number as ours.",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "engineering",
     "researchDate": "2026-09-23",
     "sector": "Logistics and physical services",
     "rank": 13,
-    "wordCount": 70
+    "wordCount": 70,
+    "writerKit": {
+      "accountId": "ta",
+      "frame": "gap_selling",
+      "sendWave": 2,
+      "factIds": [
+        "ta-f0"
+      ],
+      "facts": [
+        {
+          "fact_id": "ta-f0",
+          "statement": "TA integrated SMC3's LTL platform into its planning, pricing and analytics systems. It reports a 30% transportation cost reduction after network redesign, 99% routing accuracy and 8.3% portfolio savings. Both firms plan to deepen collaboration 'through expanded API integrations, enhanced real-time visibility, and continued modernization of dispatch, documentation, and data access.'",
+          "source_url": "https://www.globenewswire.com/news-release/2026/01/20/3221908/0/en/TA-Achieves-30-LTL-Cost-Savings-and-99-Routing-Accuracy-with-SMC.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Changed assertion of manual work to a conditional. Does not present TA savings as Nine-67 results or imply an announced replacement project."
+    }
   },
   {
     "company": "Transervice Logistics",
     "domain": "transervice.com",
     "buyer": {
-      "name": "Gino Fontana",
-      "title": "Chief Operating Officer and EVP",
-      "sourceUrl": "https://www.transervice.com/our-team/"
+      "name": "Gregg Nierenberg",
+      "title": "President and CEO",
+      "sourceUrl": "https://www.ttnews.com/logistics/companies/transervice/2026",
+      "email": null
     },
     "trigger": {
-      "fact": "Transervice operates dedicated transportation and fleet services with leadership across logistics and regional operations.",
-      "date": "Undated; checked 2026-09-23",
-      "sourceUrl": "https://www.transervice.com/our-team/"
+      "fact": "FleetChAIn is positioned as 'decision intelligence' (moving from tracking to decisions), with 'AI-driven ETAs' and integration across routing, dispatch and telematics. Tagline: 'Stop Tracking. Start Deciding.'",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.transervice.com/fleetchain-transervice/"
     },
-    "subject": "After the customer review ends",
-    "message": "The value of a fleet review depends on what happens afterward. An agreed action can involve maintenance, logistics and a regional team before the customer sees a result.\n\nWe could build an application that follows each commitment through those handoffs, showing the next decision and who owes the customer an update.\n\nNine-67 helped one client deploy 20 applications. We choose the priority with leaders, build with the users and train through rollout.\n\nWhich kind of customer commitment is hardest to follow through to completion at Transervice?",
-    "proofKind": "20-applications",
+    "subject": "FleetChAIn and work orders",
+    "message": "Turning technician notes into work orders may take time away from managing repairs at Transervice. FleetChAIn's focus on decisions could fit this work too.\n\nThe first task could be preparing the record, with repair decisions staying in the shop. Nine-67 could build an agent that drafts work-order updates from technician notes and parts used. A shop manager would approve them.\n\nIs that internal workflow on the roadmap, or is FleetChAIn the priority for now?",
+    "proofKind": "proposed_workflow",
     "proofSourceUrl": null,
-    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
-    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
-    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
-    "targetRole": "operations",
+    "hypothesis": "Companies that productize decision intelligence for customers often still run maintenance admin and compliance by hand internally. This is a hypothesis to test, not a confirmed problem at the company.",
+    "fit": "Wave 3. growth without proportional hiring. Demand and budget not confirmed.",
+    "limitations": [
+      "'New business acquisitions' may mean customer wins, not M&A.",
+      "CFO current status unverified.",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "executive",
     "researchDate": "2026-09-23",
     "sector": "Logistics and physical services",
     "rank": 14,
-    "wordCount": 71
+    "wordCount": 71,
+    "writerKit": {
+      "accountId": "transervice",
+      "frame": "challenger",
+      "sendWave": 3,
+      "factIds": [
+        "transervice-f1",
+        "transervice-f5"
+      ],
+      "facts": [
+        {
+          "fact_id": "transervice-f1",
+          "statement": "FleetChAIn is positioned as 'decision intelligence' (moving from tracking to decisions), with 'AI-driven ETAs' and integration across routing, dispatch and telematics. Tagline: 'Stop Tracking. Start Deciding.'",
+          "source_url": "https://www.transervice.com/fleetchain-transervice/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "transervice-f5",
+          "statement": "The July 2026 new-hire post references hiring drivers, diesel technicians, fleet maintenance, operations team members, managers and support staff as part of expansion.",
+          "source_url": "https://www.transervicecareers.com/2026/08/07/welcome-to-transervice-july-2026/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Avoids treating customer wins as acquisitions or inferring current manual systems as fact. Does not call FleetChAIn a software platform."
+    }
   },
   {
     "company": "Montway Auto Transport",
@@ -403,25 +684,54 @@
     "buyer": {
       "name": "Alberto Anguiano",
       "title": "Chief Operating Officer",
-      "sourceUrl": "https://www.montway.com/executive-team"
+      "sourceUrl": "https://www.prnewswire.com/news-releases/montway-auto-transport-names-alberto-anguiano-as-chief-operating-officer-302670812.html",
+      "email": null
     },
     "trigger": {
-      "fact": "Montway serves retail and business customers and emphasizes financial resilience alongside customer service.",
-      "date": "Undated; checked 2026-09-23",
-      "sourceUrl": "https://www.montway.com/our-reputation"
+      "fact": "Alberto Anguiano promoted to COO. His focus areas are 'strategic M&A integration, fiscal optimization, and future-proofing operations'.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.prnewswire.com/news-releases/montway-auto-transport-names-alberto-anguiano-as-chief-operating-officer-302670812.html"
     },
-    "subject": "The account concern behind the revenue",
-    "message": "A business account's revenue tells you what it is worth. It does not necessarily tell you what the account-services team is hearing or what field sales has promised next.\n\nFor Montway's business customers, would putting those views together change where you step in?\n\nNine-67 built an application that joins account-team assessments with revenue and budget context. It was in production in a month. We could test the same approach with a small group of your business accounts.\n\nWhat information most often changes your view of an otherwise healthy account?",
-    "proofKind": "accounts",
+    "subject": "M.A.P. exception handoffs",
+    "message": "Across the brands you're integrating at Montway, the costly handoff may be the customer question that quoting and tracking in M.A.P. cannot answer.\n\nThat is a smaller starting point than automating every conversation. Nine-67 could build an agent that checks a pickup-change request against the shipment record and drafts the carrier inquiry. Your operations team would approve schedule changes.\n\nIs that exception work part of your integration plan, or already handled?",
+    "proofKind": "proposed_workflow",
     "proofSourceUrl": "https://www.nine-67.com/case-study",
-    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
-    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
-    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
+    "hypothesis": "A broker handling about 250,000 shipments a year with 365-day service usually spends most ops time on status updates, quote follow-ups and carrier matching. This is a hypothesis to test, not a confirmed problem at the company.",
+    "fit": "Wave 1. throughput and capacity without adding headcount. Demand and budget not confirmed.",
+    "limitations": [
+      "Revenue not found.",
+      "No explicit AI statements; do not claim any.",
+      "Confirm the recipient email before sending."
+    ],
     "targetRole": "operations",
     "researchDate": "2026-09-23",
     "sector": "Logistics and physical services",
     "rank": 15,
-    "wordCount": 71
+    "wordCount": 71,
+    "writerKit": {
+      "accountId": "montway",
+      "frame": "challenger",
+      "sendWave": 1,
+      "factIds": [
+        "montway-f0",
+        "montway-f5"
+      ],
+      "facts": [
+        {
+          "fact_id": "montway-f0",
+          "statement": "Alberto Anguiano promoted to COO. His focus areas are 'strategic M&A integration, fiscal optimization, and future-proofing operations'.",
+          "source_url": "https://www.prnewswire.com/news-releases/montway-auto-transport-names-alberto-anguiano-as-chief-operating-officer-302670812.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "montway-f5",
+          "statement": "The leadership release names the proprietary Montway Automation Portal (M.A.P.) for quoting, tracking and transport management, with CIO Eftim Eftimov.",
+          "source_url": "https://www.prnewswire.com/news-releases/montway-auto-transports-leadership-team-embodies-the-future-of-auto-transport-302483241.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Removed unsupported shipment volumes and claims of an existing AI roadmap. Targets COO integration responsibility while preserving human scheduling authority."
+    }
   },
   {
     "company": "DecoPac",
@@ -429,97 +739,194 @@
     "buyer": {
       "name": "Cindy Hampton",
       "title": "Chief Executive Officer",
-      "sourceUrl": "https://www.sentinelpartners.com/sentinel-capital-partners-acquires-decopac/"
+      "sourceUrl": "https://www.prnewswire.com/news-releases/sentinel-capital-partners-acquires-decopac-302819011.html",
+      "email": null
     },
     "trigger": {
-      "fact": "Sentinel acquired DecoPac in July 2026; DecoPac supplies cake decorations to bakeries and foodservice operators.",
-      "date": "2026-07-07",
-      "sourceUrl": "https://www.sentinelpartners.com/sentinel-capital-partners-acquires-decopac/"
+      "fact": "Hampton said the company plans to \"expand the range of desserts and formats we serve, bring more decoration options to our existing customers, and reach consumers through new and emerging channels.\"",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://peprofessional.com/2026/07/sentinel-takes-the-cake/"
     },
-    "subject": "One operating priority for the next phase",
-    "message": "With Sentinel backing DecoPac's next phase, which operating improvement deserves a working product before it becomes another long project?\n\nFor seasonal bakery orders, one possibility is an application that identifies decisions still needed before shipment, gives each one an owner and shows which customer commitment is at stake. That is a starting idea, not an assumption about your operation.\n\nNine-67 helped one client deploy 20 applications, from leadership priorities through user testing and training.\n\nWhat would you put ahead of that idea on DecoPac's list?",
-    "proofKind": "20-applications",
+    "subject": "new formats, approval work",
+    "message": "DecoPac's plan for more dessert formats and new channels could multiply approval work across its licensed designs. A finished design may still be waiting on the paperwork needed to sell it.\n\nNine-67 could build an agent that prepares submission packets from approved artwork and flags missing rights or channel details. Your licensing team would approve every submission. That gives the expansion a specific workflow to test.\n\nIs that approval work worth a look, or already running the way you want?",
+    "proofKind": "proposed_workflow",
     "proofSourceUrl": null,
-    "hypothesis": "A specific operating workflow to discuss with this buyer, not a confirmed gap or purchasing project.",
-    "fit": "Operating business with repeated service or fulfillment work. Proposed workflow fits the buyer; buying intent is unverified.",
-    "limitations": "Current buyer and business model checked. No recipient email guessed. Nine-67 examples are transferable delivery evidence, not a claim of logistics-sector results.",
-    "targetRole": "operations",
+    "hypothesis": "Expanding formats and channels across 25,000+ customer locations usually multiplies catalog, licensed design and account work. This is a hypothesis to test, not a confirmed problem at the company.",
+    "fit": "Wave 1. growth without proportional hiring. Demand and budget not confirmed.",
+    "limitations": [
+      "Revenue not found.",
+      "CFO/CIO names from The Org only; verify.",
+      "Customer labor quote is about bakeries, not DecoPac staff.",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "executive",
     "researchDate": "2026-09-23",
     "sector": "Logistics and physical services",
     "rank": 16,
-    "wordCount": 70
+    "wordCount": 70,
+    "writerKit": {
+      "accountId": "decopac",
+      "frame": "command_of_message",
+      "sendWave": 1,
+      "factIds": [
+        "decopac-f2",
+        "decopac-f3"
+      ],
+      "facts": [
+        {
+          "fact_id": "decopac-f2",
+          "statement": "Hampton said the company plans to \"expand the range of desserts and formats we serve, bring more decoration options to our existing customers, and reach consumers through new and emerging channels.\"",
+          "source_url": "https://peprofessional.com/2026/07/sentinel-takes-the-cake/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "decopac-f3",
+          "statement": "Sentinel describes DecoPac as having \"an in-house design team and extensive licensed IP portfolio spanning entertainment, professional sports, and other brands.\"",
+          "source_url": "https://www.sentinelpartners.com/sentinel-capital-partners-acquires-decopac/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Avoids invented 100-day plan or licensed-rights judgments by AI. Keeps design and approval authority with licensing staff; tests a capacity implication rather than asserting a bottleneck."
+    }
   },
   {
     "rank": 17,
     "company": "Cooper's Hawk Winery & Restaurants",
     "domain": "chwinery.com",
     "buyer": {
-      "name": "Tim McEnery",
-      "title": "Founder & CEO",
-      "sourceUrl": "https://chwinery.com/about/our-founder"
+      "name": "Dave Harris",
+      "title": "Chief Technology Officer",
+      "sourceUrl": "https://www.prnewswire.com/news-releases/coopers-hawk-announces-three-senior-leadership-appointments-to-support-accelerated-growth-302362438.html",
+      "email": null
     },
     "trigger": {
-      "fact": "Current founder page describes76 restaurants and tasting rooms across14states plus a wine club exceeding874000 members.",
-      "date": null,
-      "sourceUrl": "https://chwinery.com/about/our-founder"
+      "fact": "Launched a rotating Monday-Thursday weeknight dinner menu at Illinois locations, with exclusive pricing for Wine Club members. The release states 76 locations and 888,000 Wine Club members.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.globenewswire.com/news-release/2026/08/13/3344863/0/en/cooper-s-hawk-winery-restaurants-debuts-weeknight-dinner-menu.html"
     },
-    "hypothesis": "Wine-club service spans a restaurant/tasting-room network; an unresolved member-request view could help a regional team follow through, but no service problem is established.",
-    "proofKind": "20-applications",
-    "subject": "One member, more than one team",
-    "message": "Cooper's Hawk has several ways to build a member relationship: the wine club, the tasting room and the restaurant. A promise made in one place can need another team to fulfill it.\n\nWe could build a small application around one of those handoffs, so the receiving team knows what was promised and the member does not have to explain it again.\n\nNine-67 helped one client deploy 20 applications, including training for the teams using them.\n\nWhich handoff would you most like to make feel like one company to the member?",
-    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
-    "limitations": "Current official CEO verified. Context page undated, so no recent expansion claim. No verified regional operating buyer; CEO is a routing buyer.20apps user-supplied, not restaurant proof.",
-    "targetRole": "executive",
+    "hypothesis": "Member service (billing, pickups, changes, questions) usually grows with the club and is handled by people. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "Wine Club requests",
+    "message": "At 888,000 Wine Club members, even a small share of pickup changes could create a large service queue at Cooper's Hawk. The hard part is knowing which changes are safe to make.\n\nNine-67 builds agents with operating teams: one could check pickup requests against club rules and prepare the change for staff approval. We would test it on past requests before allowing any live changes.\n\nWorth comparing that approach with your current Wine Club process, or is it already covered?",
+    "fit": "Wave 3. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
+    "limitations": [
+      "Verify Dave Harris is still CTO (last confirmed Jan 2025).",
+      "Latest revenue is 2024 Technomic; do not cite as current.",
+      "Confirm the recipient email before sending.",
+      "Reconfirm Dave Harris’s current title before sending, as noted in the supplied research."
+    ],
+    "targetRole": "engineering",
     "researchDate": "2026-09-23",
-    "sector": "Restaurants and wine retail"
+    "sector": "Restaurants and wine retail",
+    "writerKit": {
+      "accountId": "coopershawk",
+      "frame": "gap_selling",
+      "sendWave": 3,
+      "factIds": [
+        "coopershawk-f0"
+      ],
+      "facts": [
+        {
+          "fact_id": "coopershawk-f0",
+          "statement": "Launched a rotating Monday-Thursday weeknight dinner menu at Illinois locations, with exclusive pricing for Wine Club members. The release states 76 locations and 888,000 Wine Club members.",
+          "source_url": "https://www.globenewswire.com/news-release/2026/08/13/3344863/0/en/cooper-s-hawk-winery-restaurants-debuts-weeknight-dinner-menu.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Removed unsupported service backlog claim and urgency. Proposed pickup workflow rather than claiming an existing system defect. Dave Harris current title needs reconfirmation before sending."
+    }
   },
   {
     "rank": 18,
     "company": "Build-A-Bear Workshop",
     "domain": "buildabear.com",
     "buyer": {
-      "name": "J. Christopher Hurt",
-      "title": "Chief Executive Officer",
-      "sourceUrl": "https://ir.buildabear.com/corporate-governance/management"
+      "name": "Voin Todorovic",
+      "title": "CFO and Chief Administrative Officer",
+      "sourceUrl": "https://www.retailtouchpoints.com/news/build-a-bear-completes-ceo-succession-announces-leadership-updates/619963/",
+      "email": null
     },
     "trigger": {
-      "fact": "Chris Hurt became CEO on June11,2026 after leading operations and experience.",
-      "date": "2026-06-11",
-      "sourceUrl": "https://ir.buildabear.com/corporate-governance/management"
+      "fact": "The company targets at least 50 net new locations in FY2026 and had added 12 net new in H1. Total was 674 locations (379 corporate, 177 partner-operated, 118 franchise).",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://finance.yahoo.com/markets/stocks/articles/build-bear-workshop-q2-earnings-150450684.html"
     },
-    "hypothesis": "An operations-led CEO may value turning store observations into assigned follow-up; missing tooling not established.",
-    "proofKind": "reporting",
-    "subject": "What changes after the store review?",
-    "message": "Your move from operations and experience into the CEO role puts a useful question in focus: which recurring guest issue can a store solve locally, and which needs a company decision?\n\nWe could build a review application that separates those two, shows the evidence from stores and tracks the decision through the next review.\n\nNine-67 has built reporting software with editable presentation outputs, so leaders can add their judgment rather than accept an automated conclusion.\n\nWhat guest-experience question would you want that first review to answer?",
-    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
-    "limitations": "Public reporting proof is built and ready, not claimed deployed or retail-specific. Store issue recurrence is a proposed review question, not established performance concern.",
-    "targetRole": "executive",
+    "hypothesis": "Savings from incentive comp are not structural. The work that drives SG&A stays the same. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "partner reporting workload",
+    "message": "Build-A-Bear's plan for at least 50 net new locations could add reporting work even where partners supply the store staff. That corporate workload can grow quietly.\n\nThe opportunity may be in how partner reports reach finance, before anyone starts reviewing the numbers. Nine-67 could build an agent to collect those reports and flag missing entries. Finance would approve the checked numbers.\n\nIs reducing the work per partner report on your agenda, or is that process already where you want it?",
+    "fit": "Wave 2. margin and cost-to-serve. Demand and budget not confirmed.",
+    "limitations": [
+      "Stay neutral on the guidance cut; never gloat.",
+      "No AI statements found; do not imply any.",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "finance",
     "researchDate": "2026-09-23",
-    "sector": "Experiential retail"
+    "sector": "Experiential retail",
+    "writerKit": {
+      "accountId": "bab",
+      "frame": "challenger",
+      "sendWave": 2,
+      "factIds": [
+        "bab-f6"
+      ],
+      "facts": [
+        {
+          "fact_id": "bab-f6",
+          "statement": "The company targets at least 50 net new locations in FY2026 and had added 12 net new in H1. Total was 674 locations (379 corporate, 177 partner-operated, 118 franchise).",
+          "source_url": "https://finance.yahoo.com/markets/stocks/articles/build-bear-workshop-q2-earnings-150450684.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Avoided insensitive guidance-cut opener and unproven savings. Connects partner growth to a hedged corporate cost implication for CFO/CAO."
+    }
   },
   {
     "rank": 19,
     "company": "J.Jill",
     "domain": "jjill.com",
     "buyer": {
-      "name": "Mary Ellen Coyne",
-      "title": "Chief Executive Officer and President",
-      "sourceUrl": "https://investors.jjill.com/Investors-Relations/Corporate-Governance/Management-team/default.aspx/1000/"
+      "name": "Viv Rettke",
+      "title": "Chief Growth Officer (AI, data analytics, direct)",
+      "sourceUrl": "https://consumergoods.com/jjill-hires-viv-rettke-drive-growth-efforts-data-analytics-ai",
+      "email": null
     },
     "trigger": {
-      "fact": "September9 results report255 stores and47.1% of quarterly sales through direct-to-consumer.",
-      "date": "2026-09-09",
-      "sourceUrl": "https://investors.jjill.com/Investors-Relations/News-Events/News/News-details/2026/J-Jill-Inc--Announces-Second-Quarter-2026-Results/default.aspx"
+      "fact": "\"Our new AI-enabled merchandise planning and allocation system is on track to begin launching later this year and will be an important new tool to support full price selling.\"",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.investing.com/news/transcripts/earnings-call-transcript-jjill-tops-q2-2026-estimates-shares-jump-premarket-93CH-4893635"
     },
-    "hypothesis": "With substantial stores andDTC, leaders may want a weekly report connecting channel results to proposed actions. No reporting gap inferred.",
-    "proofKind": "reporting",
-    "subject": "When the channels tell different stories",
-    "message": "With nearly half of J.Jill's quarterly sales coming through direct-to-consumer, the store and digital numbers can raise different questions about the same customer.\n\nWe could build a weekly review that connects a difference in results to the team's explanation, the evidence behind it and the decision it needs. The aim would be to spend the meeting choosing an action, not reconciling reports.\n\nNine-67 has built reporting software with editable Excel and presentation outputs. Where do your channel reviews most often need another round of analysis before a decision?",
-    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
-    "limitations": "CEO verified from official indexed governance page; page body incompletely renders. Metrics officialSep9release. No claim J.Jill lacks channel reporting; reporting proof from professional services, built/ready.",
-    "targetRole": "executive",
+    "hypothesis": "Once a CEO says it on a call, the AI owner usually has to show capacity gains across functions, not only in the vendor planning tool. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "around the planning launch",
+    "message": "J.Jill's AI planning and allocation launch could shift work into exception handling: deciding which recommendations need a second look before stock moves.\n\nThat work deserves a test alongside the planning model. Nine-67 can add engineers to build that check. An agent could gather sales and stock details for each flagged item. Your planners would approve any change.\n\nWould testing that on one product category help the launch, or is exception handling already covered?",
+    "fit": "Wave 1. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
+    "limitations": [
+      "They are hiring AI talent: position as extra capacity, not replacement.",
+      "Do not name their vendors (unknown).",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "engineering",
     "researchDate": "2026-09-23",
-    "sector": "Apparel retail"
+    "sector": "Apparel retail",
+    "writerKit": {
+      "accountId": "jjill",
+      "frame": "challenger",
+      "sendWave": 1,
+      "factIds": [
+        "jjill-f3"
+      ],
+      "facts": [
+        {
+          "fact_id": "jjill-f3",
+          "statement": "\"Our new AI-enabled merchandise planning and allocation system is on track to begin launching later this year and will be an important new tool to support full price selling.\"",
+          "source_url": "https://www.investing.com/news/transcripts/earnings-call-transcript-jjill-tops-q2-2026-estimates-shares-jump-premarket-93CH-4893635",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Does not pitch replacement planning system or staff replacement. Conditional inference addresses CTO remit and concrete approval boundary."
+    }
   },
   {
     "rank": 20,
@@ -527,142 +934,304 @@
     "domain": "duluthtrading.com",
     "buyer": {
       "name": "David Homolka",
-      "title": "Senior Vice President of Talent, Retail Store Operations, Contact Center Operations",
-      "sourceUrl": "https://ir.duluthtrading.com/corporate-governance/management-team"
+      "title": "SVP of Talent, Retail Store Operations, Contact Center Operations",
+      "sourceUrl": "https://ir.duluthtrading.com/corporate-governance/management-team",
+      "email": null
     },
     "trigger": {
-      "fact": "Official management page assigns stores and contact center operations to David Homolka and states the No Bull return promise.",
-      "date": null,
-      "sourceUrl": "https://ir.duluthtrading.com/corporate-governance/management-team"
+      "fact": "Fulfillment centers were consolidated from four to two over two years. The automated Adairsville, GA hub processed 75% of units, and variable cost per unit fell nearly 25%.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://finance.yahoo.com/markets/stocks/articles/duluth-q2-earnings-call-highlights-150429881.html"
     },
-    "hypothesis": "One owner spans two channels for return feedback; a product-level review could support decisions without changing the returns system. No recurring fault established.",
-    "proofKind": "reporting",
-    "subject": "What returns tell stores and the contact center",
-    "message": "Your responsibility for both stores and the contact center gives you two views of Duluth's No Bull promise. The return code says one thing; the conversation with the customer can explain why.\n\nWe could build an application that brings those explanations together and flags repeated product questions for review, with links back to the original comments.\n\nNine-67 has built reporting tools that leave the interpretation and final report with the team. Is there a return reason you would understand better if you could read both sides together?",
-    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
-    "limitations": "Official current management page is undated. Return-policy context is current, not a new event. Proposed report is not a claim of proven retail outcomes.",
+    "hypothesis": "Lean teams during an order management migration usually absorb more customer contacts, returns and exceptions. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "after the fulfillment savings",
+    "message": "Duluth has cut variable fulfillment cost per unit by nearly 25%. Repeated order-status contacts could still add labor after the parcel leaves the building.\n\nCost per shipped order may be worth tracking through the last customer contact. Nine-67 could build an agent that checks order and carrier events, drafts the answer and flags cases needing staff approval. Start with one request type and measure repeat contacts.\n\nIs that contact-center work on your list, or already handled?",
+    "fit": "Wave 2. cycle time and error rates on core workflows. Demand and budget not confirmed.",
+    "limitations": [
+      "Layoffs are sensitive: reference 'leaner teams', not cuts.",
+      "StockAnalysis CEO name conflict; ignore it.",
+      "Confirm the recipient email before sending."
+    ],
     "targetRole": "operations",
     "researchDate": "2026-09-23",
-    "sector": "Workwear retail"
+    "sector": "Workwear retail",
+    "writerKit": {
+      "accountId": "duluth",
+      "frame": "gap_selling",
+      "sendWave": 2,
+      "factIds": [
+        "duluth-f3"
+      ],
+      "facts": [
+        {
+          "fact_id": "duluth-f3",
+          "statement": "Fulfillment centers were consolidated from four to two over two years. The automated Adairsville, GA hub processed 75% of units, and variable cost per unit fell nearly 25%.",
+          "source_url": "https://finance.yahoo.com/markets/stocks/articles/duluth-q2-earnings-call-highlights-150429881.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Removed layoff references. Uses documented fulfillment efficiency to suggest measuring a different cost, without asserting contact-center failure."
+    }
   },
   {
     "rank": 21,
     "company": "FIGS",
     "domain": "wearfigs.com",
     "buyer": {
-      "name": "Sarah Oughtred",
-      "title": "Chief Financial Officer",
-      "sourceUrl": "https://ir.wearfigs.com/news/news-details/2026/FIGS-Releases-Second-Quarter-2026-Financial-Results/default.aspx"
+      "name": "Mark Bixby",
+      "title": "Chief Technology Officer",
+      "sourceUrl": "https://simplywall.st/stocks/us/consumer-durables/nyse-figs/figs/management",
+      "email": null
     },
     "trigger": {
-      "fact": "FIGS reported67% international revenue growth in itsAugust6second-quarter release.",
-      "date": "2026-08-06",
-      "sourceUrl": "https://ir.wearfigs.com/news/news-details/2026/FIGS-Releases-Second-Quarter-2026-Financial-Results/default.aspx"
+      "fact": "International revenue grew 67% to $37.9M. FIGS is now in 85 markets, 27 of them added year to date.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.fool.com/earnings/call-transcripts/2026/08/13/figs-figs-q2-2026-earnings-call-transcript/"
     },
-    "hypothesis": "Growing international business may make country-level forecast assumptions a useful review application. No inadequate forecast claim.",
-    "proofKind": "reporting",
-    "subject": "Which growth assumption needs a second look?",
-    "message": "FIGS reported 67% international revenue growth in Q2. For finance, the next question is which market assumptions should change and which results are too early to extrapolate.\n\nWe could build a forecast review application that puts each assumption beside actuals, shows what changed and lets the owner explain the variance before the review.\n\nNine-67 has deployed forecasting and FP&A tools with a client. Your finance team would shape and test the first version.\n\nWhich part of the international forecast takes the most explanation outside the spreadsheet?",
-    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
-    "limitations": "CFO verified inAugust6release. Proposed country-review application not a claimed delivered retailforecast tool. Public reporting tool built/ready. International growth fact not evidence of finance workload.",
-    "targetRole": "finance",
+    "hypothesis": "Adding markets, TEAMS accounts and suppliers at this pace usually multiplies order, inventory and service exceptions. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "exceptions across new markets",
+    "message": "Adding 27 markets this year could expose FIGS' team to delivery exceptions that look similar but need different answers by country.\n\nA useful first test would separate what can be checked from what needs judgment. Nine-67 could build an agent to pull the order, carrier events and approved country policy into a draft response. Your team would approve refunds or reshipments.\n\nWorth testing on one international market, or is that already covered in your roadmap?",
+    "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
+    "limitations": [
+      "Bixby title sourced from Simply Wall St; confirm on LinkedIn.",
+      "Never mention the CBP withhold release order or Jordan supplier in copy (sensitive).",
+      "Use 'supplier shifts' only in general terms.",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "engineering",
     "researchDate": "2026-09-23",
-    "sector": "Healthcare apparel"
+    "sector": "Healthcare apparel",
+    "writerKit": {
+      "accountId": "figs",
+      "frame": "gap_selling",
+      "sendWave": 2,
+      "factIds": [
+        "figs-f2"
+      ],
+      "facts": [
+        {
+          "fact_id": "figs-f2",
+          "statement": "International revenue grew 67% to $37.9M. FIGS is now in 85 markets, 27 of them added year to date.",
+          "source_url": "https://www.fool.com/earnings/call-transcripts/2026/08/13/figs-figs-q2-2026-earnings-call-transcript/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "No sensitive supplier allegation, invented systems, or results. Mark Bixby title needs independent confirmation before sending."
+    }
   },
   {
     "rank": 22,
     "company": "Tecovas",
     "domain": "tecovas.com",
     "buyer": {
-      "name": "David Lafitte",
-      "title": "CEO and President",
-      "sourceUrl": "https://www.tecovas.com/p/tecovas-x-bass-pro-shop-press-release"
+      "name": "Kevin Harwood",
+      "title": "Chief Technology Officer",
+      "sourceUrl": "https://www.retaildive.com/news/tecovas-ai-store-experience/815750/",
+      "email": null
     },
     "trigger": {
-      "fact": "Tecovas announced a Bass Pro Shops and Cabelas retail partnership onJuly8,2026.",
-      "date": "2026-07-08",
-      "sourceUrl": "https://www.tecovas.com/p/tecovas-x-bass-pro-shop-press-release"
+      "fact": "Uses Invent.AI for inventory replenishment and allocation. Reports a 9.6% revenue lift in AI-managed categories versus human-managed ones and a 2% in-stock improvement. Built the 'Boot Runner' stockroom-request tool in 36 hours using AI. CTO: \"We're allocating smarter. We're replenishing faster.\"",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.retaildive.com/news/tecovas-ai-store-experience/815750/"
     },
-    "hypothesis": "Wholesale partnership may create cross-company store-readiness decisions; no launch delay claimed.",
-    "proofKind": "20-applications",
-    "subject": "A new retail partner, a repeatable opening",
-    "message": "The Bass Pro Shops and Cabela's partnership gives Tecovas another way for customers to experience the brand. Each location needs more than stock: staff readiness and unresolved setup decisions matter too.\n\nWe could build a rollout application that shows which locations are ready, what is still missing and who can resolve it, then test it with the people running the openings.\n\nNine-67 helped one client deploy 20 applications, including user training.\n\nWhat is the hardest part of making a new partner location feel ready for a Tecovas customer?",
-    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
-    "limitations": "CEO confirmed inJuly8release. Partnership is actual; suggested checklist and readiness fields are proposal.20apps supplied byuser, no retail rollout claim. No guessed email.",
-    "targetRole": "executive",
+    "hypothesis": "Wholesale brings EDI, POs, routing guides and chargebacks that DTC teams have never run. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "wholesale order checks",
+    "message": "Tecovas' wholesale expansion could bring a new kind of rework: an order can be right for your system and still miss a retailer's shipping rules.\n\nGiven the Boot Runner build, the question seems to be which workflow deserves engineering time next. Nine-67 could add engineers to build that order check. An agent would flag orders that miss retailer rules for your team to approve.\n\nIs wholesale order checking worth a look, or is that already built?",
+    "fit": "Wave 3. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
+    "limitations": [
+      "Peer tone; never explain AI to this CTO.",
+      "They build in-house with Claude and Cursor: offer engineers, not tools.",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "engineering",
     "researchDate": "2026-09-23",
-    "sector": "Footwear and apparel retail"
+    "sector": "Footwear and apparel retail",
+    "writerKit": {
+      "accountId": "tecovas",
+      "frame": "challenger",
+      "sendWave": 3,
+      "factIds": [
+        "tecovas-f5",
+        "tecovas-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "tecovas-f1",
+          "statement": "Uses Invent.AI for inventory replenishment and allocation. Reports a 9.6% revenue lift in AI-managed categories versus human-managed ones and a 2% in-stock improvement. Built the 'Boot Runner' stockroom-request tool in 36 hours using AI. CTO: \"We're allocating smarter. We're replenishing faster.\"",
+          "source_url": "https://www.retaildive.com/news/tecovas-ai-store-experience/815750/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "tecovas-f5",
+          "statement": "Entered wholesale in Aug 2024 with nine Western specialty and premium chain retailers (36 stores in 10 states). The CEO expects wholesale could reach about 25-30% of the business within a few years.",
+          "source_url": "https://www.modernretail.co/operations/its-been-a-matter-of-when-not-if-cowboy-boot-brand-tecovas-enters-wholesale/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Respects existing in-house AI capability. No AI tutorial or replacement tools. Proposed workflow and rework risk explicitly conditional."
+    }
   },
   {
     "rank": 23,
     "company": "The Lovesac Company",
     "domain": "lovesac.com",
     "buyer": {
-      "name": "Mary Fox",
-      "title": "President",
-      "sourceUrl": "https://investor.lovesac.com/corporate-governance/management-team"
+      "name": "Jacob Pat",
+      "title": "Chief Technology and Digital Transformation Officer",
+      "sourceUrl": "https://investor.lovesac.com/news-events/press-releases/detail/152/the-lovesac-company-appoints-jacob-pat-as-chief-technology",
+      "email": null
     },
     "trigger": {
-      "fact": "September 10 2026 results reported 284 showrooms and a planned concentration of new product introductions in the second half of fiscal 2027.",
-      "date": "2026-09-10",
-      "sourceUrl": "https://investor.lovesac.com/news-events/press-releases/detail/167/the-lovesac-company-reports-second-quarter-fiscal-2027"
+      "fact": "President Mary Fox: \"Unified CRM transformation that is being implemented in quarter 3. This will unlock the capability to deliver personalized customer experiences at scale.\"",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.fool.com/earnings/call-transcripts/2026/09/10/lovesac-love-q2-2027-earnings-call-transcript/"
     },
-    "hypothesis": "A new-range review of repeated customer questions could help product teams support showroom staff. The need for this workflow is not established.",
-    "proofKind": "reporting",
-    "subject": "What the first showrooms learn",
-    "message": "With more product introductions planned for the second half, the first showroom conversations can tell Lovesac what customers understand and what needs a better explanation.\n\nWe could build an application that groups repeated questions, keeps the original context and gets the product team's answer back to showroom leaders. Start with one launch and see whether the next locations benefit from what the first ones learned.\n\nNine-67 has deployed collaboration tools with a client. How quickly does a useful answer from one showroom reach the others today?",
-    "fit": "Physical furniture retailer with verified senior operating buyer and a current launch schedule; specific workflow need and budget unconfirmed.",
-    "limitations": "Mary Fox is currently listed as President on the official management page. Proposed customer-question review is a hypothesis, not an asserted problem. Reporting case is transferable build evidence, not claimed furniture experience. No email address inferred.",
-    "targetRole": "operations",
+    "hypothesis": "New delivery services usually create a spike in scheduling and service cases right as teams learn a new CRM. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "delivery cases in CRM",
+    "message": "Lovesac's Q3 CRM rollout and national White Glove expansion could leave service teams connecting customer records to delivery exceptions by hand.\n\nThe useful test is whether the new record helps someone resolve a case. Nine-67 could build an agent to read delivery updates and pull the case history. Staff would approve its draft action. It would work with the CRM you're implementing.\n\nWorth testing one delivery case alongside the rollout, or is that workflow already settled?",
+    "fit": "Wave 2. shipping AI that works in production, governed and secure. Demand and budget not confirmed.",
+    "limitations": [
+      "Stay neutral on guidance cut and analyst downgrades.",
+      "Do not cite Salesforce as confirmed CRM vendor (job posting only).",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "engineering",
     "researchDate": "2026-09-23",
-    "sector": "Furniture retail"
+    "sector": "Furniture retail",
+    "writerKit": {
+      "accountId": "lovesac",
+      "frame": "gap_selling",
+      "sendWave": 2,
+      "factIds": [
+        "lovesac-f4",
+        "lovesac-f6"
+      ],
+      "facts": [
+        {
+          "fact_id": "lovesac-f4",
+          "statement": "President Mary Fox: \"Unified CRM transformation that is being implemented in quarter 3. This will unlock the capability to deliver personalized customer experiences at scale.\"",
+          "source_url": "https://www.fool.com/earnings/call-transcripts/2026/09/10/lovesac-love-q2-2027-earnings-call-transcript/",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "lovesac-f6",
+          "statement": "White Glove and Room of Choice delivery services are rolling out nationally in Q3 after pilots. Loved by Lovesac resale operates in 32 states, and 70% of its users are new to the brand.",
+          "source_url": "https://finance.yahoo.com/markets/stocks/articles/lovesac-q2-earnings-call-highlights-150340388.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Avoided unsupported CRM vendor name and guaranteed retrofit savings. Conditional operational implication tied to two simultaneous changes."
+    }
   },
   {
     "rank": 24,
     "company": "Thrive Market",
     "domain": "thrivemarket.com",
     "buyer": {
-      "name": "Nick Green",
-      "title": "CEO and Co-Founder",
-      "sourceUrl": "https://thrivemarket.com/blog/2025-mission-impact-report"
+      "name": "Scott Lescher",
+      "title": "Chief Operating Officer",
+      "sourceUrl": "https://www.grocerydive.com/news/thrive-market-growth-new-COO-Scott-Lescher-Amazon-online-grocery/750136/",
+      "email": null
     },
     "trigger": {
-      "fact": "Thrive Markets shipping help page updated July 16 2026 lists three fulfillment centers serving West Coast, Midwest and East Coast orders.",
-      "date": "2026-07-16",
-      "sourceUrl": "https://help.thrivemarket.com/hc/en-us/articles/360036910672-Where-is-my-order-shipping-from"
+      "fact": "Partnered with Syndigo (Product Experience Cloud) to streamline vendor onboarding and product information management.",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.businesswire.com/news/home/20250923519295/en/Syndigo-Announces-Partnership-with-Thrive-Market-to-Enhance-Product-Experience-and-Onboarding-Capabilities"
     },
-    "hypothesis": "A cross-team view could connect member delivery complaints to the warehouse follow-up. No existing service or system defect claimed.",
-    "proofKind": "account-view",
-    "subject": "From member feedback to a working tool",
-    "message": "For a membership business like Thrive, a useful place to start is the work behind keeping members coming back. Is there a recurring issue your leaders want fixed that keeps waiting on internal development?\n\nNine-67 recently helped one client deploy 20 applications. We work with leaders to choose a priority, build a first version with the people who will use it, then refine, train and deploy.\n\nIf something comes to mind, I'd be happy to sketch what a first version could look like.",
-    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
-    "limitations": "CEO verified in April 2026 official impact report. CEO is a routing buyer; no named fulfillment owner verified. Account-view case is a cross-industry analogy, not a grocery deployment or a promised one-month schedule.",
-    "targetRole": "executive",
+    "hypothesis": "Member-facing AI usually moves first. Vendor onboarding, inbound exceptions and owned-brand sourcing still run on people. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "inbound order exceptions",
+    "message": "With more than 1,000 brands on Thrive Market, a small share of late or short shipments could create substantial supplier follow-up work.\n\nSyndigo covers vendor onboarding; the next question may be what happens after the purchase order. Nine-67 could build an agent to check what was ordered against what arrived and pull supplier updates. Your team would approve its draft action.\n\nIs inbound exception handling on your AI roadmap, or is another supply-chain workflow more pressing?",
+    "fit": "Wave 3. throughput and capacity without adding headcount. Demand and budget not confirmed.",
+    "limitations": [
+      "Revenue after Mar 2025 unverified.",
+      "CFO current status unverified.",
+      "They use Sierra; never pitch customer service.",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "operations",
     "researchDate": "2026-09-23",
-    "sector": "Online grocery retail"
+    "sector": "Online grocery retail",
+    "writerKit": {
+      "accountId": "thrive",
+      "frame": "challenger",
+      "sendWave": 3,
+      "factIds": [
+        "thrive-f5",
+        "thrive-f3"
+      ],
+      "facts": [
+        {
+          "fact_id": "thrive-f3",
+          "statement": "Partnered with Syndigo (Product Experience Cloud) to streamline vendor onboarding and product information management.",
+          "source_url": "https://www.businesswire.com/news/home/20250923519295/en/Syndigo-Announces-Partnership-with-Thrive-Market-to-Enhance-Product-Experience-and-Onboarding-Capabilities",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "thrive-f5",
+          "statement": "Launched a Climate Action Working Group for 1,000+ brands on the platform. 1.7M+ members.",
+          "source_url": "https://www.prnewswire.com/news-releases/thrive-market-announces-climate-action-working-group-302736483.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Does not repitch Sierra customer support or Syndigo onboarding. Keeps proposed workflow separate from known capabilities and hedges operational burden."
+    }
   },
   {
     "rank": 25,
     "company": "Mister Car Wash",
     "domain": "mistercarwash.com",
     "buyer": {
-      "name": "Joseph Matheny",
-      "title": "Chief Innovation Officer",
-      "sourceUrl": "https://ir.mistercarwash.com/company-info/management-team"
+      "name": "Jedidiah Gold",
+      "title": "Chief Financial Officer",
+      "sourceUrl": "https://mistercarwash.com/leadership-team/",
+      "email": null
     },
     "trigger": {
-      "fact": "Mister Car Wash reported 548 locations as of December 31 2025 in its February 18 2026 full-year results.",
-      "date": "2026-02-18",
-      "sourceUrl": "https://ir.mistercarwash.com/news-releases/news-release-details/mister-car-wash-announces-fourth-quarter-and-full-year-2025"
+      "fact": "Take-private completed and stock delisted. CEO: \"going private gives us greater flexibility to continue investing behind providing a superior customer experience.\"",
+      "date": "Source date not confirmed; researched 2026-09-23",
+      "sourceUrl": "https://www.nasdaq.com/press-release/mister-car-wash-announces-completion-take-private-leonard-green-partners-2026-05-19"
     },
-    "hypothesis": "A regional review of repeated equipment faults could guide repair decisions. Equipment data access and need are unconfirmed. Avoid duplicating existing employee communications platform.",
-    "proofKind": "20-applications",
-    "subject": "Which local fix should become standard?",
-    "message": "Across hundreds of locations, an equipment issue can look isolated until someone connects it to repairs elsewhere. A useful innovation may be getting a proven local fix to the next site sooner.\n\nWe could build an application that links recurring faults to prior repairs and helps regional leaders decide what to test or standardize. Your operators would validate the recommendations.\n\nNine-67 helped one client deploy 20 applications, working with users through testing and training.\n\nWhich recurring operating problem would be most valuable to learn from across locations?",
-    "fit": "Operating-business fit; workflow need and budget unconfirmed.",
-    "limitations": "Current official management search index identifies Matheny; direct page fetch failed. Role also confirmed in May 19 2026 official filing. Location count explicitly historical. No claim of known equipment problems, prior car-wash experience or failed communications tooling.",
-    "targetRole": "operations",
+    "hypothesis": "In a subscription model this size, billing questions, card declines and cancellations are handled across 550 sites and a help center. This is a hypothesis to test, not a confirmed problem at the company.",
+    "proofKind": "proposed_workflow",
+    "subject": "UWC service economics",
+    "message": "With UWC accounting for 76% of Mister Car Wash's Q1 wash sales, a routine billing issue could put more at risk than the service cost.\n\nSince the take-private, one useful technology test may be cost per resolved member issue alongside retention. Nine-67 could build an agent to check billing history and draft a fix. Staff would approve it; we would measure both costs and retention.\n\nIs that worth testing on one billing request type, or is member service already where you want it?",
+    "fit": "Wave 1. margin and cost-to-serve. Demand and budget not confirmed.",
+    "limitations": [
+      "No post-close earnings calls; do not cite 2026 remarks beyond releases.",
+      "COO status unverified.",
+      "Confirm the recipient email before sending."
+    ],
+    "targetRole": "finance",
     "researchDate": "2026-09-23",
-    "sector": "Car wash operations"
+    "sector": "Car wash operations",
+    "writerKit": {
+      "accountId": "mistercw",
+      "frame": "command_of_message",
+      "sendWave": 1,
+      "factIds": [
+        "mistercw-f3",
+        "mistercw-f2"
+      ],
+      "facts": [
+        {
+          "fact_id": "mistercw-f2",
+          "statement": "Take-private completed and stock delisted. CEO: \"going private gives us greater flexibility to continue investing behind providing a superior customer experience.\"",
+          "source_url": "https://www.nasdaq.com/press-release/mister-car-wash-announces-completion-take-private-leonard-green-partners-2026-05-19",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        },
+        {
+          "fact_id": "mistercw-f3",
+          "statement": "Q1 2026 revenue was $277.9M (+6%), comps +3.9%, UWC members about 2.5M (+11%, 76% of wash sales), 549 locations. No earnings call was held because of the LGP transaction.",
+          "source_url": "https://www.stocktitan.net/sec-filings/MCW/8-k-mister-car-wash-inc-reports-material-event-b85ed1a94dfd.html",
+          "retrieved_at": "2026-09-23T00:00:00Z"
+        }
+      ],
+      "review": "Kept Q1 date on percentage. No claim of current churn problem, post-close earnings commentary, or invented savings. CFO economic lens."
+    }
   }
 ]

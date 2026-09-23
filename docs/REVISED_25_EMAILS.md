@@ -1,300 +1,378 @@
-# Revised outreach emails
+# Writer-kit revision: 25 first-touch emails
 
-25 named buyers. Greetings and signatures come from the signed-in sender profile.
+Source: user-supplied writer kit and account intelligence report, 2026-09-23. Primary buyers follow the report. Sender greetings and signatures remain Josh or Suuchi’s saved settings. No placeholder proof lines used. Hypotheses are not confirmed pain.
 
 ## Turn 14 Distribution
-Buyer: Mike Hall | Vice President of Operations
+Buyer: Erin Robbins | President & Chief Operating Officer
 
-Subject: The orders that almost ship
+Subject: getting new lines sellable
 
-An order can be in stock and still miss the truck. With Turn 14's late cutoffs, the useful question is which exceptions a supervisor can still clear before the window closes.
+A new vendor line can sit behind data cleanup even when Turn 14 has room across four distribution centers. The useful measure is time from receiving a price file to dealers being able to order.
 
-We could build a small application that puts those orders in priority order, shows the missing decision and gets it to the right person. Your warehouse leads would test it on one exception type first.
+Nine-67 could build an agent that checks vendor files against your catalog format, flags missing fitment data and prepares updates for purchasing to approve. Start with one vendor, and measure the review time.
 
-Nine-67 has deployed resource-allocation and collaboration tools with a client. Which exception would your team most like to stop chasing before cutoff?
+Would it be a bad idea to map that handoff on one incoming line?
+
+Claim sources: [t14-f0](https://www.turn14.com/about)
+
+Review: Removed an unsupported claim that their back office is understaffed. Capacity issue is a possibility, not a diagnosis. One proposed workflow, purchasing retains approval, no historical Nine-67 result claimed.
 
 ## G&W Electric
-Buyer: Dave Gizewicz | Chief Operating Officer, G&W Electric; CEO, G&W Altea
+Buyer: Dave Gizewicz | Chief Operating Officer (also CEO, G&W Altea)
 
-Subject: When a revision reaches the floor
+Subject: Viper order intake
 
-Adding production and R&D space in Ferrara brings a practical question: how does a change approved by engineering become the version everyone on the floor is actually using?
+With Viper production moving to Romeoville, an incomplete order could still leave the new capacity waiting. The next hold-up may be getting an order ready to build.
 
-Nine-67 has deployed a collaboration workspace with a client. At G&W, a first application could connect a revision to the jobs it affects, unanswered questions and the production lead who needs to acknowledge it. Your engineers would retain approval.
+Nine-67 could build an agent that checks purchase orders against product rules and flags missing information before your team approves the order. We would measure how much checking it removes on one product line.
 
-Where would that be most useful: getting changes out, or knowing they have been picked up?
+Is order intake worth a look at G&W, or is that handoff already working well?
+
+Claim sources: [gw-f0](https://www.gwelectric.com/news/gw-electric-expands-north-american-manufacturing-capacity-as-grid-modernization-accelerates/)
+
+Review: Corrected plant move to completed tense per verification. Removed false urgency about reaching full volume and any assertion that JDE is migrating. Hypothetical bottleneck is hedged; order approval remains human.
 
 ## Shure
-Buyer: Monique Rezaei | Senior Director, Channel Sales, North America
+Buyer: Jerome Nolasco | Vice President of Information Technology
 
-Subject: Before a partner misses its number
+Subject: governing the first agents
 
-A partner can still be hitting its number when the relationship starts slipping. Revenue alone won't tell your channel managers where to step in.
+With AI governance in your brief at Shure, tool reviews can take time away from testing real work. Start with one small task. The approval rules become easier to test.
 
-As you take on Shure's North American channel, is spotting those situations early a priority?
+Nine-67 could build an agent that checks product content against engineering specs and flags unsupported claims, with marketing approving every change. Your team would set its access and keep a record of each decision.
 
-Nine-67 built an application for a client that brought account-team assessments together with revenue and budget context. It was in production within a month. For Shure, we could explore that approach with your channel managers, then build and refine it around how they actually work.
+Is the first governed workflow already chosen, or is product content worth comparing with the other candidates?
 
-What tells your team a partner needs attention before the numbers do?
+Claim sources: [shure-f0](https://www.shure.com/en-US/newsroom/shure-bolsters-leadership-2026)
+
+Review: Addresses Jerome Nolasco, not prior channel-sales buyer. Does not assert a Shure ERP transformation program or internal governance failure. Reframe is practical approval design, with a specific human-controlled proposal rather than vague governance consulting.
 
 ## Lufkin Industries
-Buyer: Craig Guillory | Vice President International Sales & Operations
+Buyer: Brent Baumann | Chief Executive Officer
 
-Subject: One customer, three delivery commitments
+Subject: after the field work
 
-The PDO agreement covers equipment, deployment and production support. A customer review has to explain how all three are performing, not just collect three teams' updates.
+Lufkin's focus on software, automation and service puts more weight on what happens after a technician finishes the job. If the report still needs rekeying, completed work can wait to become an invoice.
 
-Nine-67 built a reporting application that turns source material into editable PowerPoint and Excel outputs. For Lufkin, we could start with one review pack, tying each commitment to the supporting evidence and leaving the explanation with your account team.
+That handoff is worth measuring separately from field productivity. Nine-67 could build an agent that reads the service report, checks contract terms and drafts the invoice for a service manager to approve.
 
-What takes more work today: assembling the evidence or resolving different accounts of what happened?
+Is shortening that gap on the plan, or already handled?
+
+Claim sources: [lufkin-f2](https://www.lufkin.com/lufkin-industries-announces-sale-of-north-america-downhole-business-to-q2-artificial-lift-services/)
+
+Review: Uses 2025 strategic focus as context, never new news. No claim about actual billing delays, headcount decline, or KPS exit. CEO status last confirmed March 2025 remains a contact verification caveat before sending.
 
 ## Mayville Engineering Company
 Buyer: Craig D. Nichols | Senior Vice President, Operations and Supply Chain
 
-Subject: Which program gets the next available hour?
+Subject: protecting launch time
 
-MEC's update describes growing data-center work and reserving capacity for higher-margin programs. The interesting decision is what to accept when two attractive programs need the same hours.
+MEC's plan to add several hundred people by year end could put another load on the people running launches. Chasing missing tooling or material updates takes time away from clearing the actual blocker.
 
-We could build a planning application that compares the choices using your delivery commitments, available capacity and margin assumptions. Planners would be able to change an assumption and see what moves before committing.
+Nine-67 could build an agent that gathers those updates into a daily exception list for one launch. Your program manager would check it and decide what needs action. The measure would be hours spent collecting status.
 
-Nine-67 has deployed forecasting and resource-allocation tools with a client. Which assumption is hardest to trust when your team makes that call?
+Would it be a bad idea to test that against one launch?
+
+Claim sources: [mec-f4](https://www.investing.com/news/transcripts/earnings-call-transcript-mayville-engineering-beats-q2-2026-estimates-on-sales-93CH-4838464)
+
+Review: Removed suggestion that AI replaces production operators and avoided negative margin language. Reframe distinguishes gathering status from solving blockers. Uses corrected hiring statement without falsely attributing unemployment quotes to CFO.
 
 ## Sugar Creek Packing
-Buyer: Daniel Hammer | President
+Buyer: Derek Boesken | Vice President of Operations and Supply Chain
 
-Subject: The gap between a good sample and a launch
+Subject: the next spec revision
 
-A product can work in the pilot plant before every decision needed for its first commercial order is settled. Your role across development, culinary and customer service gives you a view of that whole handoff.
+Across SugarCreek's six US facilities, a customer spec change could create more work than the edit itself. Finding every affected instruction is often the slower part.
 
-We could build a launch application that connects the agreed specification, unresolved packaging decisions and approvals to the first-order date.
+Nine-67 could build an agent that compares each revision with the approved version and flags the production documents that may need changing. QA would review the differences and approve any updates. We would start with one customer's revision history.
 
-Nine-67 helped one client deploy 20 applications. We build with the teams doing the work, refine the first version and train them through rollout.
+How are those changes checked across plants today?
 
-Which launch decision tends to need the most chasing?
+Claim sources: [sugarcreek-f0](https://sugarcreek.com/about-us/)
+
+Review: Low-confidence signal warrants exploratory question, not claimed urgency. Does not imply unsafe practices, missed changes, or recent SAP migration. Agent suggests affected documents; QA retains judgment and approval.
 
 ## Bossard Americas
-Buyer: Brendan Nolan | General Manager, Bossard U.S.
+Buyer: David Jones | CEO, Bossard Americas
 
-Subject: What holds up a complete RFQ response?
+Subject: Americas document intake
 
-A Bossard quote can depend on engineering advice and inventory arrangements as well as the fastener price. A quick response only helps if those commitments agree.
+Bossard's 17.3% Americas sales growth in local currency can bring more order paperwork while the group is rolling out Dynamics 365. Document review may be worth separating from the ERP timetable.
 
-Nine-67 built a proposal application that checks requirements against approved material and flags missing answers or unsupported claims. For Bossard, we could test that approach on one RFQ type with engineering, procurement and the commercial team.
+Nine-67 could build an agent that reads customer purchase orders, flags missing details and prepares an order for your team to approve. We would first test one intake queue and measure review time, with your IT team checking the fit.
 
-The team would keep control of technical and commercial approval. Which answer most often holds up a response that is otherwise ready?
+Is that already part of the Americas plan, or still open?
+
+Claim sources: [bossard-f1](https://www.investing.com/news/transcripts/earnings-call-transcript-bossard-posts-strong-h1-2026-growth-shares-jump-8-93CH-4803679), [bossard-f2](https://www.investing.com/news/transcripts/earnings-call-transcript-bossard-posts-strong-h1-2026-growth-shares-jump-8-93CH-4803679)
+
+Review: No assumption that US deployment is pending or delayed. Growth explicitly refers to H1. Does not promise compatibility without checking or claim their documented AI effort is absent.
 
 ## Clarience Technologies
-Buyer: David McKean | Executive Vice President, Supply Chain and Chief Procurement Officer
+Buyer: Robert Willing | EVP, Chief Financial Officer
 
-Subject: One supplier issue, several plant decisions
+Subject: freight costs across brands
 
-When several businesses share a supplier, each plant can have a sensible local response without anyone seeing the combined exposure. Is that a decision your team has to piece together across Clarience's brands?
+Across Clarience's 29 brands, small freight billing errors could add up without looking material at any one business. Comparing the same charge across brands may reveal more than reviewing each invoice alone.
 
-We could build a supplier exception application that connects affected orders, available alternatives and the decision each buyer needs. Start with one supplier and let the buyers test it against their current review.
+Nine-67 could build an agent that checks freight invoices against agreed rates and flags discrepancies for your logistics team to approve or dispute. We would start with one charge type across two brands.
 
-Nine-67 has deployed resource-allocation and collaboration tools with a client. Where does the cross-plant picture take the most work to assemble?
+Is that kind of shared cost check already in place, or worth scoping?
+
+Claim sources: [clarience-f6](https://clariencetechnologies.com/news/team-penske-grows-relationship-with-clarience-technologies/)
+
+Review: Uses sourced 29-brand portfolio rather than uncertain PE close timing. Avoids assuming fragmented systems or existing invoice errors. CFO-specific cost mechanism and bounded proposal; discrepancy handling remains with logistics. Deliberately departs from required PE fact to avoid unsupported close claim.
 
 ## Smart Care Equipment Solutions
 Buyer: Veronica Lubatkin | President and Chief Financial Officer
 
-Subject: What the local team knows first
+Subject: Turbo Tech job margins
 
-Keeping local teams through an acquisition preserves something a financial rollup cannot show: what those teams know about the customer relationship.
+Smart Care's move to flat-rate speed-oven pricing could make a repeat visit expensive before finance sees it. Bringing five brands under Turbo Tech makes the cost of each job worth checking early.
 
-As Smart Care grows, how does a local manager's concern reach the national review early enough to act?
+The useful starting point is the service record. Nine-67 could build an agent that compares technician notes, parts and return visits against the agreed rate. Your finance team would approve any billing changes.
 
-Nine-67 built an application that put account-team assessments beside revenue exposure and budget context. It went into production within a month using the client's existing systems.
+Worth testing that on one set of Turbo Tech jobs, or is job-margin review already covered?
 
-That could be a useful starting point for one region. Would an account-team view like that add anything to your current review?
+Claim sources: [smartcare-f0](https://dailycoffeenews.com/2026/09/17/smart-care-unifies-five-coffee-equipment-service-brands-as-turbo-tech/)
+
+Review: Removed unsupported claims about billing delays. Chose flat-rate job economics for the CFO rather than generic acquisition integration.
 
 ## Lazer Logistics
-Buyer: Phil Newsome | Chief Operating Officer
+Buyer: Josh Lee | President
 
-Subject: Fixing the same site problem twice
+Subject: after Uncle Phil flags it
 
-At more than 700 locations, a fix made at one yard could be useful at several others. The question is how the next site finds it before working through the same problem again.
+With Uncle Phil AI giving Lazer's site managers guidance, the next time cost may be gathering evidence that an issue was resolved. A recommendation and a closed action are different things.
 
-Lazer already has NexusYMS. We could explore a separate application for recurring operating issues: what happened, what worked and which locations should act on it.
+Nine-67 could build an agent alongside your existing tools that gathers the maintenance record or inspection result behind a flagged issue. The site manager would confirm the fix before it closes.
 
-Nine-67 helped one client deploy 20 applications, building and training with the users. Is sharing proven site fixes something your operations leaders want to improve?
+Is that follow-through worth testing at one site, or does LLOS already handle it?
+
+Claim sources: [lazer-f0](https://letsdatascience.com/news/lazer-logistics-deploys-uncle-phil-ai-for-yard-management-e973d3bb)
+
+Review: Acknowledges existing AI; no replacement-platform pitch, dates, deployment counts or claim that LLOS lacks this function.
 
 ## PLS Logistics Services
 Buyer: Steven Bergan | President
 
-Subject: Less review prep, more explanation
+Subject: AGL shipment handoffs
 
-A shipper review should explain what to change in the transportation program. Getting shipment results into slides is necessary work, but it is not the decision the customer is paying for.
+Adding AGL's ocean, customs and drayage services to PLS could increase the time spent checking whether a shipment is ready for its next leg. One missing release can outweigh several on-time updates.
 
-Nine-67 built an application that produces branded, editable PowerPoint and Excel reports. At PLS, we could start with one recurring customer review, leaving the account team to explain the exceptions and recommend the next action.
+Nine-67 could build an agent that checks the documents for one port-to-truck handoff, flags missing releases and drafts the request. Your coordinator would approve the request and decide when the load can move.
 
-What would your team gain more from: faster preparation, or more consistent evidence behind its recommendations?
+Worth comparing that with an AGL handoff, or is the process already settled?
+
+Claim sources: [pls-f0](https://www.aol.com/articles/pls-logistics-services-acquires-agl-230500000.html)
+
+Review: Removed unsupported claims of current delays and integration failure. Restricts agent to document review and drafts, leaving release decisions with coordinators.
 
 ## BlueGrace Logistics
-Buyer: Jason Lockard | Chief Commercial Officer
+Buyer: Adam Blankenship | President & Chief Operating Officer
 
-Subject: A proposal your delivery team can stand behind
+Subject: Truk TMS onboarding
 
-With BlueGrace's range of transportation services, a shipper proposal has to do two jobs: make a persuasive case and stay precise about what the team can deliver.
+Bringing Truk TMS into BlueGrace could mean more time spent turning customer instructions into rules for each account. A migrated account can still carry instructions that never made it into the system.
 
-Nine-67 built a proposal application that checks a customer's requirements against approved material and highlights gaps or unsupported claims for review.
+Nine-67 could build an agent that checks a new customer's routing instructions against the proposed setup. Your team would review any conflicts before approval. We'd start with one account.
 
-We could test it on one BlueGrace proposal type with the people who write and approve the response. Where does the team spend more time today: finding the right evidence or checking the commitments?
+Is checking those instructions part of the integration plan, or already handled?
+
+Claim sources: [bluegrace-f0](https://www.freightwaves.com/news/bluegrace-logistics-acquires-idaho-3pl-truk-tms)
+
+Review: Avoids explaining AI to an experienced AI adopter. Names a narrow acquired-account workflow without asserting their migration has defects.
 
 ## TA Services
-Buyer: Scott Schell | President and CEO
+Buyer: Chris Bahr | Executive Vice President and CIO
 
-Subject: When each service looks fine on its own
+Subject: after SMC3
 
-A customer using TA's warehousing, transportation and cross-border services can have a different experience from the one any single team sees. Who brings those views together before the account review?
+TA's next phase with SMC3 could shorten the wait between delivery and billing by tackling documentation. Better pricing alone cannot clear a missing document.
 
-Nine-67 built an application that connects account-team assessments with revenue exposure and budget context. It reached production in a month without replacing the client's existing systems.
+One document flow could be tested before a wider system change. Nine-67 could build an agent that matches proof of delivery to the load, flags missing signatures and prepares the billing packet. Your billing team would approve release.
 
-For TA, we could start with one shared customer and the leaders responsible for it. What tends to get missed when the services are reviewed separately?
+Would a test on one document flow fit the modernization plan, or is that work already assigned?
+
+Claim sources: [ta-f0](https://www.globenewswire.com/news-release/2026/01/20/3221908/0/en/TA-Achieves-30-LTL-Cost-Savings-and-99-Routing-Accuracy-with-SMC.html)
+
+Review: Changed assertion of manual work to a conditional. Does not present TA savings as Nine-67 results or imply an announced replacement project.
 
 ## Transervice Logistics
-Buyer: Gino Fontana | Chief Operating Officer and EVP
+Buyer: Gregg Nierenberg | President and CEO
 
-Subject: After the customer review ends
+Subject: FleetChAIn and work orders
 
-The value of a fleet review depends on what happens afterward. An agreed action can involve maintenance, logistics and a regional team before the customer sees a result.
+Turning technician notes into work orders may take time away from managing repairs at Transervice. FleetChAIn's focus on decisions could fit this work too.
 
-We could build an application that follows each commitment through those handoffs, showing the next decision and who owes the customer an update.
+The first task could be preparing the record, with repair decisions staying in the shop. Nine-67 could build an agent that drafts work-order updates from technician notes and parts used. A shop manager would approve them.
 
-Nine-67 helped one client deploy 20 applications. We choose the priority with leaders, build with the users and train through rollout.
+Is that internal workflow on the roadmap, or is FleetChAIn the priority for now?
 
-Which kind of customer commitment is hardest to follow through to completion at Transervice?
+Claim sources: [transervice-f1](https://www.transervice.com/fleetchain-transervice/), [transervice-f5](https://www.transervicecareers.com/2026/08/07/welcome-to-transervice-july-2026/)
+
+Review: Avoids treating customer wins as acquisitions or inferring current manual systems as fact. Does not call FleetChAIn a software platform.
 
 ## Montway Auto Transport
 Buyer: Alberto Anguiano | Chief Operating Officer
 
-Subject: The account concern behind the revenue
+Subject: M.A.P. exception handoffs
 
-A business account's revenue tells you what it is worth. It does not necessarily tell you what the account-services team is hearing or what field sales has promised next.
+Across the brands you're integrating at Montway, the costly handoff may be the customer question that quoting and tracking in M.A.P. cannot answer.
 
-For Montway's business customers, would putting those views together change where you step in?
+That is a smaller starting point than automating every conversation. Nine-67 could build an agent that checks a pickup-change request against the shipment record and drafts the carrier inquiry. Your operations team would approve schedule changes.
 
-Nine-67 built an application that joins account-team assessments with revenue and budget context. It was in production in a month. We could test the same approach with a small group of your business accounts.
+Is that exception work part of your integration plan, or already handled?
 
-What information most often changes your view of an otherwise healthy account?
+Claim sources: [montway-f0](https://www.prnewswire.com/news-releases/montway-auto-transport-names-alberto-anguiano-as-chief-operating-officer-302670812.html), [montway-f5](https://www.prnewswire.com/news-releases/montway-auto-transports-leadership-team-embodies-the-future-of-auto-transport-302483241.html)
+
+Review: Removed unsupported shipment volumes and claims of an existing AI roadmap. Targets COO integration responsibility while preserving human scheduling authority.
 
 ## DecoPac
 Buyer: Cindy Hampton | Chief Executive Officer
 
-Subject: One operating priority for the next phase
+Subject: new formats, approval work
 
-With Sentinel backing DecoPac's next phase, which operating improvement deserves a working product before it becomes another long project?
+DecoPac's plan for more dessert formats and new channels could multiply approval work across its licensed designs. A finished design may still be waiting on the paperwork needed to sell it.
 
-For seasonal bakery orders, one possibility is an application that identifies decisions still needed before shipment, gives each one an owner and shows which customer commitment is at stake. That is a starting idea, not an assumption about your operation.
+Nine-67 could build an agent that prepares submission packets from approved artwork and flags missing rights or channel details. Your licensing team would approve every submission. That gives the expansion a specific workflow to test.
 
-Nine-67 helped one client deploy 20 applications, from leadership priorities through user testing and training.
+Is that approval work worth a look, or already running the way you want?
 
-What would you put ahead of that idea on DecoPac's list?
+Claim sources: [decopac-f2](https://peprofessional.com/2026/07/sentinel-takes-the-cake/), [decopac-f3](https://www.sentinelpartners.com/sentinel-capital-partners-acquires-decopac/)
+
+Review: Avoids invented 100-day plan or licensed-rights judgments by AI. Keeps design and approval authority with licensing staff; tests a capacity implication rather than asserting a bottleneck.
 
 ## Cooper's Hawk Winery & Restaurants
-Buyer: Tim McEnery | Founder & CEO
+Buyer: Dave Harris | Chief Technology Officer
 
-Subject: One member, more than one team
+Subject: Wine Club requests
 
-Cooper's Hawk has several ways to build a member relationship: the wine club, the tasting room and the restaurant. A promise made in one place can need another team to fulfill it.
+At 888,000 Wine Club members, even a small share of pickup changes could create a large service queue at Cooper's Hawk. The hard part is knowing which changes are safe to make.
 
-We could build a small application around one of those handoffs, so the receiving team knows what was promised and the member does not have to explain it again.
+Nine-67 builds agents with operating teams: one could check pickup requests against club rules and prepare the change for staff approval. We would test it on past requests before allowing any live changes.
 
-Nine-67 helped one client deploy 20 applications, including training for the teams using them.
+Worth comparing that approach with your current Wine Club process, or is it already covered?
 
-Which handoff would you most like to make feel like one company to the member?
+Claim sources: [coopershawk-f0](https://www.globenewswire.com/news-release/2026/08/13/3344863/0/en/cooper-s-hawk-winery-restaurants-debuts-weeknight-dinner-menu.html)
+
+Review: Removed unsupported service backlog claim and urgency. Proposed pickup workflow rather than claiming an existing system defect. Dave Harris current title needs reconfirmation before sending.
 
 ## Build-A-Bear Workshop
-Buyer: J. Christopher Hurt | Chief Executive Officer
+Buyer: Voin Todorovic | CFO and Chief Administrative Officer
 
-Subject: What changes after the store review?
+Subject: partner reporting workload
 
-Your move from operations and experience into the CEO role puts a useful question in focus: which recurring guest issue can a store solve locally, and which needs a company decision?
+Build-A-Bear's plan for at least 50 net new locations could add reporting work even where partners supply the store staff. That corporate workload can grow quietly.
 
-We could build a review application that separates those two, shows the evidence from stores and tracks the decision through the next review.
+The opportunity may be in how partner reports reach finance, before anyone starts reviewing the numbers. Nine-67 could build an agent to collect those reports and flag missing entries. Finance would approve the checked numbers.
 
-Nine-67 has built reporting software with editable presentation outputs, so leaders can add their judgment rather than accept an automated conclusion.
+Is reducing the work per partner report on your agenda, or is that process already where you want it?
 
-What guest-experience question would you want that first review to answer?
+Claim sources: [bab-f6](https://finance.yahoo.com/markets/stocks/articles/build-bear-workshop-q2-earnings-150450684.html)
+
+Review: Avoided insensitive guidance-cut opener and unproven savings. Connects partner growth to a hedged corporate cost implication for CFO/CAO.
 
 ## J.Jill
-Buyer: Mary Ellen Coyne | Chief Executive Officer and President
+Buyer: Viv Rettke | Chief Growth Officer (AI, data analytics, direct)
 
-Subject: When the channels tell different stories
+Subject: around the planning launch
 
-With nearly half of J.Jill's quarterly sales coming through direct-to-consumer, the store and digital numbers can raise different questions about the same customer.
+J.Jill's AI planning and allocation launch could shift work into exception handling: deciding which recommendations need a second look before stock moves.
 
-We could build a weekly review that connects a difference in results to the team's explanation, the evidence behind it and the decision it needs. The aim would be to spend the meeting choosing an action, not reconciling reports.
+That work deserves a test alongside the planning model. Nine-67 can add engineers to build that check. An agent could gather sales and stock details for each flagged item. Your planners would approve any change.
 
-Nine-67 has built reporting software with editable Excel and presentation outputs. Where do your channel reviews most often need another round of analysis before a decision?
+Would testing that on one product category help the launch, or is exception handling already covered?
+
+Claim sources: [jjill-f3](https://www.investing.com/news/transcripts/earnings-call-transcript-jjill-tops-q2-2026-estimates-shares-jump-premarket-93CH-4893635)
+
+Review: Does not pitch replacement planning system or staff replacement. Conditional inference addresses CTO remit and concrete approval boundary.
 
 ## Duluth Holdings
-Buyer: David Homolka | Senior Vice President of Talent, Retail Store Operations, Contact Center Operations
+Buyer: David Homolka | SVP of Talent, Retail Store Operations, Contact Center Operations
 
-Subject: What returns tell stores and the contact center
+Subject: after the fulfillment savings
 
-Your responsibility for both stores and the contact center gives you two views of Duluth's No Bull promise. The return code says one thing; the conversation with the customer can explain why.
+Duluth has cut variable fulfillment cost per unit by nearly 25%. Repeated order-status contacts could still add labor after the parcel leaves the building.
 
-We could build an application that brings those explanations together and flags repeated product questions for review, with links back to the original comments.
+Cost per shipped order may be worth tracking through the last customer contact. Nine-67 could build an agent that checks order and carrier events, drafts the answer and flags cases needing staff approval. Start with one request type and measure repeat contacts.
 
-Nine-67 has built reporting tools that leave the interpretation and final report with the team. Is there a return reason you would understand better if you could read both sides together?
+Is that contact-center work on your list, or already handled?
+
+Claim sources: [duluth-f3](https://finance.yahoo.com/markets/stocks/articles/duluth-q2-earnings-call-highlights-150429881.html)
+
+Review: Removed layoff references. Uses documented fulfillment efficiency to suggest measuring a different cost, without asserting contact-center failure.
 
 ## FIGS
-Buyer: Sarah Oughtred | Chief Financial Officer
+Buyer: Mark Bixby | Chief Technology Officer
 
-Subject: Which growth assumption needs a second look?
+Subject: exceptions across new markets
 
-FIGS reported 67% international revenue growth in Q2. For finance, the next question is which market assumptions should change and which results are too early to extrapolate.
+Adding 27 markets this year could expose FIGS' team to delivery exceptions that look similar but need different answers by country.
 
-We could build a forecast review application that puts each assumption beside actuals, shows what changed and lets the owner explain the variance before the review.
+A useful first test would separate what can be checked from what needs judgment. Nine-67 could build an agent to pull the order, carrier events and approved country policy into a draft response. Your team would approve refunds or reshipments.
 
-Nine-67 has deployed forecasting and FP&A tools with a client. Your finance team would shape and test the first version.
+Worth testing on one international market, or is that already covered in your roadmap?
 
-Which part of the international forecast takes the most explanation outside the spreadsheet?
+Claim sources: [figs-f2](https://www.fool.com/earnings/call-transcripts/2026/08/13/figs-figs-q2-2026-earnings-call-transcript/)
+
+Review: No sensitive supplier allegation, invented systems, or results. Mark Bixby title needs independent confirmation before sending.
 
 ## Tecovas
-Buyer: David Lafitte | CEO and President
+Buyer: Kevin Harwood | Chief Technology Officer
 
-Subject: A new retail partner, a repeatable opening
+Subject: wholesale order checks
 
-The Bass Pro Shops and Cabela's partnership gives Tecovas another way for customers to experience the brand. Each location needs more than stock: staff readiness and unresolved setup decisions matter too.
+Tecovas' wholesale expansion could bring a new kind of rework: an order can be right for your system and still miss a retailer's shipping rules.
 
-We could build a rollout application that shows which locations are ready, what is still missing and who can resolve it, then test it with the people running the openings.
+Given the Boot Runner build, the question seems to be which workflow deserves engineering time next. Nine-67 could add engineers to build that order check. An agent would flag orders that miss retailer rules for your team to approve.
 
-Nine-67 helped one client deploy 20 applications, including user training.
+Is wholesale order checking worth a look, or is that already built?
 
-What is the hardest part of making a new partner location feel ready for a Tecovas customer?
+Claim sources: [tecovas-f1](https://www.retaildive.com/news/tecovas-ai-store-experience/815750/), [tecovas-f5](https://www.modernretail.co/operations/its-been-a-matter-of-when-not-if-cowboy-boot-brand-tecovas-enters-wholesale/)
+
+Review: Respects existing in-house AI capability. No AI tutorial or replacement tools. Proposed workflow and rework risk explicitly conditional.
 
 ## The Lovesac Company
-Buyer: Mary Fox | President
+Buyer: Jacob Pat | Chief Technology and Digital Transformation Officer
 
-Subject: What the first showrooms learn
+Subject: delivery cases in CRM
 
-With more product introductions planned for the second half, the first showroom conversations can tell Lovesac what customers understand and what needs a better explanation.
+Lovesac's Q3 CRM rollout and national White Glove expansion could leave service teams connecting customer records to delivery exceptions by hand.
 
-We could build an application that groups repeated questions, keeps the original context and gets the product team's answer back to showroom leaders. Start with one launch and see whether the next locations benefit from what the first ones learned.
+The useful test is whether the new record helps someone resolve a case. Nine-67 could build an agent to read delivery updates and pull the case history. Staff would approve its draft action. It would work with the CRM you're implementing.
 
-Nine-67 has deployed collaboration tools with a client. How quickly does a useful answer from one showroom reach the others today?
+Worth testing one delivery case alongside the rollout, or is that workflow already settled?
+
+Claim sources: [lovesac-f4](https://www.fool.com/earnings/call-transcripts/2026/09/10/lovesac-love-q2-2027-earnings-call-transcript/), [lovesac-f6](https://finance.yahoo.com/markets/stocks/articles/lovesac-q2-earnings-call-highlights-150340388.html)
+
+Review: Avoided unsupported CRM vendor name and guaranteed retrofit savings. Conditional operational implication tied to two simultaneous changes.
 
 ## Thrive Market
-Buyer: Nick Green | CEO and Co-Founder
+Buyer: Scott Lescher | Chief Operating Officer
 
-Subject: From member feedback to a working tool
+Subject: inbound order exceptions
 
-For a membership business like Thrive, a useful place to start is the work behind keeping members coming back. Is there a recurring issue your leaders want fixed that keeps waiting on internal development?
+With more than 1,000 brands on Thrive Market, a small share of late or short shipments could create substantial supplier follow-up work.
 
-Nine-67 recently helped one client deploy 20 applications. We work with leaders to choose a priority, build a first version with the people who will use it, then refine, train and deploy.
+Syndigo covers vendor onboarding; the next question may be what happens after the purchase order. Nine-67 could build an agent to check what was ordered against what arrived and pull supplier updates. Your team would approve its draft action.
 
-If something comes to mind, I'd be happy to sketch what a first version could look like.
+Is inbound exception handling on your AI roadmap, or is another supply-chain workflow more pressing?
+
+Claim sources: [thrive-f3](https://www.businesswire.com/news/home/20250923519295/en/Syndigo-Announces-Partnership-with-Thrive-Market-to-Enhance-Product-Experience-and-Onboarding-Capabilities), [thrive-f5](https://www.prnewswire.com/news-releases/thrive-market-announces-climate-action-working-group-302736483.html)
+
+Review: Does not repitch Sierra customer support or Syndigo onboarding. Keeps proposed workflow separate from known capabilities and hedges operational burden.
 
 ## Mister Car Wash
-Buyer: Joseph Matheny | Chief Innovation Officer
+Buyer: Jedidiah Gold | Chief Financial Officer
 
-Subject: Which local fix should become standard?
+Subject: UWC service economics
 
-Across hundreds of locations, an equipment issue can look isolated until someone connects it to repairs elsewhere. A useful innovation may be getting a proven local fix to the next site sooner.
+With UWC accounting for 76% of Mister Car Wash's Q1 wash sales, a routine billing issue could put more at risk than the service cost.
 
-We could build an application that links recurring faults to prior repairs and helps regional leaders decide what to test or standardize. Your operators would validate the recommendations.
+Since the take-private, one useful technology test may be cost per resolved member issue alongside retention. Nine-67 could build an agent to check billing history and draft a fix. Staff would approve it; we would measure both costs and retention.
 
-Nine-67 helped one client deploy 20 applications, working with users through testing and training.
+Is that worth testing on one billing request type, or is member service already where you want it?
 
-Which recurring operating problem would be most valuable to learn from across locations?
+Claim sources: [mistercw-f2](https://www.nasdaq.com/press-release/mister-car-wash-announces-completion-take-private-leonard-green-partners-2026-05-19), [mistercw-f3](https://www.stocktitan.net/sec-filings/MCW/8-k-mister-car-wash-inc-reports-material-event-b85ed1a94dfd.html)
+
+Review: Kept Q1 date on percentage. No claim of current churn problem, post-close earnings commentary, or invented savings. CFO economic lens.
