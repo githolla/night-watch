@@ -3,7 +3,7 @@ import { readSession } from "@/lib/session";
 import { NextResponse, type NextRequest } from "next/server";
 
 function isPublicPath(pathname: string) {
-  return pathname === "/setup" || pathname === "/api/health" || pathname.startsWith("/invite/") || pathname.startsWith("/api/auth/") || pathname.startsWith("/api/cron/") || pathname.startsWith("/api/slack/") || pathname.startsWith("/api/gmail/callback") || pathname.startsWith("/api/unsubscribe") || /\.[a-z0-9]+$/i.test(pathname);
+  return pathname === "/api/email-open" || pathname === "/setup" || pathname === "/api/health" || pathname.startsWith("/invite/") || pathname.startsWith("/api/auth/") || pathname.startsWith("/api/cron/") || pathname.startsWith("/api/slack/") || pathname.startsWith("/api/gmail/callback") || pathname.startsWith("/api/unsubscribe") || /\.[a-z0-9]+$/i.test(pathname);
 }
 
 /** Per-user and bootstrap-admin logins issue an AES-GCM session (readSession); legacy shared-password

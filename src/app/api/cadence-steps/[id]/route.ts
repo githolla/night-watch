@@ -15,11 +15,11 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const db = admin();
     const { data: step } = await db
       .from("cadence_steps")
-      .select("id,channel,body,status,cadences(card_id,owner)")
+      .select("id,channel,body,subject,status,cadences(card_id,owner,person_id)")
       .eq("id", id)
       .single();
     if (!step) throw new Error("Follow-up not found");
-    const cadence = step.cadences as unknown as { card_id: string; owner: Owner } | null;
+    const cadence = step.cadences as unknown as { card_id: string; owner: Owner; person_id: string } | null;
 
     if (action === "skipped") {
       await db.from("cadence_steps").update({ status: "skipped" }).eq("id", id);
@@ -28,7 +28,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
     // Marked sent: record it as a real touch (so it shows in history), then close the step.
     if (cadence && MANUAL.includes(step.channel as ManualChannel)) {
-      await recordManualTouch(cadence.card_id, step.channel as ManualChannel, cadence.owner, (step.body as string | null) ?? undefined);
+      await recordManualTouch(cadence.card_id, step.channel as ManualChannel, cadence.owner, (step.body as string | null) ?? undefined, cadence.person_id, step.subject ?? undefined, true);
     }
     await db.from("cadence_steps").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", id);
     return Response.json({ ok: true, status: "sent" });

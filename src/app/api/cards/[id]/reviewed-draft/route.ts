@@ -23,7 +23,7 @@ export async function POST(_request: Request, context: { params: Promise<{ id: s
     if (!reviewed) return Response.json({ error: "There is no reviewed company draft for this buyer role yet." }, { status: 404 });
     const sender = await senderProfile(db, user.owner);
     const draft = composeContactDraft({ company: account.name, domain: account.domain, personName: person.full_name, personTitle: person.title ?? "", senderName: sender.fromName, senderTitle: sender.title, greeting: sender.greeting, signoff: sender.signoff, intro: sender.intro });
-    const patch = { email_subject: draft.subject, email_body: draft.body, status: "edited", assigned_to: user.owner };
+    const patch = { active_variant_id: null, email_subject: draft.subject, email_body: draft.body, status: "edited", assigned_to: user.owner };
     let query = db.from("cards").update(patch).eq("id", id).eq("status", card.status);
     query = card.email_subject == null ? query.is("email_subject", null) : query.eq("email_subject", card.email_subject);
     query = card.email_body == null ? query.is("email_body", null) : query.eq("email_body", card.email_body);

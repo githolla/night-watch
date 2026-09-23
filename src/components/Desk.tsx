@@ -219,11 +219,11 @@ export function Desk({
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
   // Separate from `busy` so a blur-triggered autosave can't disable the Send button mid-click.
   const [sending, setSending] = useState(false);
-  const [tonePreview, setTonePreview] = useState<{ cardId: string; label: string; original: string; originalSubject: string; subject: string; body: string } | null>(null);
+  const [tonePreview, setTonePreview] = useState<{ cardId: string; versionId: string; label: string; original: string; originalSubject: string; subject: string; body: string } | null>(null);
   function previewTone(variant: SavedVariant) {
     if (!focusCard || altContact) return;
     const draft = renderSavedVariant(variant, focusCard.people.full_name, senderName, senderGreeting);
-    setTonePreview({ cardId: focusCard.id, label: variant.label, original: focusCard.email_body ?? "", originalSubject: focusCard.email_subject ?? "", ...draft });
+    setTonePreview({ cardId: focusCard.id, versionId: variant.id, label: variant.label, original: focusCard.email_body ?? "", originalSubject: focusCard.email_subject ?? "", ...draft });
   }
   async function applyTone() {
     if (!tonePreview || !focusCard || tonePreview.cardId !== focusCard.id) return;
@@ -233,7 +233,7 @@ export function Desk({
       return;
     }
     try {
-      const saved = await patchOn(focusCard.id, { email_subject: tonePreview.subject, email_body: tonePreview.body, status: "edited" });
+      const saved = await patchOn(focusCard.id, { saved_variant_id: tonePreview.versionId, email_subject: tonePreview.subject, email_body: tonePreview.body, status: "edited" });
       if (saved) setTonePreview(null);
     } catch { setNotice("Could not save this version. Your original is unchanged."); }
   }
@@ -396,11 +396,11 @@ export function Desk({
     const personId = who && "id" in who ? who.id : undefined;
     // Never let the server silently fall back to the card's default person — that mislogs the wrong contact.
     if (!onCard || !personId) { setNotice("Couldn't tell which contact to log this against — pick the person again, then retry."); return; }
-    // No blocking confirm — copying/opening IS the send here, so it logs straight to the history and cadence.
+    // Explicit send confirmation only; copying is not recorded as a send.
     if (demo) { setNotice(`${label} to ${who?.full_name ?? "contact"} recorded in demo mode.`); return; }
     setBusy(true);
     const channel = view === "email" ? "email" : view === "comment" ? "linkedin_comment" : view === "message" ? "linkedin_message" : "linkedin_request";
-    const response = await fetch(`/api/cards/${onCard.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body, personId }) });
+    const response = await fetch(`/api/cards/${onCard.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body, personId, subject: view === "email" ? (cards.find(item => item.id === onCard.id)?.email_subject ?? "") : undefined }) });
     const result = await response.json();
     setBusy(false);
     if (!response.ok) { if (isMissing(result.error)) dropStaleCard(); else setNotice(result.error ?? "Unable to record outreach."); return; }
@@ -637,11 +637,11 @@ export function Desk({
     try { await navigator.clipboard.writeText(text); setNotice(`${label} copied — paste it to send.`); }
     catch { setNotice("Copy was blocked by the browser; select the text to copy it."); }
   };
-  // Copy a draft to the clipboard, then offer to log it to the history — copying is how a manual send starts.
+  // Copy only. A subsequent Send or Mark sent is required for history and analytics.
   const copyAndLog = async (channel: "email" | "linkedin") => {
     const text = channel === "email" && brief ? withOutreachName(adapt(emailDraft), { fromName: senderName }) : adapt(channel === "email" ? emailDraft : linkedinDraft);
     await copyText(text, channel === "email" ? "Email" : "LinkedIn message");
-    if (text.trim()) await recordTouch(channel === "email" ? "email" : "message", text);
+    // Copy is not evidence of a send. Only Send or Mark sent records an outcome.
   };
   // Mark a message sent when it went out elsewhere (e.g. an agent sent it) — logs the touch without opening/copying.
   const markSent = async (channel: "email" | "linkedin") => {
@@ -1130,7 +1130,7 @@ export function Desk({
                 </div>
 
                 {channelTab === "email" && !sentAlready && !altContact && savedVariants(focusCard.accounts.domain, contact.full_name).length > 0 && <section className="email-tone-controls" aria-label="Saved email versions">
-                  <div className="email-tone-buttons"><strong>Saved versions</strong>{savedVariants(focusCard.accounts.domain, contact.full_name).map(variant => <button type="button" key={variant.id} disabled={busy} aria-pressed={tonePreview?.cardId === focusCard.id && tonePreview.label === variant.label} onClick={() => previewTone(variant)}>{variant.label}</button>)}</div>
+                  <div className="email-tone-buttons"><strong>Saved versions</strong><Link href="/stats#saved-versions">Version analytics ↗</Link>{savedVariants(focusCard.accounts.domain, contact.full_name).map(variant => <button type="button" key={variant.id} disabled={busy} aria-pressed={tonePreview?.cardId === focusCard.id && tonePreview.label === variant.label} onClick={() => previewTone(variant)}>{variant.label}</button>)}</div>
                   <small>Already written for this contact. Preview and choose, no AI generation.</small>
                   {tonePreview?.cardId === focusCard.id && !altContact && <div className="email-tone-preview">
                     <strong>{tonePreview.label} version</strong>

@@ -1,3 +1,5 @@
+import { versionLabel, versionMeta } from "@/lib/version-attribution";
+import { firstOpenAt } from "@/lib/open-tracking";
 import { ActivityView, type ActivityEvent } from "@/components/ActivityView";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
@@ -19,6 +21,8 @@ type TouchRow = {
   body: string | null;
   sent_by: string;
   gmail_thread_id: string | null;
+  people: { full_name: string; title: string; email: string | null } | null;
+  message_variants: { subject: string; dimensions: unknown; message_experiments: { context: string } | null } | null;
   cards: { email_subject: string | null; linkedin_subject: string | null; accounts: { name: string } | null; people: { full_name: string; title: string; email: string | null } | null } | null;
 };
 
@@ -39,7 +43,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
   const db = admin();
   let query = db
     .from("touches")
-    .select("id,card_id,channel,sent_at,created_at,reply_at,reply_classification,body,sent_by,gmail_thread_id,cards(email_subject,linkedin_subject,accounts(name),people(full_name,title,email))")
+    .select("id,card_id,channel,sent_at,created_at,reply_at,reply_classification,body,sent_by,gmail_thread_id,people(full_name,title,email),message_variants(subject,dimensions,message_experiments(context)),cards(email_subject,linkedin_subject,accounts(name),people(full_name,title,email))")
     .order("created_at", { ascending: false })
     .limit(1000);
   if (personId) query = query.eq("person_id", personId);
@@ -59,7 +63,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
   const note = error
     ? `Couldn't load history: ${error.message}`
     : (totalTouches ?? 0) === 0
-      ? "Nothing recorded yet. History fills when you Copy or Open an email/LinkedIn on the desk, or when the cadence sends. (Enrolling with “Automate” only shows here once its emails actually send — which needs Gmail connected.)"
+      ? "Nothing recorded yet. History fills when you send, explicitly mark a message sent, or a cadence sends. Copying does not count as sending. (Enrolling with “Automate” only shows here once its emails actually send — which needs Gmail connected.)"
       : null;
 
   const rows = (data ?? []) as unknown as TouchRow[];
@@ -73,17 +77,22 @@ export default async function Activity({ searchParams }: { searchParams: Promise
       channel: row.channel,
       owner: row.sent_by,
       sentBy: senderLabel(row.sent_by),
-      person: row.cards?.people?.full_name ?? "Unknown contact",
-      title: row.cards?.people?.title ?? "",
+      person: row.people?.full_name ?? row.cards?.people?.full_name ?? "Unknown contact",
+      title: row.people?.title ?? row.cards?.people?.title ?? "",
       company: row.cards?.accounts?.name ?? "Unknown company",
-      to: row.channel === "email" ? row.cards?.people?.email ?? null : null,
-      subject: row.channel === "email" ? row.cards?.email_subject ?? null : row.cards?.linkedin_subject ?? null,
+      to: row.channel === "email" ? row.people?.email ?? row.cards?.people?.email ?? null : null,
+      subject: row.channel === "email" ? row.message_variants?.subject ?? row.cards?.email_subject ?? null : row.cards?.linkedin_subject ?? null,
       body,
       snippet: body.replace(/\s+/g, " ").slice(0, 140),
       replied: Boolean(row.reply_at),
       replyClass: row.reply_classification,
       inCadence: row.card_id ? cadenceCards.has(row.card_id) : false,
       gmailThreadId: row.gmail_thread_id ?? null,
+      version: row.channel === "email" ? versionLabel(row.message_variants?.dimensions) : undefined,
+      openAt: firstOpenAt(row.message_variants?.message_experiments?.context),
+      trackedOpen: Boolean(versionMeta(row.message_variants?.dimensions) && row.gmail_thread_id),
+      sendSource: row.gmail_thread_id ? "Gmail" : versionMeta(row.message_variants?.dimensions)?.source === "manual" ? "Marked sent" : "Legacy record: delivery not confirmed",
+
     };
   });
 

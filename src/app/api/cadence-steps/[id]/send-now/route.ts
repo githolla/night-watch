@@ -1,3 +1,5 @@
+import { trackEmailVersion } from "@/lib/version-tracking";
+import { trackedEmailHtml } from "@/lib/open-tracking";
 import { requireUser } from "@/lib/auth";
 import { encrypt } from "@/lib/crypto";
 import { sendEmail } from "@/lib/gmail";
@@ -74,10 +76,11 @@ export async function POST(_request: Request, context: { params: Promise<{ id: s
     const fullBody = `${withSignature(body, profile, connection.email)}\n\n${optOut}`;
     const html = emailHtml(body, profile, connection.email, optOut);
     const unsubscribe = `${outboundBaseUrl(_request)}/api/unsubscribe?t=${encodeURIComponent(encrypt(to.id))}`;
-    const result = await sendEmail(owner, fromHeader(profile, connection.email), to.email, step.subject, fullBody, previous?.gmail_thread_id ?? undefined, profile.cc, html, unsubscribe);
+    const versionId = await trackEmailVersion(db, { cardId: cadence.card_id, personId: to.id, owner, subject: step.subject, body: fullBody, source: "gmail", followup: Boolean(previous?.gmail_thread_id) });
+    const result = await sendEmail(owner, fromHeader(profile, connection.email), to.email, step.subject, fullBody, previous?.gmail_thread_id ?? undefined, profile.cc, trackedEmailHtml(html, outboundBaseUrl(_request), versionId), unsubscribe);
 
     const now = new Date().toISOString();
-    await db.from("touches").insert({ card_id: cadence.card_id, person_id: to.id, channel: "email", sent_at: now, sent_by: owner, gmail_thread_id: result.threadId, body: fullBody });
+    await db.from("touches").insert({ card_id: cadence.card_id, person_id: to.id, channel: "email", sent_at: now, sent_by: owner, gmail_thread_id: result.threadId, body: fullBody, experiment_variant_id: versionId });
     await db.from("cadence_steps").update({ status: "sent", sent_at: now, error: null }).eq("id", id);
     return Response.json({ ok: true, to: to.full_name, threadId: result.threadId, sentBy: user.owner });
   } catch (error) {

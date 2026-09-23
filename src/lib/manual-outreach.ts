@@ -1,3 +1,4 @@
+import { trackEmailVersion } from "@/lib/version-tracking";
 import { admin } from "@/lib/supabase/admin";
 import { ensureFollowupCadence } from "@/lib/followups";
 import type { Owner } from "@/lib/types";
@@ -5,7 +6,7 @@ import type { Owner } from "@/lib/types";
 export type ManualChannel = "linkedin_comment" | "linkedin_request" | "linkedin_message" | "email" | "intro_ask";
 export type RecordedOutcome = "positive" | "neutral" | "objection" | "referral" | "ooo" | "negative" | "meeting";
 
-export async function recordManualTouch(cardId: string, channel: ManualChannel, owner: Owner, body?: string, personId?: string) {
+export async function recordManualTouch(cardId: string, channel: ManualChannel, owner: Owner, body?: string, personId?: string, subject?: string, followup = false) {
   const db = admin();
   // Plain lookup (no embeds) so a relationship quirk can never masquerade as "card not found".
   const { data: card, error: lookupError } = await db
@@ -42,7 +43,9 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
     if ((count ?? 0) >= limits[channel]!) throw new Error("Daily LinkedIn action limit reached");
   }
 
+  const versionId = channel === "email" ? await trackEmailVersion(db, { cardId, personId: targetPersonId, owner, subject: subject ?? card.email_subject ?? "", body: body ?? "", source: "manual", followup }) : null;
   const { data, error } = await db.from("touches").insert({
+    experiment_variant_id: versionId,
     card_id: cardId,
     person_id: targetPersonId,
     channel,

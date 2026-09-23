@@ -1,3 +1,7 @@
+import { VersionAnalytics } from "@/components/VersionAnalytics";
+import { aggregateVersions, type TrackedTouch } from "@/lib/version-analytics";
+import { fetchAll } from "@/lib/supabase/fetch-all";
+import { SAVED_VERSION_MODEL } from "@/lib/version-attribution";
 import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
@@ -12,13 +16,14 @@ type ExperimentStats = { total: number; selected: number; sent: number; replied:
 type Dimension = keyof ExperimentStats["dimensions"];
 const emptyExperimentStats: ExperimentStats = { total: 0, selected: 0, sent: 0, replied: 0, positive: 0, averageLift: 0, confidence: 0, winnerA: 0, winnerB: 0, dimensions: { relevance: 0, specificity: 0, trust: 0, replyEase: 0 }, channels: [], recent: [] };
 
-function StatsView({ stats, experiments }: { stats: StatsData; experiments: ExperimentStats }) {
+function StatsView({ stats, experiments, versions }: { stats: StatsData; experiments: ExperimentStats; versions: React.ReactNode }) {
   const completionRate = experiments.sent ? Math.round(experiments.replied / experiments.sent * 100) : 0;
   const positiveRate = experiments.replied ? Math.round(experiments.positive / experiments.replied * 100) : 0;
   return <div><Header /><main className="stats learning-page">
-    <header className="learning-head"><div><div className="eyebrow">Learning system · message optimization</div><h1>What improves response</h1><p>Pre-send simulation and observed outcomes in one place. Predictions stay separate from real-world results.</p></div><Link href="/desk" className="learning-cta">Run a message test <span>→</span></Link></header>
-    <nav className="learning-nav"><a href="#experiments"><span>01</span>Message experiments</a><a href="#signals"><span>02</span>Signal performance</a></nav>
+    <header className="learning-head"><div><div className="eyebrow">Learning system · message optimization</div><h1>What improves response</h1><p>Compare saved email versions using recorded sends, open signals and human replies.</p></div><Link href="/desk" className="learning-cta">Choose a saved version <span>→</span></Link></header>
+    <nav className="learning-nav"><a href="#saved-versions">Saved versions</a><a href="#experiments"><span>01</span>Message experiments</a><a href="#signals"><span>02</span>Signal performance</a></nav>
 
+    {versions}
     <section id="experiments" className="experiment-analytics">
       <div className="analytics-section-head"><div><span className="eyebrow">Message Lab analytics</span><h2>Simulation → selection → outcome</h2></div><span>{experiments.total} TESTS RECORDED</span></div>
       <div className="experiment-metrics">
@@ -44,7 +49,7 @@ function StatsView({ stats, experiments }: { stats: StatsData; experiments: Expe
   </main></div>;
 }
 
-export default async function Stats() {
+export default async function Stats({ searchParams }: { searchParams: Promise<{ source?: string; days?: string }> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   await requireUser();
   {
@@ -59,11 +64,20 @@ export default async function Stats() {
   const groups = new Map<string, { sent: number; replies: number; positive: number }>();
   for (const touch of touches ?? []) { const type = ((touch.cards as unknown as { signals: { type: string } })?.signals?.type) ?? "unknown", group = groups.get(type) ?? { sent: 0, replies: 0, positive: 0 }; group.sent++; if (touch.reply_classification !== "none") group.replies++; if (["positive", "referral"].includes(touch.reply_classification)) group.positive++; groups.set(type, group); }
   const stats = { sent, replyRate: sent ? Math.round(replied / sent * 100) : 0, positiveShare: replied ? Math.round(positive / replied * 100) : 0, meetings: meetings ?? 0, cost: (runs ?? []).reduce((sum, run) => sum + Number(run.cost_usd), 0), groups: [...groups].map(([name, group]) => ({ name: name.replaceAll("_", " "), sent: group.sent, replyRate: group.sent ? Math.round(group.replies / group.sent * 100) : 0, positiveShare: group.replies ? Math.round(group.positive / group.replies * 100) : 0 })) };
-  return <StatsView stats={stats} experiments={await loadExperimentStats(db)} />;
+  const params = await searchParams;
+  const source = params.source === "manual" || params.source === "all" ? params.source : "gmail";
+  const days = params.days === "30" || params.days === "90" ? params.days : "all";
+  let summary = aggregateVersions([]);
+  let trackingError: string | undefined;
+  try {
+    const tracked = await fetchAll<TrackedTouch>((from,to)=>db.from("touches").select("id,card_id,person_id,sent_by,sent_at,gmail_thread_id,reply_at,reply_classification,people(full_name),message_variants(subject,dimensions,message_experiments(context))").eq("channel","email").order("id").range(from,to) as unknown as PromiseLike<{ data: TrackedTouch[] | null; error: { message: string } | null }>);
+    summary = aggregateVersions(tracked, { source, since: days === "all" ? undefined : reportSince(Number(days)) });
+  } catch (error) { trackingError = error instanceof Error ? error.message : "Database unavailable"; }
+  return <StatsView stats={stats} experiments={await loadExperimentStats(db)} versions={<VersionAnalytics summary={summary} error={trackingError} source={source} days={days} />} />;
 }
 
 async function loadExperimentStats(db: ReturnType<typeof admin>): Promise<ExperimentStats> {
-  const { data: experiments } = await db.from("message_experiments").select("id,created_at,channel,status,predicted_winner,selected_label,confidence,cards(people(full_name),accounts(name))").order("created_at", { ascending: false }).limit(100);
+  const { data: experiments } = await db.from("message_experiments").select("id,created_at,channel,status,predicted_winner,selected_label,confidence,cards(people(full_name),accounts(name))").neq("model", SAVED_VERSION_MODEL).order("created_at", { ascending: false }).limit(100);
   if (!experiments?.length) return emptyExperimentStats;
   const ids = experiments.map((experiment) => experiment.id);
   const { data: variants } = await db.from("message_variants").select("id,experiment_id,label,simulation_score,dimensions,selected").in("experiment_id", ids);
@@ -85,3 +99,5 @@ async function loadExperimentStats(db: ReturnType<typeof admin>): Promise<Experi
     recent: experiments.slice(0, 8).map((experiment) => { const pair = pairs.get(experiment.id) ?? [], selected = pair.find((variant) => variant.selected), touch = selected ? touchByVariant.get(selected.id) : undefined, card = experiment.cards as unknown as { people: { full_name: string }; accounts: { name: string } }; return { id: experiment.id, person: card?.people?.full_name ?? "Unknown", company: card?.accounts?.name ?? "Unknown", channel: experiment.channel === "email" ? "Email" : experiment.channel === "comment" ? "Post reply" : "Connection note", winner: (experiment.predicted_winner ?? "—") as string, scoreA: pair.find((variant) => variant.label === "A")?.score ?? 0, scoreB: pair.find((variant) => variant.label === "B")?.score ?? 0, status: touch ? ["positive", "referral"].includes(touch.reply_classification) ? "Positive reply" : touch.reply_classification === "none" ? "Sent · awaiting reply" : `${touch.reply_classification} reply` : experiment.selected_label ? "Selected" : "Simulated", date: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(experiment.created_at)) }; }),
   };
 }
+
+function reportSince(days: number) { return new Date(Date.now() - days * 86400000).toISOString(); }

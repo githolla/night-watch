@@ -1,3 +1,5 @@
+import { trackEmailVersion } from "@/lib/version-tracking";
+import { trackedEmailHtml } from "@/lib/open-tracking";
 import { cronAuthorized } from "@/lib/auth";
 import { encrypt } from "@/lib/crypto";
 import { sendEmail } from "@/lib/gmail";
@@ -73,9 +75,10 @@ export async function GET(request:Request){
       const base=outboundBaseUrl(request);
       const unsubscribe=`${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(to.id))}`;
       // Multipart: plain-text part for deliverability + HTML part carrying the branded signature; unsubscribe header too.
-      const result=await sendEmail(cadence.owner,fromHeader(profile,connection.email),to.email,step.subject,fullBody,previous?.gmail_thread_id??undefined,profile.cc,html,unsubscribe);
+      const versionId=await trackEmailVersion(db,{cardId:cadence.card_id,personId:to.id,owner:cadence.owner,subject:step.subject,body:fullBody,source:"gmail",followup:Boolean(previous?.gmail_thread_id)});
+      const result=await sendEmail(cadence.owner,fromHeader(profile,connection.email),to.email,step.subject,fullBody,previous?.gmail_thread_id??undefined,profile.cc,trackedEmailHtml(html,base,versionId),unsubscribe);
       firedThisRun.add(cadence.id);
-      await db.from("touches").insert({card_id:cadence.card_id,person_id:to.id,channel:"email",sent_at:now.toISOString(),sent_by:cadence.owner,gmail_thread_id:result.threadId,body:fullBody});
+      await db.from("touches").insert({card_id:cadence.card_id,person_id:to.id,channel:"email",sent_at:now.toISOString(),sent_by:cadence.owner,gmail_thread_id:result.threadId,body:fullBody,experiment_variant_id:versionId});
       await db.from("cadence_steps").update({status:"sent",sent_at:now.toISOString(),error:null}).eq("id",step.id);await db.from("cards").update({status:"sent"}).eq("id",cadence.card_id);sent++;
     }catch(cause){await db.from("cadence_steps").update({status:"failed",error:cause instanceof Error?cause.message:"Step failed"}).eq("id",step.id);failed++}
   }

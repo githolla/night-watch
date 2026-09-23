@@ -2214,3 +2214,5 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .email-tone-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-height: 360px; overflow: auto; margin: 12px 0; }
 .email-tone-comparison p { white-space: pre-wrap; font-size: 13px; line-height: 1.6; }
 @media (max-width: 700px) { .email-tone-comparison { grid-template-columns: 1fr; } }
+
+.email-tone-buttons a[aria-current="page"] { background: #eee8dc; border-color: #a6742b; color: #312819; }
