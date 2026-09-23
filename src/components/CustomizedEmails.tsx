@@ -1,13 +1,15 @@
 "use client";
 import { useState } from "react";
 
-type Draft = { id: number; company: string; domain: string; tier: string; subject: string; message: string; sourceUrl: string; signal: string };
+type Draft = { id: number; company: string; domain: string; tier: string; subject: string; message: string; sourceUrl: string; signal: string; targetRole?: string; rationale?: string; alternate?: { targetRole: string; subject: string; message: string } };
 export function CustomizedEmails({ drafts, greeting, signoff, signature, sender }: { drafts: Draft[]; greeting: string; signoff: string; signature: string; sender: string }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(drafts[0].id);
   const [names, setNames] = useState<Record<number, string>>({});
   const [copied, setCopied] = useState("");
-  const draft = drafts.find((item) => item.id === selected)!;
+  const [alternateFor, setAlternateFor] = useState<Record<number, boolean>>({});
+  const companyDraft = drafts.find((item) => item.id === selected)!;
+  const draft = { ...companyDraft, ...(alternateFor[selected] && companyDraft.alternate ? companyDraft.alternate : {}) };
   const name = names[selected] ?? "";
   const salutation = greeting.replace(/\{first\}/gi, name.trim().split(/\s+/)[0] || "[first name]").replace(/\{name\}/gi, name.trim() || "[recipient name]");
   const body = [salutation, draft.message, signoff, signature].filter(Boolean).join("\n\n");
@@ -28,7 +30,9 @@ export function CustomizedEmails({ drafts, greeting, signoff, signature, sender 
       </aside>
       <section style={{ flex: "2 1 400px", minWidth: 0 }}>
         <h2>{draft.company}</h2>
-        <p>{draft.domain}</p>
+        {companyDraft.alternate && <label>Buyer version <select value={alternateFor[selected] ? "alternate" : "primary"} onChange={event => { setAlternateFor({ ...alternateFor, [selected]: event.target.value === "alternate" }); setCopied(""); }}><option value="primary">{companyDraft.targetRole}</option><option value="alternate">{companyDraft.alternate.targetRole}</option></select></label>}
+        <p>{draft.domain}{draft.targetRole ? ` · Written for ${draft.targetRole}` : ""}</p>
+        {draft.rationale && <details><summary>Why this angle</summary><p>{draft.rationale}</p></details>}
         <label>Recipient’s verified name <input value={name} onChange={(event) => { setNames({ ...names, [selected]: event.target.value }); setCopied(""); }} placeholder="Enter the person you intend to contact" style={{ width: "100%", padding: 12, margin: "8px 0" }} /></label>
         <p><strong>Subject:</strong> {draft.subject}</p>
         <pre style={{ whiteSpace: "pre-wrap", font: "inherit", lineHeight: 1.7, padding: 20, border: "1px solid #d9d3c8" }}>{body}</pre>

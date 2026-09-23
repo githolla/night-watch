@@ -9,7 +9,7 @@ export const maxDuration = 300;
 type CardRow = {
   id: string; signal_id: string; why_now: string | null; assigned_to: string;
   signals: { raw: Record<string, unknown> | null } | null;
-  accounts: { name: string } | null;
+  accounts: { name: string; domain?: string } | null;
   people: { full_name: string; title: string | null } | null;
 };
 
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     const { data, count, error } = await db.from("cards")
       // assigned_to is READ below to decide whose voice each draft is written in. It was missing here while
       // the row type declared it, so TypeScript was satisfied and every card arrived with it undefined.
-      .select("id,signal_id,why_now,assigned_to,signals(raw),accounts(name),people(full_name,title)", { count: "exact" })
+      .select("id,signal_id,why_now,assigned_to,signals(raw),accounts(name,domain),people(full_name,title)", { count: "exact" })
       .in("status", OPEN)
       .lt("created_at", before)
       .order("id", { ascending: true })
@@ -88,6 +88,7 @@ export async function POST(request: Request) {
       const draft = composeContactDraft({
         variantSalt: positions.get(card.id) ?? 0,
         company,
+      domain: card.accounts?.domain,
         personName: person.full_name,
         personTitle: person.title ?? "",
         whyNow: card.why_now,

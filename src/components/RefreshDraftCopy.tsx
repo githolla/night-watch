@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-const VERSION = "nw.proof-copy-20260922-v2";
+const VERSION = "nw.swarm-copy-20260922-v1";
 
 /** Update saved drafts after the desk is usable; never make rendering wait for writes. */
 export function RefreshDraftCopy() {
@@ -11,13 +11,15 @@ export function RefreshDraftCopy() {
     async function update() {
       try { if (sessionStorage.getItem(VERSION) === "done") return; } catch { /* storage optional */ }
       let changed = 0;
-      setMessage("Updating untouched drafts with relevant Nine-67 proof. You can keep using the worklist.");
+      let cursor: string | undefined;
+      setMessage("Updating untouched drafts with the reviewed company and buyer-role copy. You can keep using the worklist.");
       try {
-        for (let pass = 0; pass < 15 && !cancelled; pass++) {
-          const response = await fetch("/api/desk/repair-drafts", { method: "POST" });
+        for (let pass = 0; pass < 30 && !cancelled; pass++) {
+          const response = await fetch("/api/desk/repair-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ cursor }) });
           const result = await response.json();
           if (!response.ok || result.failed) throw new Error(result.error || "Some drafts could not be updated. Reload to retry.");
           changed += result.repaired ?? 0;
+          cursor = result.nextCursor;
           if (!cancelled && result.updates?.length) window.dispatchEvent(new CustomEvent("night-watch:draft-updates", { detail: result.updates }));
           if (result.done) {
             if (cancelled) return;

@@ -1,3 +1,6 @@
+import { authoredDraft } from "./authored-outreach.ts";
+import { angleFor, composeContactDraft } from "./contact-draft.ts";
+import { senderProfile } from "./sender.ts";
 import { createHash } from "node:crypto";
 import { decodeEntities, foreignEmployer, isRealContact, looksLikeCompanyBrand, looksLikeDocumentName, looksLikeMarketingPhrase } from "./clean.ts";
 import { repairBrokenDrafts } from "./draft-repair.ts";
@@ -301,6 +304,12 @@ export async function persistSignal(account: Account, item: ScoutSignal, outcome
 
   const draft = await writeAngle({ account, signal: item, person, score: scored }, recordCost);
   const assigned: Owner = "josh";
+  if (authoredDraft(account.name, angleFor(person.title ?? ""), account.domain)) {
+    const profile = await senderProfile(db, assigned);
+    const reviewed = composeContactDraft({ company: account.name, domain: account.domain, personName: person.full_name, personTitle: person.title ?? "", senderName: profile.fromName, senderTitle: profile.title, greeting: profile.greeting, signoff: profile.signoff, intro: profile.intro });
+    draft.email_subject = reviewed.subject;
+    draft.email_body = reviewed.body;
+  }
   const inserted = await db.from("cards").insert({ signal_id: storedId, person_id: person.id, account_id: account.id, score: scored.score, score_breakdown: breakdown, assigned_to: assigned, ...draft }).select("id").single();
   if (inserted.error) throw inserted.error;
   outcome.cardsCreated += 1;

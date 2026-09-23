@@ -1,5 +1,5 @@
 import { outreachProof } from "./outreach-proof.ts";
-import customizedEmails from "../../data/customized-emails.json" with { type: "json" };
+import { authoredDraft } from "./authored-outreach.ts";
 import { decodeEntities } from "./clean.ts";
 
 /**
@@ -17,6 +17,7 @@ import { decodeEntities } from "./clean.ts";
 
 export type ContactDraftInput = {
   company: string;
+  domain?: string | null;
   personName: string;
   personTitle: string;
   /** The dated, sourced reason this company is worth writing to. */
@@ -506,11 +507,13 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
   const greeting = fill((input.greeting ?? "").trim() || DEFAULT_GREETING);
   const signoff = ((input.signoff ?? "").trim() || DEFAULT_SIGNOFF);
 
-  // Use the authored company copy for its first contact; colleagues keep their role-specific angles.
-  const custom = (input.variantSalt == null || input.variantSalt === 0)
-    ? customizedEmails.find((draft) => draft.company.toLowerCase() === input.company.trim().toLowerCase())
-    : undefined;
-  if (custom) return { subject: custom.subject, body: [greeting, intro, custom.message, signoff].filter(Boolean).join("\n\n") };
+  const custom = authoredDraft(company, angle.key, input.domain);
+  if (custom) {
+    // Keep an explicitly customized introduction; the default repeats what the signature already says.
+    const configuredIntro = (input.intro ?? "").trim();
+    const personalIntro = configuredIntro && configuredIntro !== "I am {name}, {title} at Nine-67." ? intro : "";
+    return { subject: custom.subject, body: [greeting, personalIntro, custom.message, signoff].filter(Boolean).join("\n\n") };
+  }
 
   const body = [
     greeting,

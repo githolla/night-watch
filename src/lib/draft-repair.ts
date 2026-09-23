@@ -1,71 +1,51 @@
+import { authoredDraft } from "./authored-outreach.ts";
+import { shouldRefreshDraft } from "./draft-update-policy.ts";
 import { auditDraft, isSendable, type AuditRow } from "./draft-audit.ts";
-import { composeContactDraft, rolesFromSignal } from "./contact-draft.ts";
+import { angleFor, composeContactDraft, rolesFromSignal } from "./contact-draft.ts";
 import { senderProfile } from "./sender.ts";
 import { admin } from "./supabase/admin.ts";
 import type { Owner } from "./types.ts";
 
 type Row = {
-  id: string; status: string; signal_id: string; email_subject: string | null; email_body: string | null;
+  id: string; person_id: string | null; status: string; signal_id: string; email_subject: string | null; email_body: string | null;
   why_now: string | null; assigned_to: Owner;
   signals: { raw: Record<string, unknown> | null } | null;
-  accounts: { name: string } | null;
+  accounts: { name: string; domain?: string } | null;
   people: { full_name: string; title: string | null; email: string | null } | null;
 };
 
-/**
- * Keep the stored drafts in step with the writer, and fix the ones that cannot be sent.
- *
- * TWO rules, because a draft can be wrong in two different ways.
- *
- * An UNTOUCHED draft (status "new") is recomposed every pass and saved if the writer would word it
- * differently now. Improving the writer does not change text already in the database, so a fault fixed in
- * the composer stayed on screen anyway: drafts were still reading "We put the financial reporting and the
- * reconciliation under it behind one scheduled job" hours after that phrasing was fixed, because nothing
- * ever went back over them. Catching it needed a new audit rule for every new fault, which is exactly the
- * trap of only ever checking for faults already seen. Comparing against what the writer produces TODAY
- * needs no rule at all.
- *
- * A draft somebody has WORKED ON (approved, or edited) is only rewritten when the audit says it cannot be
- * sent: a placeholder subject, a greeting for the wrong person, a role list read as a job title, a body
- * over the send limit. A nit — not naming the company, the first name used twice — leaves it alone,
- * because overwriting somebody's own wording over a nit is worse than the nit.
- *
- * Sent emails are never touched: they are a record of what went out.
- */
-export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000) {
-  // A time budget, because this runs inside the worklist refresh alongside everything else that pass does.
-  // Without one it would keep going until the platform killed the request, which loses the whole refresh
-  // rather than just the tail of this. Stopping early is safe: the next pass picks up where this left off,
-  // and `done` says plainly whether there is more.
+/** Refresh reviewed company copy without replacing hand edits, sent history, or good AI drafts outside the library. */
+export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000, afterId?: string) {
   const deadline = Date.now() + budgetMs;
   const db = admin();
   const open = ["new", "approved", "edited"];
   const rows: Row[] = [];
+  let readCursor = afterId;
+  let exhausted = false;
   for (let from = 0; from < limit; from += 500) {
-    const { data, error } = await db.from("cards")
-      .select("id,status,signal_id,email_subject,email_body,why_now,assigned_to,signals(raw),accounts(name),people(full_name,title,email)")
-      .in("status", open).order("id").range(from, from + 499);
+    let query = db.from("cards")
+      .select("id,person_id,status,signal_id,email_subject,email_body,why_now,assigned_to,signals(raw),accounts(name,domain),people(full_name,title,email)")
+      .in("status", open).order("id").limit(Math.min(500, limit - from));
+    if (readCursor) query = query.gt("id", readCursor);
+    const { data, error } = await query;
     // Never let a failed read look like a clean list.
     if (error) return { checked: 0, repaired: 0, failed: 0, done: false };
     rows.push(...((data ?? []) as unknown as Row[]));
-    if ((data?.length ?? 0) < 500) break;
+    if ((data?.length ?? 0) < Math.min(500, limit - from)) { exhausted = true; break; }
+    readCursor = data?.at(-1)?.id as string | undefined;
   }
 
-  // Position within the signal, so two colleagues repaired in the same pass do not land on the same wording.
-  // Worked out over EVERY row, not just the ones being rewritten, or a colleague repaired alone would take
-  // position nought and collide with whoever already holds it.
-  const positions = new Map<string, number>();
-  const seen = new Map<string, number>();
-  for (const row of rows) {
-    const next = seen.get(row.signal_id) ?? 0;
-    positions.set(row.id, next);
-    seen.set(row.signal_id, next + 1);
+  const ids = rows.map(row => row.id);
+  const contacted = new Set<string>();
+  if (ids.length) {
+    const { data: touches, error } = await db.from("touches").select("card_id,person_id").in("card_id", ids);
+    if (error) return { checked: 0, repaired: 0, failed: 1, done: false };
+    for (const touch of touches ?? []) contacted.add(`${touch.card_id}:${touch.person_id}`);
   }
-
-  // Untouched drafts are kept current with the writer; worked-on ones only when they cannot be sent.
-  const candidates = rows.filter((row) => row.status === "new" || !isSendable(auditDraft(toAuditRow(row))));
-  if (!candidates.length) return { checked: rows.length, repaired: 0, failed: 0, done: true };
-  const broken = candidates;
+  const broken = rows.filter(row => shouldRefreshDraft(row.status,
+    Boolean(authoredDraft(row.accounts?.name ?? "", angleFor(row.people?.title ?? ""), row.accounts?.domain)),
+    !isSendable(auditDraft(toAuditRow(row))), contacted.has(`${row.id}:${row.person_id}`)));
+  if (!broken.length) return { checked: rows.length, repaired: 0, failed: 0, done: exhausted, nextCursor: rows.at(-1)?.id ?? afterId };
 
   // Each card's own seat: the draft introduces the sender by name, so repairing Jenna's card with Josh's
   // profile would put the wrong person's name in the first line of her email. Looked up once per seat.
@@ -77,18 +57,23 @@ export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000) {
   const updates: Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string }> = [];
   let repaired = 0;
   let failed = 0;
-  let done = true;
-  for (const row of broken) {
+  let done = exhausted;
+  let nextCursor = afterId;
+  const candidateIds = new Set(broken.map(row => row.id));
+  for (const row of rows) {
     // Out of time: leave the rest for the next pass rather than taking the whole refresh down with us.
     if (Date.now() > deadline) { done = false; break; }
+    nextCursor = row.id;
+    if (!candidateIds.has(row.id)) continue;
     const person = row.people;
     const company = row.accounts?.name ?? "";
     // Nothing to write from: leave it rather than replacing it with something worse.
     if (!person?.full_name || !company) continue;
     const raw = row.signals?.raw ?? {};
     const draft = composeContactDraft({
-      variantSalt: positions.get(row.id) ?? 0,
+      variantSalt: row.people?.full_name ?? row.id,
       company,
+      domain: row.accounts?.domain,
       personName: person.full_name,
       personTitle: person.title ?? "",
       whyNow: row.why_now,
@@ -118,7 +103,7 @@ export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000) {
       updates.push({ id: row.id, beforeSubject: row.email_subject, beforeBody: row.email_body, subject: draft.subject, body: draft.body });
     }
   }
-  return { checked: rows.length, repaired, failed, done, updates };
+  return { checked: rows.length, repaired, failed, done, updates, nextCursor };
 }
 
 const toAuditRow = (row: Row): AuditRow => ({

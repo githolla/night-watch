@@ -21,10 +21,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { id } = await context.params;
     const payload = input.parse(await request.json());
     const db = admin();
-    const { data: card } = await db.from("cards").select("id,why_now,people(full_name,title),accounts(name)").eq("id", id).single();
+    const { data: card } = await db.from("cards").select("id,status,email_subject,email_body,linkedin_subject,linkedin_message,why_now,people(full_name,title),accounts(name,domain)").eq("id", id).single();
     if (!card) throw new Error("Card not found");
+    if (!["new", "approved", "edited"].includes(card.status)) throw new Error("Sent or closed messages cannot be rewritten.");
     const person = card.people as unknown as { full_name: string; title: string } | null;
-    const account = card.accounts as unknown as { name: string } | null;
+    const account = card.accounts as unknown as { name: string; domain: string } | null;
     // Whoever is signed in — this was hardcoded to one seat, so a teammate's rewrite came back
     // introducing them as somebody else.
     const sender = await senderProfile(db, user.owner);
@@ -32,6 +33,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const refined = await refineDraft({
       channel: payload.channel,
       company: account?.name ?? "the company",
+      domain: account?.domain,
       person: payload.personName ?? person?.full_name ?? "there",
       title: payload.personTitle ?? person?.title ?? "",
       whyNow: (card.why_now as string) ?? "",
@@ -40,14 +42,24 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       instruction: payload.instruction,
       senderName: sender.fromName,
       senderTitle: sender.title,
+      greeting: sender.greeting,
+      signoff: sender.signoff,
+      intro: sender.intro,
     }, tally.record);
     await tally.flush();
     const patch = payload.channel === "email"
       ? { email_subject: refined.subject ?? payload.subject ?? null, email_body: refined.body }
       : { linkedin_subject: refined.subject ?? payload.subject ?? null, linkedin_message: refined.body };
-    // Still return the rewrite even if persisting a column lags a pending migration, so the desk always updates.
-    const { error: saveError } = await db.from("cards").update(patch).eq("id", id);
-    return Response.json({ ok: true, ...refined, persisted: !saveError });
+    // Preserve a manual edit or send made while the model was working.
+    let query = db.from("cards").update({ ...patch, status: "edited", assigned_to: user.owner }).eq("id", id).eq("status", card.status);
+    const subjectColumn = payload.channel === "email" ? "email_subject" : "linkedin_subject";
+    const bodyColumn = payload.channel === "email" ? "email_body" : "linkedin_message";
+    query = card[subjectColumn] == null ? query.is(subjectColumn, null) : query.eq(subjectColumn, card[subjectColumn]);
+    query = card[bodyColumn] == null ? query.is(bodyColumn, null) : query.eq(bodyColumn, card[bodyColumn]);
+    const { data: saved, error: saveError } = await query.select("id");
+    if (saveError) throw saveError;
+    if (!saved?.length) return Response.json({ error: "This draft changed while refining. Reload to keep the latest edit." }, { status: 409 });
+    return Response.json({ ok: true, ...refined, persisted: true, status: "edited", assigned_to: user.owner });
   } catch (error) {
     return Response.json({ error: humanizeError(error) }, { status: 400 });
   }

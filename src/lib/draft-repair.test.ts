@@ -1,3 +1,4 @@
+import { shouldRefreshDraft } from "./draft-update-policy.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { auditDraft, isSendable, type AuditRow } from "./draft-audit.ts";
@@ -29,21 +30,14 @@ test("a draft that cannot be sent is taken over; one with only a nit is left alo
   assert.equal(isSendable(auditDraft(nit)), true, "but it does not trigger a rewrite");
 });
 
-test("an untouched draft follows the writer; a worked-on one keeps its words", () => {
-  // The failure this rule exists for: a phrasing fault was fixed in the writer and the drafts on screen
-  // kept the old wording, because improving the writer does not change text already in the database and
-  // nothing went back over it. Status is the whole decision, so it is worth stating plainly.
-  const decides = (status: string, faults: number) => status === "new" || faults > 0;
-  const blocking = auditDraft(row({ subject: "TEST" })).filter((f) => f.blocking).length;
-  const fine = auditDraft(row({})).filter((f) => f.blocking).length;
-  assert.equal(fine, 0);
-  // Untouched: rewritten whether or not anything is wrong, so it stays current with the writer.
-  assert.equal(decides("new", fine), true);
-  // Worked on and sound: left exactly as the operator wrote it.
-  assert.equal(decides("edited", fine), false);
-  assert.equal(decides("approved", fine), false);
-  // Worked on but unsendable: taken over, because it cannot go out as it stands.
-  assert.equal(decides("edited", blocking), true);
+test("only untouched authored or broken drafts are automatically refreshed", () => {
+  assert.equal(shouldRefreshDraft("new", true, false), true);
+  assert.equal(shouldRefreshDraft("new", false, true), true);
+  assert.equal(shouldRefreshDraft("new", false, false), false, "keep good AI copy outside the reviewed library");
+  assert.equal(shouldRefreshDraft("edited", true, true), false, "a user refinement is a decision");
+  assert.equal(shouldRefreshDraft("approved", true, false), false);
+  assert.equal(shouldRefreshDraft("sent", true, true), false);
+  assert.equal(shouldRefreshDraft("new", true, false, true), false, "manual outreach is still sent history");
 });
 
 test("what the repair writes in their place passes the audit", () => {

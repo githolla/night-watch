@@ -13,7 +13,7 @@ type CardRow = {
   brief: string; why_now: string; channel: string; assigned_to: string;
   score_breakdown: Record<string, unknown> | null;
   signals: { raw: Record<string, unknown> | null } | null;
-  accounts: { name: string } | null;
+  accounts: { name: string; domain?: string } | null;
 };
 
 type PersonRow = { id: string; full_name: string; title: string | null; level: string | null; email: string | null; email_status: string | null };
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     const db = admin();
 
     const { data, count, error: sourceError } = await db.from("cards")
-      .select("id,signal_id,account_id,person_id,score,score_breakdown,brief,why_now,channel,assigned_to,signals(raw),accounts(name)", { count: "exact" })
+      .select("id,signal_id,account_id,person_id,score,score_breakdown,brief,why_now,channel,assigned_to,signals(raw),accounts(name,domain)", { count: "exact" })
       .in("status", ["new", "approved", "edited"])
       .lt("created_at", before)
       .order("id", { ascending: true })
@@ -137,6 +137,7 @@ export async function POST(request: Request) {
           // Two colleagues who land on the same angle must not draw the same wording by chance.
           variantSalt: index,
           company: card.accounts?.name ?? "",
+          domain: card.accounts?.domain,
           personName: person.full_name,
           personTitle: person.title ?? "",
           whyNow: card.why_now,

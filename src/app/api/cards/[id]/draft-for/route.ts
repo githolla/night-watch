@@ -74,6 +74,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const draft = composeContactDraft({
       variantSalt: position,
       company: account?.name ?? "",
+      domain: account?.domain,
       personName: person.full_name as string,
       personTitle: (person.title as string) ?? "",
       whyNow: card.why_now as string,

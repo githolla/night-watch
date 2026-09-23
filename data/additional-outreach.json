@@ -1,0 +1,80 @@
+[
+  {
+    "company": "Trinity Life Sciences",
+    "domain": "trinitylifesciences.com",
+    "targetRole": "commercial",
+    "subject": "The work before the proposal",
+    "message": "Trinity Life Sciences brings commercial strategy, analytics and technology into the same client conversation. There may be a useful application in assembling that expertise for the next proposal.\n\nNine-67 built a workspace that retrieves approved past work, maps it to an RFP and checks the response for missing requirements. Specialists still decide what belongs in the proposal.\n\nWould seeing how the requirements and evidence come together be useful for your commercial team?",
+    "proofKind": "case-study",
+    "variants": [
+      {
+        "targetRole": "engineering",
+        "subject": "Business tools alongside TrinityEDGE",
+        "message": "TrinityEDGE makes clear that Trinity Life Sciences already has serious technology capability. My interest is the internal application backlog around running the firm.\n\nFor a professional-services client, we built business applications behind a shared access point in its own cloud. The work included account visibility and proposal preparation.\n\nWould it be useful to compare that setup with how your team handles smaller internal requests?",
+        "proofKind": "case-study"
+      },
+      {
+        "targetRole": "finance",
+        "subject": "Client risk beside the numbers",
+        "message": "An account can look healthy financially while a relationship issue is developing elsewhere. That is the decision I would explore with finance at Trinity Life Sciences.\n\nFor a professional-services firm, Nine-67 connected account-team ratings with budget data so leadership could see the revenue exposed. The application reached production in one month.\n\nWould a look at the account view help you judge whether it adds anything to your existing reporting?",
+        "proofKind": "case-study"
+      },
+      {
+        "targetRole": "marketing",
+        "subject": "Making expertise easier to reuse",
+        "message": "Trinity Life Sciences has a broad body of expertise across commercialization. A practical internal tool could help teams select approved examples for a pitch without losing the context that makes each example credible.\n\nOur proposal work connects approved case studies to the requirements of a specific opportunity, with reviewers retaining the final say.\n\nWould the example-selection part be worth showing your marketing team?",
+        "proofKind": "proposals"
+      },
+      {
+        "targetRole": "operations",
+        "subject": "One internal workflow to finish",
+        "message": "The internal work of running a firm like Trinity Life Sciences can be a separate build queue from client-facing analytics.\n\nWe recently helped one client deploy 20 applications, starting with leadership priorities and working through first versions, user feedback and training. For Trinity, I would start with one internal workflow and the team that owns it.\n\nWould a short outline of how we scope that first application be useful?",
+        "proofKind": "20-applications"
+      },
+      {
+        "targetRole": "executive",
+        "subject": "A clearer account conversation",
+        "message": "For Trinity Life Sciences, I would explore an internal leadership question: how to bring the commercial picture and the account team's judgment into the same review.\n\nNine-67 built an application for a professional-services firm that connects account ratings with budget data and highlights changes since the prior month. It reached production in one month using the firm's existing systems.\n\nWould that account-review example be worth comparing with your current approach?",
+        "proofKind": "accounts"
+      }
+    ],
+    "rationale": "Additional live-worklist company absent from the supplied443-company CSV. Company service lines verified from official homepage; proposed workflow is a hypothesis.",
+    "sourceUrl": "https://trinitylifesciences.com/"
+  },
+  {
+    "company": "Quantiphi",
+    "domain": "quantiphi.com",
+    "targetRole": "executive",
+    "subject": "The internal application queue",
+    "message": "Quantiphi already builds AI systems for clients. I am reaching out about the smaller applications needed to run the firm itself.\n\nNine-67 recently helped one client deploy 20 applications across its business. We worked with leaders on priorities, built with users and included training through deployment.\n\nIf your internal application queue competes with client delivery, would an outline of how we handle a bounded project be useful?",
+    "proofKind": "20-applications",
+    "variants": [
+      {
+        "targetRole": "operations",
+        "subject": "An account review teams can act on",
+        "message": "One possible fit at Quantiphi is the internal account review: bringing delivery's assessment together with the commercial exposure.\n\nWe put account ratings and budget data into a working view for a professional-services firm. Account teams supply the ratings, and leaders can see the revenue attached to a concern. The application went live in one month.\n\nWould seeing that review flow help you assess whether it is relevant to your operations team?",
+        "proofKind": "accounts"
+      },
+      {
+        "targetRole": "finance",
+        "subject": "Judgment alongside account budgets",
+        "message": "Quantiphi's client work spans AI, data and cloud. I would be interested in the internal financial view across those engagements, particularly where an account team's concerns should change the conversation.\n\nNine-67 built a view that joins those ratings to budget data for a professional-services client. It makes the exposure visible without treating a risk score as a financial fact.\n\nWould an example of that distinction be useful for your finance team?",
+        "proofKind": "accounts"
+      },
+      {
+        "targetRole": "commercial",
+        "subject": "Evidence for the next proposal",
+        "message": "Across Quantiphi's AI, data and cloud work, the best precedent for a proposal may sit outside the team writing it. That is an internal commercial workflow we could help scope.\n\nNine-67 built a workspace that finds relevant approved proposals and case studies, then checks a response against the RFP. Your specialists still own the technical claims.\n\nWould a walkthrough of the evidence-selection and review steps be useful?",
+        "proofKind": "proposals"
+      },
+      {
+        "targetRole": "engineering",
+        "subject": "A bounded internal build",
+        "message": "With Quantiphi's own AI products and engineering capability, the useful question is where an external team could take a clearly bounded internal application off your queue.\n\nWe built a professional-services client's business applications inside its own cloud, behind a shared access point. We can start with the ownership, access and integration decisions before developing a first version.\n\nWould a short architecture discussion around that internal-use pattern be relevant?",
+        "proofKind": "case-study"
+      }
+    ],
+    "rationale": "Additional live-worklist company absent from the supplied443-company CSV. Company service lines verified from official homepage; proposed workflow is a hypothesis.",
+    "sourceUrl": "https://quantiphi.com/"
+  }
+]

@@ -47,8 +47,8 @@ test("colleagues at one company get genuinely different emails, not one note ren
   // Each speaks to what that person owns.
   // Intent, not exact wording — the copy should be free to change without the test lying about it.
   assert.match(cfo.body, /cost|payroll|salary|recruiting|budget|profitability/i, "finance should talk about money");
-  assert.match(cto.body, /build|stack|infrastructure|schedul\w*|pipeline|tests|scripts/i, "engineering should talk about the build");
-  assert.match(ceo.body, /team|headcount|hir\w*|permanent cost/i, "an executive should talk about the hire itself");
+  assert.match(cto.body, /build|built|architecture|stack|infrastructure|schedul\w*|pipeline|tests|scripts/i, "engineering should talk about the build");
+  assert.match(ceo.body, /priorities|business|leadership/i, "an executive should see an operating decision");
 });
 
 test("every draft is sendable: real company, real role, no placeholders, no link", () => {
@@ -218,37 +218,22 @@ test("the greeting and sign-off belong to the sender, not to the writer", () => 
   assert.ok(unset.body.trimEnd().endsWith("Thank you,"), unset.body);
 });
 
-test("colleagues at one company never get the same pitch, subject or ask", () => {
-  // The measured failure: 480 drafts shared 4 pitch paragraphs, and a CEO, a Co-Founder and a President at
-  // one company received a byte-identical subject, pitch and ask. Only the name differed.
-  const company = "Consero Global";
-  const team = [
-    ["Ashley Honeyman", "Chief Operating Officer"],
-    ["Bridget Howard", "VP - Marketing"],
-    ["David Sawatzky", "Chief Executive Officer"],
-    ["Jeanine Nosker", "Co-Founder"],
-    ["Brock Kahanyshyn", "Chief Information Security Officer"],
-    ["Jennifer Daniel", "Chief Financial Officer"],
-  ] as const;
-  const drafts = team.map(([personName, personTitle], index) =>
-    composeContactDraft({ company, personName, personTitle, roles: ["Data Engineer"], operatingNeed: "reporting", senderName: "Suuchi Ramesh", senderTitle: "COO", variantSalt: index }));
-
-  const pitch = (body: string) => body.split("\n\n")[2];
-  const ask = (body: string) => body.split("\n\n")[3];
-  assert.equal(new Set(drafts.map((d) => pitch(d.body))).size, team.length, "every colleague needs a different pitch");
-  assert.equal(new Set(drafts.map((d) => ask(d.body))).size, team.length, "every colleague needs a different ask");
-  assert.equal(new Set(drafts.map((d) => d.subject)).size, team.length, "every colleague needs a different subject");
+test("reviewed buyer copy stays stable when card ordering changes", () => {
+  const input = { company: "Quantiphi", domain: "quantiphi.com", personName: "Jim Reesing", personTitle: "CEO" };
+  const first = composeContactDraft({ ...input, variantSalt: 0 });
+  const reordered = composeContactDraft({ ...input, variantSalt: 7 });
+  assert.deepEqual(first, reordered);
+  const finance = composeContactDraft({ ...input, personTitle: "CFO" });
+  assert.notEqual(first.subject, finance.subject);
+  assert.notEqual(stripLeadingGreeting(first.body), stripLeadingGreeting(finance.body));
 });
 
-test("four colleagues on the SAME angle still get four different letters", () => {
-  // The hard case, and the one that was reported: a CEO, a Co-Founder and a President all read as the same
-  // angle, so nothing about their titles can separate them. Their position in the company's list has to.
-  const team = ["Chief Executive Officer", "Co-Founder", "President", "Managing Director"];
-  const drafts = team.map((personTitle, index) =>
-    composeContactDraft({ company: "Consero Global", personName: `Person ${index}`, personTitle, roles: ["Data Engineer"], variantSalt: index }));
-  assert.equal(new Set(drafts.map((d) => d.body.split("\n\n")[2])).size, 4, "four positions, four pitches");
-  assert.equal(new Set(drafts.map((d) => d.body.split("\n\n")[3])).size, 4, "four positions, four asks");
-  assert.equal(new Set(drafts.map((d) => d.subject)).size, 4, "four positions, four subjects");
+test("a buyer role is not replaced by a random synonym when a colleague is selected", () => {
+  const input = { company: "Aprio", personTitle: "COO" };
+  const first = composeContactDraft({ ...input, personName: "Alex Morgan", variantSalt: 0 });
+  const colleague = composeContactDraft({ ...input, personName: "Sam Turner", variantSalt: 4 });
+  assert.equal(first.subject, colleague.subject);
+  assert.equal(stripLeadingGreeting(first.body), stripLeadingGreeting(colleague.body));
 });
 
 test("the same person always gets the same draft, and the salt does not change that", () => {
@@ -275,10 +260,10 @@ test("the copy pools are deep enough that the list does not read as one letter",
 
 test("the worklist writer uses authored company copy and the assigned sender greeting", () => {
   const draft = composeContactDraft({ company: "Aprio", personName: "Richard Kopelman", personTitle: "CEO", variantSalt: 0, senderName: "Suuchi Ramesh", greeting: "Hello {first},", signoff: "Best regards," });
-  assert.equal(draft.subject, "One intake after integration");
+  assert.equal(draft.subject, "A common account view");
   assert.ok(draft.body.startsWith("Hello Richard,"));
-  assert.ok(draft.body.includes("Suuchi Ramesh"));
-  assert.ok(draft.body.includes("shared document checklist"));
+  assert.ok(!draft.body.includes("I am Suuchi Ramesh"), "the signature carries the default sender introduction");
+  assert.ok(draft.body.includes("account monitor"));
   assert.ok(draft.body.endsWith("Best regards,"));
   const colleague = composeContactDraft({ company: "Aprio", personName: "Alex Example", personTitle: "CFO", variantSalt: 1 });
   assert.notEqual(colleague.subject, draft.subject);

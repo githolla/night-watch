@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { preservesCurrentDraft } from "@/lib/draft-update-policy";
 import Link from "next/link";
 import { runOutcome, type RunSummary } from "@/lib/run-status";
 import { hasProposedTimes, sanitizeCopy, stripProposedTimes } from "@/lib/clean";
@@ -166,7 +167,7 @@ export function Desk({
       setCards(current => current.map(card => {
         const change = updates.find(update => update.id === card.id);
         // Never replace a local edit or a card sent while background repair was running.
-        if (!change || !["new", "approved", "edited"].includes(card.status) || card.email_subject !== change.beforeSubject || card.email_body !== change.beforeBody) return card;
+        if (!change || !preservesCurrentDraft(card, { status: "new", email_subject: change.beforeSubject, email_body: change.beforeBody })) return card;
         return { ...card, email_subject: change.subject, email_body: change.body };
       }));
     };
@@ -697,7 +698,7 @@ export function Desk({
       const response = await fetch(`/api/cards/${focusCard.id}/refine`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, subject, body, personName: target.full_name, personTitle: target.title }) });
       const json = await response.json();
       if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Could not refine."); return; }
-      setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_subject: json.subject ?? item.linkedin_subject, linkedin_message: json.body }) } : item));
+      setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, status: "edited", assigned_to: json.assigned_to ?? item.assigned_to, ...(channel === "email" ? { email_subject: json.subject ?? item.email_subject, email_body: json.body } : { linkedin_subject: json.subject ?? item.linkedin_subject, linkedin_message: json.body }) } : item));
       // Reset the composer's cached parse so the Edit view shows the refined text (and a later blur can't
       // reassemble the pre-refine draft over it).
       setLastRefine({ cardId: focusCard.id, channel, beforeBody: body, afterBody: (json.body as string) ?? body, beforeSubject: subject ?? "", afterSubject: (json.subject as string) ?? subject ?? "" });
@@ -706,6 +707,22 @@ export function Desk({
     } catch { setNotice("Could not refine."); }
     finally { setRefining(null); }
   };
+  const [loadingReviewed, setLoadingReviewed] = useState(false);
+  async function loadReviewedDraft() {
+    if (!focusCard || loadingReviewed || altContact) return;
+    const id = focusCard.id;
+    setLoadingReviewed(true);
+    try {
+      const response = await fetch(`/api/cards/${id}/reviewed-draft`, { method: "POST" });
+      const result = await response.json();
+      if (!response.ok) { setNotice(result.error ?? "Could not load the reviewed draft."); return; }
+      setCards(current => current.map(item => item.id === id && preservesCurrentDraft(item, focusCard) ? { ...item, email_subject: result.email_subject, email_body: result.email_body, status: result.status, assigned_to: result.assigned_to } : item));
+      setLastRefine(null);
+      setNotice(`Loaded the reviewed ${result.audience} draft with your sender settings.`);
+    } catch { setNotice("Could not load the reviewed draft. Try again."); }
+    finally { setLoadingReviewed(false); }
+  }
+
   // Persist an inline edit to the focused card's draft field, and mark the prospect as being worked.
   /**
    * Saving a draft field marks the card EDITED, not just changed.
@@ -1074,6 +1091,7 @@ export function Desk({
                   <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => setChannelTab("linkedin")}><i className="li-mark">in</i> LinkedIn</button>
                   <div className="deskwork-tools">
                     {!sentAlready && <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>}
+                    {channelTab === "email" && !sentAlready && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : "Reviewed draft"}</button>}
                     <button type="button" disabled={refining === channelTab} onClick={() => channelTab === "email" ? refine("email", focusCard.email_body ?? "", focusCard.email_subject ?? undefined) : refine("linkedin", focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? "", focusCard.linkedin_subject ?? undefined)}>{refining === channelTab ? "Refining…" : "Refine"}</button>
                     {channelTab === "email" && <button type="button" disabled={proposing} title={timesInDraft ? "Take the proposed times back out of this email" : "Only if you want them: insert open times from your connected calendar into this one email"} onClick={timesInDraft ? removeMeetingTimes : proposeMeetingTimes}>{proposing ? "Checking…" : timesInDraft ? "Remove times" : "Propose times"}</button>}
                     <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy</button>
