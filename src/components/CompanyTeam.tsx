@@ -1,10 +1,9 @@
 "use client";
-import { accountBrief } from "@/lib/dossier-data";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-type TeamPerson = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; linkedin_url: string | null; contact_rank?: number; do_not_contact?: boolean; sentAt?: string | null };
+type TeamPerson = { id: string; full_name: string; title: string; level: string; email: string | null; email_status: string; linkedin_url: string | null; sentAt?: string | null };
 type Team = {
   account: { name: string; domain: string; vertical: string | null; employees: string | null; tier: string | null; revenueBand: string | null; careersUrl: string | null } | null;
   people: TeamPerson[];
@@ -18,7 +17,7 @@ function linkedinSearch(name: string, company: string) {
 }
 
 /** Company details and everyone on file there, loaded on demand for the one-screen prospect flow. */
-export function CompanyTeam({ domain, company, activeId, activeName, onSelect, compact, loggedIds, busyId }: { domain: string; company: string; activeId?: string; activeName?: string; onSelect?: (person: TeamPerson) => void; compact?: boolean; loggedIds?: Set<string>; busyId?: string | null }) {
+export function CompanyTeam({ domain, company, activeId, onSelect, compact, loggedIds, busyId }: { domain: string; company: string; activeId?: string; onSelect?: (person: TeamPerson) => void; compact?: boolean; loggedIds?: Set<string>; busyId?: string | null }) {
   const [team, setTeam] = useState<{ domain: string; data: Team } | null>(null);
   const [open, setOpen] = useState(false);
   // Collapse the expanded team list when the component is reused for a different company. React's
@@ -34,14 +33,9 @@ export function CompanyTeam({ domain, company, activeId, activeName, onSelect, c
     return () => { live = false; };
   }, [domain]);
 
-  const brief = accountBrief(domain);
-  const ready = team?.domain === domain || Boolean(brief);
-  const account = team?.domain === domain ? team.data.account : null;
-  const people: TeamPerson[] = brief ? [...brief.contacts].sort((a, b) => a.contact_rank - b.contact_rank).map(contact => {
-    const full_name = `${contact.first_name} ${contact.last_name}`;
-    const stored = team?.domain === domain ? team.data.people.find(person => person.full_name.toLowerCase() === full_name.toLowerCase()) : undefined;
-    return { id: contact.contact_id, full_name, title: contact.title, level: "owner", email: null, email_status: "none", linkedin_url: null, ...stored, contact_rank: contact.contact_rank };
-  }) : team?.domain === domain ? team.data.people : [];
+  const ready = team?.domain === domain;
+  const account = ready ? team!.data.account : null;
+  const people = ready ? team!.data.people : [];
   const facts = [account?.vertical, account?.revenueBand, account?.employees, account?.tier].filter(Boolean) as string[];
   const shown = open ? people : people.slice(0, 6);
 
@@ -60,14 +54,14 @@ export function CompanyTeam({ domain, company, activeId, activeName, onSelect, c
       {!ready && <p className="focus-team-loading">Loading the team…</p>}
       {ready && people.length === 0 && <p className="focus-team-loading">No one on file yet for this company.</p>}
       {shown.map((person) => (
-        <div key={person.id} className={`focus-team-row ${onSelect ? "is-selectable" : ""} ${(activeId === person.id || activeName === person.full_name || (!activeId && !activeName && person.contact_rank === 1)) ? "is-active" : ""} ${(loggedIds?.has(person.id) || person.sentAt) ? "is-logged" : ""}`} role={onSelect ? "button" : undefined} tabIndex={onSelect ? 0 : undefined}
+        <div key={person.id} className={`focus-team-row ${onSelect ? "is-selectable" : ""} ${activeId === person.id ? "is-active" : ""} ${(loggedIds?.has(person.id) || person.sentAt) ? "is-logged" : ""}`} role={onSelect ? "button" : undefined} tabIndex={onSelect ? 0 : undefined}
           onClick={onSelect ? () => onSelect(person) : undefined}
           onKeyDown={onSelect ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(person); } } : undefined}>
           <span className="avatar">{(loggedIds?.has(person.id) || person.sentAt) ? "✓" : initials(person.full_name)}</span>
           <div className="focus-team-id"><strong>{person.full_name}{(loggedIds?.has(person.id) || person.sentAt)
             ? <Link className="focus-team-flag is-sent" href={`/activity?person=${person.id}&name=${encodeURIComponent(person.full_name)}`} onClick={(event) => event.stopPropagation()} title={person.sentAt ? `Emailed ${new Date(person.sentAt).toLocaleDateString()} — open in History` : "Already written to — open in History"}>sent &#8599;</Link>
             : busyId === person.id ? <em className="focus-team-flag">opening…</em>
-            : (activeId === person.id || activeName === person.full_name || (!activeId && !activeName && person.contact_rank === 1)) ? <em className="focus-team-flag">writing to</em> : null}</strong><small>{person.title || "title unknown"}{person.contact_rank === 1 ? " · Primary contact" : ""}</small></div>
+            : activeId === person.id ? <em className="focus-team-flag">writing to</em> : null}</strong><small>{person.title || "title unknown"}</small></div>
           <div className="focus-team-contact">
             {person.email ? <span title={person.email_status}>{person.email}</span> : null}
             <span className="focus-team-links">

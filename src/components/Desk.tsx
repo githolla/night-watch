@@ -1,6 +1,5 @@
 "use client";
-import { accountBrief, compareAccounts, primaryFact, dateLabel } from "@/lib/dossier-data";
-import { BuyerResearch } from "./BuyerResearch";
+import { accountBrief } from "@/lib/dossier-data";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
 
 import { useEffect, useState, type ReactNode } from "react";
@@ -231,8 +230,7 @@ export function Desk({
   const todo = (daily.length ? daily : byKind).filter((item) => !WORKED_STATUSES.includes(item.status));
   // The pool the one-at-a-time flow walks: today's worklist, or every active prospect in "All". Verified
   // (sendable) prospects first so the operator works the ones they can send in one click.
-  const ordered = [...(listScope === "all" ? actionable : todo)].sort((a, b) => compareAccounts(a.accounts.domain ?? "", b.accounts.domain ?? "", a.accounts.name, b.accounts.name));
-  const focusPool = ordered.filter((item, index) => ordered.findIndex(other => other.accounts.domain === item.accounts.domain) === index);
+  const focusPool = verifiedFirst(listScope === "all" ? actionable : todo);
   const active = selected ? cards.find((item) => item.id === selected) : undefined;
   // Land on the picked card even if it isn't in the current pool (e.g. picked from the "All"/Overview list
   // while the scope is "today"), rather than silently showing focusPool[0] — a different company.
@@ -510,7 +508,6 @@ export function Desk({
   const contact = altContact ?? (focusCard ? focusCard.people : null);
   const research = recipientResearch(focusCard?.accounts.domain, contact?.full_name);
   const brief = accountBrief(focusCard?.accounts.domain);
-  const publishedDate = dateLabel(primaryFact(focusCard?.accounts.domain)?.published_date);
   const matchesResearch = research ? hasResearchCopy(focusCard?.email_subject, focusCard?.email_body, research) : false;
   // "Already gone out" is a fact about a PERSON, not about the card. The card is marked sent the moment its
   // first email leaves, but a colleague who has not been written to still needs an editable draft and a Send
@@ -1033,7 +1030,7 @@ export function Desk({
         <div className="deskwork">
           <header className="deskwork-head">
             <div><span className="overview-kick">Your reach-out list</span><h1>Start the right conversation.</h1></div>
-            <div className="deskwork-head-right"><span>Night Watch</span><strong>{focusPool.length} {focusPool.length === 1 ? "prospect" : "prospects"} ready</strong><div className="deskwork-head-actions">{tools}<button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview &rarr;</button></div></div>
+            <div className="deskwork-head-right"><span>Night Watch</span><strong>{todo.length} {todo.length === 1 ? "prospect" : "prospects"} ready</strong><div className="deskwork-head-actions">{tools}<button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview &rarr;</button></div></div>
           </header>
 
           <div className="deskwork-grid">
@@ -1066,20 +1063,25 @@ export function Desk({
               <section className="deskwork-mid">
                 <header className="deskwork-co">
                   <span className="avatar">{initials(focusCard.accounts.name)}</span>
-                  <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{signalLabel(focusCard)}{brief ? ` · spotted ${publishedDate ?? "date not confirmed"}` : signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p></div>
+                  <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{signalLabel(focusCard)}{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p></div>
                   <Link href="/outreach" className="focus-link">All 25 companies</Link>
                 </header>
 
                 <div className="deskwork-opening">
-                  <span className="overview-kick">{brief ? "Buyer research" : "Signal context"}</span>
-                  {brief ? <BuyerResearch domain={focusCard.accounts.domain ?? ""} /> : <>
+                  <span className="overview-kick">{research ? "Buyer research" : "Signal context"}</span>
+                  {research ? <>
+                    <p className="deskwork-opening-lead">{research.trigger.fact}</p>
+                    <p className="deskwork-opening-need"><b>Potential relevance:</b> {research.hypothesis}</p>
+                    <p><b>{research.disposition === "hold" ? "Hold outreach" : "Fit assessment"}:</b> {research.fit}</p>
+                    <a href={research.trigger.sourceUrl} target="_blank" rel="noreferrer">Company source · {research.trigger.date}</a>{" · "}<a href={research.buyer.sourceUrl} target="_blank" rel="noreferrer">Buyer source</a>
+                  </> : <>
                     <p className="deskwork-opening-lead">{sanitizeCopy(focusCard.signals.type === "job_cluster" || focusCard.signals.type === "job_post" ? focusCard.signals.summary : focusCard.why_now || nextLine(focusCard))}</p>
                     <p className="deskwork-opening-need">This signal needs buyer-level qualification. Hiring does not establish budget, an outsourcing need or a reason to replace the role.</p>
                   </>}
                   {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">View signal &amp; company details &#8599;</Link>}
                 </div>
 
-                {focusCard.accounts.domain && <CompanyTeam key={`${focusCard.accounts.domain}:${teamStamp}`} compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id ?? focusCard.people.id} activeName={contact.full_name} busyId={openingContact} loggedIds={logged} onSelect={(person) => void openContact(person, focusCard)} />}
+                {focusCard.accounts.domain && <CompanyTeam key={`${focusCard.accounts.domain}:${teamStamp}`} compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id ?? focusCard.people.id} busyId={openingContact} loggedIds={logged} onSelect={(person) => void openContact(person, focusCard)} />}
               </section>
 
               {/* RIGHT — draft with Email / LinkedIn tabs */}
