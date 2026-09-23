@@ -1,4 +1,4 @@
-import PriorityEmailsPage from "@/app/priority-emails/page";
+import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
 import { curatedDomains } from "@/lib/curated-worklist";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
 import { Desk, type DeskContext } from "@/components/Desk";
@@ -28,7 +28,6 @@ const OPEN_STATUSES = ["new", "approved", "edited"];
 
 export default async function DeskPage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
-  if (!params.card) return PriorityEmailsPage();
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) {
     redirect("/setup");
   }
@@ -40,6 +39,18 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   // Read saved drafts immediately. Repair runs in the research/refresh pipeline,
   // never as a prerequisite for rendering or changing worklist filters.
   const db = admin();
+  // Populate the selected companies into the original editor once. Existing
+  // drafts, sent records, and contact restrictions remain untouched.
+  const existing = await db.from("cards").select("signals!inner(hash)").like("signals.hash", "operator-shortlist-20260923:%");
+  if (existing.error) throw existing.error;
+  const prepared = new Set((existing.data ?? []).map(row => (row.signals as unknown as { hash: string }).hash));
+  const missing = curatedDomains.filter(domain => !prepared.has(`operator-shortlist-20260923:${domain}`));
+  for (let start = 0; start < missing.length; start += 5) {
+    const results = await Promise.all(missing.slice(start, start + 5).map(domain => preparePriorityDraft(domain, me, db)));
+    for (const result of results) {
+      if (!result.ok && result.status !== 409) throw new Error((await result.json()).error);
+    }
+  }
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = daysAgoIso(1);
 
@@ -53,8 +64,8 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     .not("signals.raw->>operating_need", "is", null)
     // The desk is the reach-out list only.
     .in("accounts.domain", curatedDomains)
+    .like("signals.hash", "operator-shortlist-20260923:%")
     .order("score", { ascending: false });
-  query = params.card ? query.eq("id", params.card) : query;
   query = params.status ? query.eq("status", params.status) : query.in("status", OPEN_STATUSES);
   if (params.priority === "high") query = query.gte("score", PRIORITY_THRESHOLD);
   if (params.new === "today") query = query.eq("surfaced_on", today);
@@ -183,7 +194,7 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
   // day and has rolled forward, so it is marked as carried over rather than re-badged "new" every morning.
   const dayStart = `${today}T00:00:00`;
   const workingCutoff = new Date().getTime() - 30 * 60 * 1000;
-  const surfaced = (cardRows ?? [])
+  const surfaced = (cardRows ?? []).sort((a, b) => curatedDomains.indexOf(a.accounts.domain) - curatedDomains.indexOf(b.accounts.domain))
     // Never surface a card whose contact is a marketing phrase, not a real person.
     .filter((card) => { const person = card.people as { full_name?: string } | null; return person?.full_name ? isLikelyPersonName(person.full_name) : false; });
 
@@ -212,27 +223,11 @@ export default async function DeskPage({ searchParams }: { searchParams: Promise
     }
   }
 
-  // Stable daily worklist: at the first desk open each day, lock in the top ~25 open prospects. Membership
-  // then stays fixed all day (no reshuffle, nothing new bubbling up), so re-entering is easy. Graceful if the
-  // worklist_on column (migration 0023) isn't applied yet.
-  const DAILY_WORKLIST = 25;
-  try {
-    const stampedToday = surfaced.some((card) => (card.worklist_on as string | null) === today);
-    if (!stampedToday) {
-      const alreadyOn = surfaced.filter((card) => card.worklist_on).length;
-      const toAdd = surfaced.filter((card) => !card.worklist_on).slice(0, Math.max(0, DAILY_WORKLIST - alreadyOn)).map((card) => card.id as string);
-      if (toAdd.length) {
-        await db.from("cards").update({ worklist_on: today }).in("id", toAdd);
-        const added = new Set(toAdd);
-        for (const card of surfaced) if (added.has(card.id as string)) (card as { worklist_on?: string | null }).worklist_on = today;
-      }
-    }
-  } catch { /* column not migrated yet — the desk falls back to the score-ordered list */ }
-
+  // Every open card in the fixed, curated list belongs in the worklist.
   const cards = surfaced.map((card) => {
     const created = (card.created_at as string | null) ?? "";
     const workingAt = card.working_at as string | null;
-    return { ...card, isNew: created >= dayStart, carriedOver: Boolean(created) && created < dayStart, working: Boolean(workingAt && Date.parse(workingAt) > workingCutoff), onWorklist: Boolean(card.worklist_on), followups: followupsByCard.get(card.id as string) ?? [] };
+    return { ...card, isNew: created >= dayStart, carriedOver: Boolean(created) && created < dayStart, working: Boolean(workingAt && Date.parse(workingAt) > workingCutoff), onWorklist: true, followups: followupsByCard.get(card.id as string) ?? [] };
   });
 
   // The app runs itself: opening the desk starts or continues the scan and shows progress, so nobody has to drive the Runs page.
