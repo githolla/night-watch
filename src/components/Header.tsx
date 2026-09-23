@@ -1,5 +1,6 @@
 "use client";
 
+import { curatedDomains } from "@/lib/curated-worklist";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -47,7 +48,7 @@ export function Header() {
     return () => window.removeEventListener("click", onClick);
   }, []);
 
-  const countFor = (href: string) => href === "/outreach" ? 25 : href === "/followups" ? counts?.followups : undefined;
+  const countFor = (href: string) => href === "/outreach" ? curatedDomains.length : href === "/followups" ? counts?.followups : undefined;
 
   return (
     <>

@@ -1,11 +1,14 @@
 import data from "../../data/dossiers/index.json" with { type: "json" };
 
+import focused from "../../data/dossiers/revenue-focus-index.json" with { type: "json" };
+const all = [...focused, ...data];
+
 export function isBlank(value: unknown): boolean {
   return value == null || (typeof value === "string" && ["", "."].includes(value.trim()));
 }
 const key = (value: string) => value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[/?#:]/)[0];
-export function accountBrief(domain?: string | null) { return data.find(row => domain && key(row.domain) === key(domain))?.brief; }
-export function dossierFor(domain?: string | null) { return data.find(row => domain && key(row.domain) === key(domain))?.dossier; }
+export function accountBrief(domain?: string | null) { return all.find(row => domain && key(row.domain) === key(domain))?.brief; }
+export function dossierFor(domain?: string | null) { return all.find(row => domain && key(row.domain) === key(domain))?.dossier; }
 export function primaryFact(domain?: string | null) {
   const brief = accountBrief(domain);
   return dossierFor(domain)?.facts.find(fact => fact.fact_id === brief?.router_output.primary_signal_fact_id);

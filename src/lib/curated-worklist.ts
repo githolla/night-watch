@@ -1,4 +1,4 @@
-import drafts from "../../data/priority-outreach.json" with { type: "json" };
+import drafts from "../../data/revenue-focus.json" with { type: "json" };
 import { domainKey } from "./recipient-research.ts";
 export const curatedDrafts = drafts;
 export const curatedDomains = drafts.map(row => domainKey(row.domain));

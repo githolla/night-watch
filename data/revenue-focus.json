@@ -1,0 +1,459 @@
+[
+  {
+    "company": "Cayman Chemical",
+    "domain": "caymanchem.com",
+    "sector": "Research chemical manufacturing",
+    "revenue": {
+      "usdMillions": 62,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2026 Crain's ranking, 2025 company revenue; not an audited filing."
+    },
+    "trigger": {
+      "fact": "Kirk Maxey discussed why scientific validation remains essential as AI accelerates research in an August 2026 Cayman article.",
+      "date": "2026-08-19",
+      "sourceUrl": "https://www.caymanchem.com/news/ai-and-the-future-of-research"
+    },
+    "reframe": "AI should save scientists time finding evidence while keeping scientific validation with people.",
+    "contacts": [
+      {
+        "name": "Kirk Maxey",
+        "title": "President & CEO",
+        "sourceUrl": "https://www.caymanchem.com/news/ai-and-the-future-of-research",
+        "email": "kmaxey@caymanchem.com",
+        "emailSourceUrl": "https://kirkmaxey.com/about/",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "subject": "AI your scientists can check",
+        "message": "Your ASP reflection made a useful distinction: faster discovery still needs scientific validation. I'd like to bring that same discipline to the work around the lab.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work with business and operations teams to build custom software. We recently helped one client deploy 20 applications.\n\nWe'd build a first version that helps staff find approved product evidence and prepare a sourced answer for a scientist to check. We'd measure research time saved, then train the team through launch.\n\nWould it be useful to compare where your scientists spend time finding that evidence?",
+        "contact_rank": 1,
+        "contact_id": "rev-caymanchem-c1"
+      },
+      {
+        "name": "Stephen Barrett",
+        "title": "VP, Innovation & Growth",
+        "sourceUrl": "https://stabilux-biosciences.com/about-us/stephen-barrett/",
+        "email": "sbarrett@caymanchem.com",
+        "emailSourceUrl": "https://pubs.acs.org/doi/abs/10.1021/acs.jmedchem.9b00336",
+        "emailPublishedDate": "2019-04-09",
+        "emailStatus": "published_unverified",
+        "subject": "less digging before project reviews",
+        "message": "Your work spans Cayman's research partnerships, licensing and IP. An AI assistant could help pull the evidence for a project review together without handing scientific judgment to a model.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers learn the business alongside your team and build custom software around the work.\n\nWe'd build a review workspace that finds approved project evidence, links every answer to its source and leaves scientific validation with your people. We'd start with one review, measure preparation time, then refine it with the users.\n\nIs preparing those reviews something you'd want help simplifying?",
+        "contact_rank": 2,
+        "contact_id": "rev-caymanchem-c2"
+      }
+    ],
+    "rank": 1,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "AI should save scientists time finding evidence while keeping scientific validation with people. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$62M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Kirk Maxey",
+      "title": "President & CEO",
+      "sourceUrl": "https://www.caymanchem.com/news/ai-and-the-future-of-research",
+      "email": "kmaxey@caymanchem.com"
+    },
+    "subject": "AI your scientists can check",
+    "message": "Your ASP reflection made a useful distinction: faster discovery still needs scientific validation. I'd like to bring that same discipline to the work around the lab.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work with business and operations teams to build custom software. We recently helped one client deploy 20 applications.\n\nWe'd build a first version that helps staff find approved product evidence and prepare a sourced answer for a scientist to check. We'd measure research time saved, then train the team through launch.\n\nWould it be useful to compare where your scientists spend time finding that evidence?",
+    "writerKit": {
+      "accountId": "rev-caymanchem",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-caymanchem-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-caymanchem-f1",
+          "statement": "Kirk Maxey discussed why scientific validation remains essential as AI accelerates research in an August 2026 Cayman article.",
+          "source_url": "https://www.caymanchem.com/news/ai-and-the-future-of-research",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2026-08-19"
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "AI should save scientists time finding evidence while keeping scientific validation with people.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "AI your scientists can check",
+        "less digging before project reviews"
+      ],
+      "touch1Cta": "Would it be useful to compare where your scientists spend time finding that evidence?"
+    }
+  },
+  {
+    "company": "Alta Pest Control",
+    "domain": "altapestcontrol.com",
+    "sector": "Pest control and field services",
+    "revenue": {
+      "usdMillions": 57.543583,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf",
+      "note": "2026 PCT Top 100, rank 24; reported 2025 revenue."
+    },
+    "trigger": {
+      "fact": "Aaron Curtis described Alta's research linking cancellations to friction in the first days of customer onboarding. Alta already uses FieldRoutes.",
+      "date": "2026-05-20",
+      "sourceUrl": "https://www.fieldroutes.com/blog/alta-pest-control-customer-onboarding"
+    },
+    "reframe": "The first days of customer onboarding are a chance to resolve friction before a cancellation.",
+    "contacts": [
+      {
+        "name": "Chris Langlois",
+        "title": "CEO",
+        "sourceUrl": "https://www.inc.com/profile/alta-pest-control",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "subject": "catching friction in week one",
+        "message": "Aaron Curtis's comments about cancellations starting in the first few days caught my attention. That gives an AI project a concrete job: help a branch act while the customer still wants things to work.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers work alongside operations teams to build custom software and get people using it.\n\nWe'd build on Alta's existing FieldRoutes setup, flagging onboarding friction from service notes for a manager to review. We'd measure how quickly those cases get resolved, then check whether fewer customers cancel.\n\nWould an early-warning project for one branch be worth a conversation?",
+        "contact_rank": 1,
+        "contact_id": "rev-altapestcontrol-c1"
+      },
+      {
+        "name": "Aaron Curtis",
+        "title": "Customer Experience Officer",
+        "sourceUrl": "https://www.fieldroutes.com/blog/alta-pest-control-customer-onboarding",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "subject": "acting before the cancellation",
+        "message": "Your point about first-week friction being mistaken for price sensitivity is a good reason to put AI close to the service team. The useful moment is before a customer decides to cancel.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work with operations teams to build custom software and train the people using it.\n\nWe'd build a first pass that reads onboarding notes, groups recurring concerns and puts unresolved cases in front of the right branch manager. We'd work around FieldRoutes and compare resolution time with your current process.\n\nWould you be open to walking through one of those early customer journeys?",
+        "contact_rank": 2,
+        "contact_id": "rev-altapestcontrol-c2"
+      }
+    ],
+    "rank": 2,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "The first days of customer onboarding are a chance to resolve friction before a cancellation. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$57.5436M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Chris Langlois",
+      "title": "CEO",
+      "sourceUrl": "https://www.inc.com/profile/alta-pest-control",
+      "email": null
+    },
+    "subject": "catching friction in week one",
+    "message": "Aaron Curtis's comments about cancellations starting in the first few days caught my attention. That gives an AI project a concrete job: help a branch act while the customer still wants things to work.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers work alongside operations teams to build custom software and get people using it.\n\nWe'd build on Alta's existing FieldRoutes setup, flagging onboarding friction from service notes for a manager to review. We'd measure how quickly those cases get resolved, then check whether fewer customers cancel.\n\nWould an early-warning project for one branch be worth a conversation?",
+    "writerKit": {
+      "accountId": "rev-altapestcontrol",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-altapestcontrol-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-altapestcontrol-f1",
+          "statement": "Aaron Curtis described Alta's research linking cancellations to friction in the first days of customer onboarding. Alta already uses FieldRoutes.",
+          "source_url": "https://www.fieldroutes.com/blog/alta-pest-control-customer-onboarding",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2026-05-20"
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "The first days of customer onboarding are a chance to resolve friction before a cancellation.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "catching friction in week one",
+        "acting before the cancellation"
+      ],
+      "touch1Cta": "Would an early-warning project for one branch be worth a conversation?"
+    }
+  },
+  {
+    "company": "Chrysan Industries",
+    "domain": "chrysanindustries.com",
+    "sector": "Automotive lubricants and specialty chemical manufacturing",
+    "revenue": {
+      "usdMillions": 51.6,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2026 Crain's ranking, 2025 company revenue; corrected original chrysan.com domain."
+    },
+    "trigger": {
+      "fact": "Chrysan makes automotive lubricants and specialty chemicals, with published contacts in the US, China, South Korea and Mexico.",
+      "date": null,
+      "sourceUrl": "https://www.chrysanindustries.com/en/contact-us"
+    },
+    "reframe": "Supplier updates become useful when purchasing can connect a changed delivery to an affected order.",
+    "contacts": [
+      {
+        "name": "Glenn Gerhard",
+        "title": "President & CFO",
+        "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "subject": "supplier updates and affected orders",
+        "message": "With Chrysan's teams across the US, Mexico and Asia, I'd explore one practical use for AI: turning a supplier's changed delivery date into a clear view of the orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand business and operations and build custom software alongside your team.\n\nWe'd build a first version that reads supplier updates, connects them to purchasing records and flags what needs a decision. Your people approve the changes. We'd measure time spent chasing updates and stay through training and deployment.\n\nWould that be a useful project to explore with your purchasing team?",
+        "contact_rank": 1,
+        "contact_id": "rev-chrysanindustries-c1"
+      },
+      {
+        "name": "Suk-Kyu Koh",
+        "title": "Chairman & CEO",
+        "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "subject": "practical AI at Chrysan",
+        "message": "Chrysan runs a global chemicals business with a relatively small team. I'd be interested in where AI could give those people time back, starting with the work between a supplier update and a customer commitment.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers work with leaders and operations teams to build custom software. We recently helped one client deploy 20 applications.\n\nWe'd build a first pass that connects supplier updates to affected orders for your team to review. We'd measure the checking time it removes, refine it with users and handle training.\n\nIs that a piece of work you'd like to make easier?",
+        "contact_rank": 2,
+        "contact_id": "rev-chrysanindustries-c2"
+      }
+    ],
+    "rank": 3,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "Supplier updates become useful when purchasing can connect a changed delivery to an affected order. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$51.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Glenn Gerhard",
+      "title": "President & CFO",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "email": null
+    },
+    "subject": "supplier updates and affected orders",
+    "message": "With Chrysan's teams across the US, Mexico and Asia, I'd explore one practical use for AI: turning a supplier's changed delivery date into a clear view of the orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers understand business and operations and build custom software alongside your team.\n\nWe'd build a first version that reads supplier updates, connects them to purchasing records and flags what needs a decision. Your people approve the changes. We'd measure time spent chasing updates and stay through training and deployment.\n\nWould that be a useful project to explore with your purchasing team?",
+    "writerKit": {
+      "accountId": "rev-chrysanindustries",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-chrysanindustries-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-chrysanindustries-f1",
+          "statement": "Chrysan makes automotive lubricants and specialty chemicals, with published contacts in the US, China, South Korea and Mexico.",
+          "source_url": "https://www.chrysanindustries.com/en/contact-us",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "Supplier updates become useful when purchasing can connect a changed delivery to an affected order.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "supplier updates and affected orders",
+        "practical AI at Chrysan"
+      ],
+      "touch1Cta": "Would that be a useful project to explore with your purchasing team?"
+    }
+  },
+  {
+    "company": "Motor City Stamping",
+    "domain": "mcstamp.com",
+    "sector": "Automotive stamping and assembly manufacturing",
+    "revenue": {
+      "usdMillions": 86.6,
+      "year": 2025,
+      "status": "reported",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "note": "2026 Crain's ranking, 2025 company revenue; corrected original motorcitystamping.com domain."
+    },
+    "trigger": {
+      "fact": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+      "date": null,
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+    },
+    "reframe": "A changed customer schedule matters when the team can see which production orders need a decision.",
+    "contacts": [
+      {
+        "name": "Judith Kucway",
+        "title": "CEO & CFO",
+        "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "subject": "when the customer schedule changes",
+        "message": "For a stamping and assembly business like Motor City, I'd start an AI conversation with a concrete example: a changed customer schedule and the production orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work alongside business and operations teams to build custom software that fits how they work.\n\nWe'd build a first version that compares a schedule update with open orders and flags the differences for a planner. We'd measure checking time and keep every production decision with your team. Then we'd refine it with users and train them through launch.\n\nWould you be open to looking at one real schedule change together?",
+        "contact_rank": 1,
+        "contact_id": "rev-mcstamp-c1"
+      }
+    ],
+    "rank": 4,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns."
+    ],
+    "buyer": {
+      "name": "Judith Kucway",
+      "title": "CEO & CFO",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+      "email": null
+    },
+    "subject": "when the customer schedule changes",
+    "message": "For a stamping and assembly business like Motor City, I'd start an AI conversation with a concrete example: a changed customer schedule and the production orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work alongside business and operations teams to build custom software that fits how they work.\n\nWe'd build a first version that compares a schedule update with open orders and flags the differences for a planner. We'd measure checking time and keep every production decision with your team. Then we'd refine it with users and train them through launch.\n\nWould you be open to looking at one real schedule change together?",
+    "writerKit": {
+      "accountId": "rev-mcstamp",
+      "frame": "gap_selling",
+      "sendWave": 1,
+      "factIds": [
+        "rev-mcstamp-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-mcstamp-f1",
+          "statement": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "A changed customer schedule matters when the team can see which production orders need a decision.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "when the customer schedule changes"
+      ],
+      "touch1Cta": "Would you be open to looking at one real schedule change together?"
+    }
+  },
+  {
+    "company": "Channellock",
+    "domain": "channellock.com",
+    "sector": "Hand tool manufacturing",
+    "revenue": {
+      "usdMillions": 46.7,
+      "year": null,
+      "status": "estimated",
+      "sourceUrl": "https://growjo.com/company/Channellock",
+      "note": "Third-party annual revenue estimate, not company-confirmed. Retained as a conditional match; source master band was $50-100M."
+    },
+    "trigger": {
+      "fact": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
+      "date": "2025-03-27",
+      "sourceUrl": "https://www.channellock.com/pressreleases/leadership-transition/"
+    },
+    "reframe": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up.",
+    "contacts": [
+      {
+        "name": "Jon DeArment",
+        "title": "EVP, Manufacturing & Engineering",
+        "sourceUrl": "https://www.channellock.com/pressreleases/leadership-transition/",
+        "email": "jdearment@channellock.com",
+        "emailSourceUrl": "https://hardwaregroupassociation.com/wp-content/uploads/2025/12/HGA-Directory_2026.pdf",
+        "emailPublishedDate": null,
+        "emailStatus": "published_unverified",
+        "subject": "AI on the shop floor",
+        "message": "Your move into manufacturing and engineering puts you close to where an AI tool has to earn its place: helping the people making the tools. I'd start with the production notes that supervisors already use.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers work alongside operations teams to build custom software and train the people using it.\n\nWe'd build a first version that groups recurring interruptions from those notes and tracks the agreed follow-up. We'd measure preparation time for shift reviews, with supervisors checking every conclusion.\n\nWould you be open to comparing that with how your team runs a shift review?",
+        "contact_rank": 1,
+        "contact_id": "rev-channellock-c1"
+      },
+      {
+        "name": "Jimmy Bromley",
+        "title": "President",
+        "sourceUrl": "https://www.channellock.com/pressreleases/leadership-transition/",
+        "email": null,
+        "emailSourceUrl": null,
+        "emailPublishedDate": null,
+        "emailStatus": "not_found",
+        "subject": "a practical AI starting point",
+        "message": "You put operational efficiency and financial discipline at the center of your introduction as Channellock's president. I'd like to explore an AI project you could judge on both.\n\nNine-67 is an AI-first company. Our forward-deployed engineers work with leaders and operations teams to build custom software. We recently helped one client deploy 20 applications.\n\nWe'd build around one production review: connect recurring interruptions in shift notes to the follow-up your supervisors agree on. We'd measure preparation time saved and whether actions get closed, then train the team through deployment.\n\nWould a project like that be worth exploring with Jon?",
+        "contact_rank": 2,
+        "contact_id": "rev-channellock-c2"
+      }
+    ],
+    "rank": 5,
+    "researchDate": "2026-09-23",
+    "targetRole": "executive",
+    "proofKind": "owner-supplied-delivery",
+    "hypothesis": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up. This is a possible workflow to explore, not a confirmed problem.",
+    "fit": "$46.7M annual revenue (estimated). Operating business; buying intent and budget not confirmed.",
+    "limitations": [
+      "Published addresses have not been checked for deliverability.",
+      "Missing addresses remain blank; no inferred email patterns.",
+      "Third-party annual revenue estimate, not company-confirmed. Retained as a conditional match; source master band was $50-100M."
+    ],
+    "buyer": {
+      "name": "Jon DeArment",
+      "title": "EVP, Manufacturing & Engineering",
+      "sourceUrl": "https://www.channellock.com/pressreleases/leadership-transition/",
+      "email": "jdearment@channellock.com"
+    },
+    "subject": "AI on the shop floor",
+    "message": "Your move into manufacturing and engineering puts you close to where an AI tool has to earn its place: helping the people making the tools. I'd start with the production notes that supervisors already use.\n\nWe're Nine-67, an AI-first company. Our forward-deployed engineers work alongside operations teams to build custom software and train the people using it.\n\nWe'd build a first version that groups recurring interruptions from those notes and tracks the agreed follow-up. We'd measure preparation time for shift reviews, with supervisors checking every conclusion.\n\nWould you be open to comparing that with how your team runs a shift review?",
+    "writerKit": {
+      "accountId": "rev-channellock",
+      "frame": "gap_selling",
+      "sendWave": 2,
+      "factIds": [
+        "rev-channellock-f1"
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-channellock-f1",
+          "statement": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
+          "source_url": "https://www.channellock.com/pressreleases/leadership-transition/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2025-03-27"
+        }
+      ],
+      "review": "Named-contact research, revenue range review, sourced business addresses and individual draft. Performance not tested.",
+      "reframe": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up.",
+      "avoid": [
+        "Never claim the proposed workflow is a confirmed pain.",
+        "Never invent ROI, software integrations already built, or current buying intent.",
+        "Never describe estimated revenue as confirmed.",
+        "No em or en dashes."
+      ],
+      "subjectIdeas": [
+        "AI on the shop floor",
+        "a practical AI starting point"
+      ],
+      "touch1Cta": "Would you be open to comparing that with how your team runs a shift review?"
+    }
+  }
+]

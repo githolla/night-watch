@@ -1,5 +1,6 @@
 import { emailStyle, emailFirstName } from "./email-style.ts";
 import { outreachProof } from "./outreach-proof.ts";
+import { recipientResearch } from "./recipient-research.ts";
 import { authoredDraft } from "./authored-outreach.ts";
 import { decodeEntities } from "./clean.ts";
 import { isCuratedDomain } from "./curated-worklist.ts";
@@ -516,7 +517,7 @@ export function composeContactDraft(input: ContactDraftInput): { subject: string
     const configuredIntro = (input.intro ?? "").trim();
     const personalIntro = configuredIntro && configuredIntro !== "I am {name}, {title} at Nine-67." ? intro : "";
     const message = [greeting, personalIntro, custom.message].filter(Boolean).join("\n\n");
-    return { subject: emailStyle(custom.subject), body: emailStyle(isCuratedDomain(input.domain) ? outreachBody(message) : `${message}\n\n${signoff}`) };
+    return { subject: emailStyle(custom.subject), body: emailStyle((isCuratedDomain(input.domain) || recipientResearch(input.domain, input.personName)) ? outreachBody(message) : `${message}\n\n${signoff}`) };
   }
 
   const body = [

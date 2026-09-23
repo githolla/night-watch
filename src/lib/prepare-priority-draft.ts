@@ -5,6 +5,7 @@ import { domainKey } from "@/lib/recipient-research";
 import { senderProfile } from "@/lib/sender";
 import { composeContactDraft } from "@/lib/contact-draft";
 import type { AppUser } from "@/lib/users";
+import { focusedContacts, publishedEmailPatch } from "./focused-contact.ts";
 
 /** Prepare saved worklist data without sending or replacing existing drafts. */
 export async function preparePriorityDraft(domain: string, me: AppUser, db = admin()) {
@@ -21,6 +22,26 @@ export async function preparePriorityDraft(domain: string, me: AppUser, db = adm
       account = loaded.data;
     }
     if (account.status !== "active") return Response.json({ error: "This account is paused, a client or marked do not contact. Its existing restriction was preserved." }, { status: 409 });
+    // Import every researched colleague, not only the default card's buyer. Public
+    // addresses retain their source and remain unverified until a verifier checks them.
+    for (const contact of focusedContacts(selected.domain)) {
+      const found = await db.from("people").select("id,email,email_status,email_source,do_not_contact").eq("account_id", account.id).ilike("full_name", contact.name).maybeSingle();
+      if (found.error) throw found.error;
+      if (found.data?.do_not_contact) continue;
+      if (!found.data) {
+        const parts = contact.name.split(/\s+/);
+        const result = await db.from("people").insert({ account_id: account.id, full_name: contact.name, first_name: parts[0], last_name: parts.slice(1).join(" "), title: contact.title, level: "owner", email_status: "none", ...publishedEmailPatch(selected.domain, contact.name, { email: null }) });
+        if (result.error && result.error.code !== "23505") throw result.error;
+      } else {
+        const patch = publishedEmailPatch(selected.domain, contact.name, found.data);
+        if (Object.keys(patch).length) {
+          let update = db.from("people").update(patch).eq("id", found.data.id).eq("do_not_contact", false);
+          update = found.data.email ? update.eq("email", found.data.email) : update.is("email", null);
+          const result = await update;
+          if (result.error) throw result.error;
+        }
+      }
+    }
     let personResult = await db.from("people").select("id,full_name,title,email,do_not_contact").eq("account_id", account.id).ilike("full_name", selected.buyer.name).maybeSingle();
     if (personResult.error) throw personResult.error;
     if (!personResult.data) {

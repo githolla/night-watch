@@ -10,6 +10,7 @@ import { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
 import { senderProfile } from "@/lib/sender";
 import { z } from "zod";
+import { publishedEmailPatch } from "@/lib/focused-contact";
 
 const input = z.object({ personId: z.string().trim().min(1).max(64) });
 
@@ -50,7 +51,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       let found = await db.from("people").select("id").eq("account_id", card.account_id).ilike("full_name", fullName).maybeSingle();
       if (found.error) throw found.error;
       if (!found.data) {
-        const inserted = await db.from("people").insert({ account_id: card.account_id, full_name: fullName, first_name: named.first_name, last_name: named.last_name, title: named.title, level: "owner", email_status: "none" });
+        const inserted = await db.from("people").insert({ account_id: card.account_id, full_name: fullName, first_name: named.first_name, last_name: named.last_name, title: named.title, level: "owner", email_status: "none", ...publishedEmailPatch(domain ?? "", fullName, { email: null }) });
         if (inserted.error && inserted.error.code !== "23505") throw inserted.error;
         found = await db.from("people").select("id").eq("account_id", card.account_id).ilike("full_name", fullName).single();
       }

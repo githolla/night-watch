@@ -1,0 +1,708 @@
+[
+  {
+    "domain": "caymanchem.com",
+    "brief": {
+      "account_id": "rev-caymanchem",
+      "company": "Cayman Chemical",
+      "send_wave": 1,
+      "why_now": "Kirk Maxey discussed why scientific validation remains essential as AI accelerates research in an August 2026 Cayman article.",
+      "company_profile": {
+        "what_they_do": "Research chemical manufacturing",
+        "hq": "",
+        "size": {
+          "text": "$62M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Kirk Maxey",
+          "title": "President & CEO",
+          "since": "",
+          "source_url": "https://www.caymanchem.com/news/ai-and-the-future-of-research"
+        },
+        {
+          "name": "Stephen Barrett",
+          "title": "VP, Innovation & Growth",
+          "since": "",
+          "source_url": "https://stabilux-biosciences.com/about-us/stephen-barrett/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-caymanchem-c1",
+          "first_name": "Kirk",
+          "last_name": "Maxey",
+          "title": "President & CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        },
+        {
+          "contact_id": "rev-caymanchem-c2",
+          "first_name": "Stephen",
+          "last_name": "Barrett",
+          "title": "VP, Innovation & Growth",
+          "persona": "ceo",
+          "contact_rank": 2
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "AI should save scientists time finding evidence while keeping scientific validation with people. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-caymanchem-f1",
+        "reasoning": "$62M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Kirk Maxey discussed why scientific validation remains essential as AI accelerates research in an August 2026 Cayman article.",
+          "fact_id": "rev-caymanchem-f1"
+        },
+        "problem": "AI should save scientists time finding evidence while keeping scientific validation with people. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "AI should save scientists time finding evidence while keeping scientific validation with people.",
+        "reframe": "AI should save scientists time finding evidence while keeping scientific validation with people.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "AI your scientists can check",
+          "less digging before project reviews"
+        ],
+        "touch_1_cta": "Would it be useful to compare where your scientists spend time finding that evidence?",
+        "must_cite_one_of": [
+          "rev-caymanchem-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-caymanchem-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "AI should save scientists time finding evidence while keeping scientific validation with people. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-caymanchem",
+      "company": "Cayman Chemical",
+      "industry": "Research chemical manufacturing",
+      "revenue_band": "$62M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Kirk Maxey discussed why scientific validation remains essential as AI accelerates research in an August 2026 Cayman article.",
+          "date": "2026-08-19",
+          "fact_id": "rev-caymanchem-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-caymanchem-f1",
+          "statement": "Kirk Maxey discussed why scientific validation remains essential as AI accelerates research in an August 2026 Cayman article.",
+          "source_url": "https://www.caymanchem.com/news/ai-and-the-future-of-research",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2026-08-19"
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-caymanchem-c1",
+        "first_name": "Kirk",
+        "last_name": "Maxey",
+        "title": "President & CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "altapestcontrol.com",
+    "brief": {
+      "account_id": "rev-altapestcontrol",
+      "company": "Alta Pest Control",
+      "send_wave": 1,
+      "why_now": "Aaron Curtis described Alta's research linking cancellations to friction in the first days of customer onboarding. Alta already uses FieldRoutes.",
+      "company_profile": {
+        "what_they_do": "Pest control and field services",
+        "hq": "",
+        "size": {
+          "text": "$57.5436M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Chris Langlois",
+          "title": "CEO",
+          "since": "",
+          "source_url": "https://www.inc.com/profile/alta-pest-control"
+        },
+        {
+          "name": "Aaron Curtis",
+          "title": "Customer Experience Officer",
+          "since": "",
+          "source_url": "https://www.fieldroutes.com/blog/alta-pest-control-customer-onboarding"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-altapestcontrol-c1",
+          "first_name": "Chris",
+          "last_name": "Langlois",
+          "title": "CEO",
+          "persona": "ceo",
+          "contact_rank": 1
+        },
+        {
+          "contact_id": "rev-altapestcontrol-c2",
+          "first_name": "Aaron",
+          "last_name": "Curtis",
+          "title": "Customer Experience Officer",
+          "persona": "ceo",
+          "contact_rank": 2
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "The first days of customer onboarding are a chance to resolve friction before a cancellation. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-altapestcontrol-f1",
+        "reasoning": "$57.5436M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Aaron Curtis described Alta's research linking cancellations to friction in the first days of customer onboarding. Alta already uses FieldRoutes.",
+          "fact_id": "rev-altapestcontrol-f1"
+        },
+        "problem": "The first days of customer onboarding are a chance to resolve friction before a cancellation. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "The first days of customer onboarding are a chance to resolve friction before a cancellation.",
+        "reframe": "The first days of customer onboarding are a chance to resolve friction before a cancellation.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "catching friction in week one",
+          "acting before the cancellation"
+        ],
+        "touch_1_cta": "Would an early-warning project for one branch be worth a conversation?",
+        "must_cite_one_of": [
+          "rev-altapestcontrol-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-altapestcontrol-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "The first days of customer onboarding are a chance to resolve friction before a cancellation. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-altapestcontrol",
+      "company": "Alta Pest Control",
+      "industry": "Pest control and field services",
+      "revenue_band": "$57.5436M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Aaron Curtis described Alta's research linking cancellations to friction in the first days of customer onboarding. Alta already uses FieldRoutes.",
+          "date": "2026-05-20",
+          "fact_id": "rev-altapestcontrol-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-altapestcontrol-f1",
+          "statement": "Aaron Curtis described Alta's research linking cancellations to friction in the first days of customer onboarding. Alta already uses FieldRoutes.",
+          "source_url": "https://www.fieldroutes.com/blog/alta-pest-control-customer-onboarding",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2026-05-20"
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-altapestcontrol-c1",
+        "first_name": "Chris",
+        "last_name": "Langlois",
+        "title": "CEO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "chrysanindustries.com",
+    "brief": {
+      "account_id": "rev-chrysanindustries",
+      "company": "Chrysan Industries",
+      "send_wave": 1,
+      "why_now": "Chrysan makes automotive lubricants and specialty chemicals, with published contacts in the US, China, South Korea and Mexico.",
+      "company_profile": {
+        "what_they_do": "Automotive lubricants and specialty chemical manufacturing",
+        "hq": "",
+        "size": {
+          "text": "$51.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Glenn Gerhard",
+          "title": "President & CFO",
+          "since": "",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        {
+          "name": "Suk-Kyu Koh",
+          "title": "Chairman & CEO",
+          "since": "",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-chrysanindustries-c1",
+          "first_name": "Glenn",
+          "last_name": "Gerhard",
+          "title": "President & CFO",
+          "persona": "ceo",
+          "contact_rank": 1
+        },
+        {
+          "contact_id": "rev-chrysanindustries-c2",
+          "first_name": "Suk-Kyu",
+          "last_name": "Koh",
+          "title": "Chairman & CEO",
+          "persona": "ceo",
+          "contact_rank": 2
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "Supplier updates become useful when purchasing can connect a changed delivery to an affected order. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-chrysanindustries-f1",
+        "reasoning": "$51.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Chrysan makes automotive lubricants and specialty chemicals, with published contacts in the US, China, South Korea and Mexico.",
+          "fact_id": "rev-chrysanindustries-f1"
+        },
+        "problem": "Supplier updates become useful when purchasing can connect a changed delivery to an affected order. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "Supplier updates become useful when purchasing can connect a changed delivery to an affected order.",
+        "reframe": "Supplier updates become useful when purchasing can connect a changed delivery to an affected order.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "supplier updates and affected orders",
+          "practical AI at Chrysan"
+        ],
+        "touch_1_cta": "Would that be a useful project to explore with your purchasing team?",
+        "must_cite_one_of": [
+          "rev-chrysanindustries-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-chrysanindustries-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "Supplier updates become useful when purchasing can connect a changed delivery to an affected order. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-chrysanindustries",
+      "company": "Chrysan Industries",
+      "industry": "Automotive lubricants and specialty chemical manufacturing",
+      "revenue_band": "$51.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Chrysan makes automotive lubricants and specialty chemicals, with published contacts in the US, China, South Korea and Mexico.",
+          "date": null,
+          "fact_id": "rev-chrysanindustries-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-chrysanindustries-f1",
+          "statement": "Chrysan makes automotive lubricants and specialty chemicals, with published contacts in the US, China, South Korea and Mexico.",
+          "source_url": "https://www.chrysanindustries.com/en/contact-us",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-chrysanindustries-c1",
+        "first_name": "Glenn",
+        "last_name": "Gerhard",
+        "title": "President & CFO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "mcstamp.com",
+    "brief": {
+      "account_id": "rev-mcstamp",
+      "company": "Motor City Stamping",
+      "send_wave": 1,
+      "why_now": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+      "company_profile": {
+        "what_they_do": "Automotive stamping and assembly manufacturing",
+        "hq": "",
+        "size": {
+          "text": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Judith Kucway",
+          "title": "CEO & CFO",
+          "since": "",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-mcstamp-c1",
+          "first_name": "Judith",
+          "last_name": "Kucway",
+          "title": "CEO & CFO",
+          "persona": "ceo",
+          "contact_rank": 1
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-mcstamp-f1",
+        "reasoning": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+          "fact_id": "rev-mcstamp-f1"
+        },
+        "problem": "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "A changed customer schedule matters when the team can see which production orders need a decision.",
+        "reframe": "A changed customer schedule matters when the team can see which production orders need a decision.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "when the customer schedule changes"
+        ],
+        "touch_1_cta": "Would you be open to looking at one real schedule change together?",
+        "must_cite_one_of": [
+          "rev-mcstamp-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-mcstamp-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "A changed customer schedule matters when the team can see which production orders need a decision. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-mcstamp",
+      "company": "Motor City Stamping",
+      "industry": "Automotive stamping and assembly manufacturing",
+      "revenue_band": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+          "date": null,
+          "fact_id": "rev-mcstamp-f1",
+          "strength": 0.5
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-mcstamp-f1",
+          "statement": "Motor City Stamping manufactures stamped automotive parts and provides welding, assembly, dies and prototypes.",
+          "source_url": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": null
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-mcstamp-c1",
+        "first_name": "Judith",
+        "last_name": "Kucway",
+        "title": "CEO & CFO",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  },
+  {
+    "domain": "channellock.com",
+    "brief": {
+      "account_id": "rev-channellock",
+      "company": "Channellock",
+      "send_wave": 2,
+      "why_now": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
+      "company_profile": {
+        "what_they_do": "Hand tool manufacturing",
+        "hq": "",
+        "size": {
+          "text": "$46.7M annual revenue (estimated). Operating business; buying intent and budget not confirmed.",
+          "source_url": "https://growjo.com/company/Channellock"
+        },
+        "ownership": {
+          "type": "private",
+          "detail": "",
+          "source_url": ""
+        }
+      },
+      "leaders": [
+        {
+          "name": "Jon DeArment",
+          "title": "EVP, Manufacturing & Engineering",
+          "since": "",
+          "source_url": "https://www.channellock.com/pressreleases/leadership-transition/"
+        },
+        {
+          "name": "Jimmy Bromley",
+          "title": "President",
+          "since": "",
+          "source_url": "https://www.channellock.com/pressreleases/leadership-transition/"
+        }
+      ],
+      "contacts": [
+        {
+          "contact_id": "rev-channellock-c1",
+          "first_name": "Jon",
+          "last_name": "DeArment",
+          "title": "EVP, Manufacturing & Engineering",
+          "persona": "ceo",
+          "contact_rank": 1
+        },
+        {
+          "contact_id": "rev-channellock-c2",
+          "first_name": "Jimmy",
+          "last_name": "Bromley",
+          "title": "President",
+          "persona": "ceo",
+          "contact_rank": 2
+        }
+      ],
+      "router_output": {
+        "frame": "gap_selling",
+        "touch_1_cta_type": "interest",
+        "persona": "ceo",
+        "value_driver": "time back for operating teams",
+        "angle": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up. This is a possible workflow to explore, not a confirmed problem.",
+        "primary_signal_fact_id": "rev-channellock-f1",
+        "reasoning": "$46.7M annual revenue (estimated). Operating business; buying intent and budget not confirmed."
+      },
+      "pain_hypothesis": {
+        "current_state": {
+          "text": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
+          "fact_id": "rev-channellock-f1"
+        },
+        "problem": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up. This is a possible workflow to explore, not a confirmed problem.",
+        "implication": "Potential checking and coordination effort; not confirmed.",
+        "future_state": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up.",
+        "reframe": "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up.",
+        "workflows": [],
+        "confidence": "low"
+      },
+      "email_guidance": {
+        "subject_ideas": [
+          "AI on the shop floor",
+          "a practical AI starting point"
+        ],
+        "touch_1_cta": "Would you be open to comparing that with how your team runs a shift review?",
+        "must_cite_one_of": [
+          "rev-channellock-f1"
+        ],
+        "contact_2_angle": "Use the individually authored contact message, not another contact's opening.",
+        "avoid": [
+          "Never claim the proposed workflow is a confirmed pain.",
+          "Never invent ROI, software integrations already built, or current buying intent.",
+          "Never describe estimated revenue as confirmed.",
+          "No em or en dashes."
+        ],
+        "sender": "Use authenticated sender settings."
+      },
+      "verification": {
+        "checked_on": "2026-09-23",
+        "method": "Public source review; published business addresses are not deliverability verified.",
+        "cited_claims": [
+          {
+            "fact_id": "rev-channellock-f1",
+            "verdict": "SUPPORTED",
+            "note": "Workflow need remains a hypothesis."
+          }
+        ]
+      },
+      "pain_clues_from_research": [
+        "Production notes become useful when supervisors can connect a recurring interruption to a specific follow-up. This is a possible workflow to explore, not a confirmed problem."
+      ],
+      "research_gaps": [
+        "Published addresses have not been checked for deliverability.",
+        "Missing addresses remain blank; no inferred email patterns.",
+        "Third-party annual revenue estimate, not company-confirmed. Retained as a conditional match; source master band was $50-100M."
+      ]
+    },
+    "dossier": {
+      "account_id": "rev-channellock",
+      "company": "Channellock",
+      "industry": "Hand tool manufacturing",
+      "revenue_band": "$46.7M annual revenue (estimated). Operating business; buying intent and budget not confirmed.",
+      "signals": [
+        {
+          "signal_type": "other",
+          "summary": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
+          "date": "2025-03-27",
+          "fact_id": "rev-channellock-f1",
+          "strength": 0.2
+        }
+      ],
+      "facts": [
+        {
+          "fact_id": "rev-channellock-f1",
+          "statement": "Channellock moved Jon DeArment into EVP Manufacturing and Engineering and Jimmy Bromley into President in March 2025.",
+          "source_url": "https://www.channellock.com/pressreleases/leadership-transition/",
+          "retrieved_at": "2026-09-23T00:00:00Z",
+          "published_date": "2025-03-27"
+        }
+      ],
+      "prior_touches": [],
+      "contact": {
+        "contact_id": "rev-channellock-c1",
+        "first_name": "Jon",
+        "last_name": "DeArment",
+        "title": "EVP, Manufacturing & Engineering",
+        "persona": "ceo",
+        "contact_rank": 1
+      }
+    }
+  }
+]

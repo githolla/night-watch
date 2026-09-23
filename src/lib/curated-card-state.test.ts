@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { isSelectedDraft, wasAutomaticallyArchived } from './curated-card-state.ts';
 
 test('only the operator-selected signal is exempt from automated scoring', () => {
-  assert.equal(isSelectedDraft('gwelectric.com', 'operator-shortlist-20260923:gwelectric.com'), true);
-  assert.equal(isSelectedDraft('gwelectric.com', 'ordinary-research'), false);
+  assert.equal(isSelectedDraft('caymanchem.com', 'operator-shortlist-20260923:caymanchem.com'), true);
+  assert.equal(isSelectedDraft('caymanchem.com', 'ordinary-research'), false);
   assert.equal(isSelectedDraft('unselected.com', 'operator-shortlist-20260923:unselected.com'), false);
 });
 test('recover scoring-job archives without recovering user decisions', () => {

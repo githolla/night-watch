@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { lintEmail } from "../../tools/email-writer/src/lint.ts";
-import { curatedDrafts } from "./curated-worklist.ts";
+import curatedDrafts from "../../data/priority-outreach.json" with { type: "json" };
 import { recipientResearch } from "./recipient-research.ts";
 
 test("all 25 emails pass the supplied writer kit and use its primary buyers", () => {

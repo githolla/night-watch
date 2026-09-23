@@ -23,7 +23,7 @@ export async function GET(request: Request) {
         const name = `${contact.first_name} ${contact.last_name}`;
         const match = stored.data?.find(person => person.full_name.trim().toLowerCase() === name.toLowerCase());
         return { id: match?.id ?? contact.contact_id, full_name: name, title: contact.title, level: match?.level ?? "owner", email: match?.email ?? null, email_status: match?.email_status ?? "none", email_source: match?.email_source ?? null, linkedin_url: match?.linkedin_url ?? null, do_not_contact: match?.do_not_contact ?? false, contact_rank: contact.contact_rank };
-      });
+      }).filter(person => !person.do_not_contact);
       return Response.json({ account, people });
     }
     const people = account

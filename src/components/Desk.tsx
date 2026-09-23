@@ -1,4 +1,5 @@
 "use client";
+import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
 
@@ -1064,7 +1065,7 @@ export function Desk({
                 <header className="deskwork-co">
                   <span className="avatar">{initials(focusCard.accounts.name)}</span>
                   <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{signalLabel(focusCard)}{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p></div>
-                  <Link href="/outreach" className="focus-link">All 25 companies</Link>
+                  <Link href="/outreach" className="focus-link">All {curatedDomains.length} companies</Link>
                 </header>
 
                 <div className="deskwork-opening">

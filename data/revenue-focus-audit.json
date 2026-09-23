@@ -1,0 +1,1515 @@
+{
+  "checkedOn": "2026-09-23",
+  "currency": "USD",
+  "rangeMillions": [
+    10,
+    100
+  ],
+  "sourceRows": 1859,
+  "candidateRows": 135,
+  "scopeNote": "Source master begins at $50M. This review is not a complete search of the $10M-50M market. Revenue qualifies size, not buying intent.",
+  "decisions": [
+    {
+      "company": "AAFCPAs",
+      "domain": "aafcpa.com",
+      "originalDomain": "aafcpa.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "72",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "AdamsBrown",
+      "domain": "adamsbrowncpa.com",
+      "originalDomain": "adamsbrowncpa.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "54",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Aldrich",
+      "domain": "aldrichadvisors.com",
+      "originalDomain": "aldrichadvisors.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "92",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Anders CPAs + Advisors",
+      "domain": "anderscpa.com",
+      "originalDomain": "anderscpa.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "85",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Archer Lewis",
+      "domain": "archerlewis.com",
+      "originalDomain": "archerlewis.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "97",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.accountingtoday.com/list/the-2026-fastest-growing-accounting-firms"
+    },
+    {
+      "company": "Auxis",
+      "domain": "auxis.com",
+      "originalDomain": "auxis.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://cpatrendlines.com/2026/02/16/cornerstone-pe-deal-tracker-pe-update-alan-whitman-plants-a-flag-in-the-private-equity-landscape-2020-2026/"
+    },
+    {
+      "company": "BMSS",
+      "domain": "bmss.com",
+      "originalDomain": "bmss.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "75",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Baker Newman Noyes",
+      "domain": "bnncpa.com",
+      "originalDomain": "bnncpa.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "67",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Boulay",
+      "domain": "boulaygroup.com",
+      "originalDomain": "boulaygroup.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "66",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Brady Martz",
+      "domain": "bradymartz.com",
+      "originalDomain": "bradymartz.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "72",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Brown Edwards & Company",
+      "domain": "becpas.com",
+      "originalDomain": "becpas.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "88",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Cain Watters & Associates",
+      "domain": "cainwatters.com",
+      "originalDomain": "cainwatters.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "75",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Centri Business Consulting",
+      "domain": "centriconsulting.com",
+      "originalDomain": "centriconsulting.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "52",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Clark Nuber",
+      "domain": "clarknuber.com",
+      "originalDomain": "clarknuber.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "71",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Consero Global",
+      "domain": "conseroglobal.com",
+      "originalDomain": "conseroglobal.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.accountingtoday.com/news/consero-global-gets-50m-investment"
+    },
+    {
+      "company": "Dean Dorton",
+      "domain": "deandorton.com",
+      "originalDomain": "deandorton.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "99",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "GBQ Partners",
+      "domain": "gbq.com",
+      "originalDomain": "gbq.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "66",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "GHJ",
+      "domain": "ghjadvisors.com",
+      "originalDomain": "ghjadvisors.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "64",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "GRF CPAs & Advisors",
+      "domain": "grfcpa.com",
+      "originalDomain": "grfcpa.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "53",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Global Tax Management",
+      "domain": "gtmtax.com",
+      "originalDomain": "gtmtax.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "60",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Gursey Schneider",
+      "domain": "gursey.com",
+      "originalDomain": "gursey.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "73",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "H&CO",
+      "domain": "hco.com",
+      "originalDomain": "hco.com",
+      "sourceRevenueBand": "100-250M",
+      "sourceEstimateMillions": "100",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "HHM CPAs",
+      "domain": "hhmcpas.com",
+      "originalDomain": "hhmcpas.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "77",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Haynie & Company",
+      "domain": "hayniecpas.com",
+      "originalDomain": "hayniecpas.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "69",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "HoganTaylor",
+      "domain": "hogantaylor.com",
+      "originalDomain": "hogantaylor.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "76",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Honkamp",
+      "domain": "honkamp.com",
+      "originalDomain": "honkamp.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "60",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Johnson Lambert",
+      "domain": "johnsonlambert.com",
+      "originalDomain": "johnsonlambert.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "51",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Kahn Litwin Renza (KLR)",
+      "domain": "kahnlitwin.com",
+      "originalDomain": "kahnlitwin.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "75",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Kemper CPA Group",
+      "domain": "kempercpa.com",
+      "originalDomain": "kempercpa.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "66",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Kreischer Miller",
+      "domain": "kmco.com",
+      "originalDomain": "kmco.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "56",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "LMC Advisors",
+      "domain": "lmcas.com",
+      "originalDomain": "lmcas.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "55",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.accountingtoday.com/list/the-2026-fastest-growing-accounting-firms"
+    },
+    {
+      "company": "Lucas Horsfall",
+      "domain": "lhmc.com",
+      "originalDomain": "lhmc.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "56",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.accountingtoday.com/list/the-2026-fastest-growing-accounting-firms"
+    },
+    {
+      "company": "Lutz",
+      "domain": "lutz.us",
+      "originalDomain": "lutz.us",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "85",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Meaden & Moore",
+      "domain": "meadenmoore.com",
+      "originalDomain": "meadenmoore.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "53",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Miller Kaplan",
+      "domain": "millerkaplan.com",
+      "originalDomain": "millerkaplan.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "71",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Nichols Cauley",
+      "domain": "nicholscauley.com",
+      "originalDomain": "nicholscauley.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "76",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.accountingtoday.com/list/the-2026-fastest-growing-accounting-firms"
+    },
+    {
+      "company": "PBMares",
+      "domain": "pbmares.com",
+      "originalDomain": "pbmares.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "81",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "PYA",
+      "domain": "pyapc.com",
+      "originalDomain": "pyapc.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "74",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Prosperity Partners",
+      "domain": "prosperitypartners.com",
+      "originalDomain": "prosperitypartners.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "73",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.accountingtoday.com/list/the-2026-fastest-growing-accounting-firms"
+    },
+    {
+      "company": "REDW",
+      "domain": "redw.com",
+      "originalDomain": "redw.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "65",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Rea",
+      "domain": "reacpa.com",
+      "originalDomain": "reacpa.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "82",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Sensiba",
+      "domain": "sensiba.com",
+      "originalDomain": "sensiba.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "78",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Tanner LLC",
+      "domain": "tannerco.com",
+      "originalDomain": "tannerco.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "58",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Windes",
+      "domain": "windes.com",
+      "originalDomain": "windes.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "56",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Wiss & Company",
+      "domain": "wiss.com",
+      "originalDomain": "wiss.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "70",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Wolf & Company",
+      "domain": "wolfandco.com",
+      "originalDomain": "wolfandco.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "91",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "YHB CPAs & Consultants",
+      "domain": "yhbcpa.com",
+      "originalDomain": "yhbcpa.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "63",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://irp.cdn-website.com/e0cfb45a/files/uploaded/IPA+500+Rankings.pdf"
+    },
+    {
+      "company": "Open Lending Corp",
+      "domain": "openlending.com",
+      "originalDomain": "openlending.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "100",
+      "decision": "hold",
+      "reason": "Source-list band alone is insufficient. Entity revenue and operating fit need further validation.",
+      "sourceUrl": "https://investors.openlending.com"
+    },
+    {
+      "company": "Alexander Group",
+      "domain": "alexandergroup.com",
+      "originalDomain": "alexandergroup.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.alexandergroup.com/"
+    },
+    {
+      "company": "Applied Value Group",
+      "domain": "appliedvaluegroup.com",
+      "originalDomain": "appliedvaluegroup.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.privsource.com/acquisitions/private-equity-backed-acquisitions/consulting"
+    },
+    {
+      "company": "CSG Government Solutions",
+      "domain": "csgdelivers.com",
+      "originalDomain": "csgdelivers.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.theconsultingreport.com/the-top-consulting-firms-of-2025/"
+    },
+    {
+      "company": "Clarkston Consulting",
+      "domain": "clarkstonconsulting.com",
+      "originalDomain": "clarkstonconsulting.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://managementconsulted.com/clarkston-consulting/"
+    },
+    {
+      "company": "Clearsulting",
+      "domain": "clearsulting.com",
+      "originalDomain": "clearsulting.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.clearsulting.com/"
+    },
+    {
+      "company": "Divurgent",
+      "domain": "divurgent.com",
+      "originalDomain": "divurgent.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.divurgent.com/"
+    },
+    {
+      "company": "Ducker Carlisle",
+      "domain": "duckercarlisle.com",
+      "originalDomain": "duckercarlisle.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.privsource.com/acquisitions/private-equity-backed-acquisitions/consulting"
+    },
+    {
+      "company": "ScottMadden",
+      "domain": "scottmadden.com",
+      "originalDomain": "scottmadden.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.scottmadden.com/"
+    },
+    {
+      "company": "Sendero Consulting",
+      "domain": "senderoconsulting.com",
+      "originalDomain": "senderoconsulting.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.senderoconsulting.com/"
+    },
+    {
+      "company": "Stax",
+      "domain": "stax.com",
+      "originalDomain": "stax.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.privsource.com/acquisitions/private-equity-backed-acquisitions/consulting"
+    },
+    {
+      "company": "Treliant",
+      "domain": "treliant.com",
+      "originalDomain": "treliant.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.treliant.com/"
+    },
+    {
+      "company": "HUNGRY Marketplace",
+      "domain": "tryhungry.com",
+      "originalDomain": "tryhungry.com",
+      "sourceRevenueBand": "100-250M",
+      "sourceEstimateMillions": "100",
+      "decision": "hold",
+      "reason": "Source-list band alone is insufficient. Entity revenue and operating fit need further validation.",
+      "sourceUrl": "https://www.accessnewswire.com/newsroom/en/food-and-beverage-products/hungry-surpasses-100-million-in-annual-revenue-and-reaches-sustained-pro-1162679"
+    },
+    {
+      "company": "OWS Foods",
+      "domain": "owsfoods.com",
+      "originalDomain": "owsfoods.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "hold",
+      "reason": "Conflicting third-party estimates straddle the $10M floor; original band lacks support.",
+      "sourceUrl": "https://www.appsruntheworld.com/customers-database/customers/view/ows-foods-united-states"
+    },
+    {
+      "company": "2nd Watch",
+      "domain": "2ndwatch.com",
+      "originalDomain": "2ndwatch.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.2ndwatch.com"
+    },
+    {
+      "company": "Coretelligent",
+      "domain": "coretelligent.com",
+      "originalDomain": "coretelligent.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://ctacquisitions.com/guides/private-equity-msp-2026/"
+    },
+    {
+      "company": "Corsica Technologies",
+      "domain": "corsicatech.com",
+      "originalDomain": "corsicatech.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://corsicatech.com/resources/top-managed-service-providers/"
+    },
+    {
+      "company": "Critical Start",
+      "domain": "criticalstart.com",
+      "originalDomain": "criticalstart.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.criticalstart.com"
+    },
+    {
+      "company": "DYOPATH",
+      "domain": "dyopath.com",
+      "originalDomain": "dyopath.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.businesswire.com/news/home/20250527561397/en/DYOPATH-Named-to-CRN-Solution-Provider-500-List-for-2025"
+    },
+    {
+      "company": "Evolve IP",
+      "domain": "evolveip.net",
+      "originalDomain": "evolveip.net",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.evolveip.net"
+    },
+    {
+      "company": "Involta",
+      "domain": "involta.com",
+      "originalDomain": "involta.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.involta.com"
+    },
+    {
+      "company": "Launch Consulting Group",
+      "domain": "launchconsulting.com",
+      "originalDomain": "launchconsulting.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.launchconsulting.com"
+    },
+    {
+      "company": "Logic20/20",
+      "domain": "logic2020.com",
+      "originalDomain": "logic2020.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.logic2020.com"
+    },
+    {
+      "company": "Otava",
+      "domain": "otava.com",
+      "originalDomain": "otava.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://themspsummit.com/msp-501-top-managed-service-providers-2025/"
+    },
+    {
+      "company": "Sourcepass",
+      "domain": "sourcepass.com",
+      "originalDomain": "sourcepass.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://masignal.com/msp/report-full.html"
+    },
+    {
+      "company": "Factor",
+      "domain": "factor.law",
+      "originalDomain": "factor.law",
+      "sourceRevenueBand": "100-250M",
+      "sourceEstimateMillions": "100",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://growjo.com/company/Factor_(formerly_Axiom_Managed_Solutions)"
+    },
+    {
+      "company": "HaystackID",
+      "domain": "haystackid.com",
+      "originalDomain": "haystackid.com",
+      "sourceRevenueBand": "100-250M",
+      "sourceEstimateMillions": "100",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://complexdiscovery.com/a-running-list-of-top-100-providers/"
+    },
+    {
+      "company": "Orion Legal (Uplift Investors MSO)",
+      "domain": "dudleydebosier.com",
+      "originalDomain": "dudleydebosier.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://greenwichgp.com/wp-content/uploads/2026/03/GCG-PE-and-the-Consolidation-of-Personal-Injury-Law.pdf"
+    },
+    {
+      "company": "Cayman Chemical",
+      "domain": "caymanchem.com",
+      "originalDomain": "caymanchem.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "62",
+      "decision": "focus",
+      "reason": "$62M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+    },
+    {
+      "company": "Channellock",
+      "domain": "channellock.com",
+      "originalDomain": "channellock.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "focus",
+      "reason": "$46.7M annual revenue (estimated). Operating business; buying intent and budget not confirmed.",
+      "sourceUrl": "https://growjo.com/company/Channellock"
+    },
+    {
+      "company": "Chrysan Industries",
+      "domain": "chrysanindustries.com",
+      "originalDomain": "chrysan.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "51.6",
+      "decision": "focus",
+      "reason": "$51.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+    },
+    {
+      "company": "Motor City Stamping",
+      "domain": "mcstamp.com",
+      "originalDomain": "motorcitystamping.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "86.6",
+      "decision": "focus",
+      "reason": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf"
+    },
+    {
+      "company": "Regal Research & Manufacturing",
+      "domain": "regalresearch.com",
+      "originalDomain": "regalresearch.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "hold",
+      "reason": "Original DBJ source does not disclose revenue. Third-party estimates alone need corroboration.",
+      "sourceUrl": "https://stately.com/wp-content/uploads/2024/08/Manufacturers-in-North-Texas-Dallas-Business-Journal.pdf"
+    },
+    {
+      "company": "AbelsonTaylor Group",
+      "domain": "abelsontaylor.com",
+      "originalDomain": "abelsontaylor.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.abelsontaylor.com/"
+    },
+    {
+      "company": "Allison",
+      "domain": "allisonworldwide.com",
+      "originalDomain": "allisonworldwide.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.stagwellglobal.com/"
+    },
+    {
+      "company": "Bader Rutter",
+      "domain": "baderrutter.com",
+      "originalDomain": "baderrutter.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.baderrutter.com/"
+    },
+    {
+      "company": "Barkley OKRP",
+      "domain": "barkleyokrp.com",
+      "originalDomain": "barkleyokrp.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.barkleyokrp.com/"
+    },
+    {
+      "company": "Colle McVoy",
+      "domain": "collemcvoy.com",
+      "originalDomain": "collemcvoy.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.stagwellglobal.com/"
+    },
+    {
+      "company": "Cramer-Krasselt",
+      "domain": "c-k.com",
+      "originalDomain": "c-k.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.c-k.com/"
+    },
+    {
+      "company": "Crossmedia",
+      "domain": "crossmedia.com",
+      "originalDomain": "crossmedia.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.crossmedia.com/"
+    },
+    {
+      "company": "Darwill",
+      "domain": "darwill.com",
+      "originalDomain": "darwill.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.darwill.com/"
+    },
+    {
+      "company": "Deutsch LA",
+      "domain": "deutschla.com",
+      "originalDomain": "deutschla.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://adcurrent.ai/lists/horizon-media-and-independents"
+    },
+    {
+      "company": "Empower Media",
+      "domain": "empowermm.com",
+      "originalDomain": "empowermm.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://adcurrent.ai/lists/horizon-media-and-independents"
+    },
+    {
+      "company": "HUNTER",
+      "domain": "hunterpr.com",
+      "originalDomain": "hunterpr.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "79",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.odwyerpr.com/pr_firm_rankings/independents.htm"
+    },
+    {
+      "company": "Hero Digital",
+      "domain": "herodigital.com",
+      "originalDomain": "herodigital.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.herodigital.com/"
+    },
+    {
+      "company": "Highwire PR",
+      "domain": "highwirepr.com",
+      "originalDomain": "highwirepr.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "68",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.odwyerpr.com/pr_firm_rankings/independents.htm"
+    },
+    {
+      "company": "Hotwire",
+      "domain": "hotwireglobal.com",
+      "originalDomain": "hotwireglobal.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "53",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.odwyerpr.com/pr_firm_rankings/independents.htm"
+    },
+    {
+      "company": "Impact XM",
+      "domain": "impact-xm.com",
+      "originalDomain": "impact-xm.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.impact-xm.com/"
+    },
+    {
+      "company": "MikeWorldWide",
+      "domain": "mww.com",
+      "originalDomain": "mww.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "58",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.odwyerpr.com/pr_firm_rankings/independents.htm"
+    },
+    {
+      "company": "Mindgruve | Macarta",
+      "domain": "mindgruve.com",
+      "originalDomain": "mindgruve.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.adweek.com/fastest-growing-agencies/2025/"
+    },
+    {
+      "company": "NVE Experience Agency",
+      "domain": "experiencenve.com",
+      "originalDomain": "experiencenve.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.oddtoe.com/experiential-marketing-agencies/"
+    },
+    {
+      "company": "New Engen",
+      "domain": "newengen.com",
+      "originalDomain": "newengen.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://newengen.com/insights/new-engen-named-one-of-adweeks-2025-fastest-growing-agencies/"
+    },
+    {
+      "company": "Ovative Group",
+      "domain": "ovative.com",
+      "originalDomain": "ovative.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.ovative.com/"
+    },
+    {
+      "company": "Power Digital",
+      "domain": "powerdigitalmarketing.com",
+      "originalDomain": "powerdigitalmarketing.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.adweek.com/fastest-growing-agencies/2025/"
+    },
+    {
+      "company": "Rain the Growth Agency",
+      "domain": "raintga.com",
+      "originalDomain": "raintga.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://adcurrent.ai/lists/horizon-media-and-independents"
+    },
+    {
+      "company": "Said Differently",
+      "domain": "saiddifferently.com",
+      "originalDomain": "saiddifferently.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.adweek.com/fastest-growing-agencies/2025/"
+    },
+    {
+      "company": "SeQuel Response",
+      "domain": "sequeldm.com",
+      "originalDomain": "sequeldm.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.sequeldm.com/"
+    },
+    {
+      "company": "Spectrum Science",
+      "domain": "spectrumscience.com",
+      "originalDomain": "spectrumscience.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "88",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.odwyerpr.com/pr_firm_rankings/independents.htm"
+    },
+    {
+      "company": "TRG (The Richards Group)",
+      "domain": "trg.agency",
+      "originalDomain": "trg.agency",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.trg.agency/"
+    },
+    {
+      "company": "Terakeet",
+      "domain": "terakeet.com",
+      "originalDomain": "terakeet.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.terakeet.com/"
+    },
+    {
+      "company": "Tombras",
+      "domain": "tombras.com",
+      "originalDomain": "tombras.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.tombras.com/"
+    },
+    {
+      "company": "Translation",
+      "domain": "translation.com",
+      "originalDomain": "translation.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://adcurrent.ai/lists/horizon-media-and-independents"
+    },
+    {
+      "company": "WongDoody",
+      "domain": "wongdoody.com",
+      "originalDomain": "wongdoody.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.wongdoody.com/"
+    },
+    {
+      "company": "Accelerate Learning",
+      "domain": "acceleratelearning.com",
+      "originalDomain": "acceleratelearning.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.vistaequitypartners.com/companies/"
+    },
+    {
+      "company": "Alta Pest Control",
+      "domain": "altapestcontrol.com",
+      "originalDomain": "altapestcontrol.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "focus",
+      "reason": "$57.5436M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
+      "sourceUrl": "https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf"
+    },
+    {
+      "company": "Blue Point Capital Partners",
+      "domain": "bluepointcapital.com",
+      "originalDomain": "bluepointcapital.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.bluepointcapital.com/portfolio"
+    },
+    {
+      "company": "Bluesight",
+      "domain": "bluesight.com",
+      "originalDomain": "bluesight.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.thomabravo.com/companies"
+    },
+    {
+      "company": "Cuesta Partners",
+      "domain": "cuestapartners.com",
+      "originalDomain": "cuestapartners.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.kohlberg.com/news/"
+    },
+    {
+      "company": "Docupace",
+      "domain": "docupace.com",
+      "originalDomain": "docupace.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.gencap.com/news/"
+    },
+    {
+      "company": "Fusion Risk Management",
+      "domain": "fusionrm.com",
+      "originalDomain": "fusionrm.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.vistaequitypartners.com/companies/"
+    },
+    {
+      "company": "Gridiron Capital",
+      "domain": "gridironcapital.com",
+      "originalDomain": "gridironcapital.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://gridironcapital.com/gridiron-capital-announces-early-2026-promotions/"
+    },
+    {
+      "company": "H2O Care Partners",
+      "domain": "h2ocarepartners.com",
+      "originalDomain": "h2ocarepartners.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Current company job description reports $150M revenue.",
+      "sourceUrl": "https://jobs.institutedata.com/company/690793/h2o-care-partners/"
+    },
+    {
+      "company": "Hueman People Solutions",
+      "domain": "hueman.com",
+      "originalDomain": "hueman.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.citybiz.co/article/889044/shore-capital-places-24-portfolio-companies-on-2026-inc-5000/"
+    },
+    {
+      "company": "Incline Equity Partners",
+      "domain": "inclineequity.com",
+      "originalDomain": "inclineequity.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.inclineequity.com/portfolio"
+    },
+    {
+      "company": "LLR Partners",
+      "domain": "llrpartners.com",
+      "originalDomain": "llrpartners.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Private equity investment firm, not an operating-company target.",
+      "sourceUrl": "https://www.llrpartners.com/portfolio/"
+    },
+    {
+      "company": "Ncontracts",
+      "domain": "ncontracts.com",
+      "originalDomain": "ncontracts.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.gryphon-inv.com/companies/"
+    },
+    {
+      "company": "Point C Health",
+      "domain": "pointchealth.com",
+      "originalDomain": "pointchealth.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "hold",
+      "reason": "Source-list band alone is insufficient. Entity revenue and operating fit need further validation.",
+      "sourceUrl": "https://www.citybiz.co/article/889044/shore-capital-places-24-portfolio-companies-on-2026-inc-5000/"
+    },
+    {
+      "company": "Strongpoint Partners",
+      "domain": "strongpointpartners.com",
+      "originalDomain": "strongpointpartners.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "hold",
+      "reason": "Source-list band alone is insufficient. Entity revenue and operating fit need further validation.",
+      "sourceUrl": "https://www.citybiz.co/article/889044/shore-capital-places-24-portfolio-companies-on-2026-inc-5000/"
+    },
+    {
+      "company": "Sun Capital Partners",
+      "domain": "suncappart.com",
+      "originalDomain": "suncappart.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.suncappart.com/portfolio/"
+    },
+    {
+      "company": "Together Women's Health",
+      "domain": "togetherwomenshealth.com",
+      "originalDomain": "togetherwomenshealth.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "hold",
+      "reason": "Source-list band alone is insufficient. Entity revenue and operating fit need further validation.",
+      "sourceUrl": "https://www.citybiz.co/article/889044/shore-capital-places-24-portfolio-companies-on-2026-inc-5000/"
+    },
+    {
+      "company": "Trinamix",
+      "domain": "trinamix.com",
+      "originalDomain": "trinamix.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.aeainvestors.com/portfolio/"
+    },
+    {
+      "company": "Trivest Partners",
+      "domain": "trivest.com",
+      "originalDomain": "trivest.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.trivest.com/portfolio/"
+    },
+    {
+      "company": "Wind Point Partners",
+      "domain": "wppartners.com",
+      "originalDomain": "wppartners.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Investment firm, staffing, IT or software business outside the requested operating-business focus.",
+      "sourceUrl": "https://www.wppartners.com/companies/"
+    },
+    {
+      "company": "Dogtopia",
+      "domain": "dogtopia.com",
+      "originalDomain": "dogtopia.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "hold",
+      "reason": "Franchise-system sales are not franchisor revenue; eligible entity revenue not confirmed.",
+      "sourceUrl": "https://www.dogtopia.com/franchising-us/blog/dogtopia-advances-the-standard-of-pet-wellness-after-a-record-breaking-2025/"
+    },
+    {
+      "company": "Marine Layer",
+      "domain": "marinelayer.com",
+      "originalDomain": "marinelayer.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "hold",
+      "reason": "Online GMV is not total company revenue. No supported total revenue below $100M found.",
+      "sourceUrl": "https://ecdb.com/resources/sample-data/retailer/marinelayer"
+    },
+    {
+      "company": "Rhone",
+      "domain": "rhone.com",
+      "originalDomain": "rhone.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "",
+      "decision": "excluded",
+      "reason": "Reported above $100M; original band is stale.",
+      "sourceUrl": "https://www.glossy.co/fashion/fashion-briefing-how-can-brands-stand-out-in-the-increasingly-crowded-activewear-category/"
+    },
+    {
+      "company": "Cendyn",
+      "domain": "cendyn.com",
+      "originalDomain": "cendyn.com",
+      "sourceRevenueBand": "50-100M",
+      "sourceEstimateMillions": "80",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.accel-kkr.com/portfolio/"
+    },
+    {
+      "company": "Vendavo",
+      "domain": "vendavo.com",
+      "originalDomain": "vendavo.com",
+      "sourceRevenueBand": "100-250M",
+      "sourceEstimateMillions": "100",
+      "decision": "excluded",
+      "reason": "Professional services, consulting, agency, IT or software company outside the requested operating-business focus.",
+      "sourceUrl": "https://www.franciscopartners.com/investments"
+    }
+  ],
+  "previousFocus": [
+    {
+      "company": "Turn 14 Distribution",
+      "domain": "turn14.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "G&W Electric",
+      "domain": "gwelectric.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Shure",
+      "domain": "shure.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Lufkin Industries",
+      "domain": "lufkin.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Mayville Engineering Company",
+      "domain": "mecinc.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Sugar Creek Packing",
+      "domain": "sugarcreek.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Bossard Americas",
+      "domain": "bossard.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Clarience Technologies",
+      "domain": "clarience.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Smart Care Equipment Solutions",
+      "domain": "smartcaresolutions.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Lazer Logistics",
+      "domain": "lazerlogistics.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "PLS Logistics Services",
+      "domain": "plslogistics.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "BlueGrace Logistics",
+      "domain": "mybluegrace.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "TA Services",
+      "domain": "taservices.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Transervice Logistics",
+      "domain": "transervice.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Montway Auto Transport",
+      "domain": "montway.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "DecoPac",
+      "domain": "decopac.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Cooper's Hawk Winery & Restaurants",
+      "domain": "chwinery.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Build-A-Bear Workshop",
+      "domain": "buildabear.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "J.Jill",
+      "domain": "jjill.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Duluth Holdings",
+      "domain": "duluthtrading.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "FIGS",
+      "domain": "wearfigs.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Tecovas",
+      "domain": "tecovas.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "The Lovesac Company",
+      "domain": "lovesac.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Thrive Market",
+      "domain": "thrivemarket.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    },
+    {
+      "company": "Mister Car Wash",
+      "domain": "mistercarwash.com",
+      "decision": "removed_from_active_focus",
+      "reason": "Original master places this company above $100M; history and authored drafts preserved."
+    }
+  ]
+}

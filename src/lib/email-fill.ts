@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildEmail, detectPattern, guessFromExamples, type PatternGuess, type PatternKey } from "./email-pattern.ts";
+import { focusedContacts } from "./focused-contact.ts";
 
 type PersonRow = { id: string; full_name: string; email: string | null; email_status: string; email_source: string | null };
 
@@ -25,12 +26,13 @@ export async function fillEmailsFromPattern(db: SupabaseClient, account: { id: s
   // not a blind first.last guess, and not a pattern-built one. Apollo returns verified emails and Hunter finds
   // and verifies them, so an unverified guess only clutters the list with "best guess" rows. Still learn and
   // store the format for reference, and clear any earlier guesses so the page shows a real address or nothing.
+  const researchedFocus = focusedContacts(account.domain).length > 0;
   const hasVerifier = Boolean(process.env.APOLLO_API_KEY || process.env.HUNTER_API_KEY);
-  if (hasVerifier) {
+  if (hasVerifier || researchedFocus) {
     if (guess && (guess.key !== account.email_pattern || Number(account.pattern_confidence ?? 0) !== guess.confidence)) {
       await db.from("accounts").update({ email_pattern: guess.key, pattern_confidence: guess.confidence }).eq("id", account.id);
     }
-    const { data: cleared } = await db.from("people").update({ email: null, email_status: "none", email_source: null, email_verified_at: null }).eq("account_id", account.id).eq("email_source", "guess").select("id");
+    const { data: cleared } = await db.from("people").update({ email: null, email_status: "none", email_source: null, email_verified_at: null }).eq("account_id", account.id).in("email_source", researchedFocus ? ["guess", "pattern"] : ["guess"]).select("id");
     return { pattern: guess, built: 0, cleared: cleared?.length ?? 0 };
   }
 
