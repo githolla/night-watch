@@ -2288,3 +2288,4 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
  .deskwork .deskwork-co { grid-template-columns:auto minmax(0,1fr); }
  .deskwork .deskwork-co > .focus-link { grid-column:2; justify-self:start; margin-top:-6px; }
 }
+.deskwork .email-version-tabs button:disabled { cursor:not-allowed; opacity:.65; }

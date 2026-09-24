@@ -1166,7 +1166,7 @@ export function Desk({
                 {(channelTab === "linkedin" || !sentAlready) && !altContact && savedVariants(focusCard.accounts.domain, contact.full_name, channelTab).length > 0 && <section className="email-versions" aria-label={`Saved ${channelTab === "email" ? "email" : "LinkedIn"} versions`}>
                   <div className="email-versions-heading"><span>{channelTab === "email" ? "Email" : "LinkedIn"} versions</span><Link href={channelTab === "linkedin" ? "/stats?source=manual#saved-versions" : "/stats#saved-versions"}>Analytics ↗</Link></div>
                   <div className="email-version-tabs" role="group" aria-label={`Choose ${channelTab === "email" ? "an email" : "a LinkedIn"} version`}>
-                    {recommendation?.candidates.filter(candidate => availableVersions.some(v => v.id === candidate.id)).map(candidate => {
+                    {recommendation?.candidates.map(candidate => {
                       const variant = availableVersions.find(v => v.id === candidate.id);
                       const active = previewingVersion ? tonePreview?.versionId === candidate.id : selectedVersion?.id === candidate.id;
                       return <button type="button" key={candidate.id} className={active ? "is-active" : ""} disabled={busy || !variant} title={candidate.reason} aria-pressed={active} onClick={() => { if(variant) { if(selectedVersion?.id === variant.id) setTonePreview(null); else previewTone(variant); } }}>{candidate.label}{recommendation.recommended?.id === candidate.id ? " · Recommended" : ""}</button>;
