@@ -26,8 +26,8 @@
         "emailPublishedDate": null,
         "emailStatus": "published_unverified",
         "emailNote": "Named contact in Michigan House committee testimony; publication date not confirmed",
-        "subject": "after the location report",
-        "message": "I'd like to help Ansara's managers turn a location report into decisions that get followed through. With your restaurants across Michigan and northwest Ohio, that seems a practical place to explore AI.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe recently helped one client deploy 20 applications. We'd build around one Ansara operating review: gather the numbers, highlight exceptions and record who owns the next action. We'd check preparation time and follow-up completion with your managers.\n\nWould help turning those location reviews into completed actions be valuable to your managers?",
+        "subject": "an AI idea for Ansara",
+        "message": "For Ansara, I'd give AI a concrete job: turn the location report into a short list of actions, with someone responsible for each one.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with business and operations teams. We test it with users and train them through launch.\n\nWe'd build a brief for one recurring manager meeting: what changed, the numbers behind it and who owns the next action. We'd measure preparation time and whether those actions get completed before expanding it.\n\nWhich would help your managers more: preparing the review or following through afterward?",
         "contact_rank": 1,
         "contact_id": "rev-ansararestaurantgroup-c1"
       }
@@ -48,8 +48,8 @@
       "sourceUrl": "https://www.ansararestaurantgroup.com/story.html",
       "email": "victor@ansararestaurantgroup.com"
     },
-    "subject": "after the location report",
-    "message": "I'd like to help Ansara's managers turn a location report into decisions that get followed through. With your restaurants across Michigan and northwest Ohio, that seems a practical place to explore AI.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe recently helped one client deploy 20 applications. We'd build around one Ansara operating review: gather the numbers, highlight exceptions and record who owns the next action. We'd check preparation time and follow-up completion with your managers.\n\nWould help turning those location reviews into completed actions be valuable to your managers?",
+    "subject": "an AI idea for Ansara",
+    "message": "For Ansara, I'd give AI a concrete job: turn the location report into a short list of actions, with someone responsible for each one.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with business and operations teams. We test it with users and train them through launch.\n\nWe'd build a brief for one recurring manager meeting: what changed, the numbers behind it and who owns the next action. We'd measure preparation time and whether those actions get completed before expanding it.\n\nWhich would help your managers more: preparing the review or following through afterward?",
     "writerKit": {
       "accountId": "rev-ansararestaurantgroup",
       "frame": "gap_selling",

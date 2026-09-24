@@ -6,26 +6,26 @@
       {
         "id": "a",
         "label": "Personal",
-        "subject": "after the location review",
-        "message": "For Ansara's restaurants across Michigan and northwest Ohio, I'd help managers turn a location review into the next action, with the supporting numbers ready.\n\nI'm {sender} at Nine-67. Our AI engineers build custom software with operating teams. We'd prepare the exceptions and track the agreed follow-up, then test it with managers and train them through launch. The measure would be less review preparation and better follow-through.\n\nWould you want help turning one recurring operating review into a working tool?"
+        "subject": "an AI idea for Ansara",
+        "message": "I'd start AI at Ansara with a job your managers can judge in a week: turning restaurant reports into a short list of things to act on.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside business teams, build the first version and stay through training and launch. We'd start with reports you already use, show where each finding came from and let managers choose the next action.\n\nWhich would be more useful to your team: less time preparing the review, or less chasing afterward?"
       },
       {
         "id": "b",
         "label": "Business idea",
-        "subject": "decisions ready for your managers",
-        "message": "For Ansara, we'd build an operating review that arrives with the exceptions, supporting numbers and open actions already gathered.\n\nWe're Nine-67. Our AI engineers work with managers to build custom software they can actually use, including training and deployment. We'd test one recurring review and measure both preparation time and whether actions get closed.\n\nIs turning one recurring review into a tool managers can act on worth exploring?"
+        "subject": "one page for the next manager meeting",
+        "message": "Here's a first build I'd propose for Ansara: a weekly brief showing which locations need attention, what changed and who is following up. Managers could open the original numbers behind each flag.\n\nWe're Nine-67, an AI-first company. Our engineers build with the people doing the work. We'd test the brief with a small group of managers and measure preparation time and completed actions before expanding it.\n\nWant me to sketch that using a sample restaurant report?"
       },
       {
         "id": "c",
         "label": "With proof",
-        "subject": "20 applications into use",
-        "message": "We recently helped one client deploy 20 applications. The starting point was choosing work that mattered to the people running the business.\n\nI'm {sender} at Nine-67, an AI-first company with engineers who build alongside operating teams.\n\nFor Ansara, I'd start with the work between a location report and the manager's next action. We'd build a small first version, test it with managers and handle training.\n\nWould a short outline of how we took those applications into use be helpful?"
+        "subject": "from an AI idea to something people use",
+        "message": "We recently helped one client deploy 20 applications. We met with leaders to choose the work, built with users, iterated and trained the teams through launch.\n\nI'm {sender} at Nine-67. For Ansara, I'd suggest starting with one manager's recurring task: turning location reports into actions with an owner. Our AI engineers would build the first version alongside that manager and check whether it actually saves time.\n\nWould it help to see how we take one idea from the leadership team into daily use?"
       },
       {
         "id": "d",
         "label": "Wildcard",
-        "subject": "before the operating review",
-        "message": "I'd give AI a fairly unglamorous first job at Ansara: get the operating review ready before the managers sit down.\n\nNine-67 puts AI engineers alongside your team to build working applications. We'd bring together one set of location reports, flag what deserves attention and carry the agreed actions into the next review.\n\nThe test would be simple: less preparation, better follow-through.\n\nWould you try that approach on one recurring operating review?"
+        "subject": "give AI the paperwork",
+        "message": "I'd give AI the paperwork before giving it a seat at Ansara's management table.\n\nHave it gather the location reports, pull out changes worth discussing and bring back last week's unfinished actions. Your managers decide what matters.\n\nI'm {sender} at Nine-67. We put AI engineers alongside operating teams to build and launch tools like this, including training. We'd test it on one meeting and count the preparation hours it saves, if any.\n\nWhat would you take off your managers' plates first?"
       }
     ]
   },

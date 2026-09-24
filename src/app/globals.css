@@ -2238,3 +2238,17 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 
 .outreach-saved-footer { margin-top: 24px; overflow-x: auto; }
 .outreach-saved-footer img { max-width: 100%; height: auto; }
+
+/* Keep the reach-out workspace inside the viewport, including uploaded signatures. */
+.pipeline.pipeline-work { width: 100%; min-width: 0; }
+.deskwork { width: 100%; min-width: 0; box-sizing: border-box; }
+.deskwork-grid > * { min-width: 0; }
+.deskwork-draft, .deskwork-scroll { max-width: 100%; min-width: 0; }
+.deskwork-scroll { overflow-x: auto; }
+.deskwork-head { flex-wrap: wrap; }
+.email-version-footer > div { flex-wrap: wrap; }
+.email-version-tabs button { min-width: 0; flex: 1 1 100px; }
+.email-version-signature img, .outreach-signature img { max-width: 100%; height: auto; }
+@media (max-width: 1500px) {
+  .deskwork-list { position: static; }
+}
