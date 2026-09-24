@@ -2366,3 +2366,21 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .composer-bulk-opening > div { display:flex; align-items:center; gap:14px; margin-top:10px; }
 .composer-bulk-opening small { flex:1; color:#82786b; line-height:1.5; }
 .composer-bulk-opening .btn { font-size:12px; white-space:nowrap; }
+.appbar-tour { display:flex; align-items:center; gap:6px; border:1px solid #e5dfd4; background:white; color:#655335; border-radius:8px; padding:7px 9px; cursor:pointer; font-family:inherit; font-size:12px; font-weight:500; }
+.walkthrough-layer { position:fixed; inset:0; z-index:10000; }
+.walkthrough-shield { position:absolute; inset:0; background:#18150fd0; }
+.walkthrough-shield.has-spotlight { background:transparent; }
+.walkthrough-spotlight { position:fixed; pointer-events:none; border-radius:12px; box-shadow:0 0 0 9999px #18150fc9; outline:2px solid #d2ab65; }
+.walkthrough-card { position:fixed; padding:26px; border-radius:16px; background:#fffefa; color:#28231c; box-shadow:0 20px 80px #0005; max-height:calc(100dvh - 32px); overflow:auto; outline:none; }
+.walkthrough-card.centered { width:min(420px,calc(100vw - 32px)); top:50%; left:50%; transform:translate(-50%,-50%); }
+.walkthrough-close { position:absolute; right:12px; top:12px; background:none; border:0; padding:5px; cursor:pointer; }
+.walkthrough-eyebrow { display:block; font-size:10px; font-weight:600; letter-spacing:.12em; color:#967543; margin:0 20px 12px 0; }
+.walkthrough-card h2 { font-size:23px; line-height:1.2; margin:0 0 12px; }
+.walkthrough-card p { font-size:14px; line-height:1.65; color:#6b6255; margin:0 0 20px; }
+.walkthrough-card .btn { margin:0 6px 6px 0; font-size:12px; }
+.walkthrough-guide { display:block; margin-top:14px; font-size:12px; color:#8c6329; }
+.walkthrough-controls { display:flex; justify-content:space-between; }
+.walkthrough-progress { height:3px; background:#ebe6dc; border-radius:5px; margin:18px 0; overflow:hidden; }
+.walkthrough-progress span { display:block; height:100%; background:#a17b3c; }
+.walkthrough-fallback { display:block; font-size:11px; line-height:1.5; color:#8a7962; }
+@media(max-width:700px){.appbar-tour span{display:none}.walkthrough-card{padding:22px}.walkthrough-card h2{font-size:20px}}

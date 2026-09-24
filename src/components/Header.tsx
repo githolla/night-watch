@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Lock } from "lucide-react";
+import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
 const primary = [
@@ -70,6 +71,7 @@ export function Header() {
         </nav>
       </div>
       <div className="appbar-right">
+        <Walkthrough userKey={me?.email} />
         <span className="appbar-ws">{me?.name ?? "Nine-67 workspace"}</span>
         <span className="ws-badge" title={me?.email ?? "Signed in"}>{meInitials}</span>
         <form action="/api/auth/logout" method="post"><button className="appbar-lock" type="submit" title="Lock"><Lock size={16} strokeWidth={1.8} /></button></form>

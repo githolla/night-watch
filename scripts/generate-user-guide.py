@@ -1,0 +1,52 @@
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.colors import HexColor
+from reportlab.lib.enums import TA_LEFT
+from pathlib import Path
+import shutil
+out=Path('output/pdf/night-watch-user-guide.pdf')
+out.parent.mkdir(parents=True,exist_ok=True)
+Path('public/guides').mkdir(parents=True,exist_ok=True)
+styles=getSampleStyleSheet()
+styles.add(ParagraphStyle(name='TitleNW',fontName='Helvetica-Bold',fontSize=28,leading=32,textColor=HexColor('#25221b'),spaceAfter=14))
+styles.add(ParagraphStyle(name='DeckNW',fontSize=12,leading=17,textColor=HexColor('#756956'),spaceAfter=14))
+styles.add(ParagraphStyle(name='SectionNW',fontName='Helvetica-Bold',fontSize=14,leading=17,spaceBefore=12,spaceAfter=6,textColor=HexColor('#806135')))
+styles.add(ParagraphStyle(name='TextNW',fontSize=10,leading=14,spaceAfter=8,textColor=HexColor('#38332b')))
+styles.add(ParagraphStyle(name='KickerNW',fontSize=9,leading=12,textColor=HexColor('#92703b'),spaceAfter=18))
+flow=[]
+def p(t,style='TextNW'):flow.append(Paragraph(t,styles[style]))
+def section(title,text):p(title,'SectionNW');p(text)
+def page(n,title,deck):
+ if n>1:flow.append(PageBreak())
+ p(f'NINE-67 / NIGHT WATCH     •     {n:02d}','KickerNW');p(title,'TitleNW');p(deck,'DeckNW')
+def footer(c,d):
+ c.setStrokeColor(HexColor('#ded7ca'));c.line(48,43,564,43);c.setFont('Helvetica',8);c.setFillColor(HexColor('#827563'));c.drawString(48,29,'Night Watch user guide · September 2026');c.drawRightString(564,29,str(d.page))
+page(1,'Your first outreach','A practical guide for Josh and Suuchi. Set up your sender, review a draft, test it in your inbox, then send.')
+section('1. Set up your own sender','Open <b>More → Settings → Email accounts</b>. Connect your Gmail. Check your sender name, greeting and uploaded HTML signature. Save your settings. Use your own account for prospect sends.')
+section('2. Choose your list','Open <b>Reach-out list</b>. Josh’s 25 and Suuchi’s 25 are separate lists. Either teammate can view both. Drafts use the selected list owner’s name and signature. Sorting and search help you choose a company.')
+section('3. Review the company and contact','Read Buyer research and open the source if needed. Check the selected recipient’s role and address. A published or inferred address is not necessarily verified. Research suggests relevance; it does not prove a buying need.')
+section('4. Test before you send','Choose a saved version, review the subject and message, and click <b>Send test to myself</b> in the bottom action bar. Open the received message and check its wording, sender details, spacing and signature. No prospect or saved CC receives a self-test.')
+section('Need help on screen?','Use the <b>compass / Tour</b> button in the top bar. First-time users see a welcome prompt. Start the walkthrough, tour from your current page, or download this guide. Use Back and Next to move; Escape or × closes it. The welcome prompt is remembered per account in this browser.')
+page(2,'Choose, edit, preview','Three authored approaches for each contact. Switching a version previews it before you replace your saved draft.')
+section('Direct Offer','Introduces Nine-67 and starts a conversation about a practical area where the team could help.')
+section('Concrete Idea','Suggests a specific workflow to explore with the prospect. Review the idea against the company research before sending.')
+section('Delivery Experience','Explains how Nine-67 works with leaders and users through building, feedback, training and deployment. Use only the evidence actually included in the draft.')
+section('Make the draft yours','Select a version card. <b>Use this version</b> saves it as the current draft. <b>Edit this version</b> applies it and opens the editor. <b>Cancel</b> returns to the saved draft. In Edit mode, change the subject or message; edits save when you leave the field. Preview shows the message and saved signature.')
+section('Use More for secondary actions','The <b>More</b> menu contains copying the saved message, adding meeting times, restoring the recommended draft, marking an externally sent message as sent, starting automation, snoozing and dismissing. Copying alone is not a send and does not create a sent-history record.')
+section('LinkedIn versions','Select <b>LinkedIn</b> in the composer. Compare the three saved messages, use the version you want, and review it. Open LinkedIn and send there. Then use <b>More → Mark as already sent</b> to record the action and version. Do not mark it sent before actually sending.')
+page(3,'Apply changes to your list','Bulk controls update the selected list’s unsent drafts. Use them when you intentionally want a shared subject or opening.')
+section('Apply a subject to all','In <b>Edit</b> mode, type the subject into the subject field and click <b>Apply to all</b> beside it. The action uses that exact subject for the current list’s unsent drafts. Message bodies are preserved. This includes edited and approved drafts that have not been sent.')
+section('Apply an opening to all','Expand <b>Set an opening for all emails</b>. Enter one opening paragraph, then click <b>Apply opening to all</b>. It replaces the first prose paragraph after each recipient’s greeting. Each greeting and the rest of the tailored message stay intact. Sent messages and the other teammate’s list are excluded.')
+section('Example','<b>Before:</b><br/>Hi Louis,<br/><br/>Old opening paragraph.<br/><br/>Company-specific idea and question.<br/><br/><b>After applying your opening:</b><br/>Hi Louis,<br/><br/>Your new opening paragraph.<br/><br/>Company-specific idea and question.')
+section('Check the result','Read the completion message for the number of drafts changed and any skipped drafts. Open two or three companies to check the result. Keep a copy of previous wording if you want to restore it later; there is no bulk Undo button. Selecting a different saved version afterward replaces that draft’s applied copy.')
+section('Keep the shared text appropriate','Use a subject of up to 120 characters and an opening of up to 400 characters. Keep it valid for everyone in the selected list. First-email checks require exactly one question overall, no pitch links, no long dashes and plain wording. A question in the opening can conflict with the closing question.')
+page(4,'Send, follow up, learn','A self-test checks delivery. A prospect send starts outreach. Keep those actions separate.')
+section('Self-tests from either list','You can test Josh’s or Suuchi’s drafts in your own connected inbox. The message body and signature follow the list owner. The test travels from your connected mailbox to you, so its From header can differ from the draft owner when testing the other list. Tests do not start follow-ups or count as prospect outreach.')
+section('Send to the prospect','Sign in as the list owner. Confirm the recipient address, chosen version, message and signature. Click <b>Send email</b> and review the send confirmation. Missing addresses or sender restrictions can disable the button. An inferred address may bounce; it is not a verified mailbox.')
+section('Review follow-ups','Open <b>Follow-ups</b> to review queued messages and timing. Check the recipient and content before sending or scheduling. More → Start automated sequence is a separate action. Automatic sequences stop when a reply is detected. Self-tests never enroll a prospect.')
+section('Review history and results','Open <b>More → History</b> for recorded outreach and replies. Open <b>More → Results</b> to compare saved versions using recorded sends and responses. Opens are incomplete signals, not proof of reading; first-email self-tests have no tracking pixel. Focus on replies, useful conversations and meetings.')
+section('If something looks wrong','<b>Wrong name:</b> check the list owner and that owner’s sender settings.<br/><b>Missing footer:</b> check the saved signature in Settings and send another self-test.<br/><b>Test failure:</b> read the displayed error and check your Gmail connection. Five tests are allowed per ten minutes.<br/><b>Cannot send another list:</b> sign in as its owner; you can still preview and self-test it.<br/><b>Unexpected copy:</b> check the chosen version and any saved edits before restoring a recommended draft.')
+p('Open the app: <link href="https://night-watch-snowy.vercel.app/outreach" color="#806135">night-watch-snowy.vercel.app/outreach</link>')
+SimpleDocTemplate(str(out),pagesize=(612,792),rightMargin=48,leftMargin=48,topMargin=48,bottomMargin=60,title='Night Watch User Guide',author='Nine-67').build(flow,onFirstPage=footer,onLaterPages=footer)
+shutil.copyfile(out,'public/guides/night-watch-user-guide.pdf')
+print(out)
