@@ -1,3 +1,4 @@
+import { focusedContacts } from "@/lib/focused-contact";
 import { accountBrief } from "@/lib/dossier-data";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -16,10 +17,12 @@ export async function GET(request: Request) {
     const db = admin();
     const { data: account } = await db.from("accounts").select("id,name,domain,vertical,employee_range,tier,careers_url,intel_score").eq("domain", domain).maybeSingle();
     const brief = accountBrief(domain);
-    if (brief) {
+    const focused = focusedContacts(domain);
+    const selectedContacts = brief?.contacts ?? focused.map(person => ({ contact_id: person.contact_id, first_name: person.name.split(" ")[0], last_name: person.name.split(" ").slice(1).join(" "), title: person.title, contact_rank: person.contact_rank }));
+    if (brief || focused.length) {
       const stored = account ? await db.from("people").select("id,full_name,title,level,email,email_status,email_source,linkedin_url,do_not_contact").eq("account_id", account.id) : { data: [], error: null };
       if (stored.error) throw stored.error;
-      const people = [...brief.contacts].sort((a, b) => a.contact_rank - b.contact_rank).map(contact => {
+      const people = [...selectedContacts].sort((a, b) => a.contact_rank - b.contact_rank).map(contact => {
         const name = `${contact.first_name} ${contact.last_name}`;
         const match = stored.data?.find(person => person.full_name.trim().toLowerCase() === name.toLowerCase());
         return { id: match?.id ?? contact.contact_id, full_name: name, title: contact.title, level: match?.level ?? "owner", email: match?.email ?? null, email_status: match?.email_status ?? "none", email_source: match?.email_source ?? null, linkedin_url: match?.linkedin_url ?? null, do_not_contact: match?.do_not_contact ?? false, contact_rank: contact.contact_rank };

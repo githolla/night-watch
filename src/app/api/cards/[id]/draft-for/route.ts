@@ -1,3 +1,4 @@
+import { focusedContact } from "@/lib/focused-contact";
 import { refineDraft } from "@/lib/agents";
 import { outreachQualityFailures } from "@/lib/outreach-quality";
 import { isCuratedDomain } from "@/lib/curated-worklist";
@@ -74,7 +75,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     }
 
     const selectedAccount = card.accounts as unknown as { domain: string } | null;
-    if (isCuratedDomain(selectedAccount?.domain) && !briefContact(selectedAccount?.domain, person.full_name)) {
+    if (isCuratedDomain(selectedAccount?.domain) && !briefContact(selectedAccount?.domain, person.full_name) && !focusedContact(selectedAccount?.domain ?? "", person.full_name)) {
       return Response.json({ error: "This worklist is limited to the researched buyer for each selected company." }, { status: 400 });
     }
 

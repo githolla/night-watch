@@ -1,4 +1,4 @@
-import { curatedDrafts } from "./curated-worklist.ts";
+import { allFocus as curatedDrafts } from "./focus-data.ts";
 import { domainKey } from "./recipient-research.ts";
 
 export type ReachoutSort = "revenue-desc" | "revenue-asc" | "name" | "verified";

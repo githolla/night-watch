@@ -174,6 +174,7 @@ export function Desk({
   senderGreeting = "Hi {first},",
   senderFooterHtml = "",
   selectedId,
+  listHref = "/outreach",
   demo = false,
   gmailConnected = false,
   context,
@@ -185,6 +186,7 @@ export function Desk({
   senderGreeting?: string;
   senderFooterHtml?: string;
   selectedId?: string;
+  listHref?: string;
   /** A page-level tool rendered in the desk header (Draft tools), passed in from the server page. */
   tools?: ReactNode;
   demo?: boolean;
@@ -1110,8 +1112,8 @@ export function Desk({
               <section className="deskwork-mid">
                 <header className="deskwork-co">
                   <span className="avatar">{initials(focusCard.accounts.name)}</span>
-                  <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{evidence ? `Market signal · ${dateLabel(research?.trigger.date) ? `Published ${dateLabel(research?.trigger.date)}` : "date not confirmed"}` : `${signalLabel(focusCard)}${signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}`}</p></div>
-                  <Link href="/outreach" className="focus-link">All {curatedDomains.length} companies</Link>
+                  <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{research ? `Market signal · ${dateLabel(research?.trigger.date) ? `Published ${dateLabel(research?.trigger.date)}` : "date not confirmed"}` : `${signalLabel(focusCard)}${signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}`}</p></div>
+                  <Link href={listHref} className="focus-link">All {curatedDomains.length} companies</Link>
                 </header>
 
                 <div className="deskwork-opening">
@@ -1199,7 +1201,7 @@ export function Desk({
                         <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
                         <div className={`reachout-address-status ${contact.email_status === "verified" ? "verified" : ""}`}>
                           {contact.email_status === "verified" ? "Verified email" : contact.email ? ((focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred") ? "Inferred candidate. Mailbox not verified." : "Published or saved address. Mailbox not verified.") : "Email not found. This draft is ready to edit; add a confirmed address before sending."}
-                          {contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailSourceUrl && <a href={focusedContact(focusCard.accounts.domain ?? "", contact.full_name)!.emailSourceUrl!} target="_blank" rel="noreferrer">{focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred" ? "Pattern evidence ↗" : "Address source ↗"}</a>}
+                          {contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailSourceUrl && <a href={focusedContact(focusCard.accounts.domain ?? "", contact.full_name)!.emailSourceUrl!} target="_blank" rel="noreferrer">{focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred" ? "Research source ↗" : "Address source ↗"}</a>}
                         </div>
                         <div className="focus-subject-row">
                           <input

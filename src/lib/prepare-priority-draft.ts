@@ -1,6 +1,7 @@
 import { wasAutomaticallyArchived } from "./curated-card-state.ts";
 import { admin } from "@/lib/supabase/admin";
-import { curatedDrafts } from "@/lib/curated-worklist";
+import { allFocus as curatedDrafts, batchOwner } from "./focus-data.ts";
+import { savedVariants, renderSavedVariant, renderLinkedInVariant } from "./outreach-variants.ts";
 import { domainKey } from "@/lib/recipient-research";
 import { senderProfile } from "@/lib/sender";
 import { composeContactDraft } from "@/lib/contact-draft";
@@ -11,6 +12,8 @@ import { focusedContacts, publishedEmailPatch } from "./focused-contact.ts";
 export async function preparePriorityDraft(domain: string, me: AppUser, db = admin()) {
     const selected = curatedDrafts.find(row => domainKey(row.domain) === domainKey(domain));
     if (!selected?.buyer.name) return Response.json({ error: "Choose a selected company with a verified buyer." }, { status: 400 });
+    const owner = batchOwner(selected.domain);
+    if (owner && owner !== me.owner) return Response.json({ error: "This company belongs to the other sender’s list." }, { status: 403 });
     const accountResult = await db.from("accounts").select("id,status").eq("domain", selected.domain).maybeSingle();
     if (accountResult.error) throw accountResult.error;
     let account = accountResult.data;
@@ -63,8 +66,12 @@ export async function preparePriorityDraft(domain: string, me: AppUser, db = adm
     const signal = await db.from("signals").select("id").eq("account_id", account.id).eq("hash", hash).single();
     if (signal.error) throw signal.error;
     const profile = await senderProfile(db, me.owner);
-    const draft = composeContactDraft({ company: selected.company, domain: selected.domain, personName: person.full_name, personTitle: selected.buyer.title, senderName: profile.fromName, senderTitle: profile.title, greeting: profile.greeting, signoff: profile.signoff, intro: profile.intro });
-    const saved = await db.from("cards").upsert({ signal_id: signal.data.id, account_id: account.id, person_id: person.id, score: 0, score_breakdown: {}, brief: selected.fit, why_now: selected.trigger.fact, channel: "email_first", email_subject: draft.subject, email_body: draft.body, assigned_to: me.owner, status: "new" }, { onConflict: "signal_id,person_id", ignoreDuplicates: true });
+    const fallback = composeContactDraft({ company: selected.company, domain: selected.domain, personName: person.full_name, personTitle: selected.buyer.title, senderName: profile.fromName, senderTitle: profile.title, greeting: profile.greeting, signoff: profile.signoff, intro: profile.intro });
+    const variants = savedVariants(selected.domain, person.full_name);
+    const draft = owner && variants[0] ? renderSavedVariant(variants[0], person.full_name, profile.fromName, profile.greeting) : fallback;
+    const linkedIn = savedVariants(selected.domain, person.full_name, "linkedin")[0];
+    const linkedInDraft = linkedIn ? renderLinkedInVariant(linkedIn, profile.fromName) : null;
+    const saved = await db.from("cards").upsert({ signal_id: signal.data.id, account_id: account.id, person_id: person.id, score: 0, score_breakdown: {}, brief: selected.fit, why_now: selected.trigger.fact, channel: "email_first", email_subject: draft.subject, email_body: draft.body, ...(linkedInDraft ? { linkedin_message: linkedInDraft.body, linkedin_subject: linkedInDraft.subject } : {}), assigned_to: me.owner, status: "new" }, { onConflict: "signal_id,person_id", ignoreDuplicates: true });
     if (saved.error) throw saved.error;
     const card = await db.from("cards").select("id,status,dismiss_reason,score_breakdown").eq("signal_id", signal.data.id).eq("person_id", person.id).single();
     if (card.error) throw card.error;

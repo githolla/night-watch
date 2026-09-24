@@ -1,4 +1,6 @@
-import offers from '../../data/offer-versions.json' with { type: 'json' };
+import originalOffers from '../../data/offer-versions.json' with { type: 'json' };
+import batchOffers from '../../data/batch-2-offers.json' with { type: 'json' };
+const offers = [...originalOffers, ...batchOffers];
 import rows from '../../data/research-outreach.json' with { type: 'json' };
 import gifts from '../../data/outreach-gifts.json' with { type: 'json' };
 export type ResearchVersion = { id: string; label: string; subject: string; message: string };

@@ -1,4 +1,4 @@
-import focus from '../../data/revenue-focus.json' with { type: 'json' };
+import { allFocus as focus } from "./focus-data.ts";
 import { savedVariants, archivedVariants, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
 import { emailStyle } from './email-style.ts';
 

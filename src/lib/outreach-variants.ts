@@ -1,7 +1,7 @@
 import { researchVersions, authoredResearchVersions, researchRecommendation, type ResearchVersion } from "./research-recommendation.ts";
 import archivedEmail from "../../data/outreach-variants-archive.json" with { type: "json" };
 import archivedLinkedIn from "../../data/linkedin-variants-archive.json" with { type: "json" };
-import focus from "../../data/revenue-focus.json" with { type: "json" };
+import { allFocus as focus } from "./focus-data.ts";
 import { emailStyle } from "./email-style.ts";
 
 export type SavedVariant = ResearchVersion;

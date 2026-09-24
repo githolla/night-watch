@@ -1,6 +1,6 @@
 import priority from "../../data/priority-outreach.json" with { type: "json" };
 
-import focus from "../../data/revenue-focus.json" with { type: "json" };
+import { allFocus as focus } from "./focus-data.ts";
 
 export const domainKey = (value: string) => value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[/:?#]/)[0];
 const personKey = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");

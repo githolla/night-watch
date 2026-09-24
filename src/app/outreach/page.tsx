@@ -5,7 +5,8 @@ import { outreachFooterHtml, senderFirstName } from "@/lib/outreach-ending";
 import { recipientResearch } from "@/lib/recipient-research";
 import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
 import { createHash } from "node:crypto";
-import { curatedDomains, curatedDrafts } from "@/lib/curated-worklist";
+import Link from "next/link";
+import { originalFocus, focusForOwner } from "@/lib/focus-data";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
 import { Desk, type DeskContext } from "@/components/Desk";
 import { ScanControl } from "@/components/ScanControl";
@@ -28,7 +29,7 @@ export const dynamic = "force-dynamic";
 // Allow the one-time preparation of newly selected companies to finish.
 export const maxDuration = 60;
 
-type Params = { card?: string; status?: string; priority?: string; new?: string; source?: string; account?: string };
+type Params = { list?: string; card?: string; status?: string; priority?: string; new?: string; source?: string; account?: string };
 
 /** Card statuses a salesperson still has to decide on. */
 const OPEN_STATUSES = ["new", "approved", "edited"];
@@ -43,6 +44,9 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     redirect("/setup");
   }
   const me = await requireUser();
+  const originalList = params.list === "original";
+  const curatedDrafts = originalList ? originalFocus : focusForOwner(me.owner);
+  const curatedDomains = curatedDrafts.map(row => row.domain);
   {
     const pending = await pendingMigrations(admin());
     if (pending.length) return <MigrationRequired pending={pending} />;
@@ -96,6 +100,8 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     .like("signals.hash", "operator-shortlist-20260923:%")
     .order("score", { ascending: false });
 
+
+  if (!originalList) query.eq("assigned_to", me.owner);
 
   const [
     { data: cardRows, error },
@@ -271,8 +277,14 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   return (
     <div className="shell">
       <Header />
+      <nav aria-label="Reach-out batch" style={{ display: "flex", gap: 20, padding: "12px 0" }}>
+        <Link href="/outreach" aria-current={!originalList ? "page" : undefined}>{me.owner === "josh" ? "Josh" : "Suuchi"}’s new 25</Link>
+        <Link href="/outreach?list=original" aria-current={originalList ? "page" : undefined}>Original 25</Link>
+      </nav>
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
       <Desk
+        key={`${me.owner}:${originalList ? "original" : "batch-2"}`}
+        listHref={originalList ? "/outreach?list=original" : "/outreach"}
         initialCards={cards}
         senderName={senderFirstName(sender)}
         senderGreeting={sender.greeting}

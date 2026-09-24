@@ -1,3 +1,5 @@
+import { batchOwner } from "./focus-data.ts";
+import { savedVariants, renderSavedVariant } from "./outreach-variants.ts";
 import { emailStyle, emailFirstName } from "./email-style.ts";
 import { outreachProof } from "./outreach-proof.ts";
 import { recipientResearch } from "./recipient-research.ts";
@@ -448,6 +450,8 @@ export const DEFAULT_SIGNOFF = "Thank you,";
 export const DEFAULT_INTRO = "I am {name}, {title} at Nine-67.";
 
 export function composeContactDraft(input: ContactDraftInput): { subject: string; body: string } {
+  const batchVariant = input.domain && batchOwner(input.domain) ? savedVariants(input.domain, input.personName)[0] : undefined;
+  if (batchVariant) return renderSavedVariant(batchVariant, input.personName, input.senderName ?? "", input.greeting ?? "Hi {first},");
   const company = decodeEntities(input.company).trim() || "your team";
   const first = firstNameOf(input.personName);
   const roles = input.roles ?? [];
