@@ -1,4 +1,4 @@
-import { firstTouchErrors, firstTouchSignature } from "@/lib/first-touch";
+import { firstTouchErrors, firstTouchSignature, firstTouchFooterHtml } from "@/lib/first-touch";
 import { authoredSenderDraft } from '@/lib/authored-sender';
 import { trackEmailVersion } from "@/lib/version-tracking";
 import { requireUser } from "@/lib/auth";
@@ -81,7 +81,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const fullBody = withOutreachSignature(body, profile) + (curated ? "" : `\n\n${optOut}`);
     // Send multipart/alternative: a plain-text part (spam filters prefer it) AND an HTML part carrying the
     // branded signature, so the sender's signature actually renders in the recipient's client.
-    const html = outreachEmailHtml(body, profile) + (curated ? "" : `<p>${optOut.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>`);
+    const html = outreachEmailHtml(body, {...savedProfile, signature:firstTouchFooterHtml(savedProfile.signature)}) + (curated ? "" : `<p>${optOut.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>`);
     const base = outboundBaseUrl(request);
     const unsubscribe = `${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(recipient.id))}`;
     const versionId = await trackEmailVersion(db, { cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail" });

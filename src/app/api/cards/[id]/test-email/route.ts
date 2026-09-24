@@ -1,4 +1,4 @@
-import { firstTouchErrors, firstTouchSignature } from "@/lib/first-touch";
+import { firstTouchErrors, firstTouchSignature, firstTouchFooterHtml } from "@/lib/first-touch";
 import { firstGiftViewAt } from "@/lib/gift-tracking";
 import { authoredSenderDraft } from '@/lib/authored-sender';
 import { requireUser } from '@/lib/auth';
@@ -46,7 +46,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const fullBody = withOutreachSignature(body, profile);
     const versionId = await trackEmailVersion(db, { cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
     const deliveredBody = fullBody;
-    const html = outreachEmailHtml(body, profile);
+    const html = outreachEmailHtml(body, {...savedProfile, signature:firstTouchFooterHtml(savedProfile.signature)});
     await sendEmail(user.owner, fromHeader(profile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);
     // Tests never create touches, change card status or enroll follow-ups.
     const { data: snapshot } = await db.from('message_variants').select('experiment_id,dimensions').eq('id', versionId).single();

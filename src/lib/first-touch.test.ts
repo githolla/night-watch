@@ -25,3 +25,11 @@ test('uploaded signature documents do not leak titles, encoded icons or duplicat
  assert.equal(firstTouchSignature(html,'Josh'),'FDE, COO\nBusiness & Operations\n+1 555 123 4567');
  assert.doesNotMatch(firstTouchSignature(html,'Josh'),/Signature|&#|Josh|color:red/);
 });
+test('formatted first-touch footer keeps saved branding without document chrome, clickable links or image requests',async()=>{
+ const {firstTouchFooterHtml}=await import('./first-touch.ts');
+ const html='<html><head><title>Gmail Signature</title></head><body><table style="color:#123456"><tr><td><b>Josh Lee</b></td></tr><tr><td>FDE, COO</td></tr><tr><td><a href="https://nine-67.com">nine-67.com</a></td></tr><tr><td>&#9993;</td><td>josh@nine-67.com</td></tr><tr><td><img src="https://example.com/image"></td></tr></table></body></html>';
+ const result=firstTouchFooterHtml(html);
+ assert.match(result,/<table style="color:#123456">/);assert.match(result,/<b>Josh Lee<\/b>/);
+ assert.match(result,/FDE, COO/);assert.doesNotMatch(result,/<head|<title|<html|<body|<a\b|<img|https:|josh@|&#9993;|Gmail Signature/);
+ assert.equal((result.match(/<tr>/g)||[]).length,2);
+});
