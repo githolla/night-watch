@@ -1,3 +1,4 @@
+import focus from "../../data/revenue-focus.json" with { type: "json" };
 import variants from "../../data/outreach-variants.json" with { type: "json" };
 import linkedinVariants from "../../data/linkedin-variants.json" with { type: "json" };
 import { emailStyle } from "./email-style.ts";
@@ -32,4 +33,14 @@ export function withDefaultLinkedIn<T extends { accounts: { domain?: string | nu
   if (!variant) return card;
   const draft = renderLinkedInVariant(variant, senderName);
   return { ...card, linkedin_message: draft.body, linkedin_subject: card.linkedin_subject?.trim() ? card.linkedin_subject : draft.subject };
+}
+
+/** Blank untouched email cards can render immediately without waiting for an admin repair. */
+export function withDefaultEmail<T extends { status: string; accounts: { domain?: string | null }; people: { full_name: string }; email_body: string | null; email_subject: string | null }>(card: T, greeting = "Hi {first},"): T {
+  if (card.status !== "new" || card.email_body?.trim()) return card;
+  const account = focus.find(row => card.accounts.domain && domainKey(row.domain) === domainKey(card.accounts.domain));
+  const contact = account?.contacts.find(row => personKey(row.name) === personKey(card.people.full_name));
+  if (!contact) return card;
+  const hello = greeting.replace(/\{first\}/gi, contact.name.split(/\s+/)[0]).replace(/\{name\}/gi, contact.name);
+  return { ...card, email_subject: card.email_subject?.trim() ? card.email_subject : contact.subject, email_body: emailStyle(`${hello}\n\n${contact.message}`) };
 }

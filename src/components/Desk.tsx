@@ -2,9 +2,10 @@
 import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
 import { dateLabel, sourceDomain } from "@/lib/dossier-data";
-import { savedVariants, withDefaultLinkedIn, renderSavedVariant, renderLinkedInVariant, type SavedVariant } from "@/lib/outreach-variants";
+import { savedVariants, withDefaultLinkedIn, withDefaultEmail, renderSavedVariant, renderLinkedInVariant, type SavedVariant } from "@/lib/outreach-variants";
 import { focusedAccount, revenueLabel, sortReachouts, type ReachoutSort } from "@/lib/reachout-sort";
 import { focusedContact } from "@/lib/focused-contact";
+import { authoredSenderDraft } from "@/lib/authored-sender";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
 
 import { useEffect, useState, type ReactNode } from "react";
@@ -152,6 +153,17 @@ function describeRun(run: RunSummary | null) {
   }
 }
 
+function personalizeCard(card: Card, senderName: string, senderGreeting: string): Card {
+    if (!["new", "edited", "approved"].includes(card.status)) return card;
+    const seeded = withDefaultEmail(withDefaultLinkedIn(card, senderName), senderGreeting);
+    const input = { domain: seeded.accounts.domain, contactName: seeded.people.full_name, senderName, greeting: senderGreeting };
+    return { ...seeded,
+      email_body: authoredSenderDraft({ ...input, body: seeded.email_body ?? "" }).body,
+      linkedin_message: authoredSenderDraft({ ...input, body: seeded.linkedin_message ?? "", channel: "linkedin" }).body,
+    };
+}
+
+
 export function Desk({
   initialCards,
   senderName = "",
@@ -176,7 +188,7 @@ export function Desk({
   context?: DeskContext;
   scan?: import("react").ReactNode;
 }) {
-  const [cards, setCards] = useState(() => initialCards.map(card => withDefaultLinkedIn(card, senderName)));
+  const [cards, setCards] = useState(() => initialCards.map(card => personalizeCard(card, senderName, senderGreeting)));
   useEffect(() => {
     const receive = (event: Event) => {
       const updates = (event as CustomEvent<Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string }>>).detail;
@@ -184,12 +196,12 @@ export function Desk({
         const change = updates.find(update => update.id === card.id);
         // Never replace a local edit or a card sent while background repair was running.
         if (!change || !preservesCurrentDraft(card, { status: "new", email_subject: change.beforeSubject, email_body: change.beforeBody })) return card;
-        return { ...card, email_subject: change.subject, email_body: change.body };
+        return personalizeCard({ ...card, email_subject: change.subject, email_body: change.body }, senderName, senderGreeting);
       }));
     };
     window.addEventListener("night-watch:draft-updates", receive);
     return () => window.removeEventListener("night-watch:draft-updates", receive);
-  }, []);
+  }, [senderName, senderGreeting]);
 
   // One-at-a-time by default: the desk opens on the next prospect to work, not a list.
   // `selected` = a full-detail deep dive; `browse` = the searchable list of everyone.
@@ -305,7 +317,7 @@ export function Desk({
     const json = await response.json();
     setBusy(false);
     if (!response.ok) { alert(json.error); return false; }
-    setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...json, ...(!("linkedin_message" in values) && !json.linkedin_message?.trim() ? { linkedin_message: item.linkedin_message, linkedin_subject: item.linkedin_subject } : {}) } : item));
+    setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...json, ...(!("email_body" in values) && !json.email_body?.trim() ? { email_body: item.email_body, email_subject: item.email_subject } : {}), ...(!("linkedin_message" in values) && !json.linkedin_message?.trim() ? { linkedin_message: item.linkedin_message, linkedin_subject: item.linkedin_subject } : {}) } : item));
     return true;
   }
   /** Write to the dossier's card (the one the dossier view renders). */
@@ -379,7 +391,7 @@ export function Desk({
     // Couldn't give them their own card? Fall back to the old behaviour rather than leaving the click dead:
     // the first contact's note, retargeted, with the composer saying plainly that is what it is.
     if (!response.ok || !json?.card?.id) { setNotice(json?.error ?? `Could not open ${person.full_name}’s own draft. Please retry.`); return; }
-    const fresh = withDefaultLinkedIn(json.card as Card, senderName);
+    const fresh = personalizeCard(json.card as Card, senderName, senderGreeting);
     setCards((current) => current.some((item) => item.id === fresh.id) ? current.map((item) => item.id === fresh.id ? { ...item, ...fresh } : item) : [...current, fresh]);
     setAlt(null);
     setCameFrom({ cardId: from.id, name: from.people.full_name, company: from.accounts.name });
@@ -563,6 +575,7 @@ export function Desk({
   // Adapt a draft's names to the retargeted contact when one is chosen; both channel drafts are shown for every prospect.
   const adapt = (text: string) => (altContact && focusCard ? retarget(text, focusCard.people.full_name, altContact.full_name) : text);
   const emailDraft = focusCard?.email_body ?? "";
+  const senderConflict = focusCard && authoredSenderDraft({ body: channelTab === "email" ? emailDraft : focusCard.linkedin_message ?? "", domain: focusCard.accounts.domain, contactName: focusCard.people.full_name, senderName, greeting: senderGreeting, channel: channelTab }).senderConflict;
   const linkedinDraft = focusCard?.linkedin_message ?? focusCard?.linkedin_note ?? focusCard?.linkedin_comment ?? "";
   // After a Refine, show what changed inline: removed words struck through in red, added words highlighted.
   const diffFor = (channel: "email" | "linkedin") => (lastRefine && focusCard && lastRefine.cardId === focusCard.id && lastRefine.channel === channel ? lastRefine : null);
@@ -1145,6 +1158,7 @@ export function Desk({
 
                 {channelTab === "email" && !altContact && !previewingVersion && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={focusCard.email_subject ?? ""} body={focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
 
+                {senderConflict && <p role="alert">{senderConflict}</p>}
                 <div className="deskwork-scroll">
                 {previewingVersion && tonePreview ? (
                   <article className="email-version-document" aria-label={`${tonePreview.label} ${channelTab} preview`}>

@@ -3,7 +3,8 @@ import { senderProfile } from "@/lib/sender";
 import { outreachFooterHtml, senderFirstName } from "@/lib/outreach-ending";
 import { recipientResearch } from "@/lib/recipient-research";
 import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
-import { curatedDomains } from "@/lib/curated-worklist";
+import { createHash } from "node:crypto";
+import { curatedDomains, curatedDrafts } from "@/lib/curated-worklist";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
 import { Desk, type DeskContext } from "@/components/Desk";
 import { ScanControl } from "@/components/ScanControl";
@@ -256,7 +257,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   return (
     <div className="shell">
       <Header />
-      {me.role === "admin" && <RefreshDraftCopy />}
+      {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
       <Desk
         initialCards={cards}
         senderName={senderFirstName(sender)}

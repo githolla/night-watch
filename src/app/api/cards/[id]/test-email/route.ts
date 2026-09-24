@@ -1,3 +1,4 @@
+import { authoredSenderDraft } from '@/lib/authored-sender';
 import { requireUser } from '@/lib/auth';
 import { admin } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/gmail';
@@ -10,7 +11,7 @@ import { outboundBaseUrl } from '@/lib/urls';
 import { z } from 'zod';
 
 export const maxDuration = 60;
-const input = z.object({ subject: z.string().trim().min(1).max(120), body: z.string().trim().min(1).max(1000) });
+const input = z.object({ subject: z.string().trim().min(1).max(120), body: z.string().trim().min(1).max(1000), personId: z.string().uuid().optional() });
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const user = await requireUser();
@@ -23,12 +24,23 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { count, error: capError } = await db.from('message_experiments').select('id', { count: 'exact', head: true }).eq('owner', user.owner).eq('model', SAVED_VERSION_MODEL).eq('goal', 'Email tracking self-test').gte('created_at', new Date(Date.now() - 600000).toISOString());
     if (capError) throw capError;
     if ((count ?? 0) >= 5) return Response.json({ error: 'Five tests have been requested in the last ten minutes. Wait a few minutes before sending another.' }, { status: 429 });
-    const { data: card, error: cardError } = await db.from('cards').select('person_id').eq('id', id).single();
+    const { data: card, error: cardError } = await db.from('cards').select('person_id,account_id,people(full_name),accounts(domain)').eq('id', id).single();
     if (cardError || !card) throw new Error('This draft is no longer available.');
     const profile = await senderProfile(db, user.owner);
-    const body = sanitizeLinks(payload.body);
+    let person = card.people as unknown as { full_name: string } | null;
+    let personId = card.person_id;
+    if (payload.personId && payload.personId !== card.person_id) {
+      const { data: chosen } = await db.from('people').select('id,full_name,account_id').eq('id', payload.personId).maybeSingle();
+      if (!chosen || chosen.account_id !== card.account_id) throw new Error('That contact does not belong to this company.');
+      person = chosen;
+      personId = chosen.id;
+    }
+    const account = card.accounts as unknown as { domain: string } | null;
+    const personalized = authoredSenderDraft({ body: sanitizeLinks(payload.body), domain: account?.domain, contactName: person?.full_name ?? '', senderName: profile.fromName, greeting: profile.greeting });
+    if (personalized.senderConflict) throw new Error(personalized.senderConflict);
+    const body = personalized.body;
     const fullBody = withOutreachSignature(body, profile);
-    const versionId = await trackEmailVersion(db, { cardId: id, personId: card.person_id, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
+    const versionId = await trackEmailVersion(db, { cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
     const html = trackedEmailHtml(outreachEmailHtml(body, profile), outboundBaseUrl(request), versionId);
     await sendEmail(user.owner, fromHeader(profile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, fullBody, undefined, [], html);
     // Tests never create touches, change card status or enroll follow-ups.

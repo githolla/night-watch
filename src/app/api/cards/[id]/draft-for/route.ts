@@ -114,6 +114,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
     const brief = accountBrief(account?.domain);
     if (brief && outreachQualityFailures(draft.body, { reframe: brief.pain_hypothesis.reframe }, draft.subject).length) {
+      if (isCuratedDomain(account?.domain)) throw new Error("This saved draft failed its checks. Review the authored copy before opening it; no AI rewrite was requested.");
       const checked = await refineDraft({ channel: "email", company: account?.name ?? "", domain: account?.domain, person: person.full_name, title: person.title ?? "", whyNow: card.why_now, body: draft.body, subject: draft.subject, senderName: profile.fromName, greeting: profile.greeting, instruction: `Write for this contact's responsibilities. ${brief.email_guidance.contact_2_angle}` });
       draft = { body: checked.body, subject: checked.subject ?? draft.subject };
     }

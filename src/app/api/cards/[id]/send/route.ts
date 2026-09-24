@@ -1,3 +1,4 @@
+import { authoredSenderDraft } from '@/lib/authored-sender';
 import { trackedEmailHtml } from "@/lib/open-tracking";
 import { trackEmailVersion } from "@/lib/version-tracking";
 import { requireUser } from "@/lib/auth";
@@ -67,8 +68,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const cap = dailyCap(daysBetween(connection?.connected_at ?? connection?.created_at));
     // Manual desk send: a human chose to send and is warned in the UI when the address isn't verified, so
     // the verified requirement is relaxed here (the automated cadence still enforces it).
-    validateEmail(recipient.email_status, count ?? 0, body, cap, false);
     const profile = await senderProfile(db, owner);
+    const personalized = authoredSenderDraft({ body, domain: card.accounts?.domain, contactName: recipient.full_name, senderName: profile.fromName, greeting: profile.greeting });
+    if (personalized.senderConflict) throw new Error(personalized.senderConflict);
+    body = personalized.body;
+    validateEmail(recipient.email_status, count ?? 0, body, cap, false);
     const fromEmail = connection?.email ?? user.email ?? "";
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
     const fullBody = curated ? withOutreachSignature(body, profile) : `${withSignature(body, profile, fromEmail)}\n\n${optOut}`;

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import focus from '../../data/revenue-focus.json' with { type: 'json' };
-import { savedVariants, withDefaultLinkedIn, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
+import { savedVariants, withDefaultLinkedIn, withDefaultEmail, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
 
 test('all 28 contacts have four complete, unique authored versions', () => {
   let count = 0;
@@ -66,4 +66,20 @@ test('blank current LinkedIn draft opens with Personal while existing edits stay
   assert.equal(withDefaultLinkedIn(edited, 'Josh'), edited);
   const unknown = { ...card, people: { full_name: 'Unknown' } };
   assert.equal(withDefaultLinkedIn(unknown, 'Josh'), unknown);
+});
+
+test('blank new emails populate exact-contact reviewed defaults without replacing protected copies', () => {
+ const account = focus[0], person = account.contacts[0];
+ const blank = { status: 'new', accounts: { domain: account.domain }, people: { full_name: person.name }, email_body: null, email_subject: null };
+ const filled = withDefaultEmail(blank, 'Hello {first},');
+ assert.equal(filled.email_body, `Hello Victor,\n\n${person.message}`);
+ assert.equal(filled.email_subject, person.subject);
+ for (const status of ['edited','approved','sent','replied']) {
+  const protectedCard = { ...blank, status };
+  assert.equal(withDefaultEmail(protectedCard), protectedCard);
+ }
+ const edited = { ...blank, email_body: 'My words' };
+ assert.equal(withDefaultEmail(edited), edited);
+ const stranger = { ...blank, people: { full_name: 'Someone Else' } };
+ assert.equal(withDefaultEmail(stranger), stranger);
 });
