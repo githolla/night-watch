@@ -27,7 +27,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Named contact in Michigan House committee testimony; publication date not confirmed",
         "subject": "after the location report",
-        "message": "With restaurants across Michigan and northwest Ohio, I'd like to help your managers spend less time pulling together location reports and more time closing the actions those reports create.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment. We recently helped one client deploy 20 applications.\n\nWe'd build a first version that brings one set of operating reports together, highlights exceptions and records who owns the next action. We'd measure preparation time and follow-up completion, with managers checking the conclusions.\n\nIs following up on those decisions still a manual job for your managers?",
+        "message": "I'd like to help Ansara's managers turn a location report into decisions that get followed through. With your restaurants across Michigan and northwest Ohio, that seems a practical place to explore AI.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe recently helped one client deploy 20 applications. We'd build around one Ansara operating review: gather the numbers, highlight exceptions and record who owns the next action. We'd check preparation time and follow-up completion with your managers.\n\nWould help turning those location reviews into completed actions be valuable to your managers?",
         "contact_rank": 1,
         "contact_id": "rev-ansararestaurantgroup-c1"
       }
@@ -49,7 +49,7 @@
       "email": "victor@ansararestaurantgroup.com"
     },
     "subject": "after the location report",
-    "message": "With restaurants across Michigan and northwest Ohio, I'd like to help your managers spend less time pulling together location reports and more time closing the actions those reports create.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment. We recently helped one client deploy 20 applications.\n\nWe'd build a first version that brings one set of operating reports together, highlights exceptions and records who owns the next action. We'd measure preparation time and follow-up completion, with managers checking the conclusions.\n\nIs following up on those decisions still a manual job for your managers?",
+    "message": "I'd like to help Ansara's managers turn a location report into decisions that get followed through. With your restaurants across Michigan and northwest Ohio, that seems a practical place to explore AI.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe recently helped one client deploy 20 applications. We'd build around one Ansara operating review: gather the numbers, highlight exceptions and record who owns the next action. We'd check preparation time and follow-up completion with your managers.\n\nWould help turning those location reviews into completed actions be valuable to your managers?",
     "writerKit": {
       "accountId": "rev-ansararestaurantgroup",
       "frame": "gap_selling",
@@ -108,7 +108,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "2018 contractor directory; older address",
         "subject": "from cable request to quote",
-        "message": "Metro Wire serves customers from three distribution centers. I'd like to help your team prepare a cable request for quoting, with the specifications and stock records ready to check.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that reads an incoming request, checks the specifications against your approved product data and prepares the quote for review. We'd measure preparation time and corrections.\n\nDoes that checking still take much of your team's time?",
+        "message": "Metro Wire's three distribution centers give your quoting team stock to work with. I'd like to help them get from a customer's cable specifications to a checked stock match faster.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build a request check around one cable family, using your approved product and stock records. Your team would review the matches before pricing. We'd measure preparation time and corrections, so you can judge whether the tool earns its place.\n\nWould a walkthrough of that request-to-quote process be worth sending?",
         "contact_rank": 1,
         "contact_id": "rev-metrowire-c1"
       }
@@ -130,7 +130,7 @@
       "email": "devinezop@metrowire.net"
     },
     "subject": "from cable request to quote",
-    "message": "Metro Wire serves customers from three distribution centers. I'd like to help your team prepare a cable request for quoting, with the specifications and stock records ready to check.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that reads an incoming request, checks the specifications against your approved product data and prepares the quote for review. We'd measure preparation time and corrections.\n\nDoes that checking still take much of your team's time?",
+    "message": "Metro Wire's three distribution centers give your quoting team stock to work with. I'd like to help them get from a customer's cable specifications to a checked stock match faster.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build a request check around one cable family, using your approved product and stock records. Your team would review the matches before pricing. We'd measure preparation time and corrections, so you can judge whether the tool earns its place.\n\nWould a walkthrough of that request-to-quote process be worth sending?",
     "writerKit": {
       "accountId": "rev-metrowire",
       "frame": "gap_selling",
@@ -189,7 +189,7 @@
         "emailStatus": "not_found",
         "emailNote": "HOLD: no MX or A records returned; do not use this address",
         "subject": "between diagnosis and repair",
-        "message": "Wolverine runs service, parts and body work across three locations. I'd like to help with a specific handoff: getting the technician's findings, parts status and required paperwork together before the repair order moves on.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version around one repair type, preparing the packet for your service team's review. We'd measure time spent gathering information and the number of incomplete handoffs, then train staff through launch.\n\nIs that a handoff your service team still spends time chasing?",
+        "message": "I'd like to help Wolverine's service desk get a repair order ready to move, with the technician's findings, parts status and required paperwork together. Your three-location service operation gives us a specific place to start.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build around one repair type and put the packet in front of your service team for review. They'd help shape it; we'd measure preparation time and missing information before considering a wider rollout.\n\nWould it help to have our engineers take on that service-desk build?",
         "contact_rank": 1,
         "contact_id": "rev-wolverinetruckgroup-c1"
       }
@@ -211,7 +211,7 @@
       "email": null
     },
     "subject": "between diagnosis and repair",
-    "message": "Wolverine runs service, parts and body work across three locations. I'd like to help with a specific handoff: getting the technician's findings, parts status and required paperwork together before the repair order moves on.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version around one repair type, preparing the packet for your service team's review. We'd measure time spent gathering information and the number of incomplete handoffs, then train staff through launch.\n\nIs that a handoff your service team still spends time chasing?",
+    "message": "I'd like to help Wolverine's service desk get a repair order ready to move, with the technician's findings, parts status and required paperwork together. Your three-location service operation gives us a specific place to start.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build around one repair type and put the packet in front of your service team for review. They'd help shape it; we'd measure preparation time and missing information before considering a wider rollout.\n\nWould it help to have our engineers take on that service-desk build?",
     "writerKit": {
       "accountId": "rev-wolverinetruckgroup",
       "frame": "gap_selling",
@@ -269,7 +269,7 @@
         "emailPublishedDate": null,
         "emailStatus": "not_found",
         "subject": "when the schedule changes",
-        "message": "For a stamping and assembly business like Motor City, I'd start an AI conversation with a concrete example: a changed customer schedule and the production orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that compares a schedule update with open orders and flags the differences for a planner. We'd measure checking time and keep every production decision with your team. Then we'd refine it with users and train them through launch.\n\nIs comparing schedule revisions still a manual task for your planners?",
+        "message": "For Motor City, I'd focus an AI build on the moment a changed customer schedule reaches your planners. The useful output would be the affected production orders and the decision each needs.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a comparison of the revised schedule and open orders, preparing the differences for your team. Planners would keep production decisions. We'd check the accuracy and review time with them before expanding to more customers.\n\nIs faster review of schedule changes a priority worth exploring with your planners?",
         "contact_rank": 1,
         "contact_id": "rev-mcstamp-c1"
       }
@@ -291,7 +291,7 @@
       "email": null
     },
     "subject": "when the schedule changes",
-    "message": "For a stamping and assembly business like Motor City, I'd start an AI conversation with a concrete example: a changed customer schedule and the production orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that compares a schedule update with open orders and flags the differences for a planner. We'd measure checking time and keep every production decision with your team. Then we'd refine it with users and train them through launch.\n\nIs comparing schedule revisions still a manual task for your planners?",
+    "message": "For Motor City, I'd focus an AI build on the moment a changed customer schedule reaches your planners. The useful output would be the affected production orders and the decision each needs.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a comparison of the revised schedule and open orders, preparing the differences for your team. Planners would keep production decisions. We'd check the accuracy and review time with them before expanding to more customers.\n\nIs faster review of schedule changes a priority worth exploring with your planners?",
     "writerKit": {
       "accountId": "rev-mcstamp",
       "frame": "gap_selling",
@@ -350,7 +350,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Industry directory; publication date unknown",
         "subject": "the work around your TMS",
-        "message": "Evans' TMS rollout gives us a concrete starting point. I'd like to help with what happens around it: turning a shipment exception into a clear next action and customer update.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that gathers the exception, supporting records and responsible person in one place. Your team reviews the action. We'd measure time from flag to resolution.\n\nIs preparing that response still manual work around your TMS?",
+        "message": "Evans' TMS rollout in 2025 gives us a specific place to explore: the work between a shipment exception and a useful customer update.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build an exception brief from the supporting records, with an owner and proposed next action for your team to review. It would work around your existing process. We'd measure preparation time and time to resolution to see whether it adds value.\n\nWould you like an outline of that exception-to-response workflow?",
         "contact_rank": 1,
         "contact_id": "rev-evansdist-c1"
       }
@@ -372,7 +372,7 @@
       "email": "jevans@evansdist.com"
     },
     "subject": "the work around your TMS",
-    "message": "Evans' TMS rollout gives us a concrete starting point. I'd like to help with what happens around it: turning a shipment exception into a clear next action and customer update.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that gathers the exception, supporting records and responsible person in one place. Your team reviews the action. We'd measure time from flag to resolution.\n\nIs preparing that response still manual work around your TMS?",
+    "message": "Evans' TMS rollout in 2025 gives us a specific place to explore: the work between a shipment exception and a useful customer update.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build an exception brief from the supporting records, with an owner and proposed next action for your team to review. It would work around your existing process. We'd measure preparation time and time to resolution to see whether it adds value.\n\nWould you like an outline of that exception-to-response workflow?",
     "writerKit": {
       "accountId": "rev-evansdist",
       "frame": "gap_selling",
@@ -431,7 +431,7 @@
         "emailStatus": "not_found",
         "emailNote": "No substantiated direct leadership email found",
         "subject": "after the technician leaves",
-        "message": "Bell's service business is a practical place to put AI to work. I'd start after the technician's visit, helping the office turn the notes into the right parts request and next step.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build around one service workflow, preparing a work order from technician notes for your team to check. We'd measure office handling time and incomplete handoffs, then train the people using it.\n\nDoes your office still spend time re-entering those notes?",
+        "message": "I'd like to help Bell's office turn technician notes into a checked parts request and work order. That looks like a practical AI project alongside your repair service.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build a paperwork assistant for one repair category, with your staff approving its work. The test would be office handling time and the details still needing clarification. Your team shapes the tool; our engineers take on the build and rollout.\n\nWould help getting technician notes ready for the office be useful at Bell?",
         "contact_rank": 1,
         "contact_id": "rev-bellforklift-c1"
       }
@@ -453,7 +453,7 @@
       "email": null
     },
     "subject": "after the technician leaves",
-    "message": "Bell's service business is a practical place to put AI to work. I'd start after the technician's visit, helping the office turn the notes into the right parts request and next step.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build around one service workflow, preparing a work order from technician notes for your team to check. We'd measure office handling time and incomplete handoffs, then train the people using it.\n\nDoes your office still spend time re-entering those notes?",
+    "message": "I'd like to help Bell's office turn technician notes into a checked parts request and work order. That looks like a practical AI project alongside your repair service.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build a paperwork assistant for one repair category, with your staff approving its work. The test would be office handling time and the details still needing clarification. Your team shapes the tool; our engineers take on the build and rollout.\n\nWould help getting technician notes ready for the office be useful at Bell?",
     "writerKit": {
       "accountId": "rev-bellforklift",
       "frame": "gap_selling",
@@ -512,7 +512,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Explicit Contact Larry address on his professional website; coaching/contact mailbox, not verified private executive inbox",
         "subject": "when a product detail changes",
-        "message": "TNG's product range gives AI a useful job beyond writing more content: checking that a product change reaches every listing accurately. I'd like to help your team keep approved information consistent as the catalog changes.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that compares listings with the approved product record and queues differences for review. We'd measure review time and discrepancies caught, then train the team as we deploy.\n\nIs keeping those listings consistent still a hands-on job for your team?",
+        "message": "I'd like to help TNG's team keep a product change consistent across its listings. AI could do the comparison against approved information before your team reviews an edit.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build a check for one product family, showing each discrepancy beside its source record. Your team controls publication. We'd measure review time and the changes missed or caught, rather than assume that more generated content is useful.\n\nWould you like to see how we'd approach that catalog check?",
         "contact_rank": 1,
         "contact_id": "rev-tngworldwide-c1"
       }
@@ -534,7 +534,7 @@
       "email": "coach@tngworldwide.com"
     },
     "subject": "when a product detail changes",
-    "message": "TNG's product range gives AI a useful job beyond writing more content: checking that a product change reaches every listing accurately. I'd like to help your team keep approved information consistent as the catalog changes.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that compares listings with the approved product record and queues differences for review. We'd measure review time and discrepancies caught, then train the team as we deploy.\n\nIs keeping those listings consistent still a hands-on job for your team?",
+    "message": "I'd like to help TNG's team keep a product change consistent across its listings. AI could do the comparison against approved information before your team reviews an edit.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build a check for one product family, showing each discrepancy beside its source record. Your team controls publication. We'd measure review time and the changes missed or caught, rather than assume that more generated content is useful.\n\nWould you like to see how we'd approach that catalog check?",
     "writerKit": {
       "accountId": "rev-tngworldwide",
       "frame": "gap_selling",
@@ -593,7 +593,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Named professional association listing; publication date unknown",
         "subject": "keeping the maintenance request moving",
-        "message": "For LR Management, I'd put AI close to the resident's maintenance request. The useful result is a clear owner, the relevant history and the next vendor follow-up, with your property team in control.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment. We recently helped one client deploy 20 applications.\n\nWe'd build around one request type across a small property group. We'd measure handling time and unresolved follow-ups, refine it with property managers and train staff before expanding.\n\nIs vendor follow-up still a recurring time drain for your property managers?",
+        "message": "I'd like to help LR's property managers keep a maintenance request moving, with its history, owner and next vendor follow-up together.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe recently helped one client deploy 20 applications. We'd build a review of open commitments around one LR request type, with the property manager checking it. We'd check handling time and whether follow-ups reach completion before expanding.\n\nWould your managers welcome help keeping vendor follow-ups moving?",
         "contact_rank": 1,
         "contact_id": "rev-lrmanagement-c1"
       }
@@ -615,7 +615,7 @@
       "email": "leslie@lrmanagement.com"
     },
     "subject": "keeping the maintenance request moving",
-    "message": "For LR Management, I'd put AI close to the resident's maintenance request. The useful result is a clear owner, the relevant history and the next vendor follow-up, with your property team in control.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment. We recently helped one client deploy 20 applications.\n\nWe'd build around one request type across a small property group. We'd measure handling time and unresolved follow-ups, refine it with property managers and train staff before expanding.\n\nIs vendor follow-up still a recurring time drain for your property managers?",
+    "message": "I'd like to help LR's property managers keep a maintenance request moving, with its history, owner and next vendor follow-up together.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe recently helped one client deploy 20 applications. We'd build a review of open commitments around one LR request type, with the property manager checking it. We'd check handling time and whether follow-ups reach completion before expanding.\n\nWould your managers welcome help keeping vendor follow-ups moving?",
     "writerKit": {
       "accountId": "rev-lrmanagement",
       "frame": "gap_selling",
@@ -674,7 +674,7 @@
         "emailStatus": "not_found",
         "emailNote": "Generic inbox and older employee contacts found; no substantiated executive address",
         "subject": "when a builder order changes",
-        "message": "Gutherie's delivery, wall-panel and I-joist operations give a changed builder order several places to travel. I'd like to help your team see the effect on cutting and delivery before they confirm the change.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first pass that pulls the changed order and relevant schedules together for review. We'd measure checking time and unresolved handoffs, then refine it with the dispatch and production teams.\n\nIs checking those knock-on changes still largely manual?",
+        "message": "Gutherie's wall-panel, I-joist and delivery work gives a changed builder order several consequences. I'd like to help your team see the effect on cutting and delivery before confirming it.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a review combining the changed order and relevant schedules, with the decisions left to dispatch and production. Your team would help us check accuracy and preparation time. The aim is a useful tool in their daily work.\n\nWould an example of that order-change review be worth sending?",
         "contact_rank": 1,
         "contact_id": "rev-gutherielumber-c1"
       }
@@ -696,7 +696,7 @@
       "email": null
     },
     "subject": "when a builder order changes",
-    "message": "Gutherie's delivery, wall-panel and I-joist operations give a changed builder order several places to travel. I'd like to help your team see the effect on cutting and delivery before they confirm the change.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first pass that pulls the changed order and relevant schedules together for review. We'd measure checking time and unresolved handoffs, then refine it with the dispatch and production teams.\n\nIs checking those knock-on changes still largely manual?",
+    "message": "Gutherie's wall-panel, I-joist and delivery work gives a changed builder order several consequences. I'd like to help your team see the effect on cutting and delivery before confirming it.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a review combining the changed order and relevant schedules, with the decisions left to dispatch and production. Your team would help us check accuracy and preparation time. The aim is a useful tool in their daily work.\n\nWould an example of that order-change review be worth sending?",
     "writerKit": {
       "accountId": "rev-gutherielumber",
       "frame": "gap_selling",
@@ -755,7 +755,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Named business contact in December 2, 2020 newspaper; older address",
         "subject": "the numbers worth your attention",
-        "message": "With different restaurant concepts in the Vicari group, I'd focus AI on the exceptions worth your attention in yesterday's numbers. The goal would be a decision to make, with the supporting detail already gathered.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version around one operating-cost review, connecting the relevant reports and flagging differences for your team. We'd measure review time and follow-up completion, then train the managers using it.\n\nIs gathering that detail still a substantial part of your cost reviews?",
+        "message": "I'd like to help Vicari's managers prepare for a daily operating review with the cost exception and supporting detail already together. We'd keep the context of each restaurant concept beside the numbers.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build around one cost category, connecting the review to the next decision and its owner. The managers would check the findings. We'd measure preparation time and follow-up completion before extending the tool across more concepts.\n\nIs a quicker, more actionable cost review a priority for your managers?",
         "contact_rank": 1,
         "contact_id": "rev-vicarirestaurants-c1"
       }
@@ -777,7 +777,7 @@
       "email": "rovicari@vicarirestaurants.com"
     },
     "subject": "the numbers worth your attention",
-    "message": "With different restaurant concepts in the Vicari group, I'd focus AI on the exceptions worth your attention in yesterday's numbers. The goal would be a decision to make, with the supporting detail already gathered.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version around one operating-cost review, connecting the relevant reports and flagging differences for your team. We'd measure review time and follow-up completion, then train the managers using it.\n\nIs gathering that detail still a substantial part of your cost reviews?",
+    "message": "I'd like to help Vicari's managers prepare for a daily operating review with the cost exception and supporting detail already together. We'd keep the context of each restaurant concept beside the numbers.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build around one cost category, connecting the review to the next decision and its owner. The managers would check the findings. We'd measure preparation time and follow-up completion before extending the tool across more concepts.\n\nIs a quicker, more actionable cost review a priority for your managers?",
     "writerKit": {
       "accountId": "rev-vicarirestaurants",
       "frame": "gap_selling",
@@ -835,7 +835,7 @@
         "emailPublishedDate": null,
         "emailStatus": "published_unverified",
         "subject": "AI around scientific judgment",
-        "message": "Your ASP reflection made a useful distinction: faster discovery still needs scientific validation. I'd like to bring that same discipline to the work around the lab.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment. We recently helped one client deploy 20 applications.\n\nWe'd build a first version that helps staff find approved product evidence and prepare a sourced answer for a scientist to check. We'd measure evidence-finding time and corrections, then train the team through launch.\n\nWould faster access to approved product evidence be useful to your team?",
+        "message": "Your reflection on AI and scientific validation points to a useful first project at Cayman: help staff find product evidence faster while scientists retain the judgment.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build a search and answer tool around approved product material, linking each answer to its source and flagging gaps. Your scientists would validate the results. We'd measure evidence-finding time and corrections before broadening its use.\n\nWould you be interested in help getting that evidence tool into your scientists' hands?",
         "contact_rank": 1,
         "contact_id": "rev-caymanchem-c1"
       },
@@ -848,7 +848,7 @@
         "emailPublishedDate": "2019-04-09",
         "emailStatus": "published_unverified",
         "subject": "before the project review",
-        "message": "Your work spans Cayman's research partnerships, licensing and IP. An AI assistant could help pull the evidence for a project review together without handing scientific judgment to a model.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a review workspace that finds approved project evidence, links every answer to its source and leaves scientific validation with your people. We'd start with one review, measure preparation time, then refine it with the users.\n\nDoes assembling that evidence still take much of the review preparation?",
+        "message": "I'd like to help with the preparation behind a Cayman project review: gathering approved evidence so your people can spend their time evaluating it.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a review workspace that links summaries to their sources and flags missing material. Scientific validation stays with your people. We'd start with one review process and measure preparation time and corrections, refining the tool with the team using it.\n\nWould an example of that sourced review packet be useful?",
         "contact_rank": 2,
         "contact_id": "rev-caymanchem-c2"
       }
@@ -870,7 +870,7 @@
       "email": "kmaxey@caymanchem.com"
     },
     "subject": "AI around scientific judgment",
-    "message": "Your ASP reflection made a useful distinction: faster discovery still needs scientific validation. I'd like to bring that same discipline to the work around the lab.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment. We recently helped one client deploy 20 applications.\n\nWe'd build a first version that helps staff find approved product evidence and prepare a sourced answer for a scientist to check. We'd measure evidence-finding time and corrections, then train the team through launch.\n\nWould faster access to approved product evidence be useful to your team?",
+    "message": "Your reflection on AI and scientific validation points to a useful first project at Cayman: help staff find product evidence faster while scientists retain the judgment.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build a search and answer tool around approved product material, linking each answer to its source and flagging gaps. Your scientists would validate the results. We'd measure evidence-finding time and corrections before broadening its use.\n\nWould you be interested in help getting that evidence tool into your scientists' hands?",
     "writerKit": {
       "accountId": "rev-caymanchem",
       "frame": "gap_selling",
@@ -930,7 +930,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Historical 2016 business contact; also indexed in 2025 filing; needs mailbox verification",
         "subject": "after a missing-item report",
-        "message": "Domestic's recurring service creates a clear AI use case: connect a customer's missing-item report with the delivery record and the next action. I'd like to help your team close that loop with less chasing.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version for one discrepancy type, gathering the evidence and preparing a response for staff approval. We'd measure handling time and repeat contacts, then train the route-support team.\n\nIs finding that evidence still a hands-on part of resolving those calls?",
+        "message": "I'd like to help Domestic's service team resolve a delivery discrepancy with the customer report, route record and next action in one place.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build around one discrepancy type, gathering the matching order and delivery evidence and preparing a response for staff approval. Your team would help define the useful checks. We'd measure handling time and repeat contacts before extending it to other cases.\n\nWould you like to see how we'd build that discrepancy review?",
         "contact_rank": 1,
         "contact_id": "rev-domesticuniform-c1"
       }
@@ -952,7 +952,7 @@
       "email": "mcolton@domesticuniform.com"
     },
     "subject": "after a missing-item report",
-    "message": "Domestic's recurring service creates a clear AI use case: connect a customer's missing-item report with the delivery record and the next action. I'd like to help your team close that loop with less chasing.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version for one discrepancy type, gathering the evidence and preparing a response for staff approval. We'd measure handling time and repeat contacts, then train the route-support team.\n\nIs finding that evidence still a hands-on part of resolving those calls?",
+    "message": "I'd like to help Domestic's service team resolve a delivery discrepancy with the customer report, route record and next action in one place.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build around one discrepancy type, gathering the matching order and delivery evidence and preparing a response for staff approval. Your team would help define the useful checks. We'd measure handling time and repeat contacts before extending it to other cases.\n\nWould you like to see how we'd build that discrepancy review?",
     "writerKit": {
       "accountId": "rev-domesticuniform",
       "frame": "gap_selling",
@@ -1011,7 +1011,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Named business contact in signed state contract; current EVP role confirmed in August 2026 company announcement",
         "subject": "the work before the audit",
-        "message": "Sprague already has a customer portal and online logbook. I'd like to help with the work around an audit: turning service evidence and corrective actions into a packet your team can check without rebuilding the story.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build around one customer audit, pulling from approved records and linking each conclusion to its source. We'd measure preparation time and missing evidence, then refine and train with your team.\n\nDoes assembling the audit evidence still take much manual preparation?",
+        "message": "Sprague already has a customer portal and online logbook. I'd like to help turn the service evidence and corrective actions around an audit into a packet your specialists can check.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build the packet from approved records and link each conclusion to its source. Your specialists would review the packet. We'd measure preparation time and missing evidence, then refine the tool with them before using it more widely.\n\nWould a sample audit-packet review be useful to your team?",
         "contact_rank": 1,
         "contact_id": "rev-spraguepest-c1"
       }
@@ -1033,7 +1033,7 @@
       "email": "atreleven@spraguepest.com"
     },
     "subject": "the work before the audit",
-    "message": "Sprague already has a customer portal and online logbook. I'd like to help with the work around an audit: turning service evidence and corrective actions into a packet your team can check without rebuilding the story.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build around one customer audit, pulling from approved records and linking each conclusion to its source. We'd measure preparation time and missing evidence, then refine and train with your team.\n\nDoes assembling the audit evidence still take much manual preparation?",
+    "message": "Sprague already has a customer portal and online logbook. I'd like to help turn the service evidence and corrective actions around an audit into a packet your specialists can check.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build the packet from approved records and link each conclusion to its source. Your specialists would review the packet. We'd measure preparation time and missing evidence, then refine the tool with them before using it more widely.\n\nWould a sample audit-packet review be useful to your team?",
     "writerKit": {
       "accountId": "rev-spraguepest",
       "frame": "gap_selling",
@@ -1091,7 +1091,7 @@
         "emailPublishedDate": null,
         "emailStatus": "not_found",
         "subject": "the first days at Alta",
-        "message": "Aaron Curtis's comments about cancellations starting in the first few days caught my attention. That gives an AI project a concrete job: help a branch act while the customer still wants things to work.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build on Alta's existing FieldRoutes setup, flagging onboarding friction from service notes for a manager to review. We'd measure how quickly those cases get resolved, then check whether fewer customers cancel.\n\nIs first-week follow-up still a priority for your branches?",
+        "message": "Aaron Curtis's findings on friction in the first days of onboarding suggest a focused AI project at Alta: put unresolved concerns in front of a branch while it can act.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build an onboarding review from service notes and open commitments, around your FieldRoutes process. Managers would decide the follow-up. We'd measure resolution time; any effect on cancellation would need to be tested.\n\nWould you welcome help turning those findings into a daily branch review?",
         "contact_rank": 1,
         "contact_id": "rev-altapestcontrol-c1"
       },
@@ -1104,7 +1104,7 @@
         "emailPublishedDate": null,
         "emailStatus": "not_found",
         "subject": "acting on your onboarding findings",
-        "message": "Your point about first-week friction being mistaken for price sensitivity is a good reason to put AI close to the service team. The useful moment is before a customer decides to cancel.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first pass that reads onboarding notes, groups recurring concerns and puts unresolved cases in front of the right branch manager. We'd work around FieldRoutes and compare resolution time with your current process.\n\nIs faster branch follow-up a priority for you?",
+        "message": "Your findings about early onboarding friction being mistaken for price sensitivity give AI a specific job at Alta: keep the unresolved concern visible before a customer cancels.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a review around FieldRoutes that groups concerns and puts open cases in front of the responsible branch manager. Your team would define what needs attention. We'd compare resolution time with today's process and refine the review with the branch.\n\nWould a sketch of that daily concern review be useful alongside your current work?",
         "contact_rank": 2,
         "contact_id": "rev-altapestcontrol-c2"
       }
@@ -1126,7 +1126,7 @@
       "email": null
     },
     "subject": "the first days at Alta",
-    "message": "Aaron Curtis's comments about cancellations starting in the first few days caught my attention. That gives an AI project a concrete job: help a branch act while the customer still wants things to work.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build on Alta's existing FieldRoutes setup, flagging onboarding friction from service notes for a manager to review. We'd measure how quickly those cases get resolved, then check whether fewer customers cancel.\n\nIs first-week follow-up still a priority for your branches?",
+    "message": "Aaron Curtis's findings on friction in the first days of onboarding suggest a focused AI project at Alta: put unresolved concerns in front of a branch while it can act.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build an onboarding review from service notes and open commitments, around your FieldRoutes process. Managers would decide the follow-up. We'd measure resolution time; any effect on cancellation would need to be tested.\n\nWould you welcome help turning those findings into a daily branch review?",
     "writerKit": {
       "accountId": "rev-altapestcontrol",
       "frame": "gap_selling",
@@ -1185,7 +1185,7 @@
         "emailPublishedDate": null,
         "emailStatus": "not_found",
         "subject": "when a supplier date changes",
-        "message": "With Chrysan's teams across the US, Mexico and Asia, I'd explore one practical use for AI: turning a supplier's changed delivery date into a clear view of the orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that reads supplier updates, connects them to purchasing records and flags what needs a decision. Your people approve the changes. We'd measure time spent chasing updates and stay through training and deployment.\n\nIs tracing those affected orders still a manual job for purchasing?",
+        "message": "For your finance and operating responsibilities at Chrysan, I'd like to connect a supplier's changed delivery date to the affected order and customer commitment.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a purchasing review from supplier updates and approved order records, with the supporting evidence beside each exception. Your people approve changes. We'd measure review time and missed links, giving you a way to judge the tool before expanding it.\n\nIs faster review of supplier changes a priority for your purchasing team?",
         "contact_rank": 1,
         "contact_id": "rev-chrysanindustries-c1"
       },
@@ -1198,7 +1198,7 @@
         "emailPublishedDate": null,
         "emailStatus": "not_found",
         "subject": "supplier date, customer promise",
-        "message": "For Chrysan's global chemicals business, I'd put AI on the checking between a supplier update and a customer commitment.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment. We recently helped one client deploy 20 applications.\n\nWe'd build a first pass that connects supplier updates to affected orders for your team to review. We'd measure the checking time it removes, refine it with users and handle training.\n\nIs that coordination a recurring demand on your teams?",
+        "message": "I'd like to help Chrysan turn supplier updates into a clear view of affected orders, ready for the people responsible for customer commitments.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe recently helped one client deploy 20 applications. We'd build the review with Chrysan's purchasing team, starting with one supplier flow. We'd check accuracy and preparation time before extending it to more of the business.\n\nWould an outline of that first application help you assess the opportunity?",
         "contact_rank": 2,
         "contact_id": "rev-chrysanindustries-c2"
       }
@@ -1220,7 +1220,7 @@
       "email": null
     },
     "subject": "when a supplier date changes",
-    "message": "With Chrysan's teams across the US, Mexico and Asia, I'd explore one practical use for AI: turning a supplier's changed delivery date into a clear view of the orders it affects.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that reads supplier updates, connects them to purchasing records and flags what needs a decision. Your people approve the changes. We'd measure time spent chasing updates and stay through training and deployment.\n\nIs tracing those affected orders still a manual job for purchasing?",
+    "message": "For your finance and operating responsibilities at Chrysan, I'd like to connect a supplier's changed delivery date to the affected order and customer commitment.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a purchasing review from supplier updates and approved order records, with the supporting evidence beside each exception. Your people approve changes. We'd measure review time and missed links, giving you a way to judge the tool before expanding it.\n\nIs faster review of supplier changes a priority for your purchasing team?",
     "writerKit": {
       "accountId": "rev-chrysanindustries",
       "frame": "gap_selling",
@@ -1280,7 +1280,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Third-party business directory; address not independently confirmed",
         "subject": "before the repeat visit",
-        "message": "For Rottler, I'd give AI a practical assignment: help a branch recognize a repeat service issue and bring the history together before the next visit. The technician still makes the treatment decision.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that groups related service notes and prepares the follow-up for a manager. We'd measure review time and unresolved cases, then refine it with the branch and train the team.\n\nIs gathering that history still manual preparation for your branches?",
+        "message": "I'd like to help a Rottler branch prepare for a repeat service issue with the history and next action ready before the visit.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build a brief from related notes, previous actions and unresolved concerns for the branch to review. Your technicians keep treatment decisions. We'd measure preparation time and the accuracy of the history, then refine the tool with one branch before widening its use.\n\nWould you like to see an example of that pre-visit brief?",
         "contact_rank": 1,
         "contact_id": "rev-rottler-c1"
       }
@@ -1302,7 +1302,7 @@
       "email": "mrottler@rottler.com"
     },
     "subject": "before the repeat visit",
-    "message": "For Rottler, I'd give AI a practical assignment: help a branch recognize a repeat service issue and bring the history together before the next visit. The technician still makes the treatment decision.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that groups related service notes and prepares the follow-up for a manager. We'd measure review time and unresolved cases, then refine it with the branch and train the team.\n\nIs gathering that history still manual preparation for your branches?",
+    "message": "I'd like to help a Rottler branch prepare for a repeat service issue with the history and next action ready before the visit.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build a brief from related notes, previous actions and unresolved concerns for the branch to review. Your technicians keep treatment decisions. We'd measure preparation time and the accuracy of the history, then refine the tool with one branch before widening its use.\n\nWould you like to see an example of that pre-visit brief?",
     "writerKit": {
       "accountId": "rev-rottler",
       "frame": "gap_selling",
@@ -1361,7 +1361,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Third-party directory uses old VP title; role now President per 2026 company release; address needs confirmation",
         "subject": "when the tooling revision lands",
-        "message": "Eclipse handles both tooling and production. I'd like to help with the handoff when a tooling revision changes what the next team needs to do, without asking people to search through an email chain.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that connects a revision to affected jobs and flags decisions for the responsible engineer. We'd measure checking time. Your team retains technical approval, and we handle training through launch.\n\nIs checking which jobs a revision affects still a manual task?",
+        "message": "Eclipse handles both tooling and production. I'd like to help the receiving team see which jobs a tooling revision affects and which decisions need engineering review.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a revision check that connects the change to relevant job records for your engineer to review. Technical approval stays with your team. We'd measure checking time and missed links before considering a wider rollout.\n\nWould an example of that revision-to-job check be useful?",
         "contact_rank": 1,
         "contact_id": "rev-eclipsemold-c1"
       }
@@ -1383,7 +1383,7 @@
       "email": "steve@eclipsemold.com"
     },
     "subject": "when the tooling revision lands",
-    "message": "Eclipse handles both tooling and production. I'd like to help with the handoff when a tooling revision changes what the next team needs to do, without asking people to search through an email chain.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that connects a revision to affected jobs and flags decisions for the responsible engineer. We'd measure checking time. Your team retains technical approval, and we handle training through launch.\n\nIs checking which jobs a revision affects still a manual task?",
+    "message": "Eclipse handles both tooling and production. I'd like to help the receiving team see which jobs a tooling revision affects and which decisions need engineering review.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a revision check that connects the change to relevant job records for your engineer to review. Technical approval stays with your team. We'd measure checking time and missed links before considering a wider rollout.\n\nWould an example of that revision-to-job check be useful?",
     "writerKit": {
       "accountId": "rev-eclipsemold",
       "frame": "gap_selling",
@@ -1442,7 +1442,7 @@
         "emailStatus": "not_found",
         "emailNote": "Only shared orders mailbox found; not assigned to Keith",
         "subject": "from delivery ticket to invoice",
-        "message": "For Gen Oil, I'd start with something concrete: a fuel delivery ticket that is ready to invoice. AI could help check it against the order and flag differences before the office has to chase them.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first pass for one delivery workflow, matching tickets and orders for staff approval. We'd measure checking time and corrections, refine it with your office team and handle training through deployment.\n\nDoes that checking still take much office time?",
+        "message": "I'd like to help Gen Oil's office get a delivery ticket ready to invoice, with differences from the order flagged before billing review.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a first pass that matches tickets and orders, then shows staff the exceptions with the supporting records. Your office team would approve the results and help refine the checks. We'd measure review time and corrections on one delivery workflow.\n\nWould it help to have our engineers take on that pre-billing check?",
         "contact_rank": 1,
         "contact_id": "rev-genoilcorp-c1"
       }
@@ -1464,7 +1464,7 @@
       "email": null
     },
     "subject": "from delivery ticket to invoice",
-    "message": "For Gen Oil, I'd start with something concrete: a fuel delivery ticket that is ready to invoice. AI could help check it against the order and flag differences before the office has to chase them.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first pass for one delivery workflow, matching tickets and orders for staff approval. We'd measure checking time and corrections, refine it with your office team and handle training through deployment.\n\nDoes that checking still take much office time?",
+    "message": "I'd like to help Gen Oil's office get a delivery ticket ready to invoice, with differences from the order flagged before billing review.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a first pass that matches tickets and orders, then shows staff the exceptions with the supporting records. Your office team would approve the results and help refine the checks. We'd measure review time and corrections on one delivery workflow.\n\nWould it help to have our engineers take on that pre-billing check?",
     "writerKit": {
       "accountId": "rev-genoilcorp",
       "frame": "gap_selling",
@@ -1523,7 +1523,7 @@
         "emailStatus": "not_found",
         "emailNote": "No substantiated direct executive email found; shared and masked addresses excluded",
         "subject": "carrying the customer request through",
-        "message": "Go-Forth's range of home services makes the first customer handoff worth getting right. I'd like to help staff identify the right service team and carry the request's context with it, without another retelling.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment. We recently helped one client deploy 20 applications.\n\nWe'd build a first version for one type of request, preparing the routing and supporting notes for staff approval. We'd measure handling time and rerouted requests, then train the people answering and dispatching.\n\nIs carrying those details into the service handoff still manual work?",
+        "message": "Go-Forth's range of home services gives us a specific AI project to explore: get a customer request to the right service team with its context intact.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe recently helped one client deploy 20 applications. We'd build a handoff brief from the request, supporting notes and open questions for Go-Forth staff to review before routing. We'd check handling time and rerouted requests with the team using it.\n\nWould help getting customer requests ready for the service team be valuable at Go-Forth?",
         "contact_rank": 1,
         "contact_id": "rev-go-forth-c1"
       }
@@ -1545,7 +1545,7 @@
       "email": null
     },
     "subject": "carrying the customer request through",
-    "message": "Go-Forth's range of home services makes the first customer handoff worth getting right. I'd like to help staff identify the right service team and carry the request's context with it, without another retelling.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment. We recently helped one client deploy 20 applications.\n\nWe'd build a first version for one type of request, preparing the routing and supporting notes for staff approval. We'd measure handling time and rerouted requests, then train the people answering and dispatching.\n\nIs carrying those details into the service handoff still manual work?",
+    "message": "Go-Forth's range of home services gives us a specific AI project to explore: get a customer request to the right service team with its context intact.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe recently helped one client deploy 20 applications. We'd build a handoff brief from the request, supporting notes and open questions for Go-Forth staff to review before routing. We'd check handling time and rerouted requests with the team using it.\n\nWould help getting customer requests ready for the service team be valuable at Go-Forth?",
     "writerKit": {
       "accountId": "rev-go-forth",
       "frame": "gap_selling",
@@ -1604,7 +1604,7 @@
         "emailStatus": "not_found",
         "emailNote": "Only generic company inbox found",
         "subject": "before the estimator starts",
-        "message": "For Michigan Box, I'd put AI close to estimating. A customer sends dimensions, materials and delivery requirements; the useful result is a request your estimator can price, with missing information clearly marked.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build that first pass around one packaging category, checking incoming specifications against your rules. Your estimator keeps approval. We'd measure preparation time and how often requests need another round of clarification.\n\nIs chasing missing specifications still a recurring part of estimating?",
+        "message": "I'd like to help Michigan Box's estimators receive packaging specifications ready to check, with missing details flagged before pricing.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build around one packaging category, checking incoming dimensions, materials and delivery requirements against your approved rules. The estimator keeps approval. We'd measure preparation time and clarification rounds, then refine the tool with the people quoting the work.\n\nWould a sample request-to-estimating walkthrough be worth sending?",
         "contact_rank": 1,
         "contact_id": "rev-michiganbox-c1"
       }
@@ -1626,7 +1626,7 @@
       "email": null
     },
     "subject": "before the estimator starts",
-    "message": "For Michigan Box, I'd put AI close to estimating. A customer sends dimensions, materials and delivery requirements; the useful result is a request your estimator can price, with missing information clearly marked.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build that first pass around one packaging category, checking incoming specifications against your rules. Your estimator keeps approval. We'd measure preparation time and how often requests need another round of clarification.\n\nIs chasing missing specifications still a recurring part of estimating?",
+    "message": "I'd like to help Michigan Box's estimators receive packaging specifications ready to check, with missing details flagged before pricing.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build around one packaging category, checking incoming dimensions, materials and delivery requirements against your approved rules. The estimator keeps approval. We'd measure preparation time and clarification rounds, then refine the tool with the people quoting the work.\n\nWould a sample request-to-estimating walkthrough be worth sending?",
     "writerKit": {
       "accountId": "rev-michiganbox",
       "frame": "gap_selling",
@@ -1685,7 +1685,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Self-published in professional LinkedIn post; exact publication date unknown",
         "subject": "finding the right coil match",
-        "message": "Almetals' mix of alloys, gauges and widths makes an incoming coil request an interesting AI starting point. I'd focus on preparing the right stock match and supporting documents for your team's review.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build around one product family, using your approved specifications and inventory records. We'd measure quote preparation time and mismatches caught before release. We stay through user feedback, training and deployment.\n\nIs that matching work still mostly manual?",
+        "message": "I'd like to help Almetals' team get from an alloy and gauge request to a stock match with the right supporting documents ready for review.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build around one product family, using your approved specifications and inventory records. The team would approve each match. We'd measure preparation time and mismatches caught, with links to the source records so reviewers can check the work.\n\nWould you like an example of that stock-match review?",
         "contact_rank": 1,
         "contact_id": "rev-almetals-c1"
       }
@@ -1707,7 +1707,7 @@
       "email": "jmchain@almetals.com"
     },
     "subject": "finding the right coil match",
-    "message": "Almetals' mix of alloys, gauges and widths makes an incoming coil request an interesting AI starting point. I'd focus on preparing the right stock match and supporting documents for your team's review.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build around one product family, using your approved specifications and inventory records. We'd measure quote preparation time and mismatches caught before release. We stay through user feedback, training and deployment.\n\nIs that matching work still mostly manual?",
+    "message": "I'd like to help Almetals' team get from an alloy and gauge request to a stock match with the right supporting documents ready for review.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build around one product family, using your approved specifications and inventory records. The team would approve each match. We'd measure preparation time and mismatches caught, with links to the source records so reviewers can check the work.\n\nWould you like an example of that stock-match review?",
     "writerKit": {
       "accountId": "rev-almetals",
       "frame": "gap_selling",
@@ -1766,7 +1766,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "Self-published company newsletter from August 2015; older address",
         "subject": "before the next stock decision",
-        "message": "English Gardens combines seasonal retail with work in customers' gardens. I'd start an AI project with a daily decision: what to replenish, what to transfer and what needs a buyer's attention.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that brings demand and available stock together for one category. Buyers approve every action. We'd measure preparation time and how quickly flagged items get resolved, then train the team.\n\nIs preparing that stock review still a manual job for your buyers?",
+        "message": "I'd like to help English Gardens' buyers prepare a stock decision with seasonal demand and what another location already has in the same review.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a review for one category, bringing demand, available stock and the reason an item needs attention together. Buyers approve the actions. We'd measure preparation time and check the recommendations with them before extending the tool to other categories.\n\nWould a sample buyer review help you assess whether this is useful?",
         "contact_rank": 1,
         "contact_id": "rev-englishgardens-c1"
       }
@@ -1788,7 +1788,7 @@
       "email": "jdarin@englishgardens.com"
     },
     "subject": "before the next stock decision",
-    "message": "English Gardens combines seasonal retail with work in customers' gardens. I'd start an AI project with a daily decision: what to replenish, what to transfer and what needs a buyer's attention.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that brings demand and available stock together for one category. Buyers approve every action. We'd measure preparation time and how quickly flagged items get resolved, then train the team.\n\nIs preparing that stock review still a manual job for your buyers?",
+    "message": "I'd like to help English Gardens' buyers prepare a stock decision with seasonal demand and what another location already has in the same review.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a review for one category, bringing demand, available stock and the reason an item needs attention together. Buyers approve the actions. We'd measure preparation time and check the recommendations with them before extending the tool to other categories.\n\nWould a sample buyer review help you assess whether this is useful?",
     "writerKit": {
       "accountId": "rev-englishgardens",
       "frame": "gap_selling",
@@ -1847,7 +1847,7 @@
         "emailStatus": "published_unverified",
         "emailNote": "2020 professional licensing list; also listed in government contractor directory; older address",
         "subject": "keeping the service history useful",
-        "message": "Braman's Fusion acquisition makes customer history a relevant AI starting point. I'd like to help your team bring service notes and open commitments together when customers move between teams, with a person checking the handoff.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build around one group of customer records, preparing a sourced summary and flagging gaps. We'd measure review time and incomplete handoffs, then train the team before widening the rollout.\n\nIs preserving that service context still relevant to your integration work?",
+        "message": "Braman's Fusion acquisition made me think about the customer history and open commitments that need to travel through a service handoff.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build a sourced summary from approved records and flag missing context for the receiving team to check. We'd measure review time and completeness with that team. Whether the Fusion handoff is settled or ongoing, the approach could support a future transition.\n\nWould an example of that customer-history brief be worth sending?",
         "contact_rank": 1,
         "contact_id": "rev-bramanpest-c1"
       }
@@ -1869,7 +1869,7 @@
       "email": "glazarus@bramanpest.com"
     },
     "subject": "keeping the service history useful",
-    "message": "Braman's Fusion acquisition makes customer history a relevant AI starting point. I'd like to help your team bring service notes and open commitments together when customers move between teams, with a person checking the handoff.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build around one group of customer records, preparing a sourced summary and flagging gaps. We'd measure review time and incomplete handoffs, then train the team before widening the rollout.\n\nIs preserving that service context still relevant to your integration work?",
+    "message": "Braman's Fusion acquisition made me think about the customer history and open commitments that need to travel through a service handoff.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build a sourced summary from approved records and flag missing context for the receiving team to check. We'd measure review time and completeness with that team. Whether the Fusion handoff is settled or ongoing, the approach could support a future transition.\n\nWould an example of that customer-history brief be worth sending?",
     "writerKit": {
       "accountId": "rev-bramanpest",
       "frame": "gap_selling",
@@ -1928,7 +1928,7 @@
         "emailStatus": "not_found",
         "emailNote": "Business permit contact found for another employee; no substantiated executive address",
         "subject": "after the inspection finding",
-        "message": "Versacor's commercial work gives AI a concrete place to help: following an inspection finding through to the evidence that it was resolved. I'd focus on the office coordination while your specialists retain the judgment.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that connects findings, responsible people and follow-up records for review. We'd measure preparation time and overdue actions, then refine it with your team and train them through deployment.\n\nIs assembling that evidence still a hands-on part of closing a finding?",
+        "message": "I'd like to help Versacor's team connect an inspection finding to its responsible owner and the evidence that the action is complete.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build a review of the finding, follow-up records and missing evidence for your specialists. They retain the judgment. We'd measure preparation time and incomplete cases, then refine the tool with the staff doing that coordination before widening its use.\n\nWould your team welcome help preparing that evidence for review?",
         "contact_rank": 1,
         "contact_id": "rev-versacor-c1"
       }
@@ -1950,7 +1950,7 @@
       "email": null
     },
     "subject": "after the inspection finding",
-    "message": "Versacor's commercial work gives AI a concrete place to help: following an inspection finding through to the evidence that it was resolved. I'd focus on the office coordination while your specialists retain the judgment.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that connects findings, responsible people and follow-up records for review. We'd measure preparation time and overdue actions, then refine it with your team and train them through deployment.\n\nIs assembling that evidence still a hands-on part of closing a finding?",
+    "message": "I'd like to help Versacor's team connect an inspection finding to its responsible owner and the evidence that the action is complete.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build a review of the finding, follow-up records and missing evidence for your specialists. They retain the judgment. We'd measure preparation time and incomplete cases, then refine the tool with the staff doing that coordination before widening its use.\n\nWould your team welcome help preparing that evidence for review?",
     "writerKit": {
       "accountId": "rev-versacor",
       "frame": "gap_selling",
@@ -2009,7 +2009,7 @@
         "emailStatus": "not_found",
         "emailNote": "Only generic and sales inboxes found; no substantiated executive email",
         "subject": "from first call to service",
-        "message": "Kelly's move into the CRO role made me think about the handoff after Native's first customer call. I'd focus on keeping the promise made on that call visible to the service team and through the follow-up.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that prepares a checked handoff from approved call notes and flags open commitments. We'd measure review time and missed follow-ups, then train the team as we deploy.\n\nIs carrying those promises into service still a focus for your team?",
+        "message": "Kelly's move into Native's CRO role made me think about the customer promise from the first call through service and follow-up.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a first-visit brief from approved call notes, showing what was promised and what remains open. Staff would check it before the handoff. We'd measure preparation time and missing details, then refine the brief with the revenue and service teams.\n\nWould an example of that first-call-to-service brief be useful?",
         "contact_rank": 1,
         "contact_id": "rev-nativepestmanagement-c1"
       }
@@ -2031,7 +2031,7 @@
       "email": null
     },
     "subject": "from first call to service",
-    "message": "Kelly's move into the CRO role made me think about the handoff after Native's first customer call. I'd focus on keeping the promise made on that call visible to the service team and through the follow-up.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, from the first version through training and deployment.\n\nWe'd build a first version that prepares a checked handoff from approved call notes and flags open commitments. We'd measure review time and missed follow-ups, then train the team as we deploy.\n\nIs carrying those promises into service still a focus for your team?",
+    "message": "Kelly's move into Native's CRO role made me think about the customer promise from the first call through service and follow-up.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a first-visit brief from approved call notes, showing what was promised and what remains open. Staff would check it before the handoff. We'd measure preparation time and missing details, then refine the brief with the revenue and service teams.\n\nWould an example of that first-call-to-service brief be useful?",
     "writerKit": {
       "accountId": "rev-nativepestmanagement",
       "frame": "gap_selling",
