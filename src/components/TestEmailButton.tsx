@@ -26,15 +26,11 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not check status.'); }
     finally { setBusy(false); }
   }
-  return <section className="email-test-panel" aria-label="Test email">
-    <strong>Test this email</strong>
-    <p>Send the current draft to your own connected Gmail. No prospect or CC receives it. Tests are excluded from outreach analytics and follow-ups.</p>
-    <button type="button" disabled={busy || disabled || !subject.trim() || !body.trim()} onClick={sendTest}>{busy ? 'Working…' : 'Send test to myself'}</button>{' '}
-    <button type="button" disabled={busy || disabled} onClick={check}>Check test status</button>
-    {error && <p role="alert">{error}</p>}
-    {result && <div role="status"><p><strong>TEST · {result.label}</strong>{result.to ? ` · Sent to ${result.to}` : result.status === 'sent' ? ' · Sent' : ' · Delivery status not confirmed'}</p>
-      {result.warning && <p>{result.warning}</p>}
-      <small>First-email tests have no tracking pixel or Gift link. Check your inbox to confirm delivery and formatting.</small>
+  return <div className="composer-test">
+    <button className="btn composer-test-button" type="button" disabled={busy || disabled || !subject.trim() || !body.trim()} onClick={sendTest}>{busy ? 'Sending test…' : result ? 'Send another test' : 'Send test to myself'}</button>
+    {(error || result) && <div className="composer-test-result" role={error ? 'alert' : 'status'}>
+      <button className="composer-test-close" type="button" aria-label="Dismiss test result" onClick={() => { setError(''); setResult(null); }}>×</button>
+      {error ? <p>{error}</p> : <><strong>Test sent{result?.to ? ` to ${result.to}` : ''}</strong><p>Check your inbox for the version shown here. No prospect was emailed.</p>{result?.warning && <p>{result.warning}</p>}<button type="button" onClick={check} disabled={busy}>Refresh delivery record</button></>}
     </div>}
-  </section>;
+  </div>;
 }

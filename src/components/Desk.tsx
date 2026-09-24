@@ -1139,7 +1139,7 @@ export function Desk({
               </section>
 
               {/* RIGHT — draft with Email / LinkedIn tabs */}
-              <section className="deskwork-draft">
+              <section className="deskwork-draft composer-v2">
                 <div className="deskwork-draft-top"><span className="overview-kick">{sentAlready ? "Sent email" : "Outreach draft"}</span><span className="deskwork-draft-topright">{focusCard.invite_link ? <a className="deskwork-booked" href={focusCard.invite_link.startsWith("http") ? focusCard.invite_link : undefined} target="_blank" rel="noreferrer">📅 Meeting booked</a> : null}<a className="deskwork-brief-link" href={`/brief/${focusCard.id}`} target="_blank" rel="noreferrer">Call brief ↗</a></span></div>
                 {!sentAlready && channelTab === "email" && !recommendation && <div className="notice" style={{ margin: "12px 16px" }}>
                   {research ? <>
@@ -1161,12 +1161,7 @@ export function Desk({
                 <div className="deskwork-tabs">
                   <button type="button" className={`deskwork-tab ${channelTab === "email" ? "is-active" : ""}`} onClick={() => { setChannelTab("email"); setTonePreview(null); }}>✉ Email</button>
                   <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => { setCards(current => current.map(item => item.id === focusCard.id ? withDefaultLinkedIn(item, senderName) : item)); setChannelTab("linkedin"); setTonePreview(null); }}><i className="li-mark">in</i> LinkedIn</button>
-                  <div className="deskwork-tools" hidden={previewingVersion}>
-                    {(channelTab === "linkedin" || !sentAlready) && <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>}
-                    {channelTab === "email" && !sentAlready && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : recommendation ? "Recommended version" : research ? "Researched draft" : "Company draft"}</button>}
-                    {channelTab === "email" && <button type="button" disabled={proposing} title={timesInDraft ? "Take the proposed times back out of this email" : "Only if you want them: insert open times from your connected calendar into this one email"} onClick={timesInDraft ? removeMeetingTimes : proposeMeetingTimes}>{proposing ? "Checking…" : timesInDraft ? "Remove times" : "Propose times"}</button>}
-                    <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy</button>
-                  </div>
+
                 </div>
 
                 {(channelTab === "linkedin" || !sentAlready) && !altContact && savedVariants(focusCard.accounts.domain, contact.full_name, channelTab).length > 0 && <section className="email-versions" aria-label={`Saved ${channelTab === "email" ? "email" : "LinkedIn"} versions`}>
@@ -1175,7 +1170,7 @@ export function Desk({
                     {recommendation?.candidates.map(candidate => {
                       const variant = availableVersions.find(v => v.id === candidate.id);
                       const active = previewingVersion ? tonePreview?.versionId === candidate.id : selectedVersion?.id === candidate.id;
-                      return <button type="button" key={candidate.id} className={active ? "is-active" : ""} disabled={busy || !variant} title={candidate.reason} aria-pressed={active} onClick={() => { if(variant) { if(selectedVersion?.id === variant.id) setTonePreview(null); else previewTone(variant); } }}>{candidate.label}{recommendation.recommended?.id === candidate.id ? " · Recommended" : ""}</button>;
+                      return <button type="button" key={candidate.id} className={active ? "is-active" : ""} disabled={busy || !variant} title={candidate.reason} aria-pressed={active} onClick={() => { if(variant) { if(selectedVersion?.id === variant.id) setTonePreview(null); else previewTone(variant); } }}><strong>{candidate.label}</strong><small>{candidate.id === "direct-offer" ? "Start a conversation" : candidate.id === "concrete-idea" ? "Offer a specific starting point" : "Show how we deliver"}</small>{recommendation.recommended?.id === candidate.id && <span className="composer-recommended">Recommended</span>}</button>;
                     })}
                   </div>
                   <details className="draft-details"><summary>{recommendation?.recommended ? `About ${recommendation.recommended.label}` : "Draft details"} · research &amp; checks</summary>
@@ -1186,10 +1181,25 @@ export function Desk({
                   </details>
                 </section>}
 
-                {senderConflict && <p role="alert">{senderConflict}</p>}
+                <div className="composer-toolbar">
+                  <div className="composer-mode" role="group" aria-label="Message view">
+                    <button type="button" aria-pressed={!previewingVersion && editing[channelTab]} disabled={sentAlready && channelTab === "email"} onClick={() => { if(previewingVersion) { void applyTone(); } setEditing(state => ({...state,[channelTab]:true})); }}>Edit{previewingVersion ? " this version" : ""}</button>
+                    <button type="button" aria-pressed={previewingVersion || !editing[channelTab]} onClick={() => setEditing(state => ({...state,[channelTab]:false}))}>Preview</button>
+                  </div>
+                  <span className="composer-sender">From <strong>{senderName}</strong></span>
+                  <details className="composer-menu"><summary>More ···</summary><div>
+                    <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy saved message</button>
+                    {channelTab === "email" && <button type="button" disabled={applyingSubject} onClick={applySubjectToAll}>Apply subject to all unsent drafts</button>}
+                    {channelTab === "email" && <button type="button" disabled={proposing} onClick={timesInDraft ? removeMeetingTimes : proposeMeetingTimes}>{timesInDraft ? "Remove meeting times" : "Add meeting times"}</button>}
+                    {!sentAlready && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>Restore recommended draft</button>}
+                    <button type="button" disabled={busy} onClick={() => markSent(channelTab)}>Mark as already sent</button>
+                    {channelTab === "email" && <button type="button" disabled={!senderIsViewer || enrolling} onClick={startSequence}>Start automated sequence</button>}
+                    <button type="button" disabled={busy} onClick={snoozeCurrent}>Snooze contact</button>
+                    <button type="button" disabled={busy} onClick={dismissCurrent}>Dismiss contact</button>
+                  </div></details>
+                </div>
+                {senderConflict && <p className="composer-alert" role="alert">{senderConflict}</p>}
                 <div className="deskwork-scroll">
-                {!senderIsViewer && <p className="muted" role="status">Viewing {senderName}’s drafts. You can test them in your own inbox. Prospect emails are sent from {senderName}’s account.</p>}
-                {channelTab === "email" && !altContact && !sentAlready && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={previewingVersion && tonePreview ? tonePreview.subject : focusCard.email_subject ?? ""} body={previewingVersion && tonePreview ? tonePreview.body : focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
                 {previewingVersion && tonePreview ? (
                   <article className="email-version-document" aria-label={`${tonePreview.label} ${channelTab} preview`}>
                     <div className="email-version-caption"><span>{tonePreview.label} · Preview</span><span>{outreachBody(tonePreview.body).split(/\s+/).filter(Boolean).length} words</span></div>
@@ -1210,6 +1220,7 @@ export function Desk({
                         </div>
                         <div className="focus-subject-row">
                           <input
+                            aria-label="Email subject"
                             className="focus-msg-subject"
                             value={emailStyle(focusCard.email_subject ?? "")}
                             placeholder={subjectFallback || "Subject line (optimized for a reply)"}
@@ -1220,11 +1231,9 @@ export function Desk({
                             // Leaving the field empty saves the subject back rather than saving a blank one.
                             onBlur={(event) => { if (event.target.value.trim()) saveField("email_subject", event.target.value); else restoreSubject(true); }}
                           />
-                          {subjectIsBlank && subjectFallback
-                            ? <button type="button" className="focus-apply-all" title={`Put the subject back: “${subjectFallback}”`} onClick={() => restoreSubject(false)}>Restore subject</button>
-                            : <button type="button" className="focus-apply-all" disabled={applyingSubject} title="Use this subject on every un-sent email. Message bodies are not touched." onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>}
+                          {subjectIsBlank && subjectFallback && <button type="button" className="focus-apply-all" onClick={() => restoreSubject(false)}>Restore subject</button>}
                         </div>
-                        <label className="compose-field"><span>Email · your saved greeting and message</span><textarea className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
+                        <label className="compose-field"><span>Message</span><textarea className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
                         <p className="compose-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</p>
                     {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" dangerouslySetInnerHTML={{__html:firstTouchFooterHtml(senderFooterHtml)}} />)}
                       </div>
@@ -1261,7 +1270,7 @@ export function Desk({
                   const seq = (focusCard.followups ?? []).filter((f) => (channelTab === "email" ? f.channel === "email" : f.channel !== "email"));
                   if (seq.length === 0) {
                     if (channelTab === "linkedin") return <div className="deskwork-fu-hint">Open LinkedIn to copy and send this message. Use <b>Mark sent</b> afterward to record its version in History and Analytics.</div>;
-                    return <div className="deskwork-fu-hint">Three follow-ups (spread over ~2 weeks, stopping the moment they reply) appear here once you send this {channelTab === "email" ? "email" : "message"} or mark it sent — or press <b>Automate</b> below to have Night Watch send them for you.</div>;
+                    return <details className="composer-followup-note"><summary>After sending</summary><p>Your follow-ups appear here after sending. To start an automated sequence, open More.</p></details>;
                   }
                   // A cadence belongs to ONE contact, not to the company. Showing it unlabelled under
                   // whichever colleague was selected read as "emailing one person enrolled everybody".
@@ -1302,24 +1311,13 @@ export function Desk({
 
 
 
-                {previewingVersion && tonePreview ? <div className="email-version-footer">
-                  <small>Your current draft is unchanged.</small>
-                  <div><button type="button" className="btn" disabled={busy} onClick={() => setTonePreview(null)}>Back to saved email</button><button type="button" className="btn primary" disabled={busy} onClick={applyTone}>{busy ? "Saving…" : `Use ${tonePreview.label}`}</button></div>
-                </div> : <div className="deskwork-draft-foot">
-                  <span className="deskwork-words">{(channelTab === "email" ? (focusCard.email_body ?? "") : linkedinDraft).trim().split(/\s+/).filter(Boolean).length} words</span>
-                  <div className="deskwork-draft-actions">
-                    {channelTab === "email"
-                      // NOT disabled on `busy`: clicking here blurs the message box, which fires a save and
-                      // sets busy, so the button disabled itself before the click landed and the first press
-                      // was swallowed ("I have to click send twice"). send() guards re-entry itself.
-                      ? <button type="button" disabled={!senderIsViewer || sending || !contact.email} className="btn primary" onClick={sendEmail}>{sending ? "Sending…" : "Send email"} →</button>
-                      : <button type="button" disabled={busy} className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
-                    <button type="button" disabled={busy} className="btn" title="Already sent (by you or the agent)? Log it to History without opening." onClick={() => markSent(channelTab)}>Mark sent</button>
-                    {channelTab === "email" && contact.email && <button type="button" disabled={!senderIsViewer || enrolling} className="btn" title="Hands-off: Night Watch sends this email and its follow-ups for you (day 0, 3, 7) and stops the moment they reply. Prefer to send it yourself? Use “Send email” — the same follow-ups still queue in the list above for you to copy." onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
-                    <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
-                    <button type="button" disabled={busy} className="btn ghost danger" onClick={dismissCurrent}>Dismiss</button>
+                <footer className="composer-actions">
+                  <div className="composer-action-context"><strong>{previewingVersion && tonePreview ? `${tonePreview.label} preview` : sentAlready ? "Sent message" : "Ready for a final check"}</strong><small>{!senderIsViewer ? `Prospect sends use ${senderName}’s account. You can test in your inbox.` : previewingVersion ? "Testing uses the version shown above." : "Tests go only to your own inbox."}</small></div>
+                  <div className="composer-action-buttons">
+                    {channelTab === "email" && !altContact && !sentAlready && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={previewingVersion && tonePreview ? tonePreview.subject : focusCard.email_subject ?? ""} body={previewingVersion && tonePreview ? tonePreview.body : focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
+                    {previewingVersion && tonePreview ? <><button type="button" className="btn" onClick={() => setTonePreview(null)}>Cancel</button><button type="button" className="btn primary" disabled={busy} onClick={applyTone}>{busy ? "Saving…" : "Use this version"}</button></> : channelTab === "email" ? !sentAlready && <button type="button" disabled={!senderIsViewer || sending || !contact.email} className="btn primary" title={!senderIsViewer ? `Sign in as ${senderName} to send to this contact` : `Send to ${contact.full_name}`} onClick={sendEmail}>{sending ? "Sending…" : "Send email"} →</button> : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn ↗</button>}
                   </div>
-                </div>}
+                </footer>
                 {notice && <p className="notice focus-notice">{notice}</p>}
               </section>
             </>) : (

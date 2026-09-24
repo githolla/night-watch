@@ -2296,3 +2296,66 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .reachout-list-switcher a[aria-current="page"]{background:var(--ink);color:var(--paper-bright);border-color:var(--ink)}
 .reachout-list-switcher a:hover{box-shadow:inset 0 0 0 1px var(--accent)}
 .reachout-list-switcher a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* Composer: one message canvas and one delivery bar. */
+.deskwork .composer-v2 { overflow:visible; border-radius:18px; box-shadow:0 8px 32px #211e1807; }
+.composer-v2 .deskwork-draft-top { padding:16px 24px 8px; }
+.composer-v2 .deskwork-draft-to { padding:12px 24px 18px; }
+.composer-v2 .deskwork-selected { display:none; }
+.composer-v2 .deskwork-tabs { padding:0 24px; gap:20px; }
+.deskwork .composer-v2 .email-versions { padding:18px 24px 12px; background:#faf9f6; }
+.composer-v2 .email-versions-heading { font-size:10px; letter-spacing:.1em; }
+.deskwork .composer-v2 .email-version-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.deskwork .composer-v2 .email-version-tabs button { position:relative; text-align:left; padding:12px 12px 27px; border:1px solid #e5e0d7; border-radius:10px; background:#fff; box-shadow:none; }
+.composer-v2 .email-version-tabs strong { display:block; font-size:12px; font-weight:600; }
+.composer-v2 .email-version-tabs small { display:block; font-size:10px; color:#81796e; margin-top:4px; line-height:1.4; }
+.deskwork .composer-v2 .email-version-tabs button.is-active { border-color:#9d742f; background:#fffcf5; box-shadow:inset 0 0 0 1px #9d742f; }
+.composer-recommended { position:absolute; bottom:8px; left:12px; font-size:9px; color:#8b6329; }
+.composer-v2 .draft-details { font-size:11px; margin-top:10px; }
+.composer-toolbar { display:flex; align-items:center; gap:12px; padding:12px 24px; border-block:1px solid #ece8e0; background:white; }
+.composer-mode { display:flex; padding:3px; gap:2px; background:#f2f0eb; border-radius:8px; }
+.composer-mode button { border:0; background:transparent; padding:6px 12px; border-radius:6px; color:#797267; cursor:pointer; font-size:12px; }
+.composer-mode button[aria-pressed=true] { background:white; color:#211e18; box-shadow:0 1px 4px #0001; }
+.composer-sender { margin-left:auto; font-size:11px; color:#83796b; }
+.composer-sender strong { color:#342e26; font-weight:500; }
+.composer-menu { position:relative; font-size:12px; }
+.composer-menu summary { cursor:pointer; list-style:none; padding:8px; }
+.composer-menu > div { position:absolute; right:0; top:36px; width:240px; z-index:30; padding:6px; background:white; border:1px solid #e5dfd4; border-radius:10px; box-shadow:0 12px 35px #211e1826; }
+.composer-menu button { display:block; width:100%; text-align:left; background:none; border:0; padding:10px; border-radius:5px; cursor:pointer; font-size:12px; }
+.composer-menu button:hover { background:#f5f2eb; }
+.composer-v2 .deskwork-compose, .composer-v2 .deskwork-doc, .deskwork .composer-v2 .email-version-document { padding:22px 26px 28px; }
+.composer-v2 .reachout-address-status { padding:8px 0 14px; font-size:10px; }
+.composer-v2 .compose-to { font-size:12px; }
+.composer-v2 .focus-subject-row { border-bottom:1px solid #ece8e0; margin-bottom:18px; }
+.composer-v2 .focus-msg-subject { border:0; border-radius:0; background:transparent; padding:12px 0; font-size:16px; font-weight:600; }
+.composer-v2 .compose-field > span { font-size:10px; color:#8d8579; }
+.composer-v2 .focus-msg-body { border:1px solid transparent; background:white; padding:12px 0; font-size:14px; line-height:1.75; min-height:320px; resize:vertical; }
+.composer-v2 .focus-msg-body:focus { border-color:#d4bd96; padding-inline:10px; outline:none; }
+.composer-v2 .email-version-body { font-size:14px; line-height:1.75; }
+.composer-v2 .email-version-caption { font-size:10px; }
+.composer-actions { position:sticky; bottom:0; z-index:15; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 22px; background:#faf9f6f5; backdrop-filter:blur(12px); border-top:1px solid #e5dfd4; border-radius:0 0 18px 18px; }
+.composer-action-context strong { display:block; font-size:12px; font-weight:500; }
+.composer-action-context small { display:block; margin-top:4px; font-size:10px; color:#82786b; max-width:270px; }
+.composer-action-buttons { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.composer-action-buttons .btn { font-size:12px; padding:9px 13px; white-space:nowrap; border-radius:8px; }
+.composer-test { position:relative; }
+.composer-test-result { position:absolute; right:0; bottom:48px; width:300px; max-width:80vw; padding:18px; background:white; border:1px solid #ded7ca; box-shadow:0 12px 40px #211e1826; border-radius:12px; font-size:12px; z-index:35; }
+.composer-test-result p { line-height:1.5; color:#71685c; margin:8px 0; }
+.composer-test-result > strong { display:block; padding-right:14px; }
+.composer-test-close { position:absolute; right:8px; top:5px; border:0; background:none; font-size:22px; cursor:pointer; }
+.composer-alert { margin:12px 24px; padding:10px; background:#fff2e7; color:#893c21; border-radius:6px; font-size:12px; }
+@media(max-width:700px) {
+ .composer-actions { flex-direction:column; align-items:stretch; padding:12px; }
+ .composer-action-buttons { justify-content:flex-end; }
+ .composer-action-context small { max-width:none; }
+ .composer-toolbar { padding:10px 12px; }
+ .deskwork .composer-v2 .email-versions { padding:12px; }
+ .composer-v2 .email-version-tabs small { display:none; }
+ .composer-v2 .deskwork-compose, .composer-v2 .deskwork-doc, .deskwork .composer-v2 .email-version-document { padding:18px; }
+}
+.composer-action-context { flex:1; min-width:0; }
+.composer-action-buttons { flex-shrink:0; flex-wrap:nowrap; }
+.composer-followup-note { margin:0 26px 20px; color:#847a6c; font-size:11px; }
+.composer-followup-note summary { cursor:pointer; }
+.composer-followup-note p { line-height:1.5; }
+@media(max-width:700px) { .composer-action-buttons { flex-wrap:wrap; } }
