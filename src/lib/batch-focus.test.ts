@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { batchFocus, originalFocus, focusForOwner, batchOwner } from './focus-data.ts';
+import { batchFocus, originalFocus, focusForOwner, batchOwner, reachoutList } from './focus-data.ts';
 import { focusedContacts, publishedEmailPatch } from './focused-contact.ts';
 import { savedVariants, renderSavedVariant, renderLinkedInVariant, withDefaultLinkedIn } from './outreach-variants.ts';
 import { firstTouchErrors } from './first-touch.ts';
@@ -59,5 +59,35 @@ test('each new list sorts by revenue and LinkedIn fills without replacing manual
     assert.ok(filled.linkedin_message);
     const edited = { ...cards[0], linkedin_message: 'My saved personal note.' };
     assert.equal(withDefaultLinkedIn(edited, 'Josh').linkedin_message, edited.linkedin_message);
+  }
+});
+
+test('either teammate can select either list without changing list ownership', () => {
+  for (const viewer of ['josh', 'jenna'] as const) {
+    for (const id of ['josh', 'suuchi'] as const) {
+      const selected = reachoutList(id, viewer);
+      assert.equal(selected.id, id);
+      assert.equal(selected.owner, id === 'josh' ? 'josh' : 'jenna');
+      assert.equal(selected.drafts.length, 25);
+      for (const company of selected.drafts) assert.equal(batchOwner(company.domain), selected.owner);
+    }
+    assert.deepEqual(reachoutList('original', viewer).drafts, originalFocus);
+    assert.equal(reachoutList(undefined, viewer).owner, viewer);
+    assert.equal(reachoutList('invalid', viewer).owner, viewer);
+  }
+});
+test('viewing the other list renders authored email and LinkedIn with the active sender', () => {
+  for (const [viewer, list] of [['Josh', 'suuchi'], ['Suuchi', 'josh']] as const) {
+    const selected = reachoutList(list, viewer === 'Josh' ? 'josh' : 'jenna');
+    for (const row of selected.drafts) {
+      for (const channel of ['email', 'linkedin'] as const) {
+        const variant = savedVariants(row.domain, row.buyer.name, channel)[0];
+        const stored = channel === 'email' ? renderSavedVariant(variant, row.buyer.name, list === 'josh' ? 'Josh' : 'Suuchi') : renderLinkedInVariant(variant, list === 'josh' ? 'Josh' : 'Suuchi');
+        const visible = authoredSenderDraft({ body: stored.body, domain: row.domain, contactName: row.buyer.name, senderName: viewer, channel });
+        assert.equal(visible.matched, true);
+        assert.equal(visible.senderConflict, null);
+        assert.ok(visible.body.includes(`I'm ${viewer} at Nine-67`));
+      }
+    }
   }
 });

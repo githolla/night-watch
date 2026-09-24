@@ -6,7 +6,7 @@ import { recipientResearch } from "@/lib/recipient-research";
 import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
 import { createHash } from "node:crypto";
 import Link from "next/link";
-import { originalFocus, focusForOwner } from "@/lib/focus-data";
+import { reachoutList } from "@/lib/focus-data";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
 import { Desk, type DeskContext } from "@/components/Desk";
 import { ScanControl } from "@/components/ScanControl";
@@ -38,14 +38,17 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   const params = await searchParams;
   // Retired queue filters must not silently shrink the fixed reach-out list.
   if (params.status || params.priority || params.new || params.account) {
-    redirect(params.card ? `/outreach?card=${encodeURIComponent(params.card)}` : "/outreach");
+    const clean = new URLSearchParams();
+    if (params.card) clean.set("card", params.card);
+    if (params.list) clean.set("list", params.list);
+    redirect(`/outreach${clean.size ? `?${clean}` : ""}`);
   }
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) {
     redirect("/setup");
   }
   const me = await requireUser();
-  const originalList = params.list === "original";
-  const curatedDrafts = originalList ? originalFocus : focusForOwner(me.owner);
+  const selectedList = reachoutList(params.list, me.owner);
+  const curatedDrafts = selectedList.drafts;
   const curatedDomains = curatedDrafts.map(row => row.domain);
   {
     const pending = await pendingMigrations(admin());
@@ -101,7 +104,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     .order("score", { ascending: false });
 
 
-  if (!originalList) query.eq("assigned_to", me.owner);
+  if (selectedList.owner) query.eq("assigned_to", selectedList.owner);
 
   const [
     { data: cardRows, error },
@@ -277,14 +280,18 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   return (
     <div className="shell">
       <Header />
-      <nav aria-label="Reach-out batch" style={{ display: "flex", gap: 20, padding: "12px 0" }}>
-        <Link href="/outreach" aria-current={!originalList ? "page" : undefined}>{me.owner === "josh" ? "Josh" : "Suuchi"}’s new 25</Link>
-        <Link href="/outreach?list=original" aria-current={originalList ? "page" : undefined}>Original 25</Link>
+      <nav aria-label="Reach-out batch" style={{ display: "flex", flexWrap: "wrap", gap: 12, padding: "12px 0" }}>
+        {[{ id: "josh", label: "Josh’s 25" }, { id: "suuchi", label: "Suuchi’s 25" }, { id: "original", label: "Original 25" }].map(list => (
+          <Link key={list.id} href={`/outreach?list=${list.id}`} aria-current={selectedList.id === list.id ? "page" : undefined}
+            style={{ padding: "8px 12px", borderRadius: 8, background: selectedList.id === list.id ? "#211f19" : "#f5f2ec", color: selectedList.id === list.id ? "#fff" : "inherit" }}>
+            {list.label}
+          </Link>
+        ))}
       </nav>
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
       <Desk
-        key={`${me.owner}:${originalList ? "original" : "batch-2"}`}
-        listHref={originalList ? "/outreach?list=original" : "/outreach"}
+        key={`${me.owner}:${selectedList.id}`}
+        listHref={selectedList.href}
         initialCards={cards}
         senderName={senderFirstName(sender)}
         senderGreeting={sender.greeting}

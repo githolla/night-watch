@@ -13,3 +13,11 @@ export function batchOwner(domain: string): 'josh' | 'jenna' | null {
   const row = batch.find(row => row.domain.toLowerCase() === domain.toLowerCase());
   return row ? row.assignedOwner === 'josh' ? 'josh' : 'jenna' : null;
 }
+
+/** List selection never changes the signed-in sender or the company's assigned owner. */
+export function reachoutList(requested: string | undefined, viewer: 'josh' | 'jenna') {
+  const id = requested === 'original' || requested === 'josh' || requested === 'suuchi'
+    ? requested : viewer === 'josh' ? 'josh' : 'suuchi';
+  const owner = id === 'original' ? null : id === 'josh' ? 'josh' : 'jenna';
+  return { id, owner, href: `/outreach?list=${id}`, drafts: owner ? focusForOwner(owner) : originalFocus };
+}
