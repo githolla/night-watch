@@ -1,4 +1,5 @@
 "use client";
+import { batchOwner } from "@/lib/focus-data";
 import { firstTouchFooterHtml } from "@/lib/first-touch";
 import { FirstTouchGuidance } from "@/components/FirstTouchGuidance";
 import { curatedDomains } from "@/lib/curated-worklist";
@@ -709,29 +710,29 @@ export function Desk({
   // land on a different card than the one on screen; that was a bug and is fixed. The operator liked the
   // effect, so it is offered here as an explicit, confirmed action that touches subjects only.
   const [applyingSubject, setApplyingSubject] = useState(false);
-  const applySubjectToAll = async () => {
-    if (!focusCard || applyingSubject) return;
-    const subject = (focusCard.email_subject ?? "").trim();
-    if (!subject) { setNotice("Write a subject first, then apply it to every email."); return; }
-    if (!confirm(`Use “${subject}” as the subject on every un-sent email? Each email's message is left exactly as it is.`)) return;
-    if (demo) { setNotice("Demo mode — nothing was changed."); return; }
-    setApplyingSubject(true);
+  const [bulkOpening, setBulkOpening] = useState("");
+  const [applyingOpening, setApplyingOpening] = useState(false);
+  const applyCopyToAll = async (field: "subject" | "opening") => {
+    if (!focusCard || applyingSubject || applyingOpening) return;
+    const value = (field === "subject" ? focusCard.email_subject ?? "" : bulkOpening).trim();
+    if (!value) { setNotice(`Write ${field === "subject" ? "a subject" : "an opening"} first.`); return; }
+    const owner = batchOwner(focusCard.accounts.domain ?? "");
+    const targets = cards.filter(c => ["new","edited","approved"].includes(c.status) && batchOwner(c.accounts.domain ?? "") === owner && c.email_body?.trim());
+    if (!owner || !targets.length) return;
+    const setApplying = field === "subject" ? setApplyingSubject : setApplyingOpening;
+    setApplying(true);
     try {
-      const before = new Date().toISOString();
-      let total = 0;
-      for (let i = 0; i < 60; i++) {
-        const response = await fetch("/api/admin/apply-subject", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ subject, before }) });
-        const json = await response.json();
-        if (!response.ok) { setNotice(json.error ?? "Could not apply the subject."); return; }
-        total += json.applied ?? 0;
-        setNotice(`Applying “${subject}” — ${total} so far…`);
-        if (!json.remaining) break;
-      }
-      setCards((current) => current.map((item) => ["new", "approved", "edited"].includes(item.status) && item.email_body ? { ...item, email_subject: subject } : item));
-      setNotice(`Subject set on ${total} un-sent email${total === 1 ? "" : "s"}. Every message body was left alone.`);
-    } catch { setNotice("Could not apply the subject."); }
-    finally { setApplyingSubject(false); }
+      if (demo) { setNotice("Bulk changes are disabled in the local preview."); return; }
+      const response = await fetch("/api/cards/bulk-copy", {method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({ids:targets.map(c=>c.id),owner,field,value})});
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.error ?? "Could not update drafts.");
+      const updates = new Map<string,{subject:string;body:string}>(json.updates.map((r:{id:string;subject:string;body:string})=>[r.id,r]));
+      setCards(current=>current.map(c=>{const update=updates.get(c.id);return update ? {...c,status:"edited",active_variant_id:null,...(field === "subject" ? {email_subject:update.subject} : {email_body:update.body})} : c;}));
+      setNotice(`${field === "subject" ? "Subject" : "Opening"} applied to ${updates.size} unsent drafts in ${owner === "josh" ? "Josh" : "Suuchi"}’s list.${json.skipped ? ` ${json.skipped} changed or unavailable drafts were skipped.` : ""}`);
+    } catch(error) {setNotice(error instanceof Error ? error.message : "Could not update drafts.");}
+    finally {setApplying(false);}
   };
+  const applySubjectToAll = () => applyCopyToAll("subject");
   // "Propose times": pull open slots from the connected calendar and drop them into the email draft to edit.
   // Strictly opt-in — nothing adds times on its own — and reversible, because it writes into the saved draft.
   const [proposing, setProposing] = useState(false);
@@ -1231,8 +1232,14 @@ export function Desk({
                             // Leaving the field empty saves the subject back rather than saving a blank one.
                             onBlur={(event) => { if (event.target.value.trim()) saveField("email_subject", event.target.value); else restoreSubject(true); }}
                           />
+                          <button type="button" className="focus-apply-all" disabled={applyingSubject || applyingOpening || !focusCard.email_subject?.trim()} onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>
                           {subjectIsBlank && subjectFallback && <button type="button" className="focus-apply-all" onClick={() => restoreSubject(false)}>Restore subject</button>}
                         </div>
+                        <details className="composer-bulk-opening"><summary>Set an opening for all emails</summary>
+                          <label htmlFor="bulk-opening">Opening paragraph</label>
+                          <textarea id="bulk-opening" rows={3} maxLength={400} value={bulkOpening} onChange={event=>setBulkOpening(event.target.value)} placeholder="Write the opening you want each email to start with…" />
+                          <div><small>Replaces the first paragraph after the greeting in this list’s unsent drafts. Keeps each greeting and the rest of the message.</small><button type="button" className="btn" disabled={applyingOpening || applyingSubject || !bulkOpening.trim()} onClick={()=>applyCopyToAll("opening")}>{applyingOpening ? "Applying…" : "Apply opening to all"}</button></div>
+                        </details>
                         <label className="compose-field"><span>Message</span><textarea className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
                         <p className="compose-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</p>
                     {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" dangerouslySetInnerHTML={{__html:firstTouchFooterHtml(senderFooterHtml)}} />)}

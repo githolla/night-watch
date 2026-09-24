@@ -2359,3 +2359,10 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .composer-followup-note summary { cursor:pointer; }
 .composer-followup-note p { line-height:1.5; }
 @media(max-width:700px) { .composer-action-buttons { flex-wrap:wrap; } }
+.composer-bulk-opening { margin:0 0 20px; padding:12px 14px; background:#faf9f6; border:1px solid #e8e2d8; border-radius:9px; font-size:12px; }
+.composer-bulk-opening summary { cursor:pointer; font-weight:500; }
+.composer-bulk-opening label { display:block; margin:14px 0 6px; }
+.composer-bulk-opening textarea { width:100%; padding:10px; border:1px solid #ded7ca; border-radius:7px; resize:vertical; background:white; font:inherit; }
+.composer-bulk-opening > div { display:flex; align-items:center; gap:14px; margin-top:10px; }
+.composer-bulk-opening small { flex:1; color:#82786b; line-height:1.5; }
+.composer-bulk-opening .btn { font-size:12px; white-space:nowrap; }
