@@ -171,6 +171,7 @@ function personalizeCard(card: Card, senderName: string, senderGreeting: string)
 export function Desk({
   initialCards,
   senderName = "",
+  senderIsViewer = true,
   senderGreeting = "Hi {first},",
   senderFooterHtml = "",
   selectedId,
@@ -183,6 +184,7 @@ export function Desk({
 }: {
   initialCards: Card[];
   senderName?: string;
+  senderIsViewer?: boolean;
   senderGreeting?: string;
   senderFooterHtml?: string;
   selectedId?: string;
@@ -335,6 +337,7 @@ export function Desk({
   // (active ?? focusCard) while the desk's Send button lives in the focusCard composer, so a stale
   // `selected` would have confirmed one name and emailed a different person entirely.
   async function send(target?: Card, to?: { id?: string; full_name: string; email: string | null; email_status?: string }, bodyOverride?: string) {
+    if (!senderIsViewer) { setNotice(`Sign in as ${senderName} to send from this list.`); return; }
     const onCard = target ?? card;
     // Who the email is actually addressed to: the card's own contact, or the colleague picked from the
     // company's team list. The server re-checks that person is at the same company.
@@ -628,6 +631,7 @@ export function Desk({
   // the moment they reply. Auto-send needs a verified address and a connected sender, so the engine's guards
   // decide whether it fires now or waits — the API tells us which.
   const startSequence = async () => {
+    if (!senderIsViewer) { setNotice(`Sign in as ${senderName} to send from this list.`); return; }
     if (!focusCard) return;
     // Automation always enrols the card's PRIMARY contact (its email is what the engine sends to). If the
     // user has retargeted the draft to an alternate contact, automating here would silently send to the
@@ -1184,7 +1188,8 @@ export function Desk({
 
                 {senderConflict && <p role="alert">{senderConflict}</p>}
                 <div className="deskwork-scroll">
-                {channelTab === "email" && !altContact && !sentAlready && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={previewingVersion && tonePreview ? tonePreview.subject : focusCard.email_subject ?? ""} body={previewingVersion && tonePreview ? tonePreview.body : focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
+                {!senderIsViewer && <p className="muted" role="status">Viewing {senderName}’s drafts and signature. Sign in as {senderName} to send or test these emails.</p>}
+                {channelTab === "email" && !altContact && !sentAlready && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={previewingVersion && tonePreview ? tonePreview.subject : focusCard.email_subject ?? ""} body={previewingVersion && tonePreview ? tonePreview.body : focusCard.email_body ?? ""} disabled={!senderIsViewer || demo || busy || sending} />}
                 {previewingVersion && tonePreview ? (
                   <article className="email-version-document" aria-label={`${tonePreview.label} ${channelTab} preview`}>
                     <div className="email-version-caption"><span>{tonePreview.label} · Preview</span><span>{outreachBody(tonePreview.body).split(/\s+/).filter(Boolean).length} words</span></div>
@@ -1307,10 +1312,10 @@ export function Desk({
                       // NOT disabled on `busy`: clicking here blurs the message box, which fires a save and
                       // sets busy, so the button disabled itself before the click landed and the first press
                       // was swallowed ("I have to click send twice"). send() guards re-entry itself.
-                      ? <button type="button" disabled={sending || !contact.email} className="btn primary" onClick={sendEmail}>{sending ? "Sending…" : "Send email"} →</button>
+                      ? <button type="button" disabled={!senderIsViewer || sending || !contact.email} className="btn primary" onClick={sendEmail}>{sending ? "Sending…" : "Send email"} →</button>
                       : <button type="button" disabled={busy} className="btn primary" onClick={openLinkedIn}>Open LinkedIn →</button>}
                     <button type="button" disabled={busy} className="btn" title="Already sent (by you or the agent)? Log it to History without opening." onClick={() => markSent(channelTab)}>Mark sent</button>
-                    {channelTab === "email" && contact.email && <button type="button" disabled={enrolling} className="btn" title="Hands-off: Night Watch sends this email and its follow-ups for you (day 0, 3, 7) and stops the moment they reply. Prefer to send it yourself? Use “Send email” — the same follow-ups still queue in the list above for you to copy." onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
+                    {channelTab === "email" && contact.email && <button type="button" disabled={!senderIsViewer || enrolling} className="btn" title="Hands-off: Night Watch sends this email and its follow-ups for you (day 0, 3, 7) and stops the moment they reply. Prefer to send it yourself? Use “Send email” — the same follow-ups still queue in the list above for you to copy." onClick={startSequence}>{enrolling ? "Starting…" : "Automate"}</button>}
                     <button type="button" disabled={busy} className="btn" onClick={snoozeCurrent}>Snooze</button>
                     <button type="button" disabled={busy} className="btn ghost danger" onClick={dismissCurrent}>Dismiss</button>
                   </div>

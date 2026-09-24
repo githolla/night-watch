@@ -1,3 +1,4 @@
+import { assertListSender } from "@/lib/focus-data";
 import { firstTouchErrors } from "@/lib/first-touch";
 import { authoredSenderDraft } from '@/lib/authored-sender';
 import { trackEmailVersion } from "@/lib/version-tracking";
@@ -26,6 +27,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const db = admin();
     const { data: card } = await db.from("cards").select("*,people(*),accounts(*)").eq("id", id).single();
     if (!card) throw new Error("Card not found");
+    assertListSender(card.accounts?.domain, user.owner);
     const curated = isCuratedDomain(card.accounts?.domain);
     if (curated) body = outreachBody(body);
     // Only a card still in an un-sent working state may be sent. An allowlist (not a denylist) so a card that

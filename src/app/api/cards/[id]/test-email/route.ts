@@ -1,3 +1,4 @@
+import { assertListSender } from "@/lib/focus-data";
 import { firstTouchErrors } from "@/lib/first-touch";
 import { firstGiftViewAt } from "@/lib/gift-tracking";
 import { authoredSenderDraft } from '@/lib/authored-sender';
@@ -27,6 +28,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if ((count ?? 0) >= 5) return Response.json({ error: 'Five tests have been requested in the last ten minutes. Wait a few minutes before sending another.' }, { status: 429 });
     const { data: card, error: cardError } = await db.from('cards').select('person_id,account_id,people(full_name),accounts(domain)').eq('id', id).single();
     if (cardError || !card) throw new Error('This draft is no longer available.');
+    assertListSender((card.accounts as unknown as {domain:string} | null)?.domain, user.owner);
     const savedProfile = await senderProfile(db, user.owner);
     const profile = savedProfile;
     let person = card.people as unknown as { full_name: string } | null;

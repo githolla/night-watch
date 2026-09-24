@@ -14,10 +14,16 @@ export function batchOwner(domain: string): 'josh' | 'jenna' | null {
   return row ? row.assignedOwner === 'josh' ? 'josh' : 'jenna' : null;
 }
 
-/** List selection never changes the signed-in sender or the company's assigned owner. */
+/** The selected list determines draft identity; sending still requires its owner to sign in. */
 export function reachoutList(requested: string | undefined, viewer: 'josh' | 'jenna') {
   const id = requested === 'josh' || requested === 'suuchi'
     ? requested : viewer === 'josh' ? 'josh' : 'suuchi';
-  const owner = id === 'josh' ? 'josh' : 'jenna';
+  const owner: 'josh' | 'jenna' = id === 'josh' ? 'josh' : 'jenna';
   return { id, owner, href: `/outreach?list=${id}`, drafts: focusForOwner(owner) };
+}
+
+/** A shared list is viewable by teammates, but its drafts belong to its assigned sender. */
+export function assertListSender(domain: string | null | undefined, viewer: 'josh' | 'jenna') {
+ const owner = domain ? batchOwner(domain) : null;
+ if (owner && owner !== viewer) throw new Error(`Sign in as ${owner === 'josh' ? 'Josh' : 'Suuchi'} to send or test emails from this list.`);
 }

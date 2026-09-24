@@ -113,3 +113,19 @@ test('revised emails replace untouched saved versions for both senders while kee
     }
   }
 });
+
+test('shared lists retain their owners identity and cannot be sent from the other mailbox',async()=>{
+ const {assertListSender}=await import('./focus-data.ts');
+ for(const viewer of ['josh','jenna'] as const) for(const id of ['josh','suuchi'] as const){
+  const list=reachoutList(id,viewer),sender=list.owner==='josh'?'Josh':'Suuchi';
+  for(const row of list.drafts){
+   for(const channel of ['email','linkedin'] as const) for(const variant of savedVariants(row.domain,row.buyer.name,channel)){
+    const rendered=channel==='email'?renderSavedVariant(variant,row.buyer.name,sender):renderLinkedInVariant(variant,sender);
+    assert.ok(rendered.body.includes(`I'm ${sender} at Nine-67`));
+    assert.doesNotMatch(rendered.body,sender==='Suuchi'?/I'm Josh/:/I'm Suuchi/);
+   }
+   if(list.owner===viewer)assert.doesNotThrow(()=>assertListSender(row.domain,viewer));
+   else assert.throws(()=>assertListSender(row.domain,viewer),new RegExp(`Sign in as ${sender}`));
+  }
+ }
+});

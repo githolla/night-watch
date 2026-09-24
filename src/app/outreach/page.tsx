@@ -85,7 +85,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       if (result.error) throw result.error;
     }));
   }
-  const sender = await senderProfile(db, me.owner);
+  const sender = await senderProfile(db, selectedList.owner);
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = daysAgoIso(1);
 
@@ -293,7 +293,8 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
         key={`${me.owner}:${selectedList.id}`}
         listHref={selectedList.href}
         initialCards={cards}
-        senderName={senderFirstName(sender)}
+        senderName={senderFirstName(sender) || (selectedList.owner === "josh" ? "Josh" : "Suuchi")}
+        senderIsViewer={selectedList.owner === me.owner}
         senderGreeting={sender.greeting}
         senderFooterHtml={outreachFooterHtml(sender)}
         selectedId={params.card}
