@@ -98,3 +98,12 @@ test('retired authored LinkedIn drafts refresh independently of the email while 
  const personal={...card,linkedin_message:'A personal note?'};assert.equal(withDefaultLinkedIn(personal,'Josh'),personal);
  for(const status of ['sent','approved']){const protectedCard={...card,status};assert.equal(withDefaultLinkedIn(protectedCard,'Josh'),protectedCard);}
 });
+test('blank LinkedIn messages populate even when the email card is approved or already sent',()=>{
+ for(const status of ['new','edited','approved','sent','replied'])for(const missing of [null,undefined,'','   ']){
+  const card={status,accounts:{domain:'ansararestaurantgroup.com'},people:{full_name:'Victor Ansara'},email_body:'Historical email',linkedin_message:missing,linkedin_subject:''};
+  const result=withDefaultLinkedIn(card,'Josh');
+  assert.ok(result.linkedin_message?.includes("I'm Josh at Nine-67"));
+  assert.equal(result.linkedin_subject,savedVariants(card.accounts.domain,card.people.full_name,'linkedin')[0].subject);
+  assert.equal(result.status,status);assert.equal(result.email_body,'Historical email');
+ }
+});

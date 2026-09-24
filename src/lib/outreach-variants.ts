@@ -27,8 +27,9 @@ export function renderLinkedInVariant(variant: SavedVariant, senderName: string)
 
 /** Populate a missing current message from authored copy, preserving existing edits. */
 export function withDefaultLinkedIn<T extends { status?: string; accounts: { domain?: string | null }; people: { full_name: string }; linkedin_message?: string | null; linkedin_subject?: string | null }>(card: T, senderName: string): T {
-  if (card.status && !['new','edited'].includes(card.status)) return card;
   const current = card.linkedin_message?.trim();
+  // Email status must not block a missing LinkedIn draft. Preserve existing protected copy.
+  if (current && card.status && !['new','edited'].includes(card.status)) return card;
   if (current) {
     const isSame = (v: SavedVariant) => { const rendered = renderLinkedInVariant(v, senderName); return rendered.body.trim() === current && (!card.linkedin_subject?.trim() || card.linkedin_subject === rendered.subject); };
     if (savedVariants(card.accounts.domain, card.people.full_name, 'linkedin').some(isSame)) return card;

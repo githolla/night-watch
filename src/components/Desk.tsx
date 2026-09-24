@@ -158,7 +158,7 @@ function describeRun(run: RunSummary | null) {
 }
 
 function personalizeCard(card: Card, senderName: string, senderGreeting: string): Card {
-    if (!["new", "edited", "approved"].includes(card.status)) return card;
+    if (!["new", "edited", "approved"].includes(card.status)) return withDefaultLinkedIn(card, senderName);
     const seeded = withResearchDefault(withDefaultEmail(withDefaultLinkedIn(card, senderName), senderGreeting), senderName, senderGreeting);
     const input = { domain: seeded.accounts.domain, contactName: seeded.people.full_name, senderName, greeting: senderGreeting };
     return { ...seeded,
@@ -1154,7 +1154,7 @@ export function Desk({
 
                 <div className="deskwork-tabs">
                   <button type="button" className={`deskwork-tab ${channelTab === "email" ? "is-active" : ""}`} onClick={() => { setChannelTab("email"); setTonePreview(null); }}>✉ Email</button>
-                  <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => { setChannelTab("linkedin"); setTonePreview(null); }}><i className="li-mark">in</i> LinkedIn</button>
+                  <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => { setCards(current => current.map(item => item.id === focusCard.id ? withDefaultLinkedIn(item, senderName) : item)); setChannelTab("linkedin"); setTonePreview(null); }}><i className="li-mark">in</i> LinkedIn</button>
                   <div className="deskwork-tools" hidden={previewingVersion}>
                     {(channelTab === "linkedin" || !sentAlready) && <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>}
                     {channelTab === "email" && !sentAlready && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : recommendation ? "Recommended version" : research ? "Researched draft" : "Company draft"}</button>}
