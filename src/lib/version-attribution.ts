@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { savedVariants, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
+import { savedVariants, archivedVariants, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
 import { outreachBody } from './outreach-ending.ts';
 
 export const SAVED_VERSION_MODEL = 'saved-email-v1';
@@ -19,12 +19,15 @@ export function copyContent(text: string) {
   return normalize(paragraphs.join('\n\n').replace(/I'm [^\n.!?]+? at Nine-67/g, "I'm {sender} at Nine-67"));
 }
 export function identifyVersion(input: { domain: string; personId: string; contactName: string; subject: string; body: string; senderName: string; greeting?: string; source: VersionMeta['source']; channel?: 'email' | 'linkedin' }, selected?: VersionSnapshot | null): VersionMeta {
-  const matching = savedVariants(input.domain, input.contactName, input.channel).find(v => {
+  const matching = [...savedVariants(input.domain, input.contactName, input.channel), ...archivedVariants(input.domain, input.contactName, input.channel)].find(v => {
     const rendered = input.channel === "linkedin" ? renderLinkedInVariant(v, input.senderName) : renderSavedVariant(v, input.contactName, input.senderName, input.greeting);
     return normalize(rendered.subject) === normalize(input.subject) && copyContent(rendered.body) === copyContent(input.body);
   });
   const prior = versionMeta(selected?.dimensions);
   const validPrior = Boolean(input.body.trim()) && prior && prior.personId === input.personId && prior.domain === input.domain && prior.source === 'selection' && (prior.channel ?? 'email') === (input.channel ?? 'email');
+  if (validPrior && selected && normalize(selected.subject) === normalize(input.subject) && copyContent(selected.body) === copyContent(input.body)) {
+    return { ...prior!, source: input.source, edited: false };
+  }
   const revision = (subject: string, body: string) => createHash('sha256').update(`${subject}\n${body}`).digest('hex').slice(0, 12);
   return {
     schema: SAVED_VERSION_MODEL, channel: input.channel ?? "email",

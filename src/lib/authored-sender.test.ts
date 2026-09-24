@@ -76,3 +76,13 @@ test('all authored email variants can change sender without changing their selec
     assert.equal(result.body, renderSavedVariant(saved, contact.contactName, 'Suuchi Ramesh', 'Hello {first},').body);
   }
 });
+
+test('retired authored drafts still render the correct sender', async () => {
+ const { archivedVariants } = await import('./outreach-variants.ts');
+ const old = archivedVariants('ansararestaurantgroup.com', 'Victor Ansara').find(v => v.id === 'a')!;
+ const original = renderSavedVariant(old, 'Victor Ansara', 'Josh Lee');
+ const result = authoredSenderDraft({body:original.body, domain:'ansararestaurantgroup.com', contactName:'Victor Ansara',senderName:'Suuchi Ramesh'});
+ assert.equal(result.matched,true);
+ assert.doesNotMatch(result.body,/I'm Josh/);
+ assert.match(result.body,/I'm Suuchi/);
+});

@@ -1,3 +1,5 @@
+import archivedEmail from "../../data/outreach-variants-archive.json" with { type: "json" };
+import archivedLinkedIn from "../../data/linkedin-variants-archive.json" with { type: "json" };
 import focus from "../../data/revenue-focus.json" with { type: "json" };
 import variants from "../../data/outreach-variants.json" with { type: "json" };
 import linkedinVariants from "../../data/linkedin-variants.json" with { type: "json" };
@@ -43,4 +45,10 @@ export function withDefaultEmail<T extends { status: string; accounts: { domain?
   if (!contact) return card;
   const hello = greeting.replace(/\{first\}/gi, contact.name.split(/\s+/)[0]).replace(/\{name\}/gi, contact.name);
   return { ...card, email_subject: card.email_subject?.trim() ? card.email_subject : contact.subject, email_body: emailStyle(`${hello}\n\n${contact.message}`) };
+}
+
+/** Historical authored copy is recognizable, but never offered as a new choice. */
+export function archivedVariants(domain?: string | null, contactName?: string | null, channel: "email" | "linkedin" = "email"): SavedVariant[] {
+  if (!domain || !contactName) return [];
+  return (channel === "linkedin" ? archivedLinkedIn : archivedEmail).find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants ?? [];
 }

@@ -5,19 +5,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "after the location report",
         "message": "Victor, I'd like to help an Ansara manager spend less time assembling a location review and more time acting on it. I'm {sender} at Nine-67. Our AI engineers build with operations teams and stay through rollout.\n\nWhich would make more difference for your managers: getting the numbers ready or following up on the decisions?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "a shorter operating review",
+        "message": "For Ansara, I'd start AI on one location review: pull the numbers together, flag exceptions and track who agreed to do what. Nine-67 builds this with the managers who will use it. We'd check preparation time and whether the actions get finished.\n\nIs the follow-through after a review something you'd want to improve?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "one useful place for AI",
         "message": "Victor, Nine-67 recently helped one client deploy 20 applications, working with leaders and the teams using them. We're an AI-first engineering company.\n\nFor Ansara, I'd start smaller: one restaurant review that turns the numbers into assigned actions.\n\nWould you like a short outline of how we'd build that with a location manager?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "give AI the Monday paperwork",
         "message": "Victor, my vote for AI's first restaurant job: do the homework before the operating review.\n\nAt Nine-67, we'd build a tool that gathers the numbers and brings back the actions still open from last time. Your managers make the calls.\n\nWould that earn a place in an Ansara review?"
       }
@@ -29,19 +35,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "from cable request to quote",
         "message": "Devin, Metro Wire's mix of customer specifications and available stock looks like a practical place for AI to help your quoting team. I'm {sender} at Nine-67. Our engineers build alongside the people doing that work.\n\nWhen a cable request arrives, is clarifying the specification or finding a suitable match the bigger task?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "quote preparation, before pricing",
+        "message": "Devin, we'd build a first pass on cable requests: extract the requirements, flag missing details and prepare possible stock matches for approval. Nine-67 is an AI engineering team, and we'd start with one cable family at Metro Wire.\n\nWould a sample request-to-quote walkthrough help you judge whether it's worth pursuing?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "the checking before the quote",
         "message": "At Nine-67, we've built a proposal workspace that brings requirements and approved information together for review. We're an AI-first engineering team.\n\nCable quoting is different, but the checking step caught my attention at Metro Wire: get the specification clear before the team prices it.\n\nDevin, would you like to see that checking approach?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "a quote worth testing",
         "message": "Devin, I'd give AI the incomplete cable request. Let it come back with the missing details and possible matches. Your team keeps the pricing decision.\n\nThat's the kind of practical software our engineers build at Nine-67.\n\nWould that take useful work off Metro Wire's quoting desk?"
       }
@@ -53,19 +65,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "between diagnosis and repair",
         "message": "Lynn, Wolverine brings service, parts and body work together across three locations. I'd like to help the office turn a technician's findings into a repair order that's ready for the next person.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nIs gathering parts status and paperwork a meaningful job at your service desk?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "a repair order ready to move",
+        "message": "For Wolverine, we'd build a repair-order check that gathers the diagnosis, parts status and missing paperwork before the service team reviews it. Nine-67 supplies the AI engineers and works with the staff using it.\n\nLynn, would an example around one repair type be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "practical AI for the service desk",
         "message": "Lynn, Nine-67 has deployed a collaboration workspace with a client. Our AI engineers work with the people coordinating the work, through training and launch.\n\nAt Wolverine, I'd explore the handoff from technician findings to a complete repair order.\n\nWould you like an outline of what that handoff could look like?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the truck is waiting",
         "message": "Lynn, getting AI to chase paperwork seems more useful than asking a technician to write the same detail again.\n\nOur engineers at Nine-67 could build a first pass from repair notes to a checked work order, with the service desk approving it.\n\nDoes that resemble work your office would gladly hand over?"
       }
@@ -77,19 +95,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "when the customer changes the schedule",
         "message": "Judith, a revised customer schedule connects two sides of your role at Motor City: production priorities and the financial consequences of changing them.\n\nI'm {sender} at Nine-67. We build AI tools with operating teams to get the relevant information ready for a decision.\n\nIs comparing schedule changes with open orders still a hands-on task for your team?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "from schedule change to decision",
+        "message": "Judith, we'd build a check that compares a revised customer schedule with open Motor City orders and shows the differences a planner needs to review. Nine-67's AI engineers would work with your planners and measure review time.\n\nWould a sample of that comparison be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "one operating decision at a time",
         "message": "Nine-67 has deployed a resource-allocation application with a client, building it with the people making the decisions. We're an AI-first engineering team.\n\nFor Motor City, I'd explore a different planning task: showing which orders a customer schedule change affects.\n\nJudith, is that relevant enough for me to send a short approach?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "let AI do the comparison",
         "message": "Judith, I'd give AI the before-and-after comparison when a customer changes a schedule. The planner gets the differences and decides what moves.\n\nOur engineers at Nine-67 build that kind of software with operations teams.\n\nWould that be a useful job to take off a Motor City planner's desk?"
       }
@@ -101,19 +125,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "the work around your TMS",
         "message": "John, Evans' TMS rollout made me think about the work around a shipment exception: gathering the story and getting a useful answer to the customer.\n\nI'm {sender} at Nine-67. Our AI engineers build those practical tools with operations teams.\n\nIs that exception follow-up already covered well in your setup?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "from shipment alert to action",
+        "message": "John, we'd build an exception brief for Evans: the shipment records, missing information and a draft customer update for the team to approve. Nine-67 is an AI engineering company; we'd start with one exception type alongside your existing TMS.\n\nWould a walkthrough of that workflow be worth sending?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "making the next action clear",
         "message": "John, Nine-67 put an account-risk and revenue view into production for a professional-services firm in a month. We're an AI-first engineering team.\n\nFor Evans, I'd explore the same decision-first approach around shipment exceptions, with records and next steps together.\n\nWould seeing that example help you judge the idea?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the alert is only half the job",
         "message": "John, a shipment alert says something happened. I'd like AI to help answer what the team should do next.\n\nAt Nine-67, we'd build a brief from the shipment records for an Evans operator to check, including the next customer update.\n\nIs that the useful part your team still has to assemble?"
       }
@@ -125,19 +155,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "after the technician leaves",
         "message": "Kristen, Bell's mix of field service, parts and repairs caught my attention. I'd like to help the office make use of technician notes without another round of calls.\n\nI'm {sender} at Nine-67. Our AI engineers build directly with operating teams.\n\nIs turning those notes into a complete work order a task worth looking at?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "technician notes into the next job",
+        "message": "Kristen, we'd build a tool that turns technician notes into a draft work order and parts request, with missing details flagged for review. Nine-67 would work with Bell's service team and compare the preparation time with today's process.\n\nWould a sample based on a typical repair be helpful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "AI your service team can use",
         "message": "Kristen, Nine-67 recently helped one client deploy 20 applications. We're an AI-first engineering team that builds with users and includes training in the rollout.\n\nAt Bell, I'd start with one service task: getting technician notes ready for the office.\n\nWould you like to see how we'd scope that first build?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the paperwork after the fix",
         "message": "Kristen, AI can have the paperwork after the forklift repair.\n\nOur engineers at Nine-67 would start with technician notes and prepare a work order for Bell's office to check. The aim is less retyping and fewer clarification calls.\n\nWould your service team welcome that?"
       }
@@ -149,19 +185,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "when a product detail changes",
         "message": "Larry, TNG makes and distributes its products, so a changed product detail has several places to reach. I'd like to help with the checking between those steps.\n\nI'm {sender} at Nine-67. Our AI engineers build with the people managing the work.\n\nIs keeping listings aligned with approved product information already straightforward at TNG?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "one change across the catalog",
+        "message": "Larry, we'd build a check across one TNG product family: compare listings with approved information, flag differences and prepare edits for your team. Nine-67's AI engineers would measure review time and missed changes.\n\nWould you like an outline of that checking step?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "AI on the checking side",
         "message": "Larry, our proposal workspace at Nine-67 flags unsupported claims for human review. We're an AI-first engineering company.\n\nI'd apply that checking principle to TNG product listings, comparing the wording with approved product information before anyone publishes an edit.\n\nWould you like to see the review step from that workspace?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the least creative AI job",
         "message": "Larry, the interesting AI job here might be the least creative one: find every place a changed product detail still needs updating.\n\nNine-67's engineers could build that check with TNG's team, leaving edits and publication in their hands.\n\nIs that a recurring task worth taking off someone's plate?"
       }
@@ -173,19 +215,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "keeping the maintenance request moving",
         "message": "Leslie, I'm interested in the work behind a maintenance request at LR: the resident's history, the vendor commitment and who follows up.\n\nI'm {sender} at Nine-67. Our AI engineers build with operating teams to make information easier to act on.\n\nIs vendor follow-up a task your managers would like help with?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "a request with a next step",
+        "message": "For LR, we'd build a maintenance follow-up view from request history and open vendor commitments. It would prepare the next action for the property manager to approve. Nine-67 handles the AI build and works with the team through rollout.\n\nLeslie, would an example for one property be worth a look?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "a small first project for LR",
         "message": "Leslie, Nine-67 recently helped one client deploy 20 applications, working with leaders on priorities and staff on the details. We're an AI-first engineering company.\n\nAt LR, I'd begin with maintenance follow-up at one property.\n\nWould you like a short outline of the build and how the property team would shape it?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the request behind the request",
         "message": "Leslie, I'd like AI to remember the vendor's promise and put it in front of the right person before someone has to chase it.\n\nThat's a practical first build our engineers at Nine-67 could explore with an LR property team.\n\nIs that the kind of follow-up work you'd want help with?"
       }
@@ -197,19 +245,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "when the builder changes an order",
         "message": "Mel, Gutherie's combination of delivery, wall panels and I-joist cutting makes an order revision more than an update on paper.\n\nI'm {sender} at Nine-67. Our AI engineers could help gather the cutting and delivery implications for your team to review.\n\nIs checking those consequences a time-consuming part of handling builder changes?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "check the change before confirming",
+        "message": "Mel, we'd build a revision check for Gutherie that shows the affected order, cutting work and delivery commitment together. Nine-67's AI engineers would build with the team and measure time spent preparing the review.\n\nWould a sample order-change walkthrough be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "keeping the teams on one change",
         "message": "Nine-67 has deployed a collaboration workspace with a client. Our AI engineers build with the people coordinating the work.\n\nGutherie's order revisions look like a candidate for that approach: show cutting and delivery the same change and record the decision.\n\nMel, would you like an outline for that specific handoff?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "one change, several consequences",
         "message": "Mel, a builder changes one thing. I'd want AI to bring back the list of what else that touches.\n\nAt Nine-67, we'd build that check around Gutherie's order, cutting and delivery records, with your team reviewing the result.\n\nWould that be useful before confirming the revision?"
       }
@@ -221,19 +275,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "the numbers worth your attention",
         "message": "Rosalie, comparing cost numbers across Andiamo and Joe Muer needs more context than a single ranking. I'd like to help your team get that context ready for a review.\n\nI'm {sender} at Nine-67. Our AI engineers build with operating teams.\n\nWould food cost or labor be the more useful place to start?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "from yesterday's numbers to action",
+        "message": "Rosalie, we'd build a daily cost review that flags a change, brings the supporting numbers together and records the manager's next action. We'd start with one concept and measure preparation time. Nine-67 supplies the AI engineers and trains the team.\n\nIs there a cost review you'd particularly like to make easier?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "a working tool for the review",
         "message": "Rosalie, Nine-67 has deployed financial-planning and profitability tools with a client. We're an AI-first engineering company that builds with the people using the product.\n\nFor Vicari, I'd focus a first build on one restaurant cost review.\n\nWould you like a short example of how we'd go from the numbers to an assigned action?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "fewer numbers to read",
         "message": "Rosalie, I'd like AI to arrive at the cost review with its homework done: what changed, the numbers behind it and last week's open actions.\n\nNine-67's engineers would build it with your restaurant managers.\n\nWould that make the review more useful for your team?"
       }
@@ -245,19 +305,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "AI around scientific judgment",
         "message": "Kirk, your point about scientific validation as AI accelerates research is the part I'd build around. Finding evidence faster should leave validation with your scientists.\n\nI'm {sender} at Nine-67. Our AI engineers work with business teams on practical tools.\n\nIs retrieving approved product evidence a task you'd want to make easier at Cayman?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "every answer with its evidence",
+        "message": "Kirk, we'd build an evidence finder for one Cayman product family: retrieve approved material, cite the source and flag where it doesn't answer the question. Your scientists validate the result. Nine-67's AI engineers would measure search time and citation accuracy.\n\nWould that be worth a short technical outline?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "useful answers, visible sources",
         "message": "Kirk, Nine-67 has built a reporting assistant that answers from the report itself. Publication stays with a person.\n\nThat evidence-first approach seems relevant to your comments on scientific validation, though scientific use would need its own testing.\n\nWould you like to see how the source-checking works?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the answer it shouldn't give",
         "message": "Kirk, I'd give AI a research assistant's first assignment: bring back the evidence and show where it came from.\n\nOur engineers at Nine-67 could build that around Cayman's approved product material, with scientists checking the result.\n\nWould evidence retrieval be a useful starting point for your team?"
       }
@@ -269,19 +335,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "before the project review",
         "message": "Stephen, in your innovation role at Cayman, I'd like to help get the evidence ready for a project decision.\n\nI'm {sender} at Nine-67. Our AI engineers build tools that gather approved material, link the sources and show what's missing before a review.\n\nIs preparing that material a meaningful part of your team's workload?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "make the evidence easier to review",
+        "message": "Stephen, we'd build a project-review packet from Cayman's approved documents, with each summary linked to its evidence and unanswered questions called out. Nine-67's AI engineers would work with your reviewers and measure preparation time.\n\nWould a sample packet help you decide if the approach fits?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "a better starting point for review",
         "message": "Stephen, our team at Nine-67 built a proposal workspace that brings approved prior work, requirements and review together. We're an AI-first engineering company.\n\nA similar preparation step could help a Cayman project review, with the scientific and commercial judgments staying with your team.\n\nWould you like a look at the workspace?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "let the meeting start later",
         "message": "Stephen, the useful AI output before a project review may be a list of what the packet cannot yet answer.\n\nAt Nine-67, we'd build that check against Cayman's approved material and put the sources beside each finding.\n\nWould that improve the preparation for a review you run?"
       }
@@ -293,19 +365,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "after a missing-item report",
         "message": "Mark, Domestic Uniform's recurring deliveries made me think about the work behind a customer's missing-item report. I'd like to help the service team get the order and route records together.\n\nI'm {sender} at Nine-67; our AI engineers build with operations teams.\n\nIs gathering that history a significant part of resolving a discrepancy?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "one discrepancy, one clear response",
+        "message": "Mark, we'd build a delivery-discrepancy brief: the customer's report, matching order, route record and unresolved details for staff review. Nine-67's AI engineers would start with one discrepancy type and measure preparation time.\n\nWould a sample of that brief be useful at Domestic Uniform?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "the customer record that helps",
         "message": "Mark, Nine-67 put an account-health view into production for a professional-services firm, connecting account concerns with revenue exposure. We're an AI-first engineering team.\n\nAt Domestic Uniform, I'd explore a narrower view around recurring delivery issues and the next action.\n\nWould seeing the account example help you assess the idea?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "before the customer calls again",
         "message": "Mark, I'd like AI to find the delivery paperwork while a person takes care of the customer.\n\nNine-67's engineers could build a check linking a Domestic Uniform discrepancy to the order and route record, ready for your service team.\n\nWould that save a useful step in resolving a missing-item report?"
       }
@@ -317,19 +395,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "the work before the audit",
         "message": "AJ, I'd like to help Sprague's team prepare the service evidence behind a commercial customer's audit.\n\nI'm {sender} at Nine-67. Our AI engineers could gather the records and flag missing corrective-action evidence, with your specialists checking the packet.\n\nIs collecting the evidence or checking it's complete the larger task?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "evidence ready for review",
+        "message": "AJ, we'd build an audit-packet check that connects each requirement to service records and corrective-action evidence. Nine-67 would work with Sprague's specialists and measure preparation time and omissions they catch.\n\nWould a sample packet be a useful way to assess the idea?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "applying AI to audit preparation",
         "message": "AJ, Nine-67 has built a proposal workspace joining requirements, approved knowledge and review. We're an AI-first engineering team.\n\nSprague's audit preparation is a different workflow, but matching requirements to evidence could be useful there too.\n\nWould you like to see the review process in that workspace?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "make AI show its work",
         "message": "AJ, I'd give AI the pre-audit scavenger hunt: find the service record, find the corrective action and show what's missing.\n\nOur engineers at Nine-67 would build the check with Sprague's specialists, who approve the packet.\n\nWould that take meaningful preparation off their desks?"
       }
@@ -341,19 +425,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "the first days at Alta",
         "message": "Chris, Aaron Curtis's findings about friction in Alta's first days of onboarding suggest a specific AI job: get an unresolved concern to the branch while it can still act.\n\nI'm {sender} at Nine-67. Our AI engineers build with operations teams.\n\nIs turning those findings into daily follow-up a priority now?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "act on the early warning",
+        "message": "Chris, we'd build a daily onboarding review for Alta: early concerns, open promises and the person responsible for the next step. We'd work with your existing process and measure time to resolution. Nine-67 supplies the AI engineers.\n\nWould a sketch of that branch review be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "from account risk to action",
         "message": "Chris, Nine-67 deployed an account-health view for a professional-services firm that brought concerns and revenue exposure together. We're an AI-first engineering team.\n\nAlta's onboarding findings suggest a different use: making early concerns visible while a branch can respond.\n\nWould you like to see the account view as a starting example?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "before the cancellation reason",
         "message": "Chris, I'd like AI to catch the unfinished promise before it becomes a cancellation reason.\n\nAaron's onboarding findings at Alta give that idea a concrete starting point. Our engineers at Nine-67 could build the follow-up with a branch team.\n\nIs that a job you'd want help getting into use?"
       }
@@ -365,19 +455,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "acting on your onboarding findings",
         "message": "Aaron, your work linking cancellations to friction in the first days at Alta gives AI a much clearer job than a general chatbot.\n\nI'm {sender} at Nine-67. We'd build with your team to bring early concerns and unfinished commitments into a branch manager's daily review.\n\nIs acting on those early signs already well covered?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "make the early signal actionable",
+        "message": "Aaron, I'd start with one onboarding journey at Alta and show each unresolved promise beside its owner and next action. Nine-67's AI engineers would build with the branch and measure time to resolution.\n\nWould an outline of that daily check be useful alongside your current FieldRoutes process?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "a working version of the idea",
         "message": "Aaron, Nine-67 recently helped one client deploy 20 applications, including the work with users and training through rollout. We're an AI-first engineering company.\n\nI'd use your onboarding findings to shape a focused first build at Alta: an early-concern review for a branch manager.\n\nWould you like an outline of the build?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the note that changes the outcome",
         "message": "Aaron, your onboarding research makes me want to give AI a simple job description: keep the early promises visible until they're kept.\n\nOur engineers at Nine-67 could build that check with an Alta branch, using the team's definition of a useful intervention.\n\nWould that close a gap you're working on?"
       }
@@ -389,19 +485,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "when a supplier date changes",
         "message": "Glenn, with your finance and operating responsibilities at Chrysan, I'd like to help connect a supplier's changed delivery date to the customer orders it affects.\n\nI'm {sender} at Nine-67. Our AI engineers build directly with purchasing and operations teams.\n\nIs working out that impact still a manual exercise for your team?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "the orders behind the update",
+        "message": "Glenn, we'd build a supplier-change review that links an update to affected orders and flags the commitments purchasing needs to check. Nine-67's AI engineers would start with one supplier flow at Chrysan and measure review time.\n\nWould a sample of that review be worth sending?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "a focused build for purchasing",
         "message": "Glenn, Nine-67 has deployed a collaboration workspace with a client, building with the people coordinating the work. We're an AI-first engineering team.\n\nAt Chrysan, I'd explore the handoff from a supplier update to an order decision.\n\nWould you like a short outline showing what purchasing would review?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the email with consequences",
         "message": "Glenn, a supplier's email can change several customer commitments. I'd like AI to bring back that list before the chasing starts.\n\nOur engineers at Nine-67 could build the check with Chrysan's purchasing team, leaving decisions with them.\n\nWould that remove useful work from their day?"
       }
@@ -413,19 +515,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "a practical AI start for Chrysan",
         "message": "Suk-Kyu, I'd like to help Chrysan turn one coordination task into a working AI application, starting with the people responsible for it.\n\nI'm {sender} at Nine-67. Our engineers build with operating teams and stay through adoption. Supplier changes and their effect on customer commitments look like one candidate.\n\nWould that be on your priority list?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "one workflow across the business",
+        "message": "Suk-Kyu, we'd build a view connecting a changed supplier delivery to affected customer commitments at Chrysan. Your team would set the review rules and approve the actions. Nine-67 handles the AI engineering and training.\n\nWould a short plan for that first application help you judge its value?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "from one project to wider adoption",
         "message": "Suk-Kyu, Nine-67 recently helped one client deploy 20 applications. We're an AI-first engineering company, working with leaders on priorities and users through rollout.\n\nAt Chrysan, I'd start with one task that crosses teams, such as tracing supplier changes to customer orders.\n\nWould you like to see how we'd approach that first build?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "AI with a small job description",
         "message": "Suk-Kyu, I'd choose an AI project by finding work your team is tired of checking twice.\n\nOur engineers at Nine-67 could start with supplier changes at Chrysan: assemble the affected orders once, ready for the responsible team to act.\n\nIs there another repeated check you'd put ahead of that?"
       }
@@ -437,19 +545,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "before the repeat visit",
         "message": "Mike, I'd like to help a Rottler technician arrive at a repeat visit with the useful history already assembled.\n\nI'm {sender} at Nine-67. Our AI engineers could bring together what was tried, what the customer reported and the actions still open.\n\nIs preparing that history work your branch teams would welcome help with?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "give the next visit the full history",
+        "message": "Mike, we'd build a pre-visit brief for repeat service cases: previous findings, actions taken and unresolved concerns, with links back to the records. Nine-67 would build with a Rottler branch and check preparation time and accuracy.\n\nWould a sample brief be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "a useful view for the branch",
         "message": "Mike, Nine-67 deployed an account-health view for a professional-services firm, bringing account concerns and business context together. We're an AI-first engineering company.\n\nI'd explore a service-history brief for Rottler that helps the next technician arrive prepared.\n\nWould you like to see the account example behind that idea?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "help the next person arrive prepared",
         "message": "Mike, I'd put AI on the homework before a repeat visit. Give the technician what happened last time and what still needs resolving.\n\nOur engineers at Nine-67 would build that with a Rottler branch team.\n\nWould that make a useful difference to how they prepare?"
       }
@@ -461,19 +575,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "when the tooling revision lands",
         "message": "Steve, Eclipse handles mold building, repair, molding and assembly. I'd like to help the next team see what an approved tooling revision changes for its work.\n\nI'm {sender} at Nine-67. Our AI engineers build these checks with operations and engineering teams.\n\nIs assembling the affected jobs and records a significant task today?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "make the revision's impact visible",
+        "message": "Steve, we'd build a tooling-change review that connects a revision to affected jobs and supporting records before engineering signs off. Nine-67's AI engineers would work with Eclipse's team and measure preparation time.\n\nWould a sample revision walkthrough help you assess the fit?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "build around the handoff",
         "message": "Steve, Nine-67 has deployed a collaboration workspace with a client. Our AI engineers build alongside the people coordinating shared work.\n\nEclipse's tooling-to-production handoff looks like a candidate for a focused build, with the revision and affected jobs together.\n\nWould you like a short outline for that handoff?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "which version is the right one",
         "message": "Steve, I'd give AI the question that follows a tooling revision: show me every job this touches.\n\nOur engineers at Nine-67 could build the check with Eclipse's team and put the supporting records beside each result. Engineering keeps approval.\n\nIs that a useful first job for AI in your operation?"
       }
@@ -485,19 +605,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "from delivery ticket to invoice",
         "message": "Keith, I'd like to help Gen Oil's office get from a completed delivery to a record ready for billing.\n\nI'm {sender} at Nine-67. Our AI engineers could check tickets against orders and bring back the details that need a person.\n\nIs matching those records still a hands-on task for your team?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "ready for the invoice",
+        "message": "Keith, we'd build a ticket-to-order check that flags missing or conflicting details before billing review. Nine-67 would work with Gen Oil's office on one delivery type and measure review time and corrections.\n\nWould a sample exception report be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "a small build for the office",
         "message": "Keith, Nine-67 recently helped one client deploy 20 applications. Our AI engineers build with business teams and include training through rollout.\n\nFor Gen Oil, I'd start with ticket-to-order matching so the office reviews exceptions rather than every record the same way.\n\nWould you like a short outline of that build?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the delivery is done",
         "message": "Keith, I'd like AI to finish its paperwork check when the delivery is done: ticket, order, anything that doesn't match.\n\nOur engineers at Nine-67 could build that with Gen Oil's billing team, who approve the result.\n\nWould that remove a useful step before invoicing?"
       }
@@ -509,19 +635,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "carrying the customer request through",
         "message": "Chase, Go-Forth's range of home services makes the handoff from a customer's first request an interesting place for AI. I'd like to help the receiving team get the context as well as the assignment.\n\nI'm {sender} at Nine-67; our engineers build with operating teams.\n\nIs that handoff already working as well as you'd like?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "the right team with the right context",
+        "message": "Chase, we'd build an intake brief from the customer's request: service needed, information already given and questions still open. Go-Forth's team would review it before routing the job. Nine-67 handles the AI build and training.\n\nWould an example of that handoff be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "one application your team helps shape",
         "message": "Chase, Nine-67 recently helped one client deploy 20 applications, working with users from first build through training. We're an AI-first engineering team.\n\nAt Go-Forth, I'd explore one intake-to-service handoff so the customer's context reaches the right team.\n\nWould you like a short plan for that application?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "don't make the customer start over",
         "message": "Chase, I'd give AI the job of making sure the next team already knows the customer's story.\n\nOur engineers at Nine-67 could turn Go-Forth's intake notes into a brief with the request, open questions and next step for review.\n\nWould that be a welcome improvement for your service teams?"
       }
@@ -533,19 +665,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "before the estimator starts",
         "message": "Joseph, Michigan Box serves food and industrial customers, so I'd like to help with the details an estimator needs before pricing a request.\n\nI'm {sender} at Nine-67. Our AI engineers could check the incoming specifications and prepare missing-information questions for your team.\n\nIs that clarification work a meaningful part of the quoting process?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "an RFQ ready to price",
+        "message": "Joseph, we'd build an RFQ check that extracts packaging specifications, compares them with your requirements and flags what's missing before estimating. Nine-67 would build with Michigan Box's team and measure review time and clarification rounds.\n\nWould a sample RFQ walkthrough be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "AI before the pricing decision",
         "message": "Joseph, Nine-67 has built a proposal workspace that brings requirements and approved information together for review. We're an AI-first engineering team.\n\nI'd apply that checking approach before Michigan Box's estimators price an RFQ, with your team approving the interpretation.\n\nWould you like to see the requirements-review step?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "give AI the incomplete request",
         "message": "Joseph, I'd hand AI the incomplete RFQ and ask it to come back with better questions.\n\nOur engineers at Nine-67 could build that check around Michigan Box's packaging requirements. The estimator gets a clearer request to price.\n\nWould that take worthwhile work off the quoting desk?"
       }
@@ -557,19 +695,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "finding the right coil match",
         "message": "Jim, Almetals' processing and distribution work looks like a practical place to help with the checking before a quote.\n\nI'm {sender} at Nine-67. Our AI engineers could assemble stock options and supporting specifications for your team's review.\n\nIs finding the match or confirming the documentation the larger task?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "prepare the match before the quote",
+        "message": "Jim, we'd build a request check for one Almetals alloy family: extract the gauge and other requirements, prepare stock options and attach the relevant documents. Your team approves the match. Nine-67 handles the AI engineering.\n\nWould a sample request-to-review walkthrough be worth sending?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "checking the requirements first",
         "message": "Jim, our proposal workspace at Nine-67 brings requirements and approved information together so reviewers can check the result. We're an AI-first engineering team.\n\nAt Almetals, I'd explore that same evidence-gathering step around a stock match.\n\nWould you like to see the review approach?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "almost right isn't the match",
         "message": "Jim, I'd give AI the job of showing its work on a metal match: here's the request, here's the stock and here's the supporting specification.\n\nNine-67's engineers would build it with Almetals' team, who make the approval.\n\nWould that help your quoting process?"
       }
@@ -581,19 +725,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "before the next stock decision",
         "message": "John, I'd like to help English Gardens' buyers see available stock across locations before making the next replenishment decision.\n\nI'm {sender} at Nine-67. Our AI engineers build with operating teams to gather the information behind those calls.\n\nIs preparing that comparison already straightforward for your buyers?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "check another location first",
+        "message": "John, we'd build a category review that brings demand and available stock together, including what another English Gardens location has. Buyers review the suggested checks and make the decisions. Nine-67 would measure preparation time with the team.\n\nWould a sample review for one category be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "a practical first application",
         "message": "John, Nine-67 has deployed a resource-allocation application with a client, building it with the people making the decisions. We're an AI-first engineering team.\n\nI'd explore a different allocation task at English Gardens: preparing the stock comparison for buyers.\n\nWould you like an outline of how that review could work?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the stock might already be yours",
         "message": "John, the stock a buyer needs might already belong to English Gardens, just at another location.\n\nI'd put AI on getting that comparison ready. Our engineers at Nine-67 would build with your buyers and leave the purchasing decisions with them.\n\nWould that save useful preparation in a seasonal category?"
       }
@@ -605,19 +755,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "keeping the service history useful",
         "message": "Jerry, Braman's Fusion acquisition made me think about keeping customer history useful as records change hands, particularly promises still open.\n\nI'm {sender} at Nine-67. Our AI engineers build tools that assemble that history for the receiving service team.\n\nIs that handoff still relevant, or already settled?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "the commitments inside the records",
+        "message": "Jerry, we'd build a customer handoff brief from service history and unresolved commitments, with links back to the original records. Nine-67's AI engineers would work with Braman's receiving team and check completeness.\n\nWould a sample of that brief be useful for future acquisition handoffs?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "a working view of customer history",
         "message": "Jerry, Nine-67 deployed an account-health view for a professional-services firm, bringing account concerns and business context together. We're an AI-first engineering company.\n\nI'd explore that approach for service teams receiving customer records at Braman.\n\nWould you like to see the account view as an example?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "what did we promise this customer",
         "message": "Jerry, I'd want AI to find the promises tucked inside a customer history before the account changes hands.\n\nOur engineers at Nine-67 could build that check with Braman's team, keeping the source record beside each open commitment.\n\nWould that be useful in your next service handoff?"
       }
@@ -629,19 +785,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "after the inspection finding",
         "message": "Jason, I'd like to help Versacor's team connect an inspection finding with the evidence that the follow-up is complete.\n\nI'm {sender} at Nine-67. Our AI engineers could gather the records and flag incomplete cases for your specialists to check.\n\nIs collecting that evidence a meaningful part of your team's workload?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "make completion easy to verify",
+        "message": "Jason, we'd build a follow-up check that puts each finding, responsible person and completion evidence together. Nine-67 would work with Versacor's specialists and measure preparation time and missing records they catch.\n\nWould a sample review of that workflow be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "bringing the evidence together",
         "message": "Jason, Nine-67 built a proposal workspace joining requirements, approved information and review. We're an AI-first engineering team.\n\nVersacor's inspection follow-up is a different workflow, but linking a requirement to its supporting evidence could help there too.\n\nWould you like to see that review step?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "done, with the evidence",
         "message": "Jason, I'd ask AI to bring the evidence when it says an action is done.\n\nOur engineers at Nine-67 could build a follow-up check for Versacor that puts the finding and completion record together for a specialist to approve.\n\nWould that take useful checking off the team's plate?"
       }
@@ -653,19 +815,25 @@
     "variants": [
       {
         "id": "a",
-        "label": "Practical idea",
+        "label": "Personal",
         "subject": "from the first call to the visit",
         "message": "Luke, Native's move to a chief revenue officer role made me think about the promise that travels from the first call into service.\n\nI'm {sender} at Nine-67. Our AI engineers build with operations teams to keep that context available.\n\nIs the intake-to-service handoff a priority at Native?"
       },
       {
+        "id": "b",
+        "label": "Business idea",
+        "subject": "carry the promise into service",
+        "message": "Luke, we'd build a first-visit brief from intake notes: what the customer expects, what was promised and what still needs answering. Native's team reviews it before the visit. Nine-67's AI engineers would check completeness and preparation time.\n\nWould a sample brief be useful?"
+      },
+      {
         "id": "c",
-        "label": "Relevant proof",
+        "label": "With proof",
         "subject": "one build that connects the teams",
         "message": "Luke, Nine-67 recently helped one client deploy 20 applications, building with business teams and training them through rollout. We're an AI-first engineering company.\n\nFor Native, I'd start between the first customer conversation and the first visit.\n\nWould you like an outline of that handoff application?"
       },
       {
         "id": "d",
-        "label": "Fresh angle",
+        "label": "Wildcard",
         "subject": "the promise should travel",
         "message": "Luke, I'd give AI the job of remembering the promises, with the source note attached.\n\nOur engineers at Nine-67 could build a first-visit brief so Native's service team sees what the customer was told and what remains open.\n\nWould that help connect your revenue and service teams?"
       }

@@ -1,5 +1,5 @@
 import focus from '../../data/revenue-focus.json' with { type: 'json' };
-import { savedVariants, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
+import { savedVariants, archivedVariants, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
 import { emailStyle } from './email-style.ts';
 
 export type AuthoredSenderInput = {
@@ -22,7 +22,7 @@ const normalized = (body: string) => emailStyle(body)
 export function authoredSenderDraft(input: AuthoredSenderInput): AuthoredSenderResult {
   const channel = input.channel ?? 'email';
   const first = input.senderName.trim().split(/\s+/)[0];
-  const candidates = savedVariants(input.domain, input.contactName, channel);
+  const candidates = [...savedVariants(input.domain, input.contactName, channel), ...archivedVariants(input.domain, input.contactName, channel)];
   if (channel === 'email' && input.domain) {
     const account = focus.find(row => domainKey(row.domain) === domainKey(input.domain!));
     const contact = account?.contacts.find(row => personKey(row.name) === personKey(input.contactName));
