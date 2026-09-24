@@ -37,3 +37,7 @@ First emails now offer the completed Gift without linking to it. Existing Gift p
 ## Three usable versions per contact
 
 All 28 contacts now have three populated choices for both email and LinkedIn. A verified recent event enables Trigger; otherwise that slot is Business Idea, using the previously authored contact-specific practical draft. Gift stays available with the finished brief. The third slot is Proof, using Nine-67's actual delivery experience without claiming a same-industry peer. A verified close-peer case can still take precedence later. These fallback drafts are prewritten, not generated on click. First-touch checks cover all 84 email versions, and historical snapshots remain preserved.
+
+## Offer-led replacement
+
+The active selector is now Direct Offer, Concrete Idea and Delivery Experience for all 28 contacts. The authored bank is data/offer-versions.json, with 84 emails and 84 separate LinkedIn messages. Direct Offer is the default. These drafts sell what Nine-67 can build with the recipient's team, not a Gift or a document. First emails remain link-free, with one question and no long dashes. Existing Gift assets and earlier drafts remain historical only. Exact unmodified retired authored email selections can adopt the new default; personal edits, approved drafts and sent messages are preserved.

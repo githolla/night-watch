@@ -1,0 +1,758 @@
+[
+  {
+    "domain": "ansararestaurantgroup.com",
+    "contactName": "Victor Ansara",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "a first AI project at Ansara",
+        "message": "I'd like to help Ansara's restaurant managers spend less time preparing for location reviews.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Ansara, one starting point would be to bring location reports, changes worth discussing and unfinished actions into one view before the weekly review.\n\nIs preparing that review something you'd like to take off their plates?",
+        "linkedinMessage": "I'd like to help Ansara's restaurant managers spend less time preparing for location reviews. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could bring location reports, changes worth discussing and unfinished actions into one view before the weekly review. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "before the weekly restaurant review",
+        "message": "Your managers could walk into the weekly review with the numbers gathered, changes flagged and last week's unfinished actions already in front of them.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure preparation time and completed actions before expanding it.\n\nIs preparing that review something you'd like to take off their plates?",
+        "linkedinMessage": "For Ansara, I'd start with one application: bring location reports, changes worth discussing and unfinished actions into one view before the weekly review. I'm {sender} at Nine-67. We'd build with your team and measure preparation time and completed actions. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Ansara, we'd start with one task: bring location reports, changes worth discussing and unfinished actions into one view before the weekly review. We'd judge the first version by preparation time and completed actions.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch. I'm {sender} at Nine-67. For Ansara, we'd start small: bring location reports, changes worth discussing and unfinished actions into one view before the weekly review. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "metrowire.net",
+    "contactName": "Devin Ezop",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "AI for quote preparation",
+        "message": "I'd like to help Metro Wire's quoting staff get a checked cable request ready sooner.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Metro Wire, one starting point would be to read a cable request, identify missing specifications and gather approved product and stock information for the person preparing the quote.\n\nIs quote preparation a good place for us to start?",
+        "linkedinMessage": "I'd like to help Metro Wire's quoting staff get a checked cable request ready sooner. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could read a cable request, identify missing specifications and gather approved product and stock information for the person preparing the quote. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "a cable request ready to quote",
+        "message": "I'd have the quoting team open a cable request with the specifications extracted, missing details flagged and approved stock options ready to check.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure quote preparation time and corrections before expanding it.\n\nIs quote preparation a good place for us to start?",
+        "linkedinMessage": "For Metro Wire, I'd start with one application: read a cable request, identify missing specifications and gather approved product and stock information for the person preparing the quote. I'm {sender} at Nine-67. We'd build with your team and measure quote preparation time and corrections. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "a requirements check we have built",
+        "message": "We've built a proposal workspace that brings requirements and approved information together for human review.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Metro Wire, we'd start with one task: read a cable request, identify missing specifications and gather approved product and stock information for the person preparing the quote. We'd judge the first version by quote preparation time and corrections.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've built a proposal workspace that brings requirements and approved information together for human review. I'm {sender} at Nine-67. For Metro Wire, we'd start small: read a cable request, identify missing specifications and gather approved product and stock information for the person preparing the quote. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "wolverinetruckgroup.com",
+    "contactName": "Lynn Terry",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "a first project for the service desk",
+        "message": "I'd like to help Wolverine's service advisors get repair orders ready without chasing the same details.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Wolverine, one starting point would be to bring the diagnosis, parts status and customer approval together before a service job is scheduled.\n\nWould that help your service advisors get jobs ready?",
+        "linkedinMessage": "I'd like to help Wolverine's service advisors get repair orders ready without chasing the same details. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could bring the diagnosis, parts status and customer approval together before a service job is scheduled. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "before the repair is scheduled",
+        "message": "Before a repair is scheduled, I'd give the service advisor one place to check the diagnosis, parts and customer approval.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure advisor preparation time and missing details before expanding it.\n\nWould that help your service advisors get jobs ready?",
+        "linkedinMessage": "For Wolverine, I'd start with one application: bring the diagnosis, parts status and customer approval together before a service job is scheduled. I'm {sender} at Nine-67. We'd build with your team and measure advisor preparation time and missing details. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "from shared records to a next step",
+        "message": "We've deployed a collaboration workspace with a client, building it with the people coordinating the work.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Wolverine, we'd start with one task: bring the diagnosis, parts status and customer approval together before a service job is scheduled. We'd judge the first version by advisor preparation time and missing details.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've deployed a collaboration workspace with a client, building it with the people coordinating the work. I'm {sender} at Nine-67. For Wolverine, we'd start small: bring the diagnosis, parts status and customer approval together before a service job is scheduled. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "mcstamp.com",
+    "contactName": "Judith Kucway",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help with production changes",
+        "message": "I'd like to help Motor City Stamping's planners assess customer changes with the affected work in front of them.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Motor City Stamping, one starting point would be to compare a revised customer order with scheduled jobs and flag quantities or dates a planner needs to review.\n\nWould a first version around order changes be worth exploring?",
+        "linkedinMessage": "I'd like to help Motor City Stamping's planners assess customer changes with the affected work in front of them. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could compare a revised customer order with scheduled jobs and flag quantities or dates a planner needs to review. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "when a customer revises the order",
+        "message": "When a customer revises an order, I'd give your planner the changed quantities, dates and affected jobs together, ready for a decision.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure review time and scheduling corrections before expanding it.\n\nWould a first version around order changes be worth exploring?",
+        "linkedinMessage": "For Motor City Stamping, I'd start with one application: compare a revised customer order with scheduled jobs and flag quantities or dates a planner needs to review. I'm {sender} at Nine-67. We'd build with your team and measure review time and scheduling corrections. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "building with the people who plan the work",
+        "message": "We've deployed a resource-allocation application with a client, building it alongside the people making the decisions.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Motor City Stamping, we'd start with one task: compare a revised customer order with scheduled jobs and flag quantities or dates a planner needs to review. We'd judge the first version by review time and scheduling corrections.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've deployed a resource-allocation application with a client, building it alongside the people making the decisions. I'm {sender} at Nine-67. For Motor City Stamping, we'd start small: compare a revised customer order with scheduled jobs and flag quantities or dates a planner needs to review. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "evansdist.com",
+    "contactName": "John A. Evans",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "from feedback to follow-through",
+        "message": "I'd like to help Evans's account teams turn customer feedback into completed follow-ups.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Evans, one starting point would be to bring customer survey comments, account measures and open actions into the same review, with an owner for each follow-up.\n\nIs that follow-through a useful first project for Evans?",
+        "linkedinMessage": "I'd like to help Evans's account teams turn customer feedback into completed follow-ups. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could bring customer survey comments, account measures and open actions into the same review, with an owner for each follow-up. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "after the customer scorecard",
+        "message": "I'd make the next customer review start with the comment, the relevant account measure and the unfinished follow-up together.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure review preparation time and action completion before expanding it.\n\nIs that follow-through a useful first project for Evans?",
+        "linkedinMessage": "For Evans, I'd start with one application: bring customer survey comments, account measures and open actions into the same review, with an owner for each follow-up. I'm {sender} at Nine-67. We'd build with your team and measure review preparation time and action completion. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "an account view we put into use",
+        "message": "For a professional-services firm, we deployed an account-health view that brought account concerns and business context together.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Evans, we'd start with one task: bring customer survey comments, account measures and open actions into the same review, with an owner for each follow-up. We'd judge the first version by review preparation time and action completion.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "For a professional-services firm, we deployed an account-health view that brought account concerns and business context together. I'm {sender} at Nine-67. For Evans, we'd start small: bring customer survey comments, account measures and open actions into the same review, with an owner for each follow-up. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "bellforklift.com",
+    "contactName": "Kristen Bell",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "less admin after a service job",
+        "message": "I'd like to help Bell's service staff finish job records with less retyping.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Bell, one starting point would be to turn technician notes into a draft service record showing work performed, parts used and unresolved items for approval.\n\nWould it help to test that on one kind of service job?",
+        "linkedinMessage": "I'd like to help Bell's service staff finish job records with less retyping. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could turn technician notes into a draft service record showing work performed, parts used and unresolved items for approval. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "from technician notes to a job record",
+        "message": "I'd turn a technician's notes into a draft closeout record, with the work, parts and unresolved items ready for your service staff to approve.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure closeout time and missing-detail corrections before expanding it.\n\nWould it help to test that on one kind of service job?",
+        "linkedinMessage": "For Bell, I'd start with one application: turn technician notes into a draft service record showing work performed, parts used and unresolved items for approval. I'm {sender} at Nine-67. We'd build with your team and measure closeout time and missing-detail corrections. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "from service priority to working application",
+        "message": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Bell, we'd start with one task: turn technician notes into a draft service record showing work performed, parts used and unresolved items for approval. We'd judge the first version by closeout time and missing-detail corrections.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch. I'm {sender} at Nine-67. For Bell, we'd start small: turn technician notes into a draft service record showing work performed, parts used and unresolved items for approval. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "tngworldwide.com",
+    "contactName": "Larry Gaynor",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "AI for product information checks",
+        "message": "I'd like to help TNG's the catalog team check product information with less manual comparison.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor TNG, one starting point would be to compare draft listings with approved supplier details and show reviewers exactly which claims need checking.\n\nIs checking product information a task you'd like help with?",
+        "linkedinMessage": "I'd like to help TNG's the catalog team check product information with less manual comparison. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could compare draft listings with approved supplier details and show reviewers exactly which claims need checking. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "before a product listing goes live",
+        "message": "Before a listing goes live, I'd show the reviewer where it differs from the approved product facts, with the source beside each flag.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure review time and corrections caught before expanding it.\n\nIs checking product information a task you'd like help with?",
+        "linkedinMessage": "For TNG, I'd start with one application: compare draft listings with approved supplier details and show reviewers exactly which claims need checking. I'm {sender} at Nine-67. We'd build with your team and measure review time and corrections caught. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "a review tool we have already built",
+        "message": "We've built a proposal workspace that brings requirements and approved information together for human review.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor TNG, we'd start with one task: compare draft listings with approved supplier details and show reviewers exactly which claims need checking. We'd judge the first version by review time and corrections caught.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've built a proposal workspace that brings requirements and approved information together for human review. I'm {sender} at Nine-67. For TNG, we'd start small: compare draft listings with approved supplier details and show reviewers exactly which claims need checking. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "lrmanagement.com",
+    "contactName": "Leslie Etterbeek",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "a first AI project for maintenance",
+        "message": "I'd like to help LR's property managers keep maintenance follow-ups moving.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor LR, one starting point would be to connect each maintenance request with the vendor response, open decision and person responsible for the next step.\n\nWould that be useful for one property team to test?",
+        "linkedinMessage": "I'd like to help LR's property managers keep maintenance follow-ups moving. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could connect each maintenance request with the vendor response, open decision and person responsible for the next step. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one view of the unfinished work",
+        "message": "I'd give a property manager the request, vendor response and next responsible person together, without assembling another maintenance update.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure time spent preparing updates and overdue actions before expanding it.\n\nWould that be useful for one property team to test?",
+        "linkedinMessage": "For LR, I'd start with one application: connect each maintenance request with the vendor response, open decision and person responsible for the next step. I'm {sender} at Nine-67. We'd build with your team and measure time spent preparing updates and overdue actions. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting an application into managers' hands",
+        "message": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor LR, we'd start with one task: connect each maintenance request with the vendor response, open decision and person responsible for the next step. We'd judge the first version by time spent preparing updates and overdue actions.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch. I'm {sender} at Nine-67. For LR, we'd start small: connect each maintenance request with the vendor response, open decision and person responsible for the next step. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "gutherielumber.com",
+    "contactName": "Mel Gutherie",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help with changed builder orders",
+        "message": "I'd like to help Gutherie's dispatch and production review builder changes together.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Gutherie, one starting point would be to show which material orders and cutting instructions are affected when a builder changes a request, with your team approving the revision.\n\nIs that change review worth a first project together?",
+        "linkedinMessage": "I'd like to help Gutherie's dispatch and production review builder changes together. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could show which material orders and cutting instructions are affected when a builder changes a request, with your team approving the revision. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "before the revised order moves ahead",
+        "message": "Before a changed builder order reaches dispatch, I'd show the revised requirements beside the material order and cutting instructions it affects.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure change-review time and corrections before expanding it.\n\nIs that change review worth a first project together?",
+        "linkedinMessage": "For Gutherie, I'd start with one application: show which material orders and cutting instructions are affected when a builder changes a request, with your team approving the revision. I'm {sender} at Nine-67. We'd build with your team and measure change-review time and corrections. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "building around a shared handoff",
+        "message": "We've deployed a collaboration workspace with a client, building it with the people coordinating the work.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Gutherie, we'd start with one task: show which material orders and cutting instructions are affected when a builder changes a request, with your team approving the revision. We'd judge the first version by change-review time and corrections.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've deployed a collaboration workspace with a client, building it with the people coordinating the work. I'm {sender} at Nine-67. For Gutherie, we'd start small: show which material orders and cutting instructions are affected when a builder changes a request, with your team approving the revision. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "vicarirestaurants.com",
+    "contactName": "Rosalie Vicari",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "a first AI project for your managers",
+        "message": "I'd like to help your restaurant managers get from location numbers to a decision sooner.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor your restaurant group, one starting point would be to prepare one recurring cost review with the supporting numbers, unusual changes and actions from the previous meeting.\n\nWould a first version around one recurring cost review help your managers?",
+        "linkedinMessage": "I'd like to help your restaurant managers get from location numbers to a decision sooner. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could prepare one recurring cost review with the supporting numbers, unusual changes and actions from the previous meeting. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one cost review ready to discuss",
+        "message": "I'd have one location's cost review ready before the meeting: supporting numbers, changes worth discussing and actions left from last time.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure review preparation time and completed follow-ups before expanding it.\n\nWould a first version around one recurring cost review help your managers?",
+        "linkedinMessage": "For your restaurant group, I'd start with one application: prepare one recurring cost review with the supporting numbers, unusual changes and actions from the previous meeting. I'm {sender} at Nine-67. We'd build with your team and measure review preparation time and completed follow-ups. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "financial applications built with users",
+        "message": "We've deployed financial-planning and profitability applications with a client, building them with the teams using them.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor your restaurant group, we'd start with one task: prepare one recurring cost review with the supporting numbers, unusual changes and actions from the previous meeting. We'd judge the first version by review preparation time and completed follow-ups.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've deployed financial-planning and profitability applications with a client, building them with the teams using them. I'm {sender} at Nine-67. For your restaurant group, we'd start small: prepare one recurring cost review with the supporting numbers, unusual changes and actions from the previous meeting. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "caymanchem.com",
+    "contactName": "Kirk Maxey",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "AI with the evidence attached",
+        "message": "I'd like to help Cayman's scientists find supporting information while retaining scientific judgment.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Cayman, one starting point would be to retrieve answers from approved scientific documents, show the supporting passages and flag questions the material cannot answer.\n\nWould a source-based search tool be useful for your team to test?",
+        "linkedinMessage": "I'd like to help Cayman's scientists find supporting information while retaining scientific judgment. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could retrieve answers from approved scientific documents, show the supporting passages and flag questions the material cannot answer. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "the answer the documents support",
+        "message": "I'd start an AI search tool with a question its source material cannot answer. The useful behavior is to say so, then show the scientist what evidence is available.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure search time and unsupported answers caught in testing before expanding it.\n\nWould a source-based search tool be useful for your team to test?",
+        "linkedinMessage": "For Cayman, I'd start with one application: retrieve answers from approved scientific documents, show the supporting passages and flag questions the material cannot answer. I'm {sender} at Nine-67. We'd build with your team and measure search time and unsupported answers caught in testing. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "answers tied to their source",
+        "message": "Our reporting work includes an assistant that answers from the report itself, with a person retaining publication approval.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Cayman, we'd start with one task: retrieve answers from approved scientific documents, show the supporting passages and flag questions the material cannot answer. We'd judge the first version by search time and unsupported answers caught in testing.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "Our reporting work includes an assistant that answers from the report itself, with a person retaining publication approval. I'm {sender} at Nine-67. For Cayman, we'd start small: retrieve answers from approved scientific documents, show the supporting passages and flag questions the material cannot answer. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "caymanchem.com",
+    "contactName": "Stephen Barrett",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help preparing the next project review",
+        "message": "I'd like to help Cayman's your innovation team prepare project and partnership reviews.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Cayman, one starting point would be to bring project updates and approved evidence into a review draft, with sources attached and unanswered questions marked for the team.\n\nWould that make a useful first application for your innovation team?",
+        "linkedinMessage": "I'd like to help Cayman's your innovation team prepare project and partnership reviews. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could bring project updates and approved evidence into a review draft, with sources attached and unanswered questions marked for the team. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "the evidence behind the project",
+        "message": "Before a project review, I'd bring the updates and approved evidence into one draft, with the source for each point and unanswered questions clearly marked.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure review preparation time and evidence gaps found before expanding it.\n\nWould that make a useful first application for your innovation team?",
+        "linkedinMessage": "For Cayman, I'd start with one application: bring project updates and approved evidence into a review draft, with sources attached and unanswered questions marked for the team. I'm {sender} at Nine-67. We'd build with your team and measure review preparation time and evidence gaps found. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "bringing evidence into a working review",
+        "message": "We've built a proposal workspace that brings requirements and approved information together for human review.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Cayman, we'd start with one task: bring project updates and approved evidence into a review draft, with sources attached and unanswered questions marked for the team. We'd judge the first version by review preparation time and evidence gaps found.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've built a proposal workspace that brings requirements and approved information together for human review. I'm {sender} at Nine-67. For Cayman, we'd start small: bring project updates and approved evidence into a review draft, with sources attached and unanswered questions marked for the team. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "domesticuniform.com",
+    "contactName": "Mark Colton",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "less searching during a service call",
+        "message": "I'd like to help Domestic's service staff find the records behind a customer question faster.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Domestic, one starting point would be to gather delivery records, service notes and open actions for the employee handling the call, keeping the conversation with a person.\n\nWould faster access to those records help your service team?",
+        "linkedinMessage": "I'd like to help Domestic's service staff find the records behind a customer question faster. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could gather delivery records, service notes and open actions for the employee handling the call, keeping the conversation with a person. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "keep the person, prepare the records",
+        "message": "I'd keep the customer conversation with your staff and give them the delivery records, service notes and unfinished actions before they respond.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure record-search time and unresolved follow-ups before expanding it.\n\nWould faster access to those records help your service team?",
+        "linkedinMessage": "For Domestic, I'd start with one application: gather delivery records, service notes and open actions for the employee handling the call, keeping the conversation with a person. I'm {sender} at Nine-67. We'd build with your team and measure record-search time and unresolved follow-ups. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "an account view behind the conversation",
+        "message": "For a professional-services firm, we deployed an account-health view that brought account concerns and business context together.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Domestic, we'd start with one task: gather delivery records, service notes and open actions for the employee handling the call, keeping the conversation with a person. We'd judge the first version by record-search time and unresolved follow-ups.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "For a professional-services firm, we deployed an account-health view that brought account concerns and business context together. I'm {sender} at Nine-67. For Domestic, we'd start small: gather delivery records, service notes and open actions for the employee handling the call, keeping the conversation with a person. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "spraguepest.com",
+    "contactName": "AJ Treleven",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help with inspection follow-through",
+        "message": "I'd like to help Sprague's your team prepare inspection follow-up with the evidence together.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Sprague, one starting point would be to connect an inspection finding to the agreed action, responsible person and evidence needed for a specialist to close it.\n\nWould that be useful for one inspection follow-up process?",
+        "linkedinMessage": "I'd like to help Sprague's your team prepare inspection follow-up with the evidence together. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could connect an inspection finding to the agreed action, responsible person and evidence needed for a specialist to close it. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "from a finding to a completed action",
+        "message": "I'd connect an inspection finding to its agreed action, owner and closeout evidence, so the specialist can review the whole thread together.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure preparation time and missing closeout evidence before expanding it.\n\nWould that be useful for one inspection follow-up process?",
+        "linkedinMessage": "For Sprague, I'd start with one application: connect an inspection finding to the agreed action, responsible person and evidence needed for a specialist to close it. I'm {sender} at Nine-67. We'd build with your team and measure preparation time and missing closeout evidence. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "requirements and evidence in one review",
+        "message": "We've built a proposal workspace that brings requirements and approved information together for human review.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Sprague, we'd start with one task: connect an inspection finding to the agreed action, responsible person and evidence needed for a specialist to close it. We'd judge the first version by preparation time and missing closeout evidence.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've built a proposal workspace that brings requirements and approved information together for human review. I'm {sender} at Nine-67. For Sprague, we'd start small: connect an inspection finding to the agreed action, responsible person and evidence needed for a specialist to close it. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "altapestcontrol.com",
+    "contactName": "Chris Langlois",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "a first AI project for Alta",
+        "message": "I'd like to help Alta's branch teams make the first customer handoff easier to follow.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Alta, one starting point would be to bring the agreed service, booking details and unresolved questions together before a new customer’s first visit.\n\nIs the first-visit handoff a useful place for us to start?",
+        "linkedinMessage": "I'd like to help Alta's branch teams make the first customer handoff easier to follow. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could bring the agreed service, booking details and unresolved questions together before a new customer’s first visit. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "before a new customer’s first visit",
+        "message": "Before a new customer's first visit, I'd put the agreed service, booking details and unresolved questions in front of the branch team.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure preparation time and handoff corrections before expanding it.\n\nIs the first-visit handoff a useful place for us to start?",
+        "linkedinMessage": "For Alta, I'd start with one application: bring the agreed service, booking details and unresolved questions together before a new customer’s first visit. I'm {sender} at Nine-67. We'd build with your team and measure preparation time and handoff corrections. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "from customer concerns to action",
+        "message": "For a professional-services firm, we deployed an account-health view that brought account concerns and business context together.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Alta, we'd start with one task: bring the agreed service, booking details and unresolved questions together before a new customer’s first visit. We'd judge the first version by preparation time and handoff corrections.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "For a professional-services firm, we deployed an account-health view that brought account concerns and business context together. I'm {sender} at Nine-67. For Alta, we'd start small: bring the agreed service, booking details and unresolved questions together before a new customer’s first visit. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "altapestcontrol.com",
+    "contactName": "Aaron Curtis",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help with the first-visit handoff",
+        "message": "I'd like to help Alta's your team check the details passed from onboarding to the first visit.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Alta, one starting point would be to compare approved onboarding notes with the booked service and flag missing instructions for the team to resolve.\n\nWould you want to test that with one branch?",
+        "linkedinMessage": "I'd like to help Alta's your team check the details passed from onboarding to the first visit. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could compare approved onboarding notes with the booked service and flag missing instructions for the team to resolve. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "check the promise against the booking",
+        "message": "I'd check the promise in the onboarding notes against the booked service and flag missing instructions before the first visit.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure manual checking time and corrections before the visit before expanding it.\n\nWould you want to test that with one branch?",
+        "linkedinMessage": "For Alta, I'd start with one application: compare approved onboarding notes with the booked service and flag missing instructions for the team to resolve. I'm {sender} at Nine-67. We'd build with your team and measure manual checking time and corrections before the visit. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "building with the branch team",
+        "message": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Alta, we'd start with one task: compare approved onboarding notes with the booked service and flag missing instructions for the team to resolve. We'd judge the first version by manual checking time and corrections before the visit.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch. I'm {sender} at Nine-67. For Alta, we'd start small: compare approved onboarding notes with the booked service and flag missing instructions for the team to resolve. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "chrysanindustries.com",
+    "contactName": "Glenn Gerhard",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "AI for supplier update reviews",
+        "message": "I'd like to help Chrysan's purchasing staff assess supplier changes sooner.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Chrysan, one starting point would be to connect a supplier update to the purchasing commitments and orders it may affect, leaving decisions with your team.\n\nWould that help your purchasing team review supplier changes?",
+        "linkedinMessage": "I'd like to help Chrysan's purchasing staff assess supplier changes sooner. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could connect a supplier update to the purchasing commitments and orders it may affect, leaving decisions with your team. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one delay, the affected orders",
+        "message": "When a supplier changes a commitment, I'd show purchasing the affected orders and the decision needed, with the original update attached to the record.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure review time and manual cross-checks before expanding it.\n\nWould that help your purchasing team review supplier changes?",
+        "linkedinMessage": "For Chrysan, I'd start with one application: connect a supplier update to the purchasing commitments and orders it may affect, leaving decisions with your team. I'm {sender} at Nine-67. We'd build with your team and measure review time and manual cross-checks. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "building a shared view of changing work",
+        "message": "We've deployed a collaboration workspace with a client, building it with the people coordinating the work.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Chrysan, we'd start with one task: connect a supplier update to the purchasing commitments and orders it may affect, leaving decisions with your team. We'd judge the first version by review time and manual cross-checks.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've deployed a collaboration workspace with a client, building it with the people coordinating the work. I'm {sender} at Nine-67. For Chrysan, we'd start small: connect a supplier update to the purchasing commitments and orders it may affect, leaving decisions with your team. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "chrysanindustries.com",
+    "contactName": "Suk-Kyu Koh",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "a first AI project at Chrysan",
+        "message": "I'd like to help Chrysan turn a business priority into a small, measurable first AI application.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Chrysan, one starting point would be to start with supplier updates and affected orders, so purchasing can see what needs a decision without assembling the review by hand.\n\nIs that a business priority you would want to explore with us?",
+        "linkedinMessage": "I'd like to help Chrysan turn a business priority into a small, measurable first AI application. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could start with supplier updates and affected orders, so purchasing can see what needs a decision without assembling the review by hand. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one purchasing decision to start with",
+        "message": "I'd start Chrysan's first project with one purchasing decision: what a supplier change means for the orders already committed.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure preparation time and decisions followed through before expanding it.\n\nIs that a business priority you would want to explore with us?",
+        "linkedinMessage": "For Chrysan, I'd start with one application: start with supplier updates and affected orders, so purchasing can see what needs a decision without assembling the review by hand. I'm {sender} at Nine-67. We'd build with your team and measure preparation time and decisions followed through. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "20 applications, starting with priorities",
+        "message": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Chrysan, we'd start with one task: start with supplier updates and affected orders, so purchasing can see what needs a decision without assembling the review by hand. We'd judge the first version by preparation time and decisions followed through.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch. I'm {sender} at Nine-67. For Chrysan, we'd start small: start with supplier updates and affected orders, so purchasing can see what needs a decision without assembling the review by hand. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "rottler.com",
+    "contactName": "Mike Rottler",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help before the return visit",
+        "message": "I'd like to help Rottler's branch teams prepare for repeat service issues.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Rottler, one starting point would be to bring previous visit notes, customer concerns and unfinished actions together before the technician returns.\n\nWould that be a useful first application for a branch team?",
+        "linkedinMessage": "I'd like to help Rottler's branch teams prepare for repeat service issues. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could bring previous visit notes, customer concerns and unfinished actions together before the technician returns. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "the history before the next visit",
+        "message": "Before a technician returns, I'd gather the previous visit, customer's concern and unfinished actions into a short service history the branch can check.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure preparation time and missed follow-up details before expanding it.\n\nWould that be a useful first application for a branch team?",
+        "linkedinMessage": "For Rottler, I'd start with one application: bring previous visit notes, customer concerns and unfinished actions together before the technician returns. I'm {sender} at Nine-67. We'd build with your team and measure preparation time and missed follow-up details. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "keeping account context with the work",
+        "message": "For a professional-services firm, we deployed an account-health view that brought account concerns and business context together.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Rottler, we'd start with one task: bring previous visit notes, customer concerns and unfinished actions together before the technician returns. We'd judge the first version by preparation time and missed follow-up details.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "For a professional-services firm, we deployed an account-health view that brought account concerns and business context together. I'm {sender} at Nine-67. For Rottler, we'd start small: bring previous visit notes, customer concerns and unfinished actions together before the technician returns. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "eclipsemold.com",
+    "contactName": "Steve Craprotta",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "a first AI project for tooling changes",
+        "message": "I'd like to help Eclipse's your team review tooling changes before they reach production.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Eclipse, one starting point would be to compare the approved tooling revision with active job records and flag differences for engineering and production to resolve.\n\nIs that revision handoff something you'd like help with?",
+        "linkedinMessage": "I'd like to help Eclipse's your team review tooling changes before they reach production. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could compare the approved tooling revision with active job records and flag differences for engineering and production to resolve. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "the revision before the next run",
+        "message": "Before the next production run, I'd compare the approved tooling revision with the active job and flag differences for engineering to resolve.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure review time and revision mismatches caught before expanding it.\n\nIs that revision handoff something you'd like help with?",
+        "linkedinMessage": "For Eclipse, I'd start with one application: compare the approved tooling revision with active job records and flag differences for engineering and production to resolve. I'm {sender} at Nine-67. We'd build with your team and measure review time and revision mismatches caught. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "a collaboration application in daily use",
+        "message": "We've deployed a collaboration workspace with a client, building it with the people coordinating the work.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Eclipse, we'd start with one task: compare the approved tooling revision with active job records and flag differences for engineering and production to resolve. We'd judge the first version by review time and revision mismatches caught.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've deployed a collaboration workspace with a client, building it with the people coordinating the work. I'm {sender} at Nine-67. For Eclipse, we'd start small: compare the approved tooling revision with active job records and flag differences for engineering and production to resolve. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "genoilcorp.com",
+    "contactName": "Keith Albertie",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help with delivery-ticket checks",
+        "message": "I'd like to help Gen Oil's office staff check delivery tickets with less manual comparison.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Gen Oil, one starting point would be to match a delivery ticket to the order’s product, gallons and location, then flag disagreements before invoice approval.\n\nWould that be worth testing on one set of delivery tickets?",
+        "linkedinMessage": "I'd like to help Gen Oil's office staff check delivery tickets with less manual comparison. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could match a delivery ticket to the order’s product, gallons and location, then flag disagreements before invoice approval. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "before the delivery is billed",
+        "message": "Before the invoice is prepared, I'd compare the delivery ticket with the order and flag differences in product, gallons or location for office approval.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure checking time and billing corrections before expanding it.\n\nWould that be worth testing on one set of delivery tickets?",
+        "linkedinMessage": "For Gen Oil, I'd start with one application: match a delivery ticket to the order’s product, gallons and location, then flag disagreements before invoice approval. I'm {sender} at Nine-67. We'd build with your team and measure checking time and billing corrections. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "from office task to working application",
+        "message": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Gen Oil, we'd start with one task: match a delivery ticket to the order’s product, gallons and location, then flag disagreements before invoice approval. We'd judge the first version by checking time and billing corrections.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch. I'm {sender} at Nine-67. For Gen Oil, we'd start small: match a delivery ticket to the order’s product, gallons and location, then flag disagreements before invoice approval. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "go-forth.com",
+    "contactName": "Chase Hazelwood",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "a first AI project for customer intake",
+        "message": "I'd like to help Go-Forth's staff hand customer requests to the right service team.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Go-Forth, one starting point would be to compare the original request with the appointment and receiving-team notes, flagging missing instructions before the handoff.\n\nIs that handoff a useful first project for Go-Forth?",
+        "linkedinMessage": "I'd like to help Go-Forth's staff hand customer requests to the right service team. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could compare the original request with the appointment and receiving-team notes, flagging missing instructions before the handoff. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "before the request changes hands",
+        "message": "I'd make the receiving service team see the original request, appointment details and missing instructions before it takes over the customer.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure review time and corrected handoffs before expanding it.\n\nIs that handoff a useful first project for Go-Forth?",
+        "linkedinMessage": "For Go-Forth, I'd start with one application: compare the original request with the appointment and receiving-team notes, flagging missing instructions before the handoff. I'm {sender} at Nine-67. We'd build with your team and measure review time and corrected handoffs. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "building with the people handling intake",
+        "message": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Go-Forth, we'd start with one task: compare the original request with the appointment and receiving-team notes, flagging missing instructions before the handoff. We'd judge the first version by review time and corrected handoffs.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch. I'm {sender} at Nine-67. For Go-Forth, we'd start small: compare the original request with the appointment and receiving-team notes, flagging missing instructions before the handoff. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "michiganbox.com",
+    "contactName": "Joseph Fontana",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help preparing packaging requests",
+        "message": "I'd like to help Michigan Box's estimators get packaging requests with the essentials ready.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Michigan Box, one starting point would be to extract dimensions, materials, quantities and delivery requirements from an RFQ, then flag missing or conflicting details for review.\n\nWould that help your team get requests ready for estimating?",
+        "linkedinMessage": "I'd like to help Michigan Box's estimators get packaging requests with the essentials ready. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could extract dimensions, materials, quantities and delivery requirements from an RFQ, then flag missing or conflicting details for review. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "an RFQ ready for estimating",
+        "message": "I'd have an estimator open the RFQ with dimensions, material, quantity and delivery requirements extracted, and gaps marked for clarification.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure preparation time and clarification rounds before expanding it.\n\nWould that help your team get requests ready for estimating?",
+        "linkedinMessage": "For Michigan Box, I'd start with one application: extract dimensions, materials, quantities and delivery requirements from an RFQ, then flag missing or conflicting details for review. I'm {sender} at Nine-67. We'd build with your team and measure preparation time and clarification rounds. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "a requirements workspace we have built",
+        "message": "We've built a proposal workspace that brings requirements and approved information together for human review.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Michigan Box, we'd start with one task: extract dimensions, materials, quantities and delivery requirements from an RFQ, then flag missing or conflicting details for review. We'd judge the first version by preparation time and clarification rounds.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've built a proposal workspace that brings requirements and approved information together for human review. I'm {sender} at Nine-67. For Michigan Box, we'd start small: extract dimensions, materials, quantities and delivery requirements from an RFQ, then flag missing or conflicting details for review. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "almetals.com",
+    "contactName": "Jim Chain",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "AI for coil quote preparation",
+        "message": "I'd like to help Almetals's your quoting team check a coil request against approved information.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Almetals, one starting point would be to bring customer specifications, stock records and tolerance requirements together, with technical exceptions left for your specialists.\n\nWould a first version around one product family be useful?",
+        "linkedinMessage": "I'd like to help Almetals's your quoting team check a coil request against approved information. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could bring customer specifications, stock records and tolerance requirements together, with technical exceptions left for your specialists. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "specifications before the quote",
+        "message": "I'd bring the requested coil specification, stock records and tolerance rules together before the quote, with exceptions flagged for your specialists.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure quote preparation time and specification corrections before expanding it.\n\nWould a first version around one product family be useful?",
+        "linkedinMessage": "For Almetals, I'd start with one application: bring customer specifications, stock records and tolerance requirements together, with technical exceptions left for your specialists. I'm {sender} at Nine-67. We'd build with your team and measure quote preparation time and specification corrections. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "requirements ready for technical review",
+        "message": "We've built a proposal workspace that brings requirements and approved information together for human review.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Almetals, we'd start with one task: bring customer specifications, stock records and tolerance requirements together, with technical exceptions left for your specialists. We'd judge the first version by quote preparation time and specification corrections.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've built a proposal workspace that brings requirements and approved information together for human review. I'm {sender} at Nine-67. For Almetals, we'd start small: bring customer specifications, stock records and tolerance requirements together, with technical exceptions left for your specialists. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "englishgardens.com",
+    "contactName": "John Darin",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help with the next stock review",
+        "message": "I'd like to help English Gardens's buyers prepare store stock decisions with less spreadsheet work.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor English Gardens, one starting point would be to compare stock, reservations and recent movement for one category across stores, then prepare replenishment or transfer options for buyer approval.\n\nWould that help your buyers prepare the next stock decision?",
+        "linkedinMessage": "I'd like to help English Gardens's buyers prepare store stock decisions with less spreadsheet work. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could compare stock, reservations and recent movement for one category across stores, then prepare replenishment or transfer options for buyer approval. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one category across your stores",
+        "message": "I'd put one category's stock, reservations and recent movement side by side across stores, with transfer and replenishment options for the buyer to check.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure review preparation time and changes buyers make to the suggestions before expanding it.\n\nWould that help your buyers prepare the next stock decision?",
+        "linkedinMessage": "For English Gardens, I'd start with one application: compare stock, reservations and recent movement for one category across stores, then prepare replenishment or transfer options for buyer approval. I'm {sender} at Nine-67. We'd build with your team and measure review preparation time and changes buyers make to the suggestions. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "an allocation application built with users",
+        "message": "We've deployed a resource-allocation application with a client, building it alongside the people making the decisions.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor English Gardens, we'd start with one task: compare stock, reservations and recent movement for one category across stores, then prepare replenishment or transfer options for buyer approval. We'd judge the first version by review preparation time and changes buyers make to the suggestions.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've deployed a resource-allocation application with a client, building it alongside the people making the decisions. I'm {sender} at Nine-67. For English Gardens, we'd start small: compare stock, reservations and recent movement for one category across stores, then prepare replenishment or transfer options for buyer approval. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "bramanpest.com",
+    "contactName": "Jerry Lazarus",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help closing the inspection loop",
+        "message": "I'd like to help Braman's teams keep prevention findings moving through to completion.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Braman, one starting point would be to connect inspection notes to agreed corrective actions, owners and completion evidence for the specialist reviewing the account.\n\nWould that help your team follow an inspection through to completion?",
+        "linkedinMessage": "I'd like to help Braman's teams keep prevention findings moving through to completion. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could connect inspection notes to agreed corrective actions, owners and completion evidence for the specialist reviewing the account. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "after the prevention recommendation",
+        "message": "I'd keep the prevention finding, agreed fix, responsible person and completion evidence together until the specialist closes the item.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure follow-up preparation time and incomplete closeouts before expanding it.\n\nWould that help your team follow an inspection through to completion?",
+        "linkedinMessage": "For Braman, I'd start with one application: connect inspection notes to agreed corrective actions, owners and completion evidence for the specialist reviewing the account. I'm {sender} at Nine-67. We'd build with your team and measure follow-up preparation time and incomplete closeouts. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "putting account concerns into a working view",
+        "message": "For a professional-services firm, we deployed an account-health view that brought account concerns and business context together.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Braman, we'd start with one task: connect inspection notes to agreed corrective actions, owners and completion evidence for the specialist reviewing the account. We'd judge the first version by follow-up preparation time and incomplete closeouts.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "For a professional-services firm, we deployed an account-health view that brought account concerns and business context together. I'm {sender} at Nine-67. For Braman, we'd start small: connect inspection notes to agreed corrective actions, owners and completion evidence for the specialist reviewing the account. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "versacor.com",
+    "contactName": "Jason Eicher",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "a first AI project for inspection follow-up",
+        "message": "I'd like to help Versacor's specialists close inspection findings with the evidence ready.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Versacor, one starting point would be to bring each finding, agreed corrective action and supporting record together, flagging missing evidence before specialist approval.\n\nIs closeout preparation a task you'd like help with?",
+        "linkedinMessage": "I'd like to help Versacor's specialists close inspection findings with the evidence ready. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could bring each finding, agreed corrective action and supporting record together, flagging missing evidence before specialist approval. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "the evidence before closeout",
+        "message": "Before a specialist closes a finding, I'd have the agreed action and supporting evidence ready, with anything missing clearly flagged.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure review time and incomplete closeouts before expanding it.\n\nIs closeout preparation a task you'd like help with?",
+        "linkedinMessage": "For Versacor, I'd start with one application: bring each finding, agreed corrective action and supporting record together, flagging missing evidence before specialist approval. I'm {sender} at Nine-67. We'd build with your team and measure review time and incomplete closeouts. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "a working tool for evidence review",
+        "message": "We've built a proposal workspace that brings requirements and approved information together for human review.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Versacor, we'd start with one task: bring each finding, agreed corrective action and supporting record together, flagging missing evidence before specialist approval. We'd judge the first version by review time and incomplete closeouts.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We've built a proposal workspace that brings requirements and approved information together for human review. I'm {sender} at Nine-67. For Versacor, we'd start small: bring each finding, agreed corrective action and supporting record together, flagging missing evidence before specialist approval. Would you be open to discussing a first project?"
+      }
+    ]
+  },
+  {
+    "domain": "nativepestmanagement.com",
+    "contactName": "Luke Lewis",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "help with the first service handoff",
+        "message": "I'd like to help Native's teams carry the customer’s instructions into the first service visit.\n\nI'm {sender} at Nine-67. Our AI engineers work with business and operations teams to choose a useful first project, build it and stay through testing, training and launch.\n\nFor Native, one starting point would be to compare approved call notes with booking details and access instructions, then flag gaps for the receiving team to resolve.\n\nWould that be worth testing on your first-visit handoff?",
+        "linkedinMessage": "I'd like to help Native's teams carry the customer’s instructions into the first service visit. I'm {sender} at Nine-67. Our AI engineers build with operating teams and stay through testing, training and launch. A first project could compare approved call notes with booking details and access instructions, then flag gaps for the receiving team to resolve. Is this something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "from the first call to the first visit",
+        "message": "I'd check the first call against the booking and access instructions before the service team takes over, so it can resolve gaps before the visit.\n\nI'm {sender} at Nine-67. We build custom AI applications with the people doing the work. We'd test this on a small set of real examples and measure checking time and handoff corrections before expanding it.\n\nWould that be worth testing on your first-visit handoff?",
+        "linkedinMessage": "For Native, I'd start with one application: compare approved call notes with booking details and access instructions, then flag gaps for the receiving team to resolve. I'm {sender} at Nine-67. We'd build with your team and measure checking time and handoff corrections. Would that be useful?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting a first application into daily use",
+        "message": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nI'm {sender} at Nine-67. Our AI engineers stay involved from the first build through user feedback and deployment.\n\nFor Native, we'd start with one task: compare approved call notes with booking details and access instructions, then flag gaps for the receiving team to resolve. We'd judge the first version by checking time and handoff corrections.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch. I'm {sender} at Nine-67. For Native, we'd start small: compare approved call notes with booking details and access instructions, then flag gaps for the receiving team to resolve. Would you be open to discussing a first project?"
+      }
+    ]
+  }
+]

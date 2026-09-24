@@ -3,7 +3,7 @@ import { emailStyle } from "./email-style.ts";
 /** First-touch policy: validate rather than silently rewrite a manager's edits. */
 export function firstTouchErrors(subject:string, body:string):string[] {
  const errors:string[]=[];
- if(/(?:https?:\/\/|www\.|\b[a-z0-9-]+\.(?:com|net|org|io|co|ai)\b)/i.test(body)) errors.push('Remove links from the first email. Share the Gift after a reply.');
+ if(/(?:https?:\/\/|www\.|\b[a-z0-9-]+\.(?:com|net|org|io|co|ai)\b)/i.test(body)) errors.push('Remove links from the first email. Share supporting material after a reply.');
  if((body.match(/\?/g)||[]).length!==1) errors.push('Use exactly one question in the first email.');
  const banned=/\b(?:AI[- ]powered|leverage|synergy|solutions|game[- ]changing|revolutionary|cutting[- ]edge|unlock|supercharge|seamless|transformative|best[- ]in[- ]class)\b/i.exec(subject+' '+body);
  if(banned) errors.push(`Replace “${banned[0]}” with plain, specific language.`);

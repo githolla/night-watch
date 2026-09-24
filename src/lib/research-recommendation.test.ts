@@ -9,7 +9,7 @@ test('all25 companies and28contacts have completed individual gifts and exact-re
  const ids=new Set<string>();let count=0;
  for(const a of focus)for(const c of a.contacts){
   const row=contactEvidence(a.domain,c.name);assert.ok(row);const asset=giftAsset(row.giftId);assert.ok(asset);assert.equal(asset.contactName,c.name);assert.equal(asset.domain,a.domain);assert.equal(asset.checks.length,3);ids.add(asset.id);
-  for(const channel of ['email','linkedin'] as const){const variants=researchVersions(a.domain,c.name,channel,now);assert.equal(variants.length,3);assert.ok(variants.some(v=>v.id==='gift'));for(const v of variants){assert.doesNotMatch(v.message+v.subject,/[—–]/);assert.ok(v.message.endsWith('?'));assert.equal((v.message.match(/\?/g)||[]).length,1);assert.ok(v.message.length<950);}}
+  for(const channel of ['email','linkedin'] as const){const variants=researchVersions(a.domain,c.name,channel,now);assert.equal(variants.length,3);assert.ok(variants.some(v=>v.id==='direct-offer'));for(const v of variants){assert.doesNotMatch(v.message+v.subject,/[—–]/);assert.ok(v.message.endsWith('?'));assert.equal((v.message.match(/\?/g)||[]).length,1);assert.ok(v.message.length<950);}}
   assert.doesNotMatch(row.gift.message,/https?:\/\//);count++;
  }
  assert.equal(count,28);assert.equal(ids.size,28);assert.equal(contactEvidence(base.domain,'Not the buyer'),undefined);
@@ -28,4 +28,24 @@ test('research defaults do not replace edited, approved, sent or selected drafts
  const next=withResearchDefault(card,'Suuchi','Hello {first},');assert.match(next.email_body!,/^Hello Victor,/);assert.doesNotMatch(next.email_body!,/https?:\/\//);assert.notEqual(next.email_subject,'old');
  for(const status of ['edited','approved','sent','archived']){const protectedCard={...card,status};assert.equal(withResearchDefault(protectedCard,'Josh','Hi {first},'),protectedCard);}
  const selected={...card,active_variant_id:'chosen'};assert.equal(withResearchDefault(selected,'Josh','Hi {first},'),selected);
+});
+test('three offer approaches have distinct subjects and messages and no Gift pitch',()=>{
+ for(const account of focus)for(const contact of account.contacts){
+  const variants=researchVersions(account.domain,contact.name);
+  assert.deepEqual(variants.map(v=>v.label),['Direct Offer','Concrete Idea','Delivery Experience']);
+  assert.equal(new Set(variants.map(v=>v.subject)).size,3);
+  assert.equal(new Set(variants.map(v=>v.message)).size,3);
+  for(const v of variants)assert.doesNotMatch(v.message,/\bgift\b|one-page|send.{0,20}(?:brief|outline|teardown)/i);
+ }
+});
+test('unchanged retired authored selections move to Direct Offer while personal edits stay intact',async()=>{
+ const {archivedVariants,renderSavedVariant}=await import('./outreach-variants.ts');
+ const gift=archivedVariants(base.domain,base.contactName).find(v=>v.id==='gift')!;
+ const rendered=renderSavedVariant(gift,base.contactName,'Josh','Hi {first},');
+ const card={status:'edited',active_variant_id:'old-selection',accounts:{domain:base.domain},people:{full_name:base.contactName},email_subject:rendered.subject,email_body:rendered.body};
+ const updated=withResearchDefault(card,'Josh','Hi {first},');
+ assert.equal(updated.email_subject,researchVersions(base.domain,base.contactName)[0].subject);
+ const personal={...card,email_body:card.email_body+'\nA personal addition.'};
+ assert.equal(withResearchDefault(personal,'Josh','Hi {first},'),personal);
+ const sent={...card,status:'sent'};assert.equal(withResearchDefault(sent,'Josh','Hi {first},'),sent);
 });

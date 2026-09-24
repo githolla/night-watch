@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import rows from '../../data/research-outreach.json' with {type:'json'};
+import rows from '../../data/offer-versions.json' with {type:'json'};
 import {firstTouchErrors,firstTouchSignature,titleGuidance} from './first-touch.ts';
 test('all first-touch variants are link-free, plain and ask one question',()=>{
- for(const row of rows)for(const draft of [row.gift,row.trigger,row.businessIdea,row.deliveryProof])if(draft)assert.deepEqual(firstTouchErrors(draft.subject,draft.message),[],row.contactName);
+ for(const row of rows)for(const draft of row.variants)if(draft)assert.deepEqual(firstTouchErrors(draft.subject,draft.message),[],row.contactName);
 });
 test('edited drafts cannot introduce links, jargon or extra questions',()=>{
  assert.ok(firstTouchErrors('Hi','Want this? Another question?').length);

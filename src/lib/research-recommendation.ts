@@ -1,3 +1,4 @@
+import offers from '../../data/offer-versions.json' with { type: 'json' };
 import rows from '../../data/research-outreach.json' with { type: 'json' };
 import gifts from '../../data/outreach-gifts.json' with { type: 'json' };
 export type ResearchVersion = { id: string; label: string; subject: string; message: string };
@@ -29,20 +30,21 @@ export function recommendEvidence(row:ResearchEvidence, now = new Date()) {
  const recommended=[...candidates].filter(c=>c.eligible).sort((a,b)=>b.score-a.score)[0] ?? null;
  return {recommended,candidates,giftId:gift?row.giftId:null};
 }
-export function researchRecommendation(domain?:string|null,name?:string|null,now=new Date()) {
- const row=contactEvidence(domain,name);return row?recommendEvidence(row,now):null;
+export function researchRecommendation(domain?:string|null,name?:string|null) {
+ const row=offers.find(r=>domain&&name&&key(r.domain)===key(domain)&&key(r.contactName)===key(name));
+ if(!row)return null;
+ const reasons=['A direct introduction to what Nine-67 can build with this team.','One specific application and a way to judge whether it helps.','Actual Nine-67 delivery experience connected to this contact’s work.'];
+ const candidates=row.variants.map((v,i)=>({id:v.id,label:v.label,eligible:true,score:i===0?100:50,reason:reasons[i]}));
+ return {recommended:candidates[0],candidates,giftId:null};
 }
-export function researchVersions(domain?:string|null,name?:string|null,channel:'email'|'linkedin'='email',now=new Date()): ResearchVersion[] {
- const row=contactEvidence(domain,name);if(!row)return [];
- const info=recommendEvidence(row,now);
- return info.candidates.filter(c=>c.eligible).map(c=>{
-  const draft=c.id==='trigger'?row.trigger!:c.id==='peer-proof'?row.peerProof!:c.id==='business-idea'?row.businessIdea!:c.id==='proof'?row.deliveryProof!:row.gift;
-  return {id:c.id,label:c.label,subject:draft.subject,message:channel==='linkedin'?draft.linkedinMessage:draft.message};
- });
+export function researchVersions(domain?:string|null,name?:string|null,channel:'email'|'linkedin'='email',now?:Date): ResearchVersion[] {
+ void now;
+ const row=offers.find(r=>domain&&name&&key(r.domain)===key(domain)&&key(r.contactName)===key(name));
+ return row?.variants.map(v=>({id:v.id,label:v.label,subject:v.subject,message:channel==='linkedin'?v.linkedinMessage:v.message}))??[];
 }
 
 export function authoredResearchVersions(domain?:string|null,name?:string|null,channel:'email'|'linkedin'='email'):ResearchVersion[] {
  const row=contactEvidence(domain,name);if(!row)return [];
  const drafts=[{id:'business-idea',label:'Business Idea',draft:row.businessIdea},{id:'proof',label:'Proof',draft:row.deliveryProof},{id:'trigger',label:'Trigger',draft:row.trigger},{id:'gift',label:'Gift',draft:row.gift},{id:'peer-proof',label:'Peer Proof',draft:row.peerProof}];
- return drafts.flatMap(({id,label,draft})=>draft?[{id,label,subject:draft.subject,message:channel==='linkedin'?draft.linkedinMessage:draft.message}]:[]);
+ return drafts.flatMap(({id,label,draft})=>draft?[{id,label,subject:draft.subject,message:channel==='linkedin'?draft.linkedinMessage:draft.message}]:[]).concat(researchVersions(domain,name,channel));
 }

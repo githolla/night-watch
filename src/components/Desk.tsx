@@ -1172,7 +1172,7 @@ export function Desk({
                       return <button type="button" key={candidate.id} className={active ? "is-active" : ""} disabled={busy || !variant} title={candidate.reason} aria-pressed={active} onClick={() => { if(variant) { if(selectedVersion?.id === variant.id) setTonePreview(null); else previewTone(variant); } }}>{candidate.label}{recommendation.recommended?.id === candidate.id ? " · Recommended" : ""}</button>;
                     })}
                   </div>
-                  <details className="draft-details"><summary>{recommendation?.recommended ? `Why ${recommendation.recommended.label}?` : "Draft details"} · research &amp; checks</summary>
+                  <details className="draft-details"><summary>{recommendation?.recommended ? `About ${recommendation.recommended.label}` : "Draft details"} · research &amp; checks</summary>
                     {recommendation?.recommended && <p><strong>Recommended: {recommendation.recommended.label}.</strong> {recommendation.recommended.reason}</p>}
                     {recommendation?.candidates.filter(c=>!c.eligible).map(c=><p key={c.id}><strong>{c.label}:</strong> {c.reason}</p>)}
                     {recommendation?.giftId && <a className="gift-preview-link" href={`/gift/${recommendation.giftId}`} target="_blank" rel="noreferrer">View the completed Gift ↗</a>}

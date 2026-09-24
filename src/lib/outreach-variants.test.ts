@@ -7,8 +7,8 @@ test('all 28 contacts have complete, evidence-eligible authored versions', () =>
   let count = 0;
   for (const account of focus) for (const contact of account.contacts) {
     const variants = savedVariants(account.domain, contact.name);
-    assert.ok(variants.some(v => v.id === 'gift'));
-    assert.ok(variants.every(v => ['Trigger', 'Business Idea', 'Gift', 'Peer Proof', 'Proof'].includes(v.label)));
+    assert.ok(variants.some(v => v.id === 'direct-offer'));
+    assert.ok(variants.every(v => ['Direct Offer', 'Concrete Idea', 'Delivery Experience'].includes(v.label)));
     assert.equal(new Set(variants.map(v => v.message)).size, variants.length);
     for (const variant of variants) {
       assert.ok(variant.subject.trim());
@@ -40,8 +40,8 @@ test('all contacts have evidence-eligible LinkedIn messages with no email footer
   let count = 0;
   for (const account of focus) for (const contact of account.contacts) {
     const variants = savedVariants(account.domain, contact.name, 'linkedin');
-    assert.ok(variants.some(v => v.id === 'gift'));
-    assert.ok(variants.every(v => ['Trigger', 'Business Idea', 'Gift', 'Peer Proof', 'Proof'].includes(v.label)));
+    assert.ok(variants.some(v => v.id === 'direct-offer'));
+    assert.ok(variants.every(v => ['Direct Offer', 'Concrete Idea', 'Delivery Experience'].includes(v.label)));
     assert.equal(new Set(variants.map(v => v.message)).size, variants.length);
     for (const variant of variants) {
       const rendered = renderLinkedInVariant(variant, 'Suuchi Ramesh');
@@ -58,7 +58,7 @@ test('all contacts have evidence-eligible LinkedIn messages with no email footer
 
 test('blank current LinkedIn draft opens with the recommendation while existing edits stay intact', () => {
   const card = { accounts: { domain: 'ansararestaurantgroup.com' }, people: { full_name: 'Victor Ansara' }, linkedin_message: '', linkedin_subject: '' };
-  const expected = renderLinkedInVariant(savedVariants(card.accounts.domain, card.people.full_name, 'linkedin').find(v=>v.id==='gift')!, 'Suuchi Ramesh');
+  const expected = renderLinkedInVariant(savedVariants(card.accounts.domain, card.people.full_name, 'linkedin').find(v=>v.id==='direct-offer')!, 'Suuchi Ramesh');
   for (const missing of ['', '   ', null, undefined]) {
     const result = withDefaultLinkedIn({ ...card, linkedin_message: missing }, 'Suuchi Ramesh');
     assert.equal(result.linkedin_message, expected.body);
