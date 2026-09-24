@@ -33,3 +33,7 @@ No prospect email or self-test was sent by the agent. Real Gmail delivery and pr
 ## First-touch policy update
 
 First emails now offer the completed Gift without linking to it. Existing Gift pages stay available for sharing after a reply; LinkedIn copy is unchanged. First-touch sends and self-tests do not insert open pixels, and flatten the saved footer to text without remote images or URLs. Historical tracking remains available. Send validation requires one question and rejects links and common vague sales language. The desk shows recipient-fit guidance using a manually confirmed location count; it does not infer company size or replace contacts. No time-zone controls or scheduled sending were added.
+
+## Three usable versions per contact
+
+All 28 contacts now have three populated choices for both email and LinkedIn. A verified recent event enables Trigger; otherwise that slot is Business Idea, using the previously authored contact-specific practical draft. Gift stays available with the finished brief. The third slot is Proof, using Nine-67's actual delivery experience without claiming a same-industry peer. A verified close-peer case can still take precedence later. These fallback drafts are prewritten, not generated on click. First-touch checks cover all 84 email versions, and historical snapshots remain preserved.

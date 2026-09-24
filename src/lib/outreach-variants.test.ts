@@ -8,7 +8,7 @@ test('all 28 contacts have complete, evidence-eligible authored versions', () =>
   for (const account of focus) for (const contact of account.contacts) {
     const variants = savedVariants(account.domain, contact.name);
     assert.ok(variants.some(v => v.id === 'gift'));
-    assert.ok(variants.every(v => ['Trigger', 'Gift', 'Peer Proof'].includes(v.label)));
+    assert.ok(variants.every(v => ['Trigger', 'Business Idea', 'Gift', 'Peer Proof', 'Proof'].includes(v.label)));
     assert.equal(new Set(variants.map(v => v.message)).size, variants.length);
     for (const variant of variants) {
       assert.ok(variant.subject.trim());
@@ -22,13 +22,13 @@ test('all 28 contacts have complete, evidence-eligible authored versions', () =>
       count++;
     }
   }
-  assert.ok(count >= 28);
+  assert.equal(count, 84);
 });
 test('never presents another contact or company drafts as an available version', () => {
   assert.deepEqual(savedVariants('caymanchem.com', 'Unknown Person'), []);
   assert.deepEqual(savedVariants('unknown.example', 'Victor Ansara'), []);
   assert.deepEqual(savedVariants(null, null), []);
-  assert.equal(savedVariants('https://www.ansararestaurantgroup.com/', ' victor   ansara ').length, 1);
+  assert.equal(savedVariants('https://www.ansararestaurantgroup.com/', ' victor   ansara ').length, 3);
 });
 test('authored introductions follow sender settings, with no invented fallback name', () => {
   const [variant] = savedVariants('ansararestaurantgroup.com', 'Victor Ansara');
@@ -41,7 +41,7 @@ test('all contacts have evidence-eligible LinkedIn messages with no email footer
   for (const account of focus) for (const contact of account.contacts) {
     const variants = savedVariants(account.domain, contact.name, 'linkedin');
     assert.ok(variants.some(v => v.id === 'gift'));
-    assert.ok(variants.every(v => ['Trigger', 'Gift', 'Peer Proof'].includes(v.label)));
+    assert.ok(variants.every(v => ['Trigger', 'Business Idea', 'Gift', 'Peer Proof', 'Proof'].includes(v.label)));
     assert.equal(new Set(variants.map(v => v.message)).size, variants.length);
     for (const variant of variants) {
       const rendered = renderLinkedInVariant(variant, 'Suuchi Ramesh');
@@ -52,13 +52,13 @@ test('all contacts have evidence-eligible LinkedIn messages with no email footer
       count++;
     }
   }
-  assert.ok(count >= 28);
+  assert.equal(count, 84);
   assert.deepEqual(savedVariants('caymanchem.com', 'Unknown Person', 'linkedin'), []);
 });
 
 test('blank current LinkedIn draft opens with the recommendation while existing edits stay intact', () => {
   const card = { accounts: { domain: 'ansararestaurantgroup.com' }, people: { full_name: 'Victor Ansara' }, linkedin_message: '', linkedin_subject: '' };
-  const expected = renderLinkedInVariant(savedVariants(card.accounts.domain, card.people.full_name, 'linkedin')[0], 'Suuchi Ramesh');
+  const expected = renderLinkedInVariant(savedVariants(card.accounts.domain, card.people.full_name, 'linkedin').find(v=>v.id==='gift')!, 'Suuchi Ramesh');
   for (const missing of ['', '   ', null, undefined]) {
     const result = withDefaultLinkedIn({ ...card, linkedin_message: missing }, 'Suuchi Ramesh');
     assert.equal(result.linkedin_message, expected.body);

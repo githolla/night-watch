@@ -3,6 +3,8 @@ import gifts from '../../data/outreach-gifts.json' with { type: 'json' };
 export type ResearchVersion = { id: string; label: string; subject: string; message: string };
 export type ResearchEvidence = {
  domain: string; contactName: string; giftId: string;
+ businessIdea?: { subject: string; message: string; linkedinMessage: string };
+ deliveryProof?: { subject: string; message: string; linkedinMessage: string };
  gift: { subject: string; message: string; linkedinMessage: string };
  trigger: null | { publishedDate: string; sourceUrl: string; fact: string; relevantToContact: boolean; kind: string; subject: string; message: string; linkedinMessage: string };
  peerProof: null | { verified: boolean; closePeer: boolean; sourceUrl: string; outcome: string; subject: string; message: string; linkedinMessage: string };
@@ -20,9 +22,9 @@ export function recommendEvidence(row:ResearchEvidence, now = new Date()) {
  const asset=giftAsset(row.giftId);
  const gift=!!(asset && key(asset.domain)===key(row.domain) && key(asset.contactName)===key(row.contactName) && asset.checks.length>=3);
  const candidates=[
- {id:'trigger',label:'Trigger',eligible:timely,score:timely?100:0,reason:timely?`${row.trigger!.kind} published ${age} days ago: ${row.trigger!.fact}`:'No contact-relevant, dated trigger within the last 45 days.'},
+ {id:timely?'trigger':'business-idea',label:timely?'Trigger':'Business Idea',eligible:timely||!!row.businessIdea,score:timely?100:30,reason:timely?`${row.trigger!.kind} published ${age} days ago: ${row.trigger!.fact}`:'A practical idea based on the company’s operating work, without claiming a recent event.'},
  {id:'gift',label:'Gift',eligible:gift,score:gift?60:0,reason:gift?`A completed brief for ${row.contactName}: ${asset!.title}.`:'A completed, contact-specific brief is required.'},
- {id:'peer-proof',label:'Peer Proof',eligible:peer,score:peer?80:0,reason:peer?`Verified close-peer outcome: ${row.peerProof!.outcome}`:'No verified close-peer case with a documented outcome.'},
+ {id:peer?'peer-proof':'proof',label:peer?'Peer Proof':'Proof',eligible:peer||!!row.deliveryProof,score:peer?80:40,reason:peer?`Verified close-peer outcome: ${row.peerProof!.outcome}`:'Nine-67 delivery experience applied to this contact’s work. This is not claimed to be a same-industry case.'},
  ];
  const recommended=[...candidates].filter(c=>c.eligible).sort((a,b)=>b.score-a.score)[0] ?? null;
  return {recommended,candidates,giftId:gift?row.giftId:null};
@@ -34,13 +36,13 @@ export function researchVersions(domain?:string|null,name?:string|null,channel:'
  const row=contactEvidence(domain,name);if(!row)return [];
  const info=recommendEvidence(row,now);
  return info.candidates.filter(c=>c.eligible).map(c=>{
-  const draft=c.id==='trigger'?row.trigger!:c.id==='peer-proof'?row.peerProof!:row.gift;
+  const draft=c.id==='trigger'?row.trigger!:c.id==='peer-proof'?row.peerProof!:c.id==='business-idea'?row.businessIdea!:c.id==='proof'?row.deliveryProof!:row.gift;
   return {id:c.id,label:c.label,subject:draft.subject,message:channel==='linkedin'?draft.linkedinMessage:draft.message};
  });
 }
 
 export function authoredResearchVersions(domain?:string|null,name?:string|null,channel:'email'|'linkedin'='email'):ResearchVersion[] {
  const row=contactEvidence(domain,name);if(!row)return [];
- const drafts=[{id:'trigger',label:'Trigger',draft:row.trigger},{id:'gift',label:'Gift',draft:row.gift},{id:'peer-proof',label:'Peer Proof',draft:row.peerProof}];
+ const drafts=[{id:'business-idea',label:'Business Idea',draft:row.businessIdea},{id:'proof',label:'Proof',draft:row.deliveryProof},{id:'trigger',label:'Trigger',draft:row.trigger},{id:'gift',label:'Gift',draft:row.gift},{id:'peer-proof',label:'Peer Proof',draft:row.peerProof}];
  return drafts.flatMap(({id,label,draft})=>draft?[{id,label,subject:draft.subject,message:channel==='linkedin'?draft.linkedinMessage:draft.message}]:[]);
 }

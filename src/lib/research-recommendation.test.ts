@@ -9,7 +9,7 @@ test('all25 companies and28contacts have completed individual gifts and exact-re
  const ids=new Set<string>();let count=0;
  for(const a of focus)for(const c of a.contacts){
   const row=contactEvidence(a.domain,c.name);assert.ok(row);const asset=giftAsset(row.giftId);assert.ok(asset);assert.equal(asset.contactName,c.name);assert.equal(asset.domain,a.domain);assert.equal(asset.checks.length,3);ids.add(asset.id);
-  for(const channel of ['email','linkedin'] as const){const variants=researchVersions(a.domain,c.name,channel,now);assert.ok(variants.some(v=>v.id==='gift'));for(const v of variants){assert.doesNotMatch(v.message+v.subject,/[—–]/);assert.ok(v.message.endsWith('?'));assert.equal((v.message.match(/\?/g)||[]).length,1);assert.ok(v.message.length<950);}}
+  for(const channel of ['email','linkedin'] as const){const variants=researchVersions(a.domain,c.name,channel,now);assert.equal(variants.length,3);assert.ok(variants.some(v=>v.id==='gift'));for(const v of variants){assert.doesNotMatch(v.message+v.subject,/[—–]/);assert.ok(v.message.endsWith('?'));assert.equal((v.message.match(/\?/g)||[]).length,1);assert.ok(v.message.length<950);}}
   assert.doesNotMatch(row.gift.message,/https?:\/\//);count++;
  }
  assert.equal(count,28);assert.equal(ids.size,28);assert.equal(contactEvidence(base.domain,'Not the buyer'),undefined);
@@ -21,7 +21,7 @@ test('dated relevant triggers outrank peer proof and Gift, but expired/future/un
  for(const date of ['2026-07-01','2026-09-25','', 'not a date'])assert.equal(recommendEvidence({...row,trigger:{...trigger,publishedDate:date}},now).recommended?.id,'peer-proof');
  assert.equal(recommendEvidence({...row,trigger:{...trigger,relevantToContact:false}},now).recommended?.id,'peer-proof');
  assert.equal(recommendEvidence({...base,peerProof:{...row.peerProof!,closePeer:false}},now).recommended?.id,'gift');
- assert.equal(recommendEvidence({...base,giftId:'missing'},now).recommended,null);
+ assert.equal(recommendEvidence({...base,giftId:'missing',businessIdea:undefined,deliveryProof:undefined},now).recommended,null);
 });
 test('research defaults do not replace edited, approved, sent or selected drafts',()=>{
  const card={status:'new',accounts:{domain:base.domain},people:{full_name:base.contactName},email_subject:'old',email_body:'old'};

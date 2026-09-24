@@ -7,7 +7,7 @@ import { trackedEmailHtml, openTrackingId, firstOpenAt } from './open-tracking.t
 import { encrypt } from './crypto.ts';
 const domain = 'ansararestaurantgroup.com';
 const personId = 'person-1';
-const variant = savedVariants(domain, 'Victor Ansara')[0];
+const variant = savedVariants(domain, 'Victor Ansara').find(v=>v.id==='gift')!;
 const draft = renderSavedVariant(variant, 'Victor Ansara', 'Josh Lee');
 const base = { domain, personId, contactName: 'Victor Ansara', senderName: 'Josh Lee', ...draft, source: 'gmail' as const };
 const selectedMeta = identifyVersion({ ...base, source: 'selection' });
