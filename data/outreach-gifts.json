@@ -1,0 +1,709 @@
+[
+  {
+    "id": "acab1f2dcdb294cb7f53bc933368b973",
+    "domain": "ansararestaurantgroup.com",
+    "company": "Ansara Restaurant Group",
+    "contactName": "Victor Ansara",
+    "contactTitle": "President & CEO",
+    "title": "location review follow-through",
+    "inputs": "restaurant reports",
+    "checks": [
+      "Compare each location with its own prior period, keeping the source figures visible.",
+      "Record the manager’s chosen action, owner and review date.",
+      "Carry unfinished actions into the next review."
+    ],
+    "measures": [
+      "review preparation minutes",
+      "actions completed by their review date"
+    ],
+    "source": {
+      "fact": "Ansara Restaurant Group operates restaurants in Michigan and northwest Ohio under Victor Ansara.",
+      "date": null,
+      "sourceUrl": "https://www.ansararestaurantgroup.com/story.html"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed first test based on public information. No internal records have been inspected; savings and process gaps are not established."
+  },
+  {
+    "id": "cccb701c38c9073b45ca91792148a718",
+    "domain": "metrowire.net",
+    "company": "Metro Wire & Cable",
+    "contactName": "Devin Ezop",
+    "contactTitle": "President & CEO",
+    "title": "cable quote preparation",
+    "inputs": "cable requests and approved product specifications",
+    "checks": [
+      "Extract length, gauge, insulation and delivery requirements from the request.",
+      "Show missing specifications and possible stock matches for a quoting specialist to check.",
+      "Keep substitutions unapproved until the customer and quoting team accept them."
+    ],
+    "measures": [
+      "minutes preparing a quote",
+      "corrections before release"
+    ],
+    "source": {
+      "fact": "Metro Wire supplies wire and cable through distribution centers in Michigan, Georgia and Iowa.",
+      "date": null,
+      "sourceUrl": "https://metrowire.net/careers/about-careers/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed first test based on public information. No internal records have been inspected; savings and process gaps are not established."
+  },
+  {
+    "id": "26733b782716b198d614dbabe7ccaf27",
+    "domain": "wolverinetruckgroup.com",
+    "company": "Wolverine Truck Sales",
+    "contactName": "Lynn Terry",
+    "contactTitle": "President",
+    "title": "repair order preparation",
+    "inputs": "repair orders, technician notes and parts records",
+    "checks": [
+      "Bring the diagnosis, required parts and customer authorization into one view.",
+      "Flag missing authorization or parts information before work is scheduled.",
+      "Let the service advisor release the work and record the next customer update."
+    ],
+    "measures": [
+      "advisor preparation minutes",
+      "orders returned for missing information"
+    ],
+    "source": {
+      "fact": "Wolverine Truck Group operates three Michigan locations providing truck sales, parts, service and body repair.",
+      "date": null,
+      "sourceUrl": "https://www.wolverinetruckgroup.com/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed first test based on public information. No internal records have been inspected; savings and process gaps are not established."
+  },
+  {
+    "id": "7f56625f108273aa760a784913612c3b",
+    "domain": "mcstamp.com",
+    "company": "Motor City Stamping",
+    "contactName": "Judith Kucway",
+    "contactTitle": "CEO & CFO",
+    "title": "schedule change review",
+    "inputs": "customer revisions and the production schedule",
+    "checks": [
+      "Compare the revision with the last approved order.",
+      "Show which quantities, dates and scheduled jobs may be affected.",
+      "Have a planner approve the revised commitment and name who informs the customer."
+    ],
+    "measures": [
+      "revision review minutes",
+      "corrections after approval"
+    ],
+    "source": {
+      "fact": "Motor City Stamping describes its stamping, welding, assembly and engineering-change capabilities.",
+      "date": null,
+      "sourceUrl": "https://mcstamp.com/about.html"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed first test based on public information. No internal records have been inspected; savings and process gaps are not established."
+  },
+  {
+    "id": "c6835cf7cdfac5695c2cad3c004ce14a",
+    "domain": "evansdist.com",
+    "company": "Evans Distribution Systems",
+    "contactName": "John A. Evans",
+    "contactTitle": "President & CEO",
+    "title": "customer scorecard follow-through",
+    "inputs": "customer survey comments, account KPI scorecards and approved follow-up records",
+    "checks": [
+      "Keep the original customer comment beside its service area and account KPI evidence; flag ambiguous matches for review.",
+      "Have the account team choose the response, owner and review date rather than letting AI assign commitments.",
+      "Carry open actions into the next review and record whether the customer received the agreed update."
+    ],
+    "measures": [
+      "minutes preparing one account review",
+      "agreed follow-ups completed by their review date"
+    ],
+    "source": {
+      "fact": "Evans announced a refreshed customer survey and new service-specific KPI scorecards.",
+      "date": "2026-09-10",
+      "sourceUrl": "https://www.evansdist.com/continuous-improvement-starts-with-comprehensive-data/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed first test based on public information. No internal records have been inspected; savings and process gaps are not established."
+  },
+  {
+    "id": "a9ffd828d2cb739aa8faf133180fcc94",
+    "domain": "bellforklift.com",
+    "company": "Bell Fork Lift",
+    "contactName": "Kristen Bell",
+    "contactTitle": "Co-owner & Vice President",
+    "title": "service note closeout",
+    "inputs": "technician notes and service job records",
+    "checks": [
+      "Extract work performed, parts used and unresolved issues.",
+      "Flag missing job details for the technician or advisor to resolve.",
+      "Have the service team approve the record before invoicing or scheduling more work."
+    ],
+    "measures": [
+      "note review minutes",
+      "jobs returned for clarification"
+    ],
+    "source": {
+      "fact": "Bell Fork Lift provides equipment, rentals, parts and repair service across Michigan.",
+      "date": null,
+      "sourceUrl": "https://www.bellforklift.com/history/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed first test based on public information. No internal records have been inspected; savings and process gaps are not established."
+  },
+  {
+    "id": "74fb9d78a247ea897323010a0e1d9b94",
+    "domain": "tngworldwide.com",
+    "company": "TNG Worldwide",
+    "contactName": "Larry Gaynor",
+    "contactTitle": "Founder & CEO",
+    "title": "product information checks",
+    "inputs": "approved product details and draft listings",
+    "checks": [
+      "Compare a changed product detail against its approved source.",
+      "Flag conflicting descriptions and unsupported claims for the product team.",
+      "Record the approved correction and which listings need an update."
+    ],
+    "measures": [
+      "review minutes",
+      "conflicting details caught before publishing"
+    ],
+    "source": {
+      "fact": "TNG sells professional salon supplies and personal care products, with Larry Gaynor involved in supplier engagement and product development.",
+      "date": null,
+      "sourceUrl": "https://tngworldwide.com/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed first test based on public information. No internal records have been inspected; savings and process gaps are not established."
+  },
+  {
+    "id": "56b6949aae28fd0d378ce31c7bb11ab6",
+    "domain": "lrmanagement.com",
+    "company": "LR Management Services",
+    "contactName": "Leslie Etterbeek",
+    "contactTitle": "Founder & CEO",
+    "title": "maintenance follow-through",
+    "inputs": "maintenance requests and property work orders",
+    "checks": [
+      "Collect the tenant’s request, latest update and responsible person.",
+      "Show requests missing an owner, appointment or completion evidence.",
+      "Let the property manager decide the next action and confirm tenant follow-up."
+    ],
+    "measures": [
+      "time to assign a request",
+      "requests reopened after closeout"
+    ],
+    "source": {
+      "fact": "LR Management describes resident support, onsite service and operational stability as connected priorities in its May 15 post.",
+      "date": "2026-05-15",
+      "sourceUrl": "https://www.lrmanagement.com/blog/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed first test based on public information. No internal records have been inspected; savings and process gaps are not established."
+  },
+  {
+    "id": "17fd776004f3a03a32bdbf8bf67f08a8",
+    "domain": "gutherielumber.com",
+    "company": "Gutherie Lumber",
+    "contactName": "Mel Gutherie",
+    "contactTitle": "President",
+    "title": "builder order change review",
+    "inputs": "builder changes, material orders and cutting instructions",
+    "checks": [
+      "Compare a requested change with the accepted specification.",
+      "List potentially affected deliveries, wall panels and cut components for review.",
+      "Have the responsible team approve the change before instructions are released."
+    ],
+    "measures": [
+      "change review minutes",
+      "conflicting instructions caught"
+    ],
+    "source": {
+      "fact": "Gutherie supplies lumber, trusses, prefabricated wall panels, windows and doors from Livonia.",
+      "date": null,
+      "sourceUrl": "https://gutherielumber.com/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed first test based on public information. No internal records have been inspected; savings and process gaps are not established."
+  },
+  {
+    "id": "03eb93052e0118cf180f49848628093d",
+    "domain": "vicarirestaurants.com",
+    "company": "Joe Vicari Restaurant Group",
+    "contactName": "Rosalie Vicari",
+    "contactTitle": "Owner",
+    "title": "one cost question per restaurant",
+    "inputs": "location reports and manager action notes",
+    "checks": [
+      "Compare one cost category with that restaurant's own prior periods; show volume and concept beside the change.",
+      "Attach the invoice or report behind an unusual number and mark missing evidence instead of inventing a cause.",
+      "Have the manager record a decision, owner and next check; carry unresolved items forward."
+    ],
+    "measures": [
+      "minutes preparing each restaurant review",
+      "decisions with an owner and review date"
+    ],
+    "source": {
+      "fact": "Joe Vicari Restaurant Group operates multiple restaurant concepts including Andiamo and Joe Muer Seafood.",
+      "date": null,
+      "sourceUrl": "https://vicarirestaurants.com/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "1ecc548020f34e224ddb7dd10079ed44",
+    "domain": "caymanchem.com",
+    "company": "Cayman Chemical",
+    "contactName": "Kirk Maxey",
+    "contactTitle": "President & CEO",
+    "title": "a test AI should fail",
+    "inputs": "approved scientific documents and review questions",
+    "checks": [
+      "Give the tool a small approved document set and require the source passage beside each answer.",
+      "Include an unanswerable question and a conflicting-source question; require explicit uncertainty and escalation.",
+      "Have a scientist review every response before release and record unsupported statements separately from retrieval errors."
+    ],
+    "measures": [
+      "answers supported by the cited passage",
+      "unsupported answers caught",
+      "scientist review minutes"
+    ],
+    "source": {
+      "fact": "Kirk Maxey discussed why scientific validation remains essential as AI accelerates research in an August 2026 Cayman article.",
+      "date": "2026-08-19",
+      "sourceUrl": "https://www.caymanchem.com/news/ai-and-the-future-of-research"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "ea899dd49bc09f0de993080595f603e2",
+    "domain": "caymanchem.com",
+    "company": "Cayman Chemical",
+    "contactName": "Stephen Barrett",
+    "contactTitle": "VP, Innovation & Growth",
+    "title": "the evidence behind the project",
+    "inputs": "project updates and approved evidence",
+    "checks": [
+      "Choose one project review and list the claims the team needs to evaluate.",
+      "Link each claim to approved evidence, its date and any conflicting findings; leave unsupported claims visibly unresolved.",
+      "Let the project lead assign the next evidence check and approve the packet before circulation."
+    ],
+    "measures": [
+      "time assembling the review packet",
+      "claims with traceable evidence",
+      "reviewer corrections"
+    ],
+    "source": {
+      "fact": "Kirk Maxey discussed why scientific validation remains essential as AI accelerates research in an August 2026 Cayman article.",
+      "date": "2026-08-19",
+      "sourceUrl": "https://www.caymanchem.com/news/ai-and-the-future-of-research"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "a3c70543d8e34565217369aee7aef01d",
+    "domain": "domesticuniform.com",
+    "company": "Domestic Uniform Rental",
+    "contactName": "Mark Colton",
+    "contactTitle": "President",
+    "title": "keep the person, lose the searching",
+    "inputs": "delivery records, customer reports and service notes",
+    "checks": [
+      "Match one reported missing item to its scheduled delivery and available route record; flag uncertain matches.",
+      "Put earlier customer contacts, quantities and unresolved promises in a short view for the service representative.",
+      "Require the representative to approve the response and record the remedy; never let the tool contact the customer itself."
+    ],
+    "measures": [
+      "minutes preparing a missing-item response",
+      "repeat contacts before resolution"
+    ],
+    "source": {
+      "fact": "Domestic promises callers a real person and backs its recurring service with a written guarantee.",
+      "date": null,
+      "sourceUrl": "https://www.domesticuniform.com/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "2d75a048d72bed2c793a4c91f63531d3",
+    "domain": "spraguepest.com",
+    "company": "Sprague Pest Solutions",
+    "contactName": "AJ Treleven",
+    "contactTitle": "Executive Vice President",
+    "title": "after the facility recommendation",
+    "inputs": "inspection records and customer audit requirements",
+    "checks": [
+      "Separate technician actions from recommendations that require the facility team; retain the observation behind each.",
+      "Attach the responsible person, requested completion date and evidence needed to close each recommendation.",
+      "Prepare the next-visit brief with unresolved recommendations; let the technician decide whether further investigation is needed."
+    ],
+    "measures": [
+      "minutes preparing the next-visit brief",
+      "recommendations with a confirmed owner",
+      "unresolved recommendations reviewed"
+    ],
+    "source": {
+      "fact": "Sprague's September 14 article separates technician work from recommendations requiring facility action.",
+      "date": "2026-09-14",
+      "sourceUrl": "https://www.spraguepest.com/is-your-pest-management-program-keeping-up-with-your-facility/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "3eae491805ef77af875b9d543fbbd1e5",
+    "domain": "altapestcontrol.com",
+    "company": "Alta Pest Control",
+    "contactName": "Chris Langlois",
+    "contactTitle": "CEO",
+    "title": "the promise behind the next visit",
+    "inputs": "onboarding notes and approved customer service records",
+    "checks": [
+      "Choose one branch and match each return request to the previous service record.",
+      "Show the customer's concern, recorded treatment and outstanding promises; identify missing notes without guessing.",
+      "Have the branch confirm the next appointment and technician brief; keep treatment decisions with qualified staff."
+    ],
+    "measures": [
+      "minutes preparing return visits",
+      "visits with the relevant prior notes available"
+    ],
+    "source": {
+      "fact": "Alta offers quarterly pest service and a no-extra-charge return visit when pests return between scheduled visits.",
+      "date": null,
+      "sourceUrl": "https://www.altapestcontrol.com/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "1792f640e366cdf30d0e99eec2eea9dd",
+    "domain": "altapestcontrol.com",
+    "company": "Alta Pest Control",
+    "contactName": "Aaron Curtis",
+    "contactTitle": "Customer Experience Officer",
+    "title": "one customer, one clear history",
+    "inputs": "onboarding notes and approved customer service records",
+    "checks": [
+      "Take one return request and link the customer's previous contacts to the matching service visit.",
+      "Highlight promised callbacks or visits that lack confirmation; distinguish missing information from a missed commitment.",
+      "Let the service team approve the response and confirm the customer knows the next step."
+    ],
+    "measures": [
+      "time reconstructing the customer history",
+      "repeat explanations requested from customers",
+      "promises with confirmed next steps"
+    ],
+    "source": {
+      "fact": "Alta offers quarterly pest service and a no-extra-charge return visit when pests return between scheduled visits.",
+      "date": null,
+      "sourceUrl": "https://www.altapestcontrol.com/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "300a4e144f1142cfe910d0b562011945",
+    "domain": "chrysanindustries.com",
+    "company": "Chrysan Industries",
+    "contactName": "Glenn Gerhard",
+    "contactTitle": "President & CFO",
+    "title": "one supplier delay, affected orders",
+    "inputs": "supplier updates and purchasing commitments",
+    "checks": [
+      "Compare a revised supplier date with the accepted purchase commitment and preserve the original message.",
+      "Link the affected item to open orders and required dates; flag incomplete mappings for purchasing.",
+      "Record the approved response, any confirmed extra cost and the owner of customer communication."
+    ],
+    "measures": [
+      "minutes reviewing a supplier change",
+      "affected orders missed in a checked sample",
+      "changes awaiting an approved response"
+    ],
+    "source": {
+      "fact": "Chrysan makes automotive lubricants and specialty chemicals, with published contacts in the US, China, South Korea and Mexico.",
+      "date": null,
+      "sourceUrl": "https://www.chrysanindustries.com/en/contact-us"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "cddecf74afd221a97d93d26f2c141c1e",
+    "domain": "chrysanindustries.com",
+    "company": "Chrysan Industries",
+    "contactName": "Suk-Kyu Koh",
+    "contactTitle": "Chairman & CEO",
+    "title": "a first AI test for purchasing",
+    "inputs": "supplier updates and purchasing commitments",
+    "checks": [
+      "Start with one supplier and one product flow; agree which records establish an accepted commitment.",
+      "Compare each date change with affected order requirements and show uncertain links explicitly.",
+      "Keep purchase and customer decisions with the team; review accuracy and preparation time before expanding."
+    ],
+    "measures": [
+      "correctly linked affected orders",
+      "review preparation minutes",
+      "unresolved changes with an owner"
+    ],
+    "source": {
+      "fact": "Chrysan makes automotive lubricants and specialty chemicals, with published contacts in the US, China, South Korea and Mexico.",
+      "date": null,
+      "sourceUrl": "https://www.chrysanindustries.com/en/contact-us"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "98d2a365c1f41e5d34f022f9dc48bbc0",
+    "domain": "rottler.com",
+    "company": "Rottler Pest Solutions",
+    "contactName": "Mike Rottler",
+    "contactTitle": "Chairman & CEO",
+    "title": "before the technician returns",
+    "inputs": "previous visit notes and customer service history",
+    "checks": [
+      "Match a repeat visit to earlier findings, service notes and the customer's latest report.",
+      "Distinguish recorded facts from unanswered questions; flag contradictory notes for the technician.",
+      "Have the technician confirm the planned investigation and update the outcome after the visit."
+    ],
+    "measures": [
+      "minutes preparing the visit history",
+      "missing or contradictory notes caught before dispatch"
+    ],
+    "source": {
+      "fact": "Rottler operates a family-owned pest management business led by Mike Rottler.",
+      "date": null,
+      "sourceUrl": "https://www.rottler.com/meet-team/mike-rottler/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "0c375c66718db1ff4c93c0acdbb5ef6d",
+    "domain": "eclipsemold.com",
+    "company": "Eclipse Mold",
+    "contactName": "Steve Craprotta",
+    "contactTitle": "President",
+    "title": "the revision before the next run",
+    "inputs": "tooling revisions and active job records",
+    "checks": [
+      "Compare the incoming revision with the last approved version and identify the changed references.",
+      "Match those references to active jobs and instructions, marking any uncertain link for engineering.",
+      "Require engineering approval and record the released version before revised instructions reach production."
+    ],
+    "measures": [
+      "minutes checking a revision",
+      "old-version references caught",
+      "uncertain job links resolved"
+    ],
+    "source": {
+      "fact": "Eclipse Mold provides mold building, repair, injection molding and component assembly.",
+      "date": null,
+      "sourceUrl": "https://www.eclipsemold.com/home/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "d9497539636a4874f161a00a3579673a",
+    "domain": "genoilcorp.com",
+    "company": "Gen Oil",
+    "contactName": "Keith Albertie",
+    "contactTitle": "President",
+    "title": "Three checks before a fuel delivery is billed",
+    "inputs": "A sample delivery ticket, corresponding order, approved pricing basis and billing review rules",
+    "checks": [
+      "Match ticket and order by customer, delivery site, fuel product and delivery date; flag an unmatched ticket rather than guessing.",
+      "Compare delivered gallons with ordered quantity and the approved billing basis; separate a documented partial delivery from an unexplained difference.",
+      "Attach the ticket and approved resolution to each exception; require the billing reviewer to approve it before invoicing."
+    ],
+    "measures": [
+      "Minutes to prepare one ticket for billing review",
+      "Tickets returned because a required field or discrepancy remains unresolved"
+    ],
+    "source": {
+      "fact": "Gen Oil delivers commercial and industrial fuels and diesel exhaust fluid.",
+      "date": null,
+      "sourceUrl": "https://www.genoilcorp.com/fuel-delivery/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "df33ec661bd689e81a1fbaff920e9017",
+    "domain": "go-forth.com",
+    "company": "Go-Forth Home Services",
+    "contactName": "Chase Hazelwood",
+    "contactTitle": "Owner & CEO",
+    "title": "A request handoff checklist for Go-Forth",
+    "inputs": "Original customer request, approved appointment details, service routing rules and receiving-team notes",
+    "checks": [
+      "Pull the service requested, address and customer description from the original request; attach the source notes for the receiving team.",
+      "Separate a confirmed appointment or quoted commitment from a customer preference that staff have not yet approved.",
+      "Route to a named service owner for acceptance; retain the unresolved question and agreed next customer update."
+    ],
+    "measures": [
+      "Time the receiving team spends preparing the job",
+      "Handoffs returned to the office for information already supplied"
+    ],
+    "source": {
+      "fact": "Go-Forth provides pest control and other home services under owner and CEO Chase Hazelwood.",
+      "date": null,
+      "sourceUrl": "https://www.go-forth.com/our-company/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "9b17f8288c6192feb3d1df07614aed29",
+    "domain": "michiganbox.com",
+    "company": "Michigan Box",
+    "contactName": "Joseph Fontana",
+    "contactTitle": "CEO",
+    "title": "Three checks before a packaging RFQ reaches estimating",
+    "inputs": "Customer RFQ, drawings and revisions, approved specification rules and delivery requirements",
+    "checks": [
+      "Identify packaging type, dimensions, quantity and delivery date from the request; keep unspecified measurements visibly blank.",
+      "Match the requested use with the stated material, board grade and protective components; flag conflicts for an estimator instead of choosing a specification.",
+      "Attach the source drawing and its revision, highlight missing approvals, and draft one clarification request for the estimator to approve."
+    ],
+    "measures": [
+      "Estimator preparation minutes per custom RFQ",
+      "Clarification rounds before a quote can be prepared"
+    ],
+    "source": {
+      "fact": "Michigan Box lists shipping cases, corrugated sheets, automotive kit packs and custom protective packaging among its products.",
+      "date": null,
+      "sourceUrl": "https://www.michiganbox.com/products/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "79cb1a5300d59949a241767a7f9535ed",
+    "domain": "almetals.com",
+    "company": "Almetals / Chain Industries",
+    "contactName": "Jim Chain",
+    "contactTitle": "President",
+    "title": "A coil-match checklist for Almetals",
+    "inputs": "Customer specifications, current approved stock records, tolerances and technical approval rules",
+    "checks": [
+      "Extract alloy, temper, gauge, width and quantity exactly as requested; mark absent tolerances or units for clarification.",
+      "Compare with approved stock records and show which requirement each candidate satisfies; keep an alternate visibly separate from an exact match.",
+      "Attach the supporting specification and let the technical or sales reviewer approve suitability before a quote is prepared."
+    ],
+    "measures": [
+      "Time to prepare candidates for technical review",
+      "Candidates rejected because a stated requirement was missed"
+    ],
+    "source": {
+      "fact": "Almetals processes and distributes metal from Michigan and Georgia as part of Chain Industries.",
+      "date": null,
+      "sourceUrl": "https://almetals.com/about-us.aspx"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "50f502f644d288e9ceb2a6f25274b41c",
+    "domain": "englishgardens.com",
+    "company": "English Gardens",
+    "contactName": "John Darin",
+    "contactTitle": "CEO",
+    "title": "A stock review checklist across six garden centers",
+    "inputs": "Stock and reservation reports by store, recent category movement, approved transfer costs and supplier lead times",
+    "checks": [
+      "For one category, compare available stock by location after subtracting reservations; show the age and source of each report.",
+      "Put recent movement beside stock availability; flag incomplete records without inventing a demand forecast.",
+      "Have a buyer compare a transfer with a new order using approved cost and timing information, then record the decision and follow-up."
+    ],
+    "measures": [
+      "Minutes to prepare a category stock review",
+      "Decisions made with stock availability from all participating stores"
+    ],
+    "source": {
+      "fact": "English Gardens lists six locations across Metro Detroit and offers garden, floral and landscaping services.",
+      "date": null,
+      "sourceUrl": "https://www.englishgardens.com/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "c7b86773fe5b0c0011e50ef303ca2f14",
+    "domain": "bramanpest.com",
+    "company": "Braman Termite & Pest Elimination",
+    "contactName": "Jerry Lazarus",
+    "contactTitle": "President",
+    "title": "Three checks to close a fall prevention finding",
+    "inputs": "Inspection notes, customer-approved corrective actions, responsible owners and completion evidence",
+    "checks": [
+      "Capture each documented dock, waste-area or entry-point finding with its location and source inspection note; do not infer pest activity from a missing field.",
+      "Identify whether Braman or the facility owns the proposed action and record the accepted due date.",
+      "Present completion notes or photos to the specialist; only close the action after their review, retaining unresolved items for follow-up."
+    ],
+    "measures": [
+      "Preparation minutes for a follow-up review",
+      "Actions awaiting an owner or completion evidence"
+    ],
+    "source": {
+      "fact": "Braman published fall prevention guidance for loading docks, dumpsters and delivery areas on September 2, 2026.",
+      "date": "2026-09-02",
+      "sourceUrl": "https://bramanpest.com/blog/fall-pest-pressure-blog/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "e4b9c138f78009e8344571191f6d8d0e",
+    "domain": "versacor.com",
+    "company": "Versacor Enterprises",
+    "contactName": "Jason Eicher",
+    "contactTitle": "President",
+    "title": "An inspection closeout checklist for Versacor",
+    "inputs": "Inspection findings, agreed corrective actions, specialist evidence requirements and closeout decisions",
+    "checks": [
+      "Link a documented finding to the customer site, responsible owner and requested corrective action; preserve the original inspection note.",
+      "List the evidence the specialist requires before closure and show whether it has been received; do not treat an uploaded photo as automatic approval.",
+      "Have the specialist accept or return the evidence and retain the decision so a later reviewer can follow the closeout."
+    ],
+    "measures": [
+      "Minutes to assemble evidence for specialist review",
+      "Findings returned because required evidence is missing"
+    ],
+    "source": {
+      "fact": "Versacor lists West Texas and Kansas City as branches added in 2026; the company history does not give exact opening dates.",
+      "date": null,
+      "sourceUrl": "https://versacor.com/company-history/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  },
+  {
+    "id": "e8ada95ecdf2e91853af0de2e59676df",
+    "domain": "nativepestmanagement.com",
+    "company": "Native Pest Management",
+    "contactName": "Luke Lewis",
+    "contactTitle": "Founder & CEO",
+    "title": "A first-visit promise checklist for Native",
+    "inputs": "Approved call notes, booked service details, access instructions and receiving-team confirmation",
+    "checks": [
+      "Extract the stated pest concern, agreed service and access instructions from approved call notes; retain the source for each detail.",
+      "Distinguish confirmed service commitments from requests that need staff approval; leave absent information visibly unresolved.",
+      "Have the receiving team accept the brief, resolve open questions and record the next customer update before the visit."
+    ],
+    "measures": [
+      "Time to prepare a first-visit brief",
+      "Handoffs returned for a missing or ambiguous commitment"
+    ],
+    "source": {
+      "fact": "Native announced Kelly Moseley’s promotion to chief revenue officer in July 2026.",
+      "date": "2026-07-22",
+      "sourceUrl": "https://www.nativepestmanagement.com/blog/native-pest-management-promotes-kelly-moseley-to-chief-revenue-officer/"
+    },
+    "preparedAt": "2026-09-24",
+    "scope": "A proposed workflow based on public information. We have not inspected your internal systems or measured a savings opportunity."
+  }
+]

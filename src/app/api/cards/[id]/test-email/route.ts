@@ -1,3 +1,5 @@
+import { trackedGiftCopy, firstGiftViewAt } from "@/lib/gift-tracking";
+import { contactEvidence } from "@/lib/research-recommendation";
 import { authoredSenderDraft } from '@/lib/authored-sender';
 import { requireUser } from '@/lib/auth';
 import { admin } from '@/lib/supabase/admin';
@@ -41,8 +43,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const body = personalized.body;
     const fullBody = withOutreachSignature(body, profile);
     const versionId = await trackEmailVersion(db, { cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
-    const html = trackedEmailHtml(outreachEmailHtml(body, profile), outboundBaseUrl(request), versionId);
-    await sendEmail(user.owner, fromHeader(profile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, fullBody, undefined, [], html);
+    const giftId = contactEvidence(account?.domain, person?.full_name)?.giftId;
+    const deliveredBody = giftId ? trackedGiftCopy(fullBody, giftId, versionId) : fullBody;
+    const renderedHtml = outreachEmailHtml(body, profile);
+    const html = trackedEmailHtml(giftId ? trackedGiftCopy(renderedHtml, giftId, versionId) : renderedHtml, outboundBaseUrl(request), versionId);
+    await sendEmail(user.owner, fromHeader(profile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);
     // Tests never create touches, change card status or enroll follow-ups.
     const { data: snapshot } = await db.from('message_variants').select('experiment_id,dimensions').eq('id', versionId).single();
     let warning: string | undefined;
@@ -66,6 +71,6 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     if (error) throw error;
     if (!data) return Response.json({ test: null });
     const experiment = data.message_experiments as unknown as { status: string; context: string };
-    return Response.json({ test: { id: data.id, label: versionLabel(data.dimensions), subject: data.subject, at: data.created_at, status: experiment.status, openAt: firstOpenAt(experiment.context) } }, { headers: { 'Cache-Control': 'no-store' } });
+    return Response.json({ test: { id: data.id, label: versionLabel(data.dimensions), subject: data.subject, at: data.created_at, status: experiment.status, openAt: firstOpenAt(experiment.context), giftViewAt: firstGiftViewAt(experiment.context) } }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : 'Could not check test status' }, { status: 400 }); }
 }

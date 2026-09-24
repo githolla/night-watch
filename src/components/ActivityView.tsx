@@ -24,6 +24,7 @@ export type ActivityEvent = {
   gmailThreadId: string | null;
   version?: string;
   openAt?: string | null;
+  giftViewAt?: string | null;
   trackedOpen?: boolean;
   sendSource?: string;
 };
@@ -198,7 +199,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
                     <time>{fullWhen(event.at)}</time>
                   </div>
                   <div className="ptl-meta"><span>{CHANNEL_LABEL[event.channel] ?? event.channel}</span>{event.company ? <span>{event.company}</span> : null}<span>Sent by {event.sentBy}</span>{event.replied ? <em className={`activity-reply ${event.replyClass === "positive" ? "is-pos" : ""}`}>Replied</em> : null}</div>
-                  {event.version && <p className="ptl-meta">{event.version} · {event.sendSource}{event.openAt ? " · Open detected" : ""}</p>}
+                  {event.version && <p className="ptl-meta">{event.version} · {event.sendSource}{event.openAt ? " · Open detected" : ""}{event.giftViewAt ? " · Gift viewed" : ""}</p>}
                   {event.snippet && <p className="ptl-snip">{event.snippet}</p>}
                   <span className="ptl-open-hint">Open ↗</span>
                 </div>
@@ -255,7 +256,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
                         {event.replied && <em className={`activity-reply ${event.replyClass === "positive" ? "is-pos" : ""}`}>Replied</em>}
                       </div>
                       <small className="activity-row-sub">{event.title ? `${event.title} · ` : ""}{event.company} · Sent by {event.sentBy}</small>
-                      {event.version && <small>{event.version} · {event.sendSource}{event.openAt ? " · Open detected" : ""}</small>}
+                      {event.version && <small>{event.version} · {event.sendSource}{event.openAt ? " · Open detected" : ""}{event.giftViewAt ? " · Gift viewed" : ""}</small>}
                       {event.subject && <p className="activity-row-subject">{event.subject}</p>}
                       {event.snippet && <p className="activity-row-snip">{event.snippet}</p>}
                     </div>
@@ -286,6 +287,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
               <div><dt>Sent by</dt><dd>{detail.sentBy}</dd></div>
               {detail.version && <div><dt>Version</dt><dd>{detail.version}</dd></div>}
               {detail.sendSource && <div><dt>Recorded via</dt><dd>{detail.sendSource}</dd></div>}
+              {detail.giftViewAt && <div><dt>Gift view signal</dt><dd>{fullWhen(detail.giftViewAt)}<small> Consider a personal follow-up. Scanners or forwarded links may trigger this; it does not prove interest.</small></dd></div>}
               {detail.channel === "email" && <div><dt>Open signal</dt><dd>{detail.openAt ? `Detected ${fullWhen(detail.openAt)}` : detail.trackedOpen ? "No open detected" : "Not tracked"}<small> Image loading is not proof of reading; privacy tools can trigger or block it.</small></dd></div>}
               <div><dt>When</dt><dd>{fullWhen(detail.at)}</dd></div>
               <div><dt>Status</dt><dd>{detail.replied ? <span className={`act-modal-reply ${detail.replyClass === "positive" ? "is-pos" : ""}`}>Replied{detail.replyClass === "positive" ? " · positive" : ""}</span> : "Sent · no reply yet"}</dd></div>

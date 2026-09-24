@@ -1,3 +1,5 @@
+import { trackedGiftCopy } from "@/lib/gift-tracking";
+import { contactEvidence } from "@/lib/research-recommendation";
 import { authoredSenderDraft } from '@/lib/authored-sender';
 import { trackedEmailHtml } from "@/lib/open-tracking";
 import { trackEmailVersion } from "@/lib/version-tracking";
@@ -82,7 +84,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const base = outboundBaseUrl(request);
     const unsubscribe = `${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(recipient.id))}`;
     const versionId = await trackEmailVersion(db, { cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail" });
-    const result = await sendEmail(owner, fromHeader(profile, fromEmail), recipient.email, subject, fullBody, undefined, profile.cc, trackedEmailHtml(html, base, versionId), unsubscribe);
+    const giftId = contactEvidence(card.accounts?.domain, recipient.full_name)?.giftId;
+    const deliveredBody = giftId ? trackedGiftCopy(fullBody, giftId, versionId) : fullBody;
+    const deliveredHtml = giftId ? trackedGiftCopy(html, giftId, versionId) : html;
+    const result = await sendEmail(owner, fromHeader(profile, fromEmail), recipient.email, subject, deliveredBody, undefined, profile.cc, trackedEmailHtml(deliveredHtml, base, versionId), unsubscribe);
     // The email has now actually left. Mark the card sent FIRST so it can never stay actionable after a
     // real send (which is how a "failed" toast used to lead to a duplicate re-send). Only then log to
     // History; if that write fails, the send still stands — we report success with a soft warning.
@@ -92,7 +97,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       ? { status: "sent", email_subject: subject, email_body: body }
       : { status: "sent", email_subject: subject };
     await db.from("cards").update(cardPatch).eq("id", id);
-    const { error: touchError } = await db.from("touches").insert({ card_id: id, person_id: recipient.id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: fullBody, experiment_variant_id: versionId });
+    const { error: touchError } = await db.from("touches").insert({ card_id: id, person_id: recipient.id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: deliveredBody, experiment_variant_id: versionId });
     if (touchError) return Response.json({ ok: true, threadId: result.threadId, warning: `Sent to ${recipient.full_name}, but saving it to History failed (${touchError.message}). It won't need re-sending.` });
     // Schedule the follow-up cadence off this first touch (idempotent, best-effort — a failure here never
     // undoes the send).

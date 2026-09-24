@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-type TestResult = { id: string; label: string; to?: string; openAt: string | null; status?: string; warning?: string };
+type TestResult = { id: string; label: string; to?: string; openAt: string | null; giftViewAt?: string | null; status?: string; warning?: string };
 export function TestEmailButton({ cardId, subject, body, disabled = false }: { cardId: string; subject: string; body: string; disabled?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<TestResult | null>(null);
@@ -37,6 +37,7 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
     {result && <div role="status"><p><strong>TEST · {result.label}</strong>{result.to ? ` · Sent to ${result.to}` : result.status === 'sent' ? ' · Sent' : ' · Delivery status not confirmed'}</p>
       {result.warning && <p>{result.warning}</p>}
       <p>{result.openAt ? `Open detected: ${new Date(result.openAt).toLocaleString()}` : 'No open detected yet. Open the [Night Watch test] email, display images, then click Check test status.'}</p>
+      {body.includes('/gift/') && <p>{result.giftViewAt ? `Gift view detected: ${new Date(result.giftViewAt).toLocaleString()}` : 'Open the brief from your test email, then check status here to test the Gift view signal.'}</p>}
       <small>Your mail app may load the image automatically, even from Sent. An open signal is not proof of reading. This tests delivery, the recorded version and the tracking pixel.</small>
     </div>}
   </details>;

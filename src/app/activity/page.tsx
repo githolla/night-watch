@@ -1,3 +1,4 @@
+import { firstGiftViewAt } from "@/lib/gift-tracking";
 import { versionLabel, versionMeta } from "@/lib/version-attribution";
 import { firstOpenAt } from "@/lib/open-tracking";
 import { ActivityView, type ActivityEvent } from "@/components/ActivityView";
@@ -89,6 +90,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
       inCadence: row.card_id ? cadenceCards.has(row.card_id) : false,
       gmailThreadId: row.gmail_thread_id ?? null,
       version: row.channel === "email" ? versionLabel(row.message_variants?.dimensions) : undefined,
+      giftViewAt: firstGiftViewAt(row.message_variants?.message_experiments?.context),
       openAt: firstOpenAt(row.message_variants?.message_experiments?.context),
       trackedOpen: Boolean(versionMeta(row.message_variants?.dimensions) && row.gmail_thread_id),
       sendSource: row.gmail_thread_id ? "Gmail" : versionMeta(row.message_variants?.dimensions)?.source === "manual" ? "Marked sent" : "Legacy record: delivery not confirmed",

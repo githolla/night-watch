@@ -1,0 +1,374 @@
+[
+  {
+    "domain": "ansararestaurantgroup.com",
+    "contactName": "Victor Ansara",
+    "giftId": "acab1f2dcdb294cb7f53bc933368b973",
+    "gift": {
+      "subject": "before the manager meeting",
+      "message": "I made Ansara a one-page plan for giving managers their meeting time back: prepare the location numbers, flag what changed and carry last week's unfinished actions forward.\n\nI'm {sender} at Nine-67. Our AI engineers work beside operating teams to build, test and launch tools like this. The page includes three checks and a simple way to measure whether the preparation actually saves time.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/acab1f2dcdb294cb7f53bc933368b973\n\nWho handles the location reviews at Ansara?",
+      "linkedinMessage": "I made Ansara a one-page plan for preparing location reviews and carrying unfinished actions forward. I'm {sender} at Nine-67; our AI engineers build with operating teams. It includes three checks for a small first test.\n\nhttps://night-watch-snowy.vercel.app/gift/acab1f2dcdb294cb7f53bc933368b973\n\nWho handles the location reviews at Ansara?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "metrowire.net",
+    "contactName": "Devin Ezop",
+    "giftId": "cccb701c38c9073b45ca91792148a718",
+    "gift": {
+      "subject": "before a cable quote goes out",
+      "message": "I put together a one-page quote checklist for Metro: pull the requirements out of the request, flag missing specifications and leave substitutions with your specialists.\n\nYour site makes clear that custom cable requirements matter. I'm {sender} at Nine-67. We build AI tools alongside operations teams; this brief outlines a small test measured on quote preparation time and corrections, without automating technical approval.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/cccb701c38c9073b45ca91792148a718\n\nWho owns quote preparation at Metro?",
+      "linkedinMessage": "Metro's custom cable work gave me an idea for a small AI test. I made a one-page checklist for finding missing specifications before a quote goes out. I'm {sender} at Nine-67; we build with operations teams, keeping technical approval with specialists.\n\nhttps://night-watch-snowy.vercel.app/gift/cccb701c38c9073b45ca91792148a718\n\nWho owns quote preparation at Metro?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "wolverinetruckgroup.com",
+    "contactName": "Lynn Terry",
+    "giftId": "26733b782716b198d614dbabe7ccaf27",
+    "gift": {
+      "subject": "before the repair gets scheduled",
+      "message": "I made a one-page repair-order checklist for Wolverine's service team: diagnosis, parts and customer approval together before a job gets scheduled.\n\nWith sales, parts and service across three locations, that handoff looked worth a small test. I'm {sender} at Nine-67. Our AI engineers build with operating teams. The brief shows what to check and how to measure advisor preparation time, with release decisions staying with your team.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/26733b782716b198d614dbabe7ccaf27\n\nWho would be the right person to review it?",
+      "linkedinMessage": "I made Wolverine a one-page repair-order checklist: diagnosis, parts and customer approval together before scheduling. I'm {sender} at Nine-67. We build AI applications with operating teams. This is a proposed test, with service advisors keeping release decisions.\n\nhttps://night-watch-snowy.vercel.app/gift/26733b782716b198d614dbabe7ccaf27\n\nWho would be the right person to review it?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "mcstamp.com",
+    "contactName": "Judith Kucway",
+    "giftId": "7f56625f108273aa760a784913612c3b",
+    "gift": {
+      "subject": "when the customer changes the order",
+      "message": "Motor City Stamping's site describes stamping, welding and assembly under one roof. I made a one-page plan for checking what a customer revision changes before a planner commits to it.\n\nIt compares quantities and dates with the approved order, then shows the affected jobs. I'm {sender} at Nine-67. Our AI engineers build with operations teams. The brief includes a small test for review time and corrections, with planners approving every change.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/7f56625f108273aa760a784913612c3b\n\nWho owns that review at Motor City Stamping?",
+      "linkedinMessage": "I made Motor City Stamping a one-page plan for reviewing customer revisions across stamping, welding and assembly. It compares the changed order with scheduled work and keeps approval with planners. I'm {sender} at Nine-67; our AI engineers build with operations teams.\n\nhttps://night-watch-snowy.vercel.app/gift/7f56625f108273aa760a784913612c3b\n\nWho owns that review at Motor City Stamping?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "evansdist.com",
+    "contactName": "John A. Evans",
+    "giftId": "c6835cf7cdfac5695c2cad3c004ce14a",
+    "gift": {
+      "subject": "after the customer scorecard",
+      "message": "I made Evans a one-page follow-through plan for the customer survey and KPI scorecards you described on September 10.\n\nIt connects a customer's comment to the relevant account measure, an owner and the next review date. I'm {sender} at Nine-67. Our AI engineers build with operating teams. The page includes three checks for a small test, measured on review preparation time and completed follow-ups.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/c6835cf7cdfac5695c2cad3c004ce14a\n\nShould this go to Dawn Harthun or someone in operations?",
+      "linkedinMessage": "I made a one-page plan for following through on Evans' new survey and KPI scorecards: customer comment, account measure, owner and next review. I'm {sender} at Nine-67; our AI engineers build with operating teams. The brief includes three checks and test measures.\n\nhttps://night-watch-snowy.vercel.app/gift/c6835cf7cdfac5695c2cad3c004ce14a\n\nShould this go to Dawn Harthun or someone in operations?"
+    },
+    "trigger": {
+      "publishedDate": "2026-09-10",
+      "sourceUrl": "https://www.evansdist.com/continuous-improvement-starts-with-comprehensive-data/",
+      "fact": "Evans announced a refreshed customer survey and new service-specific KPI scorecards on September 10, 2026.",
+      "relevantToContact": true,
+      "kind": "customer operations initiative",
+      "subject": "after the new scorecards",
+      "message": "Evans' September 10 article describes new customer scorecards. Dawn Harthun explains why consistent questions matter; the next useful test could be making each response easier for the right team to act on.\n\nI'm {sender} at Nine-67. Our AI engineers build alongside operations teams. We'd bring one account's comments, KPI evidence and open follow-ups into a review your team checks, then measure preparation time and completed actions.\n\nIs that follow-through on your plate or Dawn's?",
+      "linkedinMessage": "Evans' September 10 survey article got me thinking about the next step: comments, KPI evidence and follow-ups together for an account review. I'm {sender} at Nine-67; our AI engineers build with operations teams. Is that follow-through on your plate or Dawn's?"
+    },
+    "peerProof": null
+  },
+  {
+    "domain": "bellforklift.com",
+    "contactName": "Kristen Bell",
+    "giftId": "a9ffd828d2cb739aa8faf133180fcc94",
+    "gift": {
+      "subject": "before the service job closes",
+      "message": "I made Bell a one-page checklist for turning technician notes into a complete service record before a job closes.\n\nIt checks work performed, parts used and anything still unresolved, then leaves approval with your service team. I'm {sender} at Nine-67. Our AI engineers build beside operating teams and train the people using the tool. The brief shows how to test preparation time and missing-detail corrections on one job type.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/a9ffd828d2cb739aa8faf133180fcc94\n\nWho handles service administration at Bell?",
+      "linkedinMessage": "I made Bell a one-page checklist for checking technician notes before a service job closes: work performed, parts and unresolved items. I'm {sender} at Nine-67. Our AI engineers build with operating teams, keeping approval with your service staff.\n\nhttps://night-watch-snowy.vercel.app/gift/a9ffd828d2cb739aa8faf133180fcc94\n\nWho handles service administration at Bell?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "tngworldwide.com",
+    "contactName": "Larry Gaynor",
+    "giftId": "74fb9d78a247ea897323010a0e1d9b94",
+    "gift": {
+      "subject": "one product, one set of facts",
+      "message": "I made TNG a one-page checklist for keeping product details consistent as they move from supplier information into customer-facing listings.\n\nYour range spans salon supplies and personal care, so I'd test it on one category first: compare approved facts, flag differences and have the product team approve corrections. I'm {sender} at Nine-67. Our AI engineers build these tools with the people doing the work. The brief includes checks and measures for that first test.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/74fb9d78a247ea897323010a0e1d9b94\n\nWho owns product information at TNG?",
+      "linkedinMessage": "I made TNG a one-page checklist for comparing supplier product information with customer-facing listings. Start with one category, flag differences and let the product team approve changes. I'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/74fb9d78a247ea897323010a0e1d9b94\n\nWho owns product information at TNG?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "lrmanagement.com",
+    "contactName": "Leslie Etterbeek",
+    "giftId": "56b6949aae28fd0d378ce31c7bb11ab6",
+    "gift": {
+      "subject": "after the maintenance request",
+      "message": "I made LR a one-page plan for checking what happens after a maintenance request is assigned: the next update, the person responsible and whether the resident heard back.\n\nYour May post puts better resident support and onsite focus together. I'm {sender} at Nine-67. Our AI engineers build with operations teams. This brief proposes one small test using existing work orders, measured on update delays and overdue follow-ups, with your staff deciding priorities.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/56b6949aae28fd0d378ce31c7bb11ab6\n\nWho owns maintenance follow-through across LR communities?",
+      "linkedinMessage": "I made LR a one-page plan for maintenance follow-through: next update, responsible person and resident communication. I'm {sender} at Nine-67; our AI engineers build with operating teams. It proposes a small test using existing work orders, with staff setting priorities.\n\nhttps://night-watch-snowy.vercel.app/gift/56b6949aae28fd0d378ce31c7bb11ab6\n\nWho owns maintenance follow-through across LR communities?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "gutherielumber.com",
+    "contactName": "Mel Gutherie",
+    "giftId": "17fd776004f3a03a32bdbf8bf67f08a8",
+    "gift": {
+      "subject": "before the revised order ships",
+      "message": "I made Gutherie a one-page checklist for a builder's order change: what changed, which prepared materials it affects and who confirms the delivery plan.\n\nYour range includes lumber, trusses and manufactured wall panels. I'd start with one kind of revision, keeping the order desk in charge. I'm {sender} at Nine-67. Our AI engineers build with operations teams. The brief includes three checks and a way to measure review time and corrections before dispatch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/17fd776004f3a03a32bdbf8bf67f08a8\n\nWho handles builder order changes at Gutherie?",
+      "linkedinMessage": "I made Gutherie a one-page checklist for builder order changes across materials and delivery plans. It keeps the order desk in charge and measures review time and corrections before dispatch. I'm {sender} at Nine-67; our AI engineers build with operations teams.\n\nhttps://night-watch-snowy.vercel.app/gift/17fd776004f3a03a32bdbf8bf67f08a8\n\nWho handles builder order changes at Gutherie?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "vicarirestaurants.com",
+    "contactName": "Rosalie Vicari",
+    "giftId": "03eb93052e0118cf180f49848628093d",
+    "gift": {
+      "subject": "one cost question per restaurant",
+      "message": "Andiamo and Joe Muer should not have to tell the same story in a cost review. I made you a one-page brief for comparing each restaurant with its own recent performance, then putting one decision in front of its manager.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/03eb93052e0118cf180f49848628093d\n\nWho handles the operating reviews across your restaurant concepts?",
+      "linkedinMessage": "Andiamo and Joe Muer should not have to tell the same story in a cost review. I made you a one-page brief for comparing each restaurant with its own recent performance, then putting one decision in front of its manager.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/03eb93052e0118cf180f49848628093d\n\nWho handles the operating reviews across your restaurant concepts?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "caymanchem.com",
+    "contactName": "Kirk Maxey",
+    "giftId": "1ecc548020f34e224ddb7dd10079ed44",
+    "gift": {
+      "subject": "a test AI should fail",
+      "message": "Your point about scientific validation deserves a practical test. I made a one-page brief for a Cayman evidence assistant, including a deliberately unanswerable question. Passing means admitting the gap, not producing a plausible answer.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/1ecc548020f34e224ddb7dd10079ed44\n\nWho would own that evaluation at Cayman?",
+      "linkedinMessage": "Your point about scientific validation deserves a practical test. I made a one-page brief for a Cayman evidence assistant, including a deliberately unanswerable question. Passing means admitting the gap, not producing a plausible answer.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/1ecc548020f34e224ddb7dd10079ed44\n\nWho would own that evaluation at Cayman?"
+    },
+    "trigger": {
+      "publishedDate": "2026-08-19",
+      "sourceUrl": "https://www.caymanchem.com/news/ai-and-the-future-of-research",
+      "fact": "Kirk Maxey discussed why scientific validation remains essential as AI accelerates research in an August 2026 Cayman article.",
+      "relevantToContact": true,
+      "kind": "public statement",
+      "subject": "testing unsupported answers",
+      "message": "Your August 19 Cayman article puts scientific validation at the center of using AI. A useful first test would include a question the approved sources cannot answer.\n\nI'm {sender} at Nine-67. Our engineers build AI applications with operating teams. We'd test a source-bound review tool with your scientists and measure unsupported answers, keeping interpretation and release decisions with them.\n\nIs evaluating that kind of tool on your plate or someone else's?",
+      "linkedinMessage": "Your August 19 Cayman article emphasizes scientific validation as AI accelerates research. I'd test an unanswered question before trusting a source-bound assistant. I'm {sender} at Nine-67; we build these tools with operating teams. Is that evaluation on your plate or someone else's?"
+    },
+    "peerProof": null
+  },
+  {
+    "domain": "caymanchem.com",
+    "contactName": "Stephen Barrett",
+    "giftId": "ea899dd49bc09f0de993080595f603e2",
+    "gift": {
+      "subject": "the evidence behind the project",
+      "message": "I put together a one-page brief for your Cayman project reviews: each proposed claim, the evidence behind it and what still needs a scientist's judgment. The useful AI job here is gathering the packet, not deciding what is scientifically true.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/ea899dd49bc09f0de993080595f603e2\n\nWould this be useful for a project review you oversee?",
+      "linkedinMessage": "I put together a one-page brief for your Cayman project reviews: each proposed claim, the evidence behind it and what still needs a scientist's judgment. The useful AI job here is gathering the packet, not deciding what is scientifically true.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/ea899dd49bc09f0de993080595f603e2\n\nWould this be useful for a project review you oversee?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "domesticuniform.com",
+    "contactName": "Mark Colton",
+    "giftId": "a3c70543d8e34565217369aee7aef01d",
+    "gift": {
+      "subject": "keep the person, lose the searching",
+      "message": "Your promise that customers reach a real person stood out. I made a one-page brief for keeping that promise while giving the person answering a missing-item call the delivery record, earlier notes and next action together.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/a3c70543d8e34565217369aee7aef01d\n\nWho owns delivery-discrepancy follow-up at Domestic?",
+      "linkedinMessage": "Your promise that customers reach a real person stood out. I made a one-page brief for keeping that promise while giving the person answering a missing-item call the delivery record, earlier notes and next action together.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/a3c70543d8e34565217369aee7aef01d\n\nWho owns delivery-discrepancy follow-up at Domestic?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "spraguepest.com",
+    "contactName": "AJ Treleven",
+    "giftId": "2d75a048d72bed2c793a4c91f63531d3",
+    "gift": {
+      "subject": "after the facility recommendation",
+      "message": "I made a one-page brief around a point in Sprague's September 14 article: some fixes belong to your technician and others to the customer's facility team. It sketches a way to keep that ownership clear between visits.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/2d75a048d72bed2c793a4c91f63531d3\n\nDoes that follow-through sit with you or a branch leader?",
+      "linkedinMessage": "I made a one-page brief around a point in Sprague's September 14 article: some fixes belong to your technician and others to the customer's facility team. It sketches a way to keep that ownership clear between visits.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/2d75a048d72bed2c793a4c91f63531d3\n\nDoes that follow-through sit with you or a branch leader?"
+    },
+    "trigger": {
+      "publishedDate": "2026-09-14",
+      "sourceUrl": "https://www.spraguepest.com/is-your-pest-management-program-keeping-up-with-your-facility/",
+      "fact": "Sprague's September 14 article distinguishes work its technicians own from facility recommendations requiring customer action.",
+      "relevantToContact": true,
+      "kind": "public statement",
+      "subject": "who closes the facility action",
+      "message": "Sprague's September 14 article makes an important distinction: a technician can recommend a repair, but the facility has to carry it out. That handoff looks like a useful place to test AI.\n\nI'm {sender} at Nine-67. Our engineers build with operating teams. We'd turn visit notes into a checked list of facility actions, owners and unresolved items for the next visit. We'd measure preparation time and missed follow-ups, with your team approving the record.\n\nIs that follow-through on your plate or a branch leader's?",
+      "linkedinMessage": "Sprague's September 14 article separates technician actions from fixes the facility must make. I'm {sender} at Nine-67. We'd help prepare the unresolved-action list for the next visit, with your team checking it. Does that handoff sit with you or a branch leader?"
+    },
+    "peerProof": null
+  },
+  {
+    "domain": "altapestcontrol.com",
+    "contactName": "Chris Langlois",
+    "giftId": "3eae491805ef77af875b9d543fbbd1e5",
+    "gift": {
+      "subject": "the promise behind the next visit",
+      "message": "Alta promises a return visit if pests come back. I made a one-page brief for the work before that visit: what the customer reported, what was already tried and who promised the next step. It is a small AI project a branch could test.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/3eae491805ef77af875b9d543fbbd1e5\n\nWho owns return-visit preparation across Alta's branches?",
+      "linkedinMessage": "Alta promises a return visit if pests come back. I made a one-page brief for the work before that visit: what the customer reported, what was already tried and who promised the next step. It is a small AI project a branch could test.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/3eae491805ef77af875b9d543fbbd1e5\n\nWho owns return-visit preparation across Alta's branches?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "altapestcontrol.com",
+    "contactName": "Aaron Curtis",
+    "giftId": "1792f640e366cdf30d0e99eec2eea9dd",
+    "gift": {
+      "subject": "one customer, one clear history",
+      "message": "I made you a one-page brief for Alta's return-visit experience. The idea is simple: give the next person helping a customer the previous conversation, service notes and promised next step, so the customer does not have to start over.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/1792f640e366cdf30d0e99eec2eea9dd\n\nIs this a customer-experience handoff you would want to test?",
+      "linkedinMessage": "I made you a one-page brief for Alta's return-visit experience. The idea is simple: give the next person helping a customer the previous conversation, service notes and promised next step, so the customer does not have to start over.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/1792f640e366cdf30d0e99eec2eea9dd\n\nIs this a customer-experience handoff you would want to test?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "chrysanindustries.com",
+    "contactName": "Glenn Gerhard",
+    "giftId": "300a4e144f1142cfe910d0b562011945",
+    "gift": {
+      "subject": "one supplier delay, affected orders",
+      "message": "For your finance and operations remit at Chrysan, I made a one-page brief on identifying the accepted orders that need attention when a supplier moves a date. It outlines the records to join and the checks purchasing would approve.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/300a4e144f1142cfe910d0b562011945\n\nDoes that review sit with you or your purchasing lead?",
+      "linkedinMessage": "For your finance and operations remit at Chrysan, I made a one-page brief on identifying the accepted orders that need attention when a supplier moves a date. It outlines the records to join and the checks purchasing would approve.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/300a4e144f1142cfe910d0b562011945\n\nDoes that review sit with you or your purchasing lead?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "chrysanindustries.com",
+    "contactName": "Suk-Kyu Koh",
+    "giftId": "cddecf74afd221a97d93d26f2c141c1e",
+    "gift": {
+      "subject": "a first AI test for purchasing",
+      "message": "I made a one-page brief for an AI project Chrysan could test without handing it purchasing decisions. A changed supplier date would arrive with the affected orders and the people who need to act, rather than another summary to interpret.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/cddecf74afd221a97d93d26f2c141c1e\n\nWho would be the right person to assess this with at Chrysan?",
+      "linkedinMessage": "I made a one-page brief for an AI project Chrysan could test without handing it purchasing decisions. A changed supplier date would arrive with the affected orders and the people who need to act, rather than another summary to interpret.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/cddecf74afd221a97d93d26f2c141c1e\n\nWho would be the right person to assess this with at Chrysan?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "rottler.com",
+    "contactName": "Mike Rottler",
+    "giftId": "98d2a365c1f41e5d34f022f9dc48bbc0",
+    "gift": {
+      "subject": "before the technician returns",
+      "message": "You came up through the service side of Rottler. I made a one-page brief for a practical AI job there: preparing the history before a repeat visit, so the technician can see what was found, what was tried and what remains unresolved.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/98d2a365c1f41e5d34f022f9dc48bbc0\n\nWho runs that kind of branch-level improvement at Rottler?",
+      "linkedinMessage": "You came up through the service side of Rottler. I made a one-page brief for a practical AI job there: preparing the history before a repeat visit, so the technician can see what was found, what was tried and what remains unresolved.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/98d2a365c1f41e5d34f022f9dc48bbc0\n\nWho runs that kind of branch-level improvement at Rottler?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "eclipsemold.com",
+    "contactName": "Steve Craprotta",
+    "giftId": "0c375c66718db1ff4c93c0acdbb5ef6d",
+    "gift": {
+      "subject": "the revision before the next run",
+      "message": "Eclipse handles both mold work and production. I made a one-page brief for the handoff between them: checking a tooling revision against active jobs before anyone changes the work instructions. Engineering keeps the approval.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operating teams, from the first build through training and launch.\n\nYour brief: https://night-watch-snowy.vercel.app/gift/0c375c66718db1ff4c93c0acdbb5ef6d\n\nWho owns that revision handoff at Eclipse?",
+      "linkedinMessage": "Eclipse handles both mold work and production. I made a one-page brief for the handoff between them: checking a tooling revision against active jobs before anyone changes the work instructions. Engineering keeps the approval.\n\nI'm {sender} at Nine-67; our AI engineers build with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/0c375c66718db1ff4c93c0acdbb5ef6d\n\nWho owns that revision handoff at Eclipse?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "genoilcorp.com",
+    "contactName": "Keith Albertie",
+    "giftId": "d9497539636a4874f161a00a3579673a",
+    "gift": {
+      "subject": "before the fuel invoice",
+      "message": "Gen Oil already offers fuel monitoring and usage-based billing. I made you a one-page checklist for a different step: matching the delivery ticket to the order before invoicing.\n\nIt covers product, gallons and delivery location, with disagreements left for your office to approve. I'm {sender} at Nine-67. Our AI engineers build alongside operating teams through testing, training and launch.\n\nYour one-page brief: https://night-watch-snowy.vercel.app/gift/d9497539636a4874f161a00a3579673a\n\nWho handles that ticket-to-invoice process at Gen Oil?",
+      "linkedinMessage": "Gen Oil already offers fuel monitoring and usage-based billing. I made you a one-page checklist for a different step: matching the delivery ticket to the order before invoicing.\n\nI'm {sender} at Nine-67. We build AI applications with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/d9497539636a4874f161a00a3579673a\n\nWho handles that ticket-to-invoice process at Gen Oil?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "go-forth.com",
+    "contactName": "Chase Hazelwood",
+    "giftId": "df33ec661bd689e81a1fbaff920e9017",
+    "gift": {
+      "subject": "one less repeat call",
+      "message": "Go-Forth's site describes Chase working everything from the phones to crawl spaces. I made a one-page handoff checklist with that same connection in mind: what the customer told the office should reach the person doing the job.\n\nIt covers the request, any promises and what the receiving team still needs to confirm. I'm {sender} at Nine-67. Our AI engineers build alongside operating teams through testing, training and launch.\n\nYour one-page brief: https://night-watch-snowy.vercel.app/gift/df33ec661bd689e81a1fbaff920e9017\n\nWho would be the right person to review this at Go-Forth?",
+      "linkedinMessage": "Go-Forth's site describes Chase working everything from the phones to crawl spaces. I made a one-page handoff checklist with that same connection in mind: what the customer told the office should reach the person doing the job.\n\nI'm {sender} at Nine-67. We build AI applications with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/df33ec661bd689e81a1fbaff920e9017\n\nWho would be the right person to review this at Go-Forth?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "michiganbox.com",
+    "contactName": "Joseph Fontana",
+    "giftId": "9b17f8288c6192feb3d1df07614aed29",
+    "gift": {
+      "subject": "a quote-ready request",
+      "message": "Michigan Box offers everything from shipping cases to automotive kit packs. I made you a one-page checklist for getting a custom request ready to price without treating those jobs as interchangeable.\n\nThe three checks cover dimensions, protection requirements and missing approvals before the estimator starts. I'm {sender} at Nine-67. Our AI engineers build alongside operating teams through testing, training and launch.\n\nYour one-page brief: https://night-watch-snowy.vercel.app/gift/9b17f8288c6192feb3d1df07614aed29\n\nWho owns incoming quote preparation at Michigan Box?",
+      "linkedinMessage": "Michigan Box offers everything from shipping cases to automotive kit packs. I made you a one-page checklist for getting a custom request ready to price without treating those jobs as interchangeable.\n\nI'm {sender} at Nine-67. We build AI applications with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/9b17f8288c6192feb3d1df07614aed29\n\nWho owns incoming quote preparation at Michigan Box?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "almetals.com",
+    "contactName": "Jim Chain",
+    "giftId": "79cb1a5300d59949a241767a7f9535ed",
+    "gift": {
+      "subject": "before the coil quote",
+      "message": "Almetals promises technical help as well as quick shipments. I made you a one-page checklist for getting from a coil request to a candidate your team can actually approve.\n\nIt separates an exact alloy, gauge and width match from a substitution that still needs judgment. I'm {sender} at Nine-67. Our AI engineers build alongside operating teams through testing, training and launch.\n\nYour one-page brief: https://night-watch-snowy.vercel.app/gift/79cb1a5300d59949a241767a7f9535ed\n\nWould this be useful to the person overseeing quote preparation?",
+      "linkedinMessage": "Almetals promises technical help as well as quick shipments. I made you a one-page checklist for getting from a coil request to a candidate your team can actually approve.\n\nI'm {sender} at Nine-67. We build AI applications with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/79cb1a5300d59949a241767a7f9535ed\n\nWould this be useful to the person overseeing quote preparation?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "englishgardens.com",
+    "contactName": "John Darin",
+    "giftId": "50f502f644d288e9ceb2a6f25274b41c",
+    "gift": {
+      "subject": "before buying more stock",
+      "message": "English Gardens has six Metro Detroit locations. I made you a one-page checklist around a simple buying question: check what another store already has before ordering more.\n\nIt lays out three checks for one category, including reservations and whether moving the stock actually makes sense. I'm {sender} at Nine-67. Our AI engineers build alongside operating teams through testing, training and launch.\n\nYour one-page brief: https://night-watch-snowy.vercel.app/gift/50f502f644d288e9ceb2a6f25274b41c\n\nWho oversees that stock decision across your stores?",
+      "linkedinMessage": "English Gardens has six Metro Detroit locations. I made you a one-page checklist around a simple buying question: check what another store already has before ordering more.\n\nI'm {sender} at Nine-67. We build AI applications with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/50f502f644d288e9ceb2a6f25274b41c\n\nWho oversees that stock decision across your stores?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "bramanpest.com",
+    "contactName": "Jerry Lazarus",
+    "giftId": "c7b86773fe5b0c0011e50ef303ca2f14",
+    "gift": {
+      "subject": "after the fall inspection",
+      "message": "Your September loading-dock advice gives facilities teams practical steps before colder weather. I made a one-page checklist for the next part: knowing which of those actions was actually completed.\n\nIt connects a finding to the facility owner and the evidence your specialist needs to close it. I'm {sender} at Nine-67. Our AI engineers build alongside operating teams through testing, training and launch.\n\nYour one-page brief: https://night-watch-snowy.vercel.app/gift/c7b86773fe5b0c0011e50ef303ca2f14\n\nWho handles that customer follow-through at Braman?",
+      "linkedinMessage": "Your September loading-dock advice gives facilities teams practical steps before colder weather. I made a one-page checklist for the next part: knowing which of those actions was actually completed.\n\nI'm {sender} at Nine-67. We build AI applications with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/c7b86773fe5b0c0011e50ef303ca2f14\n\nWho handles that customer follow-through at Braman?"
+    },
+    "trigger": {
+      "publishedDate": "2026-09-02",
+      "sourceUrl": "https://bramanpest.com/blog/fall-pest-pressure-blog/",
+      "fact": "Braman published fall prevention guidance for loading docks, dumpsters and delivery areas on September 2, 2026.",
+      "relevantToContact": true,
+      "kind": "seasonal",
+      "subject": "closing the fall findings",
+      "message": "Braman's September 2 advice asks facilities to tighten up loading docks and waste areas before colder weather. The useful next step is knowing which recommended actions the customer has completed.\n\nI'm {sender} at Nine-67. Our AI engineers build with operating teams. We'd bring the finding, responsible owner and completion evidence into one review, leaving closure to your specialists. We'd test preparation time on one branch's follow-ups.\n\nIs customer follow-through on those fall checks yours to oversee, or someone else's?",
+      "linkedinMessage": "Braman's September 2 fall guidance made me think about tracking the actions customers complete after an inspection. I'm {sender} at Nine-67; we build AI applications with operating teams.\n\nWho oversees that follow-through at Braman?"
+    },
+    "peerProof": null
+  },
+  {
+    "domain": "versacor.com",
+    "contactName": "Jason Eicher",
+    "giftId": "e4b9c138f78009e8344571191f6d8d0e",
+    "gift": {
+      "subject": "what closes the finding",
+      "message": "Versacor's history now lists West Texas and Kansas City branches. I made a one-page checklist for something worth keeping consistent across branches: what evidence closes an inspection finding.\n\nIt covers the owner, the required evidence and the specialist approval, without asking AI to make the pest-control judgment. I'm {sender} at Nine-67. Our AI engineers build alongside operating teams through testing, training and launch.\n\nYour one-page brief: https://night-watch-snowy.vercel.app/gift/e4b9c138f78009e8344571191f6d8d0e\n\nWho owns that inspection follow-through at Versacor?",
+      "linkedinMessage": "Versacor's history now lists West Texas and Kansas City branches. I made a one-page checklist for something worth keeping consistent across branches: what evidence closes an inspection finding.\n\nI'm {sender} at Nine-67. We build AI applications with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/e4b9c138f78009e8344571191f6d8d0e\n\nWho owns that inspection follow-through at Versacor?"
+    },
+    "trigger": null,
+    "peerProof": null
+  },
+  {
+    "domain": "nativepestmanagement.com",
+    "contactName": "Luke Lewis",
+    "giftId": "e8ada95ecdf2e91853af0de2e59676df",
+    "gift": {
+      "subject": "what the first visit needs",
+      "message": "I made a one-page checklist for Native around the handoff from the first customer call to the first visit. The aim is simple: the technician should be able to see what was promised, and what still needs confirming.\n\nIt separates approved service details from unconfirmed requests, with the original note beside each one. I'm {sender} at Nine-67. Our AI engineers build alongside operating teams through testing, training and launch.\n\nYour one-page brief: https://night-watch-snowy.vercel.app/gift/e8ada95ecdf2e91853af0de2e59676df\n\nWho would own that call-to-service handoff at Native?",
+      "linkedinMessage": "I made a one-page checklist for Native around the handoff from the first customer call to the first visit. The aim is simple: the technician should be able to see what was promised, and what still needs confirming.\n\nI'm {sender} at Nine-67. We build AI applications with operating teams.\n\nhttps://night-watch-snowy.vercel.app/gift/e8ada95ecdf2e91853af0de2e59676df\n\nWho would own that call-to-service handoff at Native?"
+    },
+    "trigger": null,
+    "peerProof": null
+  }
+]

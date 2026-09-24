@@ -1,18 +1,15 @@
+import { researchVersions, authoredResearchVersions, researchRecommendation, type ResearchVersion } from "./research-recommendation.ts";
 import archivedEmail from "../../data/outreach-variants-archive.json" with { type: "json" };
 import archivedLinkedIn from "../../data/linkedin-variants-archive.json" with { type: "json" };
 import focus from "../../data/revenue-focus.json" with { type: "json" };
-import variants from "../../data/outreach-variants.json" with { type: "json" };
-import linkedinVariants from "../../data/linkedin-variants.json" with { type: "json" };
 import { emailStyle } from "./email-style.ts";
 
-export type SavedVariant = typeof variants[number]["variants"][number];
+export type SavedVariant = ResearchVersion;
 const personKey = (name: string) => name.trim().toLowerCase().replace(/\s+/g, " ");
 const domainKey = (domain: string) => domain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[/:?#]/)[0];
 /** Only complete, authored drafts for this exact person may become selector buttons. */
 export function savedVariants(domain?: string | null, contactName?: string | null, channel: "email" | "linkedin" = "email"): SavedVariant[] {
-  if (!domain || !contactName) return [];
-  return ((channel === "linkedin" ? linkedinVariants : variants).find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants ?? [])
-    .filter(variant => variant.subject.trim() && variant.message.trim());
+  return researchVersions(domain, contactName, channel);
 }
 export function renderSavedVariant(variant: SavedVariant, contactName: string, senderName: string, greeting = "Hi {first},") {
   const first = senderName.trim().split(/\s+/)[0];
@@ -31,7 +28,8 @@ export function renderLinkedInVariant(variant: SavedVariant, senderName: string)
 /** Populate a missing current message from authored copy, preserving existing edits. */
 export function withDefaultLinkedIn<T extends { accounts: { domain?: string | null }; people: { full_name: string }; linkedin_message?: string | null; linkedin_subject?: string | null }>(card: T, senderName: string): T {
   if (card.linkedin_message?.trim()) return card;
-  const variant = savedVariants(card.accounts.domain, card.people.full_name, "linkedin")[0];
+  const recommendation = researchRecommendation(card.accounts.domain, card.people.full_name);
+  const variant = savedVariants(card.accounts.domain, card.people.full_name, "linkedin").find(v => v.id === recommendation?.recommended?.id);
   if (!variant) return card;
   const draft = renderLinkedInVariant(variant, senderName);
   return { ...card, linkedin_message: draft.body, linkedin_subject: card.linkedin_subject?.trim() ? card.linkedin_subject : draft.subject };
@@ -50,5 +48,5 @@ export function withDefaultEmail<T extends { status: string; accounts: { domain?
 /** Historical authored copy is recognizable, but never offered as a new choice. */
 export function archivedVariants(domain?: string | null, contactName?: string | null, channel: "email" | "linkedin" = "email"): SavedVariant[] {
   if (!domain || !contactName) return [];
-  return (channel === "linkedin" ? archivedLinkedIn : archivedEmail).find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants ?? [];
+  return [...((channel === "linkedin" ? archivedLinkedIn : archivedEmail).find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants ?? [])].reverse().concat(authoredResearchVersions(domain, contactName, channel));
 }

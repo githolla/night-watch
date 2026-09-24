@@ -5,6 +5,8 @@ import { dateLabel, sourceDomain } from "@/lib/dossier-data";
 import { savedVariants, withDefaultLinkedIn, withDefaultEmail, renderSavedVariant, renderLinkedInVariant, type SavedVariant } from "@/lib/outreach-variants";
 import { focusedAccount, revenueLabel, sortReachouts, reachoutPool, type ReachoutSort } from "@/lib/reachout-sort";
 import { focusedContact } from "@/lib/focused-contact";
+import { withResearchDefault } from "@/lib/recommended-draft";
+import { researchRecommendation, contactEvidence, giftAsset } from "@/lib/research-recommendation";
 import { authoredSenderDraft } from "@/lib/authored-sender";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
 
@@ -155,7 +157,7 @@ function describeRun(run: RunSummary | null) {
 
 function personalizeCard(card: Card, senderName: string, senderGreeting: string): Card {
     if (!["new", "edited", "approved"].includes(card.status)) return card;
-    const seeded = withDefaultEmail(withDefaultLinkedIn(card, senderName), senderGreeting);
+    const seeded = withResearchDefault(withDefaultEmail(withDefaultLinkedIn(card, senderName), senderGreeting), senderName, senderGreeting);
     const input = { domain: seeded.accounts.domain, contactName: seeded.people.full_name, senderName, greeting: senderGreeting };
     return { ...seeded,
       email_body: authoredSenderDraft({ ...input, body: seeded.email_body ?? "" }).body,
@@ -555,8 +557,17 @@ export function Desk({
   // The contact currently being written to — the card's person by default, or one picked from the team list.
   const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
   const contact = altContact ?? (focusCard ? focusCard.people : null);
+  const recommendation = focusCard && contact ? researchRecommendation(focusCard.accounts.domain, contact.full_name) : null;
+  const availableVersions = focusCard && contact ? savedVariants(focusCard.accounts.domain, contact.full_name, channelTab) : [];
+  const selectedVersion = availableVersions.find(v => {
+    const rendered = channelTab === "email" ? renderSavedVariant(v, contact!.full_name, senderName, senderGreeting) : renderLinkedInVariant(v, senderName);
+    return rendered.subject === (channelTab === "email" ? focusCard?.email_subject : focusCard?.linkedin_subject) && rendered.body === (channelTab === "email" ? focusCard?.email_body : focusCard?.linkedin_message);
+  });
   const previewingVersion = tonePreview?.channel === channelTab && !!tonePreview && tonePreview.cardId === focusCard?.id && !altContact;
-  const research = recipientResearch(focusCard?.accounts.domain, contact?.full_name);
+  const priorResearch = recipientResearch(focusCard?.accounts.domain, contact?.full_name);
+  const evidence = contactEvidence(focusCard?.accounts.domain, contact?.full_name);
+  const asset = evidence ? giftAsset(evidence.giftId) : undefined;
+  const research = priorResearch && asset ? { ...priorResearch, trigger: evidence?.trigger ? {fact:evidence.trigger.fact,sourceUrl:evidence.trigger.sourceUrl,date:evidence.trigger.publishedDate} : asset.source, researchDate:asset.preparedAt, hypothesis:`Proposed first test: ${asset.title}. ${asset.scope}` } : priorResearch;
   const brief = accountBrief(focusCard?.accounts.domain);
   const matchesResearch = research ? hasResearchCopy(focusCard?.email_subject, focusCard?.email_body, research) : false;
   // "Already gone out" is a fact about a PERSON, not about the card. The card is marked sent the moment its
@@ -748,6 +759,8 @@ export function Desk({
   const [loadingReviewed, setLoadingReviewed] = useState(false);
   async function loadReviewedDraft() {
     if (!focusCard || loadingReviewed || altContact) return;
+    const recommended = availableVersions.find(v => v.id === recommendation?.recommended?.id);
+    if (recommended) { previewTone(recommended); return; }
     const id = focusCard.id;
     setLoadingReviewed(true);
     try {
@@ -1095,7 +1108,7 @@ export function Desk({
               <section className="deskwork-mid">
                 <header className="deskwork-co">
                   <span className="avatar">{initials(focusCard.accounts.name)}</span>
-                  <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{signalLabel(focusCard)}{signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}</p></div>
+                  <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{evidence ? `Market signal · ${dateLabel(research?.trigger.date) ? `Published ${dateLabel(research?.trigger.date)}` : "date not confirmed"}` : `${signalLabel(focusCard)}${signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}`}</p></div>
                   <Link href="/outreach" className="focus-link">All {curatedDomains.length} companies</Link>
                 </header>
 
@@ -1123,8 +1136,8 @@ export function Desk({
                 {!sentAlready && channelTab === "email" && <div className="notice" style={{ margin: "12px 16px" }}>
                   {research ? <>
                     <strong>{research.disposition === "hold" ? "Hold: buyer fit needs review." : "Written for this contact."}</strong>{" "}
-                    {matchesResearch ? "Review and make it yours before sending." : "Your saved edits are preserved."}
-                    {!matchesResearch && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : research.disposition === "hold" ? "Load optional partnership draft" : "Use researched draft"}</button>}
+                    {(matchesResearch || selectedVersion) ? "Review and make it yours before sending." : "Your saved edits are preserved."}
+                    {!matchesResearch && !selectedVersion && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : research.disposition === "hold" ? "Load optional partnership draft" : "Use researched draft"}</button>}
                   </> : <><strong>Not individually researched.</strong> This recipient is outside the named-buyer research set. Review the opening, relevance and proof before sending.</>}
                 </div>}
                 <div className="deskwork-draft-to">
@@ -1142,7 +1155,7 @@ export function Desk({
                   <button type="button" className={`deskwork-tab ${channelTab === "linkedin" ? "is-active" : ""}`} onClick={() => { setChannelTab("linkedin"); setTonePreview(null); }}><i className="li-mark">in</i> LinkedIn</button>
                   <div className="deskwork-tools" hidden={previewingVersion}>
                     {(channelTab === "linkedin" || !sentAlready) && <button type="button" title={editing[channelTab] ? "See exactly how it will go out" : "Edit this message"} onClick={() => setEditing((state) => ({ ...state, [channelTab]: !state[channelTab] }))}>{editing[channelTab] ? "Preview" : "Edit"}</button>}
-                    {channelTab === "email" && !sentAlready && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : research ? "Researched draft" : "Company draft"}</button>}
+                    {channelTab === "email" && !sentAlready && <button type="button" disabled={loadingReviewed || !!altContact} onClick={loadReviewedDraft}>{loadingReviewed ? "Loading…" : recommendation ? "Recommended version" : research ? "Researched draft" : "Company draft"}</button>}
                     {channelTab === "email" && <button type="button" disabled={proposing} title={timesInDraft ? "Take the proposed times back out of this email" : "Only if you want them: insert open times from your connected calendar into this one email"} onClick={timesInDraft ? removeMeetingTimes : proposeMeetingTimes}>{proposing ? "Checking…" : timesInDraft ? "Remove times" : "Propose times"}</button>}
                     <button type="button" disabled={busy} onClick={() => copyAndLog(channelTab)}>Copy</button>
                   </div>
@@ -1151,9 +1164,16 @@ export function Desk({
                 {(channelTab === "linkedin" || !sentAlready) && !altContact && savedVariants(focusCard.accounts.domain, contact.full_name, channelTab).length > 0 && <section className="email-versions" aria-label={`Saved ${channelTab === "email" ? "email" : "LinkedIn"} versions`}>
                   <div className="email-versions-heading"><span>{channelTab === "email" ? "Email" : "LinkedIn"} versions</span><Link href={channelTab === "linkedin" ? "/stats?source=manual#saved-versions" : "/stats#saved-versions"}>Analytics ↗</Link></div>
                   <div className="email-version-tabs" role="group" aria-label={`Choose ${channelTab === "email" ? "an email" : "a LinkedIn"} version`}>
-                    <button type="button" className={!previewingVersion ? "is-active" : ""} aria-pressed={!previewingVersion} onClick={() => setTonePreview(null)}>Current draft</button>
-                    {savedVariants(focusCard.accounts.domain, contact.full_name, channelTab).map(variant => <button type="button" key={variant.id} className={previewingVersion && tonePreview?.versionId === variant.id ? "is-active" : ""} disabled={busy} aria-pressed={previewingVersion && tonePreview?.versionId === variant.id} onClick={() => previewTone(variant)}>{variant.label}</button>)}
+                    {recommendation?.candidates.map(candidate => {
+                      const variant = availableVersions.find(v => v.id === candidate.id);
+                      const active = previewingVersion ? tonePreview?.versionId === candidate.id : selectedVersion?.id === candidate.id;
+                      return <button type="button" key={candidate.id} className={active ? "is-active" : ""} disabled={busy || !variant} title={candidate.reason} aria-pressed={active} onClick={() => { if(variant) { if(selectedVersion?.id === variant.id) setTonePreview(null); else previewTone(variant); } }}>{candidate.label}{recommendation.recommended?.id === candidate.id ? " · Recommended" : ""}</button>;
+                    })}
                   </div>
+                  {recommendation?.recommended && <p className="research-recommendation"><strong>Recommended: {recommendation.recommended.label}.</strong> {recommendation.recommended.reason}</p>}
+                  {recommendation && <details className="research-evidence"><summary>Why these choices</summary>{recommendation.candidates.map(c=><p key={c.id}><strong>{c.label}:</strong> {c.reason}</p>)}<small>Scores rank evidence availability, not predicted reply probability. Trigger uses a 45-day window.</small></details>}
+                  {recommendation?.giftId && <a className="gift-preview-link" href={`/gift/${recommendation.giftId}`} target="_blank" rel="noreferrer">View the completed Gift ↗</a>}
+                  {!previewingVersion && <p className="draft-selection-label">{selectedVersion ? `Editing ${selectedVersion.label}` : "Saved edits preserved. Choose an available version to replace them."}</p>}
                 </section>}
 
                 {channelTab === "email" && !altContact && !previewingVersion && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={focusCard.email_subject ?? ""} body={focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
@@ -1272,7 +1292,7 @@ export function Desk({
 
                 {previewingVersion && tonePreview ? <div className="email-version-footer">
                   <small>Your current draft is unchanged.</small>
-                  <div><button type="button" className="btn" disabled={busy} onClick={() => setTonePreview(null)}>Back to current</button><button type="button" className="btn primary" disabled={busy} onClick={applyTone}>{busy ? "Saving…" : `Use ${tonePreview.label}`}</button></div>
+                  <div><button type="button" className="btn" disabled={busy} onClick={() => setTonePreview(null)}>Back to saved email</button><button type="button" className="btn primary" disabled={busy} onClick={applyTone}>{busy ? "Saving…" : `Use ${tonePreview.label}`}</button></div>
                 </div> : <div className="deskwork-draft-foot">
                   <span className="deskwork-words">{(channelTab === "email" ? (focusCard.email_body ?? "") : linkedinDraft).trim().split(/\s+/).filter(Boolean).length} words</span>
                   <div className="deskwork-draft-actions">

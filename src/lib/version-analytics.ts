@@ -1,3 +1,4 @@
+import { firstGiftViewAt } from "./gift-tracking.ts";
 import { versionMeta, versionLabel } from './version-attribution.ts';
 import { firstOpenAt } from './open-tracking.ts';
 export type TrackedTouch = {
@@ -13,8 +14,8 @@ export function aggregateVersions(touches: TrackedTouch[], options: { source?: '
     const key = `${versionMeta(touch.message_variants?.dimensions)?.channel ?? "email"}:${touch.sent_by}:${touch.card_id}:${touch.person_id}`;
     groups.set(key, [...(groups.get(key) ?? []), touch]);
   }
-  const rows = new Map<string, { label: string; sent: number; gmail: number; manual: number; opens: number; replies: number; positive: number; ooo: number }>();
-  const recent: Array<{ id: string; personId: string; name: string; sentAt: string; label: string; subject: string; source: string; openAt: string | null; replied: boolean }> = [];
+  const rows = new Map<string, { label: string; sent: number; gmail: number; manual: number; opens: number; giftViews: number; replies: number; positive: number; ooo: number }>();
+  const recent: Array<{ id: string; personId: string; name: string; sentAt: string; label: string; subject: string; source: string; openAt: string | null; giftViewAt: string | null; replied: boolean }> = [];
   let untracked = 0;
   for (const group of groups.values()) {
     group.sort((a,b) => a.sent_at!.localeCompare(b.sent_at!));
@@ -24,16 +25,18 @@ export function aggregateVersions(touches: TrackedTouch[], options: { source?: '
     const source = meta.source === 'gmail' && first.gmail_thread_id ? 'gmail' : meta.source === 'manual' ? 'manual' : null;
     if (!source || (options.source && options.source !== 'all' && source !== options.source) || (options.since && first.sent_at! < options.since)) continue;
     const label = versionLabel(meta);
-    const row = rows.get(label) ?? { label, sent: 0, gmail: 0, manual: 0, opens: 0, replies: 0, positive: 0, ooo: 0 };
+    const row = rows.get(label) ?? { label, sent: 0, gmail: 0, manual: 0, opens: 0, giftViews: 0, replies: 0, positive: 0, ooo: 0 };
     // Replies after a follow-up belong to the opening-version conversation, counted once.
     const eligible = group.filter(t => t.sent_at! >= first.sent_at!);
     const replied = eligible.some(t => Boolean(t.reply_at) && ['positive','neutral','objection','referral','negative'].includes(t.reply_classification ?? ''));
     const positive = eligible.some(t => Boolean(t.reply_at) && ['positive','referral'].includes(t.reply_classification ?? ''));
     const openAt = source === 'gmail' ? firstOpenAt(first.message_variants?.message_experiments?.context) : null;
+    const giftViewAt = source === 'gmail' ? firstGiftViewAt(first.message_variants?.message_experiments?.context) : null;
+    if(giftViewAt) row.giftViews++;
     row.sent++; row[source]++; if (openAt) row.opens++; if (replied) row.replies++; if (positive) row.positive++;
     if (eligible.some(t => t.reply_at && t.reply_classification === 'ooo')) row.ooo++;
     rows.set(label, row);
-    recent.push({ id: first.id, personId: first.person_id, name: first.people?.full_name ?? 'Contact', sentAt: first.sent_at!, label, subject: first.message_variants!.subject, source, openAt, replied });
+    recent.push({ id: first.id, personId: first.person_id, name: first.people?.full_name ?? 'Contact', sentAt: first.sent_at!, label, subject: first.message_variants!.subject, source, openAt, giftViewAt, replied });
   }
   return { rows: [...rows.values()].sort((a,b)=>b.sent-a.sent || a.label.localeCompare(b.label)), recent: recent.sort((a,b)=>b.sentAt.localeCompare(a.sentAt)).slice(0,25), untracked };
 }
