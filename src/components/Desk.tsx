@@ -1182,6 +1182,7 @@ export function Desk({
 
                 {senderConflict && <p role="alert">{senderConflict}</p>}
                 <div className="deskwork-scroll">
+                {channelTab === "email" && !altContact && !sentAlready && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={previewingVersion && tonePreview ? tonePreview.subject : focusCard.email_subject ?? ""} body={previewingVersion && tonePreview ? tonePreview.body : focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
                 {previewingVersion && tonePreview ? (
                   <article className="email-version-document" aria-label={`${tonePreview.label} ${channelTab} preview`}>
                     <div className="email-version-caption"><span>{tonePreview.label} · Preview</span><span>{outreachBody(tonePreview.body).split(/\s+/).filter(Boolean).length} words</span></div>
@@ -1197,8 +1198,8 @@ export function Desk({
                       <div className="deskwork-edit deskwork-compose">
                         <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
                         <div className={`reachout-address-status ${contact.email_status === "verified" ? "verified" : ""}`}>
-                          {contact.email_status === "verified" ? "Verified email" : contact.email ? "Published or saved address. Mailbox not verified." : "Email not found. This draft is ready to edit; add a confirmed address before sending."}
-                          {contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailSourceUrl && <a href={focusedContact(focusCard.accounts.domain ?? "", contact.full_name)!.emailSourceUrl!} target="_blank" rel="noreferrer">Address source ↗</a>}
+                          {contact.email_status === "verified" ? "Verified email" : contact.email ? ((focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred") ? "Inferred candidate. Mailbox not verified." : "Published or saved address. Mailbox not verified.") : "Email not found. This draft is ready to edit; add a confirmed address before sending."}
+                          {contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailSourceUrl && <a href={focusedContact(focusCard.accounts.domain ?? "", contact.full_name)!.emailSourceUrl!} target="_blank" rel="noreferrer">{focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred" ? "Pattern evidence ↗" : "Address source ↗"}</a>}
                         </div>
                         <div className="focus-subject-row">
                           <input
@@ -1292,7 +1293,7 @@ export function Desk({
                 })()}
                 </div>
 
-                {channelTab === "email" && !altContact && !previewingVersion && !sentAlready && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={focusCard.email_subject ?? ""} body={focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
+
 
                 {previewingVersion && tonePreview ? <div className="email-version-footer">
                   <small>Your current draft is unchanged.</small>

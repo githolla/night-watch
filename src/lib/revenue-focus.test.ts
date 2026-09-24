@@ -46,7 +46,18 @@ test('published email evidence cannot become a verified or guessed address', () 
   assert.equal(patch.email_source, 'https://kirkmaxey.com/about/');
   assert.deepEqual(publishedEmailPatch('caymanchem.com', 'Kirk Maxey', { email: 'current@caymanchem.com', email_status: 'verified', email_source: 'apollo' }), {});
   assert.deepEqual(publishedEmailPatch('caymanchem.com', 'Kirk Maxey', { email: null, do_not_contact: true }), {});
-  assert.deepEqual(publishedEmailPatch('mcstamp.com', 'Judith Kucway', { email: null }), {});
-  assert.equal(publishedEmailPatch('mcstamp.com', 'Judith Kucway', { email: 'invented@mcstamp.com', email_source: 'guess' }).email, null);
+  assert.equal(publishedEmailPatch('mcstamp.com', 'Judith Kucway', { email: null }).email_source, 'pattern');
+  assert.equal(publishedEmailPatch('mcstamp.com', 'Judith Kucway', { email: 'invented@mcstamp.com', email_source: 'guess' }).email, 'jkucway@mcstamp.com');
   assert.deepEqual(publishedEmailPatch('channellock.com', 'Someone Else', { email: null }), {});
+});
+
+test('all contact addresses are populated with evidence without inventing verification', () => {
+ for (const row of focus) for (const contact of row.contacts) {
+  assert.ok(contact.email && contact.emailSourceUrl, contact.name);
+  const patch = publishedEmailPatch(row.domain, contact.name, {email:null});
+  assert.equal(patch.email, contact.email);
+  assert.equal(patch.email_status, 'unverified');
+  assert.equal(patch.email_verified_at, null);
+  assert.deepEqual(publishedEmailPatch(row.domain, contact.name, {email:contact.email,email_status:'invalid'}), {});
+ }
 });

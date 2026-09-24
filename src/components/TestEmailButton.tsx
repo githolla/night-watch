@@ -27,8 +27,8 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not check status.'); }
     finally { setBusy(false); }
   }
-  return <details className="email-test-panel">
-    <summary>Test first email</summary>
+  return <section className="email-test-panel" aria-label="Test email">
+    <strong>Test this email</strong>
     <p>Send the current draft to your own connected Gmail. No prospect or CC receives it. Tests are excluded from outreach analytics and follow-ups.</p>
     <button type="button" disabled={busy || disabled || !subject.trim() || !body.trim()} onClick={sendTest}>{busy ? 'Working…' : 'Send test to myself'}</button>{' '}
     <button type="button" disabled={busy || disabled} onClick={check}>Check test status</button>
@@ -38,5 +38,5 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
       {result.warning && <p>{result.warning}</p>}
       <small>First-email tests have no tracking pixel or Gift link. Check your inbox to confirm delivery and formatting.</small>
     </div>}
-  </details>;
+  </section>;
 }

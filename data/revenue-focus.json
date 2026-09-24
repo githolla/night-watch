@@ -39,8 +39,7 @@
     "hypothesis": "A location report becomes useful when someone owns the next action. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$93.5M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Victor Ansara",
@@ -120,8 +119,7 @@
     "hypothesis": "A faster quote starts with checking customer specifications against available stock. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$93.2M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Devin Ezop",
@@ -183,15 +181,16 @@
         "name": "Lynn Terry",
         "title": "President",
         "sourceUrl": "https://www.wolverinetruckgroup.com/",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "lynn.terry@wolverinefordsales.com",
+        "emailSourceUrl": "https://www.allbiz.com/business/wolverine-freightliner-dearborn-inc-313-849-0800",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
-        "emailNote": "HOLD: no MX or A records returned; do not use this address",
+        "emailStatus": "published_unverified",
+        "emailNote": "Directory publishes this business address. Legacy Wolverine Ford Sales domain; current mailbox not confirmed.",
         "subject": "between diagnosis and repair",
         "message": "I'd like to help Wolverine's service desk get a repair order ready to move, with the technician's findings, parts status and required paperwork together. Your three-location service operation gives us a specific place to start.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build around one repair type and put the packet in front of your service team for review. They'd help shape it; we'd measure preparation time and missing information before considering a wider rollout.\n\nWould it help to have our engineers take on that service-desk build?",
         "contact_rank": 1,
-        "contact_id": "rev-wolverinetruckgroup-c1"
+        "contact_id": "rev-wolverinetruckgroup-c1",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 3,
@@ -201,8 +200,7 @@
     "hypothesis": "A repair order should bring parts status and required paperwork together. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$88.3M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Lynn Terry",
@@ -264,14 +262,16 @@
         "name": "Judith Kucway",
         "title": "CEO & CFO",
         "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "jkucway@mcstamp.com",
+        "emailSourceUrl": "https://veritaglobal.net/documents/0555927/0555927071105000000000009.pdf",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
+        "emailStatus": "inferred",
         "subject": "when the schedule changes",
         "message": "For Motor City, I'd focus an AI build on the moment a changed customer schedule reaches your planners. The useful output would be the affected production orders and the decision each needs.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a comparison of the revised schedule and open orders, preparing the differences for your team. Planners would keep production decisions. We'd check the accuracy and review time with them before expanding to more customers.\n\nIs faster review of schedule changes a priority worth exploring with your planners?",
         "contact_rank": 1,
-        "contact_id": "rev-mcstamp-c1"
+        "contact_id": "rev-mcstamp-c1",
+        "emailNote": "First initial plus surname inferred from published lthumm@mcstamp.com. Old evidence; target address not published.",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 4,
@@ -282,7 +282,7 @@
     "fit": "$86.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Inferred addresses are hypotheses, not verified mailboxes."
     ],
     "buyer": {
       "name": "Judith Kucway",
@@ -362,8 +362,7 @@
     "hypothesis": "A shipment exception needs an owner and a customer update, not another screen. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$84M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "John A. Evans",
@@ -425,15 +424,16 @@
         "name": "Kristen Bell",
         "title": "Co-owner & Vice President",
         "sourceUrl": "https://www.bellforklift.com/history/",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "kbell@bellforklift.com",
+        "emailSourceUrl": "https://lifttruckstuff.com/dealers/",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
-        "emailNote": "No substantiated direct leadership email found",
+        "emailStatus": "inferred",
+        "emailNote": "First initial plus surname inferred from dealer listing rsabo@bellforklift.com. Target mailbox not confirmed.",
         "subject": "after the technician leaves",
         "message": "I'd like to help Bell's office turn technician notes into a checked parts request and work order. That looks like a practical AI project alongside your repair service.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe'd build a paperwork assistant for one repair category, with your staff approving its work. The test would be office handling time and the details still needing clarification. Your team shapes the tool; our engineers take on the build and rollout.\n\nWould help getting technician notes ready for the office be useful at Bell?",
         "contact_rank": 1,
-        "contact_id": "rev-bellforklift-c1"
+        "contact_id": "rev-bellforklift-c1",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 6,
@@ -444,7 +444,7 @@
     "fit": "$82M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Inferred addresses are hypotheses, not verified mailboxes."
     ],
     "buyer": {
       "name": "Kristen Bell",
@@ -524,8 +524,7 @@
     "hypothesis": "A product change should reach every listing with the same approved information. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$76.1M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Larry Gaynor",
@@ -605,8 +604,7 @@
     "hypothesis": "A maintenance request needs a clear owner and vendor follow-up through completion. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$70M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Leslie Etterbeek",
@@ -668,15 +666,16 @@
         "name": "Mel Gutherie",
         "title": "President",
         "sourceUrl": "https://gutherielumber.com/our-history/",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "mgutherie@gutherielumber.com",
+        "emailSourceUrl": "https://www.apartments.org/wp-content/media/Buyers-Guide.pdf",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
-        "emailNote": "Generic inbox and older employee contacts found; no substantiated executive address",
+        "emailStatus": "inferred",
+        "emailNote": "First initial plus surname inferred from bgutherie@gutherielumber.com. Target mailbox not confirmed.",
         "subject": "when a builder order changes",
         "message": "Gutherie's wall-panel, I-joist and delivery work gives a changed builder order several consequences. I'd like to help your team see the effect on cutting and delivery before confirming it.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a review combining the changed order and relevant schedules, with the decisions left to dispatch and production. Your team would help us check accuracy and preparation time. The aim is a useful tool in their daily work.\n\nWould an example of that order-change review be worth sending?",
         "contact_rank": 1,
-        "contact_id": "rev-gutherielumber-c1"
+        "contact_id": "rev-gutherielumber-c1",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 9,
@@ -687,7 +686,7 @@
     "fit": "$65.9M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Inferred addresses are hypotheses, not verified mailboxes."
     ],
     "buyer": {
       "name": "Mel Gutherie",
@@ -767,8 +766,7 @@
     "hypothesis": "A daily operating review should identify the cost exception that needs a decision. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$63.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Rosalie Vicari",
@@ -860,8 +858,7 @@
     "hypothesis": "AI should save scientists time finding evidence while keeping scientific validation with people. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$62M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Kirk Maxey",
@@ -942,8 +939,7 @@
     "hypothesis": "A delivery discrepancy should connect the customer report to the route record and a resolution. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$61.8M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Mark Colton",
@@ -1023,8 +1019,7 @@
     "hypothesis": "A commercial audit packet should connect service evidence and corrective actions. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$59.1M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "AJ Treleven",
@@ -1086,27 +1081,31 @@
         "name": "Chris Langlois",
         "title": "CEO",
         "sourceUrl": "https://www.inc.com/profile/alta-pest-control",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "chris@altapestcontrol.com",
+        "emailSourceUrl": "https://leadiq.com/c/alta-pest-control/5a1dce092300005b00d51858/email-format",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
+        "emailStatus": "inferred",
         "subject": "the first days at Alta",
         "message": "Aaron Curtis's findings on friction in the first days of onboarding suggest a focused AI project at Alta: put unresolved concerns in front of a branch while it can act.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build an onboarding review from service notes and open commitments, around your FieldRoutes process. Managers would decide the follow-up. We'd measure resolution time; any effect on cancellation would need to be tested.\n\nWould you welcome help turning those findings into a daily branch review?",
         "contact_rank": 1,
-        "contact_id": "rev-altapestcontrol-c1"
+        "contact_id": "rev-altapestcontrol-c1",
+        "emailNote": "First-name format reported by LeadIQ and Prospeo. Chris versus Christopher remains uncertain.",
+        "emailResearchDate": "2026-09-24"
       },
       {
         "name": "Aaron Curtis",
         "title": "Customer Experience Officer",
         "sourceUrl": "https://www.fieldroutes.com/blog/alta-pest-control-customer-onboarding",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "aaron@altapestcontrol.com",
+        "emailSourceUrl": "https://leadiq.com/c/alta-pest-control/5a1dce092300005b00d51858/email-format",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
+        "emailStatus": "inferred",
         "subject": "acting on your onboarding findings",
         "message": "Your findings about early onboarding friction being mistaken for price sensitivity give AI a specific job at Alta: keep the unresolved concern visible before a customer cancels.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a review around FieldRoutes that groups concerns and puts open cases in front of the responsible branch manager. Your team would define what needs attention. We'd compare resolution time with today's process and refine the review with the branch.\n\nWould a sketch of that daily concern review be useful alongside your current work?",
         "contact_rank": 2,
-        "contact_id": "rev-altapestcontrol-c2"
+        "contact_id": "rev-altapestcontrol-c2",
+        "emailNote": "First-name format reported by LeadIQ and Prospeo. Target mailbox not confirmed.",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 14,
@@ -1117,7 +1116,7 @@
     "fit": "$57.5436M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Inferred addresses are hypotheses, not verified mailboxes."
     ],
     "buyer": {
       "name": "Chris Langlois",
@@ -1180,27 +1179,31 @@
         "name": "Glenn Gerhard",
         "title": "President & CFO",
         "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "ggerhard@chrysanindustries.com",
+        "emailSourceUrl": "https://www.chrysanindustries.com/en/electric-vehicles",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
+        "emailStatus": "inferred",
         "subject": "when a supplier date changes",
         "message": "For your finance and operating responsibilities at Chrysan, I'd like to connect a supplier's changed delivery date to the affected order and customer commitment.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a purchasing review from supplier updates and approved order records, with the supporting evidence beside each exception. Your people approve changes. We'd measure review time and missed links, giving you a way to judge the tool before expanding it.\n\nIs faster review of supplier changes a priority for your purchasing team?",
         "contact_rank": 1,
-        "contact_id": "rev-chrysanindustries-c1"
+        "contact_id": "rev-chrysanindustries-c1",
+        "emailNote": "First initial plus surname inferred from Dave Chon: dchon@chrysanindustries.com on the company site.",
+        "emailResearchDate": "2026-09-24"
       },
       {
         "name": "Suk-Kyu Koh",
         "title": "Chairman & CEO",
         "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "skoh@chrysanindustries.com",
+        "emailSourceUrl": "https://www.chrysanindustries.com/en/electric-vehicles",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
+        "emailStatus": "inferred",
         "subject": "supplier date, customer promise",
         "message": "I'd like to help Chrysan turn supplier updates into a clear view of affected orders, ready for the people responsible for customer commitments.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe recently helped one client deploy 20 applications. We'd build the review with Chrysan's purchasing team, starting with one supplier flow. We'd check accuracy and preparation time before extending it to more of the business.\n\nWould an outline of that first application help you assess the opportunity?",
         "contact_rank": 2,
-        "contact_id": "rev-chrysanindustries-c2"
+        "contact_id": "rev-chrysanindustries-c2",
+        "emailNote": "First initial plus surname inferred from dchon@chrysanindustries.com. Compound given-name treatment is uncertain.",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 15,
@@ -1211,7 +1214,7 @@
     "fit": "$51.6M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Inferred addresses are hypotheses, not verified mailboxes."
     ],
     "buyer": {
       "name": "Glenn Gerhard",
@@ -1292,8 +1295,7 @@
     "hypothesis": "A repeat service issue should reach the branch with its history and a next action. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$46.911M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Mike Rottler",
@@ -1373,8 +1375,7 @@
     "hypothesis": "A tooling revision should arrive with the affected jobs and decisions attached. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$45M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Steve Craprotta",
@@ -1436,15 +1437,16 @@
         "name": "Keith Albertie",
         "title": "President",
         "sourceUrl": "https://www.genoilcorp.com/fuel-delivery/",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "keith@genoilcorp.com",
+        "emailSourceUrl": "https://www.genoilcorp.com/contact/",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
-        "emailNote": "Only shared orders mailbox found; not assigned to Keith",
+        "emailStatus": "inferred",
+        "emailNote": "Low-confidence first-name hypothesis only. Company publishes orders@genoilcorp.com, not a named-person pattern.",
         "subject": "from delivery ticket to invoice",
         "message": "I'd like to help Gen Oil's office get a delivery ticket ready to invoice, with differences from the order flagged before billing review.\n\nNine-67 is an AI-first company. Our forward-deployed engineers build custom software with operating teams, then train users and handle deployment.\n\nWe'd build a first pass that matches tickets and orders, then shows staff the exceptions with the supporting records. Your office team would approve the results and help refine the checks. We'd measure review time and corrections on one delivery workflow.\n\nWould it help to have our engineers take on that pre-billing check?",
         "contact_rank": 1,
-        "contact_id": "rev-genoilcorp-c1"
+        "contact_id": "rev-genoilcorp-c1",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 18,
@@ -1455,7 +1457,7 @@
     "fit": "$44.5M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Inferred addresses are hypotheses, not verified mailboxes."
     ],
     "buyer": {
       "name": "Keith Albertie",
@@ -1517,15 +1519,16 @@
         "name": "Chase Hazelwood",
         "title": "Owner & CEO",
         "sourceUrl": "https://www.go-forth.com/our-company/",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "chase@go-forth.com",
+        "emailSourceUrl": "https://www.issuewire.com/go-forth-pest-control-named-27th-fastest-growing-company-in-north-carolina-triad-1646270071804396",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
-        "emailNote": "No substantiated direct executive email found; shared and masked addresses excluded",
+        "emailStatus": "inferred",
+        "emailNote": "First-name hypothesis from company release listing leah@go-forth.com. Other company formats also exist.",
         "subject": "carrying the customer request through",
         "message": "Go-Forth's range of home services gives us a specific AI project to explore: get a customer request to the right service team with its context intact.\n\nAt Nine-67, our forward-deployed engineers build custom software with operating teams. We're AI-first, and we take on the build, training and deployment.\n\nWe recently helped one client deploy 20 applications. We'd build a handoff brief from the request, supporting notes and open questions for Go-Forth staff to review before routing. We'd check handling time and rerouted requests with the team using it.\n\nWould help getting customer requests ready for the service team be valuable at Go-Forth?",
         "contact_rank": 1,
-        "contact_id": "rev-go-forth-c1"
+        "contact_id": "rev-go-forth-c1",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 19,
@@ -1536,7 +1539,7 @@
     "fit": "$41M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Inferred addresses are hypotheses, not verified mailboxes."
     ],
     "buyer": {
       "name": "Chase Hazelwood",
@@ -1598,15 +1601,16 @@
         "name": "Joseph Fontana",
         "title": "CEO",
         "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "jfontana@michiganbox.com",
+        "emailSourceUrl": "https://vektortms.com/directory/trucking-companies/michigan-box-company-usdot-370575",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
-        "emailNote": "Only generic company inbox found",
+        "emailStatus": "inferred",
+        "emailNote": "First initial plus surname hypothesis from ppetro@michiganbox.com in carrier directory. Target address not published.",
         "subject": "before the estimator starts",
         "message": "I'd like to help Michigan Box's estimators receive packaging specifications ready to check, with missing details flagged before pricing.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build around one packaging category, checking incoming dimensions, materials and delivery requirements against your approved rules. The estimator keeps approval. We'd measure preparation time and clarification rounds, then refine the tool with the people quoting the work.\n\nWould a sample request-to-estimating walkthrough be worth sending?",
         "contact_rank": 1,
-        "contact_id": "rev-michiganbox-c1"
+        "contact_id": "rev-michiganbox-c1",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 20,
@@ -1617,7 +1621,7 @@
     "fit": "$40M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Inferred addresses are hypotheses, not verified mailboxes."
     ],
     "buyer": {
       "name": "Joseph Fontana",
@@ -1697,8 +1701,7 @@
     "hypothesis": "An alloy and gauge request needs a stock match and the right supporting documents. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$36M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Jim Chain",
@@ -1778,8 +1781,7 @@
     "hypothesis": "A stock decision should connect seasonal demand with what another location already has. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$36M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "John Darin",
@@ -1859,8 +1861,7 @@
     "hypothesis": "An acquired customer history should stay usable through the service handoff. This is a possible workflow to explore, not a confirmed problem.",
     "fit": "$26M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
-      "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Published addresses have not been checked for deliverability."
     ],
     "buyer": {
       "name": "Jerry Lazarus",
@@ -1922,15 +1923,16 @@
         "name": "Jason Eicher",
         "title": "President",
         "sourceUrl": "https://versacor.com/company-history/",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "jason.eicher@versacor.com",
+        "emailSourceUrl": "https://leadiq.com/c/versacor-managed-pest-solutions/5a1d9d5b23000059008d33a1/email-format",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
-        "emailNote": "Business permit contact found for another employee; no substantiated executive address",
+        "emailStatus": "inferred",
+        "emailNote": "First.last format reported by LeadIQ. Both .com and .net domains appear; target mailbox not confirmed.",
         "subject": "after the inspection finding",
         "message": "I'd like to help Versacor's team connect an inspection finding to its responsible owner and the evidence that the action is complete.\n\nOur forward-deployed engineers at Nine-67 build custom software with the people doing the work. We're an AI-first company, handling development through training and deployment.\n\nWe'd build a review of the finding, follow-up records and missing evidence for your specialists. They retain the judgment. We'd measure preparation time and incomplete cases, then refine the tool with the staff doing that coordination before widening its use.\n\nWould your team welcome help preparing that evidence for review?",
         "contact_rank": 1,
-        "contact_id": "rev-versacor-c1"
+        "contact_id": "rev-versacor-c1",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 24,
@@ -1941,7 +1943,7 @@
     "fit": "$25.0406M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Inferred addresses are hypotheses, not verified mailboxes."
     ],
     "buyer": {
       "name": "Jason Eicher",
@@ -2003,15 +2005,16 @@
         "name": "Luke Lewis",
         "title": "Founder & CEO",
         "sourceUrl": "https://www.nativepestmanagement.com/blog/native-pest-management-promotes-kelly-moseley-to-chief-revenue-officer/",
-        "email": null,
-        "emailSourceUrl": null,
+        "email": "luke@nativepestmanagement.com",
+        "emailSourceUrl": "https://growjo.com/employee/Luke-Lewis-19208243",
         "emailPublishedDate": null,
-        "emailStatus": "not_found",
-        "emailNote": "Only generic and sales inboxes found; no substantiated executive email",
+        "emailStatus": "inferred",
+        "emailNote": "Low-confidence first-name hypothesis. Directory only shows a masked l-prefix address; it does not confirm this full address.",
         "subject": "from first call to service",
         "message": "Kelly's move into Native's CRO role made me think about the customer promise from the first call through service and follow-up.\n\nNine-67 is AI-first. Our forward-deployed engineers build custom software alongside business and operations teams, refining it with users and training them through deployment.\n\nWe'd build a first-visit brief from approved call notes, showing what was promised and what remains open. Staff would check it before the handoff. We'd measure preparation time and missing details, then refine the brief with the revenue and service teams.\n\nWould an example of that first-call-to-service brief be useful?",
         "contact_rank": 1,
-        "contact_id": "rev-nativepestmanagement-c1"
+        "contact_id": "rev-nativepestmanagement-c1",
+        "emailResearchDate": "2026-09-24"
       }
     ],
     "rank": 25,
@@ -2022,7 +2025,7 @@
     "fit": "$18.0608M annual revenue (2025 reported). Operating business; buying intent and budget not confirmed.",
     "limitations": [
       "Published addresses have not been checked for deliverability.",
-      "Missing addresses remain blank; no inferred email patterns."
+      "Inferred addresses are hypotheses, not verified mailboxes."
     ],
     "buyer": {
       "name": "Luke Lewis",

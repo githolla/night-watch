@@ -1,3 +1,4 @@
+import { publishedEmailPatch } from "@/lib/focused-contact";
 import { wasAutomaticallyArchived } from "@/lib/curated-card-state";
 import { senderProfile } from "@/lib/sender";
 import { outreachFooterHtml, senderFirstName } from "@/lib/outreach-ending";
@@ -64,6 +65,19 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     for (const result of results) {
       if (!result.ok && result.status !== 409) throw new Error((await result.json()).error);
     }
+  }
+  // Backfill newly researched addresses for existing contacts as well as new cards.
+  // Never change verified, invalid, opted-out, or manually supplied addresses.
+  const recipients = await db.from("people").select("id,full_name,email,email_status,email_source,do_not_contact,accounts!inner(domain)").in("accounts.domain", curatedDomains);
+  if (recipients.error) throw recipients.error;
+  for (let start = 0; start < (recipients.data ?? []).length; start += 5) {
+    await Promise.all((recipients.data ?? []).slice(start, start + 5).map(async person => {
+      const account = person.accounts as unknown as { domain: string };
+      const patch = publishedEmailPatch(account.domain, person.full_name, person);
+      if (!Object.keys(patch).length || (person.email === patch.email && person.email_source === patch.email_source && person.email_status === patch.email_status)) return;
+      const result = await db.from("people").update(patch).eq("id", person.id);
+      if (result.error) throw result.error;
+    }));
   }
   const sender = await senderProfile(db, me.owner);
   const today = new Date().toISOString().slice(0, 10);

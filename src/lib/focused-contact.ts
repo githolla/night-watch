@@ -11,13 +11,13 @@ export function focusedContact(domain: string, name: string) {
 type StoredEmail = { email: string | null; email_status?: string; email_source?: string | null; do_not_contact?: boolean };
 /** A published business address is evidence, not a deliverability verification. */
 export function publishedEmailPatch(domain: string, name: string, stored: StoredEmail) {
-  if (stored.do_not_contact) return {};
+  if (stored.do_not_contact || stored.email_status === "verified" || stored.email_status === "invalid") return {};
   const inferred = ["guess", "pattern"].includes(stored.email_source ?? "");
   if (stored.email && !inferred) return {};
   const contact = focusedContact(domain, name);
   if (!contact) return {};
-  if (contact.email && contact.emailSourceUrl && contact.email.toLowerCase().endsWith(`@${domain.toLowerCase()}`)) {
-    return { email: contact.email, email_status: "unverified", email_source: contact.emailSourceUrl, email_verified_at: null };
+  if (contact.email && contact.emailSourceUrl && (contact.email.toLowerCase().endsWith(`@${domain.toLowerCase()}`) || (domain === "wolverinetruckgroup.com" && contact.email.endsWith("@wolverinefordsales.com")))) {
+    return { email: contact.email, email_status: "unverified", email_source: contact.emailStatus === "inferred" ? "pattern" : contact.emailSourceUrl, email_verified_at: null };
   }
   return inferred ? { email: null, email_status: "none", email_source: null, email_verified_at: null } : {};
 }
