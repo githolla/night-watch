@@ -29,3 +29,7 @@ Authenticated previews and plain copied/LinkedIn links do not carry send attribu
 Local UI verification covered automatic Ansara Gift selection, automatic Evans Trigger selection with a dated reason, manual Gift override, and rendering the branded Ansara page. Test coverage includes all 28 exact-contact assets, date boundaries, missing evidence, peer eligibility, preservation of edits/sent records, token tampering, link rendering, history and merged detections.
 
 No prospect email or self-test was sent by the agent. Real Gmail delivery and production database view recording require an actual send/test. Recipient email verification status was not changed. Recommendations are evidence rules, not predicted reply percentages.
+
+## First-touch policy update
+
+First emails now offer the completed Gift without linking to it. Existing Gift pages stay available for sharing after a reply; LinkedIn copy is unchanged. First-touch sends and self-tests do not insert open pixels, and flatten the saved footer to text without remote images or URLs. Historical tracking remains available. Send validation requires one question and rejects links and common vague sales language. The desk shows recipient-fit guidance using a manually confirmed location count; it does not infer company size or replace contacts. No time-zone controls or scheduled sending were added.

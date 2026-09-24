@@ -1,15 +1,14 @@
-import { trackedGiftCopy, firstGiftViewAt } from "@/lib/gift-tracking";
-import { contactEvidence } from "@/lib/research-recommendation";
+import { firstTouchErrors, firstTouchSignature } from "@/lib/first-touch";
+import { firstGiftViewAt } from "@/lib/gift-tracking";
 import { authoredSenderDraft } from '@/lib/authored-sender';
 import { requireUser } from '@/lib/auth';
 import { admin } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/gmail';
 import { senderProfile, fromHeader, sanitizeLinks } from '@/lib/sender';
 import { withOutreachSignature, outreachEmailHtml } from '@/lib/outreach-ending';
-import { trackedEmailHtml, firstOpenAt } from '@/lib/open-tracking';
+import { firstOpenAt } from '@/lib/open-tracking';
 import { trackEmailVersion } from '@/lib/version-tracking';
 import { versionLabel, SAVED_VERSION_MODEL } from '@/lib/version-attribution';
-import { outboundBaseUrl } from '@/lib/urls';
 import { z } from 'zod';
 
 export const maxDuration = 60;
@@ -28,7 +27,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if ((count ?? 0) >= 5) return Response.json({ error: 'Five tests have been requested in the last ten minutes. Wait a few minutes before sending another.' }, { status: 429 });
     const { data: card, error: cardError } = await db.from('cards').select('person_id,account_id,people(full_name),accounts(domain)').eq('id', id).single();
     if (cardError || !card) throw new Error('This draft is no longer available.');
-    const profile = await senderProfile(db, user.owner);
+    const savedProfile = await senderProfile(db, user.owner);
+    const profile = {...savedProfile,signature:firstTouchSignature(savedProfile.signature)};
     let person = card.people as unknown as { full_name: string } | null;
     let personId = card.person_id;
     if (payload.personId && payload.personId !== card.person_id) {
@@ -41,12 +41,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const personalized = authoredSenderDraft({ body: sanitizeLinks(payload.body), domain: account?.domain, contactName: person?.full_name ?? '', senderName: profile.fromName, greeting: profile.greeting });
     if (personalized.senderConflict) throw new Error(personalized.senderConflict);
     const body = personalized.body;
+    const errors = firstTouchErrors(payload.subject, body);
+    if(errors.length) throw new Error(errors.join(" "));
     const fullBody = withOutreachSignature(body, profile);
     const versionId = await trackEmailVersion(db, { cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
-    const giftId = contactEvidence(account?.domain, person?.full_name)?.giftId;
-    const deliveredBody = giftId ? trackedGiftCopy(fullBody, giftId, versionId) : fullBody;
-    const renderedHtml = outreachEmailHtml(body, profile);
-    const html = trackedEmailHtml(giftId ? trackedGiftCopy(renderedHtml, giftId, versionId) : renderedHtml, outboundBaseUrl(request), versionId);
+    const deliveredBody = fullBody;
+    const html = outreachEmailHtml(body, profile);
     await sendEmail(user.owner, fromHeader(profile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);
     // Tests never create touches, change card status or enroll follow-ups.
     const { data: snapshot } = await db.from('message_variants').select('experiment_id,dimensions').eq('id', versionId).single();

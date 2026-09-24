@@ -28,7 +28,7 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
     finally { setBusy(false); }
   }
   return <details className="email-test-panel">
-    <summary>Test email &amp; tracking</summary>
+    <summary>Test first email</summary>
     <p>Send the current draft to your own connected Gmail. No prospect or CC receives it. Tests are excluded from outreach analytics and follow-ups.</p>
     <button type="button" disabled={busy || disabled || !subject.trim() || !body.trim()} onClick={sendTest}>{busy ? 'Working…' : 'Send test to myself'}</button>{' '}
     <button type="button" disabled={busy || disabled} onClick={check}>Check test status</button>
@@ -36,9 +36,7 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
     {error && <p role="alert">{error}</p>}
     {result && <div role="status"><p><strong>TEST · {result.label}</strong>{result.to ? ` · Sent to ${result.to}` : result.status === 'sent' ? ' · Sent' : ' · Delivery status not confirmed'}</p>
       {result.warning && <p>{result.warning}</p>}
-      <p>{result.openAt ? `Open detected: ${new Date(result.openAt).toLocaleString()}` : 'No open detected yet. Open the [Night Watch test] email, display images, then click Check test status.'}</p>
-      {body.includes('/gift/') && <p>{result.giftViewAt ? `Gift view detected: ${new Date(result.giftViewAt).toLocaleString()}` : 'Open the brief from your test email, then check status here to test the Gift view signal.'}</p>}
-      <small>Your mail app may load the image automatically, even from Sent. An open signal is not proof of reading. This tests delivery, the recorded version and the tracking pixel.</small>
+      <small>First-email tests have no tracking pixel or Gift link. Check your inbox to confirm delivery and formatting.</small>
     </div>}
   </details>;
 }

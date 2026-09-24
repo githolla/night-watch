@@ -17,6 +17,7 @@ export function VersionAnalytics({ summary, error, source, days }: { summary: Su
         {!summary.rows.length && <tr><td colSpan={9}>No tracked sends in this view yet. Choose a saved version, then send it or explicitly mark it sent.</td></tr>}
       </tbody></table></div>
       <p>Each contact conversation counts once per channel. LinkedIn versions appear under Marked sent and are separate from email. Replies after follow-ups count toward the opening version. Edited versions are separate. Out-of-office replies are excluded from reply rates. Marked-sent records are self-reported; copying never counts as sending.</p>
+      <p>New first emails have no tracking pixels or Gift links. Judge those versions by replies; historical open counts do not measure their performance.</p>
       <p>Open detected means the original email&apos;s image loaded, not proof it was read. Privacy proxies can load it automatically; blocked images can hide real opens. Follow-up opens are visible in history. Results are observational, not a randomized test.</p>
       <p>Gift views count a first visible-page signal from a tracked Gmail link. Scanners and forwarded links can trigger it; it is a reason to review a personal follow-up, not proof of interest. Tests and untracked preview links are excluded.</p>
       {summary.untracked > 0 && <p>{summary.untracked} older or untracked Gmail conversations are excluded from version comparisons.</p>}

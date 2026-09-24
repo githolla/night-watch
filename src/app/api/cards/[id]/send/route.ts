@@ -1,7 +1,5 @@
-import { trackedGiftCopy } from "@/lib/gift-tracking";
-import { contactEvidence } from "@/lib/research-recommendation";
+import { firstTouchErrors, firstTouchSignature } from "@/lib/first-touch";
 import { authoredSenderDraft } from '@/lib/authored-sender';
-import { trackedEmailHtml } from "@/lib/open-tracking";
 import { trackEmailVersion } from "@/lib/version-tracking";
 import { requireUser } from "@/lib/auth";
 import { encrypt } from "@/lib/crypto";
@@ -9,7 +7,7 @@ import { sendEmail } from "@/lib/gmail";
 import { ensureFollowupCadence } from "@/lib/followups";
 import { validateEmail, sendInput } from "@/lib/send-action";
 import { dailyCap, sendDayStart } from "@/lib/send-guards";
-import { emailHtml, fromHeader, sanitizeLinks, senderProfile, withSignature } from "@/lib/sender";
+import { fromHeader, sanitizeLinks, senderProfile } from "@/lib/sender";
 import { outboundBaseUrl } from "@/lib/urls";
 import { admin } from "@/lib/supabase/admin";
 import { isCuratedDomain } from "@/lib/curated-worklist";
@@ -70,24 +68,25 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const cap = dailyCap(daysBetween(connection?.connected_at ?? connection?.created_at));
     // Manual desk send: a human chose to send and is warned in the UI when the address isn't verified, so
     // the verified requirement is relaxed here (the automated cadence still enforces it).
-    const profile = await senderProfile(db, owner);
+    const savedProfile = await senderProfile(db, owner);
+    const profile = {...savedProfile, signature:firstTouchSignature(savedProfile.signature)};
     const personalized = authoredSenderDraft({ body, domain: card.accounts?.domain, contactName: recipient.full_name, senderName: profile.fromName, greeting: profile.greeting });
     if (personalized.senderConflict) throw new Error(personalized.senderConflict);
     body = personalized.body;
+    const copyErrors = firstTouchErrors(subject, body);
+    if(copyErrors.length) throw new Error(copyErrors.join(" "));
     validateEmail(recipient.email_status, count ?? 0, body, cap, false);
     const fromEmail = connection?.email ?? user.email ?? "";
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
-    const fullBody = curated ? withOutreachSignature(body, profile) : `${withSignature(body, profile, fromEmail)}\n\n${optOut}`;
+    const fullBody = withOutreachSignature(body, profile) + (curated ? "" : `\n\n${optOut}`);
     // Send multipart/alternative: a plain-text part (spam filters prefer it) AND an HTML part carrying the
     // branded signature, so the sender's signature actually renders in the recipient's client.
-    const html = curated ? outreachEmailHtml(body, profile) : emailHtml(body, profile, fromEmail, optOut);
+    const html = outreachEmailHtml(body, profile) + (curated ? "" : `<p>${optOut.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>`);
     const base = outboundBaseUrl(request);
     const unsubscribe = `${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(recipient.id))}`;
     const versionId = await trackEmailVersion(db, { cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail" });
-    const giftId = contactEvidence(card.accounts?.domain, recipient.full_name)?.giftId;
-    const deliveredBody = giftId ? trackedGiftCopy(fullBody, giftId, versionId) : fullBody;
-    const deliveredHtml = giftId ? trackedGiftCopy(html, giftId, versionId) : html;
-    const result = await sendEmail(owner, fromHeader(profile, fromEmail), recipient.email, subject, deliveredBody, undefined, profile.cc, trackedEmailHtml(deliveredHtml, base, versionId), unsubscribe);
+    const deliveredBody = fullBody;
+    const result = await sendEmail(owner, fromHeader(profile, fromEmail), recipient.email, subject, deliveredBody, undefined, profile.cc, html, unsubscribe);
     // The email has now actually left. Mark the card sent FIRST so it can never stay actionable after a
     // real send (which is how a "failed" toast used to lead to a duplicate re-send). Only then log to
     // History; if that write fails, the send still stands — we report success with a soft warning.
