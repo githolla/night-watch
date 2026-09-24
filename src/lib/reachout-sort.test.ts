@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { curatedDrafts } from "./curated-worklist.ts";
-import { sortReachouts, revenueLabel } from "./reachout-sort.ts";
+import { sortReachouts, revenueLabel, reachoutPool } from "./reachout-sort.ts";
 
 const cards = curatedDrafts.map(row => ({ accounts: { name: row.company, domain: row.domain }, people: { email_status: "unverified" } }));
 test("revenue sorting uses numeric revenue, not fit score or publication status", () => {
@@ -22,4 +22,16 @@ test("name and verification sorts are selectable; published emails do not count 
   assert.equal(sortReachouts(verified, "revenue-desc")[0].accounts.name, "Ansara Restaurant Group");
   const missing = { accounts: { name: "Unknown", domain: "unknown.test" }, people: { email_status: "none" } };
   assert.equal(sortReachouts([missing, ...cards], "revenue-asc").at(-1)?.accounts.name, "Unknown");
+});
+
+test("the selected list retains all 25 companies when only two drafts remain open", () => {
+  const mixed = cards.map((card, i) => ({ ...card, status: i < 2 ? "new" : "sent" }));
+  const before = JSON.stringify(mixed);
+  const open = mixed.filter(card => card.status === "new");
+  assert.equal(open.length, 2);
+  const pool = reachoutPool(mixed, open);
+  assert.equal(new Set(pool.map(card => card.accounts.domain)).size, 25);
+  assert.equal(pool.filter(card => card.status === "sent").length, 23);
+  assert.equal(JSON.stringify(mixed), before);
+  assert.equal(sortReachouts(pool, "revenue-desc")[0].accounts.name, "Ansara Restaurant Group");
 });

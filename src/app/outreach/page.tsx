@@ -17,7 +17,6 @@ import { ToolDrawer } from "@/components/ToolDrawer";
 import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, populateSweepConfig, sweepAccountLimit } from "@/lib/run-config";
 import { latestRunSummary, loadRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
 import { isLikelyPersonName } from "@/lib/pipeline";
-import { PRIORITY_THRESHOLD } from "@/lib/scoring";
 import { admin } from "@/lib/supabase/admin";
 import { deskCoverage } from "@/lib/desk-coverage";
 import { activeTargetAccounts } from "@/lib/target-accounts";
@@ -35,6 +34,10 @@ const OPEN_STATUSES = ["new", "approved", "edited"];
 
 export default async function OutreachPage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
+  // Retired queue filters must not silently shrink the fixed reach-out list.
+  if (params.status || params.priority || params.new || params.account) {
+    redirect(params.card ? `/outreach?card=${encodeURIComponent(params.card)}` : "/outreach");
+  }
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) {
     redirect("/setup");
   }
@@ -70,18 +73,15 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   // query by status and score, and use surfaced_on only as the "new today" badge (F13).
   // signals!inner + the operating_need filter: a card whose signal never named
   // the work the company needs done was built under the old rules and is not a decision.
-  let query = db
+  const query = db
     .from("cards")
     .select("*,accounts!inner(*),people(*),signals!inner(*)")
-    .not("signals.raw->>operating_need", "is", null)
-    // The desk is the reach-out list only.
+    // This is the complete selected list, including sent records.
+    // It is not the old unfinished-work queue.
     .in("accounts.domain", curatedDomains)
     .like("signals.hash", "operator-shortlist-20260923:%")
     .order("score", { ascending: false });
-  query = params.status ? query.eq("status", params.status) : query.in("status", OPEN_STATUSES);
-  if (params.priority === "high") query = query.gte("score", PRIORITY_THRESHOLD);
-  if (params.new === "today") query = query.eq("surfaced_on", today);
-  if (params.account) query = query.eq("accounts.domain", params.account.toLowerCase());
+
 
   const [
     { data: cardRows, error },

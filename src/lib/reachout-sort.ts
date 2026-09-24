@@ -22,3 +22,9 @@ export function sortReachouts<T extends Sortable>(cards: readonly T[], sort: Rea
     return (sort === "revenue-asc" ? ar - br : br - ar) || names;
   });
 }
+
+/** Selected companies stay visible after outreach; status is never reset. */
+export function reachoutPool<T extends Sortable>(cards: readonly T[], queue: readonly T[]): T[] {
+  const selected = cards.filter(card => focusedAccount(card.accounts.domain));
+  return selected.length ? selected : [...queue];
+}

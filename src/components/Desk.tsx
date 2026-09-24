@@ -3,7 +3,7 @@ import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
 import { dateLabel, sourceDomain } from "@/lib/dossier-data";
 import { savedVariants, withDefaultLinkedIn, withDefaultEmail, renderSavedVariant, renderLinkedInVariant, type SavedVariant } from "@/lib/outreach-variants";
-import { focusedAccount, revenueLabel, sortReachouts, type ReachoutSort } from "@/lib/reachout-sort";
+import { focusedAccount, revenueLabel, sortReachouts, reachoutPool, type ReachoutSort } from "@/lib/reachout-sort";
 import { focusedContact } from "@/lib/focused-contact";
 import { authoredSenderDraft } from "@/lib/authored-sender";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
@@ -273,7 +273,7 @@ export function Desk({
   const todo = (daily.length ? daily : byKind).filter((item) => !WORKED_STATUSES.includes(item.status));
   // The pool the one-at-a-time flow walks: today's worklist, or every active prospect in "All". Verified
   // (sendable) prospects first so the operator works the ones they can send in one click.
-  const sortedPool = sortReachouts(listScope === "all" ? actionable : todo, listSort);
+  const sortedPool = sortReachouts(reachoutPool(cards, listScope === "all" ? actionable : todo), listSort);
   // One row per company. Keep a selected colleague visible without duplicating the company.
   const focusPool = sortedPool.filter(item => {
     const colleagues = sortedPool.filter(other => other.accounts.domain === item.accounts.domain);
