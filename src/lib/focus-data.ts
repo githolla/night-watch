@@ -25,5 +25,5 @@ export function reachoutList(requested: string | undefined, viewer: 'josh' | 'je
 /** A shared list is viewable by teammates, but its drafts belong to its assigned sender. */
 export function assertListSender(domain: string | null | undefined, viewer: 'josh' | 'jenna') {
  const owner = domain ? batchOwner(domain) : null;
- if (owner && owner !== viewer) throw new Error(`Sign in as ${owner === 'josh' ? 'Josh' : 'Suuchi'} to send or test emails from this list.`);
+ if (owner && owner !== viewer) throw new Error(`Sign in as ${owner === 'josh' ? 'Josh' : 'Suuchi'} to send prospect emails from this list.`);
 }

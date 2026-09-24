@@ -1,4 +1,4 @@
-import { assertListSender } from "@/lib/focus-data";
+import { batchOwner } from "@/lib/focus-data";
 import { firstTouchErrors } from "@/lib/first-touch";
 import { firstGiftViewAt } from "@/lib/gift-tracking";
 import { authoredSenderDraft } from '@/lib/authored-sender';
@@ -28,9 +28,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if ((count ?? 0) >= 5) return Response.json({ error: 'Five tests have been requested in the last ten minutes. Wait a few minutes before sending another.' }, { status: 429 });
     const { data: card, error: cardError } = await db.from('cards').select('person_id,account_id,people(full_name),accounts(domain)').eq('id', id).single();
     if (cardError || !card) throw new Error('This draft is no longer available.');
-    assertListSender((card.accounts as unknown as {domain:string} | null)?.domain, user.owner);
-    const savedProfile = await senderProfile(db, user.owner);
-    const profile = savedProfile;
+    const draftOwner = batchOwner((card.accounts as unknown as {domain:string} | null)?.domain ?? '') ?? user.owner;
+    const profile = await senderProfile(db, draftOwner);
+    if (!profile.fromName.trim()) profile.fromName = draftOwner === 'josh' ? 'Josh' : 'Suuchi';
+    // Preview the list owner's content, but use only the viewer's own mailbox for a self-test.
+    const mailboxProfile = draftOwner === user.owner ? profile : await senderProfile(db, user.owner);
     let person = card.people as unknown as { full_name: string } | null;
     let personId = card.person_id;
     if (payload.personId && payload.personId !== card.person_id) {
@@ -50,7 +52,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const versionId = await trackEmailVersion(db, { cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
     const deliveredBody = fullBody;
     const html = delivery.html;
-    await sendEmail(user.owner, fromHeader(profile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);
+    await sendEmail(user.owner, fromHeader(mailboxProfile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);
     // Tests never create touches, change card status or enroll follow-ups.
     const { data: snapshot } = await db.from('message_variants').select('experiment_id,dimensions').eq('id', versionId).single();
     let warning: string | undefined;

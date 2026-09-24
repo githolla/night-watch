@@ -1188,8 +1188,8 @@ export function Desk({
 
                 {senderConflict && <p role="alert">{senderConflict}</p>}
                 <div className="deskwork-scroll">
-                {!senderIsViewer && <p className="muted" role="status">Viewing {senderName}’s drafts and signature. Sign in as {senderName} to send or test these emails.</p>}
-                {channelTab === "email" && !altContact && !sentAlready && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={previewingVersion && tonePreview ? tonePreview.subject : focusCard.email_subject ?? ""} body={previewingVersion && tonePreview ? tonePreview.body : focusCard.email_body ?? ""} disabled={!senderIsViewer || demo || busy || sending} />}
+                {!senderIsViewer && <p className="muted" role="status">Viewing {senderName}’s drafts. You can test them in your own inbox. Prospect emails are sent from {senderName}’s account.</p>}
+                {channelTab === "email" && !altContact && !sentAlready && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={previewingVersion && tonePreview ? tonePreview.subject : focusCard.email_subject ?? ""} body={previewingVersion && tonePreview ? tonePreview.body : focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
                 {previewingVersion && tonePreview ? (
                   <article className="email-version-document" aria-label={`${tonePreview.label} ${channelTab} preview`}>
                     <div className="email-version-caption"><span>{tonePreview.label} · Preview</span><span>{outreachBody(tonePreview.body).split(/\s+/).filter(Boolean).length} words</span></div>

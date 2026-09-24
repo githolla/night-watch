@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import Link from 'next/link';
 type TestResult = { id: string; label: string; to?: string; openAt: string | null; giftViewAt?: string | null; status?: string; warning?: string };
 export function TestEmailButton({ cardId, subject, body, disabled = false }: { cardId: string; subject: string; body: string; disabled?: boolean }) {
   const [busy, setBusy] = useState(false);
@@ -32,7 +31,6 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
     <p>Send the current draft to your own connected Gmail. No prospect or CC receives it. Tests are excluded from outreach analytics and follow-ups.</p>
     <button type="button" disabled={busy || disabled || !subject.trim() || !body.trim()} onClick={sendTest}>{busy ? 'Working…' : 'Send test to myself'}</button>{' '}
     <button type="button" disabled={busy || disabled} onClick={check}>Check test status</button>
-    <small>Gmail not connected? <Link href="/settings">Connect it in Settings.</Link></small>
     {error && <p role="alert">{error}</p>}
     {result && <div role="status"><p><strong>TEST · {result.label}</strong>{result.to ? ` · Sent to ${result.to}` : result.status === 'sent' ? ' · Sent' : ' · Delivery status not confirmed'}</p>
       {result.warning && <p>{result.warning}</p>}
