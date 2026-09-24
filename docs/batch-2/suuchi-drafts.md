@@ -1,1579 +1,1379 @@
-# Batch 2: Suuchi
+# Suuchi: revised emails
 
-25 new companies. Three email and LinkedIn messages per contact. Revenue descending. Address hypotheses are not verified mailboxes.
+Three saved email versions per contact. Addresses remain unverified.
 
-## 2. Dortch Enterprises / Great Lakes Taco | $90.8M
-Louis Dortch Jr. · Owner  
-louis.dortch@dortchenterprises.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf) · [Revenue source](https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf)
+## Dortch Enterprises / Great Lakes Taco
+Louis Dortch Jr. · louis.dortch@dortchenterprises.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Dortch Enterprises / Great Lakes Taco
+Subject: restaurant equipment repairs at Dortch Enterprises
 
 Hi Louis,
 
-I'd like to help Dortch Enterprises / Great Lakes Taco get restaurant equipment repairs out of the message chain. We'd start with one team and one recurring task.
+For Dortch Enterprises, I'd put AI to work on restaurant equipment repairs: give the store manager a repair status, the contractor's latest update and the next action in one place.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together the store report, equipment history and contractor update. Your team would approve the output; we'd measure time from a reported fault to an assigned repair.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Is equipment repair coordination worth a closer look across your restaurants?
+Would this be worth trying with one team at Dortch Enterprises?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Louis, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Dortch Enterprises / Great Lakes Taco, I'd start with a tool to get restaurant equipment repairs out of the message chain. We handle the build, user testing and training. Is equipment repair coordination worth a closer look across your restaurants?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for restaurant equipment repairs
 
 Hi Louis,
 
-One idea for Dortch Enterprises / Great Lakes Taco: put the store report, equipment history and contractor update together before anyone has to chase them down.
+A practical starting point at Dortch Enterprises: give the store manager a repair status, the contractor's latest update and the next action in one place. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd get restaurant equipment repairs out of the message chain, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure time from a reported fault to an assigned repair.
-
-Is equipment repair coordination worth a closer look across your restaurants?
+Is restaurant equipment repairs a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Louis, an idea for Dortch Enterprises / Great Lakes Taco: bring together the store report, equipment history and contractor update so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Is equipment repair coordination worth a closer look across your restaurants?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around restaurant equipment repairs
 
 Hi Louis,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Dortch Enterprises / Great Lakes Taco, one starting point would be to get restaurant equipment repairs out of the message chain. We'd measure time from a reported fault to an assigned repair before expanding it.
+For Dortch Enterprises, I'd start with restaurant equipment repairs. We'd give the store manager a repair status, the contractor's latest update and the next action in one place, then test whether that leaves your team with less preparation and fewer missing details.
 
-Is equipment repair coordination worth a closer look across your restaurants?
+Would it help to talk through one example with the person who handles restaurant equipment repairs?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Louis, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Dortch Enterprises / Great Lakes Taco, we'd start small: get restaurant equipment repairs out of the message chain, then measure time from a reported fault to an assigned repair. Is equipment repair coordination worth a closer look across your restaurants?
 
-## 3. Nationwide Construction Group | $82M
-Scott Keller · Chief Operating Officer  
-skeller@nationwidecos.com · **published_unverified**  
-Published business address; mailbox not verified. Source may be historical.
-[Contact research](https://www.nationwideconstructiongroup.com/company/) · [Revenue source](https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf)
+## Nationwide Construction Group
+Scott Keller · skeller@nationwidecos.com · published_unverified
 
 ### Direct Offer
-**Subject:** one useful AI project at Nationwide Construction Group
+Subject: progress claims at Nationwide Construction Group
 
 Hi Scott,
 
-I'd like to help Nationwide Construction Group turn field progress into a billing-ready record. We'd start with one team and one recurring task.
+For Nationwide Construction Group, I'd put AI to work on progress claims: turn crew notes and site photos into a draft progress claim, with missing quantities flagged.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together crew notes, installed quantities and the supporting photos. Your team would approve the output; we'd measure time spent assembling each progress claim.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would a faster path from field notes to a progress claim help your team?
+Would this be worth trying with one team at Nationwide Construction Group?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Scott, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Nationwide Construction Group, I'd start with a tool to turn field progress into a billing-ready record. We handle the build, user testing and training. Would a faster path from field notes to a progress claim help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for progress claims
 
 Hi Scott,
 
-One idea for Nationwide Construction Group: put crew notes, installed quantities and the supporting photos together before anyone has to chase them down.
+A practical starting point at Nationwide Construction Group: turn crew notes and site photos into a draft progress claim, with missing quantities flagged. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd turn field progress into a billing-ready record, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure time spent assembling each progress claim.
-
-Would a faster path from field notes to a progress claim help your team?
+Is progress claims a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Scott, an idea for Nationwide Construction Group: bring together crew notes, installed quantities and the supporting photos so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would a faster path from field notes to a progress claim help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around progress claims
 
 Hi Scott,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-We recently helped one client deploy 20 applications. We worked with leaders on priorities, built with users and stayed through training and launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Nationwide Construction Group, one starting point would be to turn field progress into a billing-ready record. We'd measure time spent assembling each progress claim before expanding it.
+For Nationwide Construction Group, I'd start with progress claims. We'd turn crew notes and site photos into a draft progress claim, with missing quantities flagged, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would a faster path from field notes to a progress claim help your team?
+Would it help to talk through one example with the person who handles progress claims?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Scott, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Nationwide Construction Group, we'd start small: turn field progress into a billing-ready record, then measure time spent assembling each progress claim. Would a faster path from field notes to a progress claim help your team?
 
-## 6. LaSalle Construction Services | $76.7M
-Alan Jinks · President  
-ajinks@lasalleinc.com · **published_unverified**  
-Published business address; mailbox not verified. Source may be historical.
-[Contact research](https://www.lasalleinc.com/leadership-team.php) · [Revenue source](https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf)
+## LaSalle Construction Services
+Alan Jinks · ajinks@lasalleinc.com · published_unverified
 
 ### Direct Offer
-**Subject:** one useful AI project at LaSalle Construction Services
+Subject: project closeout at LaSalle Construction Services
 
 Hi Alan,
 
-I'd like to help LaSalle Construction Services get a project handover ready without a last-minute document chase. We'd start with one team and one recurring task.
+For LaSalle Construction Services, I'd put AI to work on project closeout: show which handover documents are still missing and which subcontractor owes each one.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together the outstanding closeout items, responsible subcontractors and received documents. Your team would approve the output; we'd measure hours spent preparing a closeout package.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would this be useful on a project approaching handover?
+Would this be worth trying with one team at LaSalle Construction Services?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Alan, I'm Suuchi at Nine-67. We build AI applications with operating teams. For LaSalle Construction Services, I'd start with a tool to get a project handover ready without a last-minute document chase. We handle the build, user testing and training. Would this be useful on a project approaching handover?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for project closeout
 
 Hi Alan,
 
-One idea for LaSalle Construction Services: put the outstanding closeout items, responsible subcontractors and received documents together before anyone has to chase them down.
+A practical starting point at LaSalle Construction Services: show which handover documents are still missing and which subcontractor owes each one. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd get a project handover ready without a last-minute document chase, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure hours spent preparing a closeout package.
-
-Would this be useful on a project approaching handover?
+Is project closeout a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Alan, an idea for LaSalle Construction Services: bring together the outstanding closeout items, responsible subcontractors and received documents so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would this be useful on a project approaching handover?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around project closeout
 
 Hi Alan,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-We recently helped one client deploy 20 applications. We worked with leaders on priorities, built with users and stayed through training and launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At LaSalle Construction Services, one starting point would be to get a project handover ready without a last-minute document chase. We'd measure hours spent preparing a closeout package before expanding it.
+For LaSalle Construction Services, I'd start with project closeout. We'd show which handover documents are still missing and which subcontractor owes each one, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would this be useful on a project approaching handover?
+Would it help to talk through one example with the person who handles project closeout?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Alan, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At LaSalle Construction Services, we'd start small: get a project handover ready without a last-minute document chase, then measure hours spent preparing a closeout package. Would this be useful on a project approaching handover?
 
-## 7. Walker-Miller Energy Services | $75.2M
-John Boladian · Chief Operating Officer  
-john.boladian@wmenergy.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://wmenergy.com/about-us/) · [Revenue source](https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf)
+## Walker-Miller Energy Services
+John Boladian · john.boladian@wmenergy.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Walker-Miller Energy Services
+Subject: incomplete applications at Walker-Miller Energy Services
 
 Hi John,
 
-I'd like to help Walker-Miller Energy Services move an energy-program application toward a clear next step. We'd start with one team and one recurring task.
+For Walker-Miller Energy Services, I'd put AI to work on incomplete applications: check an energy-program submission against the required documents before a reviewer opens it.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together the customer submission, required evidence and unresolved eligibility questions. Your team would approve the output; we'd measure review time and the number of requests returned for missing information.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would helping reviewers clear incomplete applications be useful in one program?
+Would this be worth trying with one team at Walker-Miller Energy Services?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi John, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Walker-Miller Energy Services, I'd start with a tool to move an energy-program application toward a clear next step. We handle the build, user testing and training. Would helping reviewers clear incomplete applications be useful in one program?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for incomplete applications
 
 Hi John,
 
-One idea for Walker-Miller Energy Services: put the customer submission, required evidence and unresolved eligibility questions together before anyone has to chase them down.
+A practical starting point at Walker-Miller Energy Services: check an energy-program submission against the required documents before a reviewer opens it. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd move an energy-program application toward a clear next step, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure review time and the number of requests returned for missing information.
-
-Would helping reviewers clear incomplete applications be useful in one program?
+Is incomplete applications a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi John, an idea for Walker-Miller Energy Services: bring together the customer submission, required evidence and unresolved eligibility questions so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would helping reviewers clear incomplete applications be useful in one program?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around incomplete applications
 
 Hi John,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.
 
-At Walker-Miller Energy Services, one starting point would be to move an energy-program application toward a clear next step. We'd measure review time and the number of requests returned for missing information before expanding it.
+For Walker-Miller Energy Services, I'd start with incomplete applications. We'd check an energy-program submission against the required documents before a reviewer opens it, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would helping reviewers clear incomplete applications be useful in one program?
+Would it help to talk through one example with the person who handles incomplete applications?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi John, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Walker-Miller Energy Services, we'd start small: move an energy-program application toward a clear next step, then measure review time and the number of requests returned for missing information. Would helping reviewers clear incomplete applications be useful in one program?
 
-## 10. Braun Construction Group | $55M
-Steven Braun · President  
-steven.braun@brauncg.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.brauncg.com/about-us/) · [Revenue source](https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf)
+## Braun Construction Group
+Steven Braun · steven.braun@brauncg.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Braun Construction Group
+Subject: renovation coordination at Braun Construction Group
 
 Hi Steven,
 
-I'd like to help Braun Construction Group prepare occupied-building work for the next coordination meeting. We'd start with one team and one recurring task.
+For Braun Construction Group, I'd put AI to work on renovation coordination: prepare the access restrictions, planned work and open decisions for the next site meeting.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together the work sequence, access restrictions and decisions still needed. Your team would approve the output; we'd measure meeting preparation time and unresolved access issues.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would this help on one renovation where the building stays in use?
+Would this be worth trying with one team at Braun Construction Group?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Steven, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Braun Construction Group, I'd start with a tool to prepare occupied-building work for the next coordination meeting. We handle the build, user testing and training. Would this help on one renovation where the building stays in use?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for renovation coordination
 
 Hi Steven,
 
-One idea for Braun Construction Group: put the work sequence, access restrictions and decisions still needed together before anyone has to chase them down.
+A practical starting point at Braun Construction Group: prepare the access restrictions, planned work and open decisions for the next site meeting. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare occupied-building work for the next coordination meeting, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure meeting preparation time and unresolved access issues.
-
-Would this help on one renovation where the building stays in use?
+Is renovation coordination a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Steven, an idea for Braun Construction Group: bring together the work sequence, access restrictions and decisions still needed so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would this help on one renovation where the building stays in use?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around renovation coordination
 
 Hi Steven,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.
 
-At Braun Construction Group, one starting point would be to prepare occupied-building work for the next coordination meeting. We'd measure meeting preparation time and unresolved access issues before expanding it.
+For Braun Construction Group, I'd start with renovation coordination. We'd prepare the access restrictions, planned work and open decisions for the next site meeting, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would this help on one renovation where the building stays in use?
+Would it help to talk through one example with the person who handles renovation coordination?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Steven, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Braun Construction Group, we'd start small: prepare occupied-building work for the next coordination meeting, then measure meeting preparation time and unresolved access issues. Would this help on one renovation where the building stays in use?
 
-## 11. Village Green | $54.6M
-Matthew Guenther · Executive Vice President, Operations  
-matthew.guenther@villagegreenmgt.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://villagegreenmgt.com/leadership/) · [Revenue source](https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf)
+## Village Green
+Matthew Guenther · matthew.guenther@villagegreenmgt.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Village Green
+Subject: apartment turns at Village Green
 
 Hi Matthew,
 
-I'd like to help Village Green give regional teams a clear view of apartment turns needing intervention. We'd start with one team and one recurring task.
+For Village Green, I'd put AI to work on apartment turns: show which units are waiting on a vendor or decision, alongside the expected ready date.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together work orders, vendor commitments and the expected ready date. Your team would approve the output; we'd measure days lost waiting for a decision or vendor update.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would a clearer view of stalled apartment turns help your regional teams?
+Would this be worth trying with one team at Village Green?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Matthew, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Village Green, I'd start with a tool to give regional teams a clear view of apartment turns needing intervention. We handle the build, user testing and training. Would a clearer view of stalled apartment turns help your regional teams?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for apartment turns
 
 Hi Matthew,
 
-One idea for Village Green: put work orders, vendor commitments and the expected ready date together before anyone has to chase them down.
+A practical starting point at Village Green: show which units are waiting on a vendor or decision, alongside the expected ready date. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd give regional teams a clear view of apartment turns needing intervention, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure days lost waiting for a decision or vendor update.
-
-Would a clearer view of stalled apartment turns help your regional teams?
+Is apartment turns a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Matthew, an idea for Village Green: bring together work orders, vendor commitments and the expected ready date so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would a clearer view of stalled apartment turns help your regional teams?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around apartment turns
 
 Hi Matthew,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Village Green, one starting point would be to give regional teams a clear view of apartment turns needing intervention. We'd measure days lost waiting for a decision or vendor update before expanding it.
+For Village Green, I'd start with apartment turns. We'd show which units are waiting on a vendor or decision, alongside the expected ready date, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would a clearer view of stalled apartment turns help your regional teams?
+Would it help to talk through one example with the person who handles apartment turns?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Matthew, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Village Green, we'd start small: give regional teams a clear view of apartment turns needing intervention, then measure days lost waiting for a decision or vendor update. Would a clearer view of stalled apartment turns help your regional teams?
 
-## 14. Contract Direct | $50.5M
-Elizabeth Hammond · President  
-elizabeth.hammond@contractdirect.net · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://contractdirect.net/about.html) · [Revenue source](https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf)
+## Contract Direct
+Elizabeth Hammond · elizabeth.hammond@contractdirect.net · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Contract Direct
+Subject: site inspection actions at Contract Direct
 
 Hi Elizabeth,
 
-I'd like to help Contract Direct turn a site inspection into a short list of accountable actions. We'd start with one team and one recurring task.
+For Contract Direct, I'd put AI to work on site inspection actions: turn inspection notes and photos into a draft action list with owners and completion checks.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together inspection notes, photos and the agreed service scope. Your team would approve the output; we'd measure time from an inspection finding to confirmed completion.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would a tighter inspection-to-action process be useful on one client account?
+Would this be worth trying with one team at Contract Direct?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Elizabeth, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Contract Direct, I'd start with a tool to turn a site inspection into a short list of accountable actions. We handle the build, user testing and training. Would a tighter inspection-to-action process be useful on one client account?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for site inspection actions
 
 Hi Elizabeth,
 
-One idea for Contract Direct: put inspection notes, photos and the agreed service scope together before anyone has to chase them down.
+A practical starting point at Contract Direct: turn inspection notes and photos into a draft action list with owners and completion checks. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd turn a site inspection into a short list of accountable actions, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure time from an inspection finding to confirmed completion.
-
-Would a tighter inspection-to-action process be useful on one client account?
+Is site inspection actions a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Elizabeth, an idea for Contract Direct: bring together inspection notes, photos and the agreed service scope so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would a tighter inspection-to-action process be useful on one client account?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around site inspection actions
 
 Hi Elizabeth,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Contract Direct, one starting point would be to turn a site inspection into a short list of accountable actions. We'd measure time from an inspection finding to confirmed completion before expanding it.
+For Contract Direct, I'd start with site inspection actions. We'd turn inspection notes and photos into a draft action list with owners and completion checks, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would a tighter inspection-to-action process be useful on one client account?
+Would it help to talk through one example with the person who handles site inspection actions?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Elizabeth, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Contract Direct, we'd start small: turn a site inspection into a short list of accountable actions, then measure time from an inspection finding to confirmed completion. Would a tighter inspection-to-action process be useful on one client account?
 
-## 15. Select Exterminating | $46M
-Matthew Garten · CEO  
-matthew.garten@selectexterminating.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://selectexterminating.com/residential/letter-from-ceo/) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Select Exterminating
+Matthew Garten · matthew.garten@selectexterminating.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Select Exterminating
+Subject: commercial account reviews at Select Exterminating
 
 Hi Matthew,
 
-I'd like to help Select Exterminating prepare a commercial customer review from the service record. We'd start with one team and one recurring task.
+For Select Exterminating, I'd put AI to work on commercial account reviews: pull recurring findings and unresolved actions from service records into a customer review brief.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together site visits, recurring findings and outstanding corrective actions. Your team would approve the output; we'd measure time spent preparing the review and chasing open actions.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would this be useful for one of your multi-site commercial customers?
+Would this be worth trying with one team at Select Exterminating?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Matthew, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Select Exterminating, I'd start with a tool to prepare a commercial customer review from the service record. We handle the build, user testing and training. Would this be useful for one of your multi-site commercial customers?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for commercial account reviews
 
 Hi Matthew,
 
-One idea for Select Exterminating: put site visits, recurring findings and outstanding corrective actions together before anyone has to chase them down.
+A practical starting point at Select Exterminating: pull recurring findings and unresolved actions from service records into a customer review brief. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare a commercial customer review from the service record, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure time spent preparing the review and chasing open actions.
-
-Would this be useful for one of your multi-site commercial customers?
+Is commercial account reviews a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Matthew, an idea for Select Exterminating: bring together site visits, recurring findings and outstanding corrective actions so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would this be useful for one of your multi-site commercial customers?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around commercial account reviews
 
 Hi Matthew,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-We recently helped one client deploy 20 applications. We worked with leaders on priorities, built with users and stayed through training and launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Select Exterminating, one starting point would be to prepare a commercial customer review from the service record. We'd measure time spent preparing the review and chasing open actions before expanding it.
+For Select Exterminating, I'd start with commercial account reviews. We'd pull recurring findings and unresolved actions from service records into a customer review brief, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would this be useful for one of your multi-site commercial customers?
+Would it help to talk through one example with the person who handles commercial account reviews?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Matthew, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Select Exterminating, we'd start small: prepare a commercial customer review from the service record, then measure time spent preparing the review and chasing open actions. Would this be useful for one of your multi-site commercial customers?
 
-## 18. Aruza Pest Control | $42.7M
-Joshua Langdon · CEO  
-joshua.langdon@aruzapest.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://medium.com/authority-magazine/joshua-langdon-of-aruza-pest-control-five-things-i-wish-someone-told-me-before-i-became-a-ceo-214f31b4938a) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Aruza Pest Control
+Joshua Langdon · joshua.langdon@aruzapest.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Aruza Pest Control
+Subject: branch handoffs at Aruza Pest Control
 
 Hi Joshua,
 
-I'd like to help Aruza Pest Control help branch leaders spot where a service promise still needs action. We'd start with one team and one recurring task.
+For Aruza Pest Control, I'd put AI to work on branch handoffs: give customer service and the branch the same record of the customer promise and next action.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together the customer request, branch notes and the next agreed step. Your team would approve the output; we'd measure time to resolve handoffs between customer service and the branch.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would improving that handoff be useful across Aruza’s branches?
+Would this be worth trying with one team at Aruza Pest Control?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Joshua, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Aruza Pest Control, I'd start with a tool to help branch leaders spot where a service promise still needs action. We handle the build, user testing and training. Would improving that handoff be useful across Aruza’s branches?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for branch handoffs
 
 Hi Joshua,
 
-One idea for Aruza Pest Control: put the customer request, branch notes and the next agreed step together before anyone has to chase them down.
+A practical starting point at Aruza Pest Control: give customer service and the branch the same record of the customer promise and next action. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd help branch leaders spot where a service promise still needs action, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure time to resolve handoffs between customer service and the branch.
-
-Would improving that handoff be useful across Aruza’s branches?
+Is branch handoffs a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Joshua, an idea for Aruza Pest Control: bring together the customer request, branch notes and the next agreed step so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would improving that handoff be useful across Aruza’s branches?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around branch handoffs
 
 Hi Joshua,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-We recently helped one client deploy 20 applications. We worked with leaders on priorities, built with users and stayed through training and launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Aruza Pest Control, one starting point would be to help branch leaders spot where a service promise still needs action. We'd measure time to resolve handoffs between customer service and the branch before expanding it.
+For Aruza Pest Control, I'd start with branch handoffs. We'd give customer service and the branch the same record of the customer promise and next action, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would improving that handoff be useful across Aruza’s branches?
+Would it help to talk through one example with the person who handles branch handoffs?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Joshua, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Aruza Pest Control, we'd start small: help branch leaders spot where a service promise still needs action, then measure time to resolve handoffs between customer service and the branch. Would improving that handoff be useful across Aruza’s branches?
 
-## 19. Hulett Environmental Services | $38.2514M
-Tim Hulett · President  
-tim.hulett@bugs.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.bugs.com/meet-the-team) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Hulett Environmental Services
+Tim Hulett · tim.hulett@bugs.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Hulett Environmental Services
+Subject: inspection-to-proposal work at Hulett Environmental Services
 
 Hi Tim,
 
-I'd like to help Hulett Environmental Services prepare a termite inspection for the team writing the proposal. We'd start with one team and one recurring task.
+For Hulett Environmental Services, I'd put AI to work on inspection-to-proposal work: assemble inspection notes and photos into a proposal draft, leaving technical decisions with your team.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together inspection notes, photos and items requiring technical clarification. Your team would approve the output; we'd measure time from inspection to a reviewed proposal.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would a faster inspection-to-proposal handoff help your team?
+Would this be worth trying with one team at Hulett Environmental Services?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Tim, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Hulett Environmental Services, I'd start with a tool to prepare a termite inspection for the team writing the proposal. We handle the build, user testing and training. Would a faster inspection-to-proposal handoff help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for inspection-to-proposal work
 
 Hi Tim,
 
-One idea for Hulett Environmental Services: put inspection notes, photos and items requiring technical clarification together before anyone has to chase them down.
+A practical starting point at Hulett Environmental Services: assemble inspection notes and photos into a proposal draft, leaving technical decisions with your team. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare a termite inspection for the team writing the proposal, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure time from inspection to a reviewed proposal.
-
-Would a faster inspection-to-proposal handoff help your team?
+Is inspection-to-proposal work a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Tim, an idea for Hulett Environmental Services: bring together inspection notes, photos and items requiring technical clarification so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would a faster inspection-to-proposal handoff help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around inspection-to-proposal work
 
 Hi Tim,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.
 
-At Hulett Environmental Services, one starting point would be to prepare a termite inspection for the team writing the proposal. We'd measure time from inspection to a reviewed proposal before expanding it.
+For Hulett Environmental Services, I'd start with inspection-to-proposal work. We'd assemble inspection notes and photos into a proposal draft, leaving technical decisions with your team, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would a faster inspection-to-proposal handoff help your team?
+Would it help to talk through one example with the person who handles inspection-to-proposal work?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Tim, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Hulett Environmental Services, we'd start small: prepare a termite inspection for the team writing the proposal, then measure time from inspection to a reviewed proposal. Would a faster inspection-to-proposal handoff help your team?
 
-## 22. Advance Packaging Technologies | $34.8M
-Rob Cohen · President  
-rob.cohen@advancepac.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.advancepac.com/) · [Revenue source](https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf)
+## Advance Packaging Technologies
+Rob Cohen · rob.cohen@advancepac.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Advance Packaging Technologies
+Subject: film specifications at Advance Packaging Technologies
 
 Hi Rob,
 
-I'd like to help Advance Packaging Technologies get a specialty-film request ready for a technical quote. We'd start with one team and one recurring task.
+For Advance Packaging Technologies, I'd put AI to work on film specifications: flag missing material and application requirements before a specialty-film request reaches the quoting team.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together the requested material, application requirements and missing specifications. Your team would approve the output; we'd measure time spent clarifying requirements before quoting.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would a better first pass on film requests help your quoting team?
+Would this be worth trying with one team at Advance Packaging Technologies?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Rob, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Advance Packaging Technologies, I'd start with a tool to get a specialty-film request ready for a technical quote. We handle the build, user testing and training. Would a better first pass on film requests help your quoting team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for film specifications
 
 Hi Rob,
 
-One idea for Advance Packaging Technologies: put the requested material, application requirements and missing specifications together before anyone has to chase them down.
+A practical starting point at Advance Packaging Technologies: flag missing material and application requirements before a specialty-film request reaches the quoting team. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd get a specialty-film request ready for a technical quote, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure time spent clarifying requirements before quoting.
-
-Would a better first pass on film requests help your quoting team?
+Is film specifications a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Rob, an idea for Advance Packaging Technologies: bring together the requested material, application requirements and missing specifications so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would a better first pass on film requests help your quoting team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around film specifications
 
 Hi Rob,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.
 
-At Advance Packaging Technologies, one starting point would be to get a specialty-film request ready for a technical quote. We'd measure time spent clarifying requirements before quoting before expanding it.
+For Advance Packaging Technologies, I'd start with film specifications. We'd flag missing material and application requirements before a specialty-film request reaches the quoting team, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would a better first pass on film requests help your quoting team?
+Would it help to talk through one example with the person who handles film specifications?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Rob, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Advance Packaging Technologies, we'd start small: get a specialty-film request ready for a technical quote, then measure time spent clarifying requirements before quoting. Would a better first pass on film requests help your quoting team?
 
-## 23. Clegg’s Termite & Pest Control | $30.4847M
-Philip Clegg II · Company leader  
-philip.clegg@cleggs.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.cleggs.com/about/our-history/) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Clegg’s Termite & Pest Control
+Philip Clegg II · philip.clegg@cleggs.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Clegg’s Termite & Pest Control
+Subject: inspection follow-through at Clegg’s Termite & Pest Control
 
 Hi Philip,
 
-I'd like to help Clegg’s Termite & Pest Control get the next service visit ready when an inspection needs follow-through. We'd start with one team and one recurring task.
+For Clegg’s Termite & Pest Control, I'd put AI to work on inspection follow-through: turn inspection findings and promised work into a follow-up brief for the scheduling team.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together the inspection findings, promised work and scheduling constraints. Your team would approve the output; we'd measure time from an inspection finding to an assigned follow-up.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would this help the team coordinating work after inspections?
+Would this be worth trying with one team at Clegg’s Termite & Pest Control?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Philip, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Clegg’s Termite & Pest Control, I'd start with a tool to get the next service visit ready when an inspection needs follow-through. We handle the build, user testing and training. Would this help the team coordinating work after inspections?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for inspection follow-through
 
 Hi Philip,
 
-One idea for Clegg’s Termite & Pest Control: put the inspection findings, promised work and scheduling constraints together before anyone has to chase them down.
+A practical starting point at Clegg’s Termite & Pest Control: turn inspection findings and promised work into a follow-up brief for the scheduling team. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd get the next service visit ready when an inspection needs follow-through, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure time from an inspection finding to an assigned follow-up.
-
-Would this help the team coordinating work after inspections?
+Is inspection follow-through a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Philip, an idea for Clegg’s Termite & Pest Control: bring together the inspection findings, promised work and scheduling constraints so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would this help the team coordinating work after inspections?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around inspection follow-through
 
 Hi Philip,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Clegg’s Termite & Pest Control, one starting point would be to get the next service visit ready when an inspection needs follow-through. We'd measure time from an inspection finding to an assigned follow-up before expanding it.
+For Clegg’s Termite & Pest Control, I'd start with inspection follow-through. We'd turn inspection findings and promised work into a follow-up brief for the scheduling team, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would this help the team coordinating work after inspections?
+Would it help to talk through one example with the person who handles inspection follow-through?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Philip, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Clegg’s Termite & Pest Control, we'd start small: get the next service visit ready when an inspection needs follow-through, then measure time from an inspection finding to an assigned follow-up. Would this help the team coordinating work after inspections?
 
-## 26. Frontline Pest Control | $28.6718M
-Justin Nichols · President of Service  
-justin.nichols@frontlinepestcontrol.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.frontlinepestcontrol.com/williamsport-md/about-us/meet-team) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Frontline Pest Control
+Justin Nichols · justin.nichols@frontlinepestcontrol.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Frontline Pest Control
+Subject: unfinished jobs at Frontline Pest Control
 
 Hi Justin,
 
-I'd like to help Frontline Pest Control prepare unfinished service visits for the person making the next decision. We'd start with one team and one recurring task.
+For Frontline Pest Control, I'd put AI to work on unfinished jobs: prepare a daily list of unfinished visits with the reason, customer promise and responsible branch.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together visit notes, customer requests and branch assignments. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of unfinished service visits help your team?
+Would this be worth trying with one team at Frontline Pest Control?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Justin, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Frontline Pest Control, I'd start with a tool to prepare unfinished service visits for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of unfinished service visits help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for unfinished jobs
 
 Hi Justin,
 
-One idea for Frontline Pest Control: put visit notes, customer requests and branch assignments together before anyone has to chase them down.
+A practical starting point at Frontline Pest Control: prepare a daily list of unfinished visits with the reason, customer promise and responsible branch. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare unfinished service visits for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of unfinished service visits help your team?
+Is unfinished jobs a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Justin, an idea for Frontline Pest Control: bring together visit notes, customer requests and branch assignments so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of unfinished service visits help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around unfinished jobs
 
 Hi Justin,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Frontline Pest Control, one starting point would be to prepare unfinished service visits for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For Frontline Pest Control, I'd start with unfinished jobs. We'd prepare a daily list of unfinished visits with the reason, customer promise and responsible branch, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of unfinished service visits help your team?
+Would it help to talk through one example with the person who handles unfinished jobs?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Justin, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Frontline Pest Control, we'd start small: prepare unfinished service visits for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of unfinished service visits help your team?
 
-## 27. RIDD Pest Control | $28.0444M
-Jason Wilde · Chief Financial Officer  
-jason.wilde@ridd.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.bbb.org/us/sc/north-charleston/profile/pest-control/ridd-pest-control-0663-34341879) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## RIDD Pest Control
+Jason Wilde · jason.wilde@ridd.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at RIDD Pest Control
+Subject: billing exceptions at RIDD Pest Control
 
 Hi Jason,
 
-I'd like to help RIDD Pest Control prepare billing exceptions for the person making the next decision. We'd start with one team and one recurring task.
+For RIDD Pest Control, I'd put AI to work on billing exceptions: bring the completed visit, contract terms and disputed charge together for a billing reviewer.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together completed visits, contract terms and disputed charges. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of billing exceptions help your team?
+Would this be worth trying with one team at RIDD Pest Control?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Jason, I'm Suuchi at Nine-67. We build AI applications with operating teams. For RIDD Pest Control, I'd start with a tool to prepare billing exceptions for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of billing exceptions help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for billing exceptions
 
 Hi Jason,
 
-One idea for RIDD Pest Control: put completed visits, contract terms and disputed charges together before anyone has to chase them down.
+A practical starting point at RIDD Pest Control: bring the completed visit, contract terms and disputed charge together for a billing reviewer. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare billing exceptions for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of billing exceptions help your team?
+Is billing exceptions a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Jason, an idea for RIDD Pest Control: bring together completed visits, contract terms and disputed charges so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of billing exceptions help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around billing exceptions
 
 Hi Jason,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-We recently helped one client deploy 20 applications. We worked with leaders on priorities, built with users and stayed through training and launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At RIDD Pest Control, one starting point would be to prepare billing exceptions for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For RIDD Pest Control, I'd start with billing exceptions. We'd bring the completed visit, contract terms and disputed charge together for a billing reviewer, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of billing exceptions help your team?
+Would it help to talk through one example with the person who handles billing exceptions?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Jason, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At RIDD Pest Control, we'd start small: prepare billing exceptions for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of billing exceptions help your team?
 
-## 30. Breda Pest Management | $26.9899M
-Matt Breda · President  
-matt.breda@bredapest.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://thejoyofbusinessstrategy.com/) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Breda Pest Management
+Matt Breda · matt.breda@bredapest.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Breda Pest Management
+Subject: wildlife inspection handoffs at Breda Pest Management
 
 Hi Matt,
 
-I'd like to help Breda Pest Management help the office prepare the next step after a wildlife inspection. We'd start with one team and one recurring task.
+For Breda Pest Management, I'd put AI to work on wildlife inspection handoffs: assemble inspection photos, access needs and recommended work for the person preparing the job.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together the inspection photos, access needs and recommended exclusion work. Your team would approve the output; we'd measure time spent turning the inspection into a reviewed work plan.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would a cleaner inspection-to-work-plan handoff be useful?
+Would this be worth trying with one team at Breda Pest Management?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Matt, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Breda Pest Management, I'd start with a tool to help the office prepare the next step after a wildlife inspection. We handle the build, user testing and training. Would a cleaner inspection-to-work-plan handoff be useful?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for wildlife inspection handoffs
 
 Hi Matt,
 
-One idea for Breda Pest Management: put the inspection photos, access needs and recommended exclusion work together before anyone has to chase them down.
+A practical starting point at Breda Pest Management: assemble inspection photos, access needs and recommended work for the person preparing the job. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd help the office prepare the next step after a wildlife inspection, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure time spent turning the inspection into a reviewed work plan.
-
-Would a cleaner inspection-to-work-plan handoff be useful?
+Is wildlife inspection handoffs a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Matt, an idea for Breda Pest Management: bring together the inspection photos, access needs and recommended exclusion work so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would a cleaner inspection-to-work-plan handoff be useful?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around wildlife inspection handoffs
 
 Hi Matt,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-We recently helped one client deploy 20 applications. We worked with leaders on priorities, built with users and stayed through training and launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Breda Pest Management, one starting point would be to help the office prepare the next step after a wildlife inspection. We'd measure time spent turning the inspection into a reviewed work plan before expanding it.
+For Breda Pest Management, I'd start with wildlife inspection handoffs. We'd assemble inspection photos, access needs and recommended work for the person preparing the job, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would a cleaner inspection-to-work-plan handoff be useful?
+Would it help to talk through one example with the person who handles wildlife inspection handoffs?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Matt, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Breda Pest Management, we'd start small: help the office prepare the next step after a wildlife inspection, then measure time spent turning the inspection into a reviewed work plan. Would a cleaner inspection-to-work-plan handoff be useful?
 
-## 31. Pacific Coast Termite | $25.7217M
-Dennis Wilson · Co-owner  
-dennis.wilson@pacificcoasttermite.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.pacificcoasttermite.com/about/) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Pacific Coast Termite
+Dennis Wilson · dennis.wilson@pacificcoasttermite.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Pacific Coast Termite
+Subject: inspection-to-repair work at Pacific Coast Termite
 
 Hi Dennis,
 
-I'd like to help Pacific Coast Termite prepare repair work after inspections for the person making the next decision. We'd start with one team and one recurring task.
+For Pacific Coast Termite, I'd put AI to work on inspection-to-repair work: turn the approved repair scope and inspection photos into a brief the scheduling team can use.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together inspection photos, repair scope and crew availability. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of repair work after inspections help your team?
+Would this be worth trying with one team at Pacific Coast Termite?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Dennis, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Pacific Coast Termite, I'd start with a tool to prepare repair work after inspections for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of repair work after inspections help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for inspection-to-repair work
 
 Hi Dennis,
 
-One idea for Pacific Coast Termite: put inspection photos, repair scope and crew availability together before anyone has to chase them down.
+A practical starting point at Pacific Coast Termite: turn the approved repair scope and inspection photos into a brief the scheduling team can use. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare repair work after inspections for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of repair work after inspections help your team?
+Is inspection-to-repair work a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Dennis, an idea for Pacific Coast Termite: bring together inspection photos, repair scope and crew availability so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of repair work after inspections help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around inspection-to-repair work
 
 Hi Dennis,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.
 
-At Pacific Coast Termite, one starting point would be to prepare repair work after inspections for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For Pacific Coast Termite, I'd start with inspection-to-repair work. We'd turn the approved repair scope and inspection photos into a brief the scheduling team can use, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of repair work after inspections help your team?
+Would it help to talk through one example with the person who handles inspection-to-repair work?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Dennis, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Pacific Coast Termite, we'd start small: prepare repair work after inspections for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of repair work after inspections help your team?
 
-## 34. Adams Pest Control | $21.1M
-Todd Leyse · Owner and President  
-todd.leyse@adamspestcontrol.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.npmapestworld.org/your-business/pestworld-magazine/24-2-march-april-2024/bridging-the-gap-between-departments/) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Adams Pest Control
+Todd Leyse · todd.leyse@adamspestcontrol.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Adams Pest Control
+Subject: office-to-field handoffs at Adams Pest Control
 
 Hi Todd,
 
-I'd like to help Adams Pest Control prepare office-to-field handoffs for the person making the next decision. We'd start with one team and one recurring task.
+For Adams Pest Control, I'd put AI to work on office-to-field handoffs: put the customer's instructions and unresolved questions into the technician's next-job brief.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together customer instructions, technician notes and unresolved questions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of office-to-field handoffs help your team?
+Would this be worth trying with one team at Adams Pest Control?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Todd, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Adams Pest Control, I'd start with a tool to prepare office-to-field handoffs for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of office-to-field handoffs help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for office-to-field handoffs
 
 Hi Todd,
 
-One idea for Adams Pest Control: put customer instructions, technician notes and unresolved questions together before anyone has to chase them down.
+A practical starting point at Adams Pest Control: put the customer's instructions and unresolved questions into the technician's next-job brief. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare office-to-field handoffs for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of office-to-field handoffs help your team?
+Is office-to-field handoffs a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Todd, an idea for Adams Pest Control: bring together customer instructions, technician notes and unresolved questions so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of office-to-field handoffs help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around office-to-field handoffs
 
 Hi Todd,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.
 
-At Adams Pest Control, one starting point would be to prepare office-to-field handoffs for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For Adams Pest Control, I'd start with office-to-field handoffs. We'd put the customer's instructions and unresolved questions into the technician's next-job brief, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of office-to-field handoffs help your team?
+Would it help to talk through one example with the person who handles office-to-field handoffs?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Todd, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Adams Pest Control, we'd start small: prepare office-to-field handoffs for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of office-to-field handoffs help your team?
 
-## 35. Liberty Pest Control | $20.386M
-Richard Cappa · Founder and CEO  
-richard.cappa@libertypest.nyc · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://libertypest.nyc/services/client-services/) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Liberty Pest Control
+Richard Cappa · richard.cappa@libertypest.nyc · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Liberty Pest Control
+Subject: commercial service reports at Liberty Pest Control
 
 Hi Richard,
 
-I'd like to help Liberty Pest Control prepare commercial service reporting for the person making the next decision. We'd start with one team and one recurring task.
+For Liberty Pest Control, I'd put AI to work on commercial service reports: draft a customer report from completed visits and open recommendations, ready for your team to check.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together site records, completed visits and outstanding recommendations. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of commercial service reporting help your team?
+Would this be worth trying with one team at Liberty Pest Control?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Richard, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Liberty Pest Control, I'd start with a tool to prepare commercial service reporting for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of commercial service reporting help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for commercial service reports
 
 Hi Richard,
 
-One idea for Liberty Pest Control: put site records, completed visits and outstanding recommendations together before anyone has to chase them down.
+A practical starting point at Liberty Pest Control: draft a customer report from completed visits and open recommendations, ready for your team to check. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare commercial service reporting for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of commercial service reporting help your team?
+Is commercial service reports a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Richard, an idea for Liberty Pest Control: bring together site records, completed visits and outstanding recommendations so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of commercial service reporting help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around commercial service reports
 
 Hi Richard,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Liberty Pest Control, one starting point would be to prepare commercial service reporting for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For Liberty Pest Control, I'd start with commercial service reports. We'd draft a customer report from completed visits and open recommendations, ready for your team to check, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of commercial service reporting help your team?
+Would it help to talk through one example with the person who handles commercial service reports?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Richard, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Liberty Pest Control, we'd start small: prepare commercial service reporting for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of commercial service reporting help your team?
 
-## 38. West Termite & Pest | $16.6697M
-Shane West · Owner  
-shane.west@westtermite.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://rockcitydigital.com/case-studies/west-termite/) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## West Termite & Pest
+Shane West · shane.west@westtermite.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at West Termite & Pest
+Subject: scheduling after inspections at West Termite & Pest
 
 Hi Shane,
 
-I'd like to help West Termite & Pest prepare inspection-to-scheduling handoffs for the person making the next decision. We'd start with one team and one recurring task.
+For West Termite & Pest, I'd put AI to work on scheduling after inspections: bring the approved work and customer availability together before the scheduler arranges a visit.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together inspection notes, customer availability and the approved work. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of inspection-to-scheduling handoffs help your team?
+Would this be worth trying with one team at West Termite & Pest?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Shane, I'm Suuchi at Nine-67. We build AI applications with operating teams. For West Termite & Pest, I'd start with a tool to prepare inspection-to-scheduling handoffs for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of inspection-to-scheduling handoffs help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for scheduling after inspections
 
 Hi Shane,
 
-One idea for West Termite & Pest: put inspection notes, customer availability and the approved work together before anyone has to chase them down.
+A practical starting point at West Termite & Pest: bring the approved work and customer availability together before the scheduler arranges a visit. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare inspection-to-scheduling handoffs for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of inspection-to-scheduling handoffs help your team?
+Is scheduling after inspections a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Shane, an idea for West Termite & Pest: bring together inspection notes, customer availability and the approved work so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of inspection-to-scheduling handoffs help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around scheduling after inspections
 
 Hi Shane,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At West Termite & Pest, one starting point would be to prepare inspection-to-scheduling handoffs for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For West Termite & Pest, I'd start with scheduling after inspections. We'd bring the approved work and customer availability together before the scheduler arranges a visit, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of inspection-to-scheduling handoffs help your team?
+Would it help to talk through one example with the person who handles scheduling after inspections?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Shane, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At West Termite & Pest, we'd start small: prepare inspection-to-scheduling handoffs for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of inspection-to-scheduling handoffs help your team?
 
-## 39. Hoffman’s Exterminating | $16M
-Wayne Mauri · Director of Operations  
-wayne.mauri@hoffmanexterminating.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://hoffmanexterminating.com/our-team/) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Hoffman’s Exterminating
+Wayne Mauri · wayne.mauri@hoffmanexterminating.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Hoffman’s Exterminating
+Subject: commercial account follow-ups at Hoffman’s Exterminating
 
 Hi Wayne,
 
-I'd like to help Hoffman’s Exterminating prepare commercial account follow-ups for the person making the next decision. We'd start with one team and one recurring task.
+For Hoffman’s Exterminating, I'd put AI to work on commercial account follow-ups: show each open site recommendation beside the service commitment and next action.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together site findings, service commitments and unresolved actions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of commercial account follow-ups help your team?
+Would this be worth trying with one team at Hoffman’s Exterminating?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Wayne, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Hoffman’s Exterminating, I'd start with a tool to prepare commercial account follow-ups for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of commercial account follow-ups help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for commercial account follow-ups
 
 Hi Wayne,
 
-One idea for Hoffman’s Exterminating: put site findings, service commitments and unresolved actions together before anyone has to chase them down.
+A practical starting point at Hoffman’s Exterminating: show each open site recommendation beside the service commitment and next action. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare commercial account follow-ups for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of commercial account follow-ups help your team?
+Is commercial account follow-ups a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Wayne, an idea for Hoffman’s Exterminating: bring together site findings, service commitments and unresolved actions so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of commercial account follow-ups help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around commercial account follow-ups
 
 Hi Wayne,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-We recently helped one client deploy 20 applications. We worked with leaders on priorities, built with users and stayed through training and launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Hoffman’s Exterminating, one starting point would be to prepare commercial account follow-ups for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For Hoffman’s Exterminating, I'd start with commercial account follow-ups. We'd show each open site recommendation beside the service commitment and next action, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of commercial account follow-ups help your team?
+Would it help to talk through one example with the person who handles commercial account follow-ups?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Wayne, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Hoffman’s Exterminating, we'd start small: prepare commercial account follow-ups for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of commercial account follow-ups help your team?
 
-## 42. Pest-End | $14.7M
-Courtney Carace · Chief Operating Officer  
-courtney.carace@pestendinc.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.pestendinc.com/) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Pest-End
+Courtney Carace · courtney.carace@pestendinc.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Pest-End
+Subject: branch exception reviews at Pest-End
 
 Hi Courtney,
 
-I'd like to help Pest-End prepare branch exception reviews for the person making the next decision. We'd start with one team and one recurring task.
+For Pest-End, I'd put AI to work on branch exception reviews: prepare unfinished jobs and customer promises for a branch review, with an owner against each action.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together unfinished jobs, customer promises and follow-up owners. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of branch exception reviews help your team?
+Would this be worth trying with one team at Pest-End?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Courtney, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Pest-End, I'd start with a tool to prepare branch exception reviews for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of branch exception reviews help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for branch exception reviews
 
 Hi Courtney,
 
-One idea for Pest-End: put unfinished jobs, customer promises and follow-up owners together before anyone has to chase them down.
+A practical starting point at Pest-End: prepare unfinished jobs and customer promises for a branch review, with an owner against each action. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare branch exception reviews for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of branch exception reviews help your team?
+Is branch exception reviews a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Courtney, an idea for Pest-End: bring together unfinished jobs, customer promises and follow-up owners so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of branch exception reviews help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around branch exception reviews
 
 Hi Courtney,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-We recently helped one client deploy 20 applications. We worked with leaders on priorities, built with users and stayed through training and launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Pest-End, one starting point would be to prepare branch exception reviews for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For Pest-End, I'd start with branch exception reviews. We'd prepare unfinished jobs and customer promises for a branch review, with an owner against each action, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of branch exception reviews help your team?
+Would it help to talk through one example with the person who handles branch exception reviews?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Courtney, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Pest-End, we'd start small: prepare branch exception reviews for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of branch exception reviews help your team?
 
-## 43. All-American Pest Control | $14.62M
-Erin Richardson · Owner and Operator  
-erin.richardson@allamericanpestcontrol.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.allamericanpestcontrol.com/about-us) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## All-American Pest Control
+Erin Richardson · erin.richardson@allamericanpestcontrol.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at All-American Pest Control
+Subject: technician training questions at All-American Pest Control
 
 Hi Erin,
 
-I'd like to help All-American Pest Control help new technicians find an approved answer without interrupting a colleague. We'd start with one team and one recurring task.
+For All-American Pest Control, I'd put AI to work on technician training questions: help technicians find answers in approved training material, with the source shown and uncertain answers flagged.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together your training material, service procedures and source references. Your team would approve the output; we'd measure time to find an answer and how often a supervisor must step in.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would that be useful alongside your existing technician training?
+Would this be worth trying with one team at All-American Pest Control?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Erin, I'm Suuchi at Nine-67. We build AI applications with operating teams. For All-American Pest Control, I'd start with a tool to help new technicians find an approved answer without interrupting a colleague. We handle the build, user testing and training. Would that be useful alongside your existing technician training?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for technician training questions
 
 Hi Erin,
 
-One idea for All-American Pest Control: put your training material, service procedures and source references together before anyone has to chase them down.
+A practical starting point at All-American Pest Control: help technicians find answers in approved training material, with the source shown and uncertain answers flagged. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd help new technicians find an approved answer without interrupting a colleague, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure time to find an answer and how often a supervisor must step in.
-
-Would that be useful alongside your existing technician training?
+Is technician training questions a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Erin, an idea for All-American Pest Control: bring together your training material, service procedures and source references so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would that be useful alongside your existing technician training?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around technician training questions
 
 Hi Erin,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.
 
-At All-American Pest Control, one starting point would be to help new technicians find an approved answer without interrupting a colleague. We'd measure time to find an answer and how often a supervisor must step in before expanding it.
+For All-American Pest Control, I'd start with technician training questions. We'd help technicians find answers in approved training material, with the source shown and uncertain answers flagged, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would that be useful alongside your existing technician training?
+Would it help to talk through one example with the person who handles technician training questions?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Erin, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At All-American Pest Control, we'd start small: help new technicians find an approved answer without interrupting a colleague, then measure time to find an answer and how often a supervisor must step in. Would that be useful alongside your existing technician training?
 
-## 46. the bugman | $14.0192M
-Aubrey Hees · Operations Manager  
-aubrey.hees@thebugman.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.thebugman.com/meet-our-trusted-team) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## the bugman
+Aubrey Hees · aubrey.hees@thebugman.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at the bugman
+Subject: inspection-to-work handoffs at the bugman
 
 Hi Aubrey,
 
-I'd like to help the bugman prepare inspection-to-work handoffs for the person making the next decision. We'd start with one team and one recurring task.
+For the bugman, I'd put AI to work on inspection-to-work handoffs: prepare inspection findings and approved scope for scheduling, with missing details flagged.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together inspection findings, approved scope and scheduling requirements. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of inspection-to-work handoffs help your team?
+Would this be worth trying with one team at the bugman?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Aubrey, I'm Suuchi at Nine-67. We build AI applications with operating teams. For the bugman, I'd start with a tool to prepare inspection-to-work handoffs for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of inspection-to-work handoffs help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for inspection-to-work handoffs
 
 Hi Aubrey,
 
-One idea for the bugman: put inspection findings, approved scope and scheduling requirements together before anyone has to chase them down.
+A practical starting point at the bugman: prepare inspection findings and approved scope for scheduling, with missing details flagged. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare inspection-to-work handoffs for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of inspection-to-work handoffs help your team?
+Is inspection-to-work handoffs a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Aubrey, an idea for the bugman: bring together inspection findings, approved scope and scheduling requirements so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of inspection-to-work handoffs help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around inspection-to-work handoffs
 
 Hi Aubrey,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.
 
-At the bugman, one starting point would be to prepare inspection-to-work handoffs for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For the bugman, I'd start with inspection-to-work handoffs. We'd prepare inspection findings and approved scope for scheduling, with missing details flagged, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of inspection-to-work handoffs help your team?
+Would it help to talk through one example with the person who handles inspection-to-work handoffs?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Aubrey, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At the bugman, we'd start small: prepare inspection-to-work handoffs for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of inspection-to-work handoffs help your team?
 
-## 47. Scherzinger Pest Control | $12.7305M
-Kurt Scherzinger · President  
-kurt.scherzinger@stopzbugs.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://stopzbugs.com/blog/cincinnati-firm-acquires-70-year-lexington-fixture/) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Scherzinger Pest Control
+Kurt Scherzinger · kurt.scherzinger@stopzbugs.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Scherzinger Pest Control
+Subject: cross-branch reviews at Scherzinger Pest Control
 
 Hi Kurt,
 
-I'd like to help Scherzinger Pest Control prepare cross-branch service reviews for the person making the next decision. We'd start with one team and one recurring task.
+For Scherzinger Pest Control, I'd put AI to work on cross-branch reviews: bring open customer issues and branch updates into one review, with a named owner for each next action.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together open customer issues, branch updates and assigned actions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of cross-branch service reviews help your team?
+Would this be worth trying with one team at Scherzinger Pest Control?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Kurt, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Scherzinger Pest Control, I'd start with a tool to prepare cross-branch service reviews for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of cross-branch service reviews help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for cross-branch reviews
 
 Hi Kurt,
 
-One idea for Scherzinger Pest Control: put open customer issues, branch updates and assigned actions together before anyone has to chase them down.
+A practical starting point at Scherzinger Pest Control: bring open customer issues and branch updates into one review, with a named owner for each next action. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare cross-branch service reviews for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of cross-branch service reviews help your team?
+Is cross-branch reviews a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Kurt, an idea for Scherzinger Pest Control: bring together open customer issues, branch updates and assigned actions so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of cross-branch service reviews help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around cross-branch reviews
 
 Hi Kurt,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Scherzinger Pest Control, one starting point would be to prepare cross-branch service reviews for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For Scherzinger Pest Control, I'd start with cross-branch reviews. We'd bring open customer issues and branch updates into one review, with a named owner for each next action, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of cross-branch service reviews help your team?
+Would it help to talk through one example with the person who handles cross-branch reviews?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Kurt, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Scherzinger Pest Control, we'd start small: prepare cross-branch service reviews for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of cross-branch service reviews help your team?
 
-## 50. Banner Pest Services | $10.4322M
-Aaron Blatter · Company leader  
-aaron.blatter@bannerpc.com · **inferred**  
-Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.
-[Contact research](https://www.inc.com/profile/ban-services-company) · [Revenue source](https://giecdn.blob.core.windows.net/fileuploads/document/2026/05/11/2026-top-100-poster.pdf)
+## Banner Pest Services
+Aaron Blatter · aaron.blatter@bannerpc.com · inferred
 
 ### Direct Offer
-**Subject:** one useful AI project at Banner Pest Services
+Subject: first-visit preparation at Banner Pest Services
 
 Hi Aaron,
 
-I'd like to help Banner Pest Services prepare first-visit preparation for the person making the next decision. We'd start with one team and one recurring task.
+For Banner Pest Services, I'd put AI to work on first-visit preparation: put the customer request, property notes and agreed scope into a brief before the first visit.
 
-I'm Suuchi at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.
+I'm Suuchi at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.
 
-The first build would bring together the customer request, property notes and agreed service scope. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.
+We'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.
 
-Would taking the preparation work out of first-visit preparation help your team?
+Would this be worth trying with one team at Banner Pest Services?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Aaron, I'm Suuchi at Nine-67. We build AI applications with operating teams. For Banner Pest Services, I'd start with a tool to prepare first-visit preparation for the person making the next decision. We handle the build, user testing and training. Would taking the preparation work out of first-visit preparation help your team?
 
 ### Concrete Idea
-**Subject:** less chasing, a clearer next step
+Subject: less prep for first-visit preparation
 
 Hi Aaron,
 
-One idea for Banner Pest Services: put the customer request, property notes and agreed service scope together before anyone has to chase them down.
+A practical starting point at Banner Pest Services: put the customer request, property notes and agreed scope into a brief before the first visit. The point is to give the person doing the work the details they need, already together.
 
-I'm Suuchi at Nine-67. We build AI applications alongside business and operations teams. Here, we'd prepare first-visit preparation for the person making the next decision, with a person checking the result before it moves forward.
+I'm Suuchi at Nine-67. We build AI applications with business and operations teams. We'd test this on a small set of real examples, check accuracy with users and measure the time it saves before expanding it.
 
-We'd test it on real examples and measure preparation time and unresolved items carried into the next day.
-
-Would taking the preparation work out of first-visit preparation help your team?
+Is first-visit preparation a useful place to start?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Aaron, an idea for Banner Pest Services: bring together the customer request, property notes and agreed service scope so your team can act without assembling the story first. I'm Suuchi at Nine-67; our AI engineers build and test this with the team. Would taking the preparation work out of first-visit preparation help your team?
 
 ### Delivery Experience
-**Subject:** from first build to daily use
+Subject: building around first-visit preparation
 
 Hi Aaron,
 
-I'm Suuchi at Nine-67. We put AI engineers alongside operating teams to turn a useful idea into working software.
+I'm Suuchi at Nine-67. Our AI engineers build applications alongside the teams who will use them.
 
-A first version only earns its place if the team uses it. We'd build with the people responsible for the work, test their real examples and train them through launch.
+We work with the people doing the job from the first version through testing and training. They get to try the tool on their own work and tell us what needs changing.
 
-At Banner Pest Services, one starting point would be to prepare first-visit preparation for the person making the next decision. We'd measure preparation time and unresolved items carried into the next day before expanding it.
+For Banner Pest Services, I'd start with first-visit preparation. We'd put the customer request, property notes and agreed scope into a brief before the first visit, then test whether that leaves your team with less preparation and fewer missing details.
 
-Would taking the preparation work out of first-visit preparation help your team?
+Would it help to talk through one example with the person who handles first-visit preparation?
 
 Suuchi
 
-**LinkedIn message**
-
+LinkedIn:
 Hi Aaron, I'm Suuchi at Nine-67. Our AI engineers stay with a project through the first build, user feedback and launch. At Banner Pest Services, we'd start small: prepare first-visit preparation for the person making the next decision, then measure preparation time and unresolved items carried into the next day. Would taking the preparation work out of first-visit preparation help your team?
 

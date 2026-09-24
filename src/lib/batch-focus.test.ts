@@ -93,3 +93,23 @@ test('viewing the other list renders authored email and LinkedIn with the active
     }
   }
 });
+
+test('revised emails replace untouched saved versions for both senders while keeping sent history', async () => {
+  const { withResearchDefault } = await import('./recommended-draft.ts');
+  const { archivedVariants } = await import('./outreach-variants.ts');
+  for (const row of batchFocus) for (const sender of ['Josh', 'Suuchi']) {
+    const old = archivedVariants(row.domain, row.buyer.name).slice(0,3);
+    for (const version of old) {
+      const stored = renderSavedVariant(version, row.buyer.name, sender === 'Josh' ? 'Suuchi' : 'Josh');
+      const card = {status:'edited', accounts:{domain:row.domain}, people:{full_name:row.buyer.name},email_subject:stored.subject,email_body:stored.body};
+      const revised = withResearchDefault(card,sender,'Hi {first},');
+      const expected = savedVariants(row.domain,row.buyer.name).find(v=>v.id===version.id)!;
+      assert.equal(revised.email_subject,expected.subject);
+      assert.equal(revised.email_body,renderSavedVariant(expected,row.buyer.name,sender).body);
+      const sent={...card,status:'sent'};
+      assert.equal(withResearchDefault(sent,sender,'Hi {first},'),sent);
+      const edited={...card,email_body:'My own edited message. Interested?'};
+      assert.equal(withResearchDefault(edited,sender,'Hi {first},'),edited);
+    }
+  }
+});

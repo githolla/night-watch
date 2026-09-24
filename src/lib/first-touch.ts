@@ -1,4 +1,4 @@
-import { decodeBody, sanitizeSignatureHtml } from "./clean.ts";
+import { decodeBody } from "./clean.ts";
 import { emailStyle } from "./email-style.ts";
 /** First-touch policy: validate rather than silently rewrite a manager's edits. */
 export function firstTouchErrors(subject:string, body:string):string[] {
@@ -39,22 +39,11 @@ export function titleGuidance(title:string,locations?:number) {
  return 'Confirm this person owns the workflow. A CEO can be appropriate at a smaller group; a referral question keeps the ask easy.';
 }
 
-/** Retain the uploaded signature's table, typography and colors without clickable links or remote assets. */
+/** Reflow saved signature text after removing remote assets and links. Empty image
+ * columns, fixed-width tables and orphan icons must not survive into delivery. */
 export function firstTouchFooterHtml(signature?:string):string {
- const raw=(signature??'').trim();
- if(!raw)return '';
- if(!/<[a-z][^>]*>/i.test(raw))return firstTouchSignature(raw).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
- return sanitizeSignatureHtml(raw)
-  .replace(/<!--[^]*?-->/g,'')
-  .replace(/<(head|title)\b[^>]*>[\s\S]*?<\/\1>/gi,'')
-  .replace(/<!doctype[^>]*>|<\/?(?:html|body)[^>]*>/gi,'')
-  .replace(/<(?:img|source|video|audio)\b[^>]*>/gi,'')
-  .replace(/<\/?a\b[^>]*>/gi,'')
-  .replace(/\s(?:background|src|srcset)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi,'')
-  .replace(/url\([^)]*\)|expression\([^)]*\)/gi,'none')
-  .split(/(<[^>]+>)/g).map(part=>{
-    if(part.startsWith('<'))return part;
-    return decodeBody(decodeBody("x"+part+"x")).slice(1,-1).replace(/(?:https?:\/\/|www\.)[^\s<>]+|[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}|\b[a-z0-9.-]+\.(?:com|net|org|io|co|ai)\b/gi,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }).join('')
-  .replace(/<tr\b[^>]*>[\s\S]*?<\/tr>/gi,row=>/[\p{L}\p{N}]/u.test(decodeBody(row.replace(/<[^>]*>/g,'')))?row:'');
+ const lines = firstTouchSignature(signature).split("\n").filter(Boolean);
+ if (!lines.length) return "";
+ const escape = (value:string) => value.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+ return `<div style="margin:0;padding:0;font:13px/1.5 Arial,Helvetica,sans-serif;color:#444">${lines.map((line,index)=>index === 0 ? `<strong style="font-size:14px;color:#1a1712">${escape(line)}</strong>` : escape(line)).join("<br>")}</div>`;
 }

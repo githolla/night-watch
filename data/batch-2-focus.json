@@ -26,8 +26,8 @@
         "emailSourceUrl": "https://kirco.com/kircomanix/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at KIRCO MANIX",
-        "message": "I'd like to help KIRCO MANIX get a construction change ready for a decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the revised scope, subcontractor quote and schedule impact. Your team would approve the output; we'd measure time from a change request to an approved decision.\n\nWould getting changes ready for review be useful on one current project?",
+        "subject": "getting change orders ready for approval",
+        "message": "For KIRCO MANIX, I'd put AI to work on change orders: turn revised scope, subcontractor pricing and schedule impact into one approval brief.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at KIRCO MANIX?",
         "contact_rank": 1,
         "contact_id": "batch2-kircomanix.com"
       }
@@ -48,8 +48,8 @@
       "sourceUrl": "https://kirco.com/kircomanix/",
       "email": "douglas.manix@kircomanix.com"
     },
-    "subject": "one useful AI project at KIRCO MANIX",
-    "message": "I'd like to help KIRCO MANIX get a construction change ready for a decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the revised scope, subcontractor quote and schedule impact. Your team would approve the output; we'd measure time from a change request to an approved decision.\n\nWould getting changes ready for review be useful on one current project?",
+    "subject": "getting change orders ready for approval",
+    "message": "For KIRCO MANIX, I'd put AI to work on change orders: turn revised scope, subcontractor pricing and schedule impact into one approval brief.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at KIRCO MANIX?",
     "writerKit": {
       "accountId": "batch2-kircomanix.com",
       "frame": "gap_selling",
@@ -65,11 +65,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at KIRCO MANIX",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "getting change orders ready for approval",
+        "one brief for a change order",
+        "from revised scope to approval"
       ],
-      "touch1Cta": "Would getting changes ready for review be useful on one current project?"
+      "touch1Cta": "Would this be worth trying with one team at KIRCO MANIX?"
     },
     "assignedOwner": "josh"
   },
@@ -100,8 +100,8 @@
         "emailSourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Dortch Enterprises / Great Lakes Taco",
-        "message": "I'd like to help Dortch Enterprises / Great Lakes Taco get restaurant equipment repairs out of the message chain. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the store report, equipment history and contractor update. Your team would approve the output; we'd measure time from a reported fault to an assigned repair.\n\nIs equipment repair coordination worth a closer look across your restaurants?",
+        "subject": "restaurant equipment repairs at Dortch Enterprises",
+        "message": "For Dortch Enterprises, I'd put AI to work on restaurant equipment repairs: give the store manager a repair status, the contractor's latest update and the next action in one place.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Dortch Enterprises?",
         "contact_rank": 1,
         "contact_id": "batch2-dortchenterprises.com"
       }
@@ -122,8 +122,8 @@
       "sourceUrl": "https://data.crainsdetroit.com/files/view/s3/4/list-files/172/2026/2026%20CDB%20Largest%20Private%20Companies%201-200.pdf",
       "email": "louis.dortch@dortchenterprises.com"
     },
-    "subject": "one useful AI project at Dortch Enterprises / Great Lakes Taco",
-    "message": "I'd like to help Dortch Enterprises / Great Lakes Taco get restaurant equipment repairs out of the message chain. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the store report, equipment history and contractor update. Your team would approve the output; we'd measure time from a reported fault to an assigned repair.\n\nIs equipment repair coordination worth a closer look across your restaurants?",
+    "subject": "restaurant equipment repairs at Dortch Enterprises",
+    "message": "For Dortch Enterprises, I'd put AI to work on restaurant equipment repairs: give the store manager a repair status, the contractor's latest update and the next action in one place.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Dortch Enterprises?",
     "writerKit": {
       "accountId": "batch2-dortchenterprises.com",
       "frame": "gap_selling",
@@ -139,11 +139,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Dortch Enterprises / Great Lakes Taco",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "restaurant equipment repairs at Dortch Enterprises",
+        "less prep for restaurant equipment repairs",
+        "building around restaurant equipment repairs"
       ],
-      "touch1Cta": "Is equipment repair coordination worth a closer look across your restaurants?"
+      "touch1Cta": "Would this be worth trying with one team at Dortch Enterprises?"
     },
     "assignedOwner": "suuchi"
   },
@@ -174,8 +174,8 @@
         "emailSourceUrl": "https://www.cityofjackson.org/DocumentCenter/View/11294/Planholders-from-Bidnet-Direct-Downloadspdf",
         "emailNote": "Published business address; mailbox not verified. Source may be historical.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Nationwide Construction Group",
-        "message": "I'd like to help Nationwide Construction Group turn field progress into a billing-ready record. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together crew notes, installed quantities and the supporting photos. Your team would approve the output; we'd measure time spent assembling each progress claim.\n\nWould a faster path from field notes to a progress claim help your team?",
+        "subject": "progress claims at Nationwide Construction Group",
+        "message": "For Nationwide Construction Group, I'd put AI to work on progress claims: turn crew notes and site photos into a draft progress claim, with missing quantities flagged.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Nationwide Construction Group?",
         "contact_rank": 1,
         "contact_id": "batch2-nationwideconstructiongroup.com"
       }
@@ -196,8 +196,8 @@
       "sourceUrl": "https://www.nationwideconstructiongroup.com/company/",
       "email": "skeller@nationwidecos.com"
     },
-    "subject": "one useful AI project at Nationwide Construction Group",
-    "message": "I'd like to help Nationwide Construction Group turn field progress into a billing-ready record. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together crew notes, installed quantities and the supporting photos. Your team would approve the output; we'd measure time spent assembling each progress claim.\n\nWould a faster path from field notes to a progress claim help your team?",
+    "subject": "progress claims at Nationwide Construction Group",
+    "message": "For Nationwide Construction Group, I'd put AI to work on progress claims: turn crew notes and site photos into a draft progress claim, with missing quantities flagged.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Nationwide Construction Group?",
     "writerKit": {
       "accountId": "batch2-nationwideconstructiongroup.com",
       "frame": "gap_selling",
@@ -213,11 +213,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Nationwide Construction Group",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "progress claims at Nationwide Construction Group",
+        "less prep for progress claims",
+        "building around progress claims"
       ],
-      "touch1Cta": "Would a faster path from field notes to a progress claim help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Nationwide Construction Group?"
     },
     "assignedOwner": "suuchi"
   },
@@ -248,8 +248,8 @@
         "emailSourceUrl": "https://globalpartsllc.com/contact-us/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Global Parts & Maintenance",
-        "message": "I'd like to help Global Parts & Maintenance prepare industrial parts requests for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together part specifications, supplier responses and delivery requirements. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of industrial parts requests help your team?",
+        "subject": "parts quotes at Global Parts & Maintenance",
+        "message": "For Global Parts & Maintenance, I'd put AI to work on parts quotes: compare an incoming parts request with supplier responses and flag missing specifications before quoting.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Global Parts & Maintenance?",
         "contact_rank": 1,
         "contact_id": "batch2-globalpartsllc.com"
       }
@@ -270,8 +270,8 @@
       "sourceUrl": "https://globalpartsllc.com/contact-us/",
       "email": "paul.ureste@globalpartsllc.com"
     },
-    "subject": "one useful AI project at Global Parts & Maintenance",
-    "message": "I'd like to help Global Parts & Maintenance prepare industrial parts requests for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together part specifications, supplier responses and delivery requirements. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of industrial parts requests help your team?",
+    "subject": "parts quotes at Global Parts & Maintenance",
+    "message": "For Global Parts & Maintenance, I'd put AI to work on parts quotes: compare an incoming parts request with supplier responses and flag missing specifications before quoting.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Global Parts & Maintenance?",
     "writerKit": {
       "accountId": "batch2-globalpartsllc.com",
       "frame": "gap_selling",
@@ -287,11 +287,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Global Parts & Maintenance",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "parts quotes at Global Parts & Maintenance",
+        "less prep for parts quotes",
+        "building around parts quotes"
       ],
-      "touch1Cta": "Would taking the preparation work out of industrial parts requests help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Global Parts & Maintenance?"
     },
     "assignedOwner": "josh"
   },
@@ -322,8 +322,8 @@
         "emailSourceUrl": "https://www.bbb.org/us/va/lynchburg/profile/pest-control/dodson-pest-control-0613-289",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Dodson Pest Control",
-        "message": "I'd like to help Dodson Pest Control give branch managers a useful view of repeat service calls. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the repeat request, previous treatment notes and the next assigned action. Your team would approve the output; we'd measure time spent reviewing callbacks and closing follow-ups.\n\nIs reducing the work around repeat service calls a priority for your branches?",
+        "subject": "repeat service calls at Dodson Pest Control",
+        "message": "For Dodson Pest Control, I'd put AI to work on repeat service calls: summarize the earlier visits and customer concern before a branch manager reviews a callback.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Dodson Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-dodsonbros.com"
       }
@@ -344,8 +344,8 @@
       "sourceUrl": "https://www.bbb.org/us/va/lynchburg/profile/pest-control/dodson-pest-control-0613-289",
       "email": "bert.dodson@dodsonbros.com"
     },
-    "subject": "one useful AI project at Dodson Pest Control",
-    "message": "I'd like to help Dodson Pest Control give branch managers a useful view of repeat service calls. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the repeat request, previous treatment notes and the next assigned action. Your team would approve the output; we'd measure time spent reviewing callbacks and closing follow-ups.\n\nIs reducing the work around repeat service calls a priority for your branches?",
+    "subject": "repeat service calls at Dodson Pest Control",
+    "message": "For Dodson Pest Control, I'd put AI to work on repeat service calls: summarize the earlier visits and customer concern before a branch manager reviews a callback.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Dodson Pest Control?",
     "writerKit": {
       "accountId": "batch2-dodsonbros.com",
       "frame": "gap_selling",
@@ -361,11 +361,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Dodson Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "repeat service calls at Dodson Pest Control",
+        "less prep for repeat service calls",
+        "building around repeat service calls"
       ],
-      "touch1Cta": "Is reducing the work around repeat service calls a priority for your branches?"
+      "touch1Cta": "Would this be worth trying with one team at Dodson Pest Control?"
     },
     "assignedOwner": "josh"
   },
@@ -396,8 +396,8 @@
         "emailSourceUrl": "https://ecode360.com/CH3504/document/543275308.pdf",
         "emailNote": "Published business address; mailbox not verified. Source may be historical.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at LaSalle Construction Services",
-        "message": "I'd like to help LaSalle Construction Services get a project handover ready without a last-minute document chase. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the outstanding closeout items, responsible subcontractors and received documents. Your team would approve the output; we'd measure hours spent preparing a closeout package.\n\nWould this be useful on a project approaching handover?",
+        "subject": "project closeout at LaSalle Construction Services",
+        "message": "For LaSalle Construction Services, I'd put AI to work on project closeout: show which handover documents are still missing and which subcontractor owes each one.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at LaSalle Construction Services?",
         "contact_rank": 1,
         "contact_id": "batch2-lasalleinc.com"
       }
@@ -418,8 +418,8 @@
       "sourceUrl": "https://www.lasalleinc.com/leadership-team.php",
       "email": "ajinks@lasalleinc.com"
     },
-    "subject": "one useful AI project at LaSalle Construction Services",
-    "message": "I'd like to help LaSalle Construction Services get a project handover ready without a last-minute document chase. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the outstanding closeout items, responsible subcontractors and received documents. Your team would approve the output; we'd measure hours spent preparing a closeout package.\n\nWould this be useful on a project approaching handover?",
+    "subject": "project closeout at LaSalle Construction Services",
+    "message": "For LaSalle Construction Services, I'd put AI to work on project closeout: show which handover documents are still missing and which subcontractor owes each one.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at LaSalle Construction Services?",
     "writerKit": {
       "accountId": "batch2-lasalleinc.com",
       "frame": "gap_selling",
@@ -435,11 +435,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at LaSalle Construction Services",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "project closeout at LaSalle Construction Services",
+        "less prep for project closeout",
+        "building around project closeout"
       ],
-      "touch1Cta": "Would this be useful on a project approaching handover?"
+      "touch1Cta": "Would this be worth trying with one team at LaSalle Construction Services?"
     },
     "assignedOwner": "suuchi"
   },
@@ -470,8 +470,8 @@
         "emailSourceUrl": "https://wmenergy.com/about-us/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Walker-Miller Energy Services",
-        "message": "I'd like to help Walker-Miller Energy Services move an energy-program application toward a clear next step. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the customer submission, required evidence and unresolved eligibility questions. Your team would approve the output; we'd measure review time and the number of requests returned for missing information.\n\nWould helping reviewers clear incomplete applications be useful in one program?",
+        "subject": "incomplete applications at Walker-Miller Energy Services",
+        "message": "For Walker-Miller Energy Services, I'd put AI to work on incomplete applications: check an energy-program submission against the required documents before a reviewer opens it.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Walker-Miller Energy Services?",
         "contact_rank": 1,
         "contact_id": "batch2-wmenergy.com"
       }
@@ -492,8 +492,8 @@
       "sourceUrl": "https://wmenergy.com/about-us/",
       "email": "john.boladian@wmenergy.com"
     },
-    "subject": "one useful AI project at Walker-Miller Energy Services",
-    "message": "I'd like to help Walker-Miller Energy Services move an energy-program application toward a clear next step. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the customer submission, required evidence and unresolved eligibility questions. Your team would approve the output; we'd measure review time and the number of requests returned for missing information.\n\nWould helping reviewers clear incomplete applications be useful in one program?",
+    "subject": "incomplete applications at Walker-Miller Energy Services",
+    "message": "For Walker-Miller Energy Services, I'd put AI to work on incomplete applications: check an energy-program submission against the required documents before a reviewer opens it.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Walker-Miller Energy Services?",
     "writerKit": {
       "accountId": "batch2-wmenergy.com",
       "frame": "gap_selling",
@@ -509,11 +509,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Walker-Miller Energy Services",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "incomplete applications at Walker-Miller Energy Services",
+        "less prep for incomplete applications",
+        "building around incomplete applications"
       ],
-      "touch1Cta": "Would helping reviewers clear incomplete applications be useful in one program?"
+      "touch1Cta": "Would this be worth trying with one team at Walker-Miller Energy Services?"
     },
     "assignedOwner": "suuchi"
   },
@@ -544,8 +544,8 @@
         "emailSourceUrl": "https://tipsweb-prod.s3.us-east-2.amazonaws.com/assets/Vendorspdf/190401_Furniture_Furnishings_Srvs_3_Contract_Arcadia_Chair_Comp.pdf",
         "emailNote": "Published business address; mailbox not verified. Source may be historical.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Interior Environments",
-        "message": "I'd like to help Interior Environments make an installation-ready check before furniture reaches the site. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together order confirmations, delivery dates and outstanding site requirements. Your team would approve the output; we'd measure time spent resolving avoidable installation exceptions.\n\nWould an installation-readiness check be useful for your project managers?",
+        "subject": "installation readiness at Interior Environments",
+        "message": "For Interior Environments, I'd put AI to work on installation readiness: compare furniture deliveries with site requirements and flag what needs resolving before installation.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Interior Environments?",
         "contact_rank": 1,
         "contact_id": "batch2-ieoffices.com"
       }
@@ -566,8 +566,8 @@
       "sourceUrl": "https://www.ieoffices.com/team/",
       "email": "rbalconi@ieoffices.com"
     },
-    "subject": "one useful AI project at Interior Environments",
-    "message": "I'd like to help Interior Environments make an installation-ready check before furniture reaches the site. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together order confirmations, delivery dates and outstanding site requirements. Your team would approve the output; we'd measure time spent resolving avoidable installation exceptions.\n\nWould an installation-readiness check be useful for your project managers?",
+    "subject": "installation readiness at Interior Environments",
+    "message": "For Interior Environments, I'd put AI to work on installation readiness: compare furniture deliveries with site requirements and flag what needs resolving before installation.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Interior Environments?",
     "writerKit": {
       "accountId": "batch2-ieoffices.com",
       "frame": "gap_selling",
@@ -583,11 +583,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Interior Environments",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "installation readiness at Interior Environments",
+        "less prep for installation readiness",
+        "building around installation readiness"
       ],
-      "touch1Cta": "Would an installation-readiness check be useful for your project managers?"
+      "touch1Cta": "Would this be worth trying with one team at Interior Environments?"
     },
     "assignedOwner": "josh"
   },
@@ -618,8 +618,8 @@
         "emailSourceUrl": "https://www.greenpestsolutions.com/company/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Green Pest",
-        "message": "I'd like to help Green Pest help customer service close the loop after a repeat visit. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the customer concern, technician notes and the promised follow-up. Your team would approve the output; we'd measure time to resolve the concern and repeat contacts about the same issue.\n\nIs that follow-up work something your team would like to spend less time on?",
+        "subject": "customer follow-ups at Green Pest",
+        "message": "For Green Pest, I'd put AI to work on customer follow-ups: bring the customer concern, technician notes and promised next step into one follow-up brief.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Green Pest?",
         "contact_rank": 1,
         "contact_id": "batch2-greenpestsolutions.com"
       }
@@ -640,8 +640,8 @@
       "sourceUrl": "https://www.greenpestsolutions.com/company/",
       "email": "matt.jesson@greenpestsolutions.com"
     },
-    "subject": "one useful AI project at Green Pest",
-    "message": "I'd like to help Green Pest help customer service close the loop after a repeat visit. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the customer concern, technician notes and the promised follow-up. Your team would approve the output; we'd measure time to resolve the concern and repeat contacts about the same issue.\n\nIs that follow-up work something your team would like to spend less time on?",
+    "subject": "customer follow-ups at Green Pest",
+    "message": "For Green Pest, I'd put AI to work on customer follow-ups: bring the customer concern, technician notes and promised next step into one follow-up brief.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Green Pest?",
     "writerKit": {
       "accountId": "batch2-greenpestsolutions.com",
       "frame": "gap_selling",
@@ -657,11 +657,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Green Pest Solutions",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "customer follow-ups at Green Pest",
+        "less prep for customer follow-ups",
+        "building around customer follow-ups"
       ],
-      "touch1Cta": "Is that follow-up work something your team would like to spend less time on?"
+      "touch1Cta": "Would this be worth trying with one team at Green Pest?"
     },
     "assignedOwner": "josh"
   },
@@ -692,8 +692,8 @@
         "emailSourceUrl": "https://www.brauncg.com/about-us/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Braun Construction Group",
-        "message": "I'd like to help Braun Construction Group prepare occupied-building work for the next coordination meeting. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the work sequence, access restrictions and decisions still needed. Your team would approve the output; we'd measure meeting preparation time and unresolved access issues.\n\nWould this help on one renovation where the building stays in use?",
+        "subject": "renovation coordination at Braun Construction Group",
+        "message": "For Braun Construction Group, I'd put AI to work on renovation coordination: prepare the access restrictions, planned work and open decisions for the next site meeting.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Braun Construction Group?",
         "contact_rank": 1,
         "contact_id": "batch2-brauncg.com"
       }
@@ -714,8 +714,8 @@
       "sourceUrl": "https://www.brauncg.com/about-us/",
       "email": "steven.braun@brauncg.com"
     },
-    "subject": "one useful AI project at Braun Construction Group",
-    "message": "I'd like to help Braun Construction Group prepare occupied-building work for the next coordination meeting. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the work sequence, access restrictions and decisions still needed. Your team would approve the output; we'd measure meeting preparation time and unresolved access issues.\n\nWould this help on one renovation where the building stays in use?",
+    "subject": "renovation coordination at Braun Construction Group",
+    "message": "For Braun Construction Group, I'd put AI to work on renovation coordination: prepare the access restrictions, planned work and open decisions for the next site meeting.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Braun Construction Group?",
     "writerKit": {
       "accountId": "batch2-brauncg.com",
       "frame": "gap_selling",
@@ -731,11 +731,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Braun Construction Group",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "renovation coordination at Braun Construction Group",
+        "less prep for renovation coordination",
+        "building around renovation coordination"
       ],
-      "touch1Cta": "Would this help on one renovation where the building stays in use?"
+      "touch1Cta": "Would this be worth trying with one team at Braun Construction Group?"
     },
     "assignedOwner": "suuchi"
   },
@@ -766,8 +766,8 @@
         "emailSourceUrl": "https://villagegreenmgt.com/leadership/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Village Green",
-        "message": "I'd like to help Village Green give regional teams a clear view of apartment turns needing intervention. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together work orders, vendor commitments and the expected ready date. Your team would approve the output; we'd measure days lost waiting for a decision or vendor update.\n\nWould a clearer view of stalled apartment turns help your regional teams?",
+        "subject": "apartment turns at Village Green",
+        "message": "For Village Green, I'd put AI to work on apartment turns: show which units are waiting on a vendor or decision, alongside the expected ready date.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Village Green?",
         "contact_rank": 1,
         "contact_id": "batch2-villagegreenmgt.com"
       }
@@ -788,8 +788,8 @@
       "sourceUrl": "https://villagegreenmgt.com/leadership/",
       "email": "matthew.guenther@villagegreenmgt.com"
     },
-    "subject": "one useful AI project at Village Green",
-    "message": "I'd like to help Village Green give regional teams a clear view of apartment turns needing intervention. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together work orders, vendor commitments and the expected ready date. Your team would approve the output; we'd measure days lost waiting for a decision or vendor update.\n\nWould a clearer view of stalled apartment turns help your regional teams?",
+    "subject": "apartment turns at Village Green",
+    "message": "For Village Green, I'd put AI to work on apartment turns: show which units are waiting on a vendor or decision, alongside the expected ready date.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Village Green?",
     "writerKit": {
       "accountId": "batch2-villagegreenmgt.com",
       "frame": "gap_selling",
@@ -805,11 +805,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Village Green",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "apartment turns at Village Green",
+        "less prep for apartment turns",
+        "building around apartment turns"
       ],
-      "touch1Cta": "Would a clearer view of stalled apartment turns help your regional teams?"
+      "touch1Cta": "Would this be worth trying with one team at Village Green?"
     },
     "assignedOwner": "suuchi"
   },
@@ -840,8 +840,8 @@
         "emailSourceUrl": "https://aimconstruction.com/leadership",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at AIMS Construction",
-        "message": "I'd like to help AIMS Construction prepare a hospital construction work package for review. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the planned work, required permits and department approvals. Your team would approve the output; we'd measure time spent assembling the package and chasing missing approvals.\n\nWould this take useful work off your Michigan project teams?",
+        "subject": "hospital project approvals at AIMS Construction",
+        "message": "For AIMS Construction, I'd put AI to work on hospital project approvals: assemble planned work, permits and department approvals into a package for the project manager.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at AIMS Construction?",
         "contact_rank": 1,
         "contact_id": "batch2-aimconstruction.com"
       }
@@ -862,8 +862,8 @@
       "sourceUrl": "https://aimconstruction.com/leadership",
       "email": "jake.meadows@aimconstruction.com"
     },
-    "subject": "one useful AI project at AIMS Construction",
-    "message": "I'd like to help AIMS Construction prepare a hospital construction work package for review. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the planned work, required permits and department approvals. Your team would approve the output; we'd measure time spent assembling the package and chasing missing approvals.\n\nWould this take useful work off your Michigan project teams?",
+    "subject": "hospital project approvals at AIMS Construction",
+    "message": "For AIMS Construction, I'd put AI to work on hospital project approvals: assemble planned work, permits and department approvals into a package for the project manager.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at AIMS Construction?",
     "writerKit": {
       "accountId": "batch2-aimconstruction.com",
       "frame": "gap_selling",
@@ -879,11 +879,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at AIMS Construction",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "hospital project approvals at AIMS Construction",
+        "less prep for hospital project approvals",
+        "building around hospital project approvals"
       ],
-      "touch1Cta": "Would this take useful work off your Michigan project teams?"
+      "touch1Cta": "Would this be worth trying with one team at AIMS Construction?"
     },
     "assignedOwner": "josh"
   },
@@ -914,8 +914,8 @@
         "emailSourceUrl": "https://www.linkedin.com/in/jamie-ogle-b5453b6",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Lloyd Pest Control",
-        "message": "I'd like to help Lloyd Pest Control give service managers a clearer plan for unfinished visits. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the incomplete visit, reason, customer promise and available next step. Your team would approve the output; we'd measure time spent resolving unfinished visits.\n\nWould this help your service managers get unfinished visits back on track?",
+        "subject": "unfinished service visits at Lloyd Pest Control",
+        "message": "For Lloyd Pest Control, I'd put AI to work on unfinished service visits: show why each visit is unfinished and what the service manager needs to arrange next.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Lloyd Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-lloydpest.com"
       }
@@ -936,8 +936,8 @@
       "sourceUrl": "https://www.linkedin.com/in/jamie-ogle-b5453b6",
       "email": "jamie.ogle@lloydpest.com"
     },
-    "subject": "one useful AI project at Lloyd Pest Control",
-    "message": "I'd like to help Lloyd Pest Control give service managers a clearer plan for unfinished visits. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the incomplete visit, reason, customer promise and available next step. Your team would approve the output; we'd measure time spent resolving unfinished visits.\n\nWould this help your service managers get unfinished visits back on track?",
+    "subject": "unfinished service visits at Lloyd Pest Control",
+    "message": "For Lloyd Pest Control, I'd put AI to work on unfinished service visits: show why each visit is unfinished and what the service manager needs to arrange next.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Lloyd Pest Control?",
     "writerKit": {
       "accountId": "batch2-lloydpest.com",
       "frame": "gap_selling",
@@ -953,11 +953,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Lloyd Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "unfinished service visits at Lloyd Pest Control",
+        "less prep for unfinished service visits",
+        "building around unfinished service visits"
       ],
-      "touch1Cta": "Would this help your service managers get unfinished visits back on track?"
+      "touch1Cta": "Would this be worth trying with one team at Lloyd Pest Control?"
     },
     "assignedOwner": "josh"
   },
@@ -988,8 +988,8 @@
         "emailSourceUrl": "https://contractdirect.net/about.html",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Contract Direct",
-        "message": "I'd like to help Contract Direct turn a site inspection into a short list of accountable actions. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection notes, photos and the agreed service scope. Your team would approve the output; we'd measure time from an inspection finding to confirmed completion.\n\nWould a tighter inspection-to-action process be useful on one client account?",
+        "subject": "site inspection actions at Contract Direct",
+        "message": "For Contract Direct, I'd put AI to work on site inspection actions: turn inspection notes and photos into a draft action list with owners and completion checks.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Contract Direct?",
         "contact_rank": 1,
         "contact_id": "batch2-contractdirect.net"
       }
@@ -1010,8 +1010,8 @@
       "sourceUrl": "https://contractdirect.net/about.html",
       "email": "elizabeth.hammond@contractdirect.net"
     },
-    "subject": "one useful AI project at Contract Direct",
-    "message": "I'd like to help Contract Direct turn a site inspection into a short list of accountable actions. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection notes, photos and the agreed service scope. Your team would approve the output; we'd measure time from an inspection finding to confirmed completion.\n\nWould a tighter inspection-to-action process be useful on one client account?",
+    "subject": "site inspection actions at Contract Direct",
+    "message": "For Contract Direct, I'd put AI to work on site inspection actions: turn inspection notes and photos into a draft action list with owners and completion checks.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Contract Direct?",
     "writerKit": {
       "accountId": "batch2-contractdirect.net",
       "frame": "gap_selling",
@@ -1027,11 +1027,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Contract Direct",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "site inspection actions at Contract Direct",
+        "less prep for site inspection actions",
+        "building around site inspection actions"
       ],
-      "touch1Cta": "Would a tighter inspection-to-action process be useful on one client account?"
+      "touch1Cta": "Would this be worth trying with one team at Contract Direct?"
     },
     "assignedOwner": "suuchi"
   },
@@ -1062,8 +1062,8 @@
         "emailSourceUrl": "https://selectexterminating.com/residential/letter-from-ceo/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Select Exterminating",
-        "message": "I'd like to help Select Exterminating prepare a commercial customer review from the service record. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together site visits, recurring findings and outstanding corrective actions. Your team would approve the output; we'd measure time spent preparing the review and chasing open actions.\n\nWould this be useful for one of your multi-site commercial customers?",
+        "subject": "commercial account reviews at Select Exterminating",
+        "message": "For Select Exterminating, I'd put AI to work on commercial account reviews: pull recurring findings and unresolved actions from service records into a customer review brief.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Select Exterminating?",
         "contact_rank": 1,
         "contact_id": "batch2-selectexterminating.com"
       }
@@ -1084,8 +1084,8 @@
       "sourceUrl": "https://selectexterminating.com/residential/letter-from-ceo/",
       "email": "matthew.garten@selectexterminating.com"
     },
-    "subject": "one useful AI project at Select Exterminating",
-    "message": "I'd like to help Select Exterminating prepare a commercial customer review from the service record. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together site visits, recurring findings and outstanding corrective actions. Your team would approve the output; we'd measure time spent preparing the review and chasing open actions.\n\nWould this be useful for one of your multi-site commercial customers?",
+    "subject": "commercial account reviews at Select Exterminating",
+    "message": "For Select Exterminating, I'd put AI to work on commercial account reviews: pull recurring findings and unresolved actions from service records into a customer review brief.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Select Exterminating?",
     "writerKit": {
       "accountId": "batch2-selectexterminating.com",
       "frame": "gap_selling",
@@ -1101,11 +1101,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Select Exterminating",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "commercial account reviews at Select Exterminating",
+        "less prep for commercial account reviews",
+        "building around commercial account reviews"
       ],
-      "touch1Cta": "Would this be useful for one of your multi-site commercial customers?"
+      "touch1Cta": "Would this be worth trying with one team at Select Exterminating?"
     },
     "assignedOwner": "suuchi"
   },
@@ -1136,8 +1136,8 @@
         "emailSourceUrl": "https://advancedipm.com/meet-team/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Advanced Integrated Pest Management",
-        "message": "I'd like to help Advanced Integrated Pest Management give a technician the relevant history before a complex visit. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together earlier findings, site restrictions and unresolved recommendations. Your team would approve the output; we'd measure preparation time and missing information at the visit.\n\nWould a better pre-visit brief be useful for your field team?",
+        "subject": "technician visit briefs at Advanced Integrated Pest Management",
+        "message": "For Advanced Integrated Pest Management, I'd put AI to work on technician visit briefs: put site restrictions, earlier findings and open recommendations in front of the technician before arrival.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Advanced Integrated Pest Management?",
         "contact_rank": 1,
         "contact_id": "batch2-advancedipm.com"
       }
@@ -1158,8 +1158,8 @@
       "sourceUrl": "https://advancedipm.com/meet-team/",
       "email": "chance.howell@advancedipm.com"
     },
-    "subject": "one useful AI project at Advanced Integrated Pest Management",
-    "message": "I'd like to help Advanced Integrated Pest Management give a technician the relevant history before a complex visit. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together earlier findings, site restrictions and unresolved recommendations. Your team would approve the output; we'd measure preparation time and missing information at the visit.\n\nWould a better pre-visit brief be useful for your field team?",
+    "subject": "technician visit briefs at Advanced Integrated Pest Management",
+    "message": "For Advanced Integrated Pest Management, I'd put AI to work on technician visit briefs: put site restrictions, earlier findings and open recommendations in front of the technician before arrival.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Advanced Integrated Pest Management?",
     "writerKit": {
       "accountId": "batch2-advancedipm.com",
       "frame": "gap_selling",
@@ -1175,11 +1175,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Advanced Integrated Pest Management",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "technician visit briefs at Advanced Integrated Pest Management",
+        "less prep for technician visit briefs",
+        "building around technician visit briefs"
       ],
-      "touch1Cta": "Would a better pre-visit brief be useful for your field team?"
+      "touch1Cta": "Would this be worth trying with one team at Advanced Integrated Pest Management?"
     },
     "assignedOwner": "josh"
   },
@@ -1210,8 +1210,8 @@
         "emailSourceUrl": "https://myemail.constantcontact.com/Pogoda-Awarded-Two-Management-Contracts.html?aid=0m-wWCwBanI&soid=1102470517293",
         "emailNote": "Published business address; mailbox not verified. Source may be historical.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at National Storage Management / Pogoda",
-        "message": "I'd like to help National Storage Management / Pogoda help regional managers act on rental inquiries that still need a response. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the inquiry, property availability and the promised callback. Your team would approve the output; we'd measure time to follow up and inquiries left unresolved.\n\nWould this be worth testing with one regional manager?",
+        "subject": "rental inquiry follow-up at National Storage Management",
+        "message": "For National Storage Management, I'd put AI to work on rental inquiry follow-up: pair unanswered rental inquiries with property availability and the callback that was promised.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at National Storage Management?",
         "contact_rank": 1,
         "contact_id": "batch2-nationalstoragemgmt.com"
       }
@@ -1233,8 +1233,8 @@
       "sourceUrl": "https://nationalstoragemgmt.com/our-team/",
       "email": "apogoda@pogodaco.com"
     },
-    "subject": "one useful AI project at National Storage Management / Pogoda",
-    "message": "I'd like to help National Storage Management / Pogoda help regional managers act on rental inquiries that still need a response. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the inquiry, property availability and the promised callback. Your team would approve the output; we'd measure time to follow up and inquiries left unresolved.\n\nWould this be worth testing with one regional manager?",
+    "subject": "rental inquiry follow-up at National Storage Management",
+    "message": "For National Storage Management, I'd put AI to work on rental inquiry follow-up: pair unanswered rental inquiries with property availability and the callback that was promised.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at National Storage Management?",
     "writerKit": {
       "accountId": "batch2-nationalstoragemgmt.com",
       "frame": "gap_selling",
@@ -1250,11 +1250,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at National Storage Management / Pogoda",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "rental inquiry follow-up at National Storage Management",
+        "less prep for rental inquiry follow-up",
+        "building around rental inquiry follow-up"
       ],
-      "touch1Cta": "Would this be worth testing with one regional manager?"
+      "touch1Cta": "Would this be worth trying with one team at National Storage Management?"
     },
     "assignedOwner": "josh"
   },
@@ -1285,8 +1285,8 @@
         "emailSourceUrl": "https://medium.com/authority-magazine/joshua-langdon-of-aruza-pest-control-five-things-i-wish-someone-told-me-before-i-became-a-ceo-214f31b4938a",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Aruza Pest Control",
-        "message": "I'd like to help Aruza Pest Control help branch leaders spot where a service promise still needs action. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the customer request, branch notes and the next agreed step. Your team would approve the output; we'd measure time to resolve handoffs between customer service and the branch.\n\nWould improving that handoff be useful across Aruza’s branches?",
+        "subject": "branch handoffs at Aruza Pest Control",
+        "message": "For Aruza Pest Control, I'd put AI to work on branch handoffs: give customer service and the branch the same record of the customer promise and next action.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Aruza Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-aruzapest.com"
       }
@@ -1307,8 +1307,8 @@
       "sourceUrl": "https://medium.com/authority-magazine/joshua-langdon-of-aruza-pest-control-five-things-i-wish-someone-told-me-before-i-became-a-ceo-214f31b4938a",
       "email": "joshua.langdon@aruzapest.com"
     },
-    "subject": "one useful AI project at Aruza Pest Control",
-    "message": "I'd like to help Aruza Pest Control help branch leaders spot where a service promise still needs action. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the customer request, branch notes and the next agreed step. Your team would approve the output; we'd measure time to resolve handoffs between customer service and the branch.\n\nWould improving that handoff be useful across Aruza’s branches?",
+    "subject": "branch handoffs at Aruza Pest Control",
+    "message": "For Aruza Pest Control, I'd put AI to work on branch handoffs: give customer service and the branch the same record of the customer promise and next action.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Aruza Pest Control?",
     "writerKit": {
       "accountId": "batch2-aruzapest.com",
       "frame": "gap_selling",
@@ -1324,11 +1324,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Aruza Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "branch handoffs at Aruza Pest Control",
+        "less prep for branch handoffs",
+        "building around branch handoffs"
       ],
-      "touch1Cta": "Would improving that handoff be useful across Aruza’s branches?"
+      "touch1Cta": "Would this be worth trying with one team at Aruza Pest Control?"
     },
     "assignedOwner": "suuchi"
   },
@@ -1359,8 +1359,8 @@
         "emailSourceUrl": "https://www.bugs.com/meet-the-team",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Hulett Environmental Services",
-        "message": "I'd like to help Hulett Environmental Services prepare a termite inspection for the team writing the proposal. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection notes, photos and items requiring technical clarification. Your team would approve the output; we'd measure time from inspection to a reviewed proposal.\n\nWould a faster inspection-to-proposal handoff help your team?",
+        "subject": "inspection-to-proposal work at Hulett Environmental Services",
+        "message": "For Hulett Environmental Services, I'd put AI to work on inspection-to-proposal work: assemble inspection notes and photos into a proposal draft, leaving technical decisions with your team.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Hulett Environmental Services?",
         "contact_rank": 1,
         "contact_id": "batch2-bugs.com"
       }
@@ -1381,8 +1381,8 @@
       "sourceUrl": "https://www.bugs.com/meet-the-team",
       "email": "tim.hulett@bugs.com"
     },
-    "subject": "one useful AI project at Hulett Environmental Services",
-    "message": "I'd like to help Hulett Environmental Services prepare a termite inspection for the team writing the proposal. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection notes, photos and items requiring technical clarification. Your team would approve the output; we'd measure time from inspection to a reviewed proposal.\n\nWould a faster inspection-to-proposal handoff help your team?",
+    "subject": "inspection-to-proposal work at Hulett Environmental Services",
+    "message": "For Hulett Environmental Services, I'd put AI to work on inspection-to-proposal work: assemble inspection notes and photos into a proposal draft, leaving technical decisions with your team.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Hulett Environmental Services?",
     "writerKit": {
       "accountId": "batch2-bugs.com",
       "frame": "gap_selling",
@@ -1398,11 +1398,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Hulett Environmental Services",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "inspection-to-proposal work at Hulett Environmental Services",
+        "less prep for inspection-to-proposal work",
+        "building around inspection-to-proposal work"
       ],
-      "touch1Cta": "Would a faster inspection-to-proposal handoff help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Hulett Environmental Services?"
     },
     "assignedOwner": "suuchi"
   },
@@ -1433,8 +1433,8 @@
         "emailSourceUrl": "https://www.linkedin.com/in/andrew-wolfertz-35065119",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Urbanex",
-        "message": "I'd like to help Urbanex help a retention specialist start with the full customer story. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the cancellation request, recent service history and unresolved concerns. Your team would approve the output; we'd measure preparation time and the number of handoffs before a response.\n\nWould this be useful for the people handling retention calls?",
+        "subject": "retention call preparation at Urbanex",
+        "message": "For Urbanex, I'd put AI to work on retention call preparation: summarize recent visits and unresolved concerns before a specialist responds to a cancellation request.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Urbanex?",
         "contact_rank": 1,
         "contact_id": "batch2-urbanexpro.com"
       }
@@ -1455,8 +1455,8 @@
       "sourceUrl": "https://www.linkedin.com/in/andrew-wolfertz-35065119",
       "email": "andrew.wolfertz@urbanexpro.com"
     },
-    "subject": "one useful AI project at Urbanex",
-    "message": "I'd like to help Urbanex help a retention specialist start with the full customer story. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the cancellation request, recent service history and unresolved concerns. Your team would approve the output; we'd measure preparation time and the number of handoffs before a response.\n\nWould this be useful for the people handling retention calls?",
+    "subject": "retention call preparation at Urbanex",
+    "message": "For Urbanex, I'd put AI to work on retention call preparation: summarize recent visits and unresolved concerns before a specialist responds to a cancellation request.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Urbanex?",
     "writerKit": {
       "accountId": "batch2-urbanexpro.com",
       "frame": "gap_selling",
@@ -1472,11 +1472,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Urbanex",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "retention call preparation at Urbanex",
+        "less prep for retention call preparation",
+        "building around retention call preparation"
       ],
-      "touch1Cta": "Would this be useful for the people handling retention calls?"
+      "touch1Cta": "Would this be worth trying with one team at Urbanex?"
     },
     "assignedOwner": "josh"
   },
@@ -1507,8 +1507,8 @@
         "emailSourceUrl": "https://www.linkedin.com/company/a.-z.-shmina-inc./",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at A.Z. Shmina",
-        "message": "I'd like to help A.Z. Shmina prepare construction approval requests for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together site questions, drawings and outstanding decisions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of construction approval requests help your team?",
+        "subject": "construction approvals at A.Z. Shmina",
+        "message": "For A.Z. Shmina, I'd put AI to work on construction approvals: bring the site question, relevant drawings and outstanding decisions into one review packet.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at A.Z. Shmina?",
         "contact_rank": 1,
         "contact_id": "batch2-azshmina.com"
       }
@@ -1529,8 +1529,8 @@
       "sourceUrl": "https://www.linkedin.com/company/a.-z.-shmina-inc./",
       "email": "andrew.shmina@azshmina.com"
     },
-    "subject": "one useful AI project at A.Z. Shmina",
-    "message": "I'd like to help A.Z. Shmina prepare construction approval requests for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together site questions, drawings and outstanding decisions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of construction approval requests help your team?",
+    "subject": "construction approvals at A.Z. Shmina",
+    "message": "For A.Z. Shmina, I'd put AI to work on construction approvals: bring the site question, relevant drawings and outstanding decisions into one review packet.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at A.Z. Shmina?",
     "writerKit": {
       "accountId": "batch2-azshmina.com",
       "frame": "gap_selling",
@@ -1546,11 +1546,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at A.Z. Shmina",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "construction approvals at A.Z. Shmina",
+        "less prep for construction approvals",
+        "building around construction approvals"
       ],
-      "touch1Cta": "Would taking the preparation work out of construction approval requests help your team?"
+      "touch1Cta": "Would this be worth trying with one team at A.Z. Shmina?"
     },
     "assignedOwner": "josh"
   },
@@ -1581,8 +1581,8 @@
         "emailSourceUrl": "https://www.advancepac.com/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Advance Packaging Technologies",
-        "message": "I'd like to help Advance Packaging Technologies get a specialty-film request ready for a technical quote. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the requested material, application requirements and missing specifications. Your team would approve the output; we'd measure time spent clarifying requirements before quoting.\n\nWould a better first pass on film requests help your quoting team?",
+        "subject": "film specifications at Advance Packaging Technologies",
+        "message": "For Advance Packaging Technologies, I'd put AI to work on film specifications: flag missing material and application requirements before a specialty-film request reaches the quoting team.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Advance Packaging Technologies?",
         "contact_rank": 1,
         "contact_id": "batch2-advancepac.com"
       }
@@ -1603,8 +1603,8 @@
       "sourceUrl": "https://www.advancepac.com/",
       "email": "rob.cohen@advancepac.com"
     },
-    "subject": "one useful AI project at Advance Packaging Technologies",
-    "message": "I'd like to help Advance Packaging Technologies get a specialty-film request ready for a technical quote. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the requested material, application requirements and missing specifications. Your team would approve the output; we'd measure time spent clarifying requirements before quoting.\n\nWould a better first pass on film requests help your quoting team?",
+    "subject": "film specifications at Advance Packaging Technologies",
+    "message": "For Advance Packaging Technologies, I'd put AI to work on film specifications: flag missing material and application requirements before a specialty-film request reaches the quoting team.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Advance Packaging Technologies?",
     "writerKit": {
       "accountId": "batch2-advancepac.com",
       "frame": "gap_selling",
@@ -1620,11 +1620,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Advance Packaging Technologies",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "film specifications at Advance Packaging Technologies",
+        "less prep for film specifications",
+        "building around film specifications"
       ],
-      "touch1Cta": "Would a better first pass on film requests help your quoting team?"
+      "touch1Cta": "Would this be worth trying with one team at Advance Packaging Technologies?"
     },
     "assignedOwner": "suuchi"
   },
@@ -1655,8 +1655,8 @@
         "emailSourceUrl": "https://www.cleggs.com/about/our-history/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Clegg’s Termite & Pest Control",
-        "message": "I'd like to help Clegg’s Termite & Pest Control get the next service visit ready when an inspection needs follow-through. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the inspection findings, promised work and scheduling constraints. Your team would approve the output; we'd measure time from an inspection finding to an assigned follow-up.\n\nWould this help the team coordinating work after inspections?",
+        "subject": "inspection follow-through at Clegg’s Termite & Pest Control",
+        "message": "For Clegg’s Termite & Pest Control, I'd put AI to work on inspection follow-through: turn inspection findings and promised work into a follow-up brief for the scheduling team.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Clegg’s Termite & Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-cleggs.com"
       }
@@ -1677,8 +1677,8 @@
       "sourceUrl": "https://www.cleggs.com/about/our-history/",
       "email": "philip.clegg@cleggs.com"
     },
-    "subject": "one useful AI project at Clegg’s Termite & Pest Control",
-    "message": "I'd like to help Clegg’s Termite & Pest Control get the next service visit ready when an inspection needs follow-through. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the inspection findings, promised work and scheduling constraints. Your team would approve the output; we'd measure time from an inspection finding to an assigned follow-up.\n\nWould this help the team coordinating work after inspections?",
+    "subject": "inspection follow-through at Clegg’s Termite & Pest Control",
+    "message": "For Clegg’s Termite & Pest Control, I'd put AI to work on inspection follow-through: turn inspection findings and promised work into a follow-up brief for the scheduling team.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Clegg’s Termite & Pest Control?",
     "writerKit": {
       "accountId": "batch2-cleggs.com",
       "frame": "gap_selling",
@@ -1694,11 +1694,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Clegg’s Termite & Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "inspection follow-through at Clegg’s Termite & Pest Control",
+        "less prep for inspection follow-through",
+        "building around inspection follow-through"
       ],
-      "touch1Cta": "Would this help the team coordinating work after inspections?"
+      "touch1Cta": "Would this be worth trying with one team at Clegg’s Termite & Pest Control?"
     },
     "assignedOwner": "suuchi"
   },
@@ -1729,8 +1729,8 @@
         "emailSourceUrl": "https://alluneedpest.com/blog/author/kyle/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at All U Need Pest Control",
-        "message": "I'd like to help All U Need Pest Control give branch leaders a consistent way to review unresolved customer issues. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together service notes, customer feedback and the person handling the next action. Your team would approve the output; we'd measure review preparation time and unresolved issues carried into the next week.\n\nWould this be a useful first AI project for one branch?",
+        "subject": "branch issue reviews at All U Need Pest Control",
+        "message": "For All U Need Pest Control, I'd put AI to work on branch issue reviews: prepare unresolved customer issues with their service history and the person handling each next step.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at All U Need Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-alluneedpest.com"
       }
@@ -1751,8 +1751,8 @@
       "sourceUrl": "https://alluneedpest.com/blog/author/kyle/",
       "email": "kyle.selbach@alluneedpest.com"
     },
-    "subject": "one useful AI project at All U Need Pest Control",
-    "message": "I'd like to help All U Need Pest Control give branch leaders a consistent way to review unresolved customer issues. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together service notes, customer feedback and the person handling the next action. Your team would approve the output; we'd measure review preparation time and unresolved issues carried into the next week.\n\nWould this be a useful first AI project for one branch?",
+    "subject": "branch issue reviews at All U Need Pest Control",
+    "message": "For All U Need Pest Control, I'd put AI to work on branch issue reviews: prepare unresolved customer issues with their service history and the person handling each next step.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at All U Need Pest Control?",
     "writerKit": {
       "accountId": "batch2-alluneedpest.com",
       "frame": "gap_selling",
@@ -1768,11 +1768,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at All U Need Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "branch issue reviews at All U Need Pest Control",
+        "less prep for branch issue reviews",
+        "building around branch issue reviews"
       ],
-      "touch1Cta": "Would this be a useful first AI project for one branch?"
+      "touch1Cta": "Would this be worth trying with one team at All U Need Pest Control?"
     },
     "assignedOwner": "josh"
   },
@@ -1803,8 +1803,8 @@
         "emailSourceUrl": "https://www.bbb.org/us/ga/columbus/profile/pest-control/knox-pest-control-0743-26000010",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Knox Pest Control",
-        "message": "I'd like to help Knox Pest Control prepare inspection follow-ups for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection findings, promised work and the next appointment. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of inspection follow-ups help your team?",
+        "subject": "inspection follow-ups at Knox Pest Control",
+        "message": "For Knox Pest Control, I'd put AI to work on inspection follow-ups: give the scheduler a clear record of the findings, promised work and appointment requirements.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Knox Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-knoxpest.com"
       }
@@ -1825,8 +1825,8 @@
       "sourceUrl": "https://www.bbb.org/us/ga/columbus/profile/pest-control/knox-pest-control-0743-26000010",
       "email": "sean.knox@knoxpest.com"
     },
-    "subject": "one useful AI project at Knox Pest Control",
-    "message": "I'd like to help Knox Pest Control prepare inspection follow-ups for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection findings, promised work and the next appointment. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of inspection follow-ups help your team?",
+    "subject": "inspection follow-ups at Knox Pest Control",
+    "message": "For Knox Pest Control, I'd put AI to work on inspection follow-ups: give the scheduler a clear record of the findings, promised work and appointment requirements.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Knox Pest Control?",
     "writerKit": {
       "accountId": "batch2-knoxpest.com",
       "frame": "gap_selling",
@@ -1842,11 +1842,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Knox Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "inspection follow-ups at Knox Pest Control",
+        "less prep for inspection follow-ups",
+        "building around inspection follow-ups"
       ],
-      "touch1Cta": "Would taking the preparation work out of inspection follow-ups help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Knox Pest Control?"
     },
     "assignedOwner": "josh"
   },
@@ -1877,8 +1877,8 @@
         "emailSourceUrl": "https://www.frontlinepestcontrol.com/williamsport-md/about-us/meet-team",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Frontline Pest Control",
-        "message": "I'd like to help Frontline Pest Control prepare unfinished service visits for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together visit notes, customer requests and branch assignments. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of unfinished service visits help your team?",
+        "subject": "unfinished jobs at Frontline Pest Control",
+        "message": "For Frontline Pest Control, I'd put AI to work on unfinished jobs: prepare a daily list of unfinished visits with the reason, customer promise and responsible branch.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Frontline Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-frontlinepestcontrol.com"
       }
@@ -1899,8 +1899,8 @@
       "sourceUrl": "https://www.frontlinepestcontrol.com/williamsport-md/about-us/meet-team",
       "email": "justin.nichols@frontlinepestcontrol.com"
     },
-    "subject": "one useful AI project at Frontline Pest Control",
-    "message": "I'd like to help Frontline Pest Control prepare unfinished service visits for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together visit notes, customer requests and branch assignments. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of unfinished service visits help your team?",
+    "subject": "unfinished jobs at Frontline Pest Control",
+    "message": "For Frontline Pest Control, I'd put AI to work on unfinished jobs: prepare a daily list of unfinished visits with the reason, customer promise and responsible branch.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Frontline Pest Control?",
     "writerKit": {
       "accountId": "batch2-frontlinepestcontrol.com",
       "frame": "gap_selling",
@@ -1916,11 +1916,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Frontline Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "unfinished jobs at Frontline Pest Control",
+        "less prep for unfinished jobs",
+        "building around unfinished jobs"
       ],
-      "touch1Cta": "Would taking the preparation work out of unfinished service visits help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Frontline Pest Control?"
     },
     "assignedOwner": "suuchi"
   },
@@ -1951,8 +1951,8 @@
         "emailSourceUrl": "https://www.bbb.org/us/sc/north-charleston/profile/pest-control/ridd-pest-control-0663-34341879",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at RIDD Pest Control",
-        "message": "I'd like to help RIDD Pest Control prepare billing exceptions for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together completed visits, contract terms and disputed charges. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of billing exceptions help your team?",
+        "subject": "billing exceptions at RIDD Pest Control",
+        "message": "For RIDD Pest Control, I'd put AI to work on billing exceptions: bring the completed visit, contract terms and disputed charge together for a billing reviewer.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at RIDD Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-ridd.com"
       }
@@ -1973,8 +1973,8 @@
       "sourceUrl": "https://www.bbb.org/us/sc/north-charleston/profile/pest-control/ridd-pest-control-0663-34341879",
       "email": "jason.wilde@ridd.com"
     },
-    "subject": "one useful AI project at RIDD Pest Control",
-    "message": "I'd like to help RIDD Pest Control prepare billing exceptions for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together completed visits, contract terms and disputed charges. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of billing exceptions help your team?",
+    "subject": "billing exceptions at RIDD Pest Control",
+    "message": "For RIDD Pest Control, I'd put AI to work on billing exceptions: bring the completed visit, contract terms and disputed charge together for a billing reviewer.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at RIDD Pest Control?",
     "writerKit": {
       "accountId": "batch2-ridd.com",
       "frame": "gap_selling",
@@ -1990,11 +1990,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at RIDD Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "billing exceptions at RIDD Pest Control",
+        "less prep for billing exceptions",
+        "building around billing exceptions"
       ],
-      "touch1Cta": "Would taking the preparation work out of billing exceptions help your team?"
+      "touch1Cta": "Would this be worth trying with one team at RIDD Pest Control?"
     },
     "assignedOwner": "suuchi"
   },
@@ -2025,8 +2025,8 @@
         "emailSourceUrl": "https://www.bbb.org/us/ca/anaheim/profile/pest-control/quality-pest-services-inc-1126-172017229",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Quality Pest Services",
-        "message": "I'd like to help Quality Pest Services prepare job paperwork for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer instructions, scheduling details and required documents. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of job paperwork help your team?",
+        "subject": "job paperwork at Quality Pest Services",
+        "message": "For Quality Pest Services, I'd put AI to work on job paperwork: check that customer instructions and required documents are present before a job goes to scheduling.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Quality Pest Services?",
         "contact_rank": 1,
         "contact_id": "batch2-qualitypestservices.net"
       }
@@ -2047,8 +2047,8 @@
       "sourceUrl": "https://www.bbb.org/us/ca/anaheim/profile/pest-control/quality-pest-services-inc-1126-172017229",
       "email": "lee.allen@qualitypestservices.net"
     },
-    "subject": "one useful AI project at Quality Pest Services",
-    "message": "I'd like to help Quality Pest Services prepare job paperwork for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer instructions, scheduling details and required documents. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of job paperwork help your team?",
+    "subject": "job paperwork at Quality Pest Services",
+    "message": "For Quality Pest Services, I'd put AI to work on job paperwork: check that customer instructions and required documents are present before a job goes to scheduling.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Quality Pest Services?",
     "writerKit": {
       "accountId": "batch2-qualitypestservices.net",
       "frame": "gap_selling",
@@ -2064,11 +2064,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Quality Pest Services",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "job paperwork at Quality Pest Services",
+        "less prep for job paperwork",
+        "building around job paperwork"
       ],
-      "touch1Cta": "Would taking the preparation work out of job paperwork help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Quality Pest Services?"
     },
     "assignedOwner": "josh"
   },
@@ -2099,8 +2099,8 @@
         "emailSourceUrl": "https://www.blackdiamondpestcontrol.com/about",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Black Diamond Pest Control",
-        "message": "I'd like to help Black Diamond Pest Control prepare branch service handoffs for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer promises, visit notes and the next responsible team. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of branch service handoffs help your team?",
+        "subject": "service handoffs at Black Diamond Pest Control",
+        "message": "For Black Diamond Pest Control, I'd put AI to work on service handoffs: carry the customer's instructions and latest visit notes into the next team's work brief.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Black Diamond Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-blackdiamondpestcontrol.com"
       }
@@ -2121,8 +2121,8 @@
       "sourceUrl": "https://www.blackdiamondpestcontrol.com/about",
       "email": "keith.duncan@blackdiamondpestcontrol.com"
     },
-    "subject": "one useful AI project at Black Diamond Pest Control",
-    "message": "I'd like to help Black Diamond Pest Control prepare branch service handoffs for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer promises, visit notes and the next responsible team. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of branch service handoffs help your team?",
+    "subject": "service handoffs at Black Diamond Pest Control",
+    "message": "For Black Diamond Pest Control, I'd put AI to work on service handoffs: carry the customer's instructions and latest visit notes into the next team's work brief.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Black Diamond Pest Control?",
     "writerKit": {
       "accountId": "batch2-blackdiamondpestcontrol.com",
       "frame": "gap_selling",
@@ -2138,11 +2138,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Black Diamond Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "service handoffs at Black Diamond Pest Control",
+        "less prep for service handoffs",
+        "building around service handoffs"
       ],
-      "touch1Cta": "Would taking the preparation work out of branch service handoffs help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Black Diamond Pest Control?"
     },
     "assignedOwner": "josh"
   },
@@ -2173,8 +2173,8 @@
         "emailSourceUrl": "https://thejoyofbusinessstrategy.com/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Breda Pest Management",
-        "message": "I'd like to help Breda Pest Management help the office prepare the next step after a wildlife inspection. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the inspection photos, access needs and recommended exclusion work. Your team would approve the output; we'd measure time spent turning the inspection into a reviewed work plan.\n\nWould a cleaner inspection-to-work-plan handoff be useful?",
+        "subject": "wildlife inspection handoffs at Breda Pest Management",
+        "message": "For Breda Pest Management, I'd put AI to work on wildlife inspection handoffs: assemble inspection photos, access needs and recommended work for the person preparing the job.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Breda Pest Management?",
         "contact_rank": 1,
         "contact_id": "batch2-bredapest.com"
       }
@@ -2195,8 +2195,8 @@
       "sourceUrl": "https://thejoyofbusinessstrategy.com/",
       "email": "matt.breda@bredapest.com"
     },
-    "subject": "one useful AI project at Breda Pest Management",
-    "message": "I'd like to help Breda Pest Management help the office prepare the next step after a wildlife inspection. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the inspection photos, access needs and recommended exclusion work. Your team would approve the output; we'd measure time spent turning the inspection into a reviewed work plan.\n\nWould a cleaner inspection-to-work-plan handoff be useful?",
+    "subject": "wildlife inspection handoffs at Breda Pest Management",
+    "message": "For Breda Pest Management, I'd put AI to work on wildlife inspection handoffs: assemble inspection photos, access needs and recommended work for the person preparing the job.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Breda Pest Management?",
     "writerKit": {
       "accountId": "batch2-bredapest.com",
       "frame": "gap_selling",
@@ -2212,11 +2212,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Breda Pest Management",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "wildlife inspection handoffs at Breda Pest Management",
+        "less prep for wildlife inspection handoffs",
+        "building around wildlife inspection handoffs"
       ],
-      "touch1Cta": "Would a cleaner inspection-to-work-plan handoff be useful?"
+      "touch1Cta": "Would this be worth trying with one team at Breda Pest Management?"
     },
     "assignedOwner": "suuchi"
   },
@@ -2247,8 +2247,8 @@
         "emailSourceUrl": "https://www.pacificcoasttermite.com/about/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Pacific Coast Termite",
-        "message": "I'd like to help Pacific Coast Termite prepare repair work after inspections for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection photos, repair scope and crew availability. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of repair work after inspections help your team?",
+        "subject": "inspection-to-repair work at Pacific Coast Termite",
+        "message": "For Pacific Coast Termite, I'd put AI to work on inspection-to-repair work: turn the approved repair scope and inspection photos into a brief the scheduling team can use.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Pacific Coast Termite?",
         "contact_rank": 1,
         "contact_id": "batch2-pacificcoasttermite.com"
       }
@@ -2269,8 +2269,8 @@
       "sourceUrl": "https://www.pacificcoasttermite.com/about/",
       "email": "dennis.wilson@pacificcoasttermite.com"
     },
-    "subject": "one useful AI project at Pacific Coast Termite",
-    "message": "I'd like to help Pacific Coast Termite prepare repair work after inspections for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection photos, repair scope and crew availability. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of repair work after inspections help your team?",
+    "subject": "inspection-to-repair work at Pacific Coast Termite",
+    "message": "For Pacific Coast Termite, I'd put AI to work on inspection-to-repair work: turn the approved repair scope and inspection photos into a brief the scheduling team can use.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Pacific Coast Termite?",
     "writerKit": {
       "accountId": "batch2-pacificcoasttermite.com",
       "frame": "gap_selling",
@@ -2286,11 +2286,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Pacific Coast Termite",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "inspection-to-repair work at Pacific Coast Termite",
+        "less prep for inspection-to-repair work",
+        "building around inspection-to-repair work"
       ],
-      "touch1Cta": "Would taking the preparation work out of repair work after inspections help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Pacific Coast Termite?"
     },
     "assignedOwner": "suuchi"
   },
@@ -2321,8 +2321,8 @@
         "emailSourceUrl": "https://www.bbb.org/us/tx/round-rock/profile/pest-control/enviroguard-pest-control-0825-1000137619",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at EnviroGuard Pest Control",
-        "message": "I'd like to help EnviroGuard Pest Control prepare repeat-visit reviews for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer concerns, earlier visit notes and promised follow-ups. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of repeat-visit reviews help your team?",
+        "subject": "repeat-visit reviews at EnviroGuard Pest Control",
+        "message": "For EnviroGuard Pest Control, I'd put AI to work on repeat-visit reviews: put earlier visit notes beside the new customer concern so the reviewer can see what still needs attention.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at EnviroGuard Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-envirogpc.com"
       }
@@ -2343,8 +2343,8 @@
       "sourceUrl": "https://www.bbb.org/us/tx/round-rock/profile/pest-control/enviroguard-pest-control-0825-1000137619",
       "email": "nate.carter@envirogpc.com"
     },
-    "subject": "one useful AI project at EnviroGuard Pest Control",
-    "message": "I'd like to help EnviroGuard Pest Control prepare repeat-visit reviews for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer concerns, earlier visit notes and promised follow-ups. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of repeat-visit reviews help your team?",
+    "subject": "repeat-visit reviews at EnviroGuard Pest Control",
+    "message": "For EnviroGuard Pest Control, I'd put AI to work on repeat-visit reviews: put earlier visit notes beside the new customer concern so the reviewer can see what still needs attention.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at EnviroGuard Pest Control?",
     "writerKit": {
       "accountId": "batch2-envirogpc.com",
       "frame": "gap_selling",
@@ -2360,11 +2360,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at EnviroGuard Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "repeat-visit reviews at EnviroGuard Pest Control",
+        "less prep for repeat-visit reviews",
+        "building around repeat-visit reviews"
       ],
-      "touch1Cta": "Would taking the preparation work out of repeat-visit reviews help your team?"
+      "touch1Cta": "Would this be worth trying with one team at EnviroGuard Pest Control?"
     },
     "assignedOwner": "josh"
   },
@@ -2395,8 +2395,8 @@
         "emailSourceUrl": "https://proforcepest.com/mark-shorr/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Proforce Pest Control",
-        "message": "I'd like to help Proforce Pest Control help a branch team resolve a customer issue with the relevant facts in front of them. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the service history, customer concern and available next actions. Your team would approve the output; we'd measure time to reach a resolution and avoidable escalations.\n\nWould this support the first-visit resolution approach you describe?",
+        "subject": "customer issue resolution at Proforce Pest Control",
+        "message": "For Proforce Pest Control, I'd put AI to work on customer issue resolution: bring service history and open commitments into one view for the person resolving the issue.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Proforce Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-proforcepest.com"
       }
@@ -2417,8 +2417,8 @@
       "sourceUrl": "https://proforcepest.com/mark-shorr/",
       "email": "mark.shorr@proforcepest.com"
     },
-    "subject": "one useful AI project at Proforce Pest Control",
-    "message": "I'd like to help Proforce Pest Control help a branch team resolve a customer issue with the relevant facts in front of them. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the service history, customer concern and available next actions. Your team would approve the output; we'd measure time to reach a resolution and avoidable escalations.\n\nWould this support the first-visit resolution approach you describe?",
+    "subject": "customer issue resolution at Proforce Pest Control",
+    "message": "For Proforce Pest Control, I'd put AI to work on customer issue resolution: bring service history and open commitments into one view for the person resolving the issue.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Proforce Pest Control?",
     "writerKit": {
       "accountId": "batch2-proforcepest.com",
       "frame": "gap_selling",
@@ -2434,11 +2434,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Proforce Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "customer issue resolution at Proforce Pest Control",
+        "less prep for customer issue resolution",
+        "building around customer issue resolution"
       ],
-      "touch1Cta": "Would this support the first-visit resolution approach you describe?"
+      "touch1Cta": "Would this be worth trying with one team at Proforce Pest Control?"
     },
     "assignedOwner": "josh"
   },
@@ -2469,8 +2469,8 @@
         "emailSourceUrl": "https://www.npmapestworld.org/your-business/pestworld-magazine/24-2-march-april-2024/bridging-the-gap-between-departments/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Adams Pest Control",
-        "message": "I'd like to help Adams Pest Control prepare office-to-field handoffs for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer instructions, technician notes and unresolved questions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of office-to-field handoffs help your team?",
+        "subject": "office-to-field handoffs at Adams Pest Control",
+        "message": "For Adams Pest Control, I'd put AI to work on office-to-field handoffs: put the customer's instructions and unresolved questions into the technician's next-job brief.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Adams Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-adamspestcontrol.com"
       }
@@ -2491,8 +2491,8 @@
       "sourceUrl": "https://www.npmapestworld.org/your-business/pestworld-magazine/24-2-march-april-2024/bridging-the-gap-between-departments/",
       "email": "todd.leyse@adamspestcontrol.com"
     },
-    "subject": "one useful AI project at Adams Pest Control",
-    "message": "I'd like to help Adams Pest Control prepare office-to-field handoffs for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer instructions, technician notes and unresolved questions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of office-to-field handoffs help your team?",
+    "subject": "office-to-field handoffs at Adams Pest Control",
+    "message": "For Adams Pest Control, I'd put AI to work on office-to-field handoffs: put the customer's instructions and unresolved questions into the technician's next-job brief.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Adams Pest Control?",
     "writerKit": {
       "accountId": "batch2-adamspestcontrol.com",
       "frame": "gap_selling",
@@ -2508,11 +2508,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Adams Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "office-to-field handoffs at Adams Pest Control",
+        "less prep for office-to-field handoffs",
+        "building around office-to-field handoffs"
       ],
-      "touch1Cta": "Would taking the preparation work out of office-to-field handoffs help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Adams Pest Control?"
     },
     "assignedOwner": "suuchi"
   },
@@ -2543,8 +2543,8 @@
         "emailSourceUrl": "https://libertypest.nyc/services/client-services/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Liberty Pest Control",
-        "message": "I'd like to help Liberty Pest Control prepare commercial service reporting for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together site records, completed visits and outstanding recommendations. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of commercial service reporting help your team?",
+        "subject": "commercial service reports at Liberty Pest Control",
+        "message": "For Liberty Pest Control, I'd put AI to work on commercial service reports: draft a customer report from completed visits and open recommendations, ready for your team to check.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Liberty Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-libertypest.nyc"
       }
@@ -2565,8 +2565,8 @@
       "sourceUrl": "https://libertypest.nyc/services/client-services/",
       "email": "richard.cappa@libertypest.nyc"
     },
-    "subject": "one useful AI project at Liberty Pest Control",
-    "message": "I'd like to help Liberty Pest Control prepare commercial service reporting for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together site records, completed visits and outstanding recommendations. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of commercial service reporting help your team?",
+    "subject": "commercial service reports at Liberty Pest Control",
+    "message": "For Liberty Pest Control, I'd put AI to work on commercial service reports: draft a customer report from completed visits and open recommendations, ready for your team to check.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Liberty Pest Control?",
     "writerKit": {
       "accountId": "batch2-libertypest.nyc",
       "frame": "gap_selling",
@@ -2582,11 +2582,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Liberty Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "commercial service reports at Liberty Pest Control",
+        "less prep for commercial service reports",
+        "building around commercial service reports"
       ],
-      "touch1Cta": "Would taking the preparation work out of commercial service reporting help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Liberty Pest Control?"
     },
     "assignedOwner": "suuchi"
   },
@@ -2617,8 +2617,8 @@
         "emailSourceUrl": "https://www.bbb.org/us/ny/albany/profile/pest-control/meerkat-pest-control-0041-235972013",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Meerkat Pest Control",
-        "message": "I'd like to help Meerkat Pest Control prepare wildlife exclusion work plans for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection findings, access requirements and work estimates. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of wildlife exclusion work plans help your team?",
+        "subject": "exclusion work plans at Meerkat Pest Control",
+        "message": "For Meerkat Pest Control, I'd put AI to work on exclusion work plans: assemble inspection findings, access requirements and estimates into a draft work plan for review.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Meerkat Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-meerkatpest.com"
       }
@@ -2639,8 +2639,8 @@
       "sourceUrl": "https://www.bbb.org/us/ny/albany/profile/pest-control/meerkat-pest-control-0041-235972013",
       "email": "joe.jerome@meerkatpest.com"
     },
-    "subject": "one useful AI project at Meerkat Pest Control",
-    "message": "I'd like to help Meerkat Pest Control prepare wildlife exclusion work plans for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection findings, access requirements and work estimates. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of wildlife exclusion work plans help your team?",
+    "subject": "exclusion work plans at Meerkat Pest Control",
+    "message": "For Meerkat Pest Control, I'd put AI to work on exclusion work plans: assemble inspection findings, access requirements and estimates into a draft work plan for review.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Meerkat Pest Control?",
     "writerKit": {
       "accountId": "batch2-meerkatpest.com",
       "frame": "gap_selling",
@@ -2656,11 +2656,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Meerkat Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "exclusion work plans at Meerkat Pest Control",
+        "less prep for exclusion work plans",
+        "building around exclusion work plans"
       ],
-      "touch1Cta": "Would taking the preparation work out of wildlife exclusion work plans help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Meerkat Pest Control?"
     },
     "assignedOwner": "josh"
   },
@@ -2691,8 +2691,8 @@
         "emailSourceUrl": "https://www.bbb.org/us/ca/elk-grove/profile/pest-control/fast-action-pest-control-1156-37004371",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Fast Action Pest Control",
-        "message": "I'd like to help Fast Action Pest Control prepare customer follow-through across branches for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together service notes, callback requests and assigned next steps. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of customer follow-through across branches help your team?",
+        "subject": "branch follow-through at Fast Action Pest Control",
+        "message": "For Fast Action Pest Control, I'd put AI to work on branch follow-through: connect a callback request to the earlier service notes and the branch responsible for the next step.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Fast Action Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-fastactionpestcontrol.com"
       }
@@ -2713,8 +2713,8 @@
       "sourceUrl": "https://www.bbb.org/us/ca/elk-grove/profile/pest-control/fast-action-pest-control-1156-37004371",
       "email": "gary.evans@fastactionpestcontrol.com"
     },
-    "subject": "one useful AI project at Fast Action Pest Control",
-    "message": "I'd like to help Fast Action Pest Control prepare customer follow-through across branches for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together service notes, callback requests and assigned next steps. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of customer follow-through across branches help your team?",
+    "subject": "branch follow-through at Fast Action Pest Control",
+    "message": "For Fast Action Pest Control, I'd put AI to work on branch follow-through: connect a callback request to the earlier service notes and the branch responsible for the next step.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Fast Action Pest Control?",
     "writerKit": {
       "accountId": "batch2-fastactionpestcontrol.com",
       "frame": "gap_selling",
@@ -2730,11 +2730,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Fast Action Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "branch follow-through at Fast Action Pest Control",
+        "less prep for branch follow-through",
+        "building around branch follow-through"
       ],
-      "touch1Cta": "Would taking the preparation work out of customer follow-through across branches help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Fast Action Pest Control?"
     },
     "assignedOwner": "josh"
   },
@@ -2765,8 +2765,8 @@
         "emailSourceUrl": "https://rockcitydigital.com/case-studies/west-termite/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at West Termite & Pest",
-        "message": "I'd like to help West Termite & Pest prepare inspection-to-scheduling handoffs for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection notes, customer availability and the approved work. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of inspection-to-scheduling handoffs help your team?",
+        "subject": "scheduling after inspections at West Termite & Pest",
+        "message": "For West Termite & Pest, I'd put AI to work on scheduling after inspections: bring the approved work and customer availability together before the scheduler arranges a visit.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at West Termite & Pest?",
         "contact_rank": 1,
         "contact_id": "batch2-westtermite.com"
       }
@@ -2787,8 +2787,8 @@
       "sourceUrl": "https://rockcitydigital.com/case-studies/west-termite/",
       "email": "shane.west@westtermite.com"
     },
-    "subject": "one useful AI project at West Termite & Pest",
-    "message": "I'd like to help West Termite & Pest prepare inspection-to-scheduling handoffs for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection notes, customer availability and the approved work. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of inspection-to-scheduling handoffs help your team?",
+    "subject": "scheduling after inspections at West Termite & Pest",
+    "message": "For West Termite & Pest, I'd put AI to work on scheduling after inspections: bring the approved work and customer availability together before the scheduler arranges a visit.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at West Termite & Pest?",
     "writerKit": {
       "accountId": "batch2-westtermite.com",
       "frame": "gap_selling",
@@ -2804,11 +2804,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at West Termite & Pest",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "scheduling after inspections at West Termite & Pest",
+        "less prep for scheduling after inspections",
+        "building around scheduling after inspections"
       ],
-      "touch1Cta": "Would taking the preparation work out of inspection-to-scheduling handoffs help your team?"
+      "touch1Cta": "Would this be worth trying with one team at West Termite & Pest?"
     },
     "assignedOwner": "suuchi"
   },
@@ -2839,8 +2839,8 @@
         "emailSourceUrl": "https://hoffmanexterminating.com/our-team/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Hoffman’s Exterminating",
-        "message": "I'd like to help Hoffman’s Exterminating prepare commercial account follow-ups for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together site findings, service commitments and unresolved actions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of commercial account follow-ups help your team?",
+        "subject": "commercial account follow-ups at Hoffman’s Exterminating",
+        "message": "For Hoffman’s Exterminating, I'd put AI to work on commercial account follow-ups: show each open site recommendation beside the service commitment and next action.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Hoffman’s Exterminating?",
         "contact_rank": 1,
         "contact_id": "batch2-hoffmanexterminating.com"
       }
@@ -2861,8 +2861,8 @@
       "sourceUrl": "https://hoffmanexterminating.com/our-team/",
       "email": "wayne.mauri@hoffmanexterminating.com"
     },
-    "subject": "one useful AI project at Hoffman’s Exterminating",
-    "message": "I'd like to help Hoffman’s Exterminating prepare commercial account follow-ups for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together site findings, service commitments and unresolved actions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of commercial account follow-ups help your team?",
+    "subject": "commercial account follow-ups at Hoffman’s Exterminating",
+    "message": "For Hoffman’s Exterminating, I'd put AI to work on commercial account follow-ups: show each open site recommendation beside the service commitment and next action.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Hoffman’s Exterminating?",
     "writerKit": {
       "accountId": "batch2-hoffmanexterminating.com",
       "frame": "gap_selling",
@@ -2878,11 +2878,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Hoffman’s Exterminating",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "commercial account follow-ups at Hoffman’s Exterminating",
+        "less prep for commercial account follow-ups",
+        "building around commercial account follow-ups"
       ],
-      "touch1Cta": "Would taking the preparation work out of commercial account follow-ups help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Hoffman’s Exterminating?"
     },
     "assignedOwner": "suuchi"
   },
@@ -2913,8 +2913,8 @@
         "emailSourceUrl": "https://www.economyexterminators.com/greg-canning/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Economy Exterminators",
-        "message": "I'd like to help Economy Exterminators prepare service quality reviews for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer feedback, technician notes and repeat visits. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of service quality reviews help your team?",
+        "subject": "service quality reviews at Economy Exterminators",
+        "message": "For Economy Exterminators, I'd put AI to work on service quality reviews: bring customer feedback and repeat visits into a short review brief for the service manager.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Economy Exterminators?",
         "contact_rank": 1,
         "contact_id": "batch2-economyexterminators.com"
       }
@@ -2935,8 +2935,8 @@
       "sourceUrl": "https://www.economyexterminators.com/greg-canning/",
       "email": "greg.canning@economyexterminators.com"
     },
-    "subject": "one useful AI project at Economy Exterminators",
-    "message": "I'd like to help Economy Exterminators prepare service quality reviews for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer feedback, technician notes and repeat visits. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of service quality reviews help your team?",
+    "subject": "service quality reviews at Economy Exterminators",
+    "message": "For Economy Exterminators, I'd put AI to work on service quality reviews: bring customer feedback and repeat visits into a short review brief for the service manager.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Economy Exterminators?",
     "writerKit": {
       "accountId": "batch2-economyexterminators.com",
       "frame": "gap_selling",
@@ -2952,11 +2952,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Economy Exterminators",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "service quality reviews at Economy Exterminators",
+        "less prep for service quality reviews",
+        "building around service quality reviews"
       ],
-      "touch1Cta": "Would taking the preparation work out of service quality reviews help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Economy Exterminators?"
     },
     "assignedOwner": "josh"
   },
@@ -2987,8 +2987,8 @@
         "emailSourceUrl": "https://www.cingohome.com/lanny-allgood",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Cingo",
-        "message": "I'd like to help Cingo prepare home service coordination for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection findings, service requests and the next assigned action. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of home service coordination help your team?",
+        "subject": "home service coordination at Cingo",
+        "message": "For Cingo, I'd put AI to work on home service coordination: connect inspection findings to the requested work and the person arranging the next visit.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Cingo?",
         "contact_rank": 1,
         "contact_id": "batch2-cingohome.com"
       }
@@ -3009,8 +3009,8 @@
       "sourceUrl": "https://www.cingohome.com/lanny-allgood",
       "email": "lanny.allgood@cingohome.com"
     },
-    "subject": "one useful AI project at Cingo",
-    "message": "I'd like to help Cingo prepare home service coordination for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection findings, service requests and the next assigned action. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of home service coordination help your team?",
+    "subject": "home service coordination at Cingo",
+    "message": "For Cingo, I'd put AI to work on home service coordination: connect inspection findings to the requested work and the person arranging the next visit.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Cingo?",
     "writerKit": {
       "accountId": "batch2-cingohome.com",
       "frame": "gap_selling",
@@ -3026,11 +3026,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Cingo",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "home service coordination at Cingo",
+        "less prep for home service coordination",
+        "building around home service coordination"
       ],
-      "touch1Cta": "Would taking the preparation work out of home service coordination help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Cingo?"
     },
     "assignedOwner": "josh"
   },
@@ -3061,8 +3061,8 @@
         "emailSourceUrl": "https://www.pestendinc.com/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Pest-End",
-        "message": "I'd like to help Pest-End prepare branch exception reviews for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together unfinished jobs, customer promises and follow-up owners. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of branch exception reviews help your team?",
+        "subject": "branch exception reviews at Pest-End",
+        "message": "For Pest-End, I'd put AI to work on branch exception reviews: prepare unfinished jobs and customer promises for a branch review, with an owner against each action.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Pest-End?",
         "contact_rank": 1,
         "contact_id": "batch2-pestendinc.com"
       }
@@ -3083,8 +3083,8 @@
       "sourceUrl": "https://www.pestendinc.com/",
       "email": "courtney.carace@pestendinc.com"
     },
-    "subject": "one useful AI project at Pest-End",
-    "message": "I'd like to help Pest-End prepare branch exception reviews for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together unfinished jobs, customer promises and follow-up owners. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of branch exception reviews help your team?",
+    "subject": "branch exception reviews at Pest-End",
+    "message": "For Pest-End, I'd put AI to work on branch exception reviews: prepare unfinished jobs and customer promises for a branch review, with an owner against each action.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Pest-End?",
     "writerKit": {
       "accountId": "batch2-pestendinc.com",
       "frame": "gap_selling",
@@ -3100,11 +3100,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Pest-End",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "branch exception reviews at Pest-End",
+        "less prep for branch exception reviews",
+        "building around branch exception reviews"
       ],
-      "touch1Cta": "Would taking the preparation work out of branch exception reviews help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Pest-End?"
     },
     "assignedOwner": "suuchi"
   },
@@ -3135,8 +3135,8 @@
         "emailSourceUrl": "https://www.allamericanpestcontrol.com/about-us",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at All-American Pest Control",
-        "message": "I'd like to help All-American Pest Control help new technicians find an approved answer without interrupting a colleague. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together your training material, service procedures and source references. Your team would approve the output; we'd measure time to find an answer and how often a supervisor must step in.\n\nWould that be useful alongside your existing technician training?",
+        "subject": "technician training questions at All-American Pest Control",
+        "message": "For All-American Pest Control, I'd put AI to work on technician training questions: help technicians find answers in approved training material, with the source shown and uncertain answers flagged.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at All-American Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-allamericanpestcontrol.com"
       }
@@ -3157,8 +3157,8 @@
       "sourceUrl": "https://www.allamericanpestcontrol.com/about-us",
       "email": "erin.richardson@allamericanpestcontrol.com"
     },
-    "subject": "one useful AI project at All-American Pest Control",
-    "message": "I'd like to help All-American Pest Control help new technicians find an approved answer without interrupting a colleague. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together your training material, service procedures and source references. Your team would approve the output; we'd measure time to find an answer and how often a supervisor must step in.\n\nWould that be useful alongside your existing technician training?",
+    "subject": "technician training questions at All-American Pest Control",
+    "message": "For All-American Pest Control, I'd put AI to work on technician training questions: help technicians find answers in approved training material, with the source shown and uncertain answers flagged.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at All-American Pest Control?",
     "writerKit": {
       "accountId": "batch2-allamericanpestcontrol.com",
       "frame": "gap_selling",
@@ -3174,11 +3174,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at All-American Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "technician training questions at All-American Pest Control",
+        "less prep for technician training questions",
+        "building around technician training questions"
       ],
-      "touch1Cta": "Would that be useful alongside your existing technician training?"
+      "touch1Cta": "Would this be worth trying with one team at All-American Pest Control?"
     },
     "assignedOwner": "suuchi"
   },
@@ -3209,8 +3209,8 @@
         "emailSourceUrl": "https://www.bbb.org/us/ma/shrewsbury/profile/pest-control/big-blue-bug-0261-101261",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Big Blue Bug",
-        "message": "I'd like to help Big Blue Bug prepare return-visit preparation for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together earlier treatment notes, customer concerns and open recommendations. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of return-visit preparation help your team?",
+        "subject": "return-visit preparation at Big Blue Bug",
+        "message": "For Big Blue Bug, I'd put AI to work on return-visit preparation: give the technician the earlier notes, new customer concern and open recommendations before a return visit.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Big Blue Bug?",
         "contact_rank": 1,
         "contact_id": "batch2-bigbluebug.com"
       }
@@ -3231,8 +3231,8 @@
       "sourceUrl": "https://www.bbb.org/us/ma/shrewsbury/profile/pest-control/big-blue-bug-0261-101261",
       "email": "stephan.goldman@bigbluebug.com"
     },
-    "subject": "one useful AI project at Big Blue Bug",
-    "message": "I'd like to help Big Blue Bug prepare return-visit preparation for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together earlier treatment notes, customer concerns and open recommendations. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of return-visit preparation help your team?",
+    "subject": "return-visit preparation at Big Blue Bug",
+    "message": "For Big Blue Bug, I'd put AI to work on return-visit preparation: give the technician the earlier notes, new customer concern and open recommendations before a return visit.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Big Blue Bug?",
     "writerKit": {
       "accountId": "batch2-bigbluebug.com",
       "frame": "gap_selling",
@@ -3248,11 +3248,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Big Blue Bug Solutions",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "return-visit preparation at Big Blue Bug",
+        "less prep for return-visit preparation",
+        "building around return-visit preparation"
       ],
-      "touch1Cta": "Would taking the preparation work out of return-visit preparation help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Big Blue Bug?"
     },
     "assignedOwner": "josh"
   },
@@ -3283,8 +3283,8 @@
         "emailSourceUrl": "https://www.bbb.org/us/fl/west-palm-beach/profile/pest-control/nozzle-nolen-inc-0633-7727",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Nozzle Nolen",
-        "message": "I'd like to help Nozzle Nolen prepare service follow-up preparation for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer requests, service history and the promised next step. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of service follow-up preparation help your team?",
+        "subject": "service follow-up briefs at Nozzle Nolen",
+        "message": "For Nozzle Nolen, I'd put AI to work on service follow-up briefs: assemble the service history and promised next step before the office calls the customer back.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Nozzle Nolen?",
         "contact_rank": 1,
         "contact_id": "batch2-nozzlenolen.com"
       }
@@ -3305,8 +3305,8 @@
       "sourceUrl": "https://www.bbb.org/us/fl/west-palm-beach/profile/pest-control/nozzle-nolen-inc-0633-7727",
       "email": "mickey.nolen@nozzlenolen.com"
     },
-    "subject": "one useful AI project at Nozzle Nolen",
-    "message": "I'd like to help Nozzle Nolen prepare service follow-up preparation for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer requests, service history and the promised next step. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of service follow-up preparation help your team?",
+    "subject": "service follow-up briefs at Nozzle Nolen",
+    "message": "For Nozzle Nolen, I'd put AI to work on service follow-up briefs: assemble the service history and promised next step before the office calls the customer back.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Nozzle Nolen?",
     "writerKit": {
       "accountId": "batch2-nozzlenolen.com",
       "frame": "gap_selling",
@@ -3322,11 +3322,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Nozzle Nolen",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "service follow-up briefs at Nozzle Nolen",
+        "less prep for service follow-up briefs",
+        "building around service follow-up briefs"
       ],
-      "touch1Cta": "Would taking the preparation work out of service follow-up preparation help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Nozzle Nolen?"
     },
     "assignedOwner": "josh"
   },
@@ -3357,8 +3357,8 @@
         "emailSourceUrl": "https://www.thebugman.com/meet-our-trusted-team",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at the bugman",
-        "message": "I'd like to help the bugman prepare inspection-to-work handoffs for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection findings, approved scope and scheduling requirements. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of inspection-to-work handoffs help your team?",
+        "subject": "inspection-to-work handoffs at the bugman",
+        "message": "For the bugman, I'd put AI to work on inspection-to-work handoffs: prepare inspection findings and approved scope for scheduling, with missing details flagged.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at the bugman?",
         "contact_rank": 1,
         "contact_id": "batch2-thebugman.com"
       }
@@ -3379,8 +3379,8 @@
       "sourceUrl": "https://www.thebugman.com/meet-our-trusted-team",
       "email": "aubrey.hees@thebugman.com"
     },
-    "subject": "one useful AI project at the bugman",
-    "message": "I'd like to help the bugman prepare inspection-to-work handoffs for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together inspection findings, approved scope and scheduling requirements. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of inspection-to-work handoffs help your team?",
+    "subject": "inspection-to-work handoffs at the bugman",
+    "message": "For the bugman, I'd put AI to work on inspection-to-work handoffs: prepare inspection findings and approved scope for scheduling, with missing details flagged.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at the bugman?",
     "writerKit": {
       "accountId": "batch2-thebugman.com",
       "frame": "gap_selling",
@@ -3396,11 +3396,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at the bugman",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "inspection-to-work handoffs at the bugman",
+        "less prep for inspection-to-work handoffs",
+        "building around inspection-to-work handoffs"
       ],
-      "touch1Cta": "Would taking the preparation work out of inspection-to-work handoffs help your team?"
+      "touch1Cta": "Would this be worth trying with one team at the bugman?"
     },
     "assignedOwner": "suuchi"
   },
@@ -3431,8 +3431,8 @@
         "emailSourceUrl": "https://stopzbugs.com/blog/cincinnati-firm-acquires-70-year-lexington-fixture/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Scherzinger Pest Control",
-        "message": "I'd like to help Scherzinger Pest Control prepare cross-branch service reviews for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together open customer issues, branch updates and assigned actions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of cross-branch service reviews help your team?",
+        "subject": "cross-branch reviews at Scherzinger Pest Control",
+        "message": "For Scherzinger Pest Control, I'd put AI to work on cross-branch reviews: bring open customer issues and branch updates into one review, with a named owner for each next action.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Scherzinger Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-stopzbugs.com"
       }
@@ -3453,8 +3453,8 @@
       "sourceUrl": "https://stopzbugs.com/blog/cincinnati-firm-acquires-70-year-lexington-fixture/",
       "email": "kurt.scherzinger@stopzbugs.com"
     },
-    "subject": "one useful AI project at Scherzinger Pest Control",
-    "message": "I'd like to help Scherzinger Pest Control prepare cross-branch service reviews for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together open customer issues, branch updates and assigned actions. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of cross-branch service reviews help your team?",
+    "subject": "cross-branch reviews at Scherzinger Pest Control",
+    "message": "For Scherzinger Pest Control, I'd put AI to work on cross-branch reviews: bring open customer issues and branch updates into one review, with a named owner for each next action.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Scherzinger Pest Control?",
     "writerKit": {
       "accountId": "batch2-stopzbugs.com",
       "frame": "gap_selling",
@@ -3470,11 +3470,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Scherzinger Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "cross-branch reviews at Scherzinger Pest Control",
+        "less prep for cross-branch reviews",
+        "building around cross-branch reviews"
       ],
-      "touch1Cta": "Would taking the preparation work out of cross-branch service reviews help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Scherzinger Pest Control?"
     },
     "assignedOwner": "suuchi"
   },
@@ -3505,8 +3505,8 @@
         "emailSourceUrl": "https://www.bbb.org/us/va/henrico/profile/pest-control/accel-pest-termite-control-llc-0603-63412295",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Accel Pest & Termite Control",
-        "message": "I'd like to help Accel Pest & Termite Control prepare service callback preparation for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer concerns, earlier visit notes and outstanding work. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of service callback preparation help your team?",
+        "subject": "callback preparation at Accel Pest & Termite Control",
+        "message": "For Accel Pest & Termite Control, I'd put AI to work on callback preparation: show the earlier visit notes and outstanding work before the team responds to a callback.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Accel Pest & Termite Control?",
         "contact_rank": 1,
         "contact_id": "batch2-accelpest.com"
       }
@@ -3527,8 +3527,8 @@
       "sourceUrl": "https://www.bbb.org/us/va/henrico/profile/pest-control/accel-pest-termite-control-llc-0603-63412295",
       "email": "john.reid@accelpest.com"
     },
-    "subject": "one useful AI project at Accel Pest & Termite Control",
-    "message": "I'd like to help Accel Pest & Termite Control prepare service callback preparation for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer concerns, earlier visit notes and outstanding work. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of service callback preparation help your team?",
+    "subject": "callback preparation at Accel Pest & Termite Control",
+    "message": "For Accel Pest & Termite Control, I'd put AI to work on callback preparation: show the earlier visit notes and outstanding work before the team responds to a callback.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Accel Pest & Termite Control?",
     "writerKit": {
       "accountId": "batch2-accelpest.com",
       "frame": "gap_selling",
@@ -3544,11 +3544,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Accel Pest & Termite Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "callback preparation at Accel Pest & Termite Control",
+        "less prep for callback preparation",
+        "building around callback preparation"
       ],
-      "touch1Cta": "Would taking the preparation work out of service callback preparation help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Accel Pest & Termite Control?"
     },
     "assignedOwner": "josh"
   },
@@ -3579,8 +3579,8 @@
         "emailSourceUrl": "https://www.lajaunies.com/about/",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at LaJaunie’s Pest Control",
-        "message": "I'd like to help LaJaunie’s Pest Control prepare new inquiry follow-through for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer requests, callback commitments and appointment availability. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of new inquiry follow-through help your team?",
+        "subject": "new customer inquiries at LaJaunie’s Pest Control",
+        "message": "For LaJaunie’s Pest Control, I'd put AI to work on new customer inquiries: prepare incoming requests with the promised callback and appointment options for your team to review.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at LaJaunie’s Pest Control?",
         "contact_rank": 1,
         "contact_id": "batch2-lajaunies.com"
       }
@@ -3601,8 +3601,8 @@
       "sourceUrl": "https://www.lajaunies.com/about/",
       "email": "jared.lajaunie@lajaunies.com"
     },
-    "subject": "one useful AI project at LaJaunie’s Pest Control",
-    "message": "I'd like to help LaJaunie’s Pest Control prepare new inquiry follow-through for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together customer requests, callback commitments and appointment availability. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of new inquiry follow-through help your team?",
+    "subject": "new customer inquiries at LaJaunie’s Pest Control",
+    "message": "For LaJaunie’s Pest Control, I'd put AI to work on new customer inquiries: prepare incoming requests with the promised callback and appointment options for your team to review.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at LaJaunie’s Pest Control?",
     "writerKit": {
       "accountId": "batch2-lajaunies.com",
       "frame": "gap_selling",
@@ -3618,11 +3618,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at LaJaunie’s Pest Control",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "new customer inquiries at LaJaunie’s Pest Control",
+        "less prep for new customer inquiries",
+        "building around new customer inquiries"
       ],
-      "touch1Cta": "Would taking the preparation work out of new inquiry follow-through help your team?"
+      "touch1Cta": "Would this be worth trying with one team at LaJaunie’s Pest Control?"
     },
     "assignedOwner": "josh"
   },
@@ -3653,8 +3653,8 @@
         "emailSourceUrl": "https://www.inc.com/profile/ban-services-company",
         "emailNote": "Low-confidence first.last format hypothesis only. Source identifies the company or person, not this address or its naming convention. Verify before use.",
         "emailPublishedDate": null,
-        "subject": "one useful AI project at Banner Pest Services",
-        "message": "I'd like to help Banner Pest Services prepare first-visit preparation for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the customer request, property notes and agreed service scope. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of first-visit preparation help your team?",
+        "subject": "first-visit preparation at Banner Pest Services",
+        "message": "For Banner Pest Services, I'd put AI to work on first-visit preparation: put the customer request, property notes and agreed scope into a brief before the first visit.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Banner Pest Services?",
         "contact_rank": 1,
         "contact_id": "batch2-bannerpc.com"
       }
@@ -3675,8 +3675,8 @@
       "sourceUrl": "https://www.inc.com/profile/ban-services-company",
       "email": "aaron.blatter@bannerpc.com"
     },
-    "subject": "one useful AI project at Banner Pest Services",
-    "message": "I'd like to help Banner Pest Services prepare first-visit preparation for the person making the next decision. We'd start with one team and one recurring task.\n\nI'm {sender} at Nine-67. Our AI engineers work with the people doing the job, build the first version and stay through testing and training.\n\nThe first build would bring together the customer request, property notes and agreed service scope. Your team would approve the output; we'd measure preparation time and unresolved items carried into the next day.\n\nWould taking the preparation work out of first-visit preparation help your team?",
+    "subject": "first-visit preparation at Banner Pest Services",
+    "message": "For Banner Pest Services, I'd put AI to work on first-visit preparation: put the customer request, property notes and agreed scope into a brief before the first visit.\n\nI'm {sender} at Nine-67. Our AI engineers work alongside operations teams to build tools around their day-to-day work.\n\nWe'd build the first version with your team and check whether it cuts preparation time. Your people would review the output and keep control of the decisions.\n\nWould this be worth trying with one team at Banner Pest Services?",
     "writerKit": {
       "accountId": "batch2-bannerpc.com",
       "frame": "gap_selling",
@@ -3692,11 +3692,11 @@
         "No em or en dashes."
       ],
       "subjectIdeas": [
-        "one useful AI project at Banner Pest Services",
-        "less chasing, a clearer next step",
-        "from first build to daily use"
+        "first-visit preparation at Banner Pest Services",
+        "less prep for first-visit preparation",
+        "building around first-visit preparation"
       ],
-      "touch1Cta": "Would taking the preparation work out of first-visit preparation help your team?"
+      "touch1Cta": "Would this be worth trying with one team at Banner Pest Services?"
     },
     "assignedOwner": "suuchi"
   }

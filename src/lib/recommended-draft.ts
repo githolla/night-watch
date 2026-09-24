@@ -3,11 +3,12 @@ import { savedVariants, archivedVariants, renderSavedVariant, renderLinkedInVari
 /** Only untouched drafts adopt a new research default. An override is saved as edited. */
 export function withResearchDefault<T extends { status:string; active_variant_id?:string|null; accounts:{domain?:string|null}; people:{full_name:string}; email_subject:string|null;email_body:string|null;linkedin_message?:string|null;linkedin_subject?:string|null }>(card:T,senderName:string,greeting:string):T {
  const active=savedVariants(card.accounts.domain,card.people.full_name);
- const matches=(v:typeof active[number])=>{const rendered=renderSavedVariant(v,card.people.full_name,senderName,greeting);return rendered.subject===card.email_subject&&rendered.body.trim()===card.email_body?.trim();};
+ const normalized=(body:string)=>body.replace(/I'm (?:\{sender\}|[\p{L}'-]+(?: [\p{L}'-]+)?) at Nine-67/gu,"I'm {sender} at Nine-67").trim();
+ const matches=(v:typeof active[number])=>{const rendered=renderSavedVariant(v,card.people.full_name,senderName,greeting);return rendered.subject===card.email_subject&&normalized(rendered.body)===normalized(card.email_body??'');};
  if(active.some(matches))return card;
- const obsoleteAuthored=archivedVariants(card.accounts.domain,card.people.full_name).some(matches);
+ const obsoleteAuthored=archivedVariants(card.accounts.domain,card.people.full_name).find(matches);
  if(!['new','edited'].includes(card.status)||((card.status==='edited'||card.active_variant_id)&&!obsoleteAuthored))return card;
- const recommendation=researchRecommendation(card.accounts.domain,card.people.full_name)?.recommended;
+ const recommendation=active.find(v=>v.id===obsoleteAuthored?.id) ?? researchRecommendation(card.accounts.domain,card.people.full_name)?.recommended;
  if(!recommendation)return card;
  const email=savedVariants(card.accounts.domain,card.people.full_name).find(v=>v.id===recommendation.id);
  const li=savedVariants(card.accounts.domain,card.people.full_name,'linkedin').find(v=>v.id===recommendation.id);

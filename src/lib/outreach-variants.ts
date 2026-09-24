@@ -1,3 +1,4 @@
+import batchArchive from "../../data/batch-2-offers-archive.json" with { type: "json" };
 import { researchVersions, authoredResearchVersions, researchRecommendation, type ResearchVersion } from "./research-recommendation.ts";
 import archivedEmail from "../../data/outreach-variants-archive.json" with { type: "json" };
 import archivedLinkedIn from "../../data/linkedin-variants-archive.json" with { type: "json" };
@@ -55,5 +56,5 @@ export function withDefaultEmail<T extends { status: string; accounts: { domain?
 /** Historical authored copy is recognizable, but never offered as a new choice. */
 export function archivedVariants(domain?: string | null, contactName?: string | null, channel: "email" | "linkedin" = "email"): SavedVariant[] {
   if (!domain || !contactName) return [];
-  return [...((channel === "linkedin" ? archivedLinkedIn : archivedEmail).find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants ?? [])].reverse().concat(authoredResearchVersions(domain, contactName, channel));
+  return [...(batchArchive.find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants.map(v => ({ id: v.id, label: v.label, subject: v.subject, message: channel === "linkedin" ? v.linkedinMessage : v.message })) ?? []), ...((channel === "linkedin" ? archivedLinkedIn : archivedEmail).find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants ?? [])].reverse().concat(authoredResearchVersions(domain, contactName, channel));
 }
