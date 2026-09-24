@@ -71,7 +71,9 @@ test('either teammate can select either list without changing list ownership', (
       assert.equal(selected.drafts.length, 25);
       for (const company of selected.drafts) assert.equal(batchOwner(company.domain), selected.owner);
     }
-    assert.deepEqual(reachoutList('original', viewer).drafts, originalFocus);
+    assert.equal(reachoutList('original', viewer).owner, viewer);
+    assert.equal(reachoutList('original', viewer).drafts.length, 25);
+    assert.ok(reachoutList('original', viewer).drafts.every(row => !originalFocus.some(old => old.domain === row.domain)));
     assert.equal(reachoutList(undefined, viewer).owner, viewer);
     assert.equal(reachoutList('invalid', viewer).owner, viewer);
   }

@@ -2289,3 +2289,10 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
  .deskwork .deskwork-co > .focus-link { grid-column:2; justify-self:start; margin-top:-6px; }
 }
 .deskwork .email-version-tabs button:disabled { cursor:not-allowed; opacity:.65; }
+
+/* Both sender lists remain ordinary links, usable before hydration as well. */
+.reachout-list-switcher{display:flex;flex-wrap:wrap;gap:8px;padding:12px clamp(16px,3vw,30px);position:relative;z-index:1;flex-shrink:0;background:var(--paper-bright);border-bottom:1px solid var(--line)}
+.reachout-list-switcher a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border:1px solid var(--line);border-radius:8px;text-decoration:none;background:var(--soft);color:var(--ink);cursor:pointer}
+.reachout-list-switcher a[aria-current="page"]{background:var(--ink);color:var(--paper-bright);border-color:var(--ink)}
+.reachout-list-switcher a:hover{box-shadow:inset 0 0 0 1px var(--accent)}
+.reachout-list-switcher a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}

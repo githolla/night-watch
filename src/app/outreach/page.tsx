@@ -5,7 +5,6 @@ import { outreachFooterHtml, senderFirstName } from "@/lib/outreach-ending";
 import { recipientResearch } from "@/lib/recipient-research";
 import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
 import { createHash } from "node:crypto";
-import Link from "next/link";
 import { reachoutList } from "@/lib/focus-data";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
 import { Desk, type DeskContext } from "@/components/Desk";
@@ -280,12 +279,13 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   return (
     <div className="shell">
       <Header />
-      <nav aria-label="Reach-out batch" style={{ display: "flex", flexWrap: "wrap", gap: 12, padding: "12px 0" }}>
-        {[{ id: "josh", label: "Josh’s 25" }, { id: "suuchi", label: "Suuchi’s 25" }, { id: "original", label: "Original 25" }].map(list => (
-          <Link key={list.id} href={`/outreach?list=${list.id}`} aria-current={selectedList.id === list.id ? "page" : undefined}
-            style={{ padding: "8px 12px", borderRadius: 8, background: selectedList.id === list.id ? "#211f19" : "#f5f2ec", color: selectedList.id === list.id ? "#fff" : "inherit" }}>
+      <nav aria-label="Reach-out lists" className="reachout-list-switcher">
+        {[{ id: "josh", label: "Josh’s 25" }, { id: "suuchi", label: "Suuchi’s 25" }].map(list => (
+          // Full-document navigation deliberately avoids stale client-router state and
+          // does not prefetch the server-side import for the other list.
+          <a key={list.id} href={`/outreach?list=${list.id}`} aria-current={selectedList.id === list.id ? "page" : undefined}>
             {list.label}
-          </Link>
+          </a>
         ))}
       </nav>
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
