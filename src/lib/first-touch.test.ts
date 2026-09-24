@@ -20,3 +20,8 @@ test('large groups require workflow owners without claiming unknown company scal
  assert.match(titleGuidance('CEO'),/unconfirmed/);
  assert.match(titleGuidance('CEO',20),/smaller group/);
 });
+test('uploaded signature documents do not leak titles, encoded icons or duplicate sender names',()=>{
+ const html='<html><head><title>Nine-67 Gmail Signature - Josh Lee</title><style>p{color:red}</style></head><body><p>Josh Lee</p><p>FDE, COO</p><p>&amp;#9993;</p><p>&#9678;</p><p>&#8982;</p><p>Business &amp; Operations</p><p>+1 555 123 4567</p></body></html>';
+ assert.equal(firstTouchSignature(html,'Josh'),'FDE, COO\nBusiness & Operations\n+1 555 123 4567');
+ assert.doesNotMatch(firstTouchSignature(html,'Josh'),/Signature|&#|Josh|color:red/);
+});

@@ -28,7 +28,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { data: card, error: cardError } = await db.from('cards').select('person_id,account_id,people(full_name),accounts(domain)').eq('id', id).single();
     if (cardError || !card) throw new Error('This draft is no longer available.');
     const savedProfile = await senderProfile(db, user.owner);
-    const profile = {...savedProfile,signature:firstTouchSignature(savedProfile.signature)};
+    const profile = {...savedProfile,signature:firstTouchSignature(savedProfile.signature, savedProfile.fromName)};
     let person = card.people as unknown as { full_name: string } | null;
     let personId = card.person_id;
     if (payload.personId && payload.personId !== card.person_id) {

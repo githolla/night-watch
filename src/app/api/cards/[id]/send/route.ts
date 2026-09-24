@@ -69,7 +69,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // Manual desk send: a human chose to send and is warned in the UI when the address isn't verified, so
     // the verified requirement is relaxed here (the automated cadence still enforces it).
     const savedProfile = await senderProfile(db, owner);
-    const profile = {...savedProfile, signature:firstTouchSignature(savedProfile.signature)};
+    const profile = {...savedProfile, signature:firstTouchSignature(savedProfile.signature, savedProfile.fromName)};
     const personalized = authoredSenderDraft({ body, domain: card.accounts?.domain, contactName: recipient.full_name, senderName: profile.fromName, greeting: profile.greeting });
     if (personalized.senderConflict) throw new Error(personalized.senderConflict);
     body = personalized.body;

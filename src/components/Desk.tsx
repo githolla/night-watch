@@ -1189,7 +1189,7 @@ export function Desk({
                     {channelTab === "email" && <h3>{tonePreview.subject}</h3>}
                     <div className="email-version-body">{outreachBody(tonePreview.body)}</div>
                     {channelTab === "email" && <p className="email-version-signature">{senderName.trim().split(/\s+/)[0]}</p>}
-                    {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" style={{whiteSpace:"pre-line"}}>{firstTouchSignature(senderFooterHtml)}</div>)}
+                    {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" style={{whiteSpace:"pre-line"}}>{firstTouchSignature(senderFooterHtml, senderName)}</div>)}
                   </article>
                 ) : channelTab === "email" ? (
                   editing.email && !sentAlready ? (() => {
@@ -1218,7 +1218,7 @@ export function Desk({
                         </div>
                         <label className="compose-field"><span>Email · your saved greeting and message</span><textarea className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
                         <p className="compose-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</p>
-                    {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" style={{whiteSpace:"pre-line"}}>{firstTouchSignature(senderFooterHtml)}</div>)}
+                    {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" style={{whiteSpace:"pre-line"}}>{firstTouchSignature(senderFooterHtml, senderName)}</div>)}
                       </div>
                     );
                   })() : (
@@ -1231,7 +1231,7 @@ export function Desk({
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("email", emailStyle(brief ? outreachBody(adapt(emailDraft)) : adapt(emailDraft)) || "No email draft yet. Choose a saved version or write your own.")}</div>
                       <div className="deskwork-doc-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</div>
-                    {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" style={{whiteSpace:"pre-line"}}>{firstTouchSignature(senderFooterHtml)}</div>)}
+                    {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" style={{whiteSpace:"pre-line"}}>{firstTouchSignature(senderFooterHtml, senderName)}</div>)}
                     </div>
                   )
                 ) : (
