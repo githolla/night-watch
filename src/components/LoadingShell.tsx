@@ -8,7 +8,7 @@ import { Header } from "./Header";
 export function LoadingShell({ rows = 6 }: { rows?: number }) {
   return (
     <div className="shell">
-      <Header />
+      <Header showTour={false} />
       <main className="loading-main" aria-busy="true" aria-label="Loading">
         <div className="skeleton-head" />
         {Array.from({ length: rows }).map((_, index) => <div key={index} className="skeleton-row" />)}

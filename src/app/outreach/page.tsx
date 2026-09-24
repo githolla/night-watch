@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { publishedEmailPatch } from "@/lib/focused-contact";
 import { wasAutomaticallyArchived } from "@/lib/curated-card-state";
 import { senderProfile } from "@/lib/sender";
@@ -32,6 +33,38 @@ type Params = { list?: string; card?: string; status?: string; priority?: string
 
 /** Card statuses a salesperson still has to decide on. */
 const OPEN_STATUSES = ["new", "approved", "edited"];
+
+// Overview metrics are shared workspace summaries, not editable drafts. Coalesce rapid
+// navigations for 30 seconds; the selected cards and mailbox are always read fresh.
+let overviewCache: { day:string; expires:number; value:ReturnType<typeof fetchOverview> } | undefined;
+function fetchOverview(today:string,yesterday:string){const db=admin();return Promise.all([
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example"),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example").not("last_scouted_at", "is", null),
+    deskCoverage(db),
+    db.from("cards").select("id,signals!inner(raw)", { count: "exact", head: true }).not("signals.raw->>operating_need", "is", null).in("status", OPEN_STATUSES),
+    db.from("cards").select("id,signals!inner(raw)", { count: "exact", head: true }).not("signals.raw->>operating_need", "is", null).in("status", OPEN_STATUSES).eq("surfaced_on", today),
+    db.from("cards").select("*", { count: "exact", head: true }).eq("status", "sent"),
+    db.from("signals").select("type,summary,source_url,observed_at,raw,accounts(name,domain),people(full_name,title)").order("found_at", { ascending: false }).limit(8),
+    latestRunSummary(db),
+    latestRunSummary(db, SWEEP_SOURCES),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("careers_checked_at", "is", null),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("careers_status", "none"),
+    db.from("job_postings").select("*", { count: "exact", head: true }).eq("active", true).not("family", "is", null).gte("first_seen_at", yesterday),
+    db.from("job_postings").select("*", { count: "exact", head: true }).eq("active", false).not("family", "is", null).gte("updated_at", yesterday),
+    db.from("public_posts").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
+    db.from("people").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").gte("last_change_at", yesterday),
+    db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false).order("started_at", { ascending: false }).limit(1).maybeSingle(),
+    db.from("runs").select("finished_at").eq("status", "complete").not("finished_at", "is", null).order("finished_at", { ascending: false }).limit(1).maybeSingle(),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true).not("domain", "like", "%.example").is("careers_checked_at", null).is("last_scouted_at", null),
+    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true).not("domain", "like", "%.example"),
+    db.from("public_posts").select("*", { count: "exact", head: true }),
+]);}
+function loadOverview(today:string,yesterday:string){
+ if(overviewCache&&overviewCache.day===today&&overviewCache.expires>Date.now())return overviewCache.value;
+ const value=fetchOverview(today,yesterday).catch(error=>{overviewCache=undefined;throw error;});
+ overviewCache={day:today,expires:Date.now()+30_000,value};return value;
+}
 
 export default async function OutreachPage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
@@ -108,6 +141,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   const [
     { data: cardRows, error },
     { data: gmailRows },
+    [
     { count: activeAccounts },
     { count: researchedAccounts },
     coverage,
@@ -129,30 +163,11 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     { count: unscannedOutreach },
     { count: listedOutreach },
     { count: totalPosts },
+    ],
   ] = await Promise.all([
     query,
     db.from("gmail_connections").select("owner,email"),
-    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example"),
-    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example").not("last_scouted_at", "is", null),
-    deskCoverage(db),
-    db.from("cards").select("id,signals!inner(raw)", { count: "exact", head: true }).not("signals.raw->>operating_need", "is", null).in("status", OPEN_STATUSES),
-    db.from("cards").select("id,signals!inner(raw)", { count: "exact", head: true }).not("signals.raw->>operating_need", "is", null).in("status", OPEN_STATUSES).eq("surfaced_on", today),
-    db.from("cards").select("*", { count: "exact", head: true }).eq("status", "sent"),
-    db.from("signals").select("type,summary,source_url,observed_at,raw,accounts(name,domain),people(full_name,title)").order("found_at", { ascending: false }).limit(8),
-    latestRunSummary(db),
-    latestRunSummary(db, SWEEP_SOURCES),
-    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("careers_checked_at", "is", null),
-    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("careers_status", "none"),
-    db.from("job_postings").select("*", { count: "exact", head: true }).eq("active", true).not("family", "is", null).gte("first_seen_at", yesterday),
-    db.from("job_postings").select("*", { count: "exact", head: true }).eq("active", false).not("family", "is", null).gte("updated_at", yesterday),
-    db.from("public_posts").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
-    db.from("people").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
-    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").gte("last_change_at", yesterday),
-    db.from("runs").select("id").eq("status", "open").eq("cancel_requested", false).order("started_at", { ascending: false }).limit(1).maybeSingle(),
-    db.from("runs").select("finished_at").eq("status", "complete").not("finished_at", "is", null).order("finished_at", { ascending: false }).limit(1).maybeSingle(),
-    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true).not("domain", "like", "%.example").is("careers_checked_at", null).is("last_scouted_at", null),
-    db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true).not("domain", "like", "%.example"),
-    db.from("public_posts").select("*", { count: "exact", head: true }),
+    loadOverview(today,yesterday),
   ]);
   if (error) throw error;
   const hiringCompanies = coverage.hiringCompanies;
@@ -281,11 +296,11 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       <Header />
       <nav aria-label="Reach-out lists" className="reachout-list-switcher">
         {[{ id: "josh", label: "Josh’s 25" }, { id: "suuchi", label: "Suuchi’s 25" }].map(list => (
-          // Full-document navigation deliberately avoids stale client-router state and
-          // does not prefetch the server-side import for the other list.
-          <a key={list.id} href={`/outreach?list=${list.id}`} aria-current={selectedList.id === list.id ? "page" : undefined}>
+          // The Desk key includes the list ID, so client navigation remounts its state.
+          // Disable prefetch because preparing a new list can write missing drafts.
+          <Link prefetch={false} key={list.id} href={`/outreach?list=${list.id}`} aria-current={selectedList.id === list.id ? "page" : undefined}>
             {list.label}
-          </a>
+          </Link>
         ))}
       </nav>
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}

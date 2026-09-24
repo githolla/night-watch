@@ -1,5 +1,2 @@
-import { LoadingShell } from "@/components/LoadingShell";
-
-export default function Loading() {
-  return <LoadingShell />;
-}
+import {Header} from '@/components/Header';
+export default function Loading(){return <div className="shell"><Header showTour={false}/><main className="outreach-loading" aria-busy="true" aria-label="Loading reach-out list"><div className="skeleton-head"/><div className="outreach-loading-grid"><aside>{Array.from({length:6},(_,i)=><div className="skeleton-row" key={i}/>)}</aside><section><div className="skeleton-head"/><div className="skeleton-row"/><div className="skeleton-row"/></section><section><div className="skeleton-head"/>{Array.from({length:5},(_,i)=><div className="skeleton-row" key={i}/>)}</section></div></main></div>}

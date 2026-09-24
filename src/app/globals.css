@@ -2384,3 +2384,5 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .walkthrough-progress span { display:block; height:100%; background:#a17b3c; }
 .walkthrough-fallback { display:block; font-size:11px; line-height:1.5; color:#8a7962; }
 @media(max-width:700px){.appbar-tour span{display:none}.walkthrough-card{padding:22px}.walkthrough-card h2{font-size:20px}}
+
+.outreach-loading{padding:30px}.outreach-loading-grid{display:grid;grid-template-columns:240px minmax(240px,1fr) minmax(350px,1.3fr);gap:20px;margin-top:32px}.outreach-loading-grid>aside,.outreach-loading-grid>section{padding:20px;border:1px solid #e8e3da;border-radius:16px}.outreach-loading-grid .skeleton-row{height:48px;margin-bottom:14px}@media(max-width:900px){.outreach-loading-grid{grid-template-columns:1fr}.outreach-loading-grid>aside{display:none}}
