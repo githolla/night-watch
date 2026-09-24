@@ -2258,3 +2258,33 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .gift-page header{display:flex;justify-content:space-between;gap:24px;padding-bottom:22px;border-bottom:2px solid #a77428;font-size:12px;color:#736959}.gift-page header a{font-size:25px;font-weight:700;text-decoration:none;color:#25221c}.gift-page header a span{display:block;font-size:11px;font-weight:400}.gift-kicker{margin-top:26px;color:#94671f;font-size:11px;letter-spacing:.08em;text-transform:uppercase}.gift-page h1{font-size:32px;line-height:1.2;margin:12px 0;text-transform:capitalize;letter-spacing:-.025em}.gift-recipient{color:#6c6254}.gift-page section{margin:24px 0}.gift-page h2{font-size:16px;margin-bottom:8px}.gift-page p{margin:8px 0}.gift-page ol,.gift-page ul{padding-left:22px;list-style:decimal}.gift-page li{margin:8px 0}.gift-page ul{list-style:disc}.gift-page aside{background:#f7f4ed;padding:14px;font-size:12px}.gift-page footer{border-top:1px solid #e5dfd4;margin-top:24px;padding-top:16px;font-size:12px}.gift-page footer small{display:block;margin-top:12px;color:#736959}
 @media(max-width:600px){.gift-page{padding:24px;margin:12px}.gift-page h1{font-size:25px}.gift-page header{flex-wrap:wrap}}
 @media print{.gift-page{max-width:none;margin:0;padding:10mm;border:0;font-size:11px;line-height:1.4}.gift-page h1{font-size:24px}.gift-page section{margin:12px 0}.gift-page li{margin:5px 0}.gift-page footer small{display:none}}
+
+/* Keep the authored email prominent; optional research stays folded away. */
+.pipeline.pipeline-work { max-width:100vw; box-sizing:border-box; }
+.pipeline-work .deskwork { width:100%; max-width:min(2100px,100vw); }
+.deskwork .deskwork-grid { width:100%; }
+.deskwork .deskwork-draft { position:static; max-height:none; }
+.deskwork .deskwork-scroll { min-height:0; max-height:none; overflow:visible; }
+.deskwork-draft > * { min-width:0; }
+.deskwork-draft-to > div { min-width:0; overflow-wrap:anywhere; }
+.deskwork .email-versions { padding:10px 16px; }
+.deskwork .email-versions-heading { margin-bottom:6px; }
+.deskwork .email-version-tabs { justify-content:flex-start; background:transparent; padding:0; }
+.deskwork .email-version-tabs button { flex:0 1 auto; background:var(--soft); padding:7px 13px; }
+.deskwork .email-version-tabs button.is-active { background:white; }
+.draft-details { margin-top:7px; font-size:12px; line-height:1.5; color:var(--muted); }
+.draft-details summary { cursor:pointer; }
+.draft-details p { margin:8px 0; }
+.deskwork .email-version-document { padding:16px 20px 22px; max-width:none; }
+.deskwork .email-version-caption { margin-bottom:10px; }
+.deskwork .email-version-document h3 { margin:8px 0 14px; padding-bottom:12px; }
+.deskwork .deskwork-tabs { flex-wrap:wrap; }
+.deskwork .deskwork-tools { flex-wrap:wrap; }
+@media(min-width:1200px) {
+ .deskwork .deskwork-grid { grid-template-columns:240px minmax(0,.85fr) minmax(0,1.2fr); }
+}
+@media(min-width:1200px) {
+ .deskwork .deskwork-draft { grid-column:auto; margin-top:0; }
+ .deskwork .deskwork-co { grid-template-columns:auto minmax(0,1fr); }
+ .deskwork .deskwork-co > .focus-link { grid-column:2; justify-self:start; margin-top:-6px; }
+}

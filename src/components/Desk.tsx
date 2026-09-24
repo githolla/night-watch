@@ -1135,7 +1135,7 @@ export function Desk({
               {/* RIGHT — draft with Email / LinkedIn tabs */}
               <section className="deskwork-draft">
                 <div className="deskwork-draft-top"><span className="overview-kick">{sentAlready ? "Sent email" : "Outreach draft"}</span><span className="deskwork-draft-topright">{focusCard.invite_link ? <a className="deskwork-booked" href={focusCard.invite_link.startsWith("http") ? focusCard.invite_link : undefined} target="_blank" rel="noreferrer">📅 Meeting booked</a> : null}<a className="deskwork-brief-link" href={`/brief/${focusCard.id}`} target="_blank" rel="noreferrer">Call brief ↗</a></span></div>
-                {!sentAlready && channelTab === "email" && <div className="notice" style={{ margin: "12px 16px" }}>
+                {!sentAlready && channelTab === "email" && !recommendation && <div className="notice" style={{ margin: "12px 16px" }}>
                   {research ? <>
                     <strong>{research.disposition === "hold" ? "Hold: buyer fit needs review." : "Written for this contact."}</strong>{" "}
                     {(matchesResearch || selectedVersion) ? "Review and make it yours before sending." : "Your saved edits are preserved."}
@@ -1166,21 +1166,19 @@ export function Desk({
                 {(channelTab === "linkedin" || !sentAlready) && !altContact && savedVariants(focusCard.accounts.domain, contact.full_name, channelTab).length > 0 && <section className="email-versions" aria-label={`Saved ${channelTab === "email" ? "email" : "LinkedIn"} versions`}>
                   <div className="email-versions-heading"><span>{channelTab === "email" ? "Email" : "LinkedIn"} versions</span><Link href={channelTab === "linkedin" ? "/stats?source=manual#saved-versions" : "/stats#saved-versions"}>Analytics ↗</Link></div>
                   <div className="email-version-tabs" role="group" aria-label={`Choose ${channelTab === "email" ? "an email" : "a LinkedIn"} version`}>
-                    {recommendation?.candidates.map(candidate => {
+                    {recommendation?.candidates.filter(candidate => availableVersions.some(v => v.id === candidate.id)).map(candidate => {
                       const variant = availableVersions.find(v => v.id === candidate.id);
                       const active = previewingVersion ? tonePreview?.versionId === candidate.id : selectedVersion?.id === candidate.id;
                       return <button type="button" key={candidate.id} className={active ? "is-active" : ""} disabled={busy || !variant} title={candidate.reason} aria-pressed={active} onClick={() => { if(variant) { if(selectedVersion?.id === variant.id) setTonePreview(null); else previewTone(variant); } }}>{candidate.label}{recommendation.recommended?.id === candidate.id ? " · Recommended" : ""}</button>;
                     })}
                   </div>
-                  {recommendation?.recommended && <p className="research-recommendation"><strong>Recommended: {recommendation.recommended.label}.</strong> {recommendation.recommended.reason}</p>}
-                  {recommendation && <details className="research-evidence"><summary>Why these choices</summary>{recommendation.candidates.map(c=><p key={c.id}><strong>{c.label}:</strong> {c.reason}</p>)}<small>Scores rank evidence availability, not predicted reply probability. Trigger uses a 45-day window.</small></details>}
-                  {recommendation?.giftId && <a className="gift-preview-link" href={`/gift/${recommendation.giftId}`} target="_blank" rel="noreferrer">View the completed Gift ↗</a>}
-                  {!previewingVersion && <p className="draft-selection-label">{selectedVersion ? `Editing ${selectedVersion.label}` : "Saved edits preserved. Choose an available version to replace them."}</p>}
+                  <details className="draft-details"><summary>{recommendation?.recommended ? `Why ${recommendation.recommended.label}?` : "Draft details"} · research &amp; checks</summary>
+                    {recommendation?.recommended && <p><strong>Recommended: {recommendation.recommended.label}.</strong> {recommendation.recommended.reason}</p>}
+                    {recommendation?.candidates.filter(c=>!c.eligible).map(c=><p key={c.id}><strong>{c.label}:</strong> {c.reason}</p>)}
+                    {recommendation?.giftId && <a className="gift-preview-link" href={`/gift/${recommendation.giftId}`} target="_blank" rel="noreferrer">View the completed Gift ↗</a>}
+                    {channelTab === "email" && !sentAlready && <FirstTouchGuidance key={contact.id} title={contact.title ?? ""} subject={focusCard.email_subject ?? ""} body={focusCard.email_body ?? ""} />}
+                  </details>
                 </section>}
-
-                {channelTab === "email" && !sentAlready && <FirstTouchGuidance key={contact.id} title={contact.title ?? ""} subject={focusCard.email_subject ?? ""} body={focusCard.email_body ?? ""} />}
-
-                {channelTab === "email" && !altContact && !previewingVersion && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={focusCard.email_subject ?? ""} body={focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
 
                 {senderConflict && <p role="alert">{senderConflict}</p>}
                 <div className="deskwork-scroll">
@@ -1293,6 +1291,8 @@ export function Desk({
                   </div>;
                 })()}
                 </div>
+
+                {channelTab === "email" && !altContact && !previewingVersion && !sentAlready && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={focusCard.email_subject ?? ""} body={focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
 
                 {previewingVersion && tonePreview ? <div className="email-version-footer">
                   <small>Your current draft is unchanged.</small>
