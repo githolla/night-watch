@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import focus from '../../data/revenue-focus.json' with { type: 'json' };
-import { savedVariants, withDefaultLinkedIn, withDefaultEmail, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
+import { savedVariants, archivedVariants, withDefaultLinkedIn, withDefaultEmail, renderSavedVariant, renderLinkedInVariant } from './outreach-variants.ts';
 
 test('all 28 contacts have complete, evidence-eligible authored versions', () => {
   let count = 0;
@@ -84,4 +84,17 @@ test('blank new emails populate exact-contact reviewed defaults without replacin
  assert.equal(withDefaultEmail(edited), edited);
  const stranger = { ...blank, people: { full_name: 'Someone Else' } };
  assert.equal(withDefaultEmail(stranger), stranger);
+});
+
+test('retired authored LinkedIn drafts refresh independently of the email while personal and sent text stays intact',()=>{
+ const old=archivedVariants('ansararestaurantgroup.com','Victor Ansara','linkedin').find(v=>v.id==='gift')!;
+ const draft=renderLinkedInVariant(old,'Josh');
+ const card={status:'edited',accounts:{domain:'ansararestaurantgroup.com'},people:{full_name:'Victor Ansara'},email_body:'My email',linkedin_message:draft.body,linkedin_subject:draft.subject};
+ const refreshed=withDefaultLinkedIn(card,'Josh');
+ assert.equal(refreshed.linkedin_subject,savedVariants(card.accounts.domain,card.people.full_name,'linkedin')[0].subject);
+ assert.notEqual(refreshed.linkedin_message,draft.body);
+ assert.equal(refreshed.email_body,'My email');
+ const changedSubject={...card,linkedin_subject:'My own subject'};assert.equal(withDefaultLinkedIn(changedSubject,'Josh'),changedSubject);
+ const personal={...card,linkedin_message:'A personal note?'};assert.equal(withDefaultLinkedIn(personal,'Josh'),personal);
+ for(const status of ['sent','approved']){const protectedCard={...card,status};assert.equal(withDefaultLinkedIn(protectedCard,'Josh'),protectedCard);}
 });

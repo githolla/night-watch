@@ -26,13 +26,19 @@ export function renderLinkedInVariant(variant: SavedVariant, senderName: string)
 }
 
 /** Populate a missing current message from authored copy, preserving existing edits. */
-export function withDefaultLinkedIn<T extends { accounts: { domain?: string | null }; people: { full_name: string }; linkedin_message?: string | null; linkedin_subject?: string | null }>(card: T, senderName: string): T {
-  if (card.linkedin_message?.trim()) return card;
+export function withDefaultLinkedIn<T extends { status?: string; accounts: { domain?: string | null }; people: { full_name: string }; linkedin_message?: string | null; linkedin_subject?: string | null }>(card: T, senderName: string): T {
+  if (card.status && !['new','edited'].includes(card.status)) return card;
+  const current = card.linkedin_message?.trim();
+  if (current) {
+    const isSame = (v: SavedVariant) => { const rendered = renderLinkedInVariant(v, senderName); return rendered.body.trim() === current && (!card.linkedin_subject?.trim() || card.linkedin_subject === rendered.subject); };
+    if (savedVariants(card.accounts.domain, card.people.full_name, 'linkedin').some(isSame)) return card;
+    if (!archivedVariants(card.accounts.domain, card.people.full_name, 'linkedin').some(isSame)) return card;
+  }
   const recommendation = researchRecommendation(card.accounts.domain, card.people.full_name);
   const variant = savedVariants(card.accounts.domain, card.people.full_name, "linkedin").find(v => v.id === recommendation?.recommended?.id);
   if (!variant) return card;
   const draft = renderLinkedInVariant(variant, senderName);
-  return { ...card, linkedin_message: draft.body, linkedin_subject: card.linkedin_subject?.trim() ? card.linkedin_subject : draft.subject };
+  return { ...card, linkedin_message: draft.body, linkedin_subject: draft.subject };
 }
 
 /** Blank untouched email cards can render immediately without waiting for an admin repair. */
