@@ -98,7 +98,7 @@ test('revised emails replace untouched saved versions for both senders while kee
   const { withResearchDefault } = await import('./recommended-draft.ts');
   const { archivedVariants } = await import('./outreach-variants.ts');
   for (const row of batchFocus) for (const sender of ['Josh', 'Suuchi']) {
-    const old = archivedVariants(row.domain, row.buyer.name).slice(0,3);
+    const old = archivedVariants(row.domain, row.buyer.name);
     for (const version of old) {
       const stored = renderSavedVariant(version, row.buyer.name, sender === 'Josh' ? 'Suuchi' : 'Josh');
       const card = {status:'edited', accounts:{domain:row.domain}, people:{full_name:row.buyer.name},email_subject:stored.subject,email_body:stored.body};

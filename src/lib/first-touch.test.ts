@@ -11,27 +11,23 @@ test('edited drafts cannot introduce links, jargon or extra questions',()=>{
  assert.ok(firstTouchErrors('Hi','Read https://example.com. Want it?').length);
  assert.ok(firstTouchErrors('Hi','Read example.com. Want it?').length);
 });
-test('first-touch footer removes external content but preserves name and role',()=>{
- const signature=firstTouchSignature('<p>Josh Lee<br>COO</p><a href="https://nine-67.com">nine-67.com</a><img src="https://example.com/pixel"><p>josh@nine-67.com</p>');
- assert.equal(signature,'Josh Lee\nCOO');
+test('saved signature retains contact details in the plain alternative',()=>{
+ const signature=firstTouchSignature('<p>Josh Lee<br>COO</p><a href="https://nine-67.com">nine-67.com</a><p>josh@nine-67.com</p>');
+ assert.equal(signature,'Josh Lee\nCOO\nnine-67.com\njosh@nine-67.com');
 });
 test('large groups require workflow owners without claiming unknown company scale',()=>{
  assert.match(titleGuidance('CEO',200),/COO or VP/);
  assert.match(titleGuidance('CEO'),/unconfirmed/);
  assert.match(titleGuidance('CEO',20),/smaller group/);
 });
-test('uploaded signature documents do not leak titles, encoded icons or duplicate sender names',()=>{
- const html='<html><head><title>Nine-67 Gmail Signature - Josh Lee</title><style>p{color:red}</style></head><body><p>Josh Lee</p><p>FDE, COO</p><p>&amp;#9993;</p><p>&#9678;</p><p>&#8982;</p><p>Business &amp; Operations</p><p>+1 555 123 4567</p></body></html>';
- assert.equal(firstTouchSignature(html,'Josh'),'FDE, COO\nBusiness & Operations\n+1 555 123 4567');
- assert.doesNotMatch(firstTouchSignature(html,'Josh'),/Signature|&#|Josh|color:red/);
-});
-test('first-touch footer reflows saved identity without blank image columns or orphan icons',async()=>{
+test('uploaded signature preserves images, links and layout but excludes document chrome',async()=>{
  const {firstTouchFooterHtml}=await import('./first-touch.ts');
- const html='<html><head><title>Gmail Signature</title></head><body><table style="color:#123456"><tr><td><b>Josh Lee</b></td></tr><tr><td>FDE, COO</td></tr><tr><td><a href="https://nine-67.com">nine-67.com</a></td></tr><tr><td>&#9993;</td><td>josh@nine-67.com</td></tr><tr><td><img src="https://example.com/image"></td></tr></table></body></html>';
- const result=firstTouchFooterHtml(html);
- assert.match(result,/Josh Lee<\/strong>/);
- assert.match(result,/FDE, COO/);assert.doesNotMatch(result,/<head|<title|<html|<body|<a\b|<img|https:|josh@|&#9993;|Gmail Signature/);
- assert.doesNotMatch(result, /<table|<td|<tr|width=/);
- const wide = firstTouchFooterHtml('<table width=600><tr><td width=220><img src="https://example.com/logo.png"></td><td style="padding-left:24px">Suuchi<br>CEO<br>&#9993;<br>Pennsylvania</td></tr></table>');
- assert.match(wide, /Suuchi/); assert.match(wide, /CEO/); assert.doesNotMatch(wide, /width=|padding-left|<img|&#|✉|<table/);
+ for (const name of ['Josh Lee','Suuchi Ramesh']) {
+  const signature=`<html><head><title>Gmail signature</title></head><body><table width="420"><tr><td><img src="https://example.com/logo.png" width="100" onerror="bad()"></td><td style="padding-left:16px"><b>${name}</b><br>COO<br><a href="mailto:sender@nine-67.com">sender@nine-67.com</a></td></tr></table></body></html>`;
+  const result=firstTouchFooterHtml(signature);
+  assert.match(result,/<table width="420"/);assert.match(result,/<img src="https:\/\/example.com\/logo.png"/);
+  assert.match(result,/padding-left:16px/);assert.match(result,/mailto:sender@nine-67.com/);
+  assert.doesNotMatch(result,/<head|<title|<html|<body|onerror|Gmail signature/);
+  assert.match(firstTouchSignature(signature),new RegExp(name));
+ }
 });

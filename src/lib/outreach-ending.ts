@@ -1,4 +1,4 @@
-import { sanitizeSignatureHtml } from "./clean.ts";
+import { sanitizeSignatureHtml, decodeEntities } from "./clean.ts";
 import { emailFirstName } from "./email-style.ts";
 
 type SignatureSettings = { fromName: string; signature?: string };
@@ -33,14 +33,21 @@ export function withOutreachName(body: string, profile: SignatureSettings): stri
 export function outreachFooterHtml(profile: SignatureSettings): string {
   const signature = profile.signature?.trim() ?? "";
   if (!signature) return "";
-  if (/<[a-z][a-z0-9-]*(\s[^>]*)?\/?>/i.test(signature)) return sanitizeSignatureHtml(signature);
+  if (/<[a-z][a-z0-9-]*(\s[^>]*)?\/?>/i.test(signature)) return sanitizeSignatureHtml(signature).replace(/<head\b[^>]*>[\s\S]*?<\/head>/gi, "").replace(/<!doctype[^>]*>|<\/?(?:html|body)\b[^>]*>/gi, "");
   return signature.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
 }
 
+/** Plain-text alternative of the same saved signature, including contact details. */
+export function signatureText(profile: SignatureSettings): string {
+  return outreachFooterHtml(profile).replace(/<br\s*\/?>|<\/?(?:div|p|tr|table)\b[^>]*>/gi, "\n").replace(/<\/td>/gi," ").replace(/<[^>]*>/g, "")
+    .split("\n").map(line => decodeEntities(decodeEntities(line)).trim()).filter(Boolean).join("\n");
+}
 export function withOutreachSignature(body: string, profile: SignatureSettings): string {
-  const footer = outreachFooterHtml(profile).replace(/<br\s*\/?>|<\/(?:div|p|tr|table)>/gi, "\n").replace(/<[^>]*>/g, "")
-    .replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").trim();
-  return [withOutreachName(body, profile), footer].filter(Boolean).join("\n\n");
+  return [withOutreachName(body, profile), signatureText(profile)].filter(Boolean).join("\n\n");
+}
+/** Both real sends and self-tests call this exact assembler. */
+export function outreachDelivery(body: string, profile: SignatureSettings) {
+  return { text: withOutreachSignature(body, profile), html: outreachEmailHtml(body, profile) };
 }
 
 export function outreachEmailHtml(body: string, profile: SignatureSettings): string {

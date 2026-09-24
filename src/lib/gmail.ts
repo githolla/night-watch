@@ -1,3 +1,4 @@
+import { emailMime } from "./email-mime.ts";
 import { emailStyle } from "./email-style.ts";
 import { decrypt } from "./crypto.ts";import { admin } from "./supabase/admin.ts";import type { Owner } from "./types.ts";
 // Trim every value: credentials pasted into a dashboard often carry a stray newline or space,
@@ -42,14 +43,11 @@ function extractBody(payload:unknown):string{
 export async function messageBody(token:string,id:string){const res=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=full`,{headers:{authorization:`Bearer ${token}`}});if(!res.ok)throw new Error(`Gmail message body failed: ${res.status}`);const data=await res.json() as {payload?:unknown};return extractBody(data.payload)}
 // The subject + full body of a thread's first (outbound) message — for reading a send back in History.
 export async function threadText(token:string,threadId:string){const res=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/threads/${threadId}?format=full`,{headers:{authorization:`Bearer ${token}`}});if(!res.ok)throw new Error(`Gmail thread failed: ${res.status}`);const data=await res.json() as {messages?:Array<{payload?:{headers?:Array<{name:string;value:string}>}}>};const msg=data.messages?.[0];if(!msg)return {subject:"",body:""};const headers=msg.payload?.headers??[];const subject=headers.find((h)=>h.name.toLowerCase()==="subject")?.value??"";return {subject,body:extractBody(msg.payload)}}
-const base64url=(s:string)=>Buffer.from(s).toString("base64url");
-// RFC 2047 encoded-word for header values with non-ASCII (e.g. an em dash in the subject),
-// so Gmail doesn't mojibake them into "Ã¢Â€Â".
-const encodeHeaderWord=(s:string)=>/[^\x00-\x7F]/.test(s)?`=?UTF-8?B?${Buffer.from(s,"utf8").toString("base64")}?=`:s;
-export async function sendEmail(owner:Owner,from:string,to:string,subject:string,body:string,threadId?:string,cc?:string[],html?:string,listUnsubscribe?:string){subject=emailStyle(subject);body=emailStyle(body);if(html)html=emailStyle(html);const token=await accessToken(owner);
-  // Strip CR/LF from every header value — a newline in the subject/address is header injection (Bcc, extra Content-Type…).
-  const hv=(v:string)=>String(v).replace(/[\r\n]+/g," ").trim();
-  const head=[`From: ${hv(from)}`,`To: ${hv(to)}`];if(cc&&cc.length)head.push(`Cc: ${cc.map(hv).filter(Boolean).join(", ")}`);head.push(`Subject: ${encodeHeaderWord(hv(subject))}`,"MIME-Version: 1.0");
-  // RFC 8058 one-click unsubscribe — spam filters (Gmail especially) reward a real List-Unsubscribe.
-  if(listUnsubscribe){head.push(`List-Unsubscribe: <${listUnsubscribe}>`,"List-Unsubscribe-Post: List-Unsubscribe=One-Click")}let mime:string;if(html){const boundary=`nw_${Date.now().toString(36)}`;head.push(`Content-Type: multipart/alternative; boundary="${boundary}"`);mime=[head.join("\r\n"),"",`--${boundary}`,"Content-Type: text/plain; charset=UTF-8","",body,`--${boundary}`,"Content-Type: text/html; charset=UTF-8","",html,`--${boundary}--`,""].join("\r\n")}else{head.push("Content-Type: text/plain; charset=UTF-8");mime=[head.join("\r\n"),"",body].join("\r\n")}const raw=base64url(mime);const response=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send",{method:"POST",headers:{authorization:`Bearer ${token}`,"content-type":"application/json"},body:JSON.stringify({raw,threadId})});if(!response.ok)throw new Error(`Gmail send failed: ${response.status}`);return response.json() as Promise<{id:string;threadId:string}>}
+export async function sendEmail(owner:Owner,from:string,to:string,subject:string,body:string,threadId?:string,cc?:string[],html?:string,listUnsubscribe?:string){
+  const mime=emailMime({from,to,subject:emailStyle(subject),body:emailStyle(body),html,cc,listUnsubscribe});
+  const token=await accessToken(owner);
+  const response=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send",{method:"POST",headers:{authorization:`Bearer ${token}`,"content-type":"application/json"},body:JSON.stringify({raw:Buffer.from(mime).toString("base64url"),threadId})});
+  if(!response.ok)throw new Error(`Gmail send failed: ${response.status}`);
+  return response.json() as Promise<{id:string;threadId:string}>;
+}
 export async function thread(owner:Owner,id:string){const token=await accessToken(owner);const response=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/threads/${id}?format=full`,{headers:{authorization:`Bearer ${token}`}});if(!response.ok)throw new Error(`Gmail thread read failed: ${response.status}`);return response.json() as Promise<{messages:Array<{id:string;internalDate:string;payload:{headers:Array<{name:string;value:string}>;body?:{data?:string};parts?:Array<{mimeType:string;body:{data?:string}}>}}>}>}

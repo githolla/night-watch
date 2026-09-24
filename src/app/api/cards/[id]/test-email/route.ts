@@ -1,11 +1,11 @@
-import { firstTouchErrors, firstTouchSignature, firstTouchFooterHtml } from "@/lib/first-touch";
+import { firstTouchErrors } from "@/lib/first-touch";
 import { firstGiftViewAt } from "@/lib/gift-tracking";
 import { authoredSenderDraft } from '@/lib/authored-sender';
 import { requireUser } from '@/lib/auth';
 import { admin } from '@/lib/supabase/admin';
 import { sendEmail } from '@/lib/gmail';
 import { senderProfile, fromHeader, sanitizeLinks } from '@/lib/sender';
-import { withOutreachSignature, outreachEmailHtml } from '@/lib/outreach-ending';
+import { outreachDelivery } from '@/lib/outreach-ending';
 import { firstOpenAt } from '@/lib/open-tracking';
 import { trackEmailVersion } from '@/lib/version-tracking';
 import { versionLabel, SAVED_VERSION_MODEL } from '@/lib/version-attribution';
@@ -28,7 +28,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { data: card, error: cardError } = await db.from('cards').select('person_id,account_id,people(full_name),accounts(domain)').eq('id', id).single();
     if (cardError || !card) throw new Error('This draft is no longer available.');
     const savedProfile = await senderProfile(db, user.owner);
-    const profile = {...savedProfile,signature:firstTouchSignature(savedProfile.signature, savedProfile.fromName)};
+    const profile = savedProfile;
     let person = card.people as unknown as { full_name: string } | null;
     let personId = card.person_id;
     if (payload.personId && payload.personId !== card.person_id) {
@@ -43,10 +43,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const body = personalized.body;
     const errors = firstTouchErrors(payload.subject, body);
     if(errors.length) throw new Error(errors.join(" "));
-    const fullBody = withOutreachSignature(body, profile);
+    const delivery = outreachDelivery(body, profile);
+    const fullBody = delivery.text;
     const versionId = await trackEmailVersion(db, { cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
     const deliveredBody = fullBody;
-    const html = outreachEmailHtml(body, {...savedProfile, signature:firstTouchFooterHtml(savedProfile.signature)});
+    const html = delivery.html;
     await sendEmail(user.owner, fromHeader(profile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);
     // Tests never create touches, change card status or enroll follow-ups.
     const { data: snapshot } = await db.from('message_variants').select('experiment_id,dimensions').eq('id', versionId).single();

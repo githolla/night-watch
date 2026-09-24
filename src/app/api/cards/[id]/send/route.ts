@@ -1,4 +1,4 @@
-import { firstTouchErrors, firstTouchSignature, firstTouchFooterHtml } from "@/lib/first-touch";
+import { firstTouchErrors } from "@/lib/first-touch";
 import { authoredSenderDraft } from '@/lib/authored-sender';
 import { trackEmailVersion } from "@/lib/version-tracking";
 import { requireUser } from "@/lib/auth";
@@ -11,7 +11,7 @@ import { fromHeader, sanitizeLinks, senderProfile } from "@/lib/sender";
 import { outboundBaseUrl } from "@/lib/urls";
 import { admin } from "@/lib/supabase/admin";
 import { isCuratedDomain } from "@/lib/curated-worklist";
-import { outreachBody, withOutreachSignature, outreachEmailHtml } from "@/lib/outreach-ending";
+import { outreachBody, outreachDelivery } from "@/lib/outreach-ending";
 
 const daysBetween = (iso: string | null | undefined) => (iso ? Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)) : 0);
 
@@ -69,7 +69,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // Manual desk send: a human chose to send and is warned in the UI when the address isn't verified, so
     // the verified requirement is relaxed here (the automated cadence still enforces it).
     const savedProfile = await senderProfile(db, owner);
-    const profile = {...savedProfile, signature:firstTouchSignature(savedProfile.signature, savedProfile.fromName)};
+    const profile = savedProfile;
     const personalized = authoredSenderDraft({ body, domain: card.accounts?.domain, contactName: recipient.full_name, senderName: profile.fromName, greeting: profile.greeting });
     if (personalized.senderConflict) throw new Error(personalized.senderConflict);
     body = personalized.body;
@@ -78,10 +78,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     validateEmail(recipient.email_status, count ?? 0, body, cap, false);
     const fromEmail = connection?.email ?? user.email ?? "";
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
-    const fullBody = withOutreachSignature(body, profile) + (curated ? "" : `\n\n${optOut}`);
+    const delivery = outreachDelivery(body, profile);
+    const fullBody = delivery.text + (curated ? "" : `\n\n${optOut}`);
     // Send multipart/alternative: a plain-text part (spam filters prefer it) AND an HTML part carrying the
     // branded signature, so the sender's signature actually renders in the recipient's client.
-    const html = outreachEmailHtml(body, {...savedProfile, signature:firstTouchFooterHtml(savedProfile.signature)}) + (curated ? "" : `<p>${optOut.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>`);
+    const html = delivery.html + (curated ? "" : `<p>${optOut.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>`);
     const base = outboundBaseUrl(request);
     const unsubscribe = `${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(recipient.id))}`;
     const versionId = await trackEmailVersion(db, { cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail" });
