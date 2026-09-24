@@ -54,5 +54,5 @@ export function outreachEmailHtml(body: string, profile: SignatureSettings): str
   const text = withOutreachName(body, profile).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   const linked = text.replace(/https:\/\/night-watch-snowy\.vercel\.app\/gift\/[a-f0-9]{32}(?:\?t=[a-zA-Z0-9_.-]+)?/g, url => `<a href="${url}">Read your one-page brief</a>`);
   const footer = outreachFooterHtml(profile);
-  return `<div style="max-width:640px;font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#1a1712">${linked.replace(/\n/g, "<br>")}${footer ? `<div style="margin-top:24px">${footer}</div>` : ""}</div>`;
+  return `<div style="font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#1a1712">${linked.replace(/\n/g, "<br>")}${footer ? `<div style="margin-top:24px">${footer}</div>` : ""}</div>`;
 }
