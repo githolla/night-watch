@@ -93,7 +93,7 @@ test('LinkedIn selection and edited sends retain their own version without chang
  const result = identifyVersion(liBase, selection);
  assert.equal(versionLabel(result), 'LinkedIn · Wildcard');
  assert.equal(result.edited, false);
- assert.equal(identifyVersion({ ...liBase, body: li.body.replace('Monday', 'weekly') }, selection).edited, true);
+ assert.equal(identifyVersion({ ...liBase, body: li.body.replace(/\?$/, ' this quarter?') }, selection).edited, true);
  assert.equal(identifyVersion({ ...base, body: 'A custom email?' }, selection).versionId, 'custom');
  const linkedinTouch = touch({ id: 'li1', gmail_thread_id: null, message_variants: { subject: li.subject, dimensions: result, message_experiments: { context: '' } } });
  const report = aggregateVersions([touch(), linkedinTouch]);
