@@ -339,16 +339,26 @@ export function Desk({
       return true;
     }
     setBusy(true);
-    const response = await fetch(`/api/cards/${cardId}`, {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const json = await response.json();
-    setBusy(false);
-    if (!response.ok) { alert(json.error); return false; }
-    setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...json, ...(!("email_body" in values) && !json.email_body?.trim() ? { email_body: item.email_body, email_subject: item.email_subject } : {}), ...(!("linkedin_message" in values) && !json.linkedin_message?.trim() ? { linkedin_message: item.linkedin_message, linkedin_subject: item.linkedin_subject } : {}) } : item));
-    return true;
+    // finally, because `busy` disables most of the toolbar. With no catch, a request that REJECTED rather
+    // than returned an error — a dropped connection, a suspended tab — threw out of here and left the flag
+    // true for good, so the panel went quietly dead until a full page reload. That is the same shape as the
+    // stuck send guard, and it deserves the same treatment everywhere it appears.
+    try {
+      const response = await fetch(`/api/cards/${cardId}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) { setNotice(`Not saved: ${json.error ?? "that change could not be saved."}`); return false; }
+      setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...json, ...(!("email_body" in values) && !json.email_body?.trim() ? { email_body: item.email_body, email_subject: item.email_subject } : {}), ...(!("linkedin_message" in values) && !json.linkedin_message?.trim() ? { linkedin_message: item.linkedin_message, linkedin_subject: item.linkedin_subject } : {}) } : item));
+      return true;
+    } catch {
+      setNotice("Not saved: the connection was interrupted. Your text is still on screen — try again.");
+      return false;
+    } finally {
+      setBusy(false);
+    }
   }
   /** Write to the dossier's card (the one the dossier view renders). */
   const patch = (values: Record<string, unknown>) => patchOn(card.id, values);
@@ -469,12 +479,17 @@ export function Desk({
       return;
     }
     setBusy(true);
-    const response = await fetch(`/api/cards/${card.id}/outcome`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ outcome }) });
-    const result = await response.json();
-    setBusy(false);
-    if (!response.ok) return setNotice(result.error ?? "Unable to record outcome.");
-    setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: result.status } : item));
-    setNotice("Outcome recorded. Signal and message analytics have been updated.");
+    try {
+      const response = await fetch(`/api/cards/${card.id}/outcome`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ outcome }) });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) { setNotice(result.error ?? "Unable to record outcome."); return; }
+      setCards((current) => current.map((item) => item.id === card.id ? { ...item, status: result.status } : item));
+      setNotice("Outcome recorded. Signal and message analytics have been updated.");
+    } catch {
+      setNotice("Not recorded: the connection was interrupted. Try again.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   const editOn = (cardId: string, key: string, value: string) => setCards((current) => current.map((item) => item.id === cardId ? { ...item, [key]: value } : item));
