@@ -263,6 +263,7 @@ export function Desk({
   const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
   // Separate from `busy` so a blur-triggered autosave can't disable the Send button mid-click.
   const [sending, setSending] = useState(false);
+  const sendInFlight = useRef(false);
   const [tonePreview, setTonePreview] = useState<{ channel: "email" | "linkedin"; cardId: string; versionId: string; label: string; original: string; originalSubject: string; subject: string; body: string } | null>(null);
   function previewTone(variant: SavedVariant) {
     if (!focusCard || altContact) return;
@@ -363,7 +364,7 @@ export function Desk({
     // Who the email is actually addressed to: the card's own contact, or the colleague picked from the
     // company's team list. The server re-checks that person is at the same company.
     const who = to ?? onCard?.people;
-    if (sending || !onCard || !who) return; // re-entry guard, since the button is no longer disabled by `busy`
+    if (sendInFlight.current || sending || !onCard || !who) return; // re-entry guard, since the button is no longer disabled by `busy`
     if (demo) {
       setCards((current) => current.map((item) => item.id === onCard.id ? { ...item, status: "sent" } : item));
       setNotice("Demo send simulated — no email left the app.");
@@ -376,22 +377,28 @@ export function Desk({
       ? `⚠️ ${who.email} is NOT a verified address — it may bounce and hurt your sending reputation. Send anyway to ${who.full_name}?`
       : `Send this email to ${who.full_name} at ${who.email}?`;
     if (!confirm(prompt)) return;
+    sendInFlight.current = true;
+    setNotice("");
     setSending(true);
     // A subject is required server-side; fall back rather than fail with a raw validation error.
     const subject = (onCard.email_subject ?? "").trim() || subjectGuess(onCard, "email");
+    try {
     const response = await fetch(`/api/cards/${onCard.id}/send`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ subject, body: bodyOverride ?? onCard.email_body, personId: who && "id" in who ? who.id : undefined }),
     });
-    const json = await response.json().catch(() => ({}));
-    setSending(false);
-    if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Send failed."); return; }
+    const json = await response.json();
+    if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(`Not sent: ${json.error ?? "Send failed."}`); return; }
+    if (!json.ok || !json.threadId) throw new Error("Missing Gmail confirmation");
     setCards((current) => current.map((item) => item.id === onCard.id ? { ...item, status: "sent" } : item));
     // Mark the recipient in the team list straight away, so it is obvious who has already been written to
     // without waiting for a reload.
     if (who && "id" in who && who.id) setLogged((current) => new Set(current).add(who.id as string));
-    setNotice(json.warning ?? `Sent. The email to ${json.to ?? who.full_name} is recorded and replies are being watched.`);
+    setNotice(json.warning ?? `Sent to ${json.to ?? who.full_name}${json.from ? ` from ${json.from}` : ''}. Gmail confirmed the send. You can find it in that mailbox’s Sent folder and in History.`);
+    } catch {
+      setNotice("Send status unknown: the connection was interrupted. Check Gmail Sent and History before retrying to avoid a duplicate.");
+    } finally { sendInFlight.current = false; setSending(false); }
   }
 
   /**
@@ -1350,7 +1357,7 @@ export function Desk({
                     {previewingVersion && tonePreview ? <><button type="button" className="btn" onClick={() => setTonePreview(null)}>Cancel</button><button type="button" className="btn primary" disabled={busy} onClick={applyTone}>{busy ? "Saving…" : "Use this version"}</button></> : channelTab === "email" ? !sentAlready && <button type="button" disabled={!senderIsViewer || sending || !contact.email} className="btn primary" title={!senderIsViewer ? `Sign in as ${senderName} to send to this contact` : `Send to ${contact.full_name}`} onClick={sendEmail}>{sending ? "Sending…" : "Send email"} →</button> : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn ↗</button>}
                   </div>
                 </footer>
-                {notice && <p className="notice focus-notice">{notice}</p>}
+                {notice && <p className="notice focus-notice" role="alert">{notice}</p>}
               </section>
             </>) : (
               <div className="deskwork-clear">

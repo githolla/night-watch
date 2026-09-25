@@ -2392,3 +2392,6 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 @media(max-width:700px){.appbar-tour span{display:none}.walkthrough-card{padding:22px}.walkthrough-card h2{font-size:20px}}
 
 .outreach-loading{padding:30px}.outreach-loading-grid{display:grid;grid-template-columns:240px minmax(240px,1fr) minmax(350px,1.3fr);gap:20px;margin-top:32px}.outreach-loading-grid>aside,.outreach-loading-grid>section{padding:20px;border:1px solid #e8e3da;border-radius:16px}.outreach-loading-grid .skeleton-row{height:48px;margin-bottom:14px}@media(max-width:900px){.outreach-loading-grid{grid-template-columns:1fr}.outreach-loading-grid>aside{display:none}}
+
+/* Delivery results stay visible beside the composer, including below the fold. */
+.deskwork-draft .focus-notice{position:fixed;right:24px;bottom:80px;z-index:110;max-width:min(460px,calc(100vw - 32px));margin:0;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--paper-bright);box-shadow:0 8px 32px #211e1826;font-size:14px;line-height:1.5}

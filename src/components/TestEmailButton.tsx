@@ -6,12 +6,14 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
   const [result, setResult] = useState<TestResult | null>(null);
   const [error, setError] = useState('');
   async function sendTest() {
-    setBusy(true); setError('');
+    if (busy) return;
+    setBusy(true); setError(''); setResult(null);
     try {
       const response = await fetch(`/api/cards/${cardId}/test-email`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ subject, body }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? 'Could not send the test.');
-      setResult(data);
+      if (!data.ok || !data.id) throw new Error('Test status unknown. Check your inbox and Sent folder before retrying.');
+      setResult({ ...data, status: 'sent' });
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not send the test.'); }
     finally { setBusy(false); }
   }
@@ -22,6 +24,7 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? 'Could not check status.');
       if (!data.test) setError('No test found for your account and this draft. Send one first.');
+      else if (data.test.status !== 'sent') setError('This test has no confirmed send. Check your inbox and Sent folder before retrying.');
       else setResult(current => ({ ...current, ...data.test }));
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not check status.'); }
     finally { setBusy(false); }

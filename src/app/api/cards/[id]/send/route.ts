@@ -1,3 +1,4 @@
+import { restoreSelectedDraft } from "@/lib/restore-selected-draft";
 import { assertListSender } from "@/lib/focus-data";
 import { firstTouchErrors } from "@/lib/first-touch";
 import { authoredSenderDraft } from '@/lib/authored-sender';
@@ -28,6 +29,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { data: card } = await db.from("cards").select("*,people(*),accounts(*)").eq("id", id).single();
     if (!card) throw new Error("Card not found");
     assertListSender(card.accounts?.domain, user.owner);
+    if (card.status === "archived") card.status = await restoreSelectedDraft(db, id);
     const curated = isCuratedDomain(card.accounts?.domain);
     if (curated) body = outreachBody(body);
     // Only a card still in an un-sent working state may be sent. An allowlist (not a denylist) so a card that
@@ -53,7 +55,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // Idempotency: if an email to THIS PERSON is already logged for this card, don't send again even if a
     // prior status write failed. Scoped to the person, not the card, so emailing a second contact at the
     // same company is still possible while a duplicate to the same one is not.
-    const { count: alreadySent } = await db.from("touches").select("*", { count: "exact", head: true }).eq("card_id", id).eq("person_id", recipient.id).eq("channel", "email").not("gmail_thread_id", "is", null);
+    const { count: alreadySent, error: historyError } = await db.from("touches").select("*", { count: "exact", head: true }).eq("card_id", id).eq("person_id", recipient.id).eq("channel", "email").not("gmail_thread_id", "is", null);
+    if (historyError) throw new Error("Could not check send history. Nothing was sent; try again after the connection recovers.");
     if ((alreadySent ?? 0) > 0) throw new Error(`An email to ${recipient.full_name} is already logged for this card.`);
     // Send from the signed-in user's own seat (their connected Google account).
     const owner = user.owner;
@@ -78,7 +81,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const copyErrors = firstTouchErrors(subject, body);
     if(copyErrors.length) throw new Error(copyErrors.join(" "));
     validateEmail(recipient.email_status, count ?? 0, body, cap, false);
-    const fromEmail = connection?.email ?? user.email ?? "";
+    if (!connection?.email) throw new Error("Connect your Gmail in Settings before sending.");
+    const fromEmail = connection.email;
     const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
     const delivery = outreachDelivery(body, profile);
     const fullBody = delivery.text + (curated ? "" : `\n\n${optOut}`);
@@ -98,9 +102,14 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const cardPatch: Record<string, unknown> = recipient.id === card.person_id
       ? { status: "sent", email_subject: subject, email_body: body }
       : { status: "sent", email_subject: subject };
-    await db.from("cards").update(cardPatch).eq("id", id);
+    let saveWarning = "";
+    try {
+    const { error: cardError } = await db.from("cards").update(cardPatch).eq("id", id);
+    if (cardError) saveWarning = "The draft status could not be updated.";
     const { error: touchError } = await db.from("touches").insert({ card_id: id, person_id: recipient.id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: deliveredBody, experiment_variant_id: versionId });
-    if (touchError) return Response.json({ ok: true, threadId: result.threadId, warning: `Sent to ${recipient.full_name}, but saving it to History failed (${touchError.message}). It won't need re-sending.` });
+    if (touchError) saveWarning += " History could not be saved.";
+    } catch { saveWarning += " Saving the delivery record was interrupted."; }
+    if (saveWarning) return Response.json({ ok: true, threadId: result.threadId, messageId: result.id, to: recipient.full_name, from: fromEmail, warning: `Gmail confirmed the send to ${recipient.full_name} from ${fromEmail}. ${saveWarning.trim()} Check that mailbox’s Sent folder; do not resend this message.` });
     // Schedule the follow-up cadence off this first touch (idempotent, best-effort — a failure here never
     // undoes the send).
     try {
@@ -110,7 +119,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         company: card.accounts?.name ?? "", baseSubject: subject,
       });
     } catch { /* follow-up scheduling is best-effort */ }
-    return Response.json({ ok: true, threadId: result.threadId, to: recipient.full_name });
+    return Response.json({ ok: true, threadId: result.threadId, to: recipient.full_name, from: fromEmail, messageId: result.id });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Send failed" }, { status: 400 });
   }
