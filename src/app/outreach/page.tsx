@@ -1,3 +1,4 @@
+import { ReachoutListNavigation } from "@/components/ReachoutListNavigation";
 import { publishedEmailPatch } from "@/lib/focused-contact";
 import { wasAutomaticallyArchived } from "@/lib/curated-card-state";
 import { senderProfile } from "@/lib/sender";
@@ -302,22 +303,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   return (
     <div className="shell">
       <Header />
-      <nav aria-label="Reach-out lists" className="reachout-list-switcher">
-        {[{ id: "josh", label: "Josh" }, { id: "suuchi", label: "Suuchi" }].map(list => (
-          // Use document navigation for list switches. The first visit may prepare
-          // records, and must not wait silently in a client-side transition.
-          <a key={list.id} href={`/outreach?list=${list.id}${params.batch === '1' || params.batch === '2' ? `&batch=${params.batch}` : ''}`} aria-current={selectedList.id === list.id ? "page" : undefined}>
-            {list.label}
-          </a>
-        ))}
-      </nav>
-      <nav aria-label="Company batches" className="reachout-list-switcher">
-        {([1, 2] as const).map(sequence => <a key={sequence}
-          href={reachoutList(selectedList.id, me.owner, sequence).href}
-          aria-current={selectedList.sequence === sequence ? 'page' : undefined}>
-          {sequence === 1 ? 'First 25' : 'Next 25'}
-        </a>)}
-      </nav>
+      <ReachoutListNavigation owner={selectedList.id} batch={selectedList.sequence} />
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
       <Desk
         key={`${me.owner}:${selectedList.id}:${selectedList.sequence}`}

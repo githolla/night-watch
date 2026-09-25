@@ -18,7 +18,7 @@ export function batchOwner(domain: string): 'josh' | 'jenna' | null {
 
 /** The selected list determines draft identity; sending still requires its owner to sign in. */
 export function reachoutList(requested: string | undefined, viewer: 'josh' | 'jenna', sequence: 1 | 2 = 1) {
-  const id = requested === 'josh' || requested === 'suuchi'
+  const id: 'josh' | 'suuchi' = requested === 'josh' || requested === 'suuchi'
     ? requested : viewer === 'josh' ? 'josh' : 'suuchi';
   const owner: 'josh' | 'jenna' = id === 'josh' ? 'josh' : 'jenna';
   return { id, owner, sequence, href: `/outreach?list=${id}&batch=${sequence}`, drafts: focusForOwner(owner, sequence) };

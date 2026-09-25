@@ -2290,12 +2290,18 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 }
 .deskwork .email-version-tabs button:disabled { cursor:not-allowed; opacity:.65; }
 
-/* Both sender lists remain ordinary links, usable before hydration as well. */
-.reachout-list-switcher{display:flex;flex-wrap:wrap;gap:8px;padding:12px clamp(16px,3vw,30px);position:relative;z-index:1;flex-shrink:0;background:var(--paper-bright);border-bottom:1px solid var(--line)}
-.reachout-list-switcher a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border:1px solid var(--line);border-radius:8px;text-decoration:none;background:var(--soft);color:var(--ink);cursor:pointer}
-.reachout-list-switcher a[aria-current="page"]{background:var(--ink);color:var(--paper-bright);border-color:var(--ink)}
-.reachout-list-switcher a:hover{box-shadow:inset 0 0 0 1px var(--accent)}
-.reachout-list-switcher a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+/* Owner and batch selection share a compact, responsive toolbar. */
+.reachout-navigation{display:flex;align-items:center;flex-wrap:wrap;gap:16px 32px;padding:12px clamp(16px,3vw,30px);flex-shrink:0;background:var(--paper-bright);border-bottom:1px solid var(--line)}
+.reachout-navigation-group{display:flex;align-items:center;gap:12px;min-width:0}
+.reachout-navigation-label{font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap}
+.reachout-segments{display:flex;align-items:center;gap:3px;padding:3px;background:var(--soft);border:1px solid var(--line);border-radius:10px}
+.reachout-segments a{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:6px 16px;border:1px solid transparent;border-radius:7px;text-decoration:none;font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap;transition:background .12s,color .12s}
+.reachout-segments a:hover{background:var(--paper-bright);color:var(--ink)}
+.reachout-segments a[aria-current="page"]{background:var(--paper-bright);color:var(--ink);border-color:var(--line);box-shadow:0 1px 3px #211e1810}
+.reachout-segments a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.reachout-owner-avatar{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--line);font-size:10px;font-weight:600}
+.reachout-segments a[aria-current="page"] .reachout-owner-avatar{background:var(--ink);color:var(--paper-bright)}
+@media(max-width:600px){.reachout-navigation{gap:10px;padding:12px 16px}.reachout-navigation-group{width:100%;justify-content:space-between}.reachout-segments{min-width:230px}.reachout-segments a{flex:1;min-height:42px}}
 
 /* Composer: one message canvas and one delivery bar. */
 .deskwork .composer-v2 { overflow:visible; border-radius:18px; box-shadow:0 8px 32px #211e1807; }
