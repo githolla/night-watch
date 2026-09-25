@@ -1,6 +1,6 @@
 # Next reach-out batches
 
-Researched September 25, 2026. 25 companies per sender, queued behind their current 25.
+Researched September 25, 2026. 25 companies per sender, kept separate from their current 25. Josh and Suuchi can open either sender’s First 25 or Next 25 and work ahead at any time. Finishing the first batch advances the default landing list; explicitly selected batches stay selected.
 
 All revenue figures are reported for 2025 and are not audited here. Most companies are landscape construction/property-service operators; the batch also includes restaurant operations, manufacturing, automotive logistics and tree care. No consulting or IT businesses were selected.
 

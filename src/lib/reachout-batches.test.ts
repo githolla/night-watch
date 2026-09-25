@@ -79,3 +79,20 @@ test('all 50 next contacts have three complete authored email and LinkedIn varia
     if(row.contacts[0].emailStatus==='inferred') assert.match(row.contacts[0].emailNote,/hypothesis|Inferred/);
   }
 });
+
+test('either sender can open either separate batch before or after completion', async () => {
+ const {selectedBatch}=await import('./reachout-batches.ts');
+ for(const defaultSequence of [1,2] as const){
+  assert.equal(selectedBatch('1',defaultSequence),1);
+  assert.equal(selectedBatch('2',defaultSequence),2);
+  assert.equal(selectedBatch(undefined,defaultSequence),defaultSequence);
+  assert.equal(selectedBatch('invalid',defaultSequence),defaultSequence);
+  for(const viewer of ['josh','jenna'] as const) for(const owner of ['josh','suuchi']) for(const requested of ['1','2']){
+   const list=reachoutList(owner,viewer,selectedBatch(requested,defaultSequence));
+   assert.equal(list.drafts.length,25);
+   assert.equal(list.href,`/outreach?list=${owner}&batch=${requested}`);
+   assert.ok(list.drafts.every(row=>batchOwner(row.domain)===list.owner));
+   assert.equal(list.sequence,Number(requested));
+  }
+ }
+});

@@ -7,7 +7,7 @@ import { recipientResearch } from "@/lib/recipient-research";
 import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
 import { createHash } from "node:crypto";
 import { reachoutList } from "@/lib/focus-data";
-import { batchProgress } from "@/lib/reachout-batches";
+import { batchProgress, selectedBatch } from "@/lib/reachout-batches";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
 import { Desk, type DeskContext } from "@/components/Desk";
 import { ScanControl } from "@/components/ScanControl";
@@ -30,7 +30,7 @@ export const dynamic = "force-dynamic";
 // Allow the one-time preparation of newly selected companies to finish.
 export const maxDuration = 60;
 
-type Params = { list?: string; card?: string; status?: string; priority?: string; new?: string; source?: string; account?: string };
+type Params = { list?: string; batch?: string; card?: string; status?: string; priority?: string; new?: string; source?: string; account?: string };
 
 /** Card statuses a salesperson still has to decide on. */
 const OPEN_STATUSES = ["new", "approved", "edited"];
@@ -74,6 +74,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     const clean = new URLSearchParams();
     if (params.card) clean.set("card", params.card);
     if (params.list) clean.set("list", params.list);
+    if (params.batch === '1' || params.batch === '2') clean.set("batch", params.batch);
     redirect(`/outreach${clean.size ? `?${clean}` : ""}`);
   }
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) {
@@ -98,7 +99,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     status: row.status,
     contacted: (row.touches ?? []).some(touch => touch.sent_at && touch.sent_by === requestedList.owner),
   })));
-  const selectedList = reachoutList(params.list, me.owner, progress.sequence);
+  const selectedList = reachoutList(params.list, me.owner, selectedBatch(params.batch, progress.sequence));
   const curatedDrafts = selectedList.drafts;
   const curatedDomains = curatedDrafts.map(row => row.domain);
   const prepared = new Set((existing.data ?? []).filter(row => {
@@ -303,18 +304,26 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     <div className="shell">
       <Header />
       <nav aria-label="Reach-out lists" className="reachout-list-switcher">
-        {[{ id: "josh", label: "Josh’s 25" }, { id: "suuchi", label: "Suuchi’s 25" }].map(list => (
+        {[{ id: "josh", label: "Josh" }, { id: "suuchi", label: "Suuchi" }].map(list => (
           // The Desk key includes the list ID, so client navigation remounts its state.
           // Disable prefetch because preparing a new list can write missing drafts.
-          <Link prefetch={false} key={list.id} href={`/outreach?list=${list.id}`} aria-current={selectedList.id === list.id ? "page" : undefined}>
+          <Link prefetch={false} key={list.id} href={`/outreach?list=${list.id}${params.batch === '1' || params.batch === '2' ? `&batch=${params.batch}` : ''}`} aria-current={selectedList.id === list.id ? "page" : undefined}>
             {list.label}
           </Link>
         ))}
+      </nav>
+      <nav aria-label="Company batches" className="reachout-list-switcher">
+        {([1, 2] as const).map(sequence => <Link prefetch={false} key={sequence}
+          href={reachoutList(selectedList.id, me.owner, sequence).href}
+          aria-current={selectedList.sequence === sequence ? 'page' : undefined}>
+          {sequence === 1 ? 'First 25' : 'Next 25'}
+        </Link>)}
       </nav>
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
       <Desk
         key={`${me.owner}:${selectedList.id}:${selectedList.sequence}`}
         batchSequence={selectedList.sequence}
+        autoAdvanceBatch={params.batch !== '1' && params.batch !== '2'}
         listOwner={selectedList.owner}
         batchCompletedDomains={progress.completedDomains}
         listHref={selectedList.href}

@@ -21,7 +21,7 @@ export function reachoutList(requested: string | undefined, viewer: 'josh' | 'je
   const id = requested === 'josh' || requested === 'suuchi'
     ? requested : viewer === 'josh' ? 'josh' : 'suuchi';
   const owner: 'josh' | 'jenna' = id === 'josh' ? 'josh' : 'jenna';
-  return { id, owner, sequence, href: `/outreach?list=${id}`, drafts: focusForOwner(owner, sequence) };
+  return { id, owner, sequence, href: `/outreach?list=${id}&batch=${sequence}`, drafts: focusForOwner(owner, sequence) };
 }
 
 /** A shared list is viewable by teammates, but its drafts belong to its assigned sender. */

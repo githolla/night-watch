@@ -3,7 +3,12 @@ import { focusForOwner } from './focus-data.ts';
 export type BatchCard = { domain: string; owner: string | null; status: string; contacted?: boolean };
 const contacted = new Set(['sent', 'replied', 'positive', 'meeting', 'negative']);
 
-/** Missing, snoozed, edited, approved and automatically archived work cannot unlock a batch. */
+/** Both batches are always accessible; completion only chooses the default landing batch. */
+export function selectedBatch(requested: string | undefined, defaultSequence: 1 | 2): 1 | 2 {
+  return requested === '1' ? 1 : requested === '2' ? 2 : defaultSequence;
+}
+
+/** Missing, snoozed, edited, approved and automatically archived work do not advance the default batch. */
 export function batchProgress(owner: 'josh' | 'jenna', cards: BatchCard[], completedOnLoad: string[] = []) {
   const current = focusForOwner(owner);
   const completedDomains = current.filter(company => {

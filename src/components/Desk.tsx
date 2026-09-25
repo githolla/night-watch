@@ -180,6 +180,7 @@ export function Desk({
   selectedId,
   listHref = "/outreach",
   batchSequence,
+  autoAdvanceBatch = false,
   listOwner,
   batchCompletedDomains,
   demo = false,
@@ -196,6 +197,7 @@ export function Desk({
   selectedId?: string;
   listHref?: string;
   batchSequence?: 1 | 2;
+  autoAdvanceBatch?: boolean;
   listOwner?: 'josh' | 'jenna';
   batchCompletedDomains?: string[];
   /** A page-level tool rendered in the desk header (Draft tools), passed in from the server page. */
@@ -210,12 +212,12 @@ export function Desk({
   const advancing = useRef(false);
   const progress = listOwner ? batchProgress(listOwner, cards.map(card => ({ domain: card.accounts.domain ?? '', owner: card.assigned_to, status: card.status })), batchCompletedDomains) : null;
   useEffect(() => {
-    if (demo || batchSequence !== 1 || !listOwner || advancing.current) return;
+    if (demo || !autoAdvanceBatch || batchSequence !== 1 || !listOwner || advancing.current) return;
     if (progress?.sequence === 2) {
       advancing.current = true;
       router.refresh();
     }
-  }, [progress?.sequence, batchSequence, listOwner, demo, router]);
+  }, [progress?.sequence, batchSequence, autoAdvanceBatch, listOwner, demo, router]);
   useEffect(() => {
     const receive = (event: Event) => {
       const updates = (event as CustomEvent<Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string }>>).detail;
@@ -830,8 +832,8 @@ export function Desk({
     <main className={`pipeline${workingView ? " pipeline-work" : ""}`}>
       {batchSequence && progress && <p className="muted" style={{ margin: "0 0 16px", fontSize: 13 }}>
         {batchSequence === 1
-          ? `Batch 1 · ${progress.completed} of ${progress.total} companies contacted or dismissed. ${progress.sequence === 2 ? 'Loading your next 25…' : 'The next 25 appear when this batch is complete.'}`
-          : "Batch 2 · Your next 25 companies. Previous conversations remain in History and Follow-ups."}
+          ? `First 25 · ${progress.completed} of ${progress.total} companies contacted or dismissed. ${progress.sequence === 2 && autoAdvanceBatch ? 'Loading your next 25…' : 'Open Next 25 anytime to view or work ahead.'}`
+          : "Next 25 · A separate list you can work now. Your first 25 and their history are preserved."}
       </p>}
       {scan && !workingView && <div className="pipeline-scan">{scan}</div>}
       {cards.length === 0 ? (
