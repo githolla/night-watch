@@ -16,7 +16,14 @@ export function publishedEmailPatch(domain: string, name: string, stored: Stored
   if (stored.email && !inferred) return {};
   const contact = focusedContact(domain, name);
   if (!contact) return {};
-  if (contact.email && contact.emailSourceUrl && (contact.email.toLowerCase().endsWith(`@${domain.toLowerCase()}`) || (domain === "wolverinetruckgroup.com" && contact.email.endsWith("@wolverinefordsales.com")) || (contact.emailStatus === "published_unverified" && ["nationwideconstructiongroup.com", "nationalstoragemgmt.com"].includes(domain)))) {
+  const publishedAlias: Record<string, string> = {
+    'caretakerlandscape.com': 'caretakerinc.com',
+    'winterberrygardens.com': 'winterberrygarden.com',
+    'hiddencreeklandscaping.com': '2thecreek.com',
+  };
+  const knownPublishedAlias = contact.emailStatus === 'published_unverified'
+    && publishedAlias[domain] && contact.email?.endsWith(`@${publishedAlias[domain]}`);
+  if (contact.email && contact.emailSourceUrl && (knownPublishedAlias || contact.email.toLowerCase().endsWith(`@${domain.toLowerCase()}`) || (domain === "wolverinetruckgroup.com" && contact.email.endsWith("@wolverinefordsales.com")) || (contact.emailStatus === "published_unverified" && ["nationwideconstructiongroup.com", "nationalstoragemgmt.com"].includes(domain)))) {
     return { email: contact.email, email_status: "unverified", email_source: contact.emailStatus === "inferred" ? "pattern" : contact.emailSourceUrl, email_verified_at: null };
   }
   return inferred ? { email: null, email_status: "none", email_source: null, email_verified_at: null } : {};

@@ -1,5 +1,7 @@
 "use client";
 import { batchOwner } from "@/lib/focus-data";
+import { batchProgress } from "@/lib/reachout-batches";
+import { useRouter } from "next/navigation";
 import { firstTouchFooterHtml } from "@/lib/first-touch";
 import { FirstTouchGuidance } from "@/components/FirstTouchGuidance";
 import { curatedDomains } from "@/lib/curated-worklist";
@@ -13,7 +15,7 @@ import { researchRecommendation, contactEvidence, giftAsset } from "@/lib/resear
 import { authoredSenderDraft } from "@/lib/authored-sender";
 import { outreachBody, withOutreachName } from "@/lib/outreach-ending";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { emailStyle } from "@/lib/email-style";
 import { recipientResearch, hasResearchCopy } from "@/lib/recipient-research";
 import { preservesCurrentDraft } from "@/lib/draft-update-policy";
@@ -177,6 +179,9 @@ export function Desk({
   senderFooterHtml = "",
   selectedId,
   listHref = "/outreach",
+  batchSequence,
+  listOwner,
+  batchCompletedDomains,
   demo = false,
   gmailConnected = false,
   context,
@@ -190,6 +195,9 @@ export function Desk({
   senderFooterHtml?: string;
   selectedId?: string;
   listHref?: string;
+  batchSequence?: 1 | 2;
+  listOwner?: 'josh' | 'jenna';
+  batchCompletedDomains?: string[];
   /** A page-level tool rendered in the desk header (Draft tools), passed in from the server page. */
   tools?: ReactNode;
   demo?: boolean;
@@ -198,6 +206,16 @@ export function Desk({
   scan?: import("react").ReactNode;
 }) {
   const [cards, setCards] = useState(() => initialCards.map(card => personalizeCard(card, senderName, senderGreeting)));
+  const router = useRouter();
+  const advancing = useRef(false);
+  const progress = listOwner ? batchProgress(listOwner, cards.map(card => ({ domain: card.accounts.domain ?? '', owner: card.assigned_to, status: card.status })), batchCompletedDomains) : null;
+  useEffect(() => {
+    if (demo || batchSequence !== 1 || !listOwner || advancing.current) return;
+    if (progress?.sequence === 2) {
+      advancing.current = true;
+      router.refresh();
+    }
+  }, [progress?.sequence, batchSequence, listOwner, demo, router]);
   useEffect(() => {
     const receive = (event: Event) => {
       const updates = (event as CustomEvent<Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string }>>).detail;
@@ -810,6 +828,11 @@ export function Desk({
   const workingView = !active && !browse && cards.length > 0;
   return (
     <main className={`pipeline${workingView ? " pipeline-work" : ""}`}>
+      {batchSequence && progress && <p className="muted" style={{ margin: "0 0 16px", fontSize: 13 }}>
+        {batchSequence === 1
+          ? `Batch 1 · ${progress.completed} of ${progress.total} companies contacted or dismissed. ${progress.sequence === 2 ? 'Loading your next 25…' : 'The next 25 appear when this batch is complete.'}`
+          : "Batch 2 · Your next 25 companies. Previous conversations remain in History and Follow-ups."}
+      </p>}
       {scan && !workingView && <div className="pipeline-scan">{scan}</div>}
       {cards.length === 0 ? (
           <div className="detail-inner empty-desk">

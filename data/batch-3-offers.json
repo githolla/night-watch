@@ -1,0 +1,1352 @@
+[
+  {
+    "domain": "mainscape.com",
+    "contactName": "Mark Forsythe",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "branch follow-ups",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Mainscape, I'd start with branch service follow-up: bringing together site inspection notes, the promised fix and evidence that it was completed. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with branch service follow-up be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Mainscape, I'd explore branch service follow-up. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: branch follow-ups",
+        "message": "For Mainscape, one practical place to try AI is branch service follow-up. We'd build a tool that brings together site inspection notes, the promised fix and evidence that it was completed, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent chasing updates.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Mainscape: use AI to bring together site inspection notes, the promised fix and evidence that it was completed. I'm {sender} at Nine-67. We'd build it with your team and measure time spent chasing updates. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Mainscape, I'd start smaller: branch service follow-up. Our AI engineers would bring together site inspection notes, the promised fix and evidence that it was completed, then test whether it reduces time spent chasing updates. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Mainscape, I'd start with one task: branch service follow-up. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "mnlsa.com",
+    "contactName": "Rogelio Maldonado",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "from installation to maintenance",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Maldonado Nursery & Landscaping, I'd start with the handoff from installation to maintenance: bringing together the planting plan, outstanding punch-list items and the first maintenance visit. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with the handoff from installation to maintenance be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Maldonado Nursery & Landscaping, I'd explore the handoff from installation to maintenance. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: from installation to maintenance",
+        "message": "For Maldonado Nursery & Landscaping, one practical place to try AI is the handoff from installation to maintenance. We'd build a tool that brings together the planting plan, outstanding punch-list items and the first maintenance visit, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure handoff preparation time.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Maldonado Nursery & Landscaping: use AI to bring together the planting plan, outstanding punch-list items and the first maintenance visit. I'm {sender} at Nine-67. We'd build it with your team and measure handoff preparation time. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Maldonado Nursery & Landscaping, I'd start smaller: the handoff from installation to maintenance. Our AI engineers would bring together the planting plan, outstanding punch-list items and the first maintenance visit, then test whether it reduces handoff preparation time. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Maldonado Nursery & Landscaping, I'd start with one task: the handoff from installation to maintenance. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "lucastree.com",
+    "contactName": "Lucas Beane",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "before crews head out",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Lucas Tree Experts, I'd start with crew work-package preparation: bringing together approved work instructions, site access details and missing paperwork. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with crew work-package preparation be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Lucas Tree Experts, I'd explore crew work-package preparation. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: before crews head out",
+        "message": "For Lucas Tree Experts, one practical place to try AI is crew work-package preparation. We'd build a tool that brings together approved work instructions, site access details and missing paperwork, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure office preparation time per work package.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Lucas Tree Experts: use AI to bring together approved work instructions, site access details and missing paperwork. I'm {sender} at Nine-67. We'd build it with your team and measure office preparation time per work package. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Lucas Tree Experts, I'd start smaller: crew work-package preparation. Our AI engineers would bring together approved work instructions, site access details and missing paperwork, then test whether it reduces office preparation time per work package. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Lucas Tree Experts, I'd start with one task: crew work-package preparation. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "choateusa.com",
+    "contactName": "Phillip Eastland",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "getting the job ready",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Choate USA, I'd start with getting landscape jobs ready for the crew: bringing together approved scope, material availability and site readiness. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with getting landscape jobs ready for the crew be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Choate USA, I'd explore getting landscape jobs ready for the crew. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: getting the job ready",
+        "message": "For Choate USA, one practical place to try AI is getting landscape jobs ready for the crew. We'd build a tool that brings together approved scope, material availability and site readiness, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure jobs held up by missing information.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Choate USA: use AI to bring together approved scope, material availability and site readiness. I'm {sender} at Nine-67. We'd build it with your team and measure jobs held up by missing information. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Choate USA, I'd start smaller: getting landscape jobs ready for the crew. Our AI engineers would bring together approved scope, material availability and site readiness, then test whether it reduces jobs held up by missing information. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Choate USA, I'd start with one task: getting landscape jobs ready for the crew. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "originalbuscemis.com",
+    "contactName": "Anthony Buscemi",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "store support requests",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Buscemi Enterprises, I'd start with store support requests: bringing together the store's request, previous answers and the person responsible for follow-up. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with store support requests be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Buscemi Enterprises, I'd explore store support requests. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: store support requests",
+        "message": "For Buscemi Enterprises, one practical place to try AI is store support requests. We'd build a tool that brings together the store's request, previous answers and the person responsible for follow-up, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time to resolve a store request.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Buscemi Enterprises: use AI to bring together the store's request, previous answers and the person responsible for follow-up. I'm {sender} at Nine-67. We'd build it with your team and measure time to resolve a store request. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Buscemi Enterprises, I'd start smaller: store support requests. Our AI engineers would bring together the store's request, previous answers and the person responsible for follow-up, then test whether it reduces time to resolve a store request. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Buscemi Enterprises, I'd start with one task: store support requests. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "impactlandscaping.net",
+    "contactName": "Joe Floyd Sr.",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "after the irrigation inspection",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Impact Landscaping & Irrigation, I'd start with irrigation repair follow-up: bringing together inspection findings, repair approval and the crew's completion note. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with irrigation repair follow-up be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Impact Landscaping & Irrigation, I'd explore irrigation repair follow-up. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: after the irrigation inspection",
+        "message": "For Impact Landscaping & Irrigation, one practical place to try AI is irrigation repair follow-up. We'd build a tool that brings together inspection findings, repair approval and the crew's completion note, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure days from inspection to a completed repair.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Impact Landscaping & Irrigation: use AI to bring together inspection findings, repair approval and the crew's completion note. I'm {sender} at Nine-67. We'd build it with your team and measure days from inspection to a completed repair. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Impact Landscaping & Irrigation, I'd start smaller: irrigation repair follow-up. Our AI engineers would bring together inspection findings, repair approval and the crew's completion note, then test whether it reduces days from inspection to a completed repair. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Impact Landscaping & Irrigation, I'd start with one task: irrigation repair follow-up. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "bearylandscaping.com",
+    "contactName": "Brian Beary",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "the morning branch review",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Beary Landscaping, I'd start with the morning branch review: bringing together yesterday's unfinished work, customer commitments and today's crew schedule. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with the morning branch review be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Beary Landscaping, I'd explore the morning branch review. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: the morning branch review",
+        "message": "For Beary Landscaping, one practical place to try AI is the morning branch review. We'd build a tool that brings together yesterday's unfinished work, customer commitments and today's crew schedule, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time branch managers spend preparing the review.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Beary Landscaping: use AI to bring together yesterday's unfinished work, customer commitments and today's crew schedule. I'm {sender} at Nine-67. We'd build it with your team and measure time branch managers spend preparing the review. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Beary Landscaping, I'd start smaller: the morning branch review. Our AI engineers would bring together yesterday's unfinished work, customer commitments and today's crew schedule, then test whether it reduces time branch managers spend preparing the review. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Beary Landscaping, I'd start with one task: the morning branch review. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "yourfocalpointe.com",
+    "contactName": "Brett Gordon",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "after the site inspection",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Focal Pointe, I'd start with closing the loop on site inspections: bringing together inspection observations, the agreed action and a completion photo. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with closing the loop on site inspections be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Focal Pointe, I'd explore closing the loop on site inspections. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: after the site inspection",
+        "message": "For Focal Pointe, one practical place to try AI is closing the loop on site inspections. We'd build a tool that brings together inspection observations, the agreed action and a completion photo, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time from an inspection finding to resolution.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Focal Pointe: use AI to bring together inspection observations, the agreed action and a completion photo. I'm {sender} at Nine-67. We'd build it with your team and measure time from an inspection finding to resolution. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Focal Pointe, I'd start smaller: closing the loop on site inspections. Our AI engineers would bring together inspection observations, the agreed action and a completion photo, then test whether it reduces time from an inspection finding to resolution. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Focal Pointe, I'd start with one task: closing the loop on site inspections. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "creativeenvironments.com",
+    "contactName": "Dan Waters",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "design changes in the field",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Creative Environments, I'd start with design changes reaching the field: bringing together the approved revision, affected materials and the crew's acknowledgment. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with design changes reaching the field be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Creative Environments, I'd explore design changes reaching the field. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: design changes in the field",
+        "message": "For Creative Environments, one practical place to try AI is design changes reaching the field. We'd build a tool that brings together the approved revision, affected materials and the crew's acknowledgment, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent checking which revision to build.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Creative Environments: use AI to bring together the approved revision, affected materials and the crew's acknowledgment. I'm {sender} at Nine-67. We'd build it with your team and measure time spent checking which revision to build. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Creative Environments, I'd start smaller: design changes reaching the field. Our AI engineers would bring together the approved revision, affected materials and the crew's acknowledgment, then test whether it reduces time spent checking which revision to build. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Creative Environments, I'd start with one task: design changes reaching the field. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "hlei.us",
+    "contactName": "Steven Schinhofen",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "property updates",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Harvest Landscape Enterprises, I'd start with property-manager service updates: bringing together crew notes, completed work and items still waiting for approval. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with property-manager service updates be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Harvest Landscape Enterprises, I'd explore property-manager service updates. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: property updates",
+        "message": "For Harvest Landscape Enterprises, one practical place to try AI is property-manager service updates. We'd build a tool that brings together crew notes, completed work and items still waiting for approval, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent preparing each property update.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Harvest Landscape Enterprises: use AI to bring together crew notes, completed work and items still waiting for approval. I'm {sender} at Nine-67. We'd build it with your team and measure time spent preparing each property update. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Harvest Landscape Enterprises, I'd start smaller: property-manager service updates. Our AI engineers would bring together crew notes, completed work and items still waiting for approval, then test whether it reduces time spent preparing each property update. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Harvest Landscape Enterprises, I'd start with one task: property-manager service updates. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "xquisitelandscaping.com",
+    "contactName": "Victor Romeiro",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "changes before approval",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Xquisite Landscaping, I'd start with construction change reviews: bringing together the revised scope, supplier pricing and effect on the schedule. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with construction change reviews be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Xquisite Landscaping, I'd explore construction change reviews. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: changes before approval",
+        "message": "For Xquisite Landscaping, one practical place to try AI is construction change reviews. We'd build a tool that brings together the revised scope, supplier pricing and effect on the schedule, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure preparation time per change review.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Xquisite Landscaping: use AI to bring together the revised scope, supplier pricing and effect on the schedule. I'm {sender} at Nine-67. We'd build it with your team and measure preparation time per change review. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Xquisite Landscaping, I'd start smaller: construction change reviews. Our AI engineers would bring together the revised scope, supplier pricing and effect on the schedule, then test whether it reduces preparation time per change review. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Xquisite Landscaping, I'd start with one task: construction change reviews. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "aaalandscape.com",
+    "contactName": "Cheryl Balbinot",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "site issues needing attention",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor AAA Landscape, I'd start with maintenance exceptions across properties: bringing together site reports, outstanding client requests and the next responsible person. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with maintenance exceptions across properties be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For AAA Landscape, I'd explore maintenance exceptions across properties. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: site issues needing attention",
+        "message": "For AAA Landscape, one practical place to try AI is maintenance exceptions across properties. We'd build a tool that brings together site reports, outstanding client requests and the next responsible person, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time managers spend assembling exceptions.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for AAA Landscape: use AI to bring together site reports, outstanding client requests and the next responsible person. I'm {sender} at Nine-67. We'd build it with your team and measure time managers spend assembling exceptions. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt AAA Landscape, I'd start smaller: maintenance exceptions across properties. Our AI engineers would bring together site reports, outstanding client requests and the next responsible person, then test whether it reduces time managers spend assembling exceptions. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For AAA Landscape, I'd start with one task: maintenance exceptions across properties. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "steadfastalliance.com",
+    "contactName": "Tony Canorro",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "keeping repair updates together",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Steadfast Contractors Alliance, I'd start with storm-repair coordination: bringing together site findings, repair approvals and completion updates. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with storm-repair coordination be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Steadfast Contractors Alliance, I'd explore storm-repair coordination. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: keeping repair updates together",
+        "message": "For Steadfast Contractors Alliance, one practical place to try AI is storm-repair coordination. We'd build a tool that brings together site findings, repair approvals and completion updates, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent assembling a repair status report.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Steadfast Contractors Alliance: use AI to bring together site findings, repair approvals and completion updates. I'm {sender} at Nine-67. We'd build it with your team and measure time spent assembling a repair status report. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Steadfast Contractors Alliance, I'd start smaller: storm-repair coordination. Our AI engineers would bring together site findings, repair approvals and completion updates, then test whether it reduces time spent assembling a repair status report. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Steadfast Contractors Alliance, I'd start with one task: storm-repair coordination. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "aphix.com",
+    "contactName": "Matt Roberts",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "decisions at the branch",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor APHIX, I'd start with branch exception reviews: bringing together overdue work, customer commitments and items needing a manager's decision. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with branch exception reviews be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For APHIX, I'd explore branch exception reviews. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: decisions at the branch",
+        "message": "For APHIX, one practical place to try AI is branch exception reviews. We'd build a tool that brings together overdue work, customer commitments and items needing a manager's decision, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time needed to prepare a branch review.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for APHIX: use AI to bring together overdue work, customer commitments and items needing a manager's decision. I'm {sender} at Nine-67. We'd build it with your team and measure time needed to prepare a branch review. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt APHIX, I'd start smaller: branch exception reviews. Our AI engineers would bring together overdue work, customer commitments and items needing a manager's decision, then test whether it reduces time needed to prepare a branch review. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For APHIX, I'd start with one task: branch exception reviews. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "caretakerlandscape.com",
+    "contactName": "Matt White",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "getting tree work approved",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Caretaker Landscape & Tree Management, I'd start with getting tree-work approvals ready: bringing together the arborist's findings, proposed work and property-manager approval. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with getting tree-work approvals ready be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Caretaker Landscape & Tree Management, I'd explore getting tree-work approvals ready. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: getting tree work approved",
+        "message": "For Caretaker Landscape & Tree Management, one practical place to try AI is getting tree-work approvals ready. We'd build a tool that brings together the arborist's findings, proposed work and property-manager approval, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time from assessment to an approved work order.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Caretaker Landscape & Tree Management: use AI to bring together the arborist's findings, proposed work and property-manager approval. I'm {sender} at Nine-67. We'd build it with your team and measure time from assessment to an approved work order. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Caretaker Landscape & Tree Management, I'd start smaller: getting tree-work approvals ready. Our AI engineers would bring together the arborist's findings, proposed work and property-manager approval, then test whether it reduces time from assessment to an approved work order. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Caretaker Landscape & Tree Management, I'd start with one task: getting tree-work approvals ready. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "mchalelandscape.com",
+    "contactName": "Phil Kelly",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "from a finished build to care",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor McHale Landscape Design, I'd start with the transition from a finished build to ongoing care: bringing together the installed design, care instructions and unresolved punch-list items. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with the transition from a finished build to ongoing care be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For McHale Landscape Design, I'd explore the transition from a finished build to ongoing care. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: from a finished build to care",
+        "message": "For McHale Landscape Design, one practical place to try AI is the transition from a finished build to ongoing care. We'd build a tool that brings together the installed design, care instructions and unresolved punch-list items, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure handoff preparation time.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for McHale Landscape Design: use AI to bring together the installed design, care instructions and unresolved punch-list items. I'm {sender} at Nine-67. We'd build it with your team and measure handoff preparation time. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt McHale Landscape Design, I'd start smaller: the transition from a finished build to ongoing care. Our AI engineers would bring together the installed design, care instructions and unresolved punch-list items, then test whether it reduces handoff preparation time. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For McHale Landscape Design, I'd start with one task: the transition from a finished build to ongoing care. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "dupperlandscape.com",
+    "contactName": "Russ Dupper",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "before the crew arrives",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Dupper Landscape, I'd start with commercial landscape job readiness: bringing together material confirmations, approved drawings and outstanding site questions. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with commercial landscape job readiness be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Dupper Landscape, I'd explore commercial landscape job readiness. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: before the crew arrives",
+        "message": "For Dupper Landscape, one practical place to try AI is commercial landscape job readiness. We'd build a tool that brings together material confirmations, approved drawings and outstanding site questions, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time supervisors spend checking readiness.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Dupper Landscape: use AI to bring together material confirmations, approved drawings and outstanding site questions. I'm {sender} at Nine-67. We'd build it with your team and measure time supervisors spend checking readiness. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Dupper Landscape, I'd start smaller: commercial landscape job readiness. Our AI engineers would bring together material confirmations, approved drawings and outstanding site questions, then test whether it reduces time supervisors spend checking readiness. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Dupper Landscape, I'd start with one task: commercial landscape job readiness. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "earthtonescompanies.com",
+    "contactName": "Justin Crocker",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "project updates across offices",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Earthtones Companies, I'd start with construction updates across offices: bringing together field progress notes, material delays and decisions needed from the office. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with construction updates across offices be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Earthtones Companies, I'd explore construction updates across offices. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: project updates across offices",
+        "message": "For Earthtones Companies, one practical place to try AI is construction updates across offices. We'd build a tool that brings together field progress notes, material delays and decisions needed from the office, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent compiling project updates.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Earthtones Companies: use AI to bring together field progress notes, material delays and decisions needed from the office. I'm {sender} at Nine-67. We'd build it with your team and measure time spent compiling project updates. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Earthtones Companies, I'd start smaller: construction updates across offices. Our AI engineers would bring together field progress notes, material delays and decisions needed from the office, then test whether it reduces time spent compiling project updates. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Earthtones Companies, I'd start with one task: construction updates across offices. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "mettleops.com",
+    "contactName": "Katie Bigelow",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "getting a manufacturing job ready",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Mettle Ops, I'd start with manufacturing job readiness: bringing together approved document revisions, material status and unresolved production questions. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with manufacturing job readiness be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Mettle Ops, I'd explore manufacturing job readiness. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: getting a manufacturing job ready",
+        "message": "For Mettle Ops, one practical place to try AI is manufacturing job readiness. We'd build a tool that brings together approved document revisions, material status and unresolved production questions, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure preparation time for a job-readiness review.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Mettle Ops: use AI to bring together approved document revisions, material status and unresolved production questions. I'm {sender} at Nine-67. We'd build it with your team and measure preparation time for a job-readiness review. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Mettle Ops, I'd start smaller: manufacturing job readiness. Our AI engineers would bring together approved document revisions, material status and unresolved production questions, then test whether it reduces preparation time for a job-readiness review. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Mettle Ops, I'd start with one task: manufacturing job readiness. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "valorlandscapeco.com",
+    "contactName": "Mark Tomko",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "the weekly production review",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Valor Landscape, I'd start with the weekly production review: bringing together actual crew hours, remaining scope and jobs needing attention. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with the weekly production review be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Valor Landscape, I'd explore the weekly production review. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: the weekly production review",
+        "message": "For Valor Landscape, one practical place to try AI is the weekly production review. We'd build a tool that brings together actual crew hours, remaining scope and jobs needing attention, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure review preparation time.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Valor Landscape: use AI to bring together actual crew hours, remaining scope and jobs needing attention. I'm {sender} at Nine-67. We'd build it with your team and measure review preparation time. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Valor Landscape, I'd start smaller: the weekly production review. Our AI engineers would bring together actual crew hours, remaining scope and jobs needing attention, then test whether it reduces review preparation time. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Valor Landscape, I'd start with one task: the weekly production review. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "chapelvalley.com",
+    "contactName": "Josh Richman",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "closing the maintenance loop",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Chapel Valley Landscape Company, I'd start with maintenance follow-through: bringing together site inspection findings, client commitments and the crew's next action. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with maintenance follow-through be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Chapel Valley Landscape Company, I'd explore maintenance follow-through. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: closing the maintenance loop",
+        "message": "For Chapel Valley Landscape Company, one practical place to try AI is maintenance follow-through. We'd build a tool that brings together site inspection findings, client commitments and the crew's next action, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time from finding an issue to closing it.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Chapel Valley Landscape Company: use AI to bring together site inspection findings, client commitments and the crew's next action. I'm {sender} at Nine-67. We'd build it with your team and measure time from finding an issue to closing it. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Chapel Valley Landscape Company, I'd start smaller: maintenance follow-through. Our AI engineers would bring together site inspection findings, client commitments and the crew's next action, then test whether it reduces time from finding an issue to closing it. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Chapel Valley Landscape Company, I'd start with one task: maintenance follow-through. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "designscapescolorado.com",
+    "contactName": "Phil Steinhauer",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "the latest approved revision",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Designscapes Colorado, I'd start with approved design revisions reaching crews: bringing together revision notes, material substitutions and the supervisor's approval. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with approved design revisions reaching crews be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Designscapes Colorado, I'd explore approved design revisions reaching crews. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: the latest approved revision",
+        "message": "For Designscapes Colorado, one practical place to try AI is approved design revisions reaching crews. We'd build a tool that brings together revision notes, material substitutions and the supervisor's approval, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent reconciling project revisions.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Designscapes Colorado: use AI to bring together revision notes, material substitutions and the supervisor's approval. I'm {sender} at Nine-67. We'd build it with your team and measure time spent reconciling project revisions. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Designscapes Colorado, I'd start smaller: approved design revisions reaching crews. Our AI engineers would bring together revision notes, material substitutions and the supervisor's approval, then test whether it reduces time spent reconciling project revisions. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Designscapes Colorado, I'd start with one task: approved design revisions reaching crews. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "flcornerstone.com",
+    "contactName": "Eric Meister",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "closing out an installation",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Cornerstone, I'd start with landscape installation closeout: bringing together inspection findings, remaining work and client sign-off requirements. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with landscape installation closeout be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Cornerstone, I'd explore landscape installation closeout. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: closing out an installation",
+        "message": "For Cornerstone, one practical place to try AI is landscape installation closeout. We'd build a tool that brings together inspection findings, remaining work and client sign-off requirements, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure days from the final walkthrough to closeout.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Cornerstone: use AI to bring together inspection findings, remaining work and client sign-off requirements. I'm {sender} at Nine-67. We'd build it with your team and measure days from the final walkthrough to closeout. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Cornerstone, I'd start smaller: landscape installation closeout. Our AI engineers would bring together inspection findings, remaining work and client sign-off requirements, then test whether it reduces days from the final walkthrough to closeout. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Cornerstone, I'd start with one task: landscape installation closeout. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "landtechcontractors.com",
+    "contactName": "Larry Overley",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "landscape change orders",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Landtech Contractors, I'd start with preparing landscape change orders: bringing together field requests, revised quantities and supplier quotes. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with preparing landscape change orders be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Landtech Contractors, I'd explore preparing landscape change orders. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: landscape change orders",
+        "message": "For Landtech Contractors, one practical place to try AI is preparing landscape change orders. We'd build a tool that brings together field requests, revised quantities and supplier quotes, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent preparing a change for approval.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Landtech Contractors: use AI to bring together field requests, revised quantities and supplier quotes. I'm {sender} at Nine-67. We'd build it with your team and measure time spent preparing a change for approval. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Landtech Contractors, I'd start smaller: preparing landscape change orders. Our AI engineers would bring together field requests, revised quantities and supplier quotes, then test whether it reduces time spent preparing a change for approval. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Landtech Contractors, I'd start with one task: preparing landscape change orders. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "roebucklandscaping.com",
+    "contactName": "Josh McMillan",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "from construction to maintenance",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Roebuck Landscaping, I'd start with construction-to-maintenance handoffs: bringing together the finished scope, open issues and recurring service commitments. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with construction-to-maintenance handoffs be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Roebuck Landscaping, I'd explore construction-to-maintenance handoffs. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: from construction to maintenance",
+        "message": "For Roebuck Landscaping, one practical place to try AI is construction-to-maintenance handoffs. We'd build a tool that brings together the finished scope, open issues and recurring service commitments, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent preparing each handoff.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Roebuck Landscaping: use AI to bring together the finished scope, open issues and recurring service commitments. I'm {sender} at Nine-67. We'd build it with your team and measure time spent preparing each handoff. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Roebuck Landscaping, I'd start smaller: construction-to-maintenance handoffs. Our AI engineers would bring together the finished scope, open issues and recurring service commitments, then test whether it reduces time spent preparing each handoff. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Roebuck Landscaping, I'd start with one task: construction-to-maintenance handoffs. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "graslawn.com",
+    "contactName": "Jack Labko",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "promises made on site",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Gras Lawn, I'd start with customer service follow-up: bringing together the property request, crew update and promised completion date. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with customer service follow-up be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Gras Lawn, I'd explore customer service follow-up. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: promises made on site",
+        "message": "For Gras Lawn, one practical place to try AI is customer service follow-up. We'd build a tool that brings together the property request, crew update and promised completion date, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent checking whether commitments were met.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Gras Lawn: use AI to bring together the property request, crew update and promised completion date. I'm {sender} at Nine-67. We'd build it with your team and measure time spent checking whether commitments were met. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Gras Lawn, I'd start smaller: customer service follow-up. Our AI engineers would bring together the property request, crew update and promised completion date, then test whether it reduces time spent checking whether commitments were met. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Gras Lawn, I'd start with one task: customer service follow-up. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "schumachercompanies.com",
+    "contactName": "David Schumacher",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "the property-care handoff",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Schumacher Companies, I'd start with the handoff between construction and property care: bringing together the approved design, installed changes and the care team's first tasks. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with the handoff between construction and property care be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Schumacher Companies, I'd explore the handoff between construction and property care. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: the property-care handoff",
+        "message": "For Schumacher Companies, one practical place to try AI is the handoff between construction and property care. We'd build a tool that brings together the approved design, installed changes and the care team's first tasks, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure handoff preparation time.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Schumacher Companies: use AI to bring together the approved design, installed changes and the care team's first tasks. I'm {sender} at Nine-67. We'd build it with your team and measure handoff preparation time. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Schumacher Companies, I'd start smaller: the handoff between construction and property care. Our AI engineers would bring together the approved design, installed changes and the care team's first tasks, then test whether it reduces handoff preparation time. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Schumacher Companies, I'd start with one task: the handoff between construction and property care. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "levelgreenlandscaping.com",
+    "contactName": "Doug Delano",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "getting enhancements approved",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Level Green Landscaping, I'd start with enhancement-work approvals: bringing together site observations, proposed scope and customer approval status. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with enhancement-work approvals be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Level Green Landscaping, I'd explore enhancement-work approvals. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: getting enhancements approved",
+        "message": "For Level Green Landscaping, one practical place to try AI is enhancement-work approvals. We'd build a tool that brings together site observations, proposed scope and customer approval status, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time from a site observation to a ready work order.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Level Green Landscaping: use AI to bring together site observations, proposed scope and customer approval status. I'm {sender} at Nine-67. We'd build it with your team and measure time from a site observation to a ready work order. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Level Green Landscaping, I'd start smaller: enhancement-work approvals. Our AI engineers would bring together site observations, proposed scope and customer approval status, then test whether it reduces time from a site observation to a ready work order. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Level Green Landscaping, I'd start with one task: enhancement-work approvals. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "hittlelandscape.com",
+    "contactName": "Scott DeNardin",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "the daily production review",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Hittle Landscaping, I'd start with the production manager's daily review: bringing together crew progress, material holds and jobs needing a decision. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with the production manager's daily review be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Hittle Landscaping, I'd explore the production manager's daily review. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: the daily production review",
+        "message": "For Hittle Landscaping, one practical place to try AI is the production manager's daily review. We'd build a tool that brings together crew progress, material holds and jobs needing a decision, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure daily review preparation time.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Hittle Landscaping: use AI to bring together crew progress, material holds and jobs needing a decision. I'm {sender} at Nine-67. We'd build it with your team and measure daily review preparation time. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Hittle Landscaping, I'd start smaller: the production manager's daily review. Our AI engineers would bring together crew progress, material holds and jobs needing a decision, then test whether it reduces daily review preparation time. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Hittle Landscaping, I'd start with one task: the production manager's daily review. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "dennis7dees.com",
+    "contactName": "David Snodgrass",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "plant substitutions",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Dennis' 7 Dees, I'd start with plant substitutions before installation: bringing together the specified plant, available alternatives and designer approval. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with plant substitutions before installation be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Dennis' 7 Dees, I'd explore plant substitutions before installation. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: plant substitutions",
+        "message": "For Dennis' 7 Dees, one practical place to try AI is plant substitutions before installation. We'd build a tool that brings together the specified plant, available alternatives and designer approval, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent resolving a substitution.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Dennis' 7 Dees: use AI to bring together the specified plant, available alternatives and designer approval. I'm {sender} at Nine-67. We'd build it with your team and measure time spent resolving a substitution. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Dennis' 7 Dees, I'd start smaller: plant substitutions before installation. Our AI engineers would bring together the specified plant, available alternatives and designer approval, then test whether it reduces time spent resolving a substitution. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Dennis' 7 Dees, I'd start with one task: plant substitutions before installation. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "klinebrothers.com",
+    "contactName": "Josh Kline",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "pools, plants and schedules",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Kline Brothers, I'd start with pool and landscape job coordination: bringing together trade schedules, outstanding selections and approved changes. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with pool and landscape job coordination be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Kline Brothers, I'd explore pool and landscape job coordination. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: pools, plants and schedules",
+        "message": "For Kline Brothers, one practical place to try AI is pool and landscape job coordination. We'd build a tool that brings together trade schedules, outstanding selections and approved changes, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent assembling the next week's work plan.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Kline Brothers: use AI to bring together trade schedules, outstanding selections and approved changes. I'm {sender} at Nine-67. We'd build it with your team and measure time spent assembling the next week's work plan. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Kline Brothers, I'd start smaller: pool and landscape job coordination. Our AI engineers would bring together trade schedules, outstanding selections and approved changes, then test whether it reduces time spent assembling the next week's work plan. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Kline Brothers, I'd start with one task: pool and landscape job coordination. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "integritylandscapecorp.com",
+    "contactName": "Raitis Raisian",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "one operating review",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Integrity Landscape, I'd start with the operating review across landscape teams: bringing together property issues, outstanding commitments and the next accountable owner. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with the operating review across landscape teams be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Integrity Landscape, I'd explore the operating review across landscape teams. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: one operating review",
+        "message": "For Integrity Landscape, one practical place to try AI is the operating review across landscape teams. We'd build a tool that brings together property issues, outstanding commitments and the next accountable owner, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent preparing an operating review.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Integrity Landscape: use AI to bring together property issues, outstanding commitments and the next accountable owner. I'm {sender} at Nine-67. We'd build it with your team and measure time spent preparing an operating review. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Integrity Landscape, I'd start smaller: the operating review across landscape teams. Our AI engineers would bring together property issues, outstanding commitments and the next accountable owner, then test whether it reduces time spent preparing an operating review. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Integrity Landscape, I'd start with one task: the operating review across landscape teams. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "frankandgrossman.com",
+    "contactName": "Gary Cooper",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "after the walkthrough",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Frank & Grossman Landscape Contractors, I'd start with commercial property follow-through: bringing together walkthrough notes, agreed repairs and crew completion updates. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with commercial property follow-through be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Frank & Grossman Landscape Contractors, I'd explore commercial property follow-through. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: after the walkthrough",
+        "message": "For Frank & Grossman Landscape Contractors, one practical place to try AI is commercial property follow-through. We'd build a tool that brings together walkthrough notes, agreed repairs and crew completion updates, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time from a walkthrough to a closed action.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Frank & Grossman Landscape Contractors: use AI to bring together walkthrough notes, agreed repairs and crew completion updates. I'm {sender} at Nine-67. We'd build it with your team and measure time from a walkthrough to a closed action. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Frank & Grossman Landscape Contractors, I'd start smaller: commercial property follow-through. Our AI engineers would bring together walkthrough notes, agreed repairs and crew completion updates, then test whether it reduces time from a walkthrough to a closed action. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Frank & Grossman Landscape Contractors, I'd start with one task: commercial property follow-through. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "staygreen.com",
+    "contactName": "Chris Angelo",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "carrying customer commitments forward",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Stay Green, I'd start with carrying customer commitments between teams: bringing together property instructions, open requests and the manager responsible. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with carrying customer commitments between teams be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Stay Green, I'd explore carrying customer commitments between teams. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: carrying customer commitments forward",
+        "message": "For Stay Green, one practical place to try AI is carrying customer commitments between teams. We'd build a tool that brings together property instructions, open requests and the manager responsible, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent reconstructing account history.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Stay Green: use AI to bring together property instructions, open requests and the manager responsible. I'm {sender} at Nine-67. We'd build it with your team and measure time spent reconstructing account history. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Stay Green, I'd start smaller: carrying customer commitments between teams. Our AI engineers would bring together property instructions, open requests and the manager responsible, then test whether it reduces time spent reconstructing account history. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Stay Green, I'd start with one task: carrying customer commitments between teams. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "gibsonlandscape.com",
+    "contactName": "Tony Gibson",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "decisions reaching the field",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Gibson Landscape, I'd start with project decisions reaching field teams: bringing together design decisions, revised work instructions and open site questions. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with project decisions reaching field teams be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Gibson Landscape, I'd explore project decisions reaching field teams. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: decisions reaching the field",
+        "message": "For Gibson Landscape, one practical place to try AI is project decisions reaching field teams. We'd build a tool that brings together design decisions, revised work instructions and open site questions, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent finding an approved answer.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Gibson Landscape: use AI to bring together design decisions, revised work instructions and open site questions. I'm {sender} at Nine-67. We'd build it with your team and measure time spent finding an approved answer. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Gibson Landscape, I'd start smaller: project decisions reaching field teams. Our AI engineers would bring together design decisions, revised work instructions and open site questions, then test whether it reduces time spent finding an approved answer. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Gibson Landscape, I'd start with one task: project decisions reaching field teams. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "winterberrygardens.com",
+    "contactName": "Michael Wrobel",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "plants ready for the job",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Winterberry, I'd start with nursery-to-job material planning: bringing together plant availability, job requirements and substitutions needing approval. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with nursery-to-job material planning be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Winterberry, I'd explore nursery-to-job material planning. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: plants ready for the job",
+        "message": "For Winterberry, one practical place to try AI is nursery-to-job material planning. We'd build a tool that brings together plant availability, job requirements and substitutions needing approval, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent checking availability for each job.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Winterberry: use AI to bring together plant availability, job requirements and substitutions needing approval. I'm {sender} at Nine-67. We'd build it with your team and measure time spent checking availability for each job. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Winterberry, I'd start smaller: nursery-to-job material planning. Our AI engineers would bring together plant availability, job requirements and substitutions needing approval, then test whether it reduces time spent checking availability for each job. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Winterberry, I'd start with one task: nursery-to-job material planning. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "lucaslandscape.com",
+    "contactName": "Doug Lucas",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "after the service visit",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Lucas Lawn & Landscape, I'd start with keeping landscape service promises visible: bringing together client requests, the planned visit and the crew's completion note. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with keeping landscape service promises visible be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Lucas Lawn & Landscape, I'd explore keeping landscape service promises visible. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: after the service visit",
+        "message": "For Lucas Lawn & Landscape, one practical place to try AI is keeping landscape service promises visible. We'd build a tool that brings together client requests, the planned visit and the crew's completion note, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time to close a customer request.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Lucas Lawn & Landscape: use AI to bring together client requests, the planned visit and the crew's completion note. I'm {sender} at Nine-67. We'd build it with your team and measure time to close a customer request. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Lucas Lawn & Landscape, I'd start smaller: keeping landscape service promises visible. Our AI engineers would bring together client requests, the planned visit and the crew's completion note, then test whether it reduces time to close a customer request. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Lucas Lawn & Landscape, I'd start with one task: keeping landscape service promises visible. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "americanlandscapesystems.com",
+    "contactName": "Mario Bevilacqua",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "before installation starts",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor American Landscape Systems, I'd start with commercial installation readiness: bringing together approved plans, delivery confirmations and open contractor questions. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with commercial installation readiness be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For American Landscape Systems, I'd explore commercial installation readiness. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: before installation starts",
+        "message": "For American Landscape Systems, one practical place to try AI is commercial installation readiness. We'd build a tool that brings together approved plans, delivery confirmations and open contractor questions, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time supervisors spend gathering job information.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for American Landscape Systems: use AI to bring together approved plans, delivery confirmations and open contractor questions. I'm {sender} at Nine-67. We'd build it with your team and measure time supervisors spend gathering job information. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt American Landscape Systems, I'd start smaller: commercial installation readiness. Our AI engineers would bring together approved plans, delivery confirmations and open contractor questions, then test whether it reduces time supervisors spend gathering job information. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For American Landscape Systems, I'd start with one task: commercial installation readiness. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "aql-inc.com",
+    "contactName": "Sangeeta Ahluwalia",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "customer quality updates",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Automotive Quality & Logistics, I'd start with customer quality-status reporting: bringing together inspection results, containment actions and unresolved shipment questions. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with customer quality-status reporting be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Automotive Quality & Logistics, I'd explore customer quality-status reporting. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: customer quality updates",
+        "message": "For Automotive Quality & Logistics, one practical place to try AI is customer quality-status reporting. We'd build a tool that brings together inspection results, containment actions and unresolved shipment questions, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent preparing each customer status report.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Automotive Quality & Logistics: use AI to bring together inspection results, containment actions and unresolved shipment questions. I'm {sender} at Nine-67. We'd build it with your team and measure time spent preparing each customer status report. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Automotive Quality & Logistics, I'd start smaller: customer quality-status reporting. Our AI engineers would bring together inspection results, containment actions and unresolved shipment questions, then test whether it reduces time spent preparing each customer status report. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Automotive Quality & Logistics, I'd start with one task: customer quality-status reporting. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "chaletnursery.com",
+    "contactName": "Larry Thalmann",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "the project material list",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Chalet, I'd start with getting materials ready for landscape projects: bringing together plant availability, customer selections and delivery requirements. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with getting materials ready for landscape projects be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Chalet, I'd explore getting materials ready for landscape projects. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: the project material list",
+        "message": "For Chalet, one practical place to try AI is getting materials ready for landscape projects. We'd build a tool that brings together plant availability, customer selections and delivery requirements, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent reconciling a project's material list.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Chalet: use AI to bring together plant availability, customer selections and delivery requirements. I'm {sender} at Nine-67. We'd build it with your team and measure time spent reconciling a project's material list. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Chalet, I'd start smaller: getting materials ready for landscape projects. Our AI engineers would bring together plant availability, customer selections and delivery requirements, then test whether it reduces time spent reconciling a project's material list. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Chalet, I'd start with one task: getting materials ready for landscape projects. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "scottbyron.com",
+    "contactName": "Gordon Held",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "the latest client decision",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Scott Byron & Co., I'd start with client decisions reaching construction teams: bringing together approved selections, design revisions and questions still awaiting an answer. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with client decisions reaching construction teams be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Scott Byron & Co., I'd explore client decisions reaching construction teams. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: the latest client decision",
+        "message": "For Scott Byron & Co., one practical place to try AI is client decisions reaching construction teams. We'd build a tool that brings together approved selections, design revisions and questions still awaiting an answer, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent confirming the latest client decision.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Scott Byron & Co.: use AI to bring together approved selections, design revisions and questions still awaiting an answer. I'm {sender} at Nine-67. We'd build it with your team and measure time spent confirming the latest client decision. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Scott Byron & Co., I'd start smaller: client decisions reaching construction teams. Our AI engineers would bring together approved selections, design revisions and questions still awaiting an answer, then test whether it reduces time spent confirming the latest client decision. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Scott Byron & Co., I'd start with one task: client decisions reaching construction teams. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "christywebber.com",
+    "contactName": "Christy Webber",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "property reports",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Christy Webber Landscapes, I'd start with property-service reporting: bringing together completed visits, site observations and work needing approval. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with property-service reporting be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Christy Webber Landscapes, I'd explore property-service reporting. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: property reports",
+        "message": "For Christy Webber Landscapes, one practical place to try AI is property-service reporting. We'd build a tool that brings together completed visits, site observations and work needing approval, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent preparing a client report.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Christy Webber Landscapes: use AI to bring together completed visits, site observations and work needing approval. I'm {sender} at Nine-67. We'd build it with your team and measure time spent preparing a client report. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Christy Webber Landscapes, I'd start smaller: property-service reporting. Our AI engineers would bring together completed visits, site observations and work needing approval, then test whether it reduces time spent preparing a client report. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Christy Webber Landscapes, I'd start with one task: property-service reporting. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "saludahill.com",
+    "contactName": "Wendell Furtick",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "ready for the crew",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Saluda Hill Landscapes, I'd start with construction crew readiness: bringing together approved scope, site access and material delivery status. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with construction crew readiness be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Saluda Hill Landscapes, I'd explore construction crew readiness. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: ready for the crew",
+        "message": "For Saluda Hill Landscapes, one practical place to try AI is construction crew readiness. We'd build a tool that brings together approved scope, site access and material delivery status, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent resolving missing job information.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Saluda Hill Landscapes: use AI to bring together approved scope, site access and material delivery status. I'm {sender} at Nine-67. We'd build it with your team and measure time spent resolving missing job information. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Saluda Hill Landscapes, I'd start smaller: construction crew readiness. Our AI engineers would bring together approved scope, site access and material delivery status, then test whether it reduces time spent resolving missing job information. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Saluda Hill Landscapes, I'd start with one task: construction crew readiness. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "brucecompany.com",
+    "contactName": "Seth Nicholson",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "before plants are ordered",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor The Bruce Company, I'd start with material decisions before landscape installation: bringing together the planting plan, inventory availability and approved substitutions. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with material decisions before landscape installation be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For The Bruce Company, I'd explore material decisions before landscape installation. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: before plants are ordered",
+        "message": "For The Bruce Company, one practical place to try AI is material decisions before landscape installation. We'd build a tool that brings together the planting plan, inventory availability and approved substitutions, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent preparing material orders.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for The Bruce Company: use AI to bring together the planting plan, inventory availability and approved substitutions. I'm {sender} at Nine-67. We'd build it with your team and measure time spent preparing material orders. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt The Bruce Company, I'd start smaller: material decisions before landscape installation. Our AI engineers would bring together the planting plan, inventory availability and approved substitutions, then test whether it reduces time spent preparing material orders. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For The Bruce Company, I'd start with one task: material decisions before landscape installation. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "naturescapelawncare.com",
+    "contactName": "Todd Furry",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "following up on service calls",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Naturescape, I'd start with service-call follow-through: bringing together the customer's concern, treatment history and technician follow-up. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with service-call follow-through be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Naturescape, I'd explore service-call follow-through. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: following up on service calls",
+        "message": "For Naturescape, one practical place to try AI is service-call follow-through. We'd build a tool that brings together the customer's concern, treatment history and technician follow-up, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time from a service call to resolution.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Naturescape: use AI to bring together the customer's concern, treatment history and technician follow-up. I'm {sender} at Nine-67. We'd build it with your team and measure time from a service call to resolution. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Naturescape, I'd start smaller: service-call follow-through. Our AI engineers would bring together the customer's concern, treatment history and technician follow-up, then test whether it reduces time from a service call to resolution. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Naturescape, I'd start with one task: service-call follow-through. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "timberlinelandscaping.com",
+    "contactName": "Judd Bryarly",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "getting work ready for approval",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Timberline Landscaping, I'd start with moving site issues into an approved work plan: bringing together field observations, proposed work and the manager's decision. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with moving site issues into an approved work plan be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Timberline Landscaping, I'd explore moving site issues into an approved work plan. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: getting work ready for approval",
+        "message": "For Timberline Landscaping, one practical place to try AI is moving site issues into an approved work plan. We'd build a tool that brings together field observations, proposed work and the manager's decision, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent preparing work for approval.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Timberline Landscaping: use AI to bring together field observations, proposed work and the manager's decision. I'm {sender} at Nine-67. We'd build it with your team and measure time spent preparing work for approval. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Timberline Landscaping, I'd start smaller: moving site issues into an approved work plan. Our AI engineers would bring together field observations, proposed work and the manager's decision, then test whether it reduces time spent preparing work for approval. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Timberline Landscaping, I'd start with one task: moving site issues into an approved work plan. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "franzwitte.com",
+    "contactName": "Toby Mancini",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "from nursery to job site",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Franz Witte Landscape Contracting, I'd start with the handoff from nursery to installation: bringing together plant availability, project specifications and approved substitutions. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with the handoff from nursery to installation be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Franz Witte Landscape Contracting, I'd explore the handoff from nursery to installation. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: from nursery to job site",
+        "message": "For Franz Witte Landscape Contracting, one practical place to try AI is the handoff from nursery to installation. We'd build a tool that brings together plant availability, project specifications and approved substitutions, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent checking a project's plant list.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Franz Witte Landscape Contracting: use AI to bring together plant availability, project specifications and approved substitutions. I'm {sender} at Nine-67. We'd build it with your team and measure time spent checking a project's plant list. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Franz Witte Landscape Contracting, I'd start smaller: the handoff from nursery to installation. Our AI engineers would bring together plant availability, project specifications and approved substitutions, then test whether it reduces time spent checking a project's plant list. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Franz Witte Landscape Contracting, I'd start with one task: the handoff from nursery to installation. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "mullinlandscape.com",
+    "contactName": "Chase Mullin",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "the commercial branch review",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Mullin, I'd start with the commercial branch review: bringing together unfinished work, customer commitments and decisions blocking crews. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with the commercial branch review be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Mullin, I'd explore the commercial branch review. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: the commercial branch review",
+        "message": "For Mullin, one practical place to try AI is the commercial branch review. We'd build a tool that brings together unfinished work, customer commitments and decisions blocking crews, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure review preparation time.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Mullin: use AI to bring together unfinished work, customer commitments and decisions blocking crews. I'm {sender} at Nine-67. We'd build it with your team and measure review preparation time. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Mullin, I'd start smaller: the commercial branch review. Our AI engineers would bring together unfinished work, customer commitments and decisions blocking crews, then test whether it reduces review preparation time. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Mullin, I'd start with one task: the commercial branch review. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "completelandsculpture.com",
+    "contactName": "Chris Strempek",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "project handoffs",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Complete Landsculpture, I'd start with the transition from construction to ongoing care: bringing together completed scope, outstanding items and the maintenance schedule. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with the transition from construction to ongoing care be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Complete Landsculpture, I'd explore the transition from construction to ongoing care. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: project handoffs",
+        "message": "For Complete Landsculpture, one practical place to try AI is the transition from construction to ongoing care. We'd build a tool that brings together completed scope, outstanding items and the maintenance schedule, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent preparing project handoffs.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Complete Landsculpture: use AI to bring together completed scope, outstanding items and the maintenance schedule. I'm {sender} at Nine-67. We'd build it with your team and measure time spent preparing project handoffs. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Complete Landsculpture, I'd start smaller: the transition from construction to ongoing care. Our AI engineers would bring together completed scope, outstanding items and the maintenance schedule, then test whether it reduces time spent preparing project handoffs. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Complete Landsculpture, I'd start with one task: the transition from construction to ongoing care. Would you be open to comparing priorities?"
+      }
+    ]
+  },
+  {
+    "domain": "hiddencreeklandscaping.com",
+    "contactName": "Jason Cromley",
+    "variants": [
+      {
+        "id": "direct-offer",
+        "label": "Direct Offer",
+        "subject": "approved selections for the build",
+        "message": "I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor Hidden Creek Landscaping, I'd start with client selections reaching the build team: bringing together approved materials, latest design changes and outstanding selections. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with client selections reaching the build team be useful, or is another task higher on your list?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For Hidden Creek Landscaping, I'd explore client selections reaching the build team. We'd build with your team and stay through testing and training. Is that something you'd like help with?"
+      },
+      {
+        "id": "concrete-idea",
+        "label": "Concrete Idea",
+        "subject": "one AI project: approved selections for the build",
+        "message": "For Hidden Creek Landscaping, one practical place to try AI is client selections reaching the build team. We'd build a tool that brings together approved materials, latest design changes and outstanding selections, ready for your team to check and act on.\n\nI'm {sender} at Nine-67. We build with the people doing the work and train them as we launch. We'd start with one team and measure time spent checking what is ready to build.\n\nIs that a useful first project to discuss?",
+        "linkedinMessage": "One idea for Hidden Creek Landscaping: use AI to bring together approved materials, latest design changes and outstanding selections. I'm {sender} at Nine-67. We'd build it with your team and measure time spent checking what is ready to build. Is that worth a conversation?"
+      },
+      {
+        "id": "delivery-experience",
+        "label": "Delivery Experience",
+        "subject": "getting AI into daily use",
+        "message": "I'm {sender} at Nine-67. We recently helped one client deploy 20 applications, working with leaders on priorities and users on testing, training and launch.\n\nAt Hidden Creek Landscaping, I'd start smaller: client selections reaching the build team. Our AI engineers would bring together approved materials, latest design changes and outstanding selections, then test whether it reduces time spent checking what is ready to build. Your team would review the output.\n\nWould you be open to a short conversation about where we could help?",
+        "linkedinMessage": "I'm {sender} at Nine-67. We helped one client deploy 20 applications, including user testing and training. For Hidden Creek Landscaping, I'd start with one task: client selections reaching the build team. Would you be open to comparing priorities?"
+      }
+    ]
+  }
+]

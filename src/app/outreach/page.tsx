@@ -7,6 +7,7 @@ import { recipientResearch } from "@/lib/recipient-research";
 import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
 import { createHash } from "node:crypto";
 import { reachoutList } from "@/lib/focus-data";
+import { batchProgress } from "@/lib/reachout-batches";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
 import { Desk, type DeskContext } from "@/components/Desk";
 import { ScanControl } from "@/components/ScanControl";
@@ -79,9 +80,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     redirect("/setup");
   }
   const me = await requireUser();
-  const selectedList = reachoutList(params.list, me.owner);
-  const curatedDrafts = selectedList.drafts;
-  const curatedDomains = curatedDrafts.map(row => row.domain);
+  const requestedList = reachoutList(params.list, me.owner);
   {
     const pending = await pendingMigrations(admin());
     if (pending.length) return <MigrationRequired pending={pending} />;
@@ -91,8 +90,17 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   const db = admin();
   // Populate the selected companies into the original editor once. Existing
   // drafts, sent records, and contact restrictions remain untouched.
-  const existing = await db.from("cards").select("status,dismiss_reason,score_breakdown,signals!inner(hash),people(full_name)").like("signals.hash", "operator-shortlist-20260923:%");
+  const existing = await db.from("cards").select("status,assigned_to,dismiss_reason,score_breakdown,signals!inner(hash),people(full_name),touches(sent_at,sent_by)").like("signals.hash", "operator-shortlist-20260923:%");
   if (existing.error) throw existing.error;
+  const progress = batchProgress(requestedList.owner, (existing.data ?? []).map(row => ({
+    domain: (row.signals as unknown as { hash: string }).hash.split(":")[1],
+    owner: row.assigned_to,
+    status: row.status,
+    contacted: (row.touches ?? []).some(touch => touch.sent_at && touch.sent_by === requestedList.owner),
+  })));
+  const selectedList = reachoutList(params.list, me.owner, progress.sequence);
+  const curatedDrafts = selectedList.drafts;
+  const curatedDomains = curatedDrafts.map(row => row.domain);
   const prepared = new Set((existing.data ?? []).filter(row => {
     const hash = (row.signals as unknown as { hash: string }).hash;
     const person = row.people as unknown as { full_name: string } | null;
@@ -305,7 +313,10 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       </nav>
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
       <Desk
-        key={`${me.owner}:${selectedList.id}`}
+        key={`${me.owner}:${selectedList.id}:${selectedList.sequence}`}
+        batchSequence={selectedList.sequence}
+        listOwner={selectedList.owner}
+        batchCompletedDomains={progress.completedDomains}
         listHref={selectedList.href}
         initialCards={cards}
         senderName={senderFirstName(sender) || (selectedList.owner === "josh" ? "Josh" : "Suuchi")}
