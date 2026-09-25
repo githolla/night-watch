@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { publishedEmailPatch } from "@/lib/focused-contact";
 import { wasAutomaticallyArchived } from "@/lib/curated-card-state";
 import { senderProfile } from "@/lib/sender";
@@ -305,19 +304,19 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       <Header />
       <nav aria-label="Reach-out lists" className="reachout-list-switcher">
         {[{ id: "josh", label: "Josh" }, { id: "suuchi", label: "Suuchi" }].map(list => (
-          // The Desk key includes the list ID, so client navigation remounts its state.
-          // Disable prefetch because preparing a new list can write missing drafts.
-          <Link prefetch={false} key={list.id} href={`/outreach?list=${list.id}${params.batch === '1' || params.batch === '2' ? `&batch=${params.batch}` : ''}`} aria-current={selectedList.id === list.id ? "page" : undefined}>
+          // Use document navigation for list switches. The first visit may prepare
+          // records, and must not wait silently in a client-side transition.
+          <a key={list.id} href={`/outreach?list=${list.id}${params.batch === '1' || params.batch === '2' ? `&batch=${params.batch}` : ''}`} aria-current={selectedList.id === list.id ? "page" : undefined}>
             {list.label}
-          </Link>
+          </a>
         ))}
       </nav>
       <nav aria-label="Company batches" className="reachout-list-switcher">
-        {([1, 2] as const).map(sequence => <Link prefetch={false} key={sequence}
+        {([1, 2] as const).map(sequence => <a key={sequence}
           href={reachoutList(selectedList.id, me.owner, sequence).href}
           aria-current={selectedList.sequence === sequence ? 'page' : undefined}>
           {sequence === 1 ? 'First 25' : 'Next 25'}
-        </Link>)}
+        </a>)}
       </nav>
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
       <Desk
