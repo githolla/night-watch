@@ -684,7 +684,9 @@ export async function recomputeAndSurface() {
   const repair = await repairBrokenDrafts().catch(() => null);
   if (repair?.repaired) console.warn(`[night-watch] brought ${repair.repaired} draft(s) back in line with the writer`);
   if (repair && !repair.done) console.warn("[night-watch] draft repair ran out of time; the next pass continues where it stopped");
-  const { data: cards } = await db.from("cards").select("id,score_breakdown,signals(type,observed_at,raw,hash),accounts(outreach,domain,status)").in("status", ["new", "approved", "edited", "snoozed"]);
+  // status, worklist_on and working_at are READ below to decide whether a card is in somebody's hands. A
+  // column the code reads but the query never selects arrives undefined, and the guard would never fire.
+  const { data: cards } = await db.from("cards").select("id,status,worklist_on,working_at,score_breakdown,signals(type,observed_at,raw,hash),accounts(outreach,domain,status)").in("status", ["new", "approved", "edited", "snoozed"]);
   for (const card of cards ?? []) {
     const signal = card.signals as unknown as { type?: string; hash?: string; observed_at: string; raw?: { operating_need?: unknown } | null };
     const account = card.accounts as unknown as { outreach?: boolean | null; domain?: string; status?: string } | null;
@@ -714,7 +716,13 @@ export async function recomputeAndSurface() {
     const payload: { score: number; score_breakdown: StoredBreakdown; status?: "archived" } = { score: nextScore, score_breakdown: nextBreakdown };
     // A hiring dossier stays open while the role is open; only non-hiring signals archive on recency decay.
     const isHiring = signal.type === "job_post" || signal.type === "job_cluster";
-    if (nextScore < ARCHIVE_THRESHOLD && !isHiring) payload.status = "archived";
+    // Never retire a card somebody is holding. This runs on every worklist refresh, so a card could be
+    // archived while its draft was open — and archived is neither editable nor sendable, so the operator
+    // then met "This draft is no longer editable", a 409 on every save, and "Not sent: this card is
+    // archived" on an email they had just written. restoreSelectedDraft recovers the curated shortlist
+    // after the fact; not archiving it in the first place is what stops the rest recurring.
+    const inHand = Boolean(card.worklist_on) || Boolean(card.working_at) || card.status === "edited" || card.status === "approved";
+    if (nextScore < ARCHIVE_THRESHOLD && !isHiring && !inHand) payload.status = "archived";
     await db.from("cards").update(payload).eq("id", card.id);
   }
   const today = new Date().toISOString().slice(0, 10);
