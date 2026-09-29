@@ -25,19 +25,27 @@ export function CadencePlanner({ cardId, demo, channel, personName, company, ema
     }
     setBusy(true);
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-    const response = await fetch(`/api/cards/${cardId}/cadence`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ mode, stopOnReply, weekdaysOnly, sendWindow: "09:30–11:30", timeZone, steps }),
-    });
-    const result = await response.json();
-    setBusy(false);
-    if (!response.ok) {
-      onActivated(result.error ?? "Unable to activate cadence.");
-      return;
+    // finally, so a request that rejects cannot leave the button disabled for good with nothing said.
+    try {
+      const response = await fetch(`/api/cards/${cardId}/cadence`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ mode, stopOnReply, weekdaysOnly, sendWindow: "09:30–11:30", timeZone, steps }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        onActivated(result.error ?? "Unable to activate cadence.");
+        return;
+      }
+      setActive(true);
+      onActivated("Cadence activated. Automatic email steps will send inside the selected window; social steps will wait for your review.");
+    } catch {
+      // Deliberately not "nothing was scheduled": the request may have completed on the server after the
+      // connection dropped. Check before starting it again.
+      onActivated("Cadence status unknown: the connection was interrupted. Reload and check before starting it again.");
+    } finally {
+      setBusy(false);
     }
-    setActive(true);
-    onActivated("Cadence activated. Automatic email steps will send inside the selected window; social steps will wait for your review.");
   }
 
   return (
