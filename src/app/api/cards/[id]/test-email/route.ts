@@ -54,13 +54,18 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const html = delivery.html;
     await sendEmail(user.owner, fromHeader(mailboxProfile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);
     // Tests never create touches, change card status or enroll follow-ups.
-    const { data: snapshot } = await db.from('message_variants').select('experiment_id,dimensions').eq('id', versionId).single();
     let warning: string | undefined;
-    if (snapshot) {
-      const { error } = await db.from('message_experiments').update({ status: 'sent' }).eq('id', snapshot.experiment_id).eq('owner', user.owner);
-      if (error) warning = 'The test was sent, but its delivery status could not be saved. Do not resend just to fix that.';
-    } else warning = 'The test was sent, but its history could not be loaded.';
-    return Response.json({ ok: true, id: versionId, to: connection.email, label: versionLabel(snapshot?.dimensions), openAt: null, warning });
+    let label = 'Test email';
+    try {
+      const { data: snapshot, error: snapshotError } = await db.from('message_variants').select('experiment_id,dimensions').eq('id', versionId).single();
+      if (snapshotError || !snapshot) warning = 'The test was sent, but its history could not be loaded. Do not resend just to fix that.';
+      else {
+        label = versionLabel(snapshot.dimensions);
+        const { error } = await db.from('message_experiments').update({ status: 'sent' }).eq('id', snapshot.experiment_id).eq('owner', user.owner);
+        if (error) warning = 'The test was sent, but its delivery status could not be saved. Do not resend just to fix that.';
+      }
+    } catch { warning = 'The test was sent, but saving its history was interrupted. Check your inbox; do not resend just to fix that.'; }
+    return Response.json({ ok: true, id: versionId, to: connection.email, label, openAt: null, warning });
   } catch (error) { return Response.json({ error: error instanceof Error ? error.message : 'Test send failed' }, { status: 400 }); }
 }
 

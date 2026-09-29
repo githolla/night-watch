@@ -13,7 +13,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const { id } = await context.params;
     const { reopen, saved_variant_id, saved_variant_channel, ...body } = update.parse(await request.json());
     const db = admin();
-    await restoreSelectedDraft(db, id, reopen === true);
+    const restoredStatus = await restoreSelectedDraft(db, id, reopen === true);
+    if (reopen) body.status = restoredStatus as typeof body.status;
     if (reopen) {
       const { data: recovered, error: readError } = await db.from("cards").select("email_body,email_subject,accounts(domain),people(full_name)").eq("id", id).single();
       if (readError) throw readError;
@@ -50,7 +51,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const editsCopy = ["email_subject", "email_body", "linkedin_note", "linkedin_comment", "linkedin_message", "linkedin_subject"].some(key => key in body);
     if (editsCopy && !linkedinOnly && (!body.status || body.status === "new")) body.status = "edited";
     let query = db.from("cards").update({ ...body, ...(selectedId && saved_variant_channel === "email" ? { active_variant_id: selectedId } : {}) }).eq("id", id);
-    if (editsCopy) query = query.in("status", editableStatuses);
+    if (editsCopy || reopen) query = query.in("status", editableStatuses);
     const { data, error } = await query.select().maybeSingle();
     if (error) throw error;
     if (!data) return Response.json({ error: "This card changed or was sent. Reload before editing." }, { status: 409 });
