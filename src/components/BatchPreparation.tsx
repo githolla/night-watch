@@ -1,11 +1,32 @@
 'use client';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-export function BatchPreparation({domains}:{domains:string[]}){
- const [busy,setBusy]=useState(false),[message,setMessage]=useState('');const router=useRouter();
- async function prepare(){setBusy(true);try{let done=0;for(const domain of domains){setMessage(`Preparing ${done+1} of ${domains.length} companies…`);const response=await fetch('/api/desk/priority-draft',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({domain})});if(!response.ok&&response.status!==409){const data=await response.json();throw new Error(data.error??'Could not prepare this company.');}done++;}setMessage('Preparation complete.');router.refresh();}catch(e){setMessage(e instanceof Error?e.message:'Preparation failed. Try again.');}finally{setBusy(false);}}
- return <section className="batch-preparation" aria-label="Draft preparation">
-   <div><strong>{busy ? 'Preparing drafts' : `${domains.length} companies to prepare`}</strong><span role="status">{message || 'You can keep working on existing drafts.'}</span></div>
-   <button type="button" className="btn" disabled={busy} onClick={prepare}>{busy?'Preparing…':'Prepare drafts'}</button>
- </section>;
+const completed = new Set<string>();
+const pending = new Map<string, Promise<boolean>>();
+async function prepare(domain: string) {
+ if (completed.has(domain)) return false;
+ const existing = pending.get(domain);
+ if (existing) return existing;
+ const task = fetch('/api/desk/priority-draft', { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({domain}) })
+  .then(response => response.ok).catch(() => false);
+ pending.set(domain, task);
+ try { const ok = await task; if (ok) completed.add(domain); return ok; } finally { pending.delete(domain); }
+}
+/** Prepare saved copy quietly while the user works; never send email. */
+export function BatchPreparation({domains}:{domains:string[]}) {
+ const router = useRouter();
+ const key = JSON.stringify(domains);
+ useEffect(() => {
+  let cancelled = false;
+  void (async () => {
+   let changed = false;
+   for (const domain of JSON.parse(key) as string[]) {
+    if (cancelled) return;
+    changed = await prepare(domain) || changed;
+   }
+   if (!cancelled && changed) router.refresh();
+  })();
+  return () => { cancelled = true; };
+ }, [key, router]);
+ return null;
 }

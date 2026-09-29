@@ -943,10 +943,6 @@ export function Desk({
   const workingView = !active && !browse && cards.length > 0;
   return (
     <main className={`pipeline${workingView ? " pipeline-work" : ""}`}>
-      {batchSequence && progress && <div className="batch-progress-row">
-        <strong>{batchSequence === 1 ? 'First 25' : 'Next 25'}</strong>
-        {batchSequence === 1 ? <><progress aria-label="Companies completed" value={progress.completed} max={Math.max(1, progress.total)} /><span>{progress.completed} of {progress.total} completed</span>{progress.sequence === 2 && autoAdvanceBatch && <span>Opening next batch…</span>}</> : <span>Separate batch · ready to work</span>}
-      </div>}
       {scan && !workingView && <div className="pipeline-scan">{scan}</div>}
       {cards.length === 0 ? (
           <div className="detail-inner empty-desk">
@@ -1218,9 +1214,9 @@ export function Desk({
         </div>
       ) : (
         <div className="deskwork">
-          <header className="deskwork-head">
-            <div><span className="overview-kick">Your reach-out list</span><h1>Start the right conversation.</h1><p className="reachout-subtitle">{curatedDomains.length} operating companies · $10M to $100M annual revenue · Individual contact drafts</p></div>
-            <div className="deskwork-head-right"><span>Night Watch</span><strong>{focusPool.length} companies to review</strong><div className="deskwork-head-actions">{tools}<a className="deskwork-overview" href={overviewHref}>Overview &rarr;</a></div></div>
+          <header className="deskwork-head deskwork-head-compact">
+            <div className="workspace-progress"><h1>Reach-out list</h1>{batchSequence && progress && <span>{batchSequence === 1 ? `${progress.completed} of ${progress.total} completed` : 'Next 25'}</span>}</div>
+            <div className="deskwork-head-actions">{tools}<a className="deskwork-overview" href={overviewHref}>Overview &rarr;</a></div>
           </header>
 
           <div className="deskwork-grid">
