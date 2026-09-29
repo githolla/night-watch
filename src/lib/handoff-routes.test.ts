@@ -208,3 +208,24 @@ test('effective user uses Suuchi owner while retaining the real administrator', 
  available=false;await assert.rejects(r.requireUser(),/unavailable/);
  available=true;role='member';await assert.rejects(r.requireUser(),/Denied/);
 });
+
+test('sequence setup uses the existing expression-indexed person without an invalid upsert', async () => {
+ for (const exists of [false,true]) {
+ let inserts=0;let updates=0;
+ const db={from(table:string){const q={
+  select(){return q},eq(){return q},ilike(){return q},
+  upsert(_value:unknown,options:{onConflict:string}){assert.notEqual(table,'people');assert.notEqual(options.onConflict,'account_id,full_name');return q},
+  insert(){inserts++;return q},update(){updates++;return q},
+  maybeSingle:async()=>({data:table==='gmail_connections'?{email:'suuchi@example.com'}:exists?{id:'person'}:null}),
+  single:async()=>({data:{id:table==='people'?'person':table}}),
+  then(resolve:(v:unknown)=>unknown){return Promise.resolve(resolve({error:null}))},
+ };return q;}};
+ const r=route('../app/api/admin/test-sequence/route.ts',{
+  '@/lib/auth':{requireUser:async()=>({role:'member',owner:'jenna',actor:{id:'admin'}})},
+  '@/lib/supabase/admin':{admin:()=>db},
+ });
+ const response=await r.POST(new Request('https://test/api',{method:'POST',body:'{}'}));
+ assert.equal(response.status,200);assert.equal((await response.json()).to,'suuchi@example.com');
+ assert.equal(inserts,exists?0:1);assert.equal(updates,1);
+ }
+});

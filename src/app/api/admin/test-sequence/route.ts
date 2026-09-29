@@ -16,7 +16,7 @@ const TEST_DOMAIN = "sequence-test.nine-67.invalid";
 export async function POST(request: Request) {
   try {
     const user = await requireUser();
-    if (user.role !== "admin") return Response.json({ error: "Admins only" }, { status: 403 });
+    if (user.role !== "admin" && !user.actor) return Response.json({ error: "Admins only" }, { status: 403 });
     const body = await request.json().catch(() => ({}));
     const db = admin();
 
@@ -33,11 +33,29 @@ export async function POST(request: Request) {
     }, { onConflict: "domain" }).select("id").single();
     if (accountError) return Response.json({ error: accountError.message }, { status: 400 });
 
-    const { data: person, error: personError } = await db.from("people").upsert({
+    // The database indexes lower(full_name), not the raw full_name column.
+    // PostgreSQL cannot use that expression index for ON CONFLICT(account_id,full_name).
+    const personValues = {
       account_id: account.id, full_name: "Test Recipient", first_name: "Test", last_name: "Recipient",
       title: "Chief Operating Officer", level: "owner", email: to, email_status: "verified", do_not_contact: false,
-    }, { onConflict: "account_id,full_name" }).select("id").single();
-    if (personError) return Response.json({ error: personError.message }, { status: 400 });
+    };
+    const findPerson = () => db.from("people").select("id").eq("account_id", account.id).ilike("full_name", "Test Recipient").maybeSingle();
+    const existing = await findPerson();
+    if (existing.error) throw existing.error;
+    let person = existing.data;
+    if (!person) {
+      const created = await db.from("people").insert(personValues).select("id").single();
+      if (created.error && created.error.code !== "23505") throw created.error;
+      person = created.data;
+      if (!person) {
+        const concurrent = await findPerson();
+        if (concurrent.error) throw concurrent.error;
+        person = concurrent.data;
+      }
+    }
+    if (!person) throw new Error("Could not create the test recipient. Please retry.");
+    const { error: personError } = await db.from("people").update(personValues).eq("id", person.id);
+    if (personError) throw personError;
 
     const today = new Date().toISOString().slice(0, 10);
     const { data: signal, error: signalError } = await db.from("signals").upsert({
@@ -69,7 +87,7 @@ export async function POST(request: Request) {
 export async function DELETE() {
   try {
     const user = await requireUser();
-    if (user.role !== "admin") return Response.json({ error: "Admins only" }, { status: 403 });
+    if (user.role !== "admin" && !user.actor) return Response.json({ error: "Admins only" }, { status: 403 });
     const { error } = await admin().from("accounts").delete().eq("domain", TEST_DOMAIN);
     if (error) return Response.json({ error: error.message }, { status: 400 });
     return Response.json({ ok: true });
