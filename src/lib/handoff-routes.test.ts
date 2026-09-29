@@ -159,3 +159,19 @@ test('a stale draft revision returns conflict and cannot overwrite another sessi
  assert.equal(response.status,409);assert.equal(wrote,false);assert.match((await response.json()).error,/another session/);
  assert.equal(filters.get('updated_at'),'2026-09-29T14:00:00.000Z');assert.ok(!('expected_updated_at' in payload));
 });
+
+test('version-checked edit restores an automatic shortlist archive without losing the edit',async()=>{
+ const {memoryDb}=await import('./testing/memory-db.ts');
+ const {restoreSelectedDraft}=await import('./restore-selected-draft.ts');
+ const h=memoryDb({cards:[{id:'card',person_id:'person',status:'archived',updated_at:'v1',dismiss_reason:null,score_breakdown:{},accounts:{domain:'dortchenterprises.com',status:'active'},signals:{hash:'operator-shortlist-20260923:dortchenterprises.com'},people:{do_not_contact:false},email_body:'Old draft'}]});
+ const r=route('../app/api/cards/[id]/route.ts',{'@/lib/restore-selected-draft':{restoreSelectedDraft},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/supabase/admin':{admin:()=>h.db}});
+ const response=await r.PATCH(new Request('https://test',{method:'PATCH',body:JSON.stringify({email_body:'Suuchi edited this',expected_updated_at:'v1'})}),{params:Promise.resolve({id:'card'})});
+ assert.equal(response.status,200);const data=await response.json();assert.equal(data.email_body,'Suuchi edited this');assert.equal(data.status,'edited');assert.equal(data.restored,true);
+});
+test('stale archived edit never overwrites another session',async()=>{
+ const {memoryDb}=await import('./testing/memory-db.ts');const {restoreSelectedDraft}=await import('./restore-selected-draft.ts');
+ const h=memoryDb({cards:[{id:'card',person_id:'person',status:'archived',updated_at:'v2',dismiss_reason:null,score_breakdown:{},accounts:{domain:'dortchenterprises.com',status:'active'},signals:{hash:'operator-shortlist-20260923:dortchenterprises.com'},people:{do_not_contact:false},email_body:'Other session text'}]});
+ const r=route('../app/api/cards/[id]/route.ts',{'@/lib/restore-selected-draft':{restoreSelectedDraft},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/supabase/admin':{admin:()=>h.db}});
+ const response=await r.PATCH(new Request('https://test',{method:'PATCH',body:JSON.stringify({email_body:'Stale edit',expected_updated_at:'v1'})}),{params:Promise.resolve({id:'card'})});
+ assert.equal(response.status,409);assert.equal(h.tables.cards[0].email_body,'Other session text');assert.equal(h.tables.cards[0].status,'archived');
+});

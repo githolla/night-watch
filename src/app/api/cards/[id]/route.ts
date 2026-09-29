@@ -13,7 +13,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const { id } = await context.params;
     const { expected_updated_at, reopen, saved_variant_id, saved_variant_channel, ...body } = update.parse(await request.json());
     const db = admin();
-    const restoredStatus = (!expected_updated_at || reopen) ? await restoreSelectedDraft(db, id, reopen === true) : undefined;
+    let writeVersion=expected_updated_at, restored=false;
+    const restoredStatus = await restoreSelectedDraft(db, id, reopen === true, {expectedUpdatedAt:reopen?undefined:expected_updated_at,onRestored:(version)=>{writeVersion=version;restored=true;}});
     if (reopen) body.status = restoredStatus as typeof body.status;
     if (reopen) {
       const { data: recovered, error: readError } = await db.from("cards").select("email_body,email_subject,accounts(domain),people(full_name)").eq("id", id).single();
@@ -51,13 +52,22 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const editsCopy = ["email_subject", "email_body", "linkedin_note", "linkedin_comment", "linkedin_message", "linkedin_subject"].some(key => key in body);
     if (editsCopy && !linkedinOnly && (!body.status || body.status === "new")) body.status = "edited";
     let query = db.from("cards").update({ ...body, ...(selectedId && saved_variant_channel === "email" ? { active_variant_id: selectedId } : {}) }).eq("id", id);
-    if (expected_updated_at && !reopen) query = query.eq("updated_at", expected_updated_at);
+    if (writeVersion && (!reopen || restored)) query = query.eq("updated_at", writeVersion);
     if (editsCopy || reopen) query = query.in("status", editableStatuses);
     const { data, error } = await query.select().maybeSingle();
     if (error) throw error;
     if (!data) return Response.json({ error: "This draft changed in another session or was sent. Your text is still on screen. Reload the saved draft before resolving your changes." }, { status: 409 });
-    return Response.json(data);
+    return Response.json({...data,restored});
   } catch (error) {
-    return Response.json({ error: error instanceof Error ? error.message : "Update failed" }, { status: 400 });
+    return Response.json({ error: error instanceof Error ? error.message : "Update failed" }, { status: error instanceof Error && error.message.startsWith("This draft changed") ? 409 : 400 });
   }
+}
+
+/** Fetch a saved copy for conflict review without replacing the user's local edits. */
+export async function GET(_request:Request,context:{params:Promise<{id:string}>}){
+ try{await requireUser();const {id}=await context.params;
+ const {data,error}=await admin().from('cards').select('id,status,updated_at,email_subject,email_body,linkedin_subject,linkedin_message').eq('id',id).single();
+ if(error||!data)throw new Error('Could not load the saved draft.');
+ return Response.json(data,{headers:{'Cache-Control':'no-store'}});
+ }catch(error){return Response.json({error:error instanceof Error?error.message:'Could not load draft'},{status:400});}
 }

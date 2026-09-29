@@ -219,6 +219,11 @@ export function Desk({
   const dirtyFields = useRef(new Set<string>());
   const serverVersions = useRef(new Map(initialCards.map(c => [c.id, c.updated_at])));
   const [saveState, setSaveState] = useState("Saved");
+  const [conflict,setConflict]=useState<{id:string;saved?:{status:string;updated_at:string;email_subject:string;email_body:string;linkedin_subject:string;linkedin_message:string}}|null>(null);
+  async function reviewConflict(id:string){
+    try{const response=await fetch(`/api/cards/${id}`,{cache:'no-store'});const data=await response.json();if(!response.ok)throw new Error(data.error);setConflict({id,saved:data});}
+    catch{setNotice('Could not load the saved copy. Your edits remain here. Try again.');}
+  }
   useEffect(() => {
     const beforeUnload = (event: BeforeUnloadEvent) => { if (dirtyFields.current.size || saveQueues.current.size) { event.preventDefault(); event.returnValue = ""; } };
     const navigation = (event: MouseEvent) => {
@@ -382,9 +387,11 @@ export function Desk({
           body: JSON.stringify({ ...values, expected_updated_at: serverVersions.current.get(cardId) }),
         });
         const json = await response.json();
-        if (!response.ok) { setSaveState("Save failed"); setNotice(`Not saved: ${json.error ?? "Please retry. Your text remains on screen."}`); return false; }
+        if (!response.ok) { if(response.status===409)setConflict({id:cardId});setSaveState("Save failed"); setNotice(`Not saved: ${json.error ?? "Please retry. Your text remains on screen."}`); return false; }
         if (json.updated_at) serverVersions.current.set(cardId, json.updated_at);
+        if(conflict?.id===cardId)setConflict(null);
         const acknowledged = acknowledgedDraftFields(values, json, submitted, revisions.current[cardId] ?? {});
+        if(json.restored || values.reopen)acknowledged.status=json.status;
         // Restore explicitly recovers blank stored copy; regular saves only acknowledge submitted fields.
         if (values.reopen) for (const key of ["status", "email_body", "email_subject"]) if (json[key] !== undefined && !(revisions.current[cardId]?.[key])) acknowledged[key] = json[key];
         setCards(current => current.map(item => item.id === cardId ? { ...item, ...acknowledged } : item));
@@ -1043,7 +1050,7 @@ export function Desk({
               <div className="person-contact"><span>{card.people.email ?? "No verified email"}</span><span>{emailStateLabel(card.people.email_status)}</span></div>
             </div>
 
-            {notice && <p className="notice">{notice}</p>}
+            {notice && <div className="notice" role="alert"><span>{notice}</span><button type="button" className="btn" aria-label="Dismiss notification" onClick={()=>setNotice("")}>×</button></div>}
 
             <section className="why-now-brief">
               <div><span className="eyebrow">Why now</span><p>{card.why_now}</p></div>
@@ -1330,6 +1337,7 @@ export function Desk({
                     <button type="button" disabled={busy} onClick={dismissCurrent}>Dismiss contact</button>
                   </div></details>
                 </div>
+                {conflict?.id===focusCard.id&&<div className="composer-alert" role="status"><strong>Your changes have not been saved.</strong> Your text is still here. <button className="btn" type="button" onClick={()=>reviewConflict(focusCard.id)}>Review saved draft</button>{conflict.saved&&<><p>Saved subject: {channelTab==='email'?conflict.saved.email_subject:conflict.saved.linkedin_subject}</p><pre style={{whiteSpace:'pre-wrap',maxHeight:180,overflow:'auto'}}>{channelTab==='email'?conflict.saved.email_body:conflict.saved.linkedin_message}</pre><button type="button" className="btn" disabled={sending} onClick={async()=>{const saved=conflict.saved!;serverVersions.current.set(focusCard.id,saved.updated_at);const values=channelTab==='email'?{email_subject:focusCard.email_subject??'',email_body:focusCard.email_body??''}:{linkedin_subject:focusCard.linkedin_subject??'',linkedin_message:focusCard.linkedin_message??''};await patchFocus(values);}}>Save my edits over this copy</button><button type="button" className="btn" onClick={()=>setConflict({id:focusCard.id})}>Close comparison</button></>}</div>}
                 {focusCard.status === "archived" && <div className="composer-alert" role="status"><strong>This draft is archived.</strong> Restore it before editing or sending. <button type="button" className="btn" disabled={busy} onClick={async () => { if (await patchFocus({ reopen: true })) { setNotice("Draft restored. You can now choose a version, edit and send."); router.refresh(); } }}>Restore draft</button></div>}
                 {channelTab === "email" && !senderFooterHtml && <p className="composer-alert">No signature is available for {senderName}. <Link href="/settings">Check signature settings</Link>.</p>}
                 {senderConflict && <p className="composer-alert" role="alert">{senderConflict}</p>}
@@ -1461,7 +1469,7 @@ export function Desk({
                     {previewingVersion && tonePreview ? <><button type="button" className="btn" onClick={() => setTonePreview(null)}>Cancel</button><button type="button" className="btn primary" disabled={busy} onClick={applyTone}>{busy ? "Saving…" : "Use this version"}</button></> : channelTab === "email" ? !sentAlready && <button type="button" disabled={!senderIsViewer || sending || !contact.email} className="btn primary" title={!senderIsViewer ? `Sign in as ${senderName} to send to this contact` : `Send to ${contact.full_name}`} onClick={sendEmail}>{sending ? "Sending…" : "Send email"} →</button> : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn ↗</button>}
                   </div>
                 </footer>
-                {notice && <p className="notice focus-notice" role="alert">{notice}</p>}
+                {notice && <div className="notice focus-notice" role="alert" style={{display:"flex",alignItems:"flex-start",gap:12}}><span style={{flex:1}}>{notice}</span><button type="button" aria-label="Dismiss notification" onClick={()=>setNotice("")} style={{border:0,background:"transparent",fontSize:24,lineHeight:1,cursor:"pointer",padding:4}}>×</button></div>}
               </section>
             </>) : (
               <div className="deskwork-clear">
