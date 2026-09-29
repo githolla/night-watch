@@ -19,8 +19,9 @@ export async function senderProfile(db: SupabaseClient, owner: Owner): Promise<S
   // select("*") rather than a column list: greeting and signoff are added by a repair script the operator
   // runs by hand, and naming a column that does not exist yet fails the whole read — which would take the
   // sender's name and signature off every email until the SQL was applied.
-  const { data } = await db.from("sender_profiles").select("*").eq("owner", owner).maybeSingle();
-  if (!data) return EMPTY;
+  const { data, error } = await db.from("sender_profiles").select("*").eq("owner", owner).maybeSingle();
+  if (error) throw new Error("Could not load sender settings and signature. Please retry before sending.");
+  if (!data) return { ...EMPTY };
   return {
     fromName: (data.from_name as string | null) ?? "",
     title: (data.title as string | null) ?? "",

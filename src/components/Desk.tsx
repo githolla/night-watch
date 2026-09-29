@@ -339,16 +339,18 @@ export function Desk({
       return true;
     }
     setBusy(true);
+    try {
     const response = await fetch(`/api/cards/${cardId}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(values),
     });
     const json = await response.json();
-    setBusy(false);
-    if (!response.ok) { alert(json.error); return false; }
+    if (!response.ok) { setNotice(`Draft not saved: ${json.error || "Please try again."}`); return false; }
     setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...json, ...(!("email_body" in values) && !json.email_body?.trim() ? { email_body: item.email_body, email_subject: item.email_subject } : {}), ...(!("linkedin_message" in values) && !json.linkedin_message?.trim() ? { linkedin_message: item.linkedin_message, linkedin_subject: item.linkedin_subject } : {}) } : item));
     return true;
+    } catch { setNotice("Draft not saved: connection interrupted. Your edits are still on screen."); return false; }
+    finally { setBusy(false); }
   }
   /** Write to the dossier's card (the one the dossier view renders). */
   const patch = (values: Record<string, unknown>) => patchOn(card.id, values);
@@ -1231,6 +1233,8 @@ export function Desk({
                     <button type="button" disabled={busy} onClick={dismissCurrent}>Dismiss contact</button>
                   </div></details>
                 </div>
+                {focusCard.status === "archived" && <div className="composer-alert" role="status"><strong>This draft is archived.</strong> Restore it before editing or sending. <button type="button" className="btn" disabled={busy} onClick={async () => { if (await patchFocus({ reopen: true })) { setNotice("Draft restored. You can now choose a version, edit and send."); router.refresh(); } }}>Restore draft</button></div>}
+                {channelTab === "email" && !senderFooterHtml && <p className="composer-alert">No signature is available for {senderName}. <Link href="/settings">Check signature settings</Link>.</p>}
                 {senderConflict && <p className="composer-alert" role="alert">{senderConflict}</p>}
                 <div className="deskwork-scroll">
                 {previewingVersion && tonePreview ? (

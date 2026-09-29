@@ -6,14 +6,29 @@ import { savedVariants, renderSavedVariant, renderLinkedInVariant } from "@/lib/
 import { senderProfile } from "@/lib/sender";
 import { emailStyle } from "@/lib/email-style";
 import { requireUser } from "@/lib/auth";import { admin } from "@/lib/supabase/admin";import { z } from "zod";
-const update=z.object({saved_variant_channel:z.enum(["email","linkedin"]).default("email"),saved_variant_id:z.enum(["trigger","gift","peer-proof","business-idea","proof","direct-offer","concrete-idea","delivery-experience"]).optional(),status:z.enum(["new","approved","edited","snoozed","dismissed","sent","replied","positive","meeting","archived"]).optional(),email_subject:z.string().max(120).transform(emailStyle).optional(),email_body:z.string().max(1000).transform(emailStyle).optional(),linkedin_note:z.string().max(300).optional(),linkedin_comment:z.string().max(1000).optional(),linkedin_message:z.string().max(1500).optional(),linkedin_subject:z.string().max(120).optional(),assigned_to:z.enum(["josh","jenna"]).optional(),dismiss_reason:z.string().max(200).nullable().optional(),snooze_until:z.string().nullable().optional()});
+const update=z.object({reopen:z.boolean().optional(),saved_variant_channel:z.enum(["email","linkedin"]).default("email"),saved_variant_id:z.enum(["trigger","gift","peer-proof","business-idea","proof","direct-offer","concrete-idea","delivery-experience"]).optional(),status:z.enum(["new","approved","edited","snoozed","dismissed","sent","replied","positive","meeting","archived"]).optional(),email_subject:z.string().max(120).transform(emailStyle).optional(),email_body:z.string().max(1000).transform(emailStyle).optional(),linkedin_note:z.string().max(300).optional(),linkedin_comment:z.string().max(1000).optional(),linkedin_message:z.string().max(1500).optional(),linkedin_subject:z.string().max(120).optional(),assigned_to:z.enum(["josh","jenna"]).optional(),dismiss_reason:z.string().max(200).nullable().optional(),snooze_until:z.string().nullable().optional()});
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const user = await requireUser();
     const { id } = await context.params;
-    const { saved_variant_id, saved_variant_channel, ...body } = update.parse(await request.json());
+    const { reopen, saved_variant_id, saved_variant_channel, ...body } = update.parse(await request.json());
     const db = admin();
-    await restoreSelectedDraft(db, id);
+    await restoreSelectedDraft(db, id, reopen === true);
+    if (reopen) {
+      const { data: recovered, error: readError } = await db.from("cards").select("email_body,email_subject,accounts(domain),people(full_name)").eq("id", id).single();
+      if (readError) throw readError;
+      if (recovered && !recovered.email_body?.trim()) {
+        const domain = (recovered.accounts as unknown as { domain: string }).domain;
+        const name = (recovered.people as unknown as { full_name: string }).full_name;
+        const variant = savedVariants(domain, name)[0];
+        if (variant) {
+          const profile = await senderProfile(db, batchOwner(domain) ?? user.owner);
+          const draft = renderSavedVariant(variant, name, profile.fromName, profile.greeting);
+          body.email_body = draft.body;
+          if (!recovered.email_subject?.trim()) body.email_subject = draft.subject;
+        }
+      }
+    }
     let selectedId: string | undefined;
     const linkedinOnly = body.email_body === undefined && body.email_subject === undefined && (saved_variant_channel === "linkedin" || body.linkedin_message !== undefined || body.linkedin_subject !== undefined);
     const editableStatuses = linkedinOnly ? ["new", "approved", "edited", "sent"] : ["new", "approved", "edited"];

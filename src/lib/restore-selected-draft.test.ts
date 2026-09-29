@@ -24,3 +24,12 @@ test('prior outreach and unknown history fail closed',async()=>{
  for(const count of [1,null]){const f=fixture({},count);assert.equal(await restoreSelectedDraft(f.db,'card'),'archived');assert.equal(f.writes(),0)}
  const f=fixture({},0,new Error('history unavailable'));await assert.rejects(restoreSelectedDraft(f.db,'card'),/history unavailable/);assert.equal(f.writes(),0);
 });
+
+test('explicit restore requires a selected uncontacted archive and preserves restrictions',async()=>{
+ const manual=fixture({dismiss_reason:'Manually archived'});
+ assert.equal(await restoreSelectedDraft(manual.db,'card',true),'edited');
+ for(const change of [{status:'sent'},{status:'dismissed'},{people:{do_not_contact:true}},{accounts:{domain:'dortchenterprises.com',status:'client'}},{signals:{hash:'other'}}]) {
+  const f=fixture(change);await assert.rejects(restoreSelectedDraft(f.db,'card',true));assert.equal(f.writes(),0);
+ }
+ const sent=fixture({},1);await assert.rejects(restoreSelectedDraft(sent.db,'card',true),/History/);assert.equal(sent.writes(),0);
+});
