@@ -13,7 +13,7 @@ export function RefreshDraftCopy({ revision }: { revision: string }) {
       try { if (sessionStorage.getItem(version) === "done") return; } catch { /* storage optional */ }
       let changed = 0;
       let cursor: string | undefined;
-      setMessage("Checking untouched drafts for newer copy. Research coverage is shown beside each email.");
+      setMessage("Checking for draft updates…");
       try {
         for (let pass = 0; pass < 30 && !cancelled; pass++) {
           const response = await fetch("/api/desk/repair-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ cursor }) });
@@ -25,7 +25,7 @@ export function RefreshDraftCopy({ revision }: { revision: string }) {
           if (result.done) {
             if (cancelled) return;
             try { sessionStorage.setItem(version, "done"); } catch { /* storage optional */ }
-            setMessage(changed ? `Updated ${changed} drafts; unchanged previews refreshed automatically. Sent, edited and approved drafts were preserved. Check the research note beside each email.` : "Refresh complete; no untouched drafts changed. This does not confirm buyer fit or person-specific research. Edited and approved drafts were preserved.");
+            setMessage(changed ? `${changed} drafts updated. Your edits were kept.` : "");
             if (changed) setHasUpdates(true);
             return;
           }
@@ -38,5 +38,5 @@ export function RefreshDraftCopy({ revision }: { revision: string }) {
     void update();
     return () => { cancelled = true; };
   }, [revision]);
-  return message ? <p className="notice" role="status">{message} {hasUpdates && <button type="button" onClick={() => window.location.reload()}>Load updated drafts</button>}</p> : null;
+  return message ? <div className="draft-refresh-status" role="status">{message} {hasUpdates && <button type="button" onClick={() => window.location.reload()}>Load updated drafts</button>} <button type="button" className="status-dismiss" aria-label="Dismiss draft update" onClick={() => setMessage("")}>×</button></div> : null;
 }

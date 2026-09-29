@@ -2400,3 +2400,17 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .deskwork-draft .focus-notice{position:fixed;right:24px;bottom:80px;z-index:110;max-width:min(460px,calc(100vw - 32px));margin:0;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--paper-bright);box-shadow:0 8px 32px #211e1826;font-size:14px;line-height:1.5}
 
 .connection-health{padding:22px;margin-bottom:24px;background:var(--paper-bright);border:1px solid var(--line);border-radius:14px}.connection-health header{display:flex;justify-content:space-between;align-items:center;gap:16px}.connection-health h2{font-size:18px;margin:0 0 6px}.connection-health p{font-size:13px;color:var(--muted);margin:6px 0}.connection-health-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0}.connection-health article{padding:16px;border:1px solid var(--line);border-radius:10px}.connection-health-title{display:flex;justify-content:space-between;gap:12px;align-items:center}.connection-light{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600}.connection-light i{width:9px;height:9px;border-radius:50%;background:currentColor}.connection-light.is-green{color:#176a49}.connection-light.is-red{color:#b52e2e}.connection-health small{font-size:12px;color:var(--muted)}.connection-health article a{display:block;font-size:13px;margin-top:12px}@media(max-width:600px){.connection-health-grid{grid-template-columns:1fr}.connection-health header{align-items:flex-start;flex-direction:column}}
+
+/* Quiet preparation and batch status above the outreach workspace. */
+.batch-preparation { margin:12px 24px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:16px; border:1px solid var(--line); border-radius:10px; background:white; }
+.batch-preparation > div { display:grid; gap:3px; }
+.batch-preparation strong { font-size:13px; font-weight:600; }
+.batch-preparation span { font-size:12px; color:var(--muted); }
+.batch-preparation .btn { flex-shrink:0; font-size:12px; }
+.draft-refresh-status { margin:10px 24px; display:flex; align-items:center; gap:12px; font-size:12px; color:var(--muted); }
+.draft-refresh-status button { cursor:pointer; background:none; border:0; color:var(--accent); text-decoration:underline; }
+.draft-refresh-status .status-dismiss { margin-left:auto; font-size:20px; text-decoration:none; padding:4px 8px; }
+.batch-progress-row { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:8px 0 16px; font-size:12px; color:var(--muted); }
+.batch-progress-row strong { color:var(--ink); font-weight:600; }
+.batch-progress-row progress { width:90px; height:5px; accent-color:#387b68; }
+@media(max-width:600px) { .batch-preparation { margin:10px 12px; flex-wrap:wrap; } .draft-refresh-status { margin:10px 12px; } }

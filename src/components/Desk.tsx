@@ -943,11 +943,10 @@ export function Desk({
   const workingView = !active && !browse && cards.length > 0;
   return (
     <main className={`pipeline${workingView ? " pipeline-work" : ""}`}>
-      {batchSequence && progress && <p className="muted" style={{ margin: "0 0 16px", fontSize: 13 }}>
-        {batchSequence === 1
-          ? `First 25 · ${progress.completed} of ${progress.total} companies contacted or dismissed. ${progress.sequence === 2 && autoAdvanceBatch ? 'Loading your next 25…' : 'Open Next 25 anytime to view or work ahead.'}`
-          : "Next 25 · A separate list you can work now. Your first 25 and their history are preserved."}
-      </p>}
+      {batchSequence && progress && <div className="batch-progress-row">
+        <strong>{batchSequence === 1 ? 'First 25' : 'Next 25'}</strong>
+        {batchSequence === 1 ? <><progress aria-label="Companies completed" value={progress.completed} max={Math.max(1, progress.total)} /><span>{progress.completed} of {progress.total} completed</span>{progress.sequence === 2 && autoAdvanceBatch && <span>Opening next batch…</span>}</> : <span>Separate batch · ready to work</span>}
+      </div>}
       {scan && !workingView && <div className="pipeline-scan">{scan}</div>}
       {cards.length === 0 ? (
           <div className="detail-inner empty-desk">
