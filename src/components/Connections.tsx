@@ -6,8 +6,8 @@ import { PanelGuide } from "./PanelGuide";
 type Connection = { owner: string; email: string | null; calendar?: boolean | null; connected_at?: string | null };
 type GoogleConfig = { clientId: boolean; clientSecret: boolean; redirectUri: string | null; appUrl: string | null };
 const SEATS: Array<{ owner: "josh" | "jenna"; label: string }> = [
-  { owner: "josh", label: "Seat 1" },
-  { owner: "jenna", label: "Seat 2" },
+  { owner: "josh", label: "Josh" },
+  { owner: "jenna", label: "Suuchi" },
 ];
 
 /** Connect one Google Workspace account per sending seat. Night Watch sends from the seat a card is assigned

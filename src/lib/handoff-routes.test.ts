@@ -9,7 +9,7 @@ function route(path:string, mocks:Record<string,unknown>) {
  const source=readFileSync(new URL(path,import.meta.url),'utf8');
  const output=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
  const exports:Record<string,(...args:unknown[])=>Promise<Response>>={};
- runInNewContext(output,{exports,Response,URL,Date,require:(name:string)=>{
+ runInNewContext(output,{exports,Response,URL,Date,AbortSignal,fetch:mocks.fetch,require:(name:string)=>{
   if(name==='zod')return require('zod');
   if(name in mocks)return mocks[name];
   throw new Error('Unmocked dependency '+name);
@@ -34,4 +34,19 @@ test('a self-test accepted by Gmail remains successful when the history read thr
  });
  const response=await r.POST(new Request('https://test/api',{method:'POST',body:JSON.stringify({subject:'Test',body:'Hello?'})}),{params:Promise.resolve({id:'card'})});
  const result=await response.json();assert.equal(response.status,200);assert.equal(result.ok,true);assert.match(result.warning,/test was sent/i);assert.equal(sends,1);
+});
+
+test('connection health reports verified access and missing seats without exposing tokens',async()=>{
+ const r=route('../app/api/admin/connection-health/route.ts',{
+  '@/lib/auth':{requireAdmin:async()=>({owner:'josh'})},
+  '@/lib/supabase/admin':{admin:()=>({from:()=>({select:async()=>({data:[{owner:'josh',email:'self@example.com',scopes:'https://www.googleapis.com/auth/gmail.send'}]})})})},
+  '@/lib/gmail':{ownerAccessToken:async()=> 'private-token'},
+  fetch:async()=>Response.json({emailAddress:'self@example.com'}),
+ });
+ const response=await r.GET();const data=await response.json();
+ assert.equal(data.accounts[0].connected,true);assert.equal(data.accounts[1].connected,false);assert.equal(data.accounts[1].name,'Suuchi');assert.ok(!JSON.stringify(data).includes('private-token'));
+});
+test('connection health denies non-admin requests before reading connections',async()=>{
+ const r=route('../app/api/admin/connection-health/route.ts',{'@/lib/auth':{requireAdmin:async()=>{throw new Error('Admins only')}},'@/lib/supabase/admin':{admin:()=>{throw new Error('Must not read')}},'@/lib/gmail':{}});
+ assert.equal((await r.GET()).status,403);
 });

@@ -1,3 +1,4 @@
+import { ConnectionHealth } from "@/components/ConnectionHealth";
 import Link from "next/link";
 import { Building2, Mail, MessageSquare, PenLine, Plug, UsersRound } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -134,6 +135,7 @@ export default async function Settings() {
   return <div>
     <Header />
     <main className="workspace-page">
+      {isAdmin && <ConnectionHealth />}
       <SettingsTabs tabs={tabs} />
     </main>
   </div>;
