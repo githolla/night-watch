@@ -50,3 +50,24 @@ test('connection health denies non-admin requests before reading connections',as
  const r=route('../app/api/admin/connection-health/route.ts',{'@/lib/auth':{requireAdmin:async()=>{throw new Error('Admins only')}},'@/lib/supabase/admin':{admin:()=>{throw new Error('Must not read')}},'@/lib/gmail':{}});
  assert.equal((await r.GET()).status,403);
 });
+
+test('restoring a blank Suuchi draft uses Suuchi identity even when Josh views it',async()=>{
+ let patch:Record<string,unknown>={};let profileOwner='';
+ const record={email_body:'',email_subject:'',status:'edited',accounts:{domain:'dortchenterprises.com'},people:{full_name:'Louis Dortch Jr.'}};
+ const db={from(){const q={select(){return q},eq(){return q},in(){return q},update(value:Record<string,unknown>){patch=value;return q},single:async()=>({data:record}),maybeSingle:async()=>({data:{...record,...patch}})};return q;}};
+ const r=route('../app/api/cards/[id]/route.ts',{
+  '@/lib/restore-selected-draft':{restoreSelectedDraft:async()=> 'edited'},'@/lib/focus-data':{batchOwner:()=> 'jenna'},'@/lib/version-tracking':{},'@/lib/version-attribution':{},
+  '@/lib/outreach-variants':{savedVariants:()=>[{id:'direct-offer'}],renderSavedVariant:(_v:unknown,name:string,sender:string)=>({subject:'Direct offer',body:`Hi ${name}, I am ${sender}. Can we help?`})},
+  '@/lib/sender':{senderProfile:async(_db:unknown,owner:string)=>{profileOwner=owner;return {fromName:'Suuchi',greeting:'Hi {first},'}}},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'josh'})},'@/lib/supabase/admin':{admin:()=>db},
+ });
+ const response=await r.PATCH(new Request('https://test/api',{method:'PATCH',body:JSON.stringify({reopen:true})}),{params:Promise.resolve({id:'card'})});
+ assert.equal(response.status,200);assert.equal(profileOwner,'jenna');assert.match(String(patch.email_body),/Suuchi/);assert.doesNotMatch(String(patch.email_body),/Josh/);assert.equal(patch.email_subject,'Direct offer');
+});
+test('a revoked Google connection cannot show green',async()=>{
+ const r=route('../app/api/admin/connection-health/route.ts',{
+  '@/lib/auth':{requireAdmin:async()=>({owner:'josh'})},
+  '@/lib/supabase/admin':{admin:()=>({from:()=>({select:async()=>({data:[{owner:'jenna',email:'self@example.com',scopes:'https://www.googleapis.com/auth/gmail.send'}]})})})},
+  '@/lib/gmail':{ownerAccessToken:async()=>{throw new Error('revoked')}},
+ });
+ const result=await (await r.GET()).json();assert.equal(result.accounts[1].connected,false);assert.match(result.accounts[1].detail,/verify Google access/);
+});
