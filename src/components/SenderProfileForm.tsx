@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PanelGuide } from "./PanelGuide";
 import { sanitizeSignatureHtml } from "@/lib/clean";
 
@@ -26,6 +26,12 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   const [testing, setTesting] = useState(false);
   const [testMsg, setTestMsg] = useState("");
   const [uploadErr, setUploadErr] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const payload = { from_name: fromName, title, signature, website, location, cc: cc.split(/[,\s]+/).map(value => value.trim()).filter(Boolean), greeting, signoff, intro };
+  const serialized = JSON.stringify(payload);
+  const [saved, setSaved] = useState(() => JSON.stringify({ from_name: initial.from_name, title: initial.title, signature: initial.signature, website: initial.website, location: initial.location, cc: initial.cc, greeting: initial.greeting, signoff: initial.signoff, intro: initial.intro }));
+  const dirty = serialized !== saved;
+  const testInFlight = useRef(false);
 
   // True when the signature field holds real HTML (a pasted/uploaded signature) vs plain text.
   const isHtmlSig = /<[a-z][a-z0-9-]*(\s[^>]*)?\/?>/i.test(signature.trim());
@@ -42,18 +48,28 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
     const file = event.target.files?.[0];
     if (!file) return;
     if (file.size > 20000) { setUploadErr("That file is over 20KB — use a hosted image URL in the signature rather than an embedded one."); return; }
-    try { setSignature((await file.text()).trim()); } catch { setUploadErr("Couldn't read that file."); }
+    setUploading(true);
+    try { setSignature((await file.text()).trim()); } catch { setUploadErr("Couldn't read that file."); } finally { setUploading(false); }
     event.target.value = "";
   }
 
   async function sendTest() {
+    if (testInFlight.current || state === "saving" || uploading) return;
+    testInFlight.current = true;
     setTesting(true); setTestMsg("");
     try {
+      if (dirty && !(await save())) { setTestMsg("Test not sent. Save your settings successfully first."); return; }
       const response = await fetch("/api/gmail/test", { method: "POST" });
       const json = await response.json().catch(() => ({}));
-      setTestMsg(response.ok ? `Test sent to ${json.to} — check your inbox.` : (json.error ?? "Could not send the test."));
-    } catch { setTestMsg("Could not send the test."); }
-    finally { setTesting(false); }
+      if (response.ok && json.ok === true && typeof json.threadId === "string" && json.threadId.trim() && typeof json.to === "string" && json.to.trim()) {
+        setTestMsg(`Test sent to ${json.to} — check your inbox.`);
+      } else if (!response.ok && typeof json.error === "string" && response.status < 500) {
+        setTestMsg(json.error);
+      } else {
+        setTestMsg("Test delivery is unknown. Check your inbox and Gmail Sent before trying again.");
+      }
+    } catch { setTestMsg("Test delivery is unknown. Check your inbox and Gmail Sent before trying again."); }
+    finally { testInFlight.current = false; setTesting(false); }
   }
 
   const fromLine = [fromName, title].filter((part) => part.trim()).join(", ");
@@ -63,16 +79,18 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
     setState("saving");
     setError("");
     setWarning("");
-    const list = cc.split(/[,\s]+/).map((value) => value.trim()).filter(Boolean);
     try {
-      const response = await fetch("/api/settings/sender", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ from_name: fromName, title, signature, website, location, cc: list, greeting, signoff, intro }) });
+      const response = await fetch("/api/settings/sender", { method: "POST", headers: { "content-type": "application/json" }, body: serialized });
       const json = await response.json().catch(() => ({}));
-      if (!response.ok) { setState("error"); setError(json.error ?? "Could not save."); return; }
+      if (!response.ok || json.ok !== true) { setState("error"); setError(json.error ?? "Could not save."); return false; }
       // A save can succeed in part: the greeting columns arrive with a repair script the operator runs by
       // hand, and saying "Saved" over the top of that would be a lie.
       setWarning((json.warning as string) ?? "");
       setState("saved");
-    } catch { setState("error"); setError("Could not save."); }
+      if (json.warning) return false;
+      setSaved(serialized);
+      return true;
+    } catch { setState("error"); setError("Could not save."); return false; }
   }
 
   return (
@@ -80,9 +98,10 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
       <div className="card-title"><div><span className="overview-kick">Outreach identity</span><h2>How your emails present</h2></div></div>
       <PanelGuide
         what="Sets how your emails look to the person receiving them: the name and title on the From line, anyone CC'd, and the signature at the bottom."
-        when={<>Before your first send, and whenever your title or signature changes. Press <strong>Send test to myself</strong> afterwards to see a real one land in your own inbox.</>}
+        when={<>Before your first send, and whenever your title or signature changes. Press <strong>Save and send test to myself</strong> after making changes to see a real one land in your own inbox.</>}
         watch={<>This is how the email <em>reads</em>, not where it sends from &mdash; the mailbox is whichever Google account is connected above. Paste your own HTML signature to use it as-is; leave it empty and the built-in Nine&#8209;67 block is used instead.</>}
       />
+      <fieldset disabled={state === "saving" || testing || uploading} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
       <div className="sender-profile-grid">
         <label><span>Sender name</span><input value={fromName} onChange={(event) => setFromName(event.target.value)} placeholder="Suuchi Ramesh" maxLength={120} /></label>
         <label><span>Title (shown on the From line & signature)</span><input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="FDE, COO" maxLength={120} /></label>
@@ -91,7 +110,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
       </div>
       <div className="sender-profile-grid">
         <label><span>Greeting &mdash; how your drafts open</span><input value={greeting} onChange={(event) => setGreeting(event.target.value)} placeholder="Hi {first}," maxLength={160} /></label>
-        <label><span>Sign-off &mdash; how they close</span><input value={signoff} onChange={(event) => setSignoff(event.target.value)} placeholder="Thank you," maxLength={160} /></label>
+        <label><span>Legacy sign-off (not used in reach-out emails)</span><input value={signoff} onChange={(event) => setSignoff(event.target.value)} placeholder="Thank you," maxLength={160} /></label>
       </div>
       <label className="sender-profile-full"><span>Introduction &mdash; the first line of the message</span><input value={intro} onChange={(event) => setIntro(event.target.value)} placeholder="I am {name}, {title} at Nine-67." maxLength={300} /></label>
       {!fromName.trim() && <p className="sender-profile-warn">Set a sender name above, or your drafts cannot introduce you &mdash; they open &ldquo;I am with Nine-67.&rdquo; instead, which is why the sender appears in some emails and not others.</p>}
@@ -129,14 +148,16 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
               </td>
             </tr></tbody></table>
           </div>}
+      </fieldset>
       <div className="sender-profile-actions">
-        <button type="button" className="btn primary" onClick={save} disabled={state === "saving"}>{state === "saving" ? "Saving…" : "Save identity"}</button>
-        <button type="button" className="btn" onClick={sendTest} disabled={testing} title="Send a sample email to your own inbox">{testing ? "Sending…" : "Send test to myself"}</button>
-        {state === "saved" && (warning ? <span className="sender-profile-warn">{warning}</span> : <span className="sender-profile-ok">Saved.</span>)}
+        <button type="button" className="btn primary" onClick={save} disabled={state === "saving" || testing || uploading}>{state === "saving" ? "Saving…" : "Save identity"}</button>
+        <button type="button" className="btn" onClick={sendTest} disabled={testing || state === "saving" || uploading} title="Send a sample email to your own inbox">{testing ? "Sending…" : (dirty ? "Save and send test to myself" : "Send test to myself")}</button>
+        {dirty && <span className="sender-profile-warn">Unsaved changes.</span>}
+        {state === "saved" && !dirty && (warning ? <span className="sender-profile-warn">{warning}</span> : <span className="sender-profile-ok">Saved.</span>)}
         {state === "error" && <span className="sender-profile-err">{error}</span>}
         {testMsg && <span className={/check your inbox/.test(testMsg) ? "sender-profile-ok" : "sender-profile-err"}>{testMsg}</span>}
       </div>
-      <p className="sender-profile-lead" style={{ marginTop: 8 }}>Tip: <strong>Save identity</strong> first, then <strong>Send test to myself</strong> to preview a real send in your own inbox before emailing prospects.</p>
+      <p className="sender-profile-lead" style={{ marginTop: 8 }}>Testing saves any changed settings first. If saving fails, no test is sent.</p>
     </section>
   );
 }

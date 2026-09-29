@@ -1,3 +1,4 @@
+import { batchOwner } from "@/lib/focus-data";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { authoredDraft } from "@/lib/authored-outreach";
@@ -21,16 +22,17 @@ export async function POST(_request: Request, context: { params: Promise<{ id: s
     if (!account || !person) throw new Error("The company or contact is missing.");
     const reviewed = authoredDraft(account.name, angleFor(person.title ?? ""), account.domain, person.full_name);
     if (!reviewed) return Response.json({ error: "There is no reviewed company draft for this buyer role yet." }, { status: 404 });
-    const sender = await senderProfile(db, user.owner);
+    const owner = batchOwner(account.domain) ?? user.owner;
+    const sender = await senderProfile(db, owner);
     const draft = composeContactDraft({ company: account.name, domain: account.domain, personName: person.full_name, personTitle: person.title ?? "", senderName: sender.fromName, senderTitle: sender.title, greeting: sender.greeting, signoff: sender.signoff, intro: sender.intro });
-    const patch = { active_variant_id: null, email_subject: draft.subject, email_body: draft.body, status: "edited", assigned_to: user.owner };
+    const patch = { active_variant_id: null, email_subject: draft.subject, email_body: draft.body, status: "edited", assigned_to: owner };
     let query = db.from("cards").update(patch).eq("id", id).eq("status", card.status);
     query = card.email_subject == null ? query.is("email_subject", null) : query.eq("email_subject", card.email_subject);
     query = card.email_body == null ? query.is("email_body", null) : query.eq("email_body", card.email_body);
-    const { data: saved, error: saveError } = await query.select("id");
+    const { data: saved, error: saveError } = await query.select("id,updated_at");
     if (saveError) throw saveError;
     if (!saved?.length) return Response.json({ error: "The draft changed while loading this version. Reload and try again." }, { status: 409 });
-    return Response.json({ ...patch, audience: reviewed.targetRole });
+    return Response.json({ ...patch, updated_at:saved[0].updated_at, audience: reviewed.targetRole });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Could not load reviewed draft" }, { status: 400 });
   }

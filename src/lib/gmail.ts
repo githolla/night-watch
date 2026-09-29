@@ -44,8 +44,8 @@ function extractBody(payload:unknown):string{
 export async function messageBody(token:string,id:string){const res=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=full`,{headers:{authorization:`Bearer ${token}`}});if(!res.ok)throw new Error(`Gmail message body failed: ${res.status}`);const data=await res.json() as {payload?:unknown};return extractBody(data.payload)}
 // The subject + full body of a thread's first (outbound) message — for reading a send back in History.
 export async function threadText(token:string,threadId:string){const res=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/threads/${threadId}?format=full`,{headers:{authorization:`Bearer ${token}`}});if(!res.ok)throw new Error(`Gmail thread failed: ${res.status}`);const data=await res.json() as {messages?:Array<{payload?:{headers?:Array<{name:string;value:string}>}}>};const msg=data.messages?.[0];if(!msg)return {subject:"",body:""};const headers=msg.payload?.headers??[];const subject=headers.find((h)=>h.name.toLowerCase()==="subject")?.value??"";return {subject,body:extractBody(msg.payload)}}
-export async function sendEmail(owner:Owner,from:string,to:string,subject:string,body:string,threadId?:string,cc?:string[],html?:string,listUnsubscribe?:string){
-  const mime=emailMime({from,to,subject:emailStyle(subject),body:emailStyle(body),html,cc,listUnsubscribe});
+export async function sendEmail(owner:Owner,from:string,to:string,subject:string,body:string,threadId?:string,cc?:string[],html?:string,listUnsubscribe?:string,messageId?:string){
+  const mime=emailMime({from,to,subject:emailStyle(subject),body:emailStyle(body),html,cc,listUnsubscribe,messageId});
   const token=await accessToken(owner);
   return gmailSendRequest(token, Buffer.from(mime).toString("base64url"), threadId);
 }

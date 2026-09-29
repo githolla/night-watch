@@ -1,8 +1,10 @@
 "use client";
+import { replaceOpening } from "@/lib/bulk-copy";
+import { acknowledgedDraftFields, meetingTimesBody } from "@/lib/draft-save-state";
 import { batchOwner } from "@/lib/focus-data";
 import { batchProgress } from "@/lib/reachout-batches";
 import { useRouter } from "next/navigation";
-import { firstTouchFooterHtml } from "@/lib/first-touch";
+import { firstTouchFooterHtml, firstTouchErrors } from "@/lib/first-touch";
 import { FirstTouchGuidance } from "@/components/FirstTouchGuidance";
 import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
@@ -48,6 +50,7 @@ type Card = InsightCard & {
   linkedin_subject?: string | null;
   surfaced_on?: string | null;
   created_at?: string | null;
+  updated_at?: string | null;
   working_at?: string | null;
   working_by?: string | null;
   working?: boolean;
@@ -180,6 +183,7 @@ export function Desk({
   selectedId,
   listHref = "/outreach",
   batchSequence,
+  initialBrowse = false,
   autoAdvanceBatch = false,
   listOwner,
   batchCompletedDomains,
@@ -197,6 +201,7 @@ export function Desk({
   selectedId?: string;
   listHref?: string;
   batchSequence?: 1 | 2;
+  initialBrowse?: boolean;
   autoAdvanceBatch?: boolean;
   listOwner?: 'josh' | 'jenna';
   batchCompletedDomains?: string[];
@@ -209,6 +214,25 @@ export function Desk({
 }) {
   const [cards, setCards] = useState(() => initialCards.map(card => personalizeCard(card, senderName, senderGreeting)));
   const router = useRouter();
+  const saveQueues = useRef(new Map<string, Promise<boolean>>());
+  const revisions = useRef<Record<string, Record<string, number>>>({});
+  const dirtyFields = useRef(new Set<string>());
+  const serverVersions = useRef(new Map(initialCards.map(c => [c.id, c.updated_at])));
+  const [saveState, setSaveState] = useState("Saved");
+  useEffect(() => {
+    const beforeUnload = (event: BeforeUnloadEvent) => { if (dirtyFields.current.size || saveQueues.current.size) { event.preventDefault(); event.returnValue = ""; } };
+    const navigation = (event: MouseEvent) => {
+      const link = (event.target as Element)?.closest('a[href]') as HTMLAnchorElement | null;
+      if (!link || link.target === '_blank' || event.ctrlKey || event.metaKey || (!dirtyFields.current.size && !saveQueues.current.size)) return;
+      event.preventDefault(); event.stopPropagation();
+      void Promise.all([...saveQueues.current.values()]).then(() => {
+        if (!dirtyFields.current.size || window.confirm("Some draft changes are not saved. Leave and discard those changes?")) window.location.assign(link.href);
+      });
+    };
+    window.addEventListener('beforeunload', beforeUnload);
+    document.addEventListener('click', navigation, true);
+    return () => { window.removeEventListener('beforeunload', beforeUnload); document.removeEventListener('click', navigation, true); };
+  }, []);
   const advancing = useRef(false);
   const progress = listOwner ? batchProgress(listOwner, cards.map(card => ({ domain: card.accounts.domain ?? '', owner: card.assigned_to, status: card.status })), batchCompletedDomains) : null;
   useEffect(() => {
@@ -220,12 +244,13 @@ export function Desk({
   }, [progress?.sequence, batchSequence, autoAdvanceBatch, listOwner, demo, router]);
   useEffect(() => {
     const receive = (event: Event) => {
-      const updates = (event as CustomEvent<Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string }>>).detail;
+      const updates = (event as CustomEvent<Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string; updated_at?: string }>>).detail;
       setCards(current => current.map(card => {
         const change = updates.find(update => update.id === card.id);
         // Never replace a local edit or a card sent while background repair was running.
         if (!change || !preservesCurrentDraft(card, { status: "new", email_subject: change.beforeSubject, email_body: change.beforeBody })) return card;
-        return personalizeCard({ ...card, email_subject: change.subject, email_body: change.body }, senderName, senderGreeting);
+        if (change.updated_at) serverVersions.current.set(card.id, change.updated_at);
+        return personalizeCard({ ...card, updated_at:change.updated_at??card.updated_at, email_subject: change.subject, email_body: change.body }, senderName, senderGreeting);
       }));
     };
     window.addEventListener("night-watch:draft-updates", receive);
@@ -236,7 +261,8 @@ export function Desk({
   // `selected` = a full-detail deep dive; `browse` = the searchable list of everyone.
   const [selected, setSelected] = useState<string | undefined>(selectedId);
   // The one-at-a-time prospect flow is home; "All prospects" opens the full list on demand.
-  const [browse, setBrowse] = useState(false);
+  const [browse, setBrowse] = useState(initialBrowse);
+  const overviewHref = `${listHref}${listHref.includes("?") ? "&" : "?"}source=overview`;
   const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? sortReachouts(initialCards, "revenue-desc")[0]?.id);
   const [listSort, setListSort] = useState<ReachoutSort>("revenue-desc");
   const changeSort = (value: ReachoutSort) => {
@@ -271,7 +297,7 @@ export function Desk({
     setTonePreview({ channel: channelTab, cardId: focusCard.id, versionId: variant.id, label: variant.label, original: (channelTab === "email" ? focusCard.email_body : focusCard.linkedin_message) ?? "", originalSubject: (channelTab === "email" ? focusCard.email_subject : focusCard.linkedin_subject) ?? "", ...draft });
   }
   async function applyTone() {
-    if (!tonePreview || !focusCard || tonePreview.cardId !== focusCard.id || tonePreview.channel !== channelTab) return;
+    if (sending || sendInFlight.current || !tonePreview || !focusCard || tonePreview.cardId !== focusCard.id || tonePreview.channel !== channelTab) return;
     if (((channelTab === "email" ? focusCard.email_body : focusCard.linkedin_message) ?? "") !== tonePreview.original || ((channelTab === "email" ? focusCard.email_subject : focusCard.linkedin_subject) ?? "") !== tonePreview.originalSubject) {
       setNotice("You edited the draft. Review the saved version again before replacing your latest text.");
       setTonePreview(null);
@@ -285,8 +311,14 @@ export function Desk({
   // Open the composer in edit mode so every email/message is directly editable before sending;
   // the tools row flips it to a read-only "Preview" of exactly how it will go out.
   const [editing, setEditing] = useState<{ email: boolean; linkedin: boolean }>({ email: true, linkedin: true });
+
   const [lastRefine, setLastRefine] = useState<{ cardId: string; channel: "email" | "linkedin"; beforeBody: string; afterBody: string; beforeSubject: string; afterSubject: string } | null>(null);
   const [channelTab, setChannelTab] = useState<"email" | "linkedin">("email");
+  useEffect(() => {
+    const openEditor = () => { setChannelTab("email"); setTonePreview(null); setEditing(current => ({ ...current, email: true })); };
+    window.addEventListener("nightwatch:tour-edit", openEditor);
+    return () => window.removeEventListener("nightwatch:tour-edit", openEditor);
+  }, []);
   const [notice, setNotice] = useState("");
   const [outcome, setOutcome] = useState("positive");
   // The current filter drives both the list and the one-at-a-time queue, so working through "Top" walks
@@ -333,33 +365,39 @@ export function Desk({
   // same prospect — picking one from the list moves focusId while `selected` stays put — so a write that
   // assumed `card` saved the focused draft onto a different company's card and destroyed what was there.
   async function patchOn(cardId: string, values: Record<string, unknown>) {
+    if (sendInFlight.current) { setNotice("Wait for the send result before changing this draft."); return false; }
     if (demo) {
       setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...values } : item));
       setNotice("Demo updated locally — nothing was saved or sent.");
       return true;
     }
-    setBusy(true);
-    // finally, because `busy` disables most of the toolbar. With no catch, a request that REJECTED rather
-    // than returned an error — a dropped connection, a suspended tab — threw out of here and left the flag
-    // true for good, so the panel went quietly dead until a full page reload. That is the same shape as the
-    // stuck send guard, and it deserves the same treatment everywhere it appears.
-    try {
-      const response = await fetch(`/api/cards/${cardId}`, {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      const json = await response.json();
-      if (!response.ok) { setNotice(`Not saved: ${json.error ?? "that change could not be saved."}`); return false; }
-      setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...json, ...(!("email_body" in values) && !json.email_body?.trim() ? { email_body: item.email_body, email_subject: item.email_subject } : {}), ...(!("linkedin_message" in values) && !json.linkedin_message?.trim() ? { linkedin_message: item.linkedin_message, linkedin_subject: item.linkedin_subject } : {}) } : item));
-      return true;
-    } catch {
-      setNotice("Not saved: the connection was interrupted. Your text is still on screen — try again.");
-      return false;
-    } finally {
-      setBusy(false);
-    }
+    const submitted = { ...(revisions.current[cardId] ?? {}) };
+    Object.keys(values).forEach(key => dirtyFields.current.add(`${cardId}:${key}`));
+    setSaveState("Saving…");
+    const prior = saveQueues.current.get(cardId) ?? Promise.resolve(true);
+    const task = prior.then(async () => {
+      try {
+        const response = await fetch(`/api/cards/${cardId}`, {
+          method: "PATCH", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ ...values, expected_updated_at: serverVersions.current.get(cardId) }),
+        });
+        const json = await response.json();
+        if (!response.ok) { setSaveState("Save failed"); setNotice(`Not saved: ${json.error ?? "Please retry. Your text remains on screen."}`); return false; }
+        if (json.updated_at) serverVersions.current.set(cardId, json.updated_at);
+        const acknowledged = acknowledgedDraftFields(values, json, submitted, revisions.current[cardId] ?? {});
+        // Restore explicitly recovers blank stored copy; regular saves only acknowledge submitted fields.
+        if (values.reopen) for (const key of ["status", "email_body", "email_subject"]) if (json[key] !== undefined && !(revisions.current[cardId]?.[key])) acknowledged[key] = json[key];
+        setCards(current => current.map(item => item.id === cardId ? { ...item, ...acknowledged } : item));
+        Object.keys(values).forEach(key => { if ((submitted[key] ?? 0) === (revisions.current[cardId]?.[key] ?? 0)) dirtyFields.current.delete(`${cardId}:${key}`); });
+        setSaveState(dirtyFields.current.size ? "Unsaved changes" : "Saved");
+        return true;
+      } catch { setSaveState("Save failed"); setNotice("Not saved: connection interrupted. Your text remains on screen. Retry saving before leaving."); return false; }
+    });
+    saveQueues.current.set(cardId, task);
+    void task.finally(() => { if (saveQueues.current.get(cardId) === task) saveQueues.current.delete(cardId); });
+    return task;
   }
+
   /** Write to the dossier's card (the one the dossier view renders). */
   const patch = (values: Record<string, unknown>) => patchOn(card.id, values);
   /** Write to the prospect the one-at-a-time desk is showing. */
@@ -387,12 +425,16 @@ export function Desk({
       ? `⚠️ ${who.email} is NOT a verified address — it may bounce and hurt your sending reputation. Send anyway to ${who.full_name}?`
       : `Send this email to ${who.full_name} at ${who.email}?`;
     if (!confirm(prompt)) return;
+    const submittedRevision = JSON.stringify(revisions.current[onCard.id] ?? {});
     sendInFlight.current = true;
     setNotice("");
     setSending(true);
     // A subject is required server-side; fall back rather than fail with a raw validation error.
     const subject = (onCard.email_subject ?? "").trim() || subjectGuess(onCard, "email");
     try {
+    await saveQueues.current.get(onCard.id);
+    if (submittedRevision !== JSON.stringify(revisions.current[onCard.id] ?? {})) { setNotice("The draft changed while preparing the send. Review the latest text, then send again."); return; }
+    if ([...dirtyFields.current].some(key => key.startsWith(`${onCard.id}:`))) { setNotice("Save your changes successfully before sending."); return; }
     const response = await fetch(`/api/cards/${onCard.id}/send`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -428,6 +470,7 @@ export function Desk({
     if (loaded) { setAlt(null); setCameFrom({ cardId: from.id, name: from.people.full_name, company: from.accounts.name }); setFocusId(loaded.id); setNotice(`Writing to ${person.full_name}.`); return; }
     if (demo) { setAlt({ cardId: from.id, person }); setNotice(`Writing to ${person.full_name}.`); return; }
     setOpeningContact(person.id);
+    try {
     const response = await fetch(`/api/cards/${from.id}/draft-for`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ personId: person.id }) });
     const json = await response.json().catch(() => ({}));
     setOpeningContact(null);
@@ -439,11 +482,13 @@ export function Desk({
     // the first contact's note, retargeted, with the composer saying plainly that is what it is.
     if (!response.ok || !json?.card?.id) { setNotice(json?.error ?? `Could not open ${person.full_name}’s own draft. Please retry.`); return; }
     const fresh = personalizeCard(json.card as Card, senderName, senderGreeting);
+    if (fresh.updated_at) serverVersions.current.set(fresh.id, fresh.updated_at);
     setCards((current) => current.some((item) => item.id === fresh.id) ? current.map((item) => item.id === fresh.id ? { ...item, ...fresh } : item) : [...current, fresh]);
     setAlt(null);
     setCameFrom({ cardId: from.id, name: from.people.full_name, company: from.accounts.name });
     setFocusId(fresh.id);
     setNotice(json.existing ? `Writing to ${person.full_name} — this is their own draft.` : `Wrote ${person.full_name} their own email, aimed at what their role owns.`);
+    } catch { setNotice("Could not open the contact. Check your connection and try again."); } finally { setOpeningContact(null); }
   }
 
   async function recordTouch(view: "comment" | "connection" | "message" | "email", body: string, target?: { id?: string; full_name: string }, onCardOverride?: { id: string }) {
@@ -461,6 +506,7 @@ export function Desk({
     // Explicit send confirmation only; copying is not recorded as a send.
     if (demo) { setNotice(`${label} to ${who?.full_name ?? "contact"} recorded in demo mode.`); return; }
     setBusy(true);
+    try {
     const channel = view === "email" ? "email" : view === "comment" ? "linkedin_comment" : view === "message" ? "linkedin_message" : "linkedin_request";
     const response = await fetch(`/api/cards/${onCard.id}/touch`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ channel, body, personId, subject: view === "email" ? (cards.find(item => item.id === onCard.id)?.email_subject ?? "") : view === "message" ? (cards.find(item => item.id === onCard.id)?.linkedin_subject ?? "") : undefined }) });
     const result = await response.json();
@@ -469,6 +515,7 @@ export function Desk({
     // Keep the company on the desk (don't mark the card sent) so its other contacts can still be logged.
     if (personId) setLogged((current) => new Set(current).add(personId));
     setNotice(`Logged ${label.toLowerCase()} to ${who?.full_name ?? "the contact"} — it's in History now.`);
+    } catch { setNotice("Could not confirm the history update. Check History before retrying."); } finally { setBusy(false); }
   }
 
   async function recordOutcome() {
@@ -492,7 +539,13 @@ export function Desk({
     }
   }
 
-  const editOn = (cardId: string, key: string, value: string) => setCards((current) => current.map((item) => item.id === cardId ? { ...item, [key]: value } : item));
+  const editOn = (cardId: string, key: string, value: string) => {
+    if (sendInFlight.current) return;
+    revisions.current[cardId] ??= {};
+    revisions.current[cardId][key] = (revisions.current[cardId][key] ?? 0) + 1;
+    dirtyFields.current.add(`${cardId}:${key}`); setSaveState("Unsaved changes");
+    setCards(current => current.map(item => item.id === cardId ? { ...item, [key]: value } : item));
+  };
   /** Edit the dossier's card. */
   const edit = (key: string, value: string) => editOn(card.id, key, value);
   /** Edit the prospect the one-at-a-time desk is showing — never whichever card happens to be `selected`. */
@@ -651,6 +704,7 @@ export function Desk({
   // cron with its secret.
   const [sendingStep, setSendingStep] = useState("");
   const sendFollowupNow = async (stepId: string, label: string) => {
+    if (!senderIsViewer) { setNotice(`Sign in as ${senderName} to send this follow-up.`); return; }
     if (sendingStep) return;
     if (!confirm(`Send “${label}” now instead of on its scheduled day?`)) return;
     setSendingStep(stepId);
@@ -688,8 +742,8 @@ export function Desk({
     if (!body) { setNotice("No email draft yet — open the studio to write one first."); return; }
     const steps = [
       { day: 0, channel: "email", title: "Intro email", detail: "The opening email from the draft", subject, body },
-      { day: 3, channel: "email", title: "Follow-up", detail: "A short bump", subject: `Re: ${subject}`, body: `Hi ${first},\n\nFloating this back up in case it slipped by. Happy to sketch out what we'd build for ${focusCard.accounts.name} to do that work instead of the hire. Worth a look?` },
-      { day: 7, channel: "email", title: "Close", detail: "A brief sign-off", subject: `Re: ${subject}`, body: `Hi ${first},\n\nI'll leave it here for now. If building this instead of hiring for it becomes a priority, just reply and I'll pick it back up.` },
+      { day: 3, channel: "email", title: "Follow-up", detail: "A short bump", subject: `Re: ${subject}`, body: `Hi ${first},\n\nFollowing up on the project I suggested for ${focusCard.accounts.name}. We'd build a first version with the people doing the work and test whether it saves them time. Is this worth exploring?` },
+      { day: 7, channel: "email", title: "Close", detail: "A brief sign-off", subject: `Re: ${subject}`, body: `Hi ${first},\n\nI'll leave this with you after this note. Our engineers can help from the first build through testing and training. Would it be better to revisit this later?` },
     ];
     setEnrolling(true);
     try {
@@ -754,23 +808,42 @@ export function Desk({
   const [applyingSubject, setApplyingSubject] = useState(false);
   const [bulkOpening, setBulkOpening] = useState("");
   const [applyingOpening, setApplyingOpening] = useState(false);
+  const [bulkUndo, setBulkUndo] = useState<Array<{id:string; field:string; before:string; after:string}>>([]);
+  async function undoBulk() {
+    if (!bulkUndo.length || !confirm(`Undo the last batch edit on ${bulkUndo.length} drafts? Drafts edited since will be skipped.`)) return;
+    let restored = 0;
+    for (const row of bulkUndo) {
+      const current = cards.find(c => c.id === row.id);
+      if (!current || (current as unknown as Record<string, unknown>)[row.field] !== row.after) continue;
+      if (await patchOn(row.id, { [row.field]: row.before })) restored++;
+    }
+    setBulkUndo([]); setNotice(`Restored ${restored} drafts. Later changes were preserved.`);
+  }
   const applyCopyToAll = async (field: "subject" | "opening") => {
-    if (!focusCard || applyingSubject || applyingOpening) return;
+    if (sending || sendInFlight.current || !focusCard || applyingSubject || applyingOpening) return;
     const value = (field === "subject" ? focusCard.email_subject ?? "" : bulkOpening).trim();
     if (!value) { setNotice(`Write ${field === "subject" ? "a subject" : "an opening"} first.`); return; }
     const owner = batchOwner(focusCard.accounts.domain ?? "");
     const targets = cards.filter(c => ["new","edited","approved"].includes(c.status) && batchOwner(c.accounts.domain ?? "") === owner && c.email_body?.trim());
     if (!owner || !targets.length) return;
+    if (dirtyFields.current.size || saveQueues.current.size) { setNotice("Save your current changes before applying a batch edit."); return; }
+    if (!window.confirm(`Replace the ${field} in ${targets.length} unsent drafts in ${owner === "josh" ? "Josh" : "Suuchi"}'s ${batchSequence === 2 ? "Next 25" : "First 25"}?\n\n${value}\n\nThis includes edited and approved drafts.`)) return;
     const setApplying = field === "subject" ? setApplyingSubject : setApplyingOpening;
     setApplying(true);
     try {
       if (demo) { setNotice("Bulk changes are disabled in the local preview."); return; }
-      const response = await fetch("/api/cards/bulk-copy", {method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({ids:targets.map(c=>c.id),owner,field,value})});
-      const json = await response.json();
-      if (!response.ok) throw new Error(json.error ?? "Could not update drafts.");
-      const updates = new Map<string,{subject:string;body:string}>(json.updates.map((r:{id:string;subject:string;body:string})=>[r.id,r]));
-      setCards(current=>current.map(c=>{const update=updates.get(c.id);return update ? {...c,status:"edited",active_variant_id:null,...(field === "subject" ? {email_subject:update.subject} : {email_body:update.body})} : c;}));
-      setNotice(`${field === "subject" ? "Subject" : "Opening"} applied to ${updates.size} unsent drafts in ${owner === "josh" ? "Josh" : "Suuchi"}’s list.${json.skipped ? ` ${json.skipped} changed or unavailable drafts were skipped.` : ""}`);
+      const key = field === "subject" ? "email_subject" : "email_body";
+      const changes = targets.map(c => ({id:c.id,field:key,before:(field === "subject" ? c.email_subject : c.email_body) ?? "",after:field === "subject" ? value : replaceOpening(c.email_body ?? "",value)}));
+      for (const change of changes) {
+        const target = targets.find(c => c.id === change.id)!;
+        const errors = firstTouchErrors(field === "subject" ? change.after : target.email_subject ?? "", field === "opening" ? change.after : target.email_body ?? "");
+        if (errors.length) throw new Error(errors[0]);
+      }
+      if (changes.some(c => c.after.length > (field === "subject" ? 120 : 1000))) throw new Error("This edit exceeds a draft's character limit. Shorten it before applying.");
+      const applied: typeof changes = [];
+      for (const change of changes) if (await patchOn(change.id, { [key]: change.after, status: "edited" })) applied.push(change);
+      setBulkUndo(applied);
+      setNotice(`Applied to ${applied.length} of ${targets.length} drafts. Undo is available below the batch controls.`);
     } catch(error) {setNotice(error instanceof Error ? error.message : "Could not update drafts.");}
     finally {setApplying(false);}
   };
@@ -778,12 +851,13 @@ export function Desk({
   // "Propose times": pull open slots from the connected calendar and drop them into the email draft to edit.
   // Strictly opt-in — nothing adds times on its own — and reversible, because it writes into the saved draft.
   const [proposing, setProposing] = useState(false);
-  const timesInDraft = hasProposedTimes(focusCard?.email_body);
+  const beforeTimes = useRef(new Map<string, string>());
+  const timesInDraft = hasProposedTimes(focusCard?.email_body) || (focusCard?.email_body ?? "").includes("Available times:\n");
   // Take the times back out: off the draft AND off the card, so a reply can no longer auto-book against
   // times the operator has withdrawn.
   const removeMeetingTimes = async () => {
     if (!focusCard) return;
-    const body = stripProposedTimes(focusCard.email_body);
+    const body = beforeTimes.current.get(focusCard.id) ?? stripProposedTimes(focusCard.email_body).replace(/\n*Available times:[\s\S]*$/, "\n\nWould a short call be useful?");
     editFocus("email_body", body);
     saveField("email_body", body);
     if (!demo) await fetch(`/api/cards/${focusCard.id}/propose-times`, { method: "DELETE" }).catch(() => undefined);
@@ -797,8 +871,8 @@ export function Desk({
       const response = await fetch(`/api/cards/${focusCard.id}/propose-times`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
       const json = await response.json();
       if (!response.ok) { setNotice(json.error ?? "Could not propose times."); return; }
-      const lines = (json.slots as Array<{ label: string }>).map((slot) => `• ${slot.label}`).join("\n");
-      const body = `${(focusCard.email_body ?? "").trimEnd()}\n\nWould any of these work for a quick call?\n${lines}\n\nHappy to send a calendar invite for whichever suits.`;
+      beforeTimes.current.set(focusCard.id, focusCard.email_body ?? "");
+      const body = meetingTimesBody(focusCard.email_body ?? "", (json.slots as Array<{label:string}>).map(slot => slot.label));
       editFocus("email_body", body);
       saveField("email_body", body);
       // Drop the composer's cached parse so the editor re-reads this new body; otherwise a blur would
@@ -819,6 +893,7 @@ export function Desk({
       const result = await response.json();
       if (!response.ok) { setNotice(result.error ?? "Could not load the reviewed draft."); return; }
       setCards(current => current.map(item => item.id === id && preservesCurrentDraft(item, focusCard) ? { ...item, email_subject: result.email_subject, email_body: result.email_body, status: result.status, assigned_to: result.assigned_to } : item));
+      if (result.updated_at) serverVersions.current.set(id, result.updated_at);
       setLastRefine(null);
       setNotice(`Loaded the reviewed ${result.audience} draft with your sender settings.`);
     } catch { setNotice("Could not load the reviewed draft. Try again."); }
@@ -837,16 +912,25 @@ export function Desk({
    */
   const saveField = (key: "email_subject" | "email_body" | "linkedin_message" | "linkedin_subject", value: string) => {
     const promote = focusCard?.status === "new" ? { status: "edited" } : {};
-    const linkedInPair = key === "linkedin_message" || key === "linkedin_subject" ? { linkedin_message: focusCard?.linkedin_message ?? "", linkedin_subject: focusCard?.linkedin_subject ?? "" } : {};
+    const linkedInPair = {};
     void patchFocus({ ...linkedInPair, [key]: value, ...promote });
-    markWorking(true);
   };
   // Shared "someone is on this" flag so the two people on the desk don't message the same prospect. Best-effort.
   function markWorking(on: boolean) {
     if (!focusCard) return;
     const id = focusCard.id;
     setCards((current) => current.map((item) => item.id === id ? { ...item, working_at: on ? new Date().toISOString() : null } : item));
-    void fetch(`/api/cards/${id}/claim`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ on }) }).catch(() => {});
+    const previous = saveQueues.current.get(id) ?? Promise.resolve(true);
+    const task = previous.then(async () => {
+      try {
+        const response = await fetch(`/api/cards/${id}/claim`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ on, expected_updated_at: serverVersions.current.get(id) }) });
+        const json = await response.json();
+        if (response.ok && json.updated_at) serverVersions.current.set(id, json.updated_at);
+        return response.ok;
+      } catch { return false; }
+    });
+    saveQueues.current.set(id, task);
+    void task.finally(() => { if (saveQueues.current.get(id) === task) saveQueues.current.delete(id); });
   }
 
   const workingView = !active && !browse && cards.length > 0;
@@ -1130,7 +1214,7 @@ export function Desk({
         <div className="deskwork">
           <header className="deskwork-head">
             <div><span className="overview-kick">Your reach-out list</span><h1>Start the right conversation.</h1><p className="reachout-subtitle">{curatedDomains.length} operating companies · $10M to $100M annual revenue · Individual contact drafts</p></div>
-            <div className="deskwork-head-right"><span>Night Watch</span><strong>{focusPool.length} companies to review</strong><div className="deskwork-head-actions">{tools}<button type="button" className="deskwork-overview" onClick={() => setBrowse(true)}>Overview &rarr;</button></div></div>
+            <div className="deskwork-head-right"><span>Night Watch</span><strong>{focusPool.length} companies to review</strong><div className="deskwork-head-actions">{tools}<a className="deskwork-overview" href={overviewHref}>Overview &rarr;</a></div></div>
           </header>
 
           <div className="deskwork-grid">
@@ -1270,6 +1354,7 @@ export function Desk({
                         </div>
                         <div className="focus-subject-row">
                           <input
+                            disabled={sending}
                             aria-label="Email subject"
                             className="focus-msg-subject"
                             value={emailStyle(focusCard.email_subject ?? "")}
@@ -1279,17 +1364,19 @@ export function Desk({
                             onFocus={(event) => rememberSubject(focusCard.id, event.target.value)}
                             onChange={(event) => editFocus("email_subject", emailStyle(event.target.value))}
                             // Leaving the field empty saves the subject back rather than saving a blank one.
-                            onBlur={(event) => { if (event.target.value.trim()) saveField("email_subject", event.target.value); else restoreSubject(true); }}
+                            // Event-only callback; no ref is read during rendering.
+                            // eslint-disable-next-line react-hooks/refs
+                            maxLength={120} onBlur={(event) => { if (event.target.value.trim()) saveField("email_subject", event.target.value); else restoreSubject(true); }}
                           />
-                          <button type="button" className="focus-apply-all" disabled={applyingSubject || applyingOpening || !focusCard.email_subject?.trim()} onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to all"}</button>
+                          <button type="button" className="focus-apply-all" disabled={applyingSubject || applyingOpening || !focusCard.email_subject?.trim()} onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to this batch"}</button>
                           {subjectIsBlank && subjectFallback && <button type="button" className="focus-apply-all" onClick={() => restoreSubject(false)}>Restore subject</button>}
                         </div>
                         <details className="composer-bulk-opening"><summary>Set an opening for all emails</summary>
                           <label htmlFor="bulk-opening">Opening paragraph</label>
                           <textarea id="bulk-opening" rows={3} maxLength={400} value={bulkOpening} onChange={event=>setBulkOpening(event.target.value)} placeholder="Write the opening you want each email to start with…" />
-                          <div><small>Replaces the first paragraph after the greeting in this list’s unsent drafts. Keeps each greeting and the rest of the message.</small><button type="button" className="btn" disabled={applyingOpening || applyingSubject || !bulkOpening.trim()} onClick={()=>applyCopyToAll("opening")}>{applyingOpening ? "Applying…" : "Apply opening to all"}</button></div>
+                          <div><small>Replaces the first paragraph after the greeting in this list’s unsent drafts. Keeps each greeting and the rest of the message.</small><button type="button" className="btn" disabled={applyingOpening || applyingSubject || !bulkOpening.trim()} onClick={()=>applyCopyToAll("opening")}>{applyingOpening ? "Applying…" : "Apply opening to this batch"}</button></div>
                         </details>
-                        <label className="compose-field"><span>Message</span><textarea className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
+                        <div role="status" aria-live="polite"><small>Subject {focusCard.email_subject?.length ?? 0}/120 · </small>{bulkUndo.length > 0 && <button type="button" className="btn" onClick={undoBulk}>Undo last batch edit</button>}{saveState}{saveState !== "Saved" && <button type="button" className="btn" onClick={() => { void patchFocus({ email_subject: focusCard.email_subject ?? "", email_body: focusCard.email_body ?? "" }); }}>Save changes</button>}</div><label className="compose-field"><span>Message · {focusCard.email_body?.length ?? 0}/1000</span><textarea disabled={sending} maxLength={1000} className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
                         <p className="compose-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</p>
                     {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" dangerouslySetInnerHTML={{__html:firstTouchFooterHtml(senderFooterHtml)}} />)}
                       </div>
@@ -1298,7 +1385,7 @@ export function Desk({
                     <div className="deskwork-doc">
                       <div className="deskwork-doc-head">
                         <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
-                        <div className="mail-row"><span>Subject</span><b>{subjectView("email", focusCard.email_subject || subjectGuess(focusCard, "email"))}</b></div>
+                        <div className="mail-row"><span>Subject · {focusCard.email_subject?.length ?? 0}/120</span><b>{subjectView("email", focusCard.email_subject || subjectGuess(focusCard, "email"))}</b></div>
                       </div>
                       {sentAlready && <div className="deskwork-sent-note">This email has been sent{focusCard.people.full_name ? ` to ${contact.full_name}` : ""}. It is kept here as a record &mdash; the follow-ups below are what happens next.</div>}
                       {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
@@ -1310,12 +1397,12 @@ export function Desk({
                 ) : (
                   editing.linkedin ? (
                     <div className="deskwork-edit">
-                      <input className="focus-msg-subject" value={focusCard.linkedin_subject ?? ""} placeholder="Subject (used for InMail)" onChange={(event) => editFocus("linkedin_subject", event.target.value)} onBlur={(event) => saveField("linkedin_subject", event.target.value)} />
-                      <textarea className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={11} placeholder="No LinkedIn message yet. Write your message here." onChange={(event) => editFocus("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
+                      <div role="status" aria-live="polite">{saveState} · Message {focusCard.linkedin_message?.length ?? 0}/1500 · Subject {focusCard.linkedin_subject?.length ?? 0}/120{saveState !== "Saved" && <button type="button" className="btn" onClick={() => { void patchFocus({linkedin_subject: focusCard.linkedin_subject ?? "", linkedin_message: focusCard.linkedin_message ?? ""}); }}>Save changes</button>}</div><input disabled={sending} maxLength={120} className="focus-msg-subject" value={focusCard.linkedin_subject ?? ""} placeholder="Subject (used for InMail)" onChange={(event) => editFocus("linkedin_subject", event.target.value)} onBlur={(event) => saveField("linkedin_subject", event.target.value)} />
+                      <textarea disabled={sending} maxLength={1500} className="focus-msg-body" value={focusCard.linkedin_message ?? focusCard.linkedin_note ?? focusCard.linkedin_comment ?? ""} rows={11} placeholder="No LinkedIn message yet. Write your message here." onChange={(event) => editFocus("linkedin_message", event.target.value)} onBlur={(event) => saveField("linkedin_message", event.target.value)} />
                     </div>
                   ) : (
                     <div className="deskwork-doc">
-                      <div className="deskwork-doc-head"><div className="mail-row"><span>Subject</span><b>{subjectView("linkedin", focusCard.linkedin_subject || subjectGuess(focusCard, "linkedin"))}</b></div></div>
+                      <div className="deskwork-doc-head"><div className="mail-row"><span>Subject · {focusCard.email_subject?.length ?? 0}/120</span><b>{subjectView("linkedin", focusCard.linkedin_subject || subjectGuess(focusCard, "linkedin"))}</b></div></div>
                       {diffFor("linkedin") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("linkedin", adapt(linkedinDraft) || "No LinkedIn message yet. Write your message here.")}</div>
                     </div>
@@ -1357,7 +1444,7 @@ export function Desk({
                         <p className="deskwork-fu-body">{step.body}</p>
                         <div className="deskwork-fu-actions">
                           <button type="button" className="deskwork-fu-copy" onClick={() => copyText(step.subject ? `Subject: ${step.subject}\n\n${step.body}` : step.body, `Follow-up ${step.step}`)}>Copy follow-up</button>
-                          {step.status === "pending" && step.channel === "email" && <button type="button" className="deskwork-fu-copy" disabled={!!sendingStep} title="Send this one now instead of waiting for its scheduled day" onClick={() => sendFollowupNow(step.id, step.title)}>{sendingStep === step.id ? "Sending…" : "Send now"}</button>}
+                          {step.status === "pending" && step.channel === "email" && <button type="button" className="deskwork-fu-copy" disabled={!!sendingStep || !senderIsViewer} title="Send this one now instead of waiting for its scheduled day" onClick={() => sendFollowupNow(step.id, step.title)}>{sendingStep === step.id ? "Sending…" : "Send now"}</button>}
                         </div>
                       </div>
                     ))}
@@ -1370,7 +1457,7 @@ export function Desk({
                 <footer className="composer-actions">
                   <div className="composer-action-context"><strong>{previewingVersion && tonePreview ? `${tonePreview.label} preview` : sentAlready ? "Sent message" : "Ready for a final check"}</strong><small>{!senderIsViewer ? `Prospect sends use ${senderName}’s account. You can test in your inbox.` : previewingVersion ? "Testing uses the version shown above." : "Tests go only to your own inbox."}</small></div>
                   <div className="composer-action-buttons">
-                    {channelTab === "email" && !altContact && !sentAlready && <TestEmailButton key={focusCard.id} cardId={focusCard.id} subject={previewingVersion && tonePreview ? tonePreview.subject : focusCard.email_subject ?? ""} body={previewingVersion && tonePreview ? tonePreview.body : focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
+                    {channelTab === "email" && !altContact && !sentAlready && <TestEmailButton key={`${focusCard.id}:${tonePreview?.versionId ?? "draft"}:${tonePreview?.body ?? focusCard.email_body}:${tonePreview?.subject ?? focusCard.email_subject}`} cardId={focusCard.id} subject={previewingVersion && tonePreview ? tonePreview.subject : focusCard.email_subject ?? ""} body={previewingVersion && tonePreview ? tonePreview.body : focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
                     {previewingVersion && tonePreview ? <><button type="button" className="btn" onClick={() => setTonePreview(null)}>Cancel</button><button type="button" className="btn primary" disabled={busy} onClick={applyTone}>{busy ? "Saving…" : "Use this version"}</button></> : channelTab === "email" ? !sentAlready && <button type="button" disabled={!senderIsViewer || sending || !contact.email} className="btn primary" title={!senderIsViewer ? `Sign in as ${senderName} to send to this contact` : `Send to ${contact.full_name}`} onClick={sendEmail}>{sending ? "Sending…" : "Send email"} →</button> : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn ↗</button>}
                   </div>
                 </footer>
@@ -1380,7 +1467,7 @@ export function Desk({
               <div className="deskwork-clear">
                 <h2>All caught up</h2>
                 <p>Every prospect has been actioned. New ones land here after the next scan.</p>
-                <button type="button" className="btn" onClick={() => setBrowse(true)}>Overview</button>
+                <a className="btn" href={overviewHref}>Overview</a>
               </div>
             )}
           </div>

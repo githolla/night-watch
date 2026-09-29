@@ -9,7 +9,7 @@ const MANUAL: ManualChannel[] = ["linkedin_comment", "linkedin_request", "linked
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    await requireUser();
+    const user = await requireUser();
     const { id } = await context.params;
     const { action } = input.parse(await request.json());
     const db = admin();
@@ -21,8 +21,12 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (!step) throw new Error("Follow-up not found");
     const cadence = step.cadences as unknown as { card_id: string; owner: Owner; person_id: string } | null;
 
+    if (!cadence || cadence.owner !== user.owner) throw new Error("Sign in as the list owner to update delivery status.");
+    if (step.status === "sent") throw new Error("This follow-up is already sent.");
+
     if (action === "skipped") {
-      await db.from("cadence_steps").update({ status: "skipped" }).eq("id", id);
+      const {error} = await db.from("cadence_steps").update({ status: "skipped" }).eq("id", id);
+      if (error) throw error;
       return Response.json({ ok: true, status: "skipped" });
     }
 
@@ -30,7 +34,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (cadence && MANUAL.includes(step.channel as ManualChannel)) {
       await recordManualTouch(cadence.card_id, step.channel as ManualChannel, cadence.owner, (step.body as string | null) ?? undefined, cadence.person_id, step.subject ?? undefined, true);
     }
-    await db.from("cadence_steps").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", id);
+    const {error} = await db.from("cadence_steps").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", id);
+    if (error) throw error;
     return Response.json({ ok: true, status: "sent" });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Could not update the follow-up" }, { status: 400 });

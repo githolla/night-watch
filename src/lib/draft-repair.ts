@@ -54,7 +54,7 @@ export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000, afterI
     profiles.set(owner, await senderProfile(db, owner).catch(() => null));
   }
 
-  const updates: Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string }> = [];
+  const updates: Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string; updated_at?: string }> = [];
   let repaired = 0;
   let failed = 0;
   let done = exhausted;
@@ -96,11 +96,11 @@ export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000, afterI
       .eq("id", row.id).eq("status", row.status).in("status", open);
     update = row.email_body === null ? update.is("email_body", null) : update.eq("email_body", row.email_body);
     update = row.email_subject === null ? update.is("email_subject", null) : update.eq("email_subject", row.email_subject);
-    const { data: saved, error } = await update.select("id");
+    const { data: saved, error } = await update.select("id,updated_at");
     if (error) failed += 1;
     else if (saved?.length) {
       repaired += 1;
-      updates.push({ id: row.id, beforeSubject: row.email_subject, beforeBody: row.email_body, subject: draft.subject, body: draft.body });
+      updates.push({ id: row.id, beforeSubject: row.email_subject, beforeBody: row.email_body, subject: draft.subject, body: draft.body, updated_at:saved[0].updated_at });
     }
   }
   return { checked: rows.length, repaired, failed, done, updates, nextCursor };

@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { oauthUrl, OAUTH_STATE_COOKIE } from "@/lib/gmail";
 import { z } from "zod";
 
-const owner = z.enum(["josh", "jenna"]).catch("josh");
+const owner = z.enum(["josh", "jenna"]);
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -16,8 +16,11 @@ export async function GET(request: Request) {
     // Seat scoping: a member may only (re)connect their OWN seat; only an admin may connect either seat.
     // The callback trusts the seat carried in `state`, so this is the choke point that stops a member from
     // binding (or overwriting) the other seat's mailbox and sending identity.
-    const requested = owner.parse(url.searchParams.get("owner"));
-    const seat = user.role === "admin" ? requested : user.owner;
+    const parsed = owner.safeParse(url.searchParams.get("owner") ?? user.owner);
+    if (!parsed.success) return Response.json({error:"Unknown sending account."},{status:400});
+    const requested = parsed.data;
+    if (user.role !== "admin" && requested !== user.owner) return Response.json({error:"You can only connect your own sending account."},{status:403});
+    const seat = requested;
     // Mint a one-time nonce, drop it in an httpOnly cookie, and carry it in the OAuth `state`. The callback
     // only proceeds when the two match, so a forged callback (attacker's code + a chosen seat) can't bind a
     // mailbox to a seat the user never authorized. SameSite=Lax still rides the top-level redirect back.

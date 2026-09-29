@@ -10,25 +10,19 @@ type FollowupStep = { day: number; channel: FollowupChannel; title: string; deta
 export function buildFollowups(channel: FollowupChannel, ctx: { firstName: string; company: string; baseSubject: string }): FollowupStep[] {
   const name = ctx.firstName || "there";
   const company = ctx.company || "your team";
-  const re = ctx.baseSubject ? `Re: ${ctx.baseSubject}` : `Following up — ${company}`;
-  if (channel === "email") {
-    return [
-      { day: 3, channel, title: "Follow-up email", detail: "A short bump on the first note, same thread", subject: re,
-        body: `Hi ${name},\n\nFloating this back up in case it slipped by. Happy to put together a quick, no-obligation outline of one role at ${company} and exactly what we'd build to do that work instead of hiring for it.\n\nWorth a look?` },
-      { day: 7, channel, title: "A concrete angle", detail: "Give one specific example of the build", subject: re,
-        body: `Hi ${name},\n\nOne more thought: most of the teams we work with start with a single workflow — the reporting, the data entry, the routing — and let one system own it end to end before touching anything else.\n\nIf there's one repetitive thing your team wishes it never had to staff for, tell me what it is and I'll sketch how we'd automate it.` },
-      { day: 14, channel, title: "Close the loop", detail: "A soft sign-off that leaves the door open", subject: re,
-        body: `Hi ${name},\n\nI'll leave it here for now so I'm not cluttering your inbox. If building this instead of hiring for it ever becomes a priority at ${company}, just reply and I'll pick it right back up.\n\nThanks for the time either way.` },
-    ];
-  }
-  return [
-    { day: 3, channel, title: "LinkedIn nudge", detail: "A light follow-up message", subject: null,
-      body: `Hi ${name} — just following up on my note. No pressure at all; I know inboxes and DMs pile up. If the idea of automating the work at ${company} instead of hiring for it is interesting, happy to share a quick example.` },
-    { day: 7, channel, title: "Share an idea", detail: "Offer a specific build idea", subject: null,
-      body: `Hey ${name}, one concrete thought — teams like yours usually start by handing a single repetitive workflow (reporting, data entry, routing) to one system that owns it end to end. If there's one your team wishes it didn't have to staff for, tell me and I'll sketch how we'd build it.` },
-    { day: 14, channel, title: "Soft close", detail: "A friendly last touch", subject: null,
-      body: `Hi ${name} — I'll leave this here for now. If automating that kind of work at ${company} ever moves up the list, just message me and I'll jump back in. Appreciate you either way.` },
+  const re = ctx.baseSubject ? `Re: ${ctx.baseSubject.replace(/[—–]/g, '-')}` : `Following up: ${company}`;
+  const bodies = [
+    `Hi ${name},\n\nFollowing up on the project I suggested for ${company}. We'd work with the people doing the task, build a first version and test whether it saves them time.\n\nIs this a task your team would like help with?`,
+    `Hi ${name},\n\nA useful first build should be easy to judge: compare the time your team spends on the task today with the time it takes using the new tool. Our engineers would handle the build, work through feedback and train the people using it.\n\nWho at ${company} would be best to talk with about that work?`,
+    `Hi ${name},\n\nI'll leave this with you after this note. If the project in my first message becomes a priority at ${company}, our AI engineers can work alongside your team from the first build through testing and training.\n\nWould it be better to revisit this later?`,
   ];
+  return bodies.map((body,index) => ({day:[3,7,14][index],channel,title:['Follow up on the project','How we would measure it','Close the loop'][index],detail:'Continues the original project conversation',subject:channel==='email'?re:null,body}));
+}
+
+/** Upgrade only known retired generated templates; preserve user-authored follow-up edits. */
+export function refreshLegacyFollowup(body: string, ctx: {firstName:string;company:string;baseSubject:string;step:number;channel:FollowupChannel}) {
+  const legacy = /Floating this back up in case it slipped by|most of the teams we work with start with a single workflow|If building this instead of hiring for it ever becomes|automating the work at .+ instead of hiring for it|teams like yours usually start by handing a single repetitive workflow|If automating that kind of work at/.test(body);
+  return legacy ? buildFollowups(ctx.channel,ctx)[Math.max(0,Math.min(2,ctx.step-1))].body : body;
 }
 
 /** Add N business days from now and land it mid-morning (roughly 10–11am US Eastern) so reminders come due on a workday. */

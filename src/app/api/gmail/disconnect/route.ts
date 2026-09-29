@@ -14,7 +14,8 @@ export async function POST(request: Request) {
     if (user.role !== "admin" && requested !== user.owner) {
       return Response.json({ error: "You can only disconnect your own seat." }, { status: 403 });
     }
-    await admin().from("gmail_connections").delete().eq("owner", requested);
+    const {error} = await admin().from("gmail_connections").delete().eq("owner", requested);
+    if (error) throw new Error("Could not disconnect Google. Please retry.");
     return Response.json({ ok: true });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Disconnect failed" }, { status: 400 });

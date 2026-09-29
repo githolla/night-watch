@@ -5,6 +5,11 @@ import { useMemo, useState } from "react";
 
 export type FollowupItem = {
   id: string;
+  status: string;
+  error: string | null;
+  claimed: boolean;
+  owner: string;
+  canSend: boolean;
   cardId: string;
   step: number;
   channel: string;
@@ -41,8 +46,8 @@ export function FollowupsBoard({ items }: { items: FollowupItem[] }) {
   const [copied, setCopied] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
-  const due = useMemo(() => list.filter((item) => item.due), [list]);
-  const upcoming = useMemo(() => list.filter((item) => !item.due), [list]);
+  const due = useMemo(() => list.filter((item) => item.due && item.status !== "sent"), [list]);
+  const upcoming = useMemo(() => list.filter((item) => !item.due && item.status !== "sent"), [list]);
 
   async function act(id: string, action: "sent" | "skipped") {
     setBusy(id);
@@ -54,6 +59,17 @@ export function FollowupsBoard({ items }: { items: FollowupItem[] }) {
       setNotice(action === "sent" ? "Marked sent — logged to the history." : "Skipped.");
     } catch { setNotice("Could not update the follow-up."); }
     finally { setBusy(null); }
+  }
+  async function send(item: FollowupItem) {
+    setBusy(item.id);
+    try {
+      const response = await fetch(`/api/cadence-steps/${item.id}/send-now`, {method:'POST'});
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not send the follow-up.');
+      setList(current => current.filter(row => row.id !== item.id));
+      setNotice(result.stopped ? 'A reply was found. This sequence has been stopped.' : result.warning || 'Gmail confirmed the follow-up was sent.');
+    } catch(error) {setNotice(error instanceof Error ? error.message : 'Delivery status unavailable. Check Gmail Sent before trying again.');}
+    finally {setBusy(null);}
   }
   async function copy(item: FollowupItem) {
     const text = item.subject ? `Subject: ${item.subject}\n\n${item.body}` : item.body;
@@ -75,6 +91,7 @@ export function FollowupsBoard({ items }: { items: FollowupItem[] }) {
             <span className={`followup-when ${item.due ? "is-due" : ""}`}>Step {item.step} · {whenLabel(item.scheduledAt, now)}</span>
           </div>
         </div>
+        <p><strong>{item.claimed ? "Needs delivery confirmation" : item.status}</strong> · {item.owner === "jenna" ? "Suuchi" : "Josh"}{item.error && <><br />{item.error}</>}</p>
         <div className="followup-title">{item.title}<small>{item.detail}</small></div>
         <div className="followup-draft">
           {item.subject && <div className="mail-row"><span>Subject</span><b>{item.subject}</b></div>}
@@ -82,8 +99,9 @@ export function FollowupsBoard({ items }: { items: FollowupItem[] }) {
         </div>
         <div className="followup-actions">
           <button type="button" className="btn" onClick={() => copy(item)}>{copied === item.id ? "Copied ✓" : "Copy"}</button>
-          <button type="button" className="btn primary" disabled={busy === item.id} onClick={() => act(item.id, "sent")}>Mark sent →</button>
-          <button type="button" className="btn ghost" disabled={busy === item.id} onClick={() => act(item.id, "skipped")}>Skip</button>
+          {item.channel === "email" && <button className="btn primary" disabled={busy === item.id || !item.canSend || item.claimed || item.status === "sent"} onClick={() => send(item)}>Send follow-up</button>}
+          {item.claimed ? <Link className="btn" href="/delivery-recovery">Check delivery</Link> : <button type="button" className="btn" disabled={busy === item.id || !item.canSend || item.status === "sent"} onClick={() => act(item.id, "sent")}>Already sent manually</button>}
+          <button type="button" className="btn ghost" disabled={busy === item.id || !item.canSend || item.status === "sent"} onClick={() => act(item.id, "skipped")}>Skip</button>
         </div>
       </article>
     );
@@ -95,6 +113,8 @@ export function FollowupsBoard({ items }: { items: FollowupItem[] }) {
     </header>
 
     {notice && <p className="notice">{notice}</p>}
+
+    {list.some(item => item.status === "sent") && <details><summary>Sent follow-ups</summary>{list.filter(item => item.status === "sent").map(render)}</details>}
 
     {list.length === 0 && <section className="card"><p className="cell-empty">No follow-ups queued. Copy or send a first email or LinkedIn message from the desk and Night Watch lines up the next three here.</p></section>}
 

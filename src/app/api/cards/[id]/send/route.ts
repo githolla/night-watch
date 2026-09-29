@@ -1,3 +1,4 @@
+import { withMailboxQuota } from '@/lib/mailbox-quota';
 import { DeliveryError, deliveryErrorResponse, deliveryReservationId } from '@/lib/delivery-state';
 import { restoreSelectedDraft } from "@/lib/restore-selected-draft";
 import { assertListSender } from "@/lib/focus-data";
@@ -15,6 +16,8 @@ import { outboundBaseUrl } from "@/lib/urls";
 import { admin } from "@/lib/supabase/admin";
 import { isCuratedDomain } from "@/lib/curated-worklist";
 import { outreachBody, outreachDelivery } from "@/lib/outreach-ending";
+
+export const maxDuration = 60;
 
 const daysBetween = (iso: string | null | undefined) => (iso ? Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)) : 0);
 
@@ -93,20 +96,22 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const html = delivery.html + (curated ? "" : `<p>${optOut.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>`);
     const base = outboundBaseUrl(request);
     const unsubscribe = `${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(recipient.id))}`;
+    const recipientEmail = recipient.email;
     const reservationId = deliveryReservationId(id, recipient.id);
-    const versionId = await trackEmailVersion(db, { cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail", reservationId });
     const deliveredBody = fullBody;
-    let result;
-    try {
-      result = await sendEmail(owner, fromHeader(profile, fromEmail), recipient.email, subject, deliveredBody, undefined, profile.cc, html, unsubscribe);
-    } catch (error) {
-      // Token/validation errors happen before transport. Explicit Gmail rejection also permits retry.
-      // Unknown delivery keeps the durable reservation, including across reloads and other tabs.
-      if (!(error instanceof DeliveryError) || error.code === 'delivery_rejected') {
-        await db.from('message_experiments').delete().eq('id', reservationId);
+    const { result, versionId } = await withMailboxQuota(db, { owner, cardId: id, personId: recipient.id, count, cap, dayStart: since, reservationId }, async () => {
+      const versionId = await trackEmailVersion(db, { cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail", reservationId });
+      try {
+        const result = await sendEmail(owner, fromHeader(profile, fromEmail), recipientEmail, subject, deliveredBody, undefined, profile.cc, html, unsubscribe, `${reservationId}@night-watch.nine-67.com`);
+        return { result, versionId };
+      } catch (error) {
+        if (!(error instanceof DeliveryError) || error.code === 'delivery_rejected') {
+          const { error: releaseError } = await db.from('message_experiments').delete().eq('id', reservationId);
+          if (releaseError) throw new Error('Nothing was sent by this request, but its reservation needs review in Delivery recovery.');
+        }
+        throw error;
       }
-      throw error;
-    }
+    });
     // The email has now actually left. Mark the card sent FIRST so it can never stay actionable after a
     // real send (which is how a "failed" toast used to lead to a duplicate re-send). Only then log to
     // History; if that write fails, the send still stands — we report success with a soft warning.
@@ -119,8 +124,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     try {
     const { error: cardError } = await db.from("cards").update(cardPatch).eq("id", id);
     if (cardError) saveWarning = "The draft status could not be updated.";
-    const { error: touchError } = await db.from("touches").insert({ card_id: id, person_id: recipient.id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: deliveredBody, experiment_variant_id: versionId });
+    const { error: touchError } = await db.from("touches").insert({ id:reservationId, card_id: id, person_id: recipient.id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: deliveredBody, experiment_variant_id: versionId });
     if (touchError) saveWarning += " History could not be saved.";
+    if(!saveWarning){
+      const {error:receiptError}=await db.from('message_experiments').update({status:'sent',context:JSON.stringify({delivery:{state:'sent',kind:'initial',messageId:result.id,threadId:result.threadId}})}).eq('id',reservationId);
+      if(receiptError)saveWarning='The receipt could not be saved. Use Delivery recovery to reconcile it.';
+    }
     } catch { saveWarning += " Saving the delivery record was interrupted."; }
     if (saveWarning) return Response.json({ ok: true, threadId: result.threadId, messageId: result.id, to: recipient.full_name, from: fromEmail, warning: `Gmail confirmed the send to ${recipient.full_name} from ${fromEmail}. ${saveWarning.trim()} Check that mailbox’s Sent folder; do not resend this message.` });
     // Schedule the follow-up cadence off this first touch (idempotent, best-effort — a failure here never

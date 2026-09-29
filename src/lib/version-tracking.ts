@@ -8,8 +8,8 @@ import { identifyVersion, SAVED_VERSION_MODEL, versionMeta, type VersionMeta, ty
  * Each record has one snapshot in slot A. The real four-way label lives in dimensions.
  * These records are excluded from the older A/B simulation statistics.
  */
-export async function snapshotVersion(db: SupabaseClient, input: { cardId: string; personId: string; owner: Owner; subject: string; body: string; meta: VersionMeta; reservationId?: string }) {
-  const { data: experiment, error } = await db.from('message_experiments').insert({ ...(input.reservationId ? { id: input.reservationId } : {}), card_id: input.cardId, person_id: input.personId, owner: input.owner, channel: input.meta.channel === 'linkedin' ? 'connection' : 'email', goal: input.meta.source === 'test' ? 'Email tracking self-test' : input.meta.channel === 'linkedin' ? 'Saved LinkedIn version history' : 'Saved email version history', model: SAVED_VERSION_MODEL, status: 'selected', selected_label: 'A' }).select('id').single();
+export async function snapshotVersion(db: SupabaseClient, input: { cardId: string; personId: string; owner: Owner; subject: string; body: string; meta: VersionMeta; reservationId?: string; reservationContext?: Record<string, unknown> }) {
+  const { data: experiment, error } = await db.from('message_experiments').insert({ ...(input.reservationId ? { id: input.reservationId } : {}), card_id: input.cardId, person_id: input.personId, owner: input.owner, context: input.reservationId ? JSON.stringify({delivery: { state: 'reserved', kind: 'initial', ...input.reservationContext }}) : '', channel: input.meta.channel === 'linkedin' ? 'connection' : 'email', goal: input.meta.source === 'test' ? 'Email tracking self-test' : input.meta.channel === 'linkedin' ? 'Saved LinkedIn version history' : 'Saved email version history', model: SAVED_VERSION_MODEL, status: 'selected', selected_label: 'A' }).select('id').single();
   if (input.reservationId && error?.code === '23505') throw new DeliveryError('delivery_reserved', 'This email is already sending, sent, or awaiting delivery confirmation. Check the sender’s Sent folder and History before trying again.');
   if (error || !experiment) throw new Error(`Could not save version history: ${error?.message ?? 'missing record'}`);
   const { data: variant, error: variantError } = await db.from('message_variants').insert({ experiment_id: experiment.id, label: 'A', subject: input.subject, body: input.body, dimensions: input.meta, selected: true }).select('id').single();
@@ -20,7 +20,7 @@ export async function snapshotVersion(db: SupabaseClient, input: { cardId: strin
   }
   return variant.id as string;
 }
-export async function trackEmailVersion(db: SupabaseClient, input: { cardId: string; personId: string; owner: Owner; subject: string; body: string; source: 'gmail' | 'manual' | 'test'; followup?: boolean; reservationId?: string }) {
+export async function trackEmailVersion(db: SupabaseClient, input: { cardId: string; personId: string; owner: Owner; subject: string; body: string; source: 'gmail' | 'manual' | 'test'; followup?: boolean; reservationId?: string; reservationContext?: Record<string, unknown> }) {
   const { data: card, error } = await db.from('cards').select('person_id,active_variant_id,accounts(domain)').eq('id', input.cardId).single();
   if (error || !card) throw new Error('Cannot record version: card unavailable.');
   const { data: person, error: personError } = await db.from('people').select('full_name').eq('id', input.personId).single();

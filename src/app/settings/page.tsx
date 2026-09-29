@@ -28,7 +28,7 @@ export default async function Settings() {
   }
   const db = admin();
   const today = new Date().toISOString().slice(0, 10);
-  const [{ data: connections }, { count: accountCount }, { count: cardsToday }, { count: experiments }, { count: outcomes }, { data: sender }] = await Promise.all([
+  const [{ data: connections }, { count: accountCount }, { count: cardsToday }, { count: experiments }, { count: outcomes }, { data: sender, error: senderError }] = await Promise.all([
     db.from("gmail_connections").select("owner,email,calendar,connected_at"),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").not("domain", "like", "%.example"),
     db.from("cards").select("*", { count: "exact", head: true }).eq("surfaced_on", today),
@@ -38,6 +38,7 @@ export default async function Settings() {
     // is not there yet fails the whole read, blanking the identity form.
     db.from("sender_profiles").select("*").eq("owner", me.owner).maybeSingle(),
   ]);
+  if (senderError) return <div><Header /><main className="workspace-page"><section className="card pad" role="alert"><h1>Sender settings could not be loaded</h1><p>Your saved identity and signature have not been changed. Reload before editing or sending a test.</p><a className="btn" href="/settings">Reload settings</a></section></main></div>;
   const { count: feedbackCount } = me.role === "admin" ? await admin().from("feedback").select("*", { count: "exact", head: true }) : { count: 0 };
   const senderEmail = (connections ?? []).find((row) => row.owner === me.owner)?.email ?? me.email ?? null;
   const senderProfile = {
@@ -75,10 +76,10 @@ export default async function Settings() {
         ? `Emails go out from ${senderEmail ?? "the connected mailbox"} as \u201C${senderProfile.from_name}\u201D. Change the mailbox, the name on the From line, who is copied, or the signature.`
         : "Connect the Google account Night Watch sends from, then set the name and signature every email goes out with.",
       status: sendingReady
-        ? { tone: "ok" as const, label: "Connected" }
+        ? { tone: "ok" as const, label: "Account saved" }
         : { tone: "todo" as const, label: mailboxConnected ? "Add name" : "Start here" },
       content: <>
-        <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} /></div>
+        <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} viewerOwner={me.owner} isAdmin={isAdmin} /></div>
         <div className="feature-center" style={{ marginBottom: 18 }}><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
         {isAdmin && <div className="feature-center"><TestSequence senderEmail={senderEmail} /></div>}
       </>,
@@ -135,7 +136,7 @@ export default async function Settings() {
   return <div>
     <Header />
     <main className="workspace-page">
-      {isAdmin && <ConnectionHealth />}
+      <ConnectionHealth isAdmin={isAdmin} />
       <SettingsTabs tabs={tabs} />
     </main>
   </div>;

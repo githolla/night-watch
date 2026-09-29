@@ -1,10 +1,9 @@
 import { ReachoutListNavigation } from "@/components/ReachoutListNavigation";
-import { publishedEmailPatch } from "@/lib/focused-contact";
+import { BatchPreparation } from "@/components/BatchPreparation";
 import { wasAutomaticallyArchived } from "@/lib/curated-card-state";
 import { senderProfile } from "@/lib/sender";
 import { outreachFooterHtml, senderFirstName } from "@/lib/outreach-ending";
 import { recipientResearch } from "@/lib/recipient-research";
-import { preparePriorityDraft } from "@/lib/prepare-priority-draft";
 import { createHash } from "node:crypto";
 import { reachoutList } from "@/lib/focus-data";
 import { batchProgress, selectedBatch } from "@/lib/reachout-batches";
@@ -61,6 +60,12 @@ function fetchOverview(today:string,yesterday:string){const db=admin();return Pr
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true).not("domain", "like", "%.example"),
     db.from("public_posts").select("*", { count: "exact", head: true }),
 ]);}
+
+function emptyOverview(): Awaited<ReturnType<typeof fetchOverview>> {
+  const blank = {data:null,error:null,count:0,status:200,statusText:'not loaded'};
+  return [blank,blank,{hiringCompanies:0,targetRolesOpen:0,signalAccounts:0},blank,blank,blank,blank,null,null,blank,blank,blank,blank,blank,blank,blank,blank,blank,blank,blank,blank] as unknown as Awaited<ReturnType<typeof fetchOverview>>;
+}
+
 function loadOverview(today:string,yesterday:string){
  if(overviewCache&&overviewCache.day===today&&overviewCache.expires>Date.now())return overviewCache.value;
  const value=fetchOverview(today,yesterday).catch(error=>{overviewCache=undefined;throw error;});
@@ -108,25 +113,6 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     return !wasAutomaticallyArchived(row) && Boolean(recipientResearch(hash.split(":")[1], person?.full_name));
   }).map(row => (row.signals as unknown as { hash: string }).hash));
   const missing = curatedDomains.filter(domain => !prepared.has(`operator-shortlist-20260923:${domain}`));
-  for (let start = 0; start < missing.length; start += 5) {
-    const results = await Promise.all(missing.slice(start, start + 5).map(domain => preparePriorityDraft(domain, me, db)));
-    for (const result of results) {
-      if (!result.ok && result.status !== 409) throw new Error((await result.json()).error);
-    }
-  }
-  // Backfill newly researched addresses for existing contacts as well as new cards.
-  // Never change verified, invalid, opted-out, or manually supplied addresses.
-  const recipients = await db.from("people").select("id,full_name,email,email_status,email_source,do_not_contact,accounts!inner(domain)").in("accounts.domain", curatedDomains);
-  if (recipients.error) throw recipients.error;
-  for (let start = 0; start < (recipients.data ?? []).length; start += 5) {
-    await Promise.all((recipients.data ?? []).slice(start, start + 5).map(async person => {
-      const account = person.accounts as unknown as { domain: string };
-      const patch = publishedEmailPatch(account.domain, person.full_name, person);
-      if (!Object.keys(patch).length || (person.email === patch.email && person.email_source === patch.email_source && person.email_status === patch.email_status)) return;
-      const result = await db.from("people").update(patch).eq("id", person.id);
-      if (result.error) throw result.error;
-    }));
-  }
   const sender = await senderProfile(db, selectedList.owner);
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = daysAgoIso(1);
@@ -176,7 +162,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   ] = await Promise.all([
     query,
     db.from("gmail_connections").select("owner,email"),
-    loadOverview(today,yesterday),
+    params.source === "overview" ? loadOverview(today,yesterday) : Promise.resolve(emptyOverview()),
   ]);
   if (error) throw error;
   const hiringCompanies = coverage.hiringCompanies;
@@ -217,7 +203,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     if (row.from_name?.trim()) seatNames[row.owner] = row.from_name.trim();
   }
 
-  const context: DeskContext = {
+  const context: DeskContext | undefined = params.source === "overview" ? {
     today,
     seatNames,
     targetTotal: activeTargetAccounts.length,
@@ -247,7 +233,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     populateSweep: populateSweepConfig(),
     batchSize,
     projectedMaxCostUsd: Number((batchSize * maxCostPerAccountUsd()).toFixed(2)),
-  };
+  } : undefined;
   // "New" means the card was created today; anything older that is still open was not actioned on an earlier
   // day and has rolled forward, so it is marked as carried over rather than re-badged "new" every morning.
   const dayStart = `${today}T00:00:00`;
@@ -270,7 +256,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     }]));
     const cadIds = [...cadToCard.keys()];
     if (cadIds.length) {
-      const { data: steps } = await db.from("cadence_steps").select("id,step_number,channel,title,detail,subject,body,status,scheduled_at,cadence_id").eq("kind", "review").in("cadence_id", cadIds).order("step_number");
+      const { data: steps } = await db.from("cadence_steps").select("id,step_number,channel,title,detail,subject,body,status,scheduled_at,cadence_id").in("cadence_id", cadIds).order("step_number");
       for (const step of steps ?? []) {
         const owner = cadToCard.get(step.cadence_id as string);
         if (!owner) continue;
@@ -305,7 +291,9 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       <Header />
       <ReachoutListNavigation owner={selectedList.id} batch={selectedList.sequence} />
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
+      {missing.length > 0 && <BatchPreparation domains={missing} />}
       <Desk
+        initialBrowse={params.source === "overview"}
         key={`${me.owner}:${selectedList.id}:${selectedList.sequence}`}
         batchSequence={selectedList.sequence}
         autoAdvanceBatch={params.batch !== '1' && params.batch !== '2'}
@@ -320,7 +308,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
         selectedId={params.card}
         gmailConnected={(gmailRows ?? []).some((row) => (row as { owner: string }).owner === me.owner)}
         context={context}
-        scan={scan}
+        scan={params.source === "overview" ? scan : undefined}
         tools={me.role === "admin" ? <ToolDrawer label="Draft tools" title="Draft tools"><RewriteDrafts /></ToolDrawer> : null}
       />
     </div>

@@ -20,18 +20,20 @@ function linkedinSearch(name: string, company: string) {
 export function CompanyTeam({ domain, company, activeId, onSelect, compact, loggedIds, busyId }: { domain: string; company: string; activeId?: string; onSelect?: (person: TeamPerson) => void; compact?: boolean; loggedIds?: Set<string>; busyId?: string | null }) {
   const [team, setTeam] = useState<{ domain: string; data: Team } | null>(null);
   const [open, setOpen] = useState(false);
+  const [failedDomain, setFailedDomain] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
   // Collapse the expanded team list when the component is reused for a different company. React's
   // adjust-state-during-render pattern (not an effect) so it takes effect on the same render as the new prop.
   const [seenDomain, setSeenDomain] = useState(domain);
   if (domain !== seenDomain) { setSeenDomain(domain); setOpen(false); }
   useEffect(() => {
     let live = true;
-    fetch(`/api/company-team?domain=${encodeURIComponent(domain)}`, { cache: "no-store" })
-      .then((response) => response.ok ? response.json() : null)
-      .then((data) => { if (live && data) setTeam({ domain, data: data as Team }); })
-      .catch(() => {});
+    fetch(`/api/company-team?domain=${encodeURIComponent(domain)}`, { cache: "no-store", signal: AbortSignal.timeout(15000) })
+      .then(response => { if (!response.ok) throw new Error("Could not load contacts"); return response.json(); })
+      .then((data) => { if (!Array.isArray(data?.people)) throw new Error("Invalid contacts response"); if (live) setTeam({ domain, data: data as Team }); })
+      .catch(() => { if (live) setFailedDomain(domain); });
     return () => { live = false; };
-  }, [domain]);
+  }, [domain, retry]);
 
   const ready = team?.domain === domain;
   const account = ready ? team!.data.account : null;
@@ -51,7 +53,7 @@ export function CompanyTeam({ domain, company, activeId, onSelect, compact, logg
 
     <div className="focus-team-people">
       <span className="focus-why-label">{compact ? "People to contact" : `Everyone on file${people.length ? ` · ${people.length}` : ""}`}{compact && people.length ? <em className="focus-team-count">{people.length} available</em> : null}</span>
-      {!ready && <p className="focus-team-loading">Loading the team…</p>}
+      {!ready && (failedDomain === domain ? <p className="focus-team-loading" role="alert">Could not load contacts. <button className="btn" type="button" onClick={() => { setFailedDomain(null); setRetry(value => value + 1); }}>Retry</button></p> : <p className="focus-team-loading">Loading the team…</p>)}
       {ready && people.length === 0 && <p className="focus-team-loading">No one on file yet for this company.</p>}
       {shown.map((person) => (
         <div key={person.id} className={`focus-team-row ${onSelect ? "is-selectable" : ""} ${activeId === person.id ? "is-active" : ""} ${(loggedIds?.has(person.id) || person.sentAt) ? "is-logged" : ""}`} role={onSelect ? "button" : undefined} tabIndex={onSelect ? 0 : undefined}

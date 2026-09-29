@@ -34,10 +34,22 @@ export async function GET(request:Request){
   const db=admin();
   // Every mailbox we send from (across both seats), so no message we sent — first touch OR a later
   // follow-up on the same thread — is ever mis-scored as an inbound reply.
-  const {data:connRows}=await db.from("gmail_connections").select("owner,email");
+  const {data:connRows,error:connectionError}=await db.from("gmail_connections").select("owner,email");
+  if(connectionError)return Response.json({error:"Could not read connected mailboxes"},{status:503});
   const ourEmails=new Set<string>();for(const r of (connRows??[]) as Array<{owner:string;email:string|null}>)if(r.email)ourEmails.add(r.email.trim().toLowerCase());
   // Only poll recent outbound (last 21 days) and cap the batch, so this stays bounded as volume grows.
-  const {data:touches}=await db.from("touches").select("id,card_id,sent_by,gmail_thread_id,sent_at").eq("channel","email").not("gmail_thread_id","is",null).is("reply_at",null).gte("sent_at",daysAgoIso(21)).order("sent_at",{ascending:true}).limit(300);
+  // Read recent history in pages, deduplicate before selecting a rotating window. Every thread
+  // gets a turn instead of older unreplied touches consuming the same 300 slots indefinitely.
+  const candidates: Array<{id:string;card_id:string;sent_by:Owner;gmail_thread_id:string;sent_at:string}> = [];
+  for(let offset=0;offset<10000;offset+=1000) {
+    const {data,error}=await db.from("touches").select("id,card_id,sent_by,gmail_thread_id,sent_at").eq("channel","email").not("gmail_thread_id","is",null).is("reply_at",null).gte("sent_at",daysAgoIso(21)).order("sent_at",{ascending:true}).range(offset,offset+999);
+    if(error)return Response.json({error:"Could not load reply history"},{status:503});
+    candidates.push(...(data??[]) as typeof candidates);
+    if((data?.length??0)<1000)break;
+  }
+  const unique=[...new Map([...candidates].reverse().map(t=>[`${t.sent_by}:${t.gmail_thread_id}`,t])).values()];
+  const start=unique.length ? (Math.floor(Date.now()/(15*60*1000))*300)%unique.length : 0;
+  const touches=[...unique.slice(start),...unique.slice(0,start)].slice(0,300);
   let replies=0;
   // A card with a first touch + a follow-up has TWO unreplied touches on one thread; without this a real
   // reply would be handled once per touch — duplicate Slack posts and a card status written twice (which can
@@ -45,6 +57,7 @@ export async function GET(request:Request){
   const seenThreads=new Set<string>();
   for(const touch of touches??[]){
     if(seenThreads.has(touch.gmail_thread_id))continue;
+    seenThreads.add(touch.gmail_thread_id);
     try{
       const value=await thread(touch.sent_by,touch.gmail_thread_id);
       // A genuine reply is a thread message AFTER our send that is NOT from one of our own seat mailboxes.

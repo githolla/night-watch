@@ -21,7 +21,8 @@ export function Walkthrough({userKey}:{userKey?:string}){
  },[key,userKey]);
  function close(){setMenu(false);setIndex(null);setRect(null);try{localStorage.setItem(key,'seen');}catch{}trigger.current?.focus();}
  function start(bulk=false){
-  const chosen=tourSteps.map((s,i)=>({s,i})).filter(({s,i})=>s.path===path && (bulk ? [6,7].includes(i) : ![3,6,7].includes(i))).filter(({s})=>{const el=document.querySelector(s.target);return bulk||(el&&el.getClientRects().length);}).map(({i})=>i);
+  if(bulk)window.dispatchEvent(new Event('nightwatch:tour-edit'));
+  const chosen=tourSteps.map((s,i)=>({s,i})).filter(({s,i})=>s.path===path && (bulk ? [6,7].includes(i) : ![6,7].includes(i))).filter(({s})=>{const el=document.querySelector(s.target);return bulk||(el&&el.getClientRects().length);}).map(({i})=>i);
   if(!chosen.length)return;
   setRouteSteps(chosen);setMenu(false);setRect(null);setIndex(chosen.length?0:null);
   try{localStorage.setItem(key,'seen');}catch{}

@@ -108,7 +108,7 @@ function sendHarness(options: { count?: number | null; countError?: boolean; tra
   };return q;
  }};
  const r=route('../app/api/cards/[id]/send/route.ts',{
-  '@/lib/restore-selected-draft':{},'@/lib/focus-data':{assertListSender:()=>{}},'@/lib/first-touch':{firstTouchErrors:()=>[]},
+  '@/lib/mailbox-quota':{withMailboxQuota:async(_db:unknown,_input:unknown,action:()=>Promise<unknown>)=>action()},'@/lib/restore-selected-draft':{},'@/lib/focus-data':{assertListSender:()=>{}},'@/lib/first-touch':{firstTouchErrors:()=>[]},
   '@/lib/authored-sender':{authoredSenderDraft:()=>({body:'Can we help?'})},
   '@/lib/version-tracking':{trackEmailVersion:async()=>{if(reserved)throw new DeliveryError('delivery_reserved','Already sending');reserved=true;return 'variant'}},
   '@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/crypto':{encrypt:()=> 'token'},
@@ -139,4 +139,23 @@ test('accepted delivery stays reserved even if all history writes fail',async()=
  const h=sendHarness({historyFailure:true});
  const result=await (await h.run()).json();assert.equal(result.ok,true);assert.match(result.warning,/do not resend/);
  assert.equal((await (await h.run()).json()).code,'delivery_reserved');assert.equal(h.state().sends,1);
+});
+
+test('a stale draft revision returns conflict and cannot overwrite another session', async () => {
+ const record={id:'card',status:'edited',email_subject:'Other person latest subject',updated_at:'2026-09-29T15:00:00.000Z'};
+ const filters=new Map<string,unknown>(); let payload:Record<string,unknown>={}; let wrote=false;
+ const db={from(){ const q={
+  update(value:Record<string,unknown>){payload=value;return q;},
+  eq(key:string,value:unknown){filters.set(key,value);return q;}, in(){return q;},select(){return q;},
+  async maybeSingle(){
+   if(filters.get('updated_at') !== record.updated_at) return {data:null,error:null};
+   wrote=true;return {data:{...record,...payload},error:null};
+  }
+ };return q;}};
+ const r=route('../app/api/cards/[id]/route.ts',{
+  '@/lib/restore-selected-draft':{restoreSelectedDraft:async()=> 'edited'},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/supabase/admin':{admin:()=>db},
+ });
+ const response=await r.PATCH(new Request('https://test/api',{method:'PATCH',body:JSON.stringify({email_subject:'My stale edit',expected_updated_at:'2026-09-29T14:00:00.000Z'})}),{params:Promise.resolve({id:'card'})});
+ assert.equal(response.status,409);assert.equal(wrote,false);assert.match((await response.json()).error,/another session/);
+ assert.equal(filters.get('updated_at'),'2026-09-29T14:00:00.000Z');assert.ok(!('expected_updated_at' in payload));
 });

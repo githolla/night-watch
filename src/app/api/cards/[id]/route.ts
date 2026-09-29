@@ -6,14 +6,14 @@ import { savedVariants, renderSavedVariant, renderLinkedInVariant } from "@/lib/
 import { senderProfile } from "@/lib/sender";
 import { emailStyle } from "@/lib/email-style";
 import { requireUser } from "@/lib/auth";import { admin } from "@/lib/supabase/admin";import { z } from "zod";
-const update=z.object({reopen:z.boolean().optional(),saved_variant_channel:z.enum(["email","linkedin"]).default("email"),saved_variant_id:z.enum(["trigger","gift","peer-proof","business-idea","proof","direct-offer","concrete-idea","delivery-experience"]).optional(),status:z.enum(["new","approved","edited","snoozed","dismissed","sent","replied","positive","meeting","archived"]).optional(),email_subject:z.string().max(120).transform(emailStyle).optional(),email_body:z.string().max(1000).transform(emailStyle).optional(),linkedin_note:z.string().max(300).optional(),linkedin_comment:z.string().max(1000).optional(),linkedin_message:z.string().max(1500).optional(),linkedin_subject:z.string().max(120).optional(),assigned_to:z.enum(["josh","jenna"]).optional(),dismiss_reason:z.string().max(200).nullable().optional(),snooze_until:z.string().nullable().optional()});
+const update=z.object({expected_updated_at:z.string().optional(),reopen:z.boolean().optional(),saved_variant_channel:z.enum(["email","linkedin"]).default("email"),saved_variant_id:z.enum(["trigger","gift","peer-proof","business-idea","proof","direct-offer","concrete-idea","delivery-experience"]).optional(),status:z.enum(["new","approved","edited","snoozed","dismissed","sent","replied","positive","meeting","archived"]).optional(),email_subject:z.string().max(120).transform(emailStyle).optional(),email_body:z.string().max(1000).transform(emailStyle).optional(),linkedin_note:z.string().max(300).optional(),linkedin_comment:z.string().max(1000).optional(),linkedin_message:z.string().max(1500).optional(),linkedin_subject:z.string().max(120).optional(),assigned_to:z.enum(["josh","jenna"]).optional(),dismiss_reason:z.string().max(200).nullable().optional(),snooze_until:z.string().nullable().optional()});
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const user = await requireUser();
     const { id } = await context.params;
-    const { reopen, saved_variant_id, saved_variant_channel, ...body } = update.parse(await request.json());
+    const { expected_updated_at, reopen, saved_variant_id, saved_variant_channel, ...body } = update.parse(await request.json());
     const db = admin();
-    const restoredStatus = await restoreSelectedDraft(db, id, reopen === true);
+    const restoredStatus = (!expected_updated_at || reopen) ? await restoreSelectedDraft(db, id, reopen === true) : undefined;
     if (reopen) body.status = restoredStatus as typeof body.status;
     if (reopen) {
       const { data: recovered, error: readError } = await db.from("cards").select("email_body,email_subject,accounts(domain),people(full_name)").eq("id", id).single();
@@ -51,10 +51,11 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const editsCopy = ["email_subject", "email_body", "linkedin_note", "linkedin_comment", "linkedin_message", "linkedin_subject"].some(key => key in body);
     if (editsCopy && !linkedinOnly && (!body.status || body.status === "new")) body.status = "edited";
     let query = db.from("cards").update({ ...body, ...(selectedId && saved_variant_channel === "email" ? { active_variant_id: selectedId } : {}) }).eq("id", id);
+    if (expected_updated_at && !reopen) query = query.eq("updated_at", expected_updated_at);
     if (editsCopy || reopen) query = query.in("status", editableStatuses);
     const { data, error } = await query.select().maybeSingle();
     if (error) throw error;
-    if (!data) return Response.json({ error: "This card changed or was sent. Reload before editing." }, { status: 409 });
+    if (!data) return Response.json({ error: "This draft changed in another session or was sent. Your text is still on screen. Reload the saved draft before resolving your changes." }, { status: 409 });
     return Response.json(data);
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Update failed" }, { status: 400 });

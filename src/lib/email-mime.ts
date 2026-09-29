@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-type Email = {from:string;to:string;subject:string;body:string;html?:string;cc?:string[];listUnsubscribe?:string};
+type Email = {from:string;to:string;subject:string;body:string;html?:string;cc?:string[];listUnsubscribe?:string;messageId?:string};
 const header=(value:string)=>value.replace(/[\r\n]+/g,' ').trim();
 const encodedHeader=(value:string)=>/[^\x00-\x7F]/.test(value)?`=?UTF-8?B?${Buffer.from(value).toString('base64')}?=`:value;
 const b64=(value:string)=>Buffer.from(value).toString('base64').match(/.{1,76}/g)?.join('\r\n')??'';
@@ -13,6 +13,7 @@ export function emailMime(email:Email):string {
   images.push({cid,type,data:data.replace(/\s/g,'')});return `src=${quote}cid:${cid}${quote}`;
  });
  const headers=[`From: ${header(email.from)}`,`To: ${header(email.to)}`,`Subject: ${encodedHeader(header(email.subject))}`,'MIME-Version: 1.0'];
+ if(email.messageId){if(!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+$/.test(email.messageId))throw new Error("Invalid message ID");headers.push(`Message-ID: <${email.messageId}>`);}
  if(email.cc?.length)headers.push(`Cc: ${email.cc.map(header).filter(Boolean).join(', ')}`);
  if(email.listUnsubscribe)headers.push(`List-Unsubscribe: <${header(email.listUnsubscribe)}>`,`List-Unsubscribe-Post: List-Unsubscribe=One-Click`);
  const textPart=(type:string,text:string)=>[`Content-Type: ${type}; charset=UTF-8`,'Content-Transfer-Encoding: base64','',b64(text)].join('\r\n');

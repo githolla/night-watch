@@ -13,8 +13,9 @@ const SEATS: Array<{ owner: "josh" | "jenna"; label: string }> = [
 /** Connect one Google Workspace account per sending seat. Night Watch sends from the seat a card is assigned
  *  to (chosen with "Send as" on the desk), pulls that seat's replies into the cadence, and proposes meeting
  *  times from its calendar. */
-export function Connections({ connections, google }: { connections: Connection[]; google?: GoogleConfig }) {
+export function Connections({ connections, google, viewerOwner, isAdmin = false }: { connections: Connection[]; google?: GoogleConfig; viewerOwner: string; isAdmin?: boolean }) {
   const byOwner = new Map(connections.map((row) => [row.owner, row]));
+  const [error, setError] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [flag] = useState(() => (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("connect") : null));
   const [origin] = useState(() => (typeof window !== "undefined" ? window.location.origin : ""));
@@ -25,9 +26,10 @@ export function Connections({ connections, google }: { connections: Connection[]
     if (!confirm(`Disconnect Google for ${label}? Sending and reply capture stop for it until reconnected.`)) return;
     setBusy(owner);
     try {
-      await fetch("/api/gmail/disconnect", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner }) });
+      const response = await fetch("/api/gmail/disconnect", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner }) });
+      if (!response.ok) { const result = await response.json(); throw new Error(result.error || "Could not disconnect."); }
       window.location.reload();
-    } finally { setBusy(null); }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Could not disconnect."); } finally { setBusy(null); }
   }
 
   return (
@@ -52,27 +54,29 @@ export function Connections({ connections, google }: { connections: Connection[]
         <p className="conn-note">On the OAuth consent screen, add scopes: Gmail send, Gmail readonly, and Calendar. External apps need Google&rsquo;s verification for these before non-test users can grant them.</p>
       </div>}
       {flag === "unconfigured" && ready && <p className="notice" role="alert">Google credentials are set but the sign-in was rejected — check the redirect URI matches exactly and the scopes are approved.</p>}
+      {error && <p role="alert">{error}</p>}
       <div className="conn-list">
         {SEATS.map(({ owner, label }) => {
           const row = byOwner.get(owner);
           const connected = Boolean(row);
+          const editable = isAdmin || viewerOwner === owner;
           return (
-            <div key={owner} className={`conn-row ${connected ? "is-on" : ""}`}>
+            <div key={owner} className="conn-row">
               <div className="conn-who">
-                <span className={`conn-dot ${connected ? "is-on" : ""}`} />
+                <span className="conn-dot" />
                 <div>
                   <strong>{label}</strong>
                   <small>{connected ? row!.email ?? "connected" : "Not connected"}</small>
                 </div>
               </div>
               <div className="conn-scopes">
-                {connected && <><em className="conn-chip is-on">Send</em><em className="conn-chip is-on">Replies</em><em className={`conn-chip ${row!.calendar ? "is-on" : ""}`}>{row!.calendar ? "Calendar" : "No calendar"}</em></>}
+                {connected && <><em className="conn-chip">Account saved</em><em className={`conn-chip ${row!.calendar ? "is-on" : ""}`}>{row!.calendar ? "Calendar" : "No calendar"}</em></>}
               </div>
               <div className="conn-actions">
-                {ready
+                {!editable ? <span>Managed by {label}</span> : ready
                   ? <a className="btn primary" href={`/api/gmail/connect?owner=${owner}`}>{connected ? "Reconnect" : "Connect Google"}</a>
                   : <button type="button" className="btn primary" disabled title="Finish Google setup first">Connect Google</button>}
-                {connected && <button type="button" className="btn ghost danger" disabled={busy === owner} onClick={() => disconnect(owner, label)}>Disconnect</button>}
+                {connected && editable && <button type="button" className="btn ghost danger" disabled={busy === owner} onClick={() => disconnect(owner, label)}>Disconnect</button>}
               </div>
             </div>
           );
