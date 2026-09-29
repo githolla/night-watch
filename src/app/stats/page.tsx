@@ -58,7 +58,7 @@ export default async function Stats({ searchParams }: { searchParams: Promise<{ 
     if (pending.length) return <MigrationRequired pending={pending} />;
   }
   const db = admin();
-  const { data: touches } = await db.from("touches").select("reply_classification,channel,cards(signals(type),people(level))");
+  const { data: touches } = await db.from("touches").select("reply_at,reply_classification,channel,cards(signals(type),people(level))");
   const { count: meetings } = await db.from("cards").select("*", { count: "exact", head: true }).eq("status", "meeting");
   const { data: runs } = await db.from("runs").select("cost_usd").order("started_at", { ascending: false }).limit(30);
   const sent = touches?.length ?? 0, replied = touches?.filter((touch) => Boolean(touch.reply_at) && ["positive","neutral","objection","referral","negative"].includes(touch.reply_classification ?? "")).length ?? 0, positive = touches?.filter((touch) => ["positive", "referral"].includes(touch.reply_classification)).length ?? 0;
