@@ -13,7 +13,7 @@ import type { admin } from './supabase/admin';
 import type { Owner } from './types';
 
 type Db = ReturnType<typeof admin>;
-export const followupSelect = 'id,title,step_number,status,sent_at,kind,channel,subject,body,cadence_id,cadences(id,status,owner,card_id,person_id,people(id,full_name,email,email_status,do_not_contact),cards(accounts(status,name,domain)))';
+export const followupSelect = 'id,title,step_number,status,sent_at,kind,channel,subject,body,cadence_id,cadences!inner(id,status,owner,card_id,person_id,people(id,full_name,email,email_status,do_not_contact),cards(accounts(status,name,domain)))';
 type Step = { id:string; title:string; step_number:number; status:string; sent_at:string|null; kind:string; channel:string; subject:string|null; body:string|null; cadence_id:string; cadences: { id:string; status:string; owner:Owner; card_id:string; person_id:string; people:{id:string; full_name:string; email:string|null; email_status:string; do_not_contact:boolean}|null; cards:{accounts:{status:string;name:string;domain:string}|null}|null }|null };
 export function assertFollowupOwner(owner: Owner, viewer: Owner) {
   if (owner !== viewer) throw new Error(`Sign in as ${owner === 'jenna' ? 'Suuchi' : 'Josh'} to send this follow-up. Shared viewing does not change the sender.`);

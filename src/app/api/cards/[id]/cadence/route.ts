@@ -1,3 +1,4 @@
+import { enrollCadence, CadenceExists } from "@/lib/cadence-enrollment";
 import { assertListSender } from "@/lib/focus-data";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -15,14 +16,12 @@ export async function POST(request:Request,context:{params:Promise<{id:string}>}
     const person=card.people as unknown as {email_status:string;do_not_contact:boolean},account=card.accounts as unknown as {status:string};
     if(person.do_not_contact||["client","do_not_contact"].includes(account.status))throw new Error("Do-not-contact guard blocked this cadence");
     if(input.mode==="automatic"&&input.steps.some(item=>item.channel==="email")&&person.email_status!=="verified")throw new Error("Automatic email requires a verified address");
-    const {data:cadence,error}=await db.from("cadences").insert({card_id:id,person_id:card.person_id,owner:user.owner,mode:input.mode,status:"active",rules:{stop_on_reply:input.stopOnReply,weekdays_only:input.weekdaysOnly,send_window:input.sendWindow,time_zone:input.timeZone},activated_at:new Date().toISOString()}).select("id").single();
-    if(error?.code==="23505")return Response.json({error:"This contact already has a sequence. Open Follow-ups to review it. Existing sent, scheduled and held steps have been preserved.",code:"cadence_exists"},{status:409});
-    if(error||!cadence)throw new Error(error?.message??"Unable to create cadence");
-    const activated=new Date(),rows=input.steps.map((item,index)=>({cadence_id:cadence.id,step_number:index+1,channel:item.channel,kind:item.channel==="email"&&input.mode==="automatic"?"automatic":"review",title:item.title,detail:item.detail,subject:item.subject??null,body:item.body??null,status:"pending",scheduled_at:schedule(activated,item.day,input.weekdaysOnly,input.timeZone)}));
-    const {error:stepsError}=await db.from("cadence_steps").insert(rows);if(stepsError)throw new Error(stepsError.message);
-    await db.from("cards").update({status:"approved"}).eq("id",id);
+    // Validate time zone and compute all dates before creating a database record.
+    const activated=new Date(),rows=input.steps.map((item,index)=>({step_number:index+1,channel:item.channel,kind:item.channel==="email"&&input.mode==="automatic"?"automatic":"review",title:item.title,detail:item.detail,subject:item.subject??null,body:item.body??null,status:"pending",scheduled_at:schedule(activated,item.day,input.weekdaysOnly,input.timeZone)}));
+    const cadence=await enrollCadence(db,{cardId:id,personId:card.person_id,owner:user.owner,mode:input.mode,rules:{stop_on_reply:input.stopOnReply,weekdays_only:input.weekdaysOnly,send_window:input.sendWindow,time_zone:input.timeZone},steps:rows});
+    await db.from("cards").update({status:"approved"}).eq("id",id).in("status",["new","edited","approved"]);
     return Response.json({ok:true,cadenceId:cadence.id,steps:rows.length});
-  }catch(error){return Response.json({error:error instanceof Error?error.message:"Cadence failed"},{status:400})}
+  }catch(error){if(error instanceof CadenceExists)return Response.json({error:error.message,code:"cadence_exists"},{status:409});return Response.json({error:error instanceof Error?error.message:"Cadence failed"},{status:400})}
 }
 
 function schedule(start:Date,days:number,weekdaysOnly:boolean,timeZone:string){

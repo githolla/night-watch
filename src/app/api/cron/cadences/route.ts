@@ -5,7 +5,7 @@ export const maxDuration=300;
 export async function GET(request:Request) {
   if (!cronAuthorized(request)) return Response.json({error:'Unauthorized'},{status:401});
   const db=admin();
-  const {data,error}=await db.from('cadence_steps').select(followupSelect).eq('status','pending').lte('scheduled_at',new Date().toISOString()).order('scheduled_at').limit(25);
+  const {data,error}=await db.from('cadence_steps').select(followupSelect).eq('status','pending').eq('cadences.status','active').lte('scheduled_at',new Date().toISOString()).order('scheduled_at').limit(25);
   if(error)return Response.json({error:error.message},{status:500});
   let sent=0,ready=0,failed=0,stopped=0;
   const seen=new Set<string>();

@@ -6,8 +6,9 @@ import type { Owner } from "@/lib/types";
 export type ManualChannel = "linkedin_comment" | "linkedin_request" | "linkedin_message" | "email" | "intro_ask";
 export type RecordedOutcome = "positive" | "neutral" | "objection" | "referral" | "ooo" | "negative" | "meeting";
 
-export async function recordManualTouch(cardId: string, channel: ManualChannel, owner: Owner, body?: string, personId?: string, subject?: string, followup = false) {
+export async function recordManualTouch(cardId: string, channel: ManualChannel, owner: Owner, body?: string, personId?: string, subject?: string, followup = false, actionId?: string) {
   const db = admin();
+  if(actionId){const found=await db.from('touches').select('*').eq('id',actionId).maybeSingle();if(found.error)throw new Error('Could not check the existing activity record.');if(found.data)return found.data;}
   // Plain lookup (no embeds) so a relationship quirk can never masquerade as "card not found".
   const { data: card, error: lookupError } = await db
     .from("cards")
@@ -45,6 +46,7 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
 
   const versionId = channel === "email" ? await trackEmailVersion(db, { cardId, personId: targetPersonId, owner, subject: subject ?? card.email_subject ?? "", body: body ?? "", source: "manual", followup }) : channel === "linkedin_message" ? await trackLinkedInVersion(db, { cardId, personId: targetPersonId, owner, subject: subject ?? "", body: body ?? "" }) : null;
   const { data, error } = await db.from("touches").insert({
+    ...(actionId ? {id:actionId} : {}),
     experiment_variant_id: versionId,
     card_id: cardId,
     person_id: targetPersonId,
@@ -53,6 +55,7 @@ export async function recordManualTouch(cardId: string, channel: ManualChannel, 
     sent_at: new Date().toISOString(),
     sent_by: owner,
   }).select().single();
+  if(error?.code==='23505'&&actionId){const found=await db.from('touches').select('*').eq('id',actionId).single();if(found.error)throw found.error;return found.data;}
   if (error) throw error;
   // Do NOT flip the card to "sent" — a company stays on the desk so its other contacts can still be logged.
   // The card leaves only when the user snoozes/dismisses it or a real reply lands.

@@ -1,3 +1,4 @@
+import { REPLY_MODEL } from "@/lib/reply-event";
 import { VersionAnalytics } from "@/components/VersionAnalytics";
 import { aggregateVersions, type TrackedTouch } from "@/lib/version-analytics";
 import { fetchAll } from "@/lib/supabase/fetch-all";
@@ -60,9 +61,9 @@ export default async function Stats({ searchParams }: { searchParams: Promise<{ 
   const { data: touches } = await db.from("touches").select("reply_classification,channel,cards(signals(type),people(level))");
   const { count: meetings } = await db.from("cards").select("*", { count: "exact", head: true }).eq("status", "meeting");
   const { data: runs } = await db.from("runs").select("cost_usd").order("started_at", { ascending: false }).limit(30);
-  const sent = touches?.length ?? 0, replied = touches?.filter((touch) => touch.reply_classification !== "none").length ?? 0, positive = touches?.filter((touch) => ["positive", "referral"].includes(touch.reply_classification)).length ?? 0;
+  const sent = touches?.length ?? 0, replied = touches?.filter((touch) => Boolean(touch.reply_at) && ["positive","neutral","objection","referral","negative"].includes(touch.reply_classification ?? "")).length ?? 0, positive = touches?.filter((touch) => ["positive", "referral"].includes(touch.reply_classification)).length ?? 0;
   const groups = new Map<string, { sent: number; replies: number; positive: number }>();
-  for (const touch of touches ?? []) { const type = ((touch.cards as unknown as { signals: { type: string } })?.signals?.type) ?? "unknown", group = groups.get(type) ?? { sent: 0, replies: 0, positive: 0 }; group.sent++; if (touch.reply_classification !== "none") group.replies++; if (["positive", "referral"].includes(touch.reply_classification)) group.positive++; groups.set(type, group); }
+  for (const touch of touches ?? []) { const type = ((touch.cards as unknown as { signals: { type: string } })?.signals?.type) ?? "unknown", group = groups.get(type) ?? { sent: 0, replies: 0, positive: 0 }; group.sent++; if (Boolean(touch.reply_at) && ["positive","neutral","objection","referral","negative"].includes(touch.reply_classification ?? "")) group.replies++; if (["positive", "referral"].includes(touch.reply_classification)) group.positive++; groups.set(type, group); }
   const stats = { sent, replyRate: sent ? Math.round(replied / sent * 100) : 0, positiveShare: replied ? Math.round(positive / replied * 100) : 0, meetings: meetings ?? 0, cost: (runs ?? []).reduce((sum, run) => sum + Number(run.cost_usd), 0), groups: [...groups].map(([name, group]) => ({ name: name.replaceAll("_", " "), sent: group.sent, replyRate: group.sent ? Math.round(group.replies / group.sent * 100) : 0, positiveShare: group.replies ? Math.round(group.positive / group.replies * 100) : 0 })) };
   const params = await searchParams;
   const source = params.source === "manual" || params.source === "all" ? params.source : "gmail";
@@ -77,7 +78,7 @@ export default async function Stats({ searchParams }: { searchParams: Promise<{ 
 }
 
 async function loadExperimentStats(db: ReturnType<typeof admin>): Promise<ExperimentStats> {
-  const { data: experiments } = await db.from("message_experiments").select("id,created_at,channel,status,predicted_winner,selected_label,confidence,cards(people(full_name),accounts(name))").neq("model", SAVED_VERSION_MODEL).order("created_at", { ascending: false }).limit(100);
+  const { data: experiments } = await db.from("message_experiments").select("id,created_at,channel,status,predicted_winner,selected_label,confidence,cards(people(full_name),accounts(name))").neq("model", SAVED_VERSION_MODEL).neq("model", REPLY_MODEL).order("created_at", { ascending: false }).limit(100);
   if (!experiments?.length) return emptyExperimentStats;
   const ids = experiments.map((experiment) => experiment.id);
   const { data: variants } = await db.from("message_variants").select("id,experiment_id,label,simulation_score,dimensions,selected").in("experiment_id", ids);
@@ -88,7 +89,7 @@ async function loadExperimentStats(db: ReturnType<typeof admin>): Promise<Experi
   const selectedVariants = [...pairs.values()].flat().filter((variant) => variant.selected);
   const average = (values: number[]) => values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
   const experimentSent = experimentTouches?.length ?? 0;
-  const experimentReplied = experimentTouches?.filter((touch) => touch.reply_classification !== "none").length ?? 0;
+  const experimentReplied = experimentTouches?.filter((touch) => Boolean(touch.reply_at) && ["positive","neutral","objection","referral","negative"].includes(touch.reply_classification ?? "")).length ?? 0;
   const experimentPositive = experimentTouches?.filter((touch) => ["positive", "referral"].includes(touch.reply_classification)).length ?? 0;
   const lifts = [...pairs.values()].filter((pair) => pair.length === 2).map((pair) => Math.abs(pair[0].score - pair[1].score));
   const channels = ["email", "comment", "connection"].map((channel) => { const channelExperiments = experiments.filter((experiment) => experiment.channel === channel), channelLifts = channelExperiments.map((experiment) => { const pair = pairs.get(experiment.id) ?? []; return pair.length === 2 ? Math.abs(pair[0].score - pair[1].score) : 0; }), channelVariantIds = new Set(channelExperiments.flatMap((experiment) => (pairs.get(experiment.id) ?? []).map((variant) => variant.id))), channelPositive = (experimentTouches ?? []).filter((touch) => channelVariantIds.has(touch.experiment_variant_id) && ["positive", "referral"].includes(touch.reply_classification)).length; return { name: channel === "email" ? "Email" : channel === "comment" ? "Post reply" : "Connection note", tests: channelExperiments.length, averageLift: average(channelLifts), positive: channelPositive }; }).filter((channel) => channel.tests > 0);

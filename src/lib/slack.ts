@@ -207,6 +207,7 @@ export async function sendReplySlack(reply: {
   classification: string;
   body: string;
   booked?: boolean;
+  eventId?: string;
 }) {
   if (!slackConfigured()) return { delivered: false, reason: "Slack is not configured" };
   const meta = REPLY_LABEL[reply.classification] ?? REPLY_LABEL.none;
@@ -221,6 +222,7 @@ export async function sendReplySlack(reply: {
   try {
     const result = await slackApi<{ ts: string; channel: string }>("chat.postMessage", {
       channel: slackChannelId(),
+      ...(reply.eventId ? {client_msg_id:reply.eventId} : {}),
       text: `${meta.emoji} ${reply.name} (${reply.company}) replied — ${meta.label}`,
       blocks,
       unfurl_links: false,

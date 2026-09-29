@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { ownerAccessToken } from "./gmail.ts";
 import type { Owner } from "./types.ts";
 
@@ -34,12 +35,13 @@ export async function proposeTimes(owner: Owner, opts: { durationMins?: number; 
   const token = await ownerAccessToken(owner);
   const res = await fetch(`${CAL}/freeBusy`, {
     method: "POST",
+    signal: AbortSignal.timeout(20000),
     headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
     body: JSON.stringify({ timeMin: now.toISOString(), timeMax: new Date(now.getTime() + (days + 2) * 86_400_000).toISOString(), timeZone, items: [{ id: "primary" }] }),
   });
   if (!res.ok) throw new Error(res.status === 403 ? "Calendar access wasn't granted for this account — reconnect and allow Calendar." : `Calendar free/busy failed: ${res.status}`);
   const json = (await res.json()) as { calendars?: { primary?: { busy?: Array<{ start: string; end: string }> } } };
-  const busy = (json.calendars?.primary?.busy ?? []).map((b) => [Date.parse(b.start), Date.parse(b.end)] as [number, number]);
+  const busy = checkedBusy(json);
   const clashes = (start: number, end: number) => busy.some(([bs, be]) => start < be && end > bs);
 
   const slots: Slot[] = [];
@@ -64,10 +66,12 @@ export async function proposeTimes(owner: Owner, opts: { durationMins?: number; 
 const WEEKDAYS: Record<string, string> = { mon: "monday", tue: "tuesday", wed: "wednesday", thu: "thursday", fri: "friday", sat: "saturday", sun: "sunday" };
 /** Which offered slot a reply agrees to — conservative: needs at least two matching cues (weekday, date, time)
  *  and a single clear winner, so an ambiguous "yes" never books the wrong time. Returns null when unsure. */
-export function matchProposedSlot(reply: string, slots: Slot[]): Slot | null {
-  const text = reply.toLowerCase();
+export function matchProposedSlot(reply: string, slots: Slot[], now = Date.now()): Slot | null {
+  const text = reply.split(/\n\s*(?:>|On .+wrote:|[-]+\s*Original Message)/i)[0].toLowerCase().replace(/[’‘]/g, "'");
+  if (/\b(?:not|no|cannot|can\x27t|doesn\x27t|don\x27t|won\x27t|maybe|perhaps|tentative|instead|another|unavailable|unable|busy|reschedule|cancel)\b|\?/.test(text)) return null;
+  if (!/\b(?:works?|perfect|confirm(?:ed)?|agreed|book|yes|see you|sounds good)\b/.test(text)) return null;
   const tight = text.replace(/\s/g, "");
-  const scored = slots.map((slot) => {
+  const scored = slots.filter(slot => Date.parse(slot.start) > now && Date.parse(slot.end) > Date.parse(slot.start)).map((slot) => {
     const label = slot.label.toLowerCase();
     const wd = label.match(/\b(mon|tue|wed|thu|fri|sat|sun)/)?.[0];
     const day = label.match(/\b(\d{1,2})\b/)?.[0];
@@ -83,21 +87,45 @@ export function matchProposedSlot(reply: string, slots: Slot[]): Slot | null {
 }
 
 /** Create a calendar invite for a chosen slot and email the attendee (with a Google Meet link). */
-export async function createInvite(owner: Owner, opts: { summary: string; description?: string; start: string; end: string; timeZone: string; attendee: string }) {
+export async function createInvite(owner: Owner, opts: { summary: string; description?: string; start: string; end: string; timeZone: string; attendee: string; bookingKey?: string }) {
   const token = await ownerAccessToken(owner);
+  const eventId = opts.bookingKey ? createHash('sha256').update(`${owner}:${opts.bookingKey}`).digest('hex') : undefined;
+  const existing = async () => {
+    const response = await fetch(`${CAL}/calendars/primary/events/${eventId}`, {signal:AbortSignal.timeout(20000),headers:{authorization:`Bearer ${token}`}});
+    if(response.status===404)return null;
+    if(!response.ok)throw new Error('Could not verify the existing calendar invitation.');
+    const event=await response.json();
+    if(event.status==='cancelled')throw new Error('This invitation was cancelled. Review it in Calendar.');
+    return {htmlLink:event.htmlLink??null,meetLink:event.hangoutLink??null};
+  };
+  if(eventId){const found=await existing();if(found)return found;}
+  if(!Number.isFinite(Date.parse(opts.start)) || Date.parse(opts.start)<=Date.now() || Date.parse(opts.end)<=Date.parse(opts.start))throw new Error('Choose a future meeting time.');
+  const availability=await fetch(`${CAL}/freeBusy`,{method:'POST',signal:AbortSignal.timeout(20000),headers:{authorization:`Bearer ${token}`,'content-type':'application/json'},body:JSON.stringify({timeMin:opts.start,timeMax:opts.end,items:[{id:'primary'}]})});
+  if(!availability.ok)throw new Error('Could not recheck calendar availability.');
+  if(checkedBusy(await availability.json()).some(([a,b])=>a<Date.parse(opts.end)&&b>Date.parse(opts.start)))throw new Error('That time is no longer available.');
   const res = await fetch(`${CAL}/calendars/primary/events?sendUpdates=all&conferenceDataVersion=1`, {
     method: "POST",
+    signal: AbortSignal.timeout(20000),
     headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
     body: JSON.stringify({
+      ...(eventId ? {id:eventId} : {}),
       summary: opts.summary,
       description: opts.description ?? "",
       start: { dateTime: opts.start, timeZone: opts.timeZone },
       end: { dateTime: opts.end, timeZone: opts.timeZone },
       attendees: [{ email: opts.attendee }],
-      conferenceData: { createRequest: { requestId: `nw-${Date.now()}`, conferenceSolutionKey: { type: "hangoutsMeet" } } },
+      conferenceData: { createRequest: { requestId: eventId ?? `nw-${Date.now()}`, conferenceSolutionKey: { type: "hangoutsMeet" } } },
     }),
   });
+  if(res.status===409&&eventId){const found=await existing();if(found)return found;}
   if (!res.ok) throw new Error(`Calendar invite failed: ${res.status}`);
   const json = (await res.json()) as { htmlLink?: string; hangoutLink?: string };
   return { htmlLink: json.htmlLink ?? null, meetLink: json.hangoutLink ?? null };
+}
+
+/** HTTP 200 can still contain a per-calendar failure. Missing data is not availability. */
+export function checkedBusy(value: unknown): Array<[number,number]> {
+  const primary=(value as {calendars?:{primary?:{errors?:unknown[];busy?:Array<{start:string;end:string}>}}})?.calendars?.primary;
+  if(!primary || primary.errors?.length || !Array.isArray(primary.busy))throw new Error('Could not check calendar availability. Reconnect Calendar or try again.');
+  return primary.busy.map(item=>{const a=Date.parse(item.start),b=Date.parse(item.end);if(!Number.isFinite(a)||!Number.isFinite(b)||b<=a)throw new Error('Calendar returned invalid availability.');return [a,b];});
 }

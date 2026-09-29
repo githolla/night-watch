@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useRef } from "react";
 
 export type FollowupItem = {
   id: string;
@@ -9,6 +10,8 @@ export type FollowupItem = {
   error: string | null;
   claimed: boolean;
   owner: string;
+  cadenceStatus?:string;
+  manualPending?:boolean;
   canSend: boolean;
   cardId: string;
   step: number;
@@ -41,16 +44,21 @@ function whenLabel(iso: string, now: number) {
 /** Follow-ups queued after the first touch: what to send next, on the day it comes due, one click to copy and log. */
 export function FollowupsBoard({ items }: { items: FollowupItem[] }) {
   const [list, setList] = useState(items);
+  const [source,setSource]=useState(items);
+  if(source!==items){setSource(items);setList(items);}
   const [now] = useState(() => Date.now());
   const [notice, setNotice] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [pending,setPending]=useState<Set<string>>(new Set());
+  const inFlight=useRef(new Set<string>()),router=useRouter();
+  function begin(id:string){if(inFlight.current.has(id))return false;inFlight.current.add(id);setPending(new Set(inFlight.current));return true;}
+  function finish(id:string){inFlight.current.delete(id);setPending(new Set(inFlight.current));router.refresh();}
 
   const due = useMemo(() => list.filter((item) => item.due && item.status !== "sent"), [list]);
   const upcoming = useMemo(() => list.filter((item) => !item.due && item.status !== "sent"), [list]);
 
   async function act(id: string, action: "sent" | "skipped") {
-    setBusy(id);
+    if(!begin(id))return;
     try {
       const response = await fetch(`/api/cadence-steps/${id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ action }) });
       const json = await response.json();
@@ -58,18 +66,18 @@ export function FollowupsBoard({ items }: { items: FollowupItem[] }) {
       setList((current) => current.filter((item) => item.id !== id));
       setNotice(action === "sent" ? "Marked sent — logged to the history." : "Skipped.");
     } catch { setNotice("Could not update the follow-up."); }
-    finally { setBusy(null); }
+    finally { finish(id); }
   }
   async function send(item: FollowupItem) {
-    setBusy(item.id);
+    if(!begin(item.id))return;
     try {
       const response = await fetch(`/api/cadence-steps/${item.id}/send-now`, {method:'POST'});
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Could not send the follow-up.');
-      setList(current => current.filter(row => row.id !== item.id));
+      setList(current => current.filter(row => result.stopped ? row.cardId!==item.cardId : row.id !== item.id));
       setNotice(result.stopped ? 'A reply was found. This sequence has been stopped.' : result.warning || 'Gmail confirmed the follow-up was sent.');
-    } catch(error) {setNotice(error instanceof Error ? error.message : 'Delivery status unavailable. Check Gmail Sent before trying again.');}
-    finally {setBusy(null);}
+    } catch(error) {setList(current=>current.map(row=>row.id===item.id?{...row,claimed:true,error:'Check delivery before retrying.'}:row));setNotice(error instanceof Error ? error.message : 'Delivery status unavailable. Check Gmail Sent before trying again.');}
+    finally {finish(item.id);}
   }
   async function copy(item: FollowupItem) {
     const text = item.subject ? `Subject: ${item.subject}\n\n${item.body}` : item.body;
@@ -91,7 +99,7 @@ export function FollowupsBoard({ items }: { items: FollowupItem[] }) {
             <span className={`followup-when ${item.due ? "is-due" : ""}`}>Step {item.step} · {whenLabel(item.scheduledAt, now)}</span>
           </div>
         </div>
-        <p><strong>{item.claimed ? "Needs delivery confirmation" : item.status}</strong> · {item.owner === "jenna" ? "Suuchi" : "Josh"}{item.error && <><br />{item.error}</>}</p>
+        <p><strong>{item.manualPending ? "Finish saving manual activity" : item.claimed ? "Needs delivery confirmation" : item.status}</strong> · {item.owner === "jenna" ? "Suuchi" : "Josh"}{item.cadenceStatus&&item.cadenceStatus!=='active'&&<> · Sequence {item.cadenceStatus}</>}{item.error && <><br />{item.error}</>}</p>
         <div className="followup-title">{item.title}<small>{item.detail}</small></div>
         <div className="followup-draft">
           {item.subject && <div className="mail-row"><span>Subject</span><b>{item.subject}</b></div>}
@@ -99,9 +107,9 @@ export function FollowupsBoard({ items }: { items: FollowupItem[] }) {
         </div>
         <div className="followup-actions">
           <button type="button" className="btn" onClick={() => copy(item)}>{copied === item.id ? "Copied ✓" : "Copy"}</button>
-          {item.channel === "email" && <button className="btn primary" disabled={busy === item.id || !item.canSend || item.claimed || item.status === "sent"} onClick={() => send(item)}>Send follow-up</button>}
-          {item.claimed ? <Link className="btn" href="/delivery-recovery">Check delivery</Link> : <button type="button" className="btn" disabled={busy === item.id || !item.canSend || item.status === "sent"} onClick={() => act(item.id, "sent")}>Already sent manually</button>}
-          <button type="button" className="btn ghost" disabled={busy === item.id || !item.canSend || item.status === "sent"} onClick={() => act(item.id, "skipped")}>Skip</button>
+          {item.channel === "email" && <button className="btn primary" disabled={pending.has(item.id) || !item.canSend || item.claimed || item.status === "sent"} onClick={() => send(item)}>Send follow-up</button>}
+          {item.claimed && !item.manualPending ? <Link className="btn" href="/delivery-recovery">Check delivery</Link> : <button type="button" className="btn" disabled={pending.has(item.id) || !item.canSend || item.status === "sent"} onClick={() => act(item.id, "sent")}>{item.manualPending?'Finish saving history':'Already sent manually'}</button>}
+          <button type="button" className="btn ghost" disabled={pending.has(item.id) || !item.canSend || item.claimed || item.status === "sent"} onClick={() => act(item.id, "skipped")}>Skip</button>
         </div>
       </article>
     );

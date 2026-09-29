@@ -1,3 +1,4 @@
+import { enrollCadence, CadenceExists } from "./cadence-enrollment.ts";
 import type { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
 
@@ -45,24 +46,9 @@ export async function ensureFollowupCadence(
   db: Db,
   ctx: { cardId: string; personId: string; owner: Owner; touchedChannel: string; firstName: string; company: string; baseSubject: string },
 ): Promise<{ created: boolean; steps: number }> {
-  const { data: existing } = await db.from("cadences").select("id").eq("card_id", ctx.cardId).maybeSingle();
-  if (existing) return { created: false, steps: 0 };
-
   const channel: FollowupChannel = ctx.touchedChannel === "email" ? "email" : "linkedin_message";
-  const { data: cadence, error } = await db.from("cadences").insert({
-    card_id: ctx.cardId,
-    person_id: ctx.personId,
-    owner: ctx.owner,
-    mode: "manual",
-    status: "active",
-    rules: { stop_on_reply: true, weekdays_only: true, send_window: "9:30–16:00", time_zone: "America/New_York", origin: "touch" },
-    activated_at: new Date().toISOString(),
-  }).select("id").single();
-  if (error || !cadence) return { created: false, steps: 0 };
-
   const steps = buildFollowups(channel, { firstName: ctx.firstName, company: ctx.company, baseSubject: ctx.baseSubject });
   const rows = steps.map((step, index) => ({
-    cadence_id: cadence.id as string,
     step_number: index + 1,
     channel: step.channel,
     // Email follow-ups auto-send (the cron falls back to a manual "ready" reminder when the recipient
@@ -75,7 +61,8 @@ export async function ensureFollowupCadence(
     status: "pending" as const,
     scheduled_at: scheduleBusinessDays(step.day),
   }));
-  const { error: stepsError } = await db.from("cadence_steps").insert(rows);
-  if (stepsError) return { created: false, steps: 0 };
-  return { created: true, steps: rows.length };
+  try {
+    const cadence=await enrollCadence(db,{cardId:ctx.cardId,personId:ctx.personId,owner:ctx.owner,mode:'manual',rules:{stop_on_reply:true,weekdays_only:true,time_zone:'America/New_York',origin:'touch'},steps:rows});
+    return {created:true,steps:cadence.steps};
+  }catch(error){if(error instanceof CadenceExists)return {created:false,steps:0};throw error;}
 }

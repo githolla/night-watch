@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {processReplyEvent} from './reply-event.ts';
+import {memoryDb} from './testing/memory-db.ts';
+const input={owner:'jenna' as const,cardId:'card',personId:'person',messageId:'ooo'};
+test('OOO and later human reply are independent idempotent events',async()=>{const h=memoryDb();let actions=0;const action=async()=>{actions++};await processReplyEvent(h.db,input,[action]);await processReplyEvent(h.db,{...input,messageId:'human'},[action]);await processReplyEvent(h.db,input,[action]);assert.equal(actions,2)});
+test('retry resumes failed operation without replaying completed phases',async()=>{const h=memoryDb();let first=0,second=0;const actions=[async()=>{first++},async()=>{if(++second===1)throw new Error('Notification unavailable')}];await assert.rejects(processReplyEvent(h.db,input,actions));await processReplyEvent(h.db,input,actions);assert.equal(first,1);assert.equal(second,2)});
+test('concurrent workers only execute one active event',async()=>{const h=memoryDb();let calls=0;await Promise.all([processReplyEvent(h.db,input,[async()=>{calls++}]),processReplyEvent(h.db,input,[async()=>{calls++}])]);assert.equal(calls,1)});
+test('failed state read never executes effects',async()=>{const h=memoryDb();h.fail('message_experiments','select');let called=false;await assert.rejects(processReplyEvent(h.db,input,[async()=>{called=true}]));assert.equal(called,false)});
+test('historical acknowledged replies are baselined without new notifications',async()=>{const h=memoryDb();let calls=0;await processReplyEvent(h.db,{...input,alreadyHandled:true},[async()=>{calls++}]);assert.equal(calls,0)});
+test('an existing pending reply resumes even if History was already updated',async()=>{const h=memoryDb();let calls=0;const actions=[async()=>{if(++calls===1)throw new Error('Interrupted')}];await assert.rejects(processReplyEvent(h.db,input,actions));await processReplyEvent(h.db,{...input,alreadyHandled:true},actions);assert.equal(calls,2)});
