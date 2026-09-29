@@ -20,7 +20,7 @@ export async function snapshotVersion(db: SupabaseClient, input: { cardId: strin
   }
   return variant.id as string;
 }
-export async function trackEmailVersion(db: SupabaseClient, input: { cardId: string; personId: string; owner: Owner; subject: string; body: string; source: 'gmail' | 'manual' | 'test'; followup?: boolean; reservationId?: string; reservationContext?: Record<string, unknown> }) {
+export async function trackEmailVersion(db: SupabaseClient, input: { cardId: string; personId: string; owner: Owner; subject: string; body: string; source: 'gmail' | 'manual' | 'test'; actor?: VersionMeta['actor']; followup?: boolean; reservationId?: string; reservationContext?: Record<string, unknown> }) {
   const { data: card, error } = await db.from('cards').select('person_id,active_variant_id,accounts(domain)').eq('id', input.cardId).single();
   if (error || !card) throw new Error('Cannot record version: card unavailable.');
   const { data: person, error: personError } = await db.from('people').select('full_name').eq('id', input.personId).single();
@@ -40,6 +40,7 @@ export async function trackEmailVersion(db: SupabaseClient, input: { cardId: str
     const first = versionMeta((previous?.message_variants as unknown as { dimensions: unknown } | null)?.dimensions);
     meta = { ...(first ?? { ...meta, versionId: 'untracked', label: 'Untracked original', edited: false }), source: 'followup' };
   }
+  meta = { ...meta, actor: input.actor };
   return snapshotVersion(db, { ...input, subject: input.source === 'test' ? `[Night Watch test] ${input.subject}` : input.subject, meta });
 }
 

@@ -3,7 +3,7 @@ import { savedVariants, archivedVariants, renderSavedVariant, renderLinkedInVari
 import { outreachBody } from './outreach-ending.ts';
 
 export const SAVED_VERSION_MODEL = 'saved-email-v1';
-export type VersionMeta = { schema: typeof SAVED_VERSION_MODEL; channel?: "email" | "linkedin"; versionId: string; label: string; edited: boolean; revision: string; domain: string; personId: string; source: 'selection' | 'gmail' | 'manual' | 'followup' | 'test'; };
+export type VersionMeta = { actor?: { id: string; name: string; email: string }; schema: typeof SAVED_VERSION_MODEL; channel?: "email" | "linkedin"; versionId: string; label: string; edited: boolean; revision: string; domain: string; personId: string; source: 'selection' | 'gmail' | 'manual' | 'followup' | 'test'; };
 export type VersionSnapshot = { subject: string; body: string; dimensions: unknown };
 export function versionMeta(value: unknown): VersionMeta | null {
   if (!value || typeof value !== 'object') return null;

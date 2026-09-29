@@ -77,7 +77,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
       day: when.slice(0, 10),
       channel: row.channel,
       owner: row.sent_by,
-      sentBy: senderLabel(row.sent_by),
+      sentBy: senderLabel(row.sent_by) + (versionMeta(row.message_variants?.dimensions)?.actor ? ` (admin: ${versionMeta(row.message_variants?.dimensions)?.actor?.name})` : ""),
       person: row.people?.full_name ?? row.cards?.people?.full_name ?? "Unknown contact",
       title: row.people?.title ?? row.cards?.people?.title ?? "",
       company: row.cards?.accounts?.name ?? "Unknown company",

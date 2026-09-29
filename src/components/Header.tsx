@@ -30,7 +30,21 @@ export function Header({showTour=true}:{showTour?:boolean}) {
   const active = (href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/outreach" && pathname === "/") || (href === "/outreach" && pathname.startsWith("/accounts"));
   const [moreOpen, setMoreOpen] = useState(false);
   const [counts, setCounts] = useState<{ today: number; companies: number; followups: number } | null>(null);
-  const [me, setMe] = useState<{ name: string; email: string; role: string } | null>(null);
+  const [me, setMe] = useState<{ name: string; email: string; role: string; canAct?: boolean; actingError?: boolean; actor?: { name: string; email: string } } | null>(null);
+  const [switching, setSwitching] = useState(false);
+  const [switchError, setSwitchError] = useState("");
+  async function switchAccount(stop: boolean) {
+    if (!window.confirm(stop ? "Exit Suuchi mode? Save any edits first." : "Act as Suuchi? Save any edits first. Emails and tests will send through her connected Gmail.")) return;
+    setSwitching(true); setSwitchError("");
+    try {
+      const response = await fetch("/api/admin/act-as", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ stop }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not switch accounts.");
+      // A full reload clears cached drafts and sender state after changing identity.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign("/outreach");
+    } catch (error) { setSwitchError(error instanceof Error ? error.message : "Account switch failed."); setSwitching(false); }
+  }
   const moreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -72,12 +86,18 @@ export function Header({showTour=true}:{showTour?:boolean}) {
         </nav>
       </div>
       <div className="appbar-right">
+        {me?.canAct && !me.actor && !me.actingError && <button className="btn" disabled={switching} onClick={() => switchAccount(false)}>Act as Suuchi</button>}
         {showTour && <Walkthrough userKey={me?.email} />}
         <span className="appbar-ws">{me?.name ?? "Nine-67 workspace"}</span>
         <span className="ws-badge" title={me?.email ?? "Signed in"}>{meInitials}</span>
         <form action="/api/auth/logout" method="post"><button className="appbar-lock" type="submit" title="Lock"><Lock size={16} strokeWidth={1.8} /></button></form>
       </div>
     </header>
+    {(me?.actor || me?.actingError) && <div role="status" style={{ padding: "12px 24px", background: "#fff1cf", borderBottom: "1px solid #d6ad56", display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
+      <div style={{ flex: 1 }}><strong>{me.actingError ? "Admin mode expired. Exit to continue." : `Acting as ${me.name}`}</strong>{me.actor && <div>Admin: {me.actor.name}. Sends use this account’s Gmail; test emails go to its inbox. Mode lasts one hour.</div>}</div>
+      <button className="btn" disabled={switching} onClick={() => switchAccount(true)}>Exit admin mode</button>
+    </div>}
+    {switchError && <div role="alert" style={{ padding: "12px 24px", color: "#9c3027" }}>{switchError}</div>}
     <FeedbackWidget />
     </>
   );

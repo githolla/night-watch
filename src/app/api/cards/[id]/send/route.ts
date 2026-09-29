@@ -100,7 +100,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const reservationId = deliveryReservationId(id, recipient.id);
     const deliveredBody = fullBody;
     const { result, versionId } = await withMailboxQuota(db, { owner, cardId: id, personId: recipient.id, count, cap, dayStart: since, reservationId }, async () => {
-      const versionId = await trackEmailVersion(db, { cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail", reservationId });
+      const versionId = await trackEmailVersion(db, { actor: user.actor, cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail", reservationId });
       try {
         const result = await sendEmail(owner, fromHeader(profile, fromEmail), recipientEmail, subject, deliveredBody, undefined, profile.cc, html, unsubscribe, `${reservationId}@night-watch.nine-67.com`);
         return { result, versionId };

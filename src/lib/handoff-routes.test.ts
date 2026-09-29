@@ -175,3 +175,36 @@ test('stale archived edit never overwrites another session',async()=>{
  const response=await r.PATCH(new Request('https://test',{method:'PATCH',body:JSON.stringify({email_body:'Stale edit',expected_updated_at:'v1'})}),{params:Promise.resolve({id:'card'})});
  assert.equal(response.status,409);assert.equal(h.tables.cards[0].email_body,'Other session text');assert.equal(h.tables.cards[0].status,'archived');
 });
+
+test('admin acting mode enforces role and origin, selects Suuchi and preserves primary session', async () => {
+ let actor={id:'admin',role:'admin'}; let reads=0; const cookies:unknown[][]=[];
+ const r=route('../app/api/admin/act-as/route.ts',{
+  '@/lib/auth':{requireActualUser:async()=>actor},
+  '@/lib/supabase/admin':{admin:()=>({from:()=>({select:()=>({eq:async()=>{reads++;return {data:[{id:'suuchi',name:'Suuchi Ramesh',owner:'jenna'}]}}})})})},
+  '@/lib/acting-session':{ACTING_COOKIE:'nw_acting',issueActingSession:(a:string,b:string)=>`${a}:${b}`},
+  'next/server':{NextResponse:{json:(data:unknown)=>Object.assign(Response.json(data),{cookies:{set:(...args:unknown[])=>cookies.push(args)}})}},
+ });
+ const req=(origin='https://test',stop=false)=>new Request('https://test/api/admin/act-as',{method:'POST',headers:{origin},body:JSON.stringify({stop})});
+ assert.equal((await r.POST(req('https://evil'))).status,403);assert.equal(reads,0);
+ actor={id:'member',role:'member'};assert.equal((await r.POST(req())).status,403);assert.equal(reads,0);
+ actor={id:'admin',role:'admin'};assert.equal((await r.POST(req())).status,200);
+ assert.equal(cookies[0][0],'nw_acting');assert.equal(cookies[0][1],'admin:suuchi');
+ actor={id:'member',role:'member'};assert.equal((await r.POST(req('https://test',true))).status,200);assert.equal(cookies[1][1],'');
+});
+
+test('effective user uses Suuchi owner while retaining the real administrator', async () => {
+ const actual={id:'admin',role:'admin',owner:'josh',name:'Josh',email:'j@example.com'};
+ const target={id:'suuchi',role:'member',owner:'jenna',name:'Suuchi',email:'s@example.com'};
+ let available=true;let role='admin';
+ const r=route('./auth.ts',{
+  'node:crypto':{timingSafeEqual:()=>false},'next/headers':{cookies:async()=>({get:(key:string)=>({value:key==='session'?'real':'acting'})})},
+  './shared-auth.ts':{SESSION_COOKIE:'session',validSharedSession:()=>false},'./session.ts':{readSession:()=>({uid:'admin'})},
+  './users.ts':{loadUser:async(id:string)=>id==='admin'?{...actual,role}:available?target:null},
+  './acting-session.ts':{ACTING_COOKIE:'acting',actingTarget:(_token:string,user:{role:string})=>{if(user.role!=='admin')throw new Error('Denied');return 'suuchi'}},
+ });
+ const effective=await r.requireUser() as unknown as {owner:string;actor:{id:string}};
+ assert.equal(effective.owner,'jenna');assert.equal(effective.actor.id,'admin');
+ assert.equal((await r.requireAdmin() as unknown as {id:string}).id,'admin');
+ available=false;await assert.rejects(r.requireUser(),/unavailable/);
+ available=true;role='member';await assert.rejects(r.requireUser(),/Denied/);
+});

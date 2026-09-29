@@ -7,6 +7,7 @@ const input = z.object({ owner: z.enum(["josh", "jenna"]).default("josh") });
 export async function POST(request: Request) {
   try {
     const user = await requireUser();
+    if (user.actor) return Response.json({ error: "Exit admin mode to manage mailbox connections. Suuchi should connect her own Google account." }, { status: 403 });
     const { owner: requested } = input.parse(await request.json().catch(() => ({})));
     // A member can only disconnect their own seat; only an admin may disconnect the other seat. Reject a
     // cross-seat request outright rather than silently remapping it to the caller's seat (which would show

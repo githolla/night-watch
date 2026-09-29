@@ -1,3 +1,4 @@
+import { ACTING_COOKIE } from "@/lib/acting-session";
 import { SESSION_COOKIE } from "@/lib/shared-auth";
 import { NextResponse } from "next/server";
 
@@ -10,5 +11,6 @@ export async function POST(request: Request) {
     path: "/",
     maxAge: 0,
   });
+  response.cookies.set(ACTING_COOKIE, "", { path: "/", maxAge: 0 });
   return response;
 }

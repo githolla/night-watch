@@ -10,6 +10,7 @@ import { dailyCap, sendDayStart } from './send-guards';
 import { fromHeader, sanitizeLinks, senderProfile } from './sender';
 import { outreachDelivery } from './outreach-ending';
 import type { admin } from './supabase/admin';
+import type { AppUser } from './users';
 import type { Owner } from './types';
 
 type Db = ReturnType<typeof admin>;
@@ -26,7 +27,7 @@ export function hasInboundReply(messages: Array<{internalDate:string;payload:{he
     return Number(m.internalDate) > Date.parse(sentAt) && Boolean(address) && !addresses.has(address);
   });
 }
-export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner) {
+export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner, actor?: AppUser['actor']) {
   const step = raw as Step, cadence = step.cadences, to = cadence?.people;
   if (!cadence || !to) throw new Error('This follow-up has no contact attached.');
   if (viewer) assertFollowupOwner(cadence.owner, viewer);
@@ -71,7 +72,7 @@ export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner) {
   const subject = step.subject, recipientEmail = to.email;
   const reservationId = deliveryReservationId(scheduledInitial ? cadence.card_id : `cadence:${step.id}`,to.id);
   const sent = await withMailboxQuota(db,{owner:cadence.owner,cardId:cadence.card_id,personId:to.id,count,cap:dailyCap(days),dayStart:sendDayStart(),reservationId},async () => {
-  const versionId = await trackEmailVersion(db,{cardId:cadence.card_id,personId:to.id,owner:cadence.owner,subject,body:delivery.text,source:'gmail',followup:!scheduledInitial,reservationId,reservationContext:{kind:"followup",stepId:step.id,initialReservation:scheduledInitial}});
+  const versionId = await trackEmailVersion(db,{actor,cardId:cadence.card_id,personId:to.id,owner:cadence.owner,subject,body:delivery.text,source:'gmail',followup:!scheduledInitial,reservationId,reservationContext:{kind:"followup",stepId:step.id,initialReservation:scheduledInitial}});
   const release = async () => { await db.from('message_experiments').delete().eq('id',reservationId); };
   const {data:claimed,error:claimError} = await db.from('cadence_steps').update({sent_at:new Date().toISOString(),error:'Delivery in progress. Check Sent before retrying.'}).eq('id',step.id).in('status',['pending','ready','failed']).is('sent_at',null).select('id');
   if (claimError || !claimed?.length) { await release(); throw new Error('This follow-up changed before sending. Reload to see its status.'); }

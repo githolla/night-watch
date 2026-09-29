@@ -9,6 +9,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   try {
     const user = await requireUser();
+    if (user.actor) return Response.json({ error: "Exit admin mode to manage mailbox connections. Suuchi should connect her own Google account." }, { status: 403 });
     // Don't hand Google a half-built URL (empty client_id) — that returns Google's own 400 page. Bounce back with a clear reason.
     if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI) {
       return Response.redirect(`${process.env.APP_URL ?? url.origin}/settings?connect=unconfigured`);

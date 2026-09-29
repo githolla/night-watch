@@ -50,7 +50,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if(errors.length) throw new Error(errors.join(" "));
     const delivery = outreachDelivery(body, profile);
     const fullBody = delivery.text;
-    const versionId = await trackEmailVersion(db, { cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
+    const versionId = await trackEmailVersion(db, { actor: user.actor, cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
     const deliveredBody = fullBody;
     const html = delivery.html;
     await sendEmail(user.owner, fromHeader(mailboxProfile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);

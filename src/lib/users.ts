@@ -2,7 +2,7 @@ import { admin } from "./supabase/admin.ts";
 import type { Owner } from "./types.ts";
 
 export type AppRole = "admin" | "member";
-export type AppUser = { id: string; email: string; name: string; owner: Owner; role: AppRole };
+export type AppUser = { id: string; email: string; name: string; owner: Owner; role: AppRole; actor?: { id: string; name: string; email: string } };
 
 const SHARED_OWNER_EMAIL = process.env.SHARED_OWNER_EMAIL || "josh@nine-67.com";
 
