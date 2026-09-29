@@ -11,10 +11,10 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
     try {
       const response = await fetch(`/api/cards/${cardId}/test-email`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ subject, body }) });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? 'Could not send the test.');
+      if (!response.ok) { setError(data.error ?? 'Could not send the test.'); return; }
       if (!data.ok || !data.id) throw new Error('Test status unknown. Check your inbox and Sent folder before retrying.');
       setResult({ ...data, status: 'sent' });
-    } catch (e) { setError(e instanceof Error ? e.message : 'Could not send the test.'); }
+    } catch { setError('Test delivery is unknown. Check your inbox and Sent folder before retrying to avoid a duplicate.'); }
     finally { setBusy(false); }
   }
   async function check() {

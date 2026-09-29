@@ -399,7 +399,7 @@ export function Desk({
       body: JSON.stringify({ subject, body: bodyOverride ?? onCard.email_body, personId: who && "id" in who ? who.id : undefined }),
     });
     const json = await response.json();
-    if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(`Not sent: ${json.error ?? "Send failed."}`); return; }
+    if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.code === "delivery_unknown" || json.code === "delivery_reserved" ? json.error : `Not sent: ${json.error ?? "Send failed."}`); return; }
     if (!json.ok || !json.threadId) throw new Error("Missing Gmail confirmation");
     setCards((current) => current.map((item) => item.id === onCard.id ? { ...item, status: "sent" } : item));
     // Mark the recipient in the team list straight away, so it is obvious who has already been written to

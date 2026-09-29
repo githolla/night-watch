@@ -1,3 +1,4 @@
+import { DeliveryError, deliveryErrorResponse, deliveryReservationId } from '@/lib/delivery-state';
 import { restoreSelectedDraft } from "@/lib/restore-selected-draft";
 import { assertListSender } from "@/lib/focus-data";
 import { firstTouchErrors } from "@/lib/first-touch";
@@ -56,7 +57,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // prior status write failed. Scoped to the person, not the card, so emailing a second contact at the
     // same company is still possible while a duplicate to the same one is not.
     const { count: alreadySent, error: historyError } = await db.from("touches").select("*", { count: "exact", head: true }).eq("card_id", id).eq("person_id", recipient.id).eq("channel", "email").not("gmail_thread_id", "is", null);
-    if (historyError) throw new Error("Could not check send history. Nothing was sent; try again after the connection recovers.");
+    if (historyError || alreadySent === null) throw new Error("Could not check send history. Nothing was sent; try again after the connection recovers.");
     if ((alreadySent ?? 0) > 0) throw new Error(`An email to ${recipient.full_name} is already logged for this card.`);
     // Send from the signed-in user's own seat (their connected Google account).
     const owner = user.owner;
@@ -68,7 +69,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // Count only touches that actually left through Gmail (they carry a thread id). "Copy" also writes an
     // email touch, and counting those meant four copies on a fresh mailbox (cap 4) blocked every real send
     // before a single email had gone out.
-    const { count } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").not("gmail_thread_id", "is", null).gte("sent_at", since.toISOString());
+    const { count, error: countError } = await db.from("touches").select("*", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").not("gmail_thread_id", "is", null).gte("sent_at", since.toISOString());
+    if (countError || count === null) throw new Error("Could not check the daily sending limit. Nothing was sent. Retry when the connection recovers.");
     // Warm the mailbox up gently: the daily cap starts low on a freshly connected seat and ramps to the base.
     const cap = dailyCap(daysBetween(connection?.connected_at ?? connection?.created_at));
     // Manual desk send: a human chose to send and is warned in the UI when the address isn't verified, so
@@ -91,9 +93,20 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const html = delivery.html + (curated ? "" : `<p>${optOut.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>`);
     const base = outboundBaseUrl(request);
     const unsubscribe = `${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(recipient.id))}`;
-    const versionId = await trackEmailVersion(db, { cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail" });
+    const reservationId = deliveryReservationId(id, recipient.id);
+    const versionId = await trackEmailVersion(db, { cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail", reservationId });
     const deliveredBody = fullBody;
-    const result = await sendEmail(owner, fromHeader(profile, fromEmail), recipient.email, subject, deliveredBody, undefined, profile.cc, html, unsubscribe);
+    let result;
+    try {
+      result = await sendEmail(owner, fromHeader(profile, fromEmail), recipient.email, subject, deliveredBody, undefined, profile.cc, html, unsubscribe);
+    } catch (error) {
+      // Token/validation errors happen before transport. Explicit Gmail rejection also permits retry.
+      // Unknown delivery keeps the durable reservation, including across reloads and other tabs.
+      if (!(error instanceof DeliveryError) || error.code === 'delivery_rejected') {
+        await db.from('message_experiments').delete().eq('id', reservationId);
+      }
+      throw error;
+    }
     // The email has now actually left. Mark the card sent FIRST so it can never stay actionable after a
     // real send (which is how a "failed" toast used to lead to a duplicate re-send). Only then log to
     // History; if that write fails, the send still stands — we report success with a soft warning.
@@ -121,6 +134,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     } catch { /* follow-up scheduling is best-effort */ }
     return Response.json({ ok: true, threadId: result.threadId, to: recipient.full_name, from: fromEmail, messageId: result.id });
   } catch (error) {
-    return Response.json({ error: error instanceof Error ? error.message : "Send failed" }, { status: 400 });
+    return deliveryErrorResponse(error);
   }
 }

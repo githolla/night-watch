@@ -1,3 +1,4 @@
+import { deliveryErrorResponse } from '@/lib/delivery-state';
 import { batchOwner } from "@/lib/focus-data";
 import { firstTouchErrors } from "@/lib/first-touch";
 import { firstGiftViewAt } from "@/lib/gift-tracking";
@@ -24,7 +25,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { data: connection } = await db.from('gmail_connections').select('email').eq('owner', user.owner).maybeSingle();
     if (!connection?.email) return Response.json({ error: 'Connect your Gmail in Settings first, then retry this test.' }, { status: 400 });
     const { count, error: capError } = await db.from('message_experiments').select('id', { count: 'exact', head: true }).eq('owner', user.owner).eq('model', SAVED_VERSION_MODEL).eq('goal', 'Email tracking self-test').gte('created_at', new Date(Date.now() - 600000).toISOString());
-    if (capError) throw capError;
+    if (capError || count === null) throw new Error('Could not check the test sending limit. Nothing was sent. Please retry later.');
     if ((count ?? 0) >= 5) return Response.json({ error: 'Five tests have been requested in the last ten minutes. Wait a few minutes before sending another.' }, { status: 429 });
     const { data: card, error: cardError } = await db.from('cards').select('person_id,account_id,people(full_name),accounts(domain)').eq('id', id).single();
     if (cardError || !card) throw new Error('This draft is no longer available.');
@@ -66,7 +67,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       }
     } catch { warning = 'The test was sent, but saving its history was interrupted. Check your inbox; do not resend just to fix that.'; }
     return Response.json({ ok: true, id: versionId, to: connection.email, label, openAt: null, warning });
-  } catch (error) { return Response.json({ error: error instanceof Error ? error.message : 'Test send failed' }, { status: 400 }); }
+  } catch (error) { return deliveryErrorResponse(error); }
 }
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {

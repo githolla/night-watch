@@ -1,3 +1,4 @@
+import { gmailSendRequest } from './delivery-state.ts';
 import { emailMime } from "./email-mime.ts";
 import { emailStyle } from "./email-style.ts";
 import { decrypt } from "./crypto.ts";import { admin } from "./supabase/admin.ts";import type { Owner } from "./types.ts";
@@ -46,8 +47,6 @@ export async function threadText(token:string,threadId:string){const res=await f
 export async function sendEmail(owner:Owner,from:string,to:string,subject:string,body:string,threadId?:string,cc?:string[],html?:string,listUnsubscribe?:string){
   const mime=emailMime({from,to,subject:emailStyle(subject),body:emailStyle(body),html,cc,listUnsubscribe});
   const token=await accessToken(owner);
-  const response=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send",{method:"POST",headers:{authorization:`Bearer ${token}`,"content-type":"application/json"},body:JSON.stringify({raw:Buffer.from(mime).toString("base64url"),threadId})});
-  if(!response.ok)throw new Error(`Gmail send failed: ${response.status}`);
-  return response.json() as Promise<{id:string;threadId:string}>;
+  return gmailSendRequest(token, Buffer.from(mime).toString("base64url"), threadId);
 }
 export async function thread(owner:Owner,id:string){const token=await accessToken(owner);const response=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/threads/${id}?format=full`,{headers:{authorization:`Bearer ${token}`}});if(!response.ok)throw new Error(`Gmail thread read failed: ${response.status}`);return response.json() as Promise<{messages:Array<{id:string;internalDate:string;payload:{headers:Array<{name:string;value:string}>;body?:{data?:string};parts?:Array<{mimeType:string;body:{data?:string}}>}}>}>}
