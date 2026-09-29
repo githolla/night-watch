@@ -2330,10 +2330,13 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .composer-menu button { display:block; width:100%; text-align:left; background:none; border:0; padding:10px; border-radius:5px; cursor:pointer; font-size:12px; }
 .composer-menu button:hover { background:#f5f2eb; }
 .composer-v2 .deskwork-compose, .composer-v2 .deskwork-doc, .deskwork .composer-v2 .email-version-document { padding:22px 26px 28px; }
-.composer-v2 .reachout-address-status { padding:8px 0 14px; font-size:10px; }
-.composer-v2 .compose-to { font-size:12px; }
-.composer-v2 .focus-subject-row { border-bottom:1px solid #ece8e0; margin-bottom:18px; }
-.composer-v2 .focus-msg-subject { border:0; border-radius:0; background:transparent; padding:12px 0; font-size:16px; font-weight:600; }
+.composer-v2 .reachout-address-status { padding:6px 0 18px; font-size:12px; }
+.composer-v2 .compose-to { font-size:14px; border-bottom:0; padding-bottom:0; }
+.composer-v2 .focus-subject-row { border:0; margin-bottom:18px; align-items:flex-end; flex-wrap:wrap; gap:10px; }
+.composer-subject-field { display:flex; flex-direction:column; gap:7px; flex:1 1 260px; min-width:0; }
+.composer-subject-field > span { font-size:12px; font-weight:600; color:var(--ink-soft); }
+.composer-v2 .focus-subject-row .focus-apply-all { height:42px; padding:0 12px; font-size:12px; border-radius:8px; background:#f7f5f1; }
+.composer-v2 .focus-msg-subject { border:1px solid #d9d4cb; border-radius:8px; background:white; padding:10px 12px; min-height:42px; font-size:14px; font-weight:400; }
 .composer-v2 .compose-field > span { font-size:10px; color:#8d8579; }
 .composer-v2 .focus-msg-body { border:1px solid transparent; background:white; padding:12px 0; font-size:14px; line-height:1.75; min-height:320px; resize:vertical; }
 .composer-v2 .focus-msg-body:focus { border-color:#d4bd96; padding-inline:10px; outline:none; }

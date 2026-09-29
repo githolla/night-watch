@@ -1356,11 +1356,11 @@ export function Desk({
                       <div className="deskwork-edit deskwork-compose">
                         <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
                         <div className={`reachout-address-status ${contact.email_status === "verified" ? "verified" : ""}`}>
-                          {contact.email_status === "verified" ? "Verified email" : contact.email ? ((focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred") ? "Inferred candidate. Mailbox not verified." : "Published or saved address. Mailbox not verified.") : "Email not found. This draft is ready to edit; add a confirmed address before sending."}
+                          {contact.email_status === "verified" ? "Verified email" : contact.email ? ((focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred") ? "Address inferred · unverified" : "Saved address · unverified") : "Email not found. This draft is ready to edit; add a confirmed address before sending."}
                           {contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailSourceUrl && <a href={focusedContact(focusCard.accounts.domain ?? "", contact.full_name)!.emailSourceUrl!} target="_blank" rel="noreferrer">{focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred" ? "Research source ↗" : "Address source ↗"}</a>}
                         </div>
                         <div className="focus-subject-row">
-                          <input
+                          <label className="composer-subject-field"><span>Subject</span><input
                             disabled={sending}
                             aria-label="Email subject"
                             className="focus-msg-subject"
@@ -1375,7 +1375,8 @@ export function Desk({
                             // eslint-disable-next-line react-hooks/refs
                             maxLength={120} onBlur={(event) => { if (event.target.value.trim()) saveField("email_subject", event.target.value); else restoreSubject(true); }}
                           />
-                          <button type="button" className="focus-apply-all" disabled={applyingSubject || applyingOpening || !focusCard.email_subject?.trim()} onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to this batch"}</button>
+                          </label>
+                          <button type="button" className="focus-apply-all" title="Use this subject for unsent emails in this batch" disabled={applyingSubject || applyingOpening || !focusCard.email_subject?.trim()} onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to this batch"}</button>
                           {subjectIsBlank && subjectFallback && <button type="button" className="focus-apply-all" onClick={() => restoreSubject(false)}>Restore subject</button>}
                         </div>
                         <details className="composer-bulk-opening"><summary>Set an opening for all emails</summary>
