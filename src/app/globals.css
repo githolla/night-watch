@@ -2420,3 +2420,5 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .deskwork-head-compact h1 { font-size:15px; line-height:1.3; margin:0; letter-spacing:0; }
 .deskwork-head-compact .workspace-progress span { font-size:12px; color:var(--muted); }
 .pipeline-work .deskwork { padding-top:12px; }
+
+.reachout-ai-fit{margin:10px 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper-bright);font-size:12.5px}.reachout-ai-fit ul{margin:6px 0 0;padding-left:18px;display:grid;gap:3px}.reachout-ai-fit a{color:inherit}

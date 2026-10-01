@@ -60,6 +60,7 @@ const HEALTH_PROBES: Array<{ file: string; table: string; column: string; breaks
   { file: "0027_nightly_lists.sql", table: "reachout_lists", column: "id", breaks: "the nightly reach-out list: nothing is built overnight and Today's list never appears" },
   { file: "0027_nightly_lists.sql", table: "sender_profiles", column: "auto_send", breaks: "the morning auto-send switch and the postal address in the email footer" },
   { file: "0027_nightly_lists.sql", table: "touches", column: "bounced_at", breaks: "the bounce brake that pauses auto-send" },
+  { file: "0028_ai_fit.sql", table: "list_candidates", column: "fit_score", breaks: "choosing the nightly list by AI fit: the nightly list stops with a message until it is applied" },
   { file: "0018_scheduling.sql", table: "cards", column: "invite_link", breaks: "auto-booking a meeting when a prospect picks a proposed time" },
   { file: "0015_card_claim.sql", table: "cards", column: "working_at", breaks: "the 'someone is working this' marker, so two people can message the same prospect" },
 ];

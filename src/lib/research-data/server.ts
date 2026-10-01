@@ -52,7 +52,27 @@ export function researchVersion() {
   return version;
 }
 
-/** Only browsers load a page's slice; on the server the full set is already here. */
+/**
+ * The curated files are already here. Nightly lists are not always: Next renders a client component's HTML
+ * in a separate module graph from the server component that loaded them, so this copy may never have seen
+ * them, and the HTML would disagree with what the browser renders from the same slice. Merge the slice's
+ * nightly rows in, keeping a full row over a thin one, so concurrent pages can only add detail, never lose it.
+ */
 export function hydrateResearch(slice: ResearchData | null | undefined) {
-  void slice;
+  if (!slice) return;
+  const focus = new Map(nightly.nightlyFocus.map((row) => [row.domain, row]));
+  let changed = false;
+  for (const row of slice.nightlyFocus) {
+    const have = focus.get(row.domain);
+    if (!have || (have.contacts.length === 0 && row.contacts.length > 0)) { focus.set(row.domain, row); changed = true; }
+  }
+  const offerKey = (offer: ListOffer) => `${offer.domain}|${offer.contactName}`;
+  const offers = new Map(nightly.nightlyOffers.map((offer) => [offerKey(offer), offer]));
+  for (const offer of slice.nightlyOffers) if (!offers.has(offerKey(offer))) { offers.set(offerKey(offer), offer); changed = true; }
+  const latest = { ...nightly.nightlyLatest };
+  for (const owner of ["josh", "suuchi"] as const) {
+    const incoming = slice.nightlyLatest[owner];
+    if (incoming.length && incoming.join("|") !== latest[owner].join("|")) { latest[owner] = incoming; changed = true; }
+  }
+  if (changed) setNightlyLists({ nightlyFocus: [...focus.values()], nightlyOffers: [...offers.values()], nightlyLatest: latest });
 }

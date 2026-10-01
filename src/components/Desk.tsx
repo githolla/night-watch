@@ -2,6 +2,7 @@
 import { replaceOpening } from "@/lib/bulk-copy";
 import { acknowledgedDraftFields, meetingTimesBody } from "@/lib/draft-save-state";
 import { batchOwner, type ListSequence } from "@/lib/focus-data";
+import type { AiFit } from "@/lib/ai-fit";
 import { hydrateResearch } from "#research-data";
 import type { ResearchData } from "@/lib/research-data/server";
 import { batchProgress } from "@/lib/reachout-batches";
@@ -1263,6 +1264,11 @@ export function Desk({
 
                 <div className="deskwork-opening">
                   {focusedAccount(focusCard.accounts.domain) && <div className="reachout-account-facts"><a href={focusedAccount(focusCard.accounts.domain)!.revenue.sourceUrl} target="_blank" rel="noreferrer"><strong>{revenueLabel(focusCard.accounts.domain)}</strong><span>2025 reported revenue ↗</span></a><span>{focusedAccount(focusCard.accounts.domain)!.sector}</span></div>}
+                  {(() => {
+                    // Nightly companies carry the scored evidence that put them on the list.
+                    const fit = (focusedAccount(focusCard.accounts.domain) as { aiFit?: AiFit } | undefined)?.aiFit;
+                    return fit && !fit.disqualified ? <div className="reachout-ai-fit"><b>AI fit {fit.score}/100</b><ul>{fit.reasons.slice(0, 4).map((reason, index) => <li key={`${reason.criterion}-${index}`}>{reason.url ? <a href={reason.url} target="_blank" rel="noreferrer">{reason.text} ↗</a> : reason.text}</li>)}</ul></div> : null;
+                  })()}
                   <span className="overview-kick">{research ? "Buyer research" : "Signal context"}</span>
                   {research ? <>
                     <p className="deskwork-opening-lead">{research.trigger.fact}</p>

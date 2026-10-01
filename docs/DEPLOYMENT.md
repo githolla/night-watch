@@ -17,15 +17,16 @@ Research is not scheduled. Outreach works from the curated lists, so the nightly
 
 ## Nightly reach-out list and morning auto-send
 
-Apply `supabase/migrations/0027_nightly_lists.sql` first. Until it is applied nothing builds or sends automatically.
+Apply `supabase/migrations/0027_nightly_lists.sql` and then `0028_ai_fit.sql` first. Until they are applied nothing builds or sends automatically.
 
 Every night `/api/cron/nightly-list` (every ten minutes, 06:00 to 09:50 UTC) builds a list for Josh and for Suuchi:
 
 1. It finds privately held $10M to $100M operating companies in published industry rankings, two sectors a night in rotation, skipping consulting, IT, software and staffing, and anything already contacted, excluded or listed before.
-2. It researches 14 per person (revenue with its source, the current CEO, President, COO or owner with a source, an optional dated trigger, and one workflow idea), with at most three paid searches and $0.50 per company.
+2. It evaluates 20 per person, most promising first by a pre-research score (operations-heavy sector, revenue in the $20M to $80M middle, locations and field crews, and sector reply rates once there are 20 sends to judge by). Reserves from earlier nights are evaluated first and cost nothing. Research finds revenue with its source, the current CEO, President, COO or owner with a source, an optional dated trigger, and the AI-fit evidence, with at most three paid searches and $0.50 per company.
+   - **AI fit (0 to 100)** is scored in code (`src/lib/ai-fit.ts`) from sourced, dated facts only: hiring for work a system could do (25), repetitive work at scale (20), change in the last year (20), leadership open to technology (20), and named business systems to build on (15). A disqualifier (a software or IT business, a large in-house AI team, closing down) makes it 0. Companies under `NIGHTLY_LIST_MIN_FIT` (40) are skipped. The score and its linked reasons show on the desk.
 3. It finds and checks the buyer's address (published first, then Hunter's finder, then first.last), skipping domains with no mail server and addresses Hunter calls invalid.
 4. It writes the three batch-3 email and LinkedIn versions from the approved templates (`src/lib/list-templates.ts`), and skips any company whose copy fails the writer-kit lint or the first-touch rules.
-5. It stops at 12 companies per person or $10 for the night (`NIGHTLY_LIST_SIZE`, `NIGHTLY_LIST_RESEARCH`, `NIGHTLY_LIST_BUDGET_USD`), and prepares each company as a card, exactly as opening the desk would.
+5. When a list has evaluated 20, or the night's $10 budget or the pool runs out, it keeps its 12 best by AI fit (`NIGHTLY_LIST_SIZE`, `NIGHTLY_LIST_RESEARCH`, `NIGHTLY_LIST_BUDGET_USD`). The runners-up become reserves for up to 14 days (`NIGHTLY_LIST_RESERVE_DAYS`). It prepares each kept company as a card, exactly as opening the desk would.
 
 The list appears on the desk as **Today's list**, which becomes the default landing list while it exists.
 

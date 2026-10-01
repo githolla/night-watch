@@ -13,6 +13,7 @@ import { researchSlice } from "./research-data/slice.ts";
 import { buildFollowups, refreshLegacyFollowup } from "./followups.ts";
 import { outreachDelivery } from "./outreach-ending.ts";
 import { localParts } from "./local-time.ts";
+import { SECTORS, sectorsForNight } from "./list-sectors.ts";
 
 const workflow = { task: "branch service follow-up", subject: "branch follow-ups", inputs: "site inspection notes, the promised fix and evidence that it was completed", metric: "time spent chasing updates" };
 
@@ -100,4 +101,13 @@ test("the postal address is printed under the signature in both parts", () => {
 test("the list date follows the operators' clock, not UTC", () => {
   assert.equal(localParts(new Date("2026-10-02T03:30:00Z"), "America/New_York").date, "2026-10-01");
   assert.equal(localParts(new Date("2026-10-02T06:30:00Z"), "America/New_York").date, "2026-10-02");
+});
+
+test("each night searches the strongest sector plus one in rotation, never the same one twice", () => {
+  for (let day = 0; day < 30; day++) {
+    const [best, explore] = sectorsForNight(day, {});
+    assert.notEqual(best, explore);
+    assert.ok(best < SECTORS.length && explore < SECTORS.length);
+  }
+  assert.equal(sectorsForNight(0, { "9": 1.5 })[0], 0, "a reply-weighted sector competes with the base order");
 });
