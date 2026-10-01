@@ -8,12 +8,12 @@ import { dedupeParagraphs, similarText, sanitizeSignatureHtml } from "./clean.ts
  * address), a signature appended to the body, and a CC list. Stored per owner
  * slot; the mailbox address itself is the owner's Gmail connection.
  */
-export type SenderProfile = { fromName: string; title: string; signature: string; website: string; location: string; cc: string[]; greeting: string; signoff: string; intro: string };
+export type SenderProfile = { fromName: string; title: string; signature: string; website: string; location: string; postalAddress: string; cc: string[]; greeting: string; signoff: string; intro: string };
 /** What a seat that has set nothing gets. Kept here so the writer and the settings form agree. */
 export const DEFAULT_GREETING = "Hi {first},";
 export const DEFAULT_SIGNOFF = "Thank you,";
 export const DEFAULT_INTRO = "I am {name}, {title} at Nine-67.";
-const EMPTY: SenderProfile = { fromName: "", title: "", signature: "", website: "", location: "", cc: [], greeting: DEFAULT_GREETING, signoff: DEFAULT_SIGNOFF, intro: DEFAULT_INTRO };
+const EMPTY: SenderProfile = { fromName: "", title: "", signature: "", website: "", location: "", postalAddress: "", cc: [], greeting: DEFAULT_GREETING, signoff: DEFAULT_SIGNOFF, intro: DEFAULT_INTRO };
 
 export async function senderProfile(db: SupabaseClient, owner: Owner): Promise<SenderProfile> {
   // select("*") rather than a column list: greeting and signoff are added by a repair script the operator
@@ -28,6 +28,7 @@ export async function senderProfile(db: SupabaseClient, owner: Owner): Promise<S
     signature: (data.signature as string | null) ?? "",
     website: (data.website as string | null) ?? "",
     location: (data.location as string | null) ?? "",
+    postalAddress: ((data.postal_address as string | null) ?? "").trim(),
     cc: Array.isArray(data.cc) ? (data.cc as string[]) : [],
     greeting: ((data.greeting as string | null) ?? "").trim() || DEFAULT_GREETING,
     signoff: ((data.signoff as string | null) ?? "").trim() || DEFAULT_SIGNOFF,

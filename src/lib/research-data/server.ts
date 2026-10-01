@@ -18,20 +18,38 @@ import linkedinVariantsArchive from "../../../data/linkedin-variants-archive.jso
  * tests) resolve this file with everything in it; browsers resolve ./client.ts, which holds only the rows a
  * page sent down. Without the split, the reach-out page shipped all of it, about 2.3 MB, to every browser.
  */
-const full = {
+const curated = {
   revenueFocus, batch2Focus, batch3Focus, dossiers, revenueFocusDossiers, priorityOutreach, offerVersions, batch2Offers, batch3Offers,
   researchOutreach, outreachGifts, batch2OffersArchive, outreachVariantsArchive, linkedinVariantsArchive,
 };
 
-export type ResearchData = typeof full;
+/** A nightly list item has exactly the shape of a curated batch row, so every lookup treats it alike. */
+export type ListRow = (typeof batch3Focus)[number];
+export type ListOffer = (typeof batch3Offers)[number];
+export type ListOwnerKey = "josh" | "suuchi";
+type Nightly = { nightlyFocus: ListRow[]; nightlyOffers: ListOffer[]; nightlyLatest: Record<ListOwnerKey, string[]> };
 
-export function researchData(): ResearchData {
-  return full;
+export type ResearchData = typeof curated & Nightly;
+
+// Nightly lists live in the database (reachout_lists). loadNightlyLists() reads them and calls
+// setNightlyLists; until then they are empty and only the curated files are known.
+let nightly: Nightly = { nightlyFocus: [], nightlyOffers: [], nightlyLatest: { josh: [], suuchi: [] } };
+let version = 0;
+let snapshot: ResearchData = { ...curated, ...nightly };
+
+export function setNightlyLists(next: Nightly) {
+  nightly = next;
+  version += 1;
+  snapshot = { ...curated, ...nightly };
 }
 
-/** The server always has the full set, so it never changes. */
+export function researchData(): ResearchData {
+  return snapshot;
+}
+
+/** Bumped whenever the nightly lists are reloaded, so derived lookups rebuild. */
 export function researchVersion() {
-  return 0;
+  return version;
 }
 
 /** Only browsers load a page's slice; on the server the full set is already here. */

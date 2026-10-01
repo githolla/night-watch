@@ -1,0 +1,57 @@
+import { requireUser } from "@/lib/auth";
+import { localParts } from "@/lib/local-time";
+import { admin } from "@/lib/supabase/admin";
+import { z } from "zod";
+
+const owner = z.enum(["josh", "jenna"]);
+const input = z.object({ owner: owner.optional(), autoSend: z.boolean().optional(), paused: z.boolean().optional() });
+
+async function seatState(seat: "josh" | "jenna") {
+  const db = admin();
+  const [{ data: profile, error }, { data: list }] = await Promise.all([
+    db.from("sender_profiles").select("*").eq("owner", seat).maybeSingle(),
+    db.from("reachout_lists").select("status,rows,attempts,sent_count,held_count,announced_at").eq("owner", seat).eq("list_date", localParts().date).maybeSingle(),
+  ]);
+  if (error) throw new Error(error.message);
+  return {
+    owner: seat,
+    autoSend: Boolean(profile?.auto_send),
+    paused: Boolean(profile?.auto_send_paused),
+    pausedReason: (profile?.auto_send_paused_reason as string | null) ?? null,
+    postalAddressSet: Boolean(((profile?.postal_address as string | null) ?? "").trim()),
+    migrated: profile ? "auto_send" in profile : true,
+    today: list ? { status: list.status as string, companies: Array.isArray(list.rows) ? list.rows.length : 0, sent: list.sent_count as number, held: list.held_count as number } : null,
+  };
+}
+
+/** The viewer's seat, or both seats for an admin. */
+export async function GET() {
+  try {
+    const user = await requireUser();
+    const seats = user.role === "admin" ? ["josh", "jenna"] as const : [user.owner];
+    return Response.json({ seats: await Promise.all(seats.map(seatState)) });
+  } catch (error) {
+    return Response.json({ error: error instanceof Error ? error.message : "Could not load auto-send" }, { status: 400 });
+  }
+}
+
+/** Turn auto-send on or off, or pause and resume it. A member changes only their own seat. */
+export async function POST(request: Request) {
+  try {
+    const user = await requireUser();
+    const body = input.parse(await request.json());
+    const seat = body.owner ?? user.owner;
+    if (seat !== user.owner && user.role !== "admin") throw new Error("You can only change your own auto-send.");
+    const current = await seatState(seat);
+    if (!current.migrated) throw new Error("Run supabase/migrations/0027_nightly_lists.sql in the Supabase SQL editor first.");
+    if (body.autoSend === true && !current.postalAddressSet) throw new Error("Add the business postal address under Sender identity first. US law requires it in commercial email.");
+    const patch: Record<string, unknown> = { owner: seat };
+    if (body.autoSend !== undefined) patch.auto_send = body.autoSend;
+    if (body.paused !== undefined) { patch.auto_send_paused = body.paused; if (!body.paused) patch.auto_send_paused_reason = null; else patch.auto_send_paused_reason = `Paused by ${user.actor?.name ?? user.name}`; }
+    const { error } = await admin().from("sender_profiles").upsert(patch, { onConflict: "owner" });
+    if (error) throw new Error(error.message);
+    return Response.json({ seat: await seatState(seat) });
+  } catch (error) {
+    return Response.json({ error: error instanceof Error ? error.message : "Could not change auto-send" }, { status: 400 });
+  }
+}

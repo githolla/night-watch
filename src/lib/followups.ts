@@ -6,8 +6,9 @@ type Db = ReturnType<typeof admin>;
 export type FollowupChannel = "email" | "linkedin_message";
 type FollowupStep = { day: number; channel: FollowupChannel; title: string; detail: string; subject: string | null; body: string };
 
-/** The three follow-ups that run after the first touch — hand-written, no model, so they work even offline.
- *  Warm, specific-enough bumps the sender can copy (or edit) on the day each one comes due. */
+/** The two follow-ups that run after the first touch (business day 3 and 10): hand-written, no model, so they
+ *  work even offline. Two, not three: with a daily list going out, a third step pushed each mailbox past its
+ *  daily cap within weeks. Warm, specific-enough bumps the sender can copy (or edit) on the day each comes due. */
 export function buildFollowups(channel: FollowupChannel, ctx: { firstName: string; company: string; baseSubject: string }): FollowupStep[] {
   const name = ctx.firstName || "there";
   const company = ctx.company || "your team";
@@ -17,13 +18,16 @@ export function buildFollowups(channel: FollowupChannel, ctx: { firstName: strin
     `Hi ${name},\n\nA useful first build should be easy to judge: compare the time your team spends on the task today with the time it takes using the new tool. Our engineers would handle the build, work through feedback and train the people using it.\n\nWho at ${company} would be best to talk with about that work?`,
     `Hi ${name},\n\nI'll leave this with you after this note. If the project in my first message becomes a priority at ${company}, our AI engineers can work alongside your team from the first build through testing and training.\n\nWould it be better to revisit this later?`,
   ];
-  return bodies.map((body,index) => ({day:[3,7,14][index],channel,title:['Follow up on the project','How we would measure it','Close the loop'][index],detail:'Continues the original project conversation',subject:channel==='email'?re:null,body}));
+  // Keeps the first and last of the original three; the middle "how we would measure it" note is dropped.
+  return [0, 2].map((index, position) => ({day:[3,10][position],channel,title:['Follow up on the project','How we would measure it','Close the loop'][index],detail:'Continues the original project conversation',subject:channel==='email'?re:null,body:bodies[index]}));
 }
 
 /** Upgrade only known retired generated templates; preserve user-authored follow-up edits. */
 export function refreshLegacyFollowup(body: string, ctx: {firstName:string;company:string;baseSubject:string;step:number;channel:FollowupChannel}) {
   const legacy = /Floating this back up in case it slipped by|most of the teams we work with start with a single workflow|If building this instead of hiring for it ever becomes|automating the work at .+ instead of hiring for it|teams like yours usually start by handing a single repetitive workflow|If automating that kind of work at/.test(body);
-  return legacy ? buildFollowups(ctx.channel,ctx)[Math.max(0,Math.min(2,ctx.step-1))].body : body;
+  // Older sequences have three steps; their third step is the closing note, which is now step two.
+  const steps = buildFollowups(ctx.channel,ctx);
+  return legacy ? steps[Math.max(0,Math.min(steps.length-1,ctx.step >= 3 ? steps.length-1 : ctx.step-1))].body : body;
 }
 
 /** Add N business days from now and land it mid-morning (roughly 10–11am US Eastern) so reminders come due on a workday. */

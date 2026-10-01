@@ -107,7 +107,8 @@ function sendHarness(options: { count?: number | null; countError?: boolean; tra
    }
   };return q;
  }};
- const r=route('../app/api/cards/[id]/send/route.ts',{
+ const r=route('./card-send.ts',{
+  '@/lib/nightly-lists':{loadNightlyLists:async()=>{}},
   '@/lib/mailbox-quota':{withMailboxQuota:async(_db:unknown,_input:unknown,action:()=>Promise<unknown>)=>action()},'@/lib/restore-selected-draft':{},'@/lib/focus-data':{assertListSender:()=>{},assertCardSender:()=>{}},
   '@/lib/recipient-verification':{checkRecipient:async()=>({level:'risky',reason:'Not confirmed.',suggestion:null}),recipientAllowed:()=>true,recordRecipientCheck:async()=>{},recordDelivery:async()=>{}},
   '@/lib/opt-out':{withOptOut:(delivery:unknown)=>delivery,unsubscribeUrl:()=> 'https://test/api/unsubscribe?t=token'},'@/lib/first-touch':{firstTouchErrors:()=>[]},
@@ -121,7 +122,8 @@ function sendHarness(options: { count?: number | null; countError?: boolean; tra
   '@/lib/urls':{outboundBaseUrl:()=> 'https://test'},'@/lib/supabase/admin':{admin:()=>db},'@/lib/curated-worklist':{isCuratedDomain:()=>true},
   '@/lib/outreach-ending':{outreachBody:(v:string)=>v,outreachDelivery:()=>({text:'Can we help?',html:'<p>Can we help?</p>'})},
  });
- return {run:()=>r.POST(new Request('https://test/api',{method:'POST',body:JSON.stringify({subject:'Subject',body:'Can we help?'})}),{params:Promise.resolve({id:'card'})}),state:()=>({sends,reserved,releases})};
+ // The route is a thin wrapper now: call the shared send and map errors exactly as it does.
+ return {run:async()=>{try{return Response.json(await (r.sendCardEmail as unknown as (db:unknown,input:unknown)=>Promise<unknown>)(db,{cardId:'card',owner:'jenna',subject:'Subject',body:'Can we help?',baseUrl:'https://test'}))}catch(error){return deliveryErrorResponse(error)}},state:()=>({sends,reserved,releases})};
 }
 for(const options of [{count:null},{countError:true}]) test('daily count failure blocks Gmail: '+JSON.stringify(options),async()=>{
  const h=sendHarness(options);const result=await h.run();assert.equal(result.status,400);assert.match((await result.json()).error,/daily sending limit/);assert.equal(h.state().sends,0);

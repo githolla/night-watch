@@ -1,7 +1,7 @@
 import { sanitizeSignatureHtml, decodeEntities } from "./clean.ts";
 import { emailFirstName } from "./email-style.ts";
 
-type SignatureSettings = { fromName: string; signature?: string };
+type SignatureSettings = { fromName: string; signature?: string; postalAddress?: string };
 
 /** Outreach uses the name saved in sender settings, never a mailbox-derived identity. */
 export function senderFirstName(profile: SignatureSettings): string {
@@ -42,8 +42,11 @@ export function signatureText(profile: SignatureSettings): string {
   return outreachFooterHtml(profile).replace(/<br\s*\/?>|<\/?(?:div|p|tr|table)\b[^>]*>/gi, "\n").replace(/<\/td>/gi," ").replace(/<[^>]*>/g, "")
     .split("\n").map(line => decodeEntities(decodeEntities(line)).trim()).filter(Boolean).join("\n");
 }
+/** The business postal address commercial email must carry (CAN-SPAM). Shown under the signature when set. */
+const postalLine = (profile: SignatureSettings) => profile.postalAddress?.trim().replace(/\s*\n\s*/g, ", ") ?? "";
+
 export function withOutreachSignature(body: string, profile: SignatureSettings): string {
-  return [withOutreachName(body, profile), signatureText(profile)].filter(Boolean).join("\n\n");
+  return [withOutreachName(body, profile), signatureText(profile), postalLine(profile)].filter(Boolean).join("\n\n");
 }
 /** Both real sends and self-tests call this exact assembler. */
 export function outreachDelivery(body: string, profile: SignatureSettings) {
@@ -54,5 +57,6 @@ export function outreachEmailHtml(body: string, profile: SignatureSettings): str
   const text = withOutreachName(body, profile).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   const linked = text.replace(/https:\/\/night-watch-snowy\.vercel\.app\/gift\/[a-f0-9]{32}(?:\?t=[a-zA-Z0-9_.-]+)?/g, url => `<a href="${url}">Read your one-page brief</a>`);
   const footer = outreachFooterHtml(profile);
-  return `<div style="font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#1a1712">${linked.replace(/\n/g, "<br>")}${footer ? `<div style="margin-top:24px">${footer}</div>` : ""}</div>`;
+  const postal = postalLine(profile).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<div style="font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#1a1712">${linked.replace(/\n/g, "<br>")}${footer ? `<div style="margin-top:24px">${footer}</div>` : ""}${postal ? `<div style="margin-top:16px;font-size:12px;color:#6b645a">${postal}</div>` : ""}</div>`;
 }

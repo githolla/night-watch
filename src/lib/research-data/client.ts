@@ -4,7 +4,7 @@ import type { ResearchData } from "./server.ts";
 const EMPTY: ResearchData = {
   revenueFocus: [], batch2Focus: [], batch3Focus: [], dossiers: [], revenueFocusDossiers: [], priorityOutreach: [], offerVersions: [],
   batch2Offers: [], batch3Offers: [], researchOutreach: [], outreachGifts: [], batch2OffersArchive: [], outreachVariantsArchive: [],
-  linkedinVariantsArchive: [],
+  linkedinVariantsArchive: [], nightlyFocus: [], nightlyOffers: [], nightlyLatest: { josh: [], suuchi: [] },
 };
 
 let data: ResearchData = EMPTY;

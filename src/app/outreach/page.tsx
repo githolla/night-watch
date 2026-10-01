@@ -5,7 +5,8 @@ import { senderProfile } from "@/lib/sender";
 import { outreachFooterHtml, senderFirstName } from "@/lib/outreach-ending";
 import { recipientResearch } from "@/lib/recipient-research";
 import { createHash } from "node:crypto";
-import { reachoutList } from "@/lib/focus-data";
+import { hasTodayList, reachoutList } from "@/lib/focus-data";
+import { loadNightlyLists } from "@/lib/nightly-lists";
 import { researchSlice } from "@/lib/research-data/slice";
 import { batchProgress, selectedBatch } from "@/lib/reachout-batches";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
@@ -87,7 +88,10 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   }
   // Check the schema while sign-in is checked, instead of one round trip after it.
   const schemaCheck = pendingMigrations(admin()).catch(() => []);
+  // Tonight's lists come from the database; load them alongside sign-in.
+  const nightlyLoad = loadNightlyLists(admin());
   const me = await requireUser();
+  await nightlyLoad;
   const requestedList = reachoutList(params.list, me.owner);
   {
     const pending = await schemaCheck;
@@ -112,7 +116,8 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     status: row.status,
     contacted: (row.touches ?? []).some(touch => touch.sent_at && touch.sent_by === requestedList.owner),
   })));
-  const selectedList = reachoutList(params.list, me.owner, selectedBatch(params.batch, progress.sequence));
+  // A waiting nightly list is where the day starts; otherwise land where the batch progress says.
+  const selectedList = reachoutList(params.list, me.owner, selectedBatch(params.batch, hasTodayList(requestedList.owner) ? 3 : progress.sequence));
   const curatedDrafts = selectedList.drafts;
   const curatedDomains = curatedDrafts.map(row => row.domain);
   const prepared = new Set((existing.data ?? []).filter(row => {
@@ -292,7 +297,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="shell">
-      <ReachoutListNavigation owner={selectedList.id} batch={selectedList.sequence} />
+      <ReachoutListNavigation owner={selectedList.id} batch={selectedList.sequence} todayCount={reachoutList(selectedList.id, me.owner, 3).drafts.length} />
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
       {missing.length > 0 && <BatchPreparation domains={missing} />}
       <Desk
@@ -300,7 +305,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
         initialBrowse={params.source === "overview"}
         key={`${me.owner}:${selectedList.id}:${selectedList.sequence}`}
         batchSequence={selectedList.sequence}
-        autoAdvanceBatch={params.batch !== '1' && params.batch !== '2'}
+        autoAdvanceBatch={params.batch !== '1' && params.batch !== '2' && params.batch !== 'today'}
         listOwner={selectedList.owner}
         batchCompletedDomains={progress.completedDomains}
         listHref={selectedList.href}

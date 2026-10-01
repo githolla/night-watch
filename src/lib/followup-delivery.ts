@@ -85,6 +85,7 @@ export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner, actor?:
   if (hasBounce(conversation.messages,previous.sent_at,ours)) {
     // The first email never arrived. Remember the address is bad and stop; never follow up into a bounce.
     await markBounced(db,to,cadence.cards?.account_id ? {id:cadence.cards.account_id,domain} : null);
+    await db.from('touches').update({bounced_at:new Date().toISOString()}).eq('gmail_thread_id',previous.gmail_thread_id).is('bounced_at',null);
     await db.from('cadences').update({status:'stopped',completed_at:new Date().toISOString()}).eq('id',cadence.id);
     await db.from('cadence_steps').update({status:'skipped',error:'The first email bounced; sequence stopped. Fix the address before writing again.'}).eq('cadence_id',cadence.id).in('status',['pending','ready','failed']);
     return {ok:true,stopped:true,bounced:true,to:to.full_name};

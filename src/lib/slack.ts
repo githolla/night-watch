@@ -174,6 +174,13 @@ export async function sendSlackTest() {
   });
 }
 
+/** A plain message in the desk channel. Returns false when Slack is not configured. */
+export async function postSlackMessage(text: string, blocks?: SlackBlock[]) {
+  if (!slackConfigured()) return false;
+  await slackApi("chat.postMessage", { channel: slackChannelId(), text, ...(blocks ? { blocks } : {}), unfurl_links: false, unfurl_media: false });
+  return true;
+}
+
 export async function postSlackEphemeral(channel: string, user: string, text: string) {
   return slackApi("chat.postEphemeral", { channel, user, text });
 }

@@ -13,6 +13,7 @@ import { Users } from "@/components/Users";
 import { FeedbackAutomation } from "@/components/FeedbackAutomation";
 import { SettingsTabs } from "@/components/SettingsTabs";
 import { SenderProfileForm } from "@/components/SenderProfileForm";
+import { AutoSendSettings } from "@/components/AutoSendSettings";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { activeTargetAccounts } from "@/lib/target-accounts";
@@ -48,6 +49,7 @@ export default async function Settings() {
     signature: (sender?.signature as string | null) ?? "",
     website: (sender?.website as string | null) ?? "",
     location: (sender?.location as string | null) ?? "",
+    postal_address: (sender?.postal_address as string | null) ?? "",
     cc: Array.isArray(sender?.cc) ? (sender!.cc as string[]) : [],
     greeting: (sender?.greeting as string | null) ?? "",
     signoff: (sender?.signoff as string | null) ?? "",
@@ -82,6 +84,7 @@ export default async function Settings() {
       content: <>
         <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} viewerOwner={me.owner} isAdmin={isAdmin} /></div>
         <div className="feature-center" style={{ marginBottom: 18 }}><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
+        <AutoSendSettings />
         {isAdmin && <div className="feature-center"><TestSequence senderEmail={senderEmail} /></div>}
       </>,
     },

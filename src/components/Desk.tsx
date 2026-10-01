@@ -1,7 +1,7 @@
 "use client";
 import { replaceOpening } from "@/lib/bulk-copy";
 import { acknowledgedDraftFields, meetingTimesBody } from "@/lib/draft-save-state";
-import { batchOwner } from "@/lib/focus-data";
+import { batchOwner, type ListSequence } from "@/lib/focus-data";
 import { hydrateResearch } from "#research-data";
 import type { ResearchData } from "@/lib/research-data/server";
 import { batchProgress } from "@/lib/reachout-batches";
@@ -204,7 +204,7 @@ export function Desk({
   senderFooterHtml?: string;
   selectedId?: string;
   listHref?: string;
-  batchSequence?: 1 | 2;
+  batchSequence?: ListSequence;
   initialBrowse?: boolean;
   autoAdvanceBatch?: boolean;
   listOwner?: 'josh' | 'jenna';
@@ -1222,7 +1222,7 @@ export function Desk({
       ) : (
         <div className="deskwork">
           <header className="deskwork-head deskwork-head-compact">
-            <div className="workspace-progress"><h1>Reach-out list</h1>{batchSequence && progress && <span>{batchSequence === 1 ? `${progress.completed} of ${progress.total} completed` : 'Next 25'}</span>}</div>
+            <div className="workspace-progress"><h1>Reach-out list</h1>{batchSequence && progress && <span>{batchSequence === 1 ? `${progress.completed} of ${progress.total} completed` : batchSequence === 3 ? `Today's list · ${cards.length} companies` : 'Next 25'}</span>}</div>
             <div className="deskwork-head-actions">{tools}<a className="deskwork-overview" href={overviewHref}>Overview &rarr;</a></div>
           </header>
 

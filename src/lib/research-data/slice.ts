@@ -29,5 +29,8 @@ export function researchSlice(domains: Iterable<string | null | undefined>): Res
     batch2OffersArchive: pick(full.batch2OffersArchive),
     outreachVariantsArchive: pick(full.outreachVariantsArchive),
     linkedinVariantsArchive: pick(full.linkedinVariantsArchive),
+    nightlyFocus: thin(full.nightlyFocus),
+    nightlyOffers: pick(full.nightlyOffers),
+    nightlyLatest: full.nightlyLatest,
   };
 }

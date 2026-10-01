@@ -57,6 +57,9 @@ const HEALTH_PROBES: Array<{ file: string; table: string; column: string; breaks
   { file: "0026_recipient_checks_sessions.sql", table: "people", column: "email_check", breaks: "recipient checks and bounce learning: addresses are re-checked on every send and a bounced address is not remembered" },
   { file: "0026_recipient_checks_sessions.sql", table: "revoked_sessions", column: "jti", breaks: "signing out on the server: a copied session cookie keeps working until it expires" },
   { file: "0026_recipient_checks_sessions.sql", table: "app_users", column: "session_version", breaks: "ending old sessions when a password is reset" },
+  { file: "0027_nightly_lists.sql", table: "reachout_lists", column: "id", breaks: "the nightly reach-out list: nothing is built overnight and Today's list never appears" },
+  { file: "0027_nightly_lists.sql", table: "sender_profiles", column: "auto_send", breaks: "the morning auto-send switch and the postal address in the email footer" },
+  { file: "0027_nightly_lists.sql", table: "touches", column: "bounced_at", breaks: "the bounce brake that pauses auto-send" },
   { file: "0018_scheduling.sql", table: "cards", column: "invite_link", breaks: "auto-booking a meeting when a prospect picks a proposed time" },
   { file: "0015_card_claim.sql", table: "cards", column: "working_at", breaks: "the 'someone is working this' marker, so two people can message the same prospect" },
 ];

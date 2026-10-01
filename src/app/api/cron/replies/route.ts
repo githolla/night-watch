@@ -17,7 +17,9 @@ const fromAddress=(headers:Array<{name:string;value:string}>)=>{const v=headers.
 
 /** A delivery failure is not a reply: remember the address is bad (so no path emails it again), stop the
  *  sequence, and leave the card's status alone. Safe to repeat for the same bounce. */
-async function handleBounce(db: ReturnType<typeof admin>, touch: { card_id: string; person_id: string }) {
+async function handleBounce(db: ReturnType<typeof admin>, touch: { card_id: string; person_id: string; gmail_thread_id: string }) {
+  // Counted by the morning auto-send's bounce brake. Before migration 0027 the column is missing and this is skipped.
+  await db.from("touches").update({ bounced_at: new Date().toISOString() }).eq("gmail_thread_id", touch.gmail_thread_id).is("bounced_at", null);
   const { data: person, error } = await db.from("people").select("id,full_name,email,email_status,email_source,email_check,account_id,accounts(domain)").eq("id", touch.person_id).single();
   if (error || !person) throw new Error("Could not load the bounced contact.");
   const account = person.accounts as unknown as { domain: string } | null;

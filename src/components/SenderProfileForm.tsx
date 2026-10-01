@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { PanelGuide } from "./PanelGuide";
 import { sanitizeSignatureHtml } from "@/lib/clean";
 
-type Profile = { from_name: string; title: string; signature: string; website: string; location: string; cc: string[]; greeting: string; signoff: string; intro: string };
+type Profile = { from_name: string; title: string; signature: string; website: string; location: string; postal_address: string; cc: string[]; greeting: string; signoff: string; intro: string };
 
 /**
  * The identity outreach emails present as: the name and title on the From line, the CC list, and the signature
@@ -15,6 +15,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   const [title, setTitle] = useState(initial.title);
   const [website, setWebsite] = useState(initial.website);
   const [location, setLocation] = useState(initial.location);
+  const [postalAddress, setPostalAddress] = useState(initial.postal_address);
   const [signature, setSignature] = useState(initial.signature);
   const [cc, setCc] = useState(initial.cc.join(", "));
   const [greeting, setGreeting] = useState(initial.greeting);
@@ -27,9 +28,9 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   const [testMsg, setTestMsg] = useState("");
   const [uploadErr, setUploadErr] = useState("");
   const [uploading, setUploading] = useState(false);
-  const payload = { from_name: fromName, title, signature, website, location, cc: cc.split(/[,\s]+/).map(value => value.trim()).filter(Boolean), greeting, signoff, intro };
+  const payload = { from_name: fromName, title, signature, website, location, postal_address: postalAddress, cc: cc.split(/[,\s]+/).map(value => value.trim()).filter(Boolean), greeting, signoff, intro };
   const serialized = JSON.stringify(payload);
-  const [saved, setSaved] = useState(() => JSON.stringify({ from_name: initial.from_name, title: initial.title, signature: initial.signature, website: initial.website, location: initial.location, cc: initial.cc, greeting: initial.greeting, signoff: initial.signoff, intro: initial.intro }));
+  const [saved, setSaved] = useState(() => JSON.stringify({ from_name: initial.from_name, title: initial.title, signature: initial.signature, website: initial.website, location: initial.location, postal_address: initial.postal_address, cc: initial.cc, greeting: initial.greeting, signoff: initial.signoff, intro: initial.intro }));
   const dirty = serialized !== saved;
   const testInFlight = useRef(false);
 
@@ -107,6 +108,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
         <label><span>Title (shown on the From line & signature)</span><input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="FDE, COO" maxLength={120} /></label>
         <label><span>Website</span><input value={website} onChange={(event) => setWebsite(event.target.value)} placeholder="www.nine-67.com" maxLength={160} /></label>
         <label><span>Location</span><input value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Pennsylvania, USA | ET (UTC-5 / UTC-4)" maxLength={160} /></label>
+        <label><span>Business postal address</span><input value={postalAddress} onChange={(event) => setPostalAddress(event.target.value)} placeholder="123 Main St, Suite 400, Pittsburgh, PA 15222" maxLength={240} /><small>Printed in small type under every email. Required by US law for commercial email, and the morning auto-send stays off until it is set.</small></label>
       </div>
       <div className="sender-profile-grid">
         <label><span>Greeting &mdash; how your drafts open</span><input value={greeting} onChange={(event) => setGreeting(event.target.value)} placeholder="Hi {first}," maxLength={160} /></label>

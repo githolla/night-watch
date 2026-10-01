@@ -1,6 +1,6 @@
 import { researchData } from '#research-data';
 import { derived } from './research-data/derived.ts';
-const offers = derived(() => [...researchData().offerVersions, ...researchData().batch2Offers, ...researchData().batch3Offers]);
+const offers = derived(() => [...researchData().offerVersions, ...researchData().batch2Offers, ...researchData().batch3Offers, ...researchData().nightlyOffers]);
 const rows = () => researchData().researchOutreach;
 const gifts = () => researchData().outreachGifts;
 export type ResearchVersion = { id: string; label: string; subject: string; message: string };

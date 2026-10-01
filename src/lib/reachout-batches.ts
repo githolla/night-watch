@@ -1,11 +1,11 @@
-import { focusForOwner } from './focus-data.ts';
+import { focusForOwner, type ListSequence } from './focus-data.ts';
 
 export type BatchCard = { domain: string; owner: string | null; status: string; contacted?: boolean };
 const contacted = new Set(['sent', 'replied', 'positive', 'meeting', 'negative']);
 
-/** Both batches are always accessible; completion only chooses the default landing batch. */
-export function selectedBatch(requested: string | undefined, defaultSequence: 1 | 2): 1 | 2 {
-  return requested === '1' ? 1 : requested === '2' ? 2 : defaultSequence;
+/** Every list stays reachable; completion and a waiting nightly list only choose the default landing list. */
+export function selectedBatch(requested: string | undefined, defaultSequence: ListSequence): ListSequence {
+  return requested === '1' ? 1 : requested === '2' ? 2 : requested === 'today' ? 3 : defaultSequence;
 }
 
 /** Missing, snoozed, edited, approved and automatically archived work do not advance the default batch. */

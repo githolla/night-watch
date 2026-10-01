@@ -9,6 +9,7 @@ const input = z.object({
   signature: z.string().max(20000), // large enough for a pasted/uploaded HTML signature
   website: z.string().max(160).optional(),
   location: z.string().max(160).optional(),
+  postal_address: z.string().max(240).optional(),
   cc: z.array(z.string().trim().min(3).max(160)).max(10),
   greeting: z.string().max(160).optional(),
   signoff: z.string().max(160).optional(),
@@ -18,7 +19,7 @@ const input = z.object({
 // The two columns a repair script adds. Until it has been run they do not exist, and naming one in an
 // upsert fails the whole save — so the identity form would stop saving a name or a signature because of a
 // field the operator had not enabled yet.
-const ADDED_BY_REPAIR = ["greeting", "signoff", "intro"] as const;
+const ADDED_BY_REPAIR = ["greeting", "signoff", "intro", "postal_address"] as const;
 const missingColumn = (message: string) => ADDED_BY_REPAIR.find((column) => new RegExp(`'${column}' column|column "?${column}"?`, "i").test(message));
 
 export async function POST(request: Request) {
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
     const row: Record<string, unknown> = {
       owner: user.owner, from_name: body.from_name, title: body.title, signature,
       website: body.website ?? "", location: body.location ?? "", cc: body.cc,
+      ...(body.postal_address !== undefined ? { postal_address: body.postal_address.trim() } : {}),
       greeting: (body.greeting ?? "").trim(), signoff: (body.signoff ?? "").trim(), intro: (body.intro ?? "").trim(),
       updated_at: new Date().toISOString(),
     };
@@ -46,7 +48,7 @@ export async function POST(request: Request) {
     for (const name of ADDED_BY_REPAIR) delete row[name];
     const { error: retry } = await db.from("sender_profiles").upsert(row, { onConflict: "owner" });
     if (retry) throw new Error(retry.message);
-    return Response.json({ ok: true, warning: "Saved — except your greeting, sign-off and introduction. Run supabase/migrations/0025_sender_greeting.sql in the Supabase SQL editor to turn those on." });
+    return Response.json({ ok: true, warning: `Saved, except the ${column === "postal_address" ? "postal address. Run supabase/migrations/0027_nightly_lists.sql" : "greeting, sign-off and introduction. Run supabase/migrations/0025_sender_greeting.sql"} in the Supabase SQL editor to turn that on.` });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Save failed" }, { status: 400 });
   }
