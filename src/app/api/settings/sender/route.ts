@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     for (const name of ADDED_BY_REPAIR) delete row[name];
     const { error: retry } = await db.from("sender_profiles").upsert(row, { onConflict: "owner" });
     if (retry) throw new Error(retry.message);
-    return Response.json({ ok: true, warning: "Saved — except your greeting, sign-off and introduction. Run supabase/repair/0025_sender_greeting.sql in the Supabase SQL editor to turn those on." });
+    return Response.json({ ok: true, warning: "Saved — except your greeting, sign-off and introduction. Run supabase/migrations/0025_sender_greeting.sql in the Supabase SQL editor to turn those on." });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Save failed" }, { status: 400 });
   }

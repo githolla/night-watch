@@ -1,3 +1,4 @@
+import { SpendLimitError } from "./anthropic-cost.ts";
 import { ModelOutputError } from "./model-output.ts";
 
 /**
@@ -50,6 +51,7 @@ function zodSummary(error: { issues?: Array<{ path?: PropertyKey[]; message?: st
 
 export function classifyResearchError(error: unknown): ClassifiedError {
   if (error instanceof ResearchError) return { code: error.code, message: error.message };
+  if (error instanceof SpendLimitError) return { code: "budget", message: error.message };
   if (error instanceof ModelOutputError) return { code: error.code === "truncated" ? "truncated" : "parse", message: error.message };
 
   const message = messageOf(error);

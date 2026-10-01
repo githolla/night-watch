@@ -9,6 +9,8 @@
 7. Deploy, open Settings, and load the maintained 100-company target universe.
 8. Optional: import team LinkedIn exports into `team_connections` for warm-path scoring.
 9. Optional: connect Gmail and verify SPF, DKIM, and DMARC before enabling in-app sending.
-10. Trigger `/api/cron/nightly` with `Authorization: Bearer $CRON_SECRET`, inspect the run, then leave Vercel schedules enabled.
+10. Leave the Vercel schedules enabled.
 
-The schedules in `vercel.json` are UTC: nightly research at 01:00 Eastern Daylight Time, summary at 08:00 EDT, and reply checks every 15 minutes. Adjust the two fixed UTC schedules when daylight-saving time changes.
+The schedules in `vercel.json` are UTC: the morning summary at 08:00 EDT, reply, follow-up and Sent-folder checks every 15 minutes, and the feedback digest twice a day. Adjust the fixed UTC schedules when daylight-saving time changes.
+
+Research is not scheduled. Outreach works from the curated lists, so the nightly research, careers sweep and analysis crons were removed from `vercel.json` to stop them spending the model budget. Their routes still exist: an admin can run research from the Runs page, or call `/api/cron/nightly`, `/api/cron/sweep` or `/api/cron/analysis` with `Authorization: Bearer $CRON_SECRET`. Add them back to `vercel.json` to schedule them again.

@@ -21,8 +21,16 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (body.role) update.role = body.role;
     if (body.password) update.password_hash = hashPassword(body.password);
     if (Object.keys(update).length === 0) throw new Error("Nothing to change");
-    const { error } = await admin().from("app_users").update(update).eq("id", id);
+    const db = admin();
+    const { error } = await db.from("app_users").update(update).eq("id", id);
     if (error) throw error;
+    if (body.password) {
+      // A reset password must also end the sessions issued under the old one, or a leaked cookie outlives
+      // the reset by up to 30 days. Separate write: before migration 0026 the column is missing and the
+      // password change above must still land.
+      const { data: current } = await db.from("app_users").select("session_version").eq("id", id).maybeSingle();
+      if (current) await db.from("app_users").update({ session_version: Number(current.session_version ?? 0) + 1 }).eq("id", id);
+    }
     return Response.json({ ok: true });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Update failed" }, { status: 400 });

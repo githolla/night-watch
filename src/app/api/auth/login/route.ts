@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       const user = await userByEmail(email);
       if (user && verifyPassword(password, user.password_hash)) {
         try { await admin().from("app_users").update({ last_login_at: new Date().toISOString() }).eq("id", user.id); } catch { /* best-effort */ }
-        return setSession(issueSession(user.id));
+        return setSession(issueSession(user.id, false, user.sessionVersion ?? 0));
       }
       // Fall through: allow the shared password even with an email typed, so the admin can always get in.
     }

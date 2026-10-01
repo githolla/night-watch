@@ -48,7 +48,7 @@ export function SpendPanel() {
         <p className="panel-watch">
           Only the research pipeline is being counted. Regenerating drafts, Refine and the Message Lab all
           call the model and are <strong>not recorded yet</strong>, so your real bill is higher than the
-          figure above. Apply <code>supabase/repair/0024_api_spend.sql</code> in the Supabase SQL editor to
+          figure above. Apply <code>supabase/migrations/0024_api_spend.sql</code> in the Supabase SQL editor to
           start counting them &mdash; no deploy needed.
         </p>
       )}

@@ -3,6 +3,11 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 export type SlackBlock = Record<string, unknown>;
 
+/** Cards still waiting on someone. Sent, replied, dismissed or snoozed cards are not on today's desk. */
+export const DESK_STATUSES = ["new", "approved", "edited"];
+/** Statuses a desk button may move a card out of. Once an email has gone out, Slack must not reopen it. */
+export const UNSENT_STATUSES = ["new", "approved", "edited", "snoozed", "dismissed", "archived"];
+
 export interface SlackDeskCard {
   id: string;
   score: number;

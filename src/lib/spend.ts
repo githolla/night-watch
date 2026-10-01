@@ -5,7 +5,7 @@ import { admin } from "./supabase/admin.ts";
  *
  * Best-effort by design, and on two counts. It never throws, because a failure to record a cost must never
  * fail the work the user actually asked for. And it tolerates the table not existing, so the app keeps
- * running before supabase/repair/0024_api_spend.sql has been applied — applying that file is what switches
+ * running before supabase/migrations/0024_api_spend.sql has been applied — applying that file is what switches
  * the Spend panel on, with no deploy.
  */
 export async function recordSpend(source: string, model: string | null, costUsd: number, detail: Record<string, unknown> = {}) {

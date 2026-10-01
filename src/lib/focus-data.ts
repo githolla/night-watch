@@ -29,3 +29,11 @@ export function assertListSender(domain: string | null | undefined, viewer: 'jos
  const owner = domain ? batchOwner(domain) : null;
  if (owner && owner !== viewer) throw new Error(`Sign in as ${owner === 'josh' ? 'Josh' : 'Suuchi'} to send prospect emails from this list.`);
 }
+
+/** Who may email a card's prospect: the list's assigned sender for list companies, otherwise the card's
+ *  assigned owner. Without the second half anyone could send any non-list card from their own mailbox. */
+export function assertCardSender(domain: string | null | undefined, assignedTo: string | null | undefined, viewer: 'josh' | 'jenna') {
+ assertListSender(domain, viewer);
+ if (domain && batchOwner(domain)) return;
+ if (assignedTo && assignedTo !== viewer) throw new Error(`This prospect is assigned to ${assignedTo === 'josh' ? 'Josh' : 'Suuchi'}. Sign in as them to send, or reassign the card first.`);
+}

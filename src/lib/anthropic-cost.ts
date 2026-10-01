@@ -30,7 +30,34 @@ export function anthropicCost(usage: Anthropic.Messages.Usage, model: string) {
   return tokenCost + searchCost;
 }
 
-export type UsageRecorder = (costUsd: number) => void;
+/**
+ * One company's research allowance. Paid web searches and dollars are counted across every model call made
+ * for the company (scout, the person lookup, drafting, pause_turn continuations, retries on a fallback
+ * model), so ANTHROPIC_MAX_SEARCHES_PER_COMPANY and NIGHTLY_MAX_COST_PER_ACCOUNT_USD are real limits rather
+ * than a max_uses on the first request and a planning figure.
+ */
+export type ResearchBudget = { searchesLeft: number; costCapUsd: number; spentUsd: number };
+
+export function researchBudget(maxSearches: number, costCapUsd: number): ResearchBudget {
+  return { searchesLeft: Math.max(0, Math.floor(maxSearches)), costCapUsd, spentUsd: 0 };
+}
+
+/** Thrown before a call that the company's allowance cannot cover. Nothing is spent by the refused call. */
+export class SpendLimitError extends Error {
+  readonly limit: "searches" | "cost";
+  constructor(limit: "searches" | "cost", message: string) {
+    super(message);
+    this.name = "SpendLimitError";
+    this.limit = limit;
+  }
+}
+
+/** Records the cost of each call. A recorder may carry the company's budget; completeTurn enforces it. */
+export type UsageRecorder = ((costUsd: number) => void) & { budget?: ResearchBudget };
+
+export function withBudget(recorder: (costUsd: number) => void, budget: ResearchBudget): UsageRecorder {
+  return Object.assign((costUsd: number) => recorder(costUsd), { budget });
+}
 
 export function recordAnthropicUsage(
   response: Pick<Anthropic.Messages.Message, "usage">,

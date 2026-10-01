@@ -3,6 +3,7 @@ import {
   ownerForSlackUser,
   postSlackEphemeral,
   slackUserAllowed,
+  UNSENT_STATUSES,
   verifySlackRequest,
 } from "@/lib/slack";
 import { admin } from "@/lib/supabase/admin";
@@ -58,19 +59,26 @@ async function handleAction(payload: SlackPayload, action: SlackAction, channel:
     if (!card) throw new Error("Dossier not found");
     const actor = payload.user.username ?? payload.user.name ?? payload.user.id;
     let confirmation = "Night Watch updated the dossier.";
+    // Approve, snooze and dismiss are for cards nobody has written to yet. Reopening a sent card would make
+    // it sendable again and hide its history from the desk.
+    const triage = ["approve_card", "snooze_card", "dismiss_card"].includes(action.action_id);
+    if (triage && !UNSENT_STATUSES.includes(card.status as string)) {
+      await postSlackEphemeral(channel, payload.user.id, `This dossier is already ${card.status}, so it was left as is.`);
+      return;
+    }
 
     if (action.action_id === "approve_card") {
-      const { error } = await db.from("cards").update({ status: "approved", dismiss_reason: null, snooze_until: null }).eq("id", cardId);
+      const { error } = await db.from("cards").update({ status: "approved", dismiss_reason: null, snooze_until: null }).eq("id", cardId).in("status", UNSENT_STATUSES);
       if (error) throw error;
       confirmation = `Approved by ${actor}. The dossier is ready for manual outreach.`;
     } else if (action.action_id === "snooze_card") {
       const until = new Date();
       until.setDate(until.getDate() + 7);
-      const { error } = await db.from("cards").update({ status: "snoozed", snooze_until: until.toISOString().slice(0, 10) }).eq("id", cardId);
+      const { error } = await db.from("cards").update({ status: "snoozed", snooze_until: until.toISOString().slice(0, 10) }).eq("id", cardId).in("status", UNSENT_STATUSES);
       if (error) throw error;
       confirmation = `Snoozed until ${until.toLocaleDateString("en-US", { month: "short", day: "numeric" })}.`;
     } else if (action.action_id === "dismiss_card") {
-      const { error } = await db.from("cards").update({ status: "dismissed", dismiss_reason: `Dismissed in Slack by ${actor}` }).eq("id", cardId);
+      const { error } = await db.from("cards").update({ status: "dismissed", dismiss_reason: `Dismissed in Slack by ${actor}` }).eq("id", cardId).in("status", UNSENT_STATUSES);
       if (error) throw error;
       confirmation = `Dismissed by ${actor}.`;
     } else if (action.action_id === "record_linkedin" || action.action_id === "record_email") {

@@ -1,4 +1,4 @@
-import { buildDeskBlocks, slackUserAllowed, verifySlackRequest, type SlackDeskCard } from "@/lib/slack";
+import { DESK_STATUSES, buildDeskBlocks, slackUserAllowed, verifySlackRequest, type SlackDeskCard } from "@/lib/slack";
 import { admin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
       .from("cards")
       .select("id,score,status,channel,why_now,brief,assigned_to,accounts(name),people(full_name,title),signals(summary,source_url,type)")
       .eq("surfaced_on", today)
+      .in("status", DESK_STATUSES)
       .order("score", { ascending: false })
       .limit(5);
     if (error) throw error;

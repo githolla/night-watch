@@ -7,7 +7,7 @@ import { OUTREACH_EVIDENCE } from "./outreach-proof.ts";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import type { SimulationInput, SimulationResult } from "@/lib/message-simulation";
-import { recordAnthropicUsage, type UsageRecorder } from "./anthropic-cost.ts";
+import { anthropicCost, SpendLimitError, type UsageRecorder } from "./anthropic-cost.ts";
 import { parseModelJson } from "./model-output.ts";
 import { fallbackChain, researchModel, searchModel, utilityModel, webSearchToolType, writingModel } from "./models.ts";
 import { sanitizeLinks } from "./sender.ts";
@@ -160,15 +160,29 @@ async function completeTurnOn(
   recordUsage?: UsageRecorder,
 ) {
   const { searches, ...rest } = params;
-  const request = { ...rest, model, ...(searches ? { tools: [webSearchTool(model, searches)] } : {}) };
+  const budget = recordUsage?.budget;
   const messages: Anthropic.Messages.MessageParam[] = [{ role: "user", content: prompt }];
   const options = { timeout: TURN_TIMEOUT_MS, maxRetries: 1 };
-  let response = await client().messages.create({ ...request, messages }, options);
-  recordAnthropicUsage(response, model, recordUsage);
+  // Each request (the first and every pause_turn continuation) may only use the searches the company has
+  // left, and no request starts once its spend has reached the cap. Re-sending the original max_uses on
+  // each continuation is how three requests used nine searches.
+  const send = async () => {
+    if (budget && budget.spentUsd >= budget.costCapUsd) throw new SpendLimitError("cost", `Stopped at this company's $${budget.costCapUsd.toFixed(2)} research cap ($${budget.spentUsd.toFixed(2)} spent).`);
+    const allowed = searches ? Math.min(searches, budget ? budget.searchesLeft : searches) : 0;
+    if (searches && allowed < 1) throw new SpendLimitError("searches", "This company's paid web searches are used up.");
+    const response = await client().messages.create({ ...rest, model, ...(allowed ? { tools: [webSearchTool(model, allowed)] } : {}), messages }, options);
+    const cost = anthropicCost(response.usage, model);
+    recordUsage?.(cost);
+    if (budget) {
+      budget.spentUsd += cost;
+      budget.searchesLeft = Math.max(0, budget.searchesLeft - (response.usage.server_tool_use?.web_search_requests ?? 0));
+    }
+    return response;
+  };
+  let response = await send();
   for (let round = 0; round < MAX_TURN_CONTINUATIONS && response.stop_reason === "pause_turn"; round += 1) {
     messages.push({ role: "assistant", content: response.content });
-    response = await client().messages.create({ ...request, messages }, options);
-    recordAnthropicUsage(response, model, recordUsage);
+    response = await send();
   }
   return response;
 }
@@ -283,6 +297,9 @@ Return JSON only as {"signals":[{"type":"job_cluster","evidence_kind":"hiring","
 }
 
 export async function findPerson(account: string, signal: ScoutSignal, recordUsage?: UsageRecorder) {
+  // The person lookup searches the web too. When the company's searches are spent (usually by the scout),
+  // skip it: the signal is still stored, it just has no named owner to draft to.
+  if (recordUsage?.budget && recordUsage.budget.searchesLeft < 1) return { name: "", title: "", linkedin_url: null, alternates: [] };
   const model = utilityModel();
   const { response } = await completeTurn(
     { model, max_tokens: 4_000, searches: 2 },

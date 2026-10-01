@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { adminGate } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 
 export const maxDuration = 300;
@@ -10,13 +10,14 @@ export const maxDuration = 300;
  * overwriting other prospects' drafts. The operator liked the effect, so here it is as a deliberate,
  * explicit action instead of a side effect.
  *
- * Not admin-gated: it only rewrites the subject of drafts that have not been sent, which any signed-in
- * operator can already edit one at a time. Batched and cursor-bounded by updated_at like the other bulk
+ * Admin only: one click rewrites the subject of every un-sent draft on both seats, so it is not a member
+ * action even though each draft can be edited one at a time. Batched and cursor-bounded by updated_at like the other bulk
  * tools, so a large list drains over several calls instead of timing out.
  */
 export async function POST(request: Request) {
+  const denied = await adminGate();
+  if (denied) return denied;
   try {
-    await requireUser();
     const { subject, before } = await request.json().catch(() => ({}));
     const line = typeof subject === "string" ? subject.trim() : "";
     if (!line) return Response.json({ error: "Write a subject first." }, { status: 400 });

@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { adminGate } from "@/lib/auth";
 import { backfillHiringDrafts } from "@/lib/job-sweep/sweep";
 import { classifyResearchError } from "@/lib/research-errors";
 
@@ -6,8 +6,9 @@ export const maxDuration = 300;
 
 /** Draft one reach-out per hiring company from what is already on file. Idempotent; press again to continue. */
 export async function POST() {
+  const denied = await adminGate();
+  if (denied) return denied;
   try {
-    await requireUser();
     return Response.json(await backfillHiringDrafts());
   } catch (error) {
     const classified = classifyResearchError(error);

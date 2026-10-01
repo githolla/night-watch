@@ -1,3 +1,4 @@
+import { requireActualUser } from "@/lib/auth";
 import { schemaHealth } from "@/lib/schema-check";
 import { admin } from "@/lib/supabase/admin";
 
@@ -30,6 +31,11 @@ export async function GET() {
     try { schema = await schemaHealth(admin()); }
     catch (error) { schema = { ok: null, missing: [], reason: error instanceof Error ? error.message : "probe failed" }; }
   }
+  // Anyone can ask whether the app is up. Which env vars are set, their lengths, the OAuth client and the
+  // redirect target are for an admin diagnosing setup, not for the open internet.
+  const viewer = await requireActualUser().catch(() => null);
+  const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null;
+  if (viewer?.role !== "admin") return Response.json({ ok: true, schema: { ok: schema.ok }, commit });
   return Response.json({
     ok: true,
     schema,
@@ -42,6 +48,6 @@ export async function GET() {
       redirectUri: inspect(process.env.GOOGLE_REDIRECT_URI),
     },
     appUrl: inspect(process.env.APP_URL),
-    commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
+    commit,
   });
 }

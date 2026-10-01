@@ -32,3 +32,14 @@ test("the daily window turns over at the operator's midnight, not the server's",
   assert.equal(sendDayStart(evening, "UTC").toISOString(), "2026-09-22T00:00:00.000Z");
   assert.doesNotThrow(() => sendDayStart(evening, "Not/AZone"));
 });
+
+test("every call on the same day returns the identical instant, whatever the milliseconds", () => {
+  // The quota slot id is derived from this value. When milliseconds leaked in, concurrent sends each got a
+  // private slot and five parallel sends at 38/40 ended the day at 43.
+  const a = sendDayStart(new Date("2026-10-01T15:47:52.123Z"), "America/New_York");
+  const b = sendDayStart(new Date("2026-10-01T15:47:52.987Z"), "America/New_York");
+  const c = sendDayStart(new Date("2026-10-01T23:59:59.999Z"), "America/New_York");
+  assert.equal(a.toISOString(), "2026-10-01T04:00:00.000Z");
+  assert.equal(b.toISOString(), a.toISOString());
+  assert.equal(c.toISOString(), a.toISOString());
+});

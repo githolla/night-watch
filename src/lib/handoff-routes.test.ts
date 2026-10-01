@@ -108,7 +108,9 @@ function sendHarness(options: { count?: number | null; countError?: boolean; tra
   };return q;
  }};
  const r=route('../app/api/cards/[id]/send/route.ts',{
-  '@/lib/mailbox-quota':{withMailboxQuota:async(_db:unknown,_input:unknown,action:()=>Promise<unknown>)=>action()},'@/lib/restore-selected-draft':{},'@/lib/focus-data':{assertListSender:()=>{}},'@/lib/first-touch':{firstTouchErrors:()=>[]},
+  '@/lib/mailbox-quota':{withMailboxQuota:async(_db:unknown,_input:unknown,action:()=>Promise<unknown>)=>action()},'@/lib/restore-selected-draft':{},'@/lib/focus-data':{assertListSender:()=>{},assertCardSender:()=>{}},
+  '@/lib/recipient-verification':{checkRecipient:async()=>({level:'risky',reason:'Not confirmed.',suggestion:null}),recipientAllowed:()=>true,recordRecipientCheck:async()=>{},recordDelivery:async()=>{}},
+  '@/lib/opt-out':{withOptOut:(delivery:unknown)=>delivery,unsubscribeUrl:()=> 'https://test/api/unsubscribe?t=token'},'@/lib/first-touch':{firstTouchErrors:()=>[]},
   '@/lib/authored-sender':{authoredSenderDraft:()=>({body:'Can we help?'})},
   '@/lib/version-tracking':{trackEmailVersion:async()=>{if(reserved)throw new DeliveryError('delivery_reserved','Already sending');reserved=true;return 'variant'}},
   '@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/crypto':{encrypt:()=> 'token'},
@@ -198,7 +200,7 @@ test('effective user uses Suuchi owner while retaining the real administrator', 
  let available=true;let role='admin';
  const r=route('./auth.ts',{
   'node:crypto':{timingSafeEqual:()=>false},'next/headers':{cookies:async()=>({get:(key:string)=>({value:key==='session'?'real':'acting'})})},
-  './shared-auth.ts':{SESSION_COOKIE:'session',validSharedSession:()=>false},'./session.ts':{readSession:()=>({uid:'admin'})},
+  './shared-auth.ts':{SESSION_COOKIE:'session',validSharedSession:()=>false},'./session.ts':{readSession:()=>({uid:'admin'})},'./session-revocation.ts':{sessionRevoked:async()=>false},
   './users.ts':{loadUser:async(id:string)=>id==='admin'?{...actual,role}:available?target:null},
   './acting-session.ts':{ACTING_COOKIE:'acting',actingTarget:(_token:string,user:{role:string})=>{if(user.role!=='admin')throw new Error('Denied');return 'suuchi'}},
  });

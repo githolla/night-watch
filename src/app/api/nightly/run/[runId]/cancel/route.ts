@@ -1,9 +1,10 @@
-import { requireUser } from "@/lib/auth";
+import { adminGate } from "@/lib/auth";
 import { cancelRun } from "@/lib/pipeline";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ runId: string }> }) {
+  const denied = await adminGate();
+  if (denied) return denied;
   try {
-    await requireUser();
     const { runId } = await params;
     const run = await cancelRun(runId);
     return Response.json({ run });

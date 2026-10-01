@@ -9,23 +9,34 @@ import { validateEmail } from './send-action';
 import { dailyCap, sendDayStart } from './send-guards';
 import { fromHeader, sanitizeLinks, senderProfile } from './sender';
 import { outreachDelivery } from './outreach-ending';
+import { isBounce, senderAddress } from './bounce';
+import { isCuratedDomain } from './curated-worklist';
+import { configuredBaseUrl, unsubscribeUrl, withOptOut } from './opt-out';
+import { checkRecipient, markBounced, recipientAllowed, recordDelivery, recordRecipientCheck } from './recipient-verification';
 import type { admin } from './supabase/admin';
 import type { AppUser } from './users';
 import type { Owner } from './types';
 
 type Db = ReturnType<typeof admin>;
-export const followupSelect = 'id,title,step_number,status,sent_at,kind,channel,subject,body,cadence_id,cadences!inner(id,status,owner,card_id,person_id,people(id,full_name,email,email_status,do_not_contact),cards(accounts(status,name,domain)))';
-type Step = { id:string; title:string; step_number:number; status:string; sent_at:string|null; kind:string; channel:string; subject:string|null; body:string|null; cadence_id:string; cadences: { id:string; status:string; owner:Owner; card_id:string; person_id:string; people:{id:string; full_name:string; email:string|null; email_status:string; do_not_contact:boolean}|null; cards:{accounts:{status:string;name:string;domain:string}|null}|null }|null };
+export const followupSelect = 'id,title,step_number,status,sent_at,kind,channel,subject,body,cadence_id,cadences!inner(id,status,owner,card_id,person_id,people(id,full_name,email,email_status,email_source,email_verified_at,email_check,do_not_contact),cards(account_id,accounts(status,name,domain)))';
+type Step = { id:string; title:string; step_number:number; status:string; sent_at:string|null; kind:string; channel:string; subject:string|null; body:string|null; cadence_id:string; cadences: { id:string; status:string; owner:Owner; card_id:string; person_id:string; people:{id:string; full_name:string; email:string|null; email_status:string; email_source?:string|null; email_verified_at?:string|null; email_check?:unknown; do_not_contact:boolean}|null; cards:{account_id?:string; accounts:{status:string;name:string;domain:string}|null}|null }|null };
 export function assertFollowupOwner(owner: Owner, viewer: Owner) {
   if (owner !== viewer) throw new Error(`Sign in as ${owner === 'jenna' ? 'Suuchi' : 'Josh'} to send this follow-up. Shared viewing does not change the sender.`);
 }
-export function hasInboundReply(messages: Array<{internalDate:string;payload:{headers:Array<{name:string;value:string}>}}>, sentAt:string, ours:string[]) {
+type ThreadMessage = {internalDate:string;payload:{headers:Array<{name:string;value:string}>}};
+/** Messages after our send that are not from us. Delivery failures are split out: they are not replies. */
+function inbound(messages: ThreadMessage[], sentAt:string, ours:string[]) {
   const addresses = new Set(ours.map(s => s.trim().toLowerCase()));
-  return messages.some(m => {
-    const raw = m.payload.headers.find(h => h.name.toLowerCase() === 'from')?.value ?? '';
-    const address = (raw.match(/<([^>]+)>/)?.[1] ?? raw).trim().toLowerCase();
+  return messages.filter(m => {
+    const address = senderAddress(m.payload.headers.find(h => h.name.toLowerCase() === 'from')?.value ?? '');
     return Number(m.internalDate) > Date.parse(sentAt) && Boolean(address) && !addresses.has(address);
   });
+}
+export function hasInboundReply(messages: ThreadMessage[], sentAt:string, ours:string[]) {
+  return inbound(messages, sentAt, ours).some(m => !isBounce(m.payload.headers));
+}
+export function hasBounce(messages: ThreadMessage[], sentAt:string, ours:string[]) {
+  return inbound(messages, sentAt, ours).some(m => isBounce(m.payload.headers));
 }
 export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner, actor?: AppUser['actor']) {
   const step = raw as Step, cadence = step.cadences, to = cadence?.people;
@@ -38,11 +49,20 @@ export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner, actor?:
   if (to.do_not_contact || ['client','do_not_contact'].includes(cadence.cards?.accounts?.status ?? '')) throw new Error('Do-not-contact guard blocked this follow-up.');
   const {data:connection,error:connectionError} = await db.from('gmail_connections').select('email,connected_at,created_at').eq('owner',cadence.owner).maybeSingle();
   if (connectionError || !connection?.email) throw new Error('Connect the sender’s Gmail in Settings before sending.');
-  const {count,error:countError} = await db.from('touches').select('*',{count:'exact',head:true}).eq('sent_by',cadence.owner).eq('channel','email').not('gmail_thread_id','is',null).gte('sent_at',sendDayStart().toISOString());
+  // One day start for both the count and the quota slot, so they always describe the same window.
+  const dayStart = sendDayStart();
+  const {count,error:countError} = await db.from('touches').select('*',{count:'exact',head:true}).eq('sent_by',cadence.owner).eq('channel','email').not('gmail_thread_id','is',null).gte('sent_at',dayStart.toISOString());
   if (countError || count === null) throw new Error('Could not check the daily sending limit. Nothing was sent.');
   const days = Math.max(0,Math.floor((Date.now()-Date.parse(connection.connected_at ?? connection.created_at))/86400000));
   let body = sanitizeLinks(refreshLegacyFollowup(step.body,{firstName:to.full_name.split(/\s+/)[0],company:cadence.cards?.accounts?.name??'your team',baseSubject:step.subject,step:step.step_number,channel:'email'})).replace(/[—–]/g, ',');
-  validateEmail(to.email_status,count,body,dailyCap(days),!viewer);
+  validateEmail(to.email_status,count,body,dailyCap(days),false);
+  // No viewer means the cron is sending with no human click, so the address must be known good (verified,
+  // Hunter-valid, or already delivered to without a bounce). A person pressing Send now is only stopped by a
+  // known-bad address.
+  const domain = cadence.cards?.accounts?.domain ?? to.email.split('@')[1];
+  const recipientCheck = await checkRecipient(db,to,{id:cadence.cards?.account_id ?? '',domain});
+  await recordRecipientCheck(db,to,recipientCheck);
+  if (!recipientAllowed(recipientCheck,!viewer)) throw new Error(`${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ''}${!viewer && recipientCheck.level === 'risky' ? ' Automatic follow-ups need a confirmed address; send this one by hand.' : ''}`);
   const {data:previous,error:historyError} = await db.from('touches').select('gmail_thread_id,sent_at').eq('card_id',cadence.card_id).eq('person_id',to.id).eq('sent_by',cadence.owner).eq('channel','email').not('gmail_thread_id','is',null).order('sent_at',{ascending:true}).limit(1).maybeSingle();
   const scheduledInitial = step.step_number === 1 && step.title === 'Intro email';
   if (historyError || (!previous && !scheduledInitial)) throw new Error('Could not confirm the original conversation. Review History before sending.');
@@ -61,23 +81,34 @@ export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner, actor?:
   if (connectionsError) throw new Error('Could not check for replies. Nothing was sent.');
   const conversation = await thread(cadence.owner,previous.gmail_thread_id);
   if (!Array.isArray(conversation.messages)) throw new Error('Could not check for replies. Nothing was sent.');
-  if (hasInboundReply(conversation.messages,previous.sent_at,(connections ?? []).map(c => c.email))) {
+  const ours = (connections ?? []).map(c => c.email);
+  if (hasBounce(conversation.messages,previous.sent_at,ours)) {
+    // The first email never arrived. Remember the address is bad and stop; never follow up into a bounce.
+    await markBounced(db,to,cadence.cards?.account_id ? {id:cadence.cards.account_id,domain} : null);
+    await db.from('cadences').update({status:'stopped',completed_at:new Date().toISOString()}).eq('id',cadence.id);
+    await db.from('cadence_steps').update({status:'skipped',error:'The first email bounced; sequence stopped. Fix the address before writing again.'}).eq('cadence_id',cadence.id).in('status',['pending','ready','failed']);
+    return {ok:true,stopped:true,bounced:true,to:to.full_name};
+  }
+  if (hasInboundReply(conversation.messages,previous.sent_at,ours)) {
     const {error} = await db.from('cadences').update({status:'stopped',completed_at:new Date().toISOString()}).eq('id',cadence.id);
     if (error) throw new Error('A reply was found. Could not save the stopped sequence; nothing was sent.');
     await db.from('cadence_steps').update({status:'skipped',error:'Recipient replied; sequence stopped.'}).eq('cadence_id',cadence.id).in('status',['pending','ready','failed']);
     return {ok:true,stopped:true,to:to.full_name};
   }
   }
-  const delivery = outreachDelivery(body,profile);
+  // Follow-ups carry the same opt-out as the first email: the reply-no line (except curated list copy)
+  // and a one-click List-Unsubscribe header on every message.
+  const delivery = withOptOut(outreachDelivery(body,profile),isCuratedDomain(domain));
+  const unsubscribe = unsubscribeUrl(configuredBaseUrl(),to.id);
   const subject = step.subject, recipientEmail = to.email;
   const reservationId = deliveryReservationId(scheduledInitial ? cadence.card_id : `cadence:${step.id}`,to.id);
-  const sent = await withMailboxQuota(db,{owner:cadence.owner,cardId:cadence.card_id,personId:to.id,count,cap:dailyCap(days),dayStart:sendDayStart(),reservationId},async () => {
+  const sent = await withMailboxQuota(db,{owner:cadence.owner,cardId:cadence.card_id,personId:to.id,count,cap:dailyCap(days),dayStart,reservationId},async () => {
   const versionId = await trackEmailVersion(db,{actor,cardId:cadence.card_id,personId:to.id,owner:cadence.owner,subject,body:delivery.text,source:'gmail',followup:!scheduledInitial,reservationId,reservationContext:{kind:"followup",stepId:step.id,initialReservation:scheduledInitial}});
   const release = async () => { await db.from('message_experiments').delete().eq('id',reservationId); };
   const {data:claimed,error:claimError} = await db.from('cadence_steps').update({sent_at:new Date().toISOString(),error:'Delivery in progress. Check Sent before retrying.'}).eq('id',step.id).in('status',['pending','ready','failed']).is('sent_at',null).select('id');
   if (claimError || !claimed?.length) { await release(); throw new Error('This follow-up changed before sending. Reload to see its status.'); }
   let result;
-  try { result = await sendEmail(cadence.owner,fromHeader(profile,connection.email),recipientEmail,subject,delivery.text,previous?.gmail_thread_id,profile.cc,delivery.html,undefined,`${reservationId}@night-watch.nine-67.com`); }
+  try { result = await sendEmail(cadence.owner,fromHeader(profile,connection.email),recipientEmail,subject,delivery.text,previous?.gmail_thread_id,profile.cc,delivery.html,unsubscribe,`${reservationId}@night-watch.nine-67.com`); }
   catch(error) {
     const unknown = error instanceof DeliveryError && error.code === 'delivery_unknown';
     if (!unknown) { await release(); await db.from('cadence_steps').update({sent_at:null,status:'failed',error:error instanceof Error?error.message:'Send failed before delivery.'}).eq('id',step.id); }
@@ -87,6 +118,7 @@ export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner, actor?:
   return {result,versionId};
   });
   const {result,versionId} = sent;
+  await recordDelivery(db,to.id,recipientEmail);
   let warning = '';
   try {
     const status = await db.from('cadence_steps').update({status:'sent',sent_at:new Date().toISOString(),error:null}).eq('id',step.id);

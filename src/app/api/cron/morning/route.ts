@@ -1,6 +1,7 @@
 import { cronAuthorized } from "@/lib/auth";
 import { sendEmail } from "@/lib/gmail";
 import { sendMorningSlack, type SlackDeskCard } from "@/lib/slack";
+import { DESK_STATUSES } from "@/lib/slack";
 import { admin } from "@/lib/supabase/admin";
 
 type ConnectedOwner = "josh";
@@ -17,6 +18,7 @@ export async function GET(request: Request) {
       .from("cards")
       .select("id,score,status,channel,why_now,brief,assigned_to,accounts(name),people(full_name,title),signals(summary,source_url,type)")
       .eq("surfaced_on", today)
+      .in("status", DESK_STATUSES)
       .order("score", { ascending: false }),
     db.from("gmail_connections").select("owner,email"),
   ]);

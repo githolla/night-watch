@@ -9,7 +9,7 @@ const SINCE = { today: 0, week: 7, month: 30 } as const;
  * What Night Watch has actually spent, from every place a cost is written down: the research pipeline,
  * the deep analysis, and the three routes that until now recorded nothing.
  *
- * Returns `tracked: false` for the api_spend half when supabase/repair/0024_api_spend.sql has not been
+ * Returns `tracked: false` for the api_spend half when supabase/migrations/0024_api_spend.sql has not been
  * applied, so the panel can say "this part isn't being recorded yet" rather than quietly reporting a low
  * number as if it were the whole bill — which is exactly how $59 went missing.
  */

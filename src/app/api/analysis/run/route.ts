@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { adminGate } from "@/lib/auth";
 import { runAnalysis } from "@/lib/analysis-run";
 import { classifyResearchError } from "@/lib/research-errors";
 
@@ -8,8 +8,9 @@ type Body = { runId?: string; accountIds?: string[]; limit?: number; all?: boole
 
 /** Deep analysis from the page; continued by runId until the run closes. */
 export async function POST(request: Request) {
+  const denied = await adminGate();
+  if (denied) return denied;
   try {
-    await requireUser();
     const body = (await request.json().catch(() => ({}))) as Body;
     const accountIds = Array.isArray(body.accountIds) ? body.accountIds.filter((id): id is string => typeof id === "string") : undefined;
     return Response.json(await runAnalysis({

@@ -1,12 +1,13 @@
 import { withMailboxQuota } from '@/lib/mailbox-quota';
 import { DeliveryError, deliveryErrorResponse, deliveryReservationId } from '@/lib/delivery-state';
 import { restoreSelectedDraft } from "@/lib/restore-selected-draft";
-import { assertListSender } from "@/lib/focus-data";
+import { assertCardSender } from "@/lib/focus-data";
+import { checkRecipient, recipientAllowed, recordDelivery, recordRecipientCheck, type RecipientPerson } from "@/lib/recipient-verification";
+import { unsubscribeUrl, withOptOut } from "@/lib/opt-out";
 import { firstTouchErrors } from "@/lib/first-touch";
 import { authoredSenderDraft } from '@/lib/authored-sender';
 import { trackEmailVersion } from "@/lib/version-tracking";
 import { requireUser } from "@/lib/auth";
-import { encrypt } from "@/lib/crypto";
 import { sendEmail } from "@/lib/gmail";
 import { ensureFollowupCadence } from "@/lib/followups";
 import { validateEmail, sendInput } from "@/lib/send-action";
@@ -32,7 +33,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const db = admin();
     const { data: card } = await db.from("cards").select("*,people(*),accounts(*)").eq("id", id).single();
     if (!card) throw new Error("Card not found");
-    assertListSender(card.accounts?.domain, user.owner);
+    assertCardSender(card.accounts?.domain, card.assigned_to, user.owner);
     if (card.status === "archived") card.status = await restoreSelectedDraft(db, id);
     const curated = isCuratedDomain(card.accounts?.domain);
     if (curated) body = outreachBody(body);
@@ -47,15 +48,20 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     // The recipient is the card's own contact unless the desk picked a colleague from the company's team
     // list. That person must be at the SAME company: the id arrives from the browser, so without this check
     // any person in the database could be emailed through someone else's card.
-    let recipient = card.people as { id: string; full_name: string; email: string | null; email_status: string; do_not_contact: boolean };
+    let recipient = card.people as RecipientPerson & { do_not_contact: boolean };
     if (parsed.personId && parsed.personId !== card.person_id) {
-      const { data: chosen } = await db.from("people").select("id,full_name,email,email_status,do_not_contact,account_id").eq("id", parsed.personId).maybeSingle();
+      const { data: chosen } = await db.from("people").select("id,full_name,email,email_status,email_source,email_verified_at,email_check,do_not_contact,account_id").eq("id", parsed.personId).maybeSingle();
       if (!chosen) throw new Error("That contact is no longer on file.");
       if (chosen.account_id !== card.account_id) throw new Error("That contact works at a different company.");
       recipient = chosen as typeof recipient;
     }
     if (!recipient.email) throw new Error(`There is no email address on file for ${recipient.full_name}.`);
     if (recipient.do_not_contact || ["client", "do_not_contact"].includes(card.accounts.status)) throw new Error("Do-not-contact guard blocked this send");
+    // Researched list addresses are inferred or published, not verified. Block a known-bad address
+    // (bounced, rejected by Hunter, no mail server); let the rest through with what the check found.
+    const recipientCheck = await checkRecipient(db, recipient, { id: card.account_id, domain: card.accounts?.domain ?? recipient.email.split("@")[1] });
+    await recordRecipientCheck(db, recipient, recipientCheck);
+    if (!recipientAllowed(recipientCheck, false)) throw new Error(`${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ""} Nothing was sent.`);
     // Idempotency: if an email to THIS PERSON is already logged for this card, don't send again even if a
     // prior status write failed. Scoped to the person, not the card, so emailing a second contact at the
     // same company is still possible while a duplicate to the same one is not.
@@ -76,8 +82,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (countError || count === null) throw new Error("Could not check the daily sending limit. Nothing was sent. Retry when the connection recovers.");
     // Warm the mailbox up gently: the daily cap starts low on a freshly connected seat and ramps to the base.
     const cap = dailyCap(daysBetween(connection?.connected_at ?? connection?.created_at));
-    // Manual desk send: a human chose to send and is warned in the UI when the address isn't verified, so
-    // the verified requirement is relaxed here (the automated cadence still enforces it).
+    // Manual desk send: a human chose to send, so "verified" is not required; the recipient check above
+    // already refused a known-bad address. The automated cadence requires a known-good one.
     const savedProfile = await senderProfile(db, owner);
     const profile = savedProfile;
     const personalized = authoredSenderDraft({ body, domain: card.accounts?.domain, contactName: recipient.full_name, senderName: profile.fromName, greeting: profile.greeting });
@@ -88,14 +94,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     validateEmail(recipient.email_status, count ?? 0, body, cap, false);
     if (!connection?.email) throw new Error("Connect your Gmail in Settings before sending.");
     const fromEmail = connection.email;
-    const optOut = process.env.OPT_OUT_LINE ?? "If this isn't relevant, reply no and I won't follow up.";
-    const delivery = outreachDelivery(body, profile);
-    const fullBody = delivery.text + (curated ? "" : `\n\n${optOut}`);
     // Send multipart/alternative: a plain-text part (spam filters prefer it) AND an HTML part carrying the
     // branded signature, so the sender's signature actually renders in the recipient's client.
-    const html = delivery.html + (curated ? "" : `<p>${optOut.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>`);
-    const base = outboundBaseUrl(request);
-    const unsubscribe = `${base}/api/unsubscribe?t=${encodeURIComponent(encrypt(recipient.id))}`;
+    const { text: fullBody, html } = withOptOut(outreachDelivery(body, profile), curated);
+    const unsubscribe = unsubscribeUrl(outboundBaseUrl(request), recipient.id);
     const recipientEmail = recipient.email;
     const reservationId = deliveryReservationId(id, recipient.id);
     const deliveredBody = fullBody;
@@ -112,6 +114,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         throw error;
       }
     });
+    await recordDelivery(db, recipient.id, recipientEmail);
     // The email has now actually left. Mark the card sent FIRST so it can never stay actionable after a
     // real send (which is how a "failed" toast used to lead to a duplicate re-send). Only then log to
     // History; if that write fails, the send still stands — we report success with a soft warning.
@@ -141,7 +144,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         company: card.accounts?.name ?? "", baseSubject: subject,
       });
     } catch { /* follow-up scheduling is best-effort */ }
-    return Response.json({ ok: true, threadId: result.threadId, to: recipient.full_name, from: fromEmail, messageId: result.id });
+    return Response.json({ ok: true, threadId: result.threadId, to: recipient.full_name, from: fromEmail, messageId: result.id, recipientCheck: { level: recipientCheck.level, reason: recipientCheck.reason, suggestion: recipientCheck.suggestion } });
   } catch (error) {
     return deliveryErrorResponse(error);
   }

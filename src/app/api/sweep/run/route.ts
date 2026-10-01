@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { adminGate } from "@/lib/auth";
 import { runSweep } from "@/lib/job-sweep/sweep";
 import { classifyResearchError } from "@/lib/research-errors";
 import { parseScope } from "@/lib/run-scope";
@@ -9,8 +9,9 @@ type Body = { runId?: string; accountIds?: string[]; limit?: number; all?: boole
 
 /** Manual careers sweep from the desk; the run panel continues it by runId until it closes. */
 export async function POST(request: Request) {
+  const denied = await adminGate();
+  if (denied) return denied;
   try {
-    await requireUser();
     const body = (await request.json().catch(() => ({}))) as Body;
     const accountIds = Array.isArray(body.accountIds) ? body.accountIds.filter((id): id is string => typeof id === "string") : undefined;
     return Response.json(await runSweep({

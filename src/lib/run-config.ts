@@ -117,7 +117,7 @@ export function runBudgetUsd() {
   return decimal("NIGHTLY_RUN_BUDGET_USD", 2.5, 0.01);
 }
 
-/** Planning figure for one company; caps how many are enqueued per invocation. `NIGHTLY_MAX_COST_PER_ACCOUNT_USD`. */
+/** Hard cap on one company's research spend, enforced before every model call. `NIGHTLY_MAX_COST_PER_ACCOUNT_USD`. */
 export function maxCostPerAccountUsd() {
   return decimal("NIGHTLY_MAX_COST_PER_ACCOUNT_USD", 0.12, 0.001);
 }
@@ -141,6 +141,8 @@ export function timeBudgetMs(kind: "scheduled" | "manual") {
 export function populateConfig() {
   return {
     maxSearches: integer("POPULATE_MAX_SEARCHES", 8, 1, 10),
+    // Populate allows more searches per company than a nightly run, so its per-company cap is larger too.
+    maxCostPerAccountUsd: decimal("POPULATE_MAX_COST_PER_ACCOUNT_USD", 0.4, 0.001),
     accountLimit: integer("POPULATE_ACCOUNT_LIMIT", 2000, 1, 2000),
     budgetUsd: decimal("POPULATE_RUN_BUDGET_USD", 150, 0.01),
   };

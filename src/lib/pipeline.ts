@@ -11,6 +11,7 @@ import { matchPerson } from "./apollo.ts";
 import { classifyResearchError, ResearchError, researchPreflight } from "./research-errors.ts";
 import { priorityBand, selectResearchBatch } from "./research-rotation.ts";
 import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, researchCooldownMs, runBudgetUsd, STALE_HEARTBEAT_MS, timeBudgetMs } from "./run-config.ts";
+import { researchBudget, withBudget } from "./anthropic-cost.ts";
 import { countRows, loadRunSummary, RESEARCH_SOURCES, type RunSummary } from "./run-status.ts";
 import { ARCHIVE_THRESHOLD, CARD_THRESHOLD, score, strength } from "./scoring.ts";
 import { recomputeAccountIntel } from "./account-intel.ts";
@@ -197,9 +198,12 @@ export type AccountOutcome = {
  * Research one company. Never stamps last_scouted_at itself; the caller does
  * that on success only, so a failed company stays eligible for retry.
  */
-export async function processAccount(account: Account, options: { maxSearches?: number } = {}): Promise<AccountOutcome> {
+export async function processAccount(account: Account, options: { maxSearches?: number; maxCostUsd?: number; onCost?: (costUsd: number) => void } = {}): Promise<AccountOutcome> {
   const outcome: AccountOutcome = { signalsFound: 0, signalsKept: 0, signalsNew: 0, cardsCreated: 0, costUsd: 0, model: null };
-  const recordCost = (costUsd: number) => { outcome.costUsd += costUsd; };
+  // One allowance for every call made for this company. onCost reports spend as it happens so the run
+  // still counts it when the company fails part way.
+  const budget = researchBudget(options.maxSearches ?? Number(process.env.ANTHROPIC_MAX_SEARCHES_PER_COMPANY ?? 3), options.maxCostUsd ?? maxCostPerAccountUsd());
+  const recordCost = withBudget((costUsd: number) => { outcome.costUsd += costUsd; options.onCost?.(costUsd); }, budget);
   const context = targetAccountByDomain.get(account.domain);
   const found = await scout({
     ...account,
@@ -211,7 +215,7 @@ export async function processAccount(account: Account, options: { maxSearches?: 
       revenueBand: context.revenueBand,
       subSegment: context.subSegment,
     } : undefined,
-  }, recordCost, { maxSearches: options.maxSearches });
+  }, recordCost, { maxSearches: budget.searchesLeft });
   outcome.signalsFound = found.found;
   outcome.signalsKept = found.kept;
   outcome.model = found.model;
@@ -553,10 +557,10 @@ export async function runNightly(options: RunNightlyOptions): Promise<RunNightly
     const { data: account } = await db.from("accounts").select("*").eq("id", next.account_id).maybeSingle();
     const rowStart = clock();
     let update: Record<string, unknown>;
+    let accountCost = 0;
     try {
       if (!account) throw new ResearchError("db_error", `Account ${next.domain} no longer exists.`);
-      const outcome = await processAccount(account as Account, { maxSearches: populate?.maxSearches });
-      invocationCost += outcome.costUsd;
+      const outcome = await processAccount(account as Account, { maxSearches: populate?.maxSearches, maxCostUsd: populate?.maxCostPerAccountUsd, onCost: (cost) => { accountCost += cost; } });
       const { error: stampError } = await db.from("accounts").update({ last_scouted_at: new Date(clock()).toISOString() }).eq("id", account.id);
       if (stampError) throw stampError;
       update = {
@@ -573,8 +577,11 @@ export async function runNightly(options: RunNightlyOptions): Promise<RunNightly
     } catch (error) {
       const classified = classifyResearchError(error);
       console.error(`[night-watch] research failed for ${next.domain} (${classified.code}): ${classified.message}`);
-      update = { status: "error", error_code: classified.code, error_message: classified.message };
+      // A company that fails after the scout still spent money. Record it on the row and count it against
+      // the run budget, or failing companies are free as far as the budget can tell.
+      update = { status: "error", error_code: classified.code, error_message: classified.message, cost_usd: Number(accountCost.toFixed(6)) };
     }
+    invocationCost += accountCost;
     const finishedAt = clock();
     await db.from("run_accounts").update({ ...update, finished_at: new Date(finishedAt).toISOString(), duration_ms: finishedAt - rowStart }).eq("id", next.id);
     processed += 1;

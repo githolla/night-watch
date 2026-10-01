@@ -1,7 +1,7 @@
 import { gmailSendRequest } from './delivery-state.ts';
 import { emailMime } from "./email-mime.ts";
 import { emailStyle } from "./email-style.ts";
-import { decrypt } from "./crypto.ts";import { admin } from "./supabase/admin.ts";import type { Owner } from "./types.ts";
+import { decrypt, encrypt } from "./crypto.ts";import { admin } from "./supabase/admin.ts";import type { Owner } from "./types.ts";
 // Trim every value: credentials pasted into a dashboard often carry a stray newline or space,
 // which Google rejects as invalid_client / redirect_uri_mismatch. Never send that whitespace.
 function config(){return {client_id:(process.env.GOOGLE_CLIENT_ID??"").trim(),client_secret:(process.env.GOOGLE_CLIENT_SECRET??"").trim(),redirect_uri:(process.env.GOOGLE_REDIRECT_URI??"").trim()}}
@@ -9,6 +9,11 @@ function config(){return {client_id:(process.env.GOOGLE_CLIENT_ID??"").trim(),cl
 export const GOOGLE_SCOPES="openid email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar";
 /** Short-lived cookie that binds an OAuth handshake to the browser that began it (CSRF nonce). */
 export const OAUTH_STATE_COOKIE="gmail_oauth_state";
+export type OAuthHandshake={nonce:string;owner:Owner;uid:string};
+const HANDSHAKE_MS=10*60_000;
+/** The state cookie's value: who began the handshake, for which seat, and its nonce, sealed with AES-GCM. */
+export function oauthStateCookie(handshake:OAuthHandshake){return encrypt(JSON.stringify({...handshake,exp:Date.now()+HANDSHAKE_MS}))}
+export function readOAuthStateCookie(value:string):OAuthHandshake|null{try{const parsed=JSON.parse(decrypt(value)) as Partial<OAuthHandshake>&{exp?:number};if(!parsed.nonce||!parsed.uid||(parsed.owner!=="josh"&&parsed.owner!=="jenna")||!parsed.exp||parsed.exp<Date.now())return null;return {nonce:parsed.nonce,owner:parsed.owner,uid:parsed.uid}}catch{return null}}
 export function oauthUrl(owner:Owner,nonce?:string){const {client_id,redirect_uri}=config();const state=nonce?`${owner}.${nonce}`:owner;const q=new URLSearchParams({client_id,redirect_uri,response_type:"code",scope:GOOGLE_SCOPES,access_type:"offline",prompt:"select_account consent",include_granted_scopes:"true",state});return `https://accounts.google.com/o/oauth2/v2/auth?${q}`}
 export async function exchangeCode(code:string){const response=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:new URLSearchParams({...config(),code,grant_type:"authorization_code"})});if(!response.ok)throw new Error("Google OAuth exchange failed");return response.json() as Promise<{access_token:string;refresh_token:string;scope:string}>}
 // The email address of the account that just authorized, so we store the real sender rather than a guessed one.

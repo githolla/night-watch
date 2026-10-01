@@ -34,7 +34,10 @@ function zoneOffsetMs(date:Date,timeZone:string):number{
   try{
     const parts=new Intl.DateTimeFormat("en-US",{timeZone,hour12:false,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"}).formatToParts(date);
     const get=(type:string)=>Number(parts.find((part)=>part.type===type)?.value??"0");
-    return Date.UTC(get("year"),get("month")-1,get("day"),get("hour")%24,get("minute"),get("second"))-date.getTime();
+    // formatToParts has whole-second precision, so compare against the whole second too. Subtracting the
+    // exact time leaked the milliseconds into "midnight", giving every call a different day start and
+    // therefore a different quota slot id, which let concurrent sends past the daily cap.
+    return Date.UTC(get("year"),get("month")-1,get("day"),get("hour")%24,get("minute"),get("second"))-Math.floor(date.getTime()/1000)*1000;
   }catch{return 0} // an unknown zone falls back to UTC rather than throwing mid-send
 }
 /** Hard guards on an outbound email. `requireVerified` is on for automated (cadence) sends — no human is

@@ -1,4 +1,4 @@
-import { SESSION_COOKIE, validSharedSession } from "@/lib/shared-auth";
+import { SESSION_COOKIE } from "@/lib/shared-auth";
 import { readSession } from "@/lib/session";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -6,11 +6,10 @@ function isPublicPath(pathname: string) {
   return /^\/gift\/[a-f0-9]{32}$/.test(pathname) || pathname === "/api/gift-view" || pathname === "/api/email-open" || pathname === "/setup" || pathname === "/api/health" || pathname.startsWith("/invite/") || pathname.startsWith("/api/auth/") || pathname.startsWith("/api/cron/") || pathname.startsWith("/api/slack/") || pathname.startsWith("/api/gmail/callback") || pathname.startsWith("/api/unsubscribe") || /\.[a-z0-9]+$/i.test(pathname);
 }
 
-/** Per-user and bootstrap-admin logins issue an AES-GCM session (readSession); legacy shared-password
- *  cookies are HMAC tokens (validSharedSession). The gate must accept either, or every real login loops
- *  back to /login because the freshly-issued cookie isn't recognised here. */
+/** Per-user and bootstrap-admin logins issue an AES-GCM session (readSession). This gate only checks the
+ *  cookie decrypts and is unexpired; revocation and password changes are checked by the route guards. */
 function isAuthenticated(token: string | undefined) {
-  return Boolean(readSession(token)) || validSharedSession(token);
+  return Boolean(readSession(token));
 }
 
 export function proxy(request: NextRequest) {

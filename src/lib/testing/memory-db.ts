@@ -4,7 +4,7 @@ export function memoryDb(seed:Record<string,Row[]>={}){
  const tables=structuredClone(seed);let tick=0;
  const failures:Array<{table:string;op:string}> = [];
  function from(table:string){
-  let op='select',payload:Row|Row[]={},single=false,head=false,count=false,ignore=false;
+  let op='select',payload:Row|Row[]={},single=false,head=false,count=false,ignore=false,max=Infinity;
   const filters:Array<(r:Row)=>boolean>=[];
   const q={
    select(_columns?:string,opts?:{head?:boolean;count?:string}){head=!!opts?.head;count=!!opts?.count;return q},
@@ -16,11 +16,13 @@ export function memoryDb(seed:Record<string,Row[]>={}){
    in(key:string,value:unknown[]){filters.push(r=>value.includes(r[key]));return q},
    is(key:string,value:unknown){filters.push(r=>(r[key]??null)===value);return q},
    lte(key:string,value:string){filters.push(r=>String(r[key])<=value);return q},
+   not(key:string,operator:string,value:unknown){filters.push(r=>operator==='is'?(r[key]??null)!==value:r[key]!==value);return q},
+   limit(n:number){max=n;return q},
    single(){single=true;return q},maybeSingle(){single=true;return q},
    then(resolve:(r:{data:Row[]|Row|null;error:{code:string;message:string}|null;count?:number})=>unknown){
     const f=failures.findIndex(f=>f.table===table&&f.op===op);
     if(f>=0){failures.splice(f,1);return Promise.resolve(resolve({data:null,error:{code:'FAIL',message:'Injected failure'}}));}
-    const rows=tables[table]??(tables[table]=[]);let result=rows.filter(r=>filters.every(fn=>fn(r)));
+    const rows=tables[table]??(tables[table]=[]);let result=rows.filter(r=>filters.every(fn=>fn(r))).slice(0,max);
     if(op==='insert'){
      result=[];
      for(const value of Array.isArray(payload)?payload:[payload]){

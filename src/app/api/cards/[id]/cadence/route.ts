@@ -1,5 +1,6 @@
 import { enrollCadence, CadenceExists } from "@/lib/cadence-enrollment";
-import { assertListSender } from "@/lib/focus-data";
+import { assertCardSender } from "@/lib/focus-data";
+import { checkRecipient, recipientAllowed, recordRecipientCheck, type RecipientPerson } from "@/lib/recipient-verification";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { z } from "zod";
@@ -10,12 +11,18 @@ const cadenceInput=z.object({mode:z.enum(["manual","automatic"]),stopOnReply:z.b
 export async function POST(request:Request,context:{params:Promise<{id:string}>}){
   try{
     const user=await requireUser();const {id}=await context.params,input=cadenceInput.parse(await request.json()),db=admin();
-    const {data:card}=await db.from("cards").select("id,person_id,assigned_to,people(email_status,do_not_contact),accounts(status,domain)").eq("id",id).single();
+    const {data:card}=await db.from("cards").select("id,person_id,account_id,assigned_to,people(id,full_name,email,email_status,email_source,email_verified_at,email_check,do_not_contact),accounts(status,domain)").eq("id",id).single();
     if(!card)throw new Error("Card not found");
-    assertListSender((card.accounts as unknown as {domain:string} | null)?.domain,user.owner);
-    const person=card.people as unknown as {email_status:string;do_not_contact:boolean},account=card.accounts as unknown as {status:string};
+    assertCardSender((card.accounts as unknown as {domain:string} | null)?.domain,card.assigned_to,user.owner);
+    const person=card.people as unknown as RecipientPerson&{do_not_contact:boolean},account=card.accounts as unknown as {status:string;domain:string};
     if(person.do_not_contact||["client","do_not_contact"].includes(account.status))throw new Error("Do-not-contact guard blocked this cadence");
-    if(input.mode==="automatic"&&input.steps.some(item=>item.channel==="email")&&person.email_status!=="verified")throw new Error("Automatic email requires a verified address");
+    // Automatic email goes out with no click per message, so the address must be known good now, the same
+    // rule the cron applies at send time. Asking here gives the answer while the sender is still looking.
+    if(input.mode==="automatic"&&input.steps.some(item=>item.channel==="email")){
+      const check=await checkRecipient(db,person,{id:card.account_id,domain:account.domain});
+      await recordRecipientCheck(db,person,check);
+      if(!recipientAllowed(check,true))throw new Error(`Automatic email needs a confirmed address. ${check.reason}${check.suggestion?` Try ${check.suggestion}.`:""} Use manual mode to send it by hand.`);
+    }
     // Validate time zone and compute all dates before creating a database record.
     const activated=new Date(),rows=input.steps.map((item,index)=>({step_number:index+1,channel:item.channel,kind:item.channel==="email"&&input.mode==="automatic"?"automatic":"review",title:item.title,detail:item.detail,subject:item.subject??null,body:item.body??null,status:"pending",scheduled_at:schedule(activated,item.day,input.weekdaysOnly,input.timeZone)}));
     const cadence=await enrollCadence(db,{cardId:id,personId:card.person_id,owner:user.owner,mode:input.mode,rules:{stop_on_reply:input.stopOnReply,weekdays_only:input.weekdaysOnly,send_window:input.sendWindow,time_zone:input.timeZone},steps:rows});

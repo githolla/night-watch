@@ -34,6 +34,13 @@ export function validSharedPassword(candidate: string) {
   return password !== null && safeEqual(candidate, password);
 }
 
+/** Short digest of the current shared password. Shared-password sessions carry it, so rotating
+ *  SHARED_PASSWORD signs every one of them out. */
+export function sharedPasswordFingerprint(): string | null {
+  const password = configuredPassword();
+  return password === null ? null : createHmac("sha256", "night-watch-shared-password-v1").update(password).digest("base64url").slice(0, 16);
+}
+
 export function sharedSessionToken(): string | null {
   const key = signingKey();
   return key === null ? null : createHmac("sha256", key).update("night-watch-shared-session-v1").digest("base64url");

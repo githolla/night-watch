@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth";
+import { adminGate } from "@/lib/auth";
 import { runNightly } from "@/lib/pipeline";
 import { classifyResearchError } from "@/lib/research-errors";
 import { nightlyBatchSize } from "@/lib/run-config";
@@ -14,8 +14,9 @@ type Body = { runId?: string; accountIds?: string[]; limit?: number; populate?: 
  * run closes, polling GET /api/nightly/run/[runId] for live rows meanwhile.
  */
 export async function POST(request: Request) {
+  const denied = await adminGate();
+  if (denied) return denied;
   try {
-    await requireUser();
     const body = (await request.json().catch(() => ({}))) as Body;
     const accountIds = Array.isArray(body.accountIds) ? body.accountIds.filter((id): id is string => typeof id === "string") : undefined;
     const result = await runNightly({

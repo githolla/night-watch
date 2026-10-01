@@ -1,24 +1,24 @@
 import { ACTING_COOKIE, actingTarget } from "./acting-session.ts";
 import { timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
-import { SESSION_COOKIE, validSharedSession } from "./shared-auth.ts";
+import { SESSION_COOKIE } from "./shared-auth.ts";
 import { readSession } from "./session.ts";
+import { sessionRevoked } from "./session-revocation.ts";
 import { bootstrapAdmin, loadUser, type AppUser } from "./users.ts";
 
 /** The signed-in user for this request. Resolves a per-user session first, then honours the shared-password
- *  (or legacy) session as the bootstrap admin so the workspace is never locked out. Throws when unauthenticated. */
+ *  session as the bootstrap admin so the workspace is never locked out. Throws when unauthenticated, when the
+ *  token was signed out, or when the user's password changed after it was issued. The legacy fixed HMAC
+ *  cookie is no longer accepted: one value shared by everyone can never be revoked. */
 export async function requireActualUser(): Promise<AppUser> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   const session = readSession(token);
-  if (session) {
+  if (session && !(await sessionRevoked(session))) {
     if (session.uid) {
       const user = await loadUser(session.uid);
-      if (user) return user;
-    }
-    if (session.boot) return bootstrapAdmin();
+      if (user && (user.sessionVersion === undefined || user.sessionVersion === session.sv)) return user;
+    } else if (session.boot) return bootstrapAdmin();
   }
-  // Legacy shared-session cookies (issued before per-user auth) keep working as the bootstrap admin.
-  if (validSharedSession(token)) return bootstrapAdmin();
   throw new Error("Unauthorized");
 }
 
@@ -35,6 +35,14 @@ export async function requireAdmin(): Promise<AppUser> {
   const user = await requireActualUser();
   if (user.role !== "admin") throw new Error("Admins only");
   return user;
+}
+
+/** For routes whose catch blocks map every error to a 500: answer 401/403 up front, or null to proceed. */
+export async function adminGate(): Promise<Response | null> {
+  const user = await requireActualUser().catch(() => null);
+  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (user.role !== "admin") return Response.json({ error: "Only an admin can start research or bulk changes. They spend the model budget or rewrite every draft." }, { status: 403 });
+  return null;
 }
 
 export function cronAuthorized(request: Request) {

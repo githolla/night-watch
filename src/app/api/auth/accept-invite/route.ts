@@ -1,5 +1,6 @@
 import { SESSION_COOKIE } from "@/lib/shared-auth";
 import { issueSession, SESSION_MAX_AGE } from "@/lib/session";
+import { loadUser } from "@/lib/users";
 import { hashPassword } from "@/lib/passwords";
 import { admin } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
     await db.from("app_users").update({ password_hash: hashPassword(password), invite_token: null, invite_expires_at: null, last_login_at: new Date().toISOString() }).eq("id", user.id);
     // Sign them straight in.
     const response = NextResponse.json({ ok: true });
-    response.cookies.set(SESSION_COOKIE, issueSession(user.id as string), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: SESSION_MAX_AGE, priority: "high" });
+    response.cookies.set(SESSION_COOKIE, issueSession(user.id as string, false, (await loadUser(user.id as string))?.sessionVersion ?? 0), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: SESSION_MAX_AGE, priority: "high" });
     return response;
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Could not accept the invite" }, { status: 400 });
