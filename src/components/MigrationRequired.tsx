@@ -1,12 +1,10 @@
 import { CopyButton } from "./CopyButton";
-import { Header } from "./Header";
 import type { PendingMigration } from "@/lib/schema-check";
 
 /** Shown instead of a page when the database has not applied a migration the code needs. */
 export function MigrationRequired({ pending }: { pending: PendingMigration[] }) {
   return (
     <div className="shell">
-      <Header />
       <main className="targets-page">
         <section className="targets-head has-hero">
           <div>

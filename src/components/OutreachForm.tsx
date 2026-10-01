@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { OUTREACH_STAGES, type OutreachStage } from "@/lib/outreach";
-import { TIER_LABEL, type TargetTier } from "@/lib/target-accounts";
+import { TIER_LABEL } from "@/lib/tier-labels";
+import type { TargetTier } from "@/lib/target-accounts";
 
 /** Who works this company, where it stands, and whether it is on the reach-out list at all. */
 export function OutreachForm({ accountId, tier, outreach, manual, stage, owner, notes, owners, compact = false }: { compact?: boolean; accountId: string; tier: TargetTier | string | null; outreach: boolean; manual: boolean | null; stage: OutreachStage; owner: string; notes: string; owners: string[] }) {

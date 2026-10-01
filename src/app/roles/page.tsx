@@ -2,7 +2,6 @@ import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { FilterForm } from "@/components/FilterForm";
-import { Header } from "@/components/Header";
 import { RowLink } from "@/components/RowLink";
 import { requireUser } from "@/lib/auth";
 import { FAMILY_LABEL, type JobFamily } from "@/lib/job-sweep/classify";
@@ -24,9 +23,11 @@ const pageSize = 100;
 /** Every open role the sweep has found in a target family, across the whole list. */
 export default async function RolesPage({ searchParams }: { searchParams: Promise<Params> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   await requireUser();
   {
-    const pending = await pendingMigrations(admin());
+    const pending = await schemaCheck;
     if (pending.length) return <MigrationRequired pending={pending} />;
   }
   const params = await searchParams;
@@ -72,7 +73,6 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
   };
 
   return <div className="shell">
-    <Header />
     <main className="targets-page">
       <header className="page-head briefing-head">
         <div><span className="overview-kick">Open roles</span><h1>Job signals</h1><p>Jobs at the target companies that Nine-67 could build a system for instead of the hire · {(familyRows?.length ?? 0).toLocaleString()} open in target families.</p></div>

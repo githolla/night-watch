@@ -17,10 +17,10 @@ test('active revenue focus is supported and excludes the superseded enterprise s
     assert.ok(row.revenue.usdMillions >= 10 && row.revenue.usdMillions <= 100);
     assert.ok(row.revenue.sourceUrl.startsWith('https://'));
     assert.match(row.fit, new RegExp(row.revenue.status));
-    assert.ok(curatedDomains.includes(row.domain));
+    assert.ok(curatedDomains().includes(row.domain));
     assert.equal(accountBrief(row.domain)?.contacts.length, row.contacts.length);
   }
-  for (const domain of ['shure.com', 'gwelectric.com', 'thrivemarket.com', 'quantiphi.com']) assert.ok(!curatedDomains.includes(domain));
+  for (const domain of ['shure.com', 'gwelectric.com', 'thrivemarket.com', 'quantiphi.com']) assert.ok(!curatedDomains().includes(domain));
 });
 test('each researched colleague has their own draft and the active sender ending', () => {
   const messages = new Set<string>();

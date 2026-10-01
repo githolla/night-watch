@@ -6,13 +6,13 @@ import { outreachFooterHtml, senderFirstName } from "@/lib/outreach-ending";
 import { recipientResearch } from "@/lib/recipient-research";
 import { createHash } from "node:crypto";
 import { reachoutList } from "@/lib/focus-data";
+import { researchSlice } from "@/lib/research-data/slice";
 import { batchProgress, selectedBatch } from "@/lib/reachout-batches";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
 import { Desk, type DeskContext } from "@/components/Desk";
 import { ScanControl } from "@/components/ScanControl";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
-import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { RewriteDrafts } from "@/components/RewriteDrafts";
 import { ToolDrawer } from "@/components/ToolDrawer";
@@ -85,10 +85,12 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) {
     redirect("/setup");
   }
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   const me = await requireUser();
   const requestedList = reachoutList(params.list, me.owner);
   {
-    const pending = await pendingMigrations(admin());
+    const pending = await schemaCheck;
     if (pending.length) return <MigrationRequired pending={pending} />;
   }
   // Read saved drafts immediately. Repair runs in the research/refresh pipeline,
@@ -96,7 +98,13 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   const db = admin();
   // Populate the selected companies into the original editor once. Existing
   // drafts, sent records, and contact restrictions remain untouched.
-  const existing = await db.from("cards").select("status,assigned_to,dismiss_reason,score_breakdown,signals!inner(hash),people(full_name),touches(sent_at,sent_by)").like("signals.hash", "operator-shortlist-20260923:%");
+  // These three do not depend on each other (the sender is the list's seat, which the batch does not
+  // change), so they share one round trip instead of three.
+  const [existing, sender, { data: seatRows }] = await Promise.all([
+    db.from("cards").select("status,assigned_to,dismiss_reason,score_breakdown,signals!inner(hash),people(full_name),touches(sent_at,sent_by)").like("signals.hash", "operator-shortlist-20260923:%"),
+    senderProfile(db, requestedList.owner),
+    db.from("sender_profiles").select("owner,from_name"),
+  ]);
   if (existing.error) throw existing.error;
   const progress = batchProgress(requestedList.owner, (existing.data ?? []).map(row => ({
     domain: (row.signals as unknown as { hash: string }).hash.split(":")[1],
@@ -113,7 +121,6 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     return !wasAutomaticallyArchived(row) && Boolean(recipientResearch(hash.split(":")[1], person?.full_name));
   }).map(row => (row.signals as unknown as { hash: string }).hash));
   const missing = curatedDomains.filter(domain => !prepared.has(`operator-shortlist-20260923:${domain}`));
-  const sender = await senderProfile(db, selectedList.owner);
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = daysAgoIso(1);
 
@@ -197,7 +204,6 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   // Seat → the name that seat sends as, so the worklist says "Suuchi Ramesh" rather than the internal slug
   // "jenna". History already did this; the worklist and the dossier were still showing the raw seat, which
   // is the kind of thing a person notices immediately when it is their own prospect list.
-  const { data: seatRows } = await admin().from("sender_profiles").select("owner,from_name");
   const seatNames: Record<string, string> = {};
   for (const row of (seatRows ?? []) as Array<{ owner: string; from_name: string | null }>) {
     if (row.from_name?.trim()) seatNames[row.owner] = row.from_name.trim();
@@ -248,15 +254,13 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   if (cardIds.length) {
     // Carry the person the cadence is for. A cadence belongs to one contact, not to the whole company, and
     // without their name the desk showed "Hi Asif," under whichever colleague happened to be selected.
-    const { data: cads } = await db.from("cadences").select("id,card_id,person_id,people(full_name)").in("card_id", cardIds).eq("status", "active");
-    const cadToCard = new Map((cads ?? []).map((row) => [row.id as string, {
-      cardId: row.card_id as string,
-      personId: (row.person_id as string) ?? "",
-      personName: ((row.people as unknown as { full_name?: string } | null)?.full_name) ?? "",
-    }]));
-    const cadIds = [...cadToCard.keys()];
-    if (cadIds.length) {
-      const { data: steps } = await db.from("cadence_steps").select("id,step_number,channel,title,detail,subject,body,status,scheduled_at,cadence_id").in("cadence_id", cadIds).order("step_number");
+    // Steps and their cadence in one query (the cadence embedded), not cadences first and steps after.
+    const { data: steps } = await db.from("cadence_steps").select("id,step_number,channel,title,detail,subject,body,status,scheduled_at,cadence_id,cadences!inner(card_id,person_id,status,people(full_name))").in("cadences.card_id", cardIds).eq("cadences.status", "active").order("step_number");
+    const cadToCard = new Map((steps ?? []).map((step) => {
+      const cadence = step.cadences as unknown as { card_id: string; person_id: string | null; people: { full_name?: string } | null };
+      return [step.cadence_id as string, { cardId: cadence.card_id, personId: cadence.person_id ?? "", personName: cadence.people?.full_name ?? "" }];
+    }));
+    {
       for (const step of steps ?? []) {
         const owner = cadToCard.get(step.cadence_id as string);
         if (!owner) continue;
@@ -288,11 +292,11 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="shell">
-      <Header />
       <ReachoutListNavigation owner={selectedList.id} batch={selectedList.sequence} />
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
       {missing.length > 0 && <BatchPreparation domains={missing} />}
       <Desk
+        researchSlice={researchSlice(cards.map((card) => card.accounts.domain as string | null))}
         initialBrowse={params.source === "overview"}
         key={`${me.owner}:${selectedList.id}:${selectedList.sequence}`}
         batchSequence={selectedList.sequence}

@@ -1,5 +1,4 @@
 "use client";
-import { Header } from "@/components/Header";
 
 /**
  * Production redacts server-side error messages (React error #441 is the
@@ -9,7 +8,7 @@ import { Header } from "@/components/Header";
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const redacted = /Server Components render|#441/.test(error.message);
   return (
-    <><Header showTour={false} /><main className="login">
+    <><main className="login">
       <div className="login-card">
         <div className="eyebrow">Night Watch</div>
         <h1>Something went wrong.</h1>

@@ -2,7 +2,7 @@ import { allFocus as curatedDrafts } from "./focus-data.ts";
 import { domainKey } from "./recipient-research.ts";
 
 export type ReachoutSort = "revenue-desc" | "revenue-asc" | "name" | "verified";
-export const focusedAccount = (domain?: string | null) => curatedDrafts.find(row => domain && domainKey(row.domain) === domainKey(domain));
+export const focusedAccount = (domain?: string | null) => curatedDrafts().find(row => domain && domainKey(row.domain) === domainKey(domain));
 export const revenueLabel = (domain?: string | null) => {
   const revenue = focusedAccount(domain)?.revenue.usdMillions;
   return revenue == null ? null : `$${Number(revenue.toFixed(1))}M`;

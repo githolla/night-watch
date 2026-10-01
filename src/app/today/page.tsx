@@ -1,7 +1,6 @@
 import { Dashboard, type DashboardData } from "@/components/Dashboard";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
-import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { PRIORITY_THRESHOLD, CARD_THRESHOLD } from "@/lib/scoring";
@@ -13,9 +12,11 @@ export default async function Overview() {
     !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)
   )
     redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   await requireUser();
   {
-    const pending = await pendingMigrations(admin());
+    const pending = await schemaCheck;
     if (pending.length) return <MigrationRequired pending={pending} />;
   }
   const db = admin(),
@@ -143,7 +144,6 @@ export default async function Overview() {
   };
   return (
     <div className="shell">
-      <Header />
       <Dashboard data={data} cards={priority} />
     </div>
   );

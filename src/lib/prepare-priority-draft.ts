@@ -10,7 +10,7 @@ import { focusedContacts, publishedEmailPatch } from "./focused-contact.ts";
 
 /** Prepare saved worklist data without sending or replacing existing drafts. */
 export async function preparePriorityDraft(domain: string, me: AppUser, db = admin()) {
-    const selected = curatedDrafts.find(row => domainKey(row.domain) === domainKey(domain));
+    const selected = curatedDrafts().find(row => domainKey(row.domain) === domainKey(domain));
     if (!selected?.buyer.name) return Response.json({ error: "Choose a selected company with a verified buyer." }, { status: 400 });
     const owner = batchOwner(selected.domain);
     // Either teammate may open the list first. Seed it for its assigned owner, not its viewer.

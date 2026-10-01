@@ -50,7 +50,7 @@ test("sessions carry an id and version; shared-password sessions die when the pa
 test("non-list cards may only be sent by their assigned owner; list cards follow the list", () => {
   assert.throws(() => assertCardSender("acme.test", "josh", "jenna"), /assigned to Josh/);
   assert.doesNotThrow(() => assertCardSender("acme.test", "jenna", "jenna"));
-  const listRow = batchFocus[0];
+  const listRow = batchFocus()[0];
   const owner = batchOwner(listRow.domain)!;
   const other = owner === "josh" ? "jenna" : "josh";
   assert.doesNotThrow(() => assertCardSender(listRow.domain, other, owner), "the list owner sends even if assigned_to disagrees");

@@ -1,6 +1,7 @@
 import { ACTING_COOKIE, actingTarget } from "./acting-session.ts";
 import { timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { SESSION_COOKIE } from "./shared-auth.ts";
 import { readSession } from "./session.ts";
 import { sessionRevoked } from "./session-revocation.ts";
@@ -10,26 +11,30 @@ import { bootstrapAdmin, loadUser, type AppUser } from "./users.ts";
  *  session as the bootstrap admin so the workspace is never locked out. Throws when unauthenticated, when the
  *  token was signed out, or when the user's password changed after it was issued. The legacy fixed HMAC
  *  cookie is no longer accepted: one value shared by everyone can never be revoked. */
-export async function requireActualUser(): Promise<AppUser> {
+// cache(): several server components on one page share a single lookup. The revocation check and the user
+// load are independent, so they run together instead of costing two database round trips in a row.
+export const requireActualUser = cache(async (): Promise<AppUser> => {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   const session = readSession(token);
-  if (session && !(await sessionRevoked(session))) {
-    if (session.uid) {
-      const user = await loadUser(session.uid);
-      if (user && (user.sessionVersion === undefined || user.sessionVersion === session.sv)) return user;
-    } else if (session.boot) return bootstrapAdmin();
+  if (session) {
+    const [revoked, user] = await Promise.all([sessionRevoked(session), session.uid ? loadUser(session.uid) : Promise.resolve(null)]);
+    if (!revoked) {
+      if (session.uid) {
+        if (user && (user.sessionVersion === undefined || user.sessionVersion === session.sv)) return user;
+      } else if (session.boot) return bootstrapAdmin();
+    }
   }
   throw new Error("Unauthorized");
-}
+});
 
-export async function requireUser(): Promise<AppUser> {
+export const requireUser = cache(async (): Promise<AppUser> => {
   const actual = await requireActualUser();
   const token = (await cookies()).get(ACTING_COOKIE)?.value;
   if (!token) return actual;
   const target = await loadUser(actingTarget(token, actual));
   if (!target) throw new Error("Act-as account unavailable. Exit admin mode.");
   return { ...target, actor: { id: actual.id, name: actual.name, email: actual.email } };
-}
+});
 
 export async function requireAdmin(): Promise<AppUser> {
   const user = await requireActualUser();

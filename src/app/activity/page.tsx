@@ -4,7 +4,6 @@ import { firstOpenAt } from "@/lib/open-tracking";
 import { ActivityView, type ActivityEvent } from "@/components/ActivityView";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
-import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
@@ -35,8 +34,10 @@ export default async function Activity({ searchParams }: { searchParams: Promise
     !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)
   )
     redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   const me = await requireUser();
-  const pending = await pendingMigrations(admin());
+  const pending = await schemaCheck;
   if (pending.length) return <MigrationRequired pending={pending} />;
 
   const params = await searchParams;
@@ -48,18 +49,20 @@ export default async function Activity({ searchParams }: { searchParams: Promise
     .order("created_at", { ascending: false })
     .limit(1000);
   if (personId) query = query.eq("person_id", personId);
-  const { data, error } = await query;
-  const { count: totalTouches } = await db.from("touches").select("*", { count: "exact", head: true });
-
+  // Four independent reads: one round trip, not four in a row.
   // Seat → display name, so History shows "Sent by Josh / Suuchi" rather than the raw seat slug.
-  const { data: profileRows } = await db.from("sender_profiles").select("owner,from_name");
+  // Cards currently enrolled in a cadence, so History can flag/filter "in cadence" sends.
+  const [{ data, error }, { count: totalTouches }, { data: profileRows }, { data: cadenceRows }] = await Promise.all([
+    query,
+    db.from("touches").select("*", { count: "exact", head: true }),
+    db.from("sender_profiles").select("owner,from_name"),
+    db.from("cadences").select("card_id").eq("status", "active"),
+  ]);
   const seatName: Record<string, string> = {};
   for (const row of (profileRows ?? []) as Array<{ owner: string; from_name: string | null }>)
     if (row.from_name?.trim()) seatName[row.owner] = row.from_name.trim();
   const senderLabel = (owner: string) => seatName[owner] || (owner ? owner.charAt(0).toUpperCase() + owner.slice(1) : "Unknown");
 
-  // Cards currently enrolled in a cadence, so History can flag/filter "in cadence" sends.
-  const { data: cadenceRows } = await db.from("cadences").select("card_id").eq("status", "active");
   const cadenceCards = new Set((cadenceRows ?? []).map((row) => (row as { card_id: string }).card_id));
   const note = error
     ? `Couldn't load history: ${error.message}`
@@ -102,7 +105,6 @@ export default async function Activity({ searchParams }: { searchParams: Promise
 
   return (
     <div className="shell">
-      <Header />
       <ActivityView events={events} who={who} note={note} canDelete={me.role === "admin"} />
     </div>
   );

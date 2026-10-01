@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { curatedDrafts } from "./curated-worklist.ts";
 import { sortReachouts, revenueLabel, reachoutPool } from "./reachout-sort.ts";
 
-const cards = curatedDrafts.map(row => ({ accounts: { name: row.company, domain: row.domain }, people: { email_status: "unverified" } }));
+const cards = curatedDrafts().map(row => ({ accounts: { name: row.company, domain: row.domain }, people: { email_status: "unverified" } }));
 test("revenue sorting uses numeric revenue, not fit score or publication status", () => {
   const original = JSON.stringify(cards);
   const descending = sortReachouts(cards, "revenue-desc");

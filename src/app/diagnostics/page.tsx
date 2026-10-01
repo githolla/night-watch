@@ -1,5 +1,4 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { researchModel, searchModel } from "@/lib/models";
 import { redirect } from "next/navigation";
@@ -59,7 +58,6 @@ export default async function DiagnosticsPage() {
   ]);
 
   return <div className="shell">
-    <Header />
     <main className="targets-page">
       <section className="targets-head"><div><span className="eyebrow">Diagnostics</span><h1>What the API key can actually do</h1><p>Live calls to the Anthropic API with this deployment&apos;s key. Each row is a real request; the detail is the raw success or error. Screenshot this page.</p></div></section>
       {!key && <p className="notice error">ANTHROPIC_API_KEY is not set on this deployment.</p>}

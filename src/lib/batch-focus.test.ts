@@ -14,15 +14,15 @@ test('each sender gets 25 unique new companies, with the legacy Suuchi seat mapp
   assert.deepEqual(suuchi, focusForOwner('suuchi'));
   assert.deepEqual(focusForOwner('unknown'), []);
   assert.equal(new Set([...josh, ...suuchi].map(r => r.domain)).size, 50);
-  for (const row of batchFocus) {
-    assert.ok(!originalFocus.some(old => old.domain === row.domain));
+  for (const row of batchFocus()) {
+    assert.ok(!originalFocus().some(old => old.domain === row.domain));
     assert.equal(batchOwner(row.domain), row.assignedOwner === 'josh' ? 'josh' : 'jenna');
     assert.ok(recipientResearch(row.domain, row.buyer.name));
     assert.equal(focusedContacts(row.domain).length, 1);
   }
 });
 test('all new contacts have three usable, sender-personalized email and LinkedIn choices', () => {
-  for (const row of batchFocus) {
+  for (const row of batchFocus()) {
     const sender = row.assignedOwner === 'josh' ? 'Josh' : 'Suuchi';
     for (const channel of ['email', 'linkedin'] as const) {
       const variants = savedVariants(row.domain, row.buyer.name, channel);
@@ -41,7 +41,7 @@ test('all new contacts have three usable, sender-personalized email and LinkedIn
   }
 });
 test('new addresses stay unverified and protected existing addresses are untouched', () => {
-  for (const row of batchFocus) {
+  for (const row of batchFocus()) {
     const patch = publishedEmailPatch(row.domain, row.buyer.name, { email: null });
     assert.equal(patch.email, row.buyer.email, row.domain);
     assert.equal(patch.email_status, 'unverified');
@@ -73,7 +73,7 @@ test('either teammate can select either list without changing list ownership', (
     }
     assert.equal(reachoutList('original', viewer).owner, viewer);
     assert.equal(reachoutList('original', viewer).drafts.length, 25);
-    assert.ok(reachoutList('original', viewer).drafts.every(row => !originalFocus.some(old => old.domain === row.domain)));
+    assert.ok(reachoutList('original', viewer).drafts.every(row => !originalFocus().some(old => old.domain === row.domain)));
     assert.equal(reachoutList(undefined, viewer).owner, viewer);
     assert.equal(reachoutList('invalid', viewer).owner, viewer);
   }
@@ -97,7 +97,7 @@ test('viewing the other list renders authored email and LinkedIn with the active
 test('revised emails replace untouched saved versions for both senders while keeping sent history', async () => {
   const { withResearchDefault } = await import('./recommended-draft.ts');
   const { archivedVariants } = await import('./outreach-variants.ts');
-  for (const row of batchFocus) for (const sender of ['Josh', 'Suuchi']) {
+  for (const row of batchFocus()) for (const sender of ['Josh', 'Suuchi']) {
     const old = archivedVariants(row.domain, row.buyer.name);
     for (const version of old) {
       const stored = renderSavedVariant(version, row.buyer.name, sender === 'Josh' ? 'Suuchi' : 'Josh');

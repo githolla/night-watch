@@ -24,7 +24,7 @@ export function authoredSenderDraft(input: AuthoredSenderInput): AuthoredSenderR
   const first = input.senderName.trim().split(/\s+/)[0];
   const candidates = [...savedVariants(input.domain, input.contactName, channel), ...archivedVariants(input.domain, input.contactName, channel)];
   if (channel === 'email' && input.domain) {
-    const account = focus.find(row => domainKey(row.domain) === domainKey(input.domain!));
+    const account = focus().find(row => domainKey(row.domain) === domainKey(input.domain!));
     const contact = account?.contacts.find(row => personKey(row.name) === personKey(input.contactName));
     if (contact) candidates.push({ id: 'default', label: 'Current draft', subject: contact.subject, message: contact.message });
   }

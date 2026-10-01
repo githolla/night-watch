@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Header } from "@/components/Header";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { RunPanel } from "@/components/RunPanel";
 import { BackfillDraftsButton } from "@/components/BackfillDraftsButton";
@@ -16,9 +15,11 @@ export const dynamic = "force-dynamic";
 /** One place to start, continue, stop and watch every run. The baseline pass is the primary action here. */
 export default async function RunsPage() {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   await requireUser();
   const db = admin();
-  const pending = await pendingMigrations(db);
+  const pending = await schemaCheck;
   if (pending.length) return <MigrationRequired pending={pending} />;
 
   const [lastRun, lastSweep, { count: active }, { count: onList }, { count: careersChecked }, { count: researched }, { count: openRoles }, { count: posts }, { count: people }] = await Promise.all([
@@ -41,7 +42,6 @@ export default async function RunsPage() {
   const batchSize = nightlyBatchSize();
 
   return <div className="shell">
-    <Header />
     <main className="targets-page">
       <section className="targets-head has-hero">
         <div><span className="eyebrow">Runs</span><h1>Build the baseline once. Night Watch keeps it current.</h1><p>Every run below works the <Link href="/outreach">reach-out list</Link>: the {outreachAccounts.length} Tier A companies from the cut{holdCount ? `, while the ${holdCount.toLocaleString()} held companies are only swept for a promotion signal when you ask` : ""}. Two passes, in order. The extensive sweep reads every careers page, job board and sitemap, searches for AI posts by people at each company, and enriches contacts. The research pass then puts a model on every company, hiring companies first. After that the hourly sweep and the nightly research are the updates.</p></div>

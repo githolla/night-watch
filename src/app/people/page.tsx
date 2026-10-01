@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
-import { Header } from "@/components/Header";
 import { PeopleBoard, type PersonRow, type PeopleFilters } from "@/components/PeopleBoard";
 import { isLikelyPersonName } from "@/lib/pipeline";
 import { requireUser } from "@/lib/auth";
@@ -29,9 +28,11 @@ function peopleInitials(name: string) {
 /** Every person the sweep or a signal has put on file — one instant-search directory. */
 export default async function PeoplePage({ searchParams }: { searchParams: Promise<Params> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   await requireUser();
   {
-    const pending = await pendingMigrations(admin());
+    const pending = await schemaCheck;
     if (pending.length) return <MigrationRequired pending={pending} />;
   }
   const params = await searchParams;
@@ -95,7 +96,6 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
   };
 
   return <div className="shell">
-    <Header />
     <main className="targets-page">
       <header className="page-head briefing-head">
         <div><span className="overview-kick">People on file</span><h1>People</h1><p>Buyers and signal owners, enriched with email and LinkedIn where available · {rows.length.toLocaleString()} on file · {(verified ?? 0).toLocaleString()} verified · {(withLinkedIn ?? 0).toLocaleString()} on LinkedIn.</p></div>

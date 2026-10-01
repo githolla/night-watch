@@ -199,7 +199,7 @@ test('effective user uses Suuchi owner while retaining the real administrator', 
  const target={id:'suuchi',role:'member',owner:'jenna',name:'Suuchi',email:'s@example.com'};
  let available=true;let role='admin';
  const r=route('./auth.ts',{
-  'node:crypto':{timingSafeEqual:()=>false},'next/headers':{cookies:async()=>({get:(key:string)=>({value:key==='session'?'real':'acting'})})},
+  'node:crypto':{timingSafeEqual:()=>false},'react':{cache:(fn:unknown)=>fn},'next/headers':{cookies:async()=>({get:(key:string)=>({value:key==='session'?'real':'acting'})})},
   './shared-auth.ts':{SESSION_COOKIE:'session',validSharedSession:()=>false},'./session.ts':{readSession:()=>({uid:'admin'})},'./session-revocation.ts':{sessionRevoked:async()=>false},
   './users.ts':{loadUser:async(id:string)=>id==='admin'?{...actual,role}:available?target:null},
   './acting-session.ts':{ACTING_COOKIE:'acting',actingTarget:(_token:string,user:{role:string})=>{if(user.role!=='admin')throw new Error('Denied');return 'suuchi'}},

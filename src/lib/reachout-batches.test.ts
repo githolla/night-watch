@@ -9,8 +9,8 @@ import { publishedEmailPatch } from './focused-contact.ts';
 const cardsFor = (owner: 'josh' | 'jenna', status = 'sent'): BatchCard[] => focusForOwner(owner).map(row => ({domain: row.domain, owner, status}));
 
 test('next batches contain 25 distinct operating businesses per sender, never merged with current or retired companies', () => {
-  assert.equal(nextBatchFocus.length, 50);
-  assert.equal(new Set([...originalFocus, ...batchFocus, ...nextBatchFocus].map(r => r.domain)).size, 125);
+  assert.equal(nextBatchFocus().length, 50);
+  assert.equal(new Set([...originalFocus(), ...batchFocus(), ...nextBatchFocus()].map(r => r.domain)).size, 125);
   for (const owner of ['josh', 'jenna'] as const) {
     const next = focusForOwner(owner, 2);
     assert.equal(next.length, 25);
@@ -57,7 +57,7 @@ test('recorded outreach remains complete when a follow-up changes the card statu
 });
 
 test('all 50 next contacts have three complete authored email and LinkedIn variants with correct sender identity', () => {
-  for (const row of nextBatchFocus) {
+  for (const row of nextBatchFocus()) {
     const sender = row.assignedOwner === 'josh' ? 'Josh' : 'Suuchi';
     for (const channel of ['email','linkedin'] as const) {
       const variants = savedVariants(row.domain,row.buyer.name,channel);

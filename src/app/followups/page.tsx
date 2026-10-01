@@ -2,7 +2,6 @@ import Link from "next/link";
 import { refreshLegacyFollowup } from '@/lib/followups';
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
-import { Header } from "@/components/Header";
 import { FollowupsBoard, type FollowupItem } from "@/components/FollowupsBoard";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -34,8 +33,10 @@ export default async function Followups({searchParams}:{searchParams:Promise<{vi
   const params=await searchParams, history=params.view==='sent', paused=params.view==='paused', page=Math.max(1,Math.min(10000,Math.floor(Number(params.page)||1))), pageSize=100;
   const owner=['josh','jenna'].includes(params.owner??'')?params.owner:undefined;
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   const user = await requireUser();
-  const pending = await pendingMigrations(admin());
+  const pending = await schemaCheck;
   if (pending.length) return <MigrationRequired pending={pending} />;
 
   const db = admin();
@@ -83,7 +84,6 @@ export default async function Followups({searchParams}:{searchParams:Promise<{vi
     });
 
   return <div className="shell">
-    <Header />
     <main className="targets-page">
       <nav className="list-tabs" aria-label="Follow-up filters">
         <Link className="btn" href={`/followups?owner=${owner??''}`}>Action needed</Link>

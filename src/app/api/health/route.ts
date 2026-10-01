@@ -36,6 +36,15 @@ export async function GET() {
   const viewer = await requireActualUser().catch(() => null);
   const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null;
   if (viewer?.role !== "admin") return Response.json({ ok: true, schema: { ok: schema.ok }, commit });
+  // How far the database is from this function. Every page waits on a few of these round trips in a row,
+  // so tens of milliseconds is healthy and hundreds means the app and Supabase are in different regions
+  // (set "regions" in vercel.json to the one next to Supabase). The first call may include connection setup.
+  const roundTrips: number[] = [];
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const started = performance.now();
+    await admin().from("app_users").select("id").limit(1);
+    roundTrips.push(Math.round(performance.now() - started));
+  }
   return Response.json({
     ok: true,
     schema,
@@ -49,5 +58,6 @@ export async function GET() {
     },
     appUrl: inspect(process.env.APP_URL),
     commit,
+    database: { roundTripMs: roundTrips, region: process.env.VERCEL_REGION ?? null },
   });
 }

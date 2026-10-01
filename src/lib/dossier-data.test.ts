@@ -17,7 +17,7 @@ test("contacts come from brief rank order, including both G&W buyers", () => {
   assert.deepEqual(accountBrief("gwelectric.com")?.contacts.map(c => `${c.first_name} ${c.last_name}`), ["Dave Gizewicz", "Christina Knowles"]);
 });
 test("accounts sort by wave, strength descending, then name", () => {
-  const sorted = [...curatedDomains].sort(compareAccounts);
+  const sorted = [...curatedDomains()].sort(compareAccounts);
   assert.equal(accountBrief(sorted[0])?.send_wave, 1);
   for (let i = 1; i < sorted.length; i++) {
     const a = accountBrief(sorted[i - 1])!, b = accountBrief(sorted[i])!;
@@ -30,7 +30,7 @@ test("accounts sort by wave, strength descending, then name", () => {
   }
 });
 test("all authored first touches satisfy the reframe and ending gate", () => {
-  for (const row of curatedDrafts) {
+  for (const row of curatedDrafts()) {
     assert.deepEqual(outreachQualityFailures(row.message, { requireIntroduction: true, requireAIPositioning: true, reframe: accountBrief(row.domain)?.pain_hypothesis.reframe }, row.subject), [], row.company);
     assert.ok(/(?:We'd build|We build)/.test(row.message), row.company);
   }

@@ -871,7 +871,7 @@ h1,h2,h3{font-family:var(--display)!important}
 @media(max-width:560px){.act-modal-meta{grid-template-columns:1fr}}
 .eyebrow,.micro-label,.tier-chip,.status-chip,.scan-live,.scan-stop,.outreach-clear,.outreach-page,.click-tag,.account-nav a,.run-log th,.target-directory-table th,.rank-num,.targets-head-count span,.coverage-tile span{letter-spacing:.06em}
 .intel-score,.targets-head-count strong,.next-up-rank strong,.reach-score .intel-score{font-weight:700;letter-spacing:-.03em}
-.shell{display:flex;flex-direction:column;min-height:100vh;align-items:stretch}
+.shell{display:flex;flex-direction:column;min-height:calc(100vh - 56px);align-items:stretch}
 .shell>main,.shell>.pipeline{flex:1;min-width:0}
 
 /* Top app bar (replaces the old left sidebar). */

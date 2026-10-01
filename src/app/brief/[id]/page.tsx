@@ -1,4 +1,3 @@
-import { Header } from "@/components/Header";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { requireUser } from "@/lib/auth";
@@ -11,8 +10,10 @@ export const dynamic = "force-dynamic";
 
 export default async function BriefPage({ params }: { params: Promise<{ id: string }> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   await requireUser();
-  const pending = await pendingMigrations(admin());
+  const pending = await schemaCheck;
   if (pending.length) return <MigrationRequired pending={pending} />;
 
   const db = admin();
@@ -50,7 +51,6 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
   const meeting = brief.meetingAt ? new Date(brief.meetingAt).toLocaleString(undefined, { weekday: "long", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : null;
 
   return <div className="shell">
-    <Header />
     <main className="pipeline pipeline-work">
       <div className="brief">
         <div className="brief-head">

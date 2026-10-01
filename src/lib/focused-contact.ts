@@ -2,7 +2,7 @@ import { allFocus as focus } from "./focus-data.ts";
 
 const key = (value: string) => value.trim().toLowerCase();
 export function focusedContacts(domain: string) {
-  return focus.find(row => key(row.domain) === key(domain))?.contacts ?? [];
+  return focus().find(row => key(row.domain) === key(domain))?.contacts ?? [];
 }
 export function focusedContact(domain: string, name: string) {
   return focusedContacts(domain).find(person => key(person.name) === key(name));

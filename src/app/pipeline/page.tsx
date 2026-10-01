@@ -1,4 +1,3 @@
-import { Header } from "@/components/Header";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { PipelineBoard, type PipelineCard } from "@/components/PipelineBoard";
@@ -21,8 +20,10 @@ const REPLIED = ["replied", "positive", "meeting", "qualified", "opportunity"];
 
 export default async function Pipeline() {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   await requireUser();
-  const pending = await pendingMigrations(admin());
+  const pending = await schemaCheck;
   if (pending.length) return <MigrationRequired pending={pending} />;
 
   const db = admin();
@@ -62,7 +63,6 @@ export default async function Pipeline() {
     .filter((r) => r.reached.contacted && r.status !== "dismissed" && r.status !== "archived");
 
   return <div className="shell">
-    <Header />
     <main className="targets-page">
       <PipelineBoard cards={rows} />
     </main>

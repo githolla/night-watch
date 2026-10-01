@@ -2,6 +2,8 @@
 import { replaceOpening } from "@/lib/bulk-copy";
 import { acknowledgedDraftFields, meetingTimesBody } from "@/lib/draft-save-state";
 import { batchOwner } from "@/lib/focus-data";
+import { hydrateResearch } from "#research-data";
+import type { ResearchData } from "@/lib/research-data/server";
 import { batchProgress } from "@/lib/reachout-batches";
 import { useRouter } from "next/navigation";
 import { firstTouchFooterHtml, firstTouchErrors } from "@/lib/first-touch";
@@ -192,7 +194,9 @@ export function Desk({
   context,
   scan,
   tools,
+  researchSlice,
 }: {
+  researchSlice?: ResearchData;
   initialCards: Card[];
   senderName?: string;
   senderIsViewer?: boolean;
@@ -212,6 +216,9 @@ export function Desk({
   context?: DeskContext;
   scan?: import("react").ReactNode;
 }) {
+  // The research rows for this list arrive with the page instead of in the bundle. Load them before any
+  // lookup below runs; on the server this is a no-op because the full set is already there.
+  hydrateResearch(researchSlice);
   const [cards, setCards] = useState(() => initialCards.map(card => personalizeCard(card, senderName, senderGreeting)));
   const router = useRouter();
   const saveQueues = useRef(new Map<string, Promise<boolean>>());
@@ -1251,7 +1258,7 @@ export function Desk({
                 <header className="deskwork-co">
                   <span className="avatar">{initials(focusCard.accounts.name)}</span>
                   <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{research ? `Market signal · ${dateLabel(research?.trigger.date) ? `Published ${dateLabel(research?.trigger.date)}` : "date not confirmed"}` : `${signalLabel(focusCard)}${signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}`}</p></div>
-                  <Link href={listHref} className="focus-link">All {curatedDomains.length} companies</Link>
+                  <Link href={listHref} className="focus-link">All {curatedDomains().length} companies</Link>
                 </header>
 
                 <div className="deskwork-opening">

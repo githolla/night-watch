@@ -1,7 +1,6 @@
 import { ConnectionHealth } from "@/components/ConnectionHealth";
 import Link from "next/link";
 import { Building2, Mail, MessageSquare, PenLine, Plug, UsersRound } from "lucide-react";
-import { Header } from "@/components/Header";
 import { SpendPanel } from "@/components/SpendPanel";
 import { TestSequence } from "@/components/TestSequence";
 import { RewriteDrafts } from "@/components/RewriteDrafts";
@@ -21,9 +20,11 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 export default async function Settings() {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   const me = await requireUser();
   {
-    const pending = await pendingMigrations(admin());
+    const pending = await schemaCheck;
     if (pending.length) return <MigrationRequired pending={pending} />;
   }
   const db = admin();
@@ -38,7 +39,7 @@ export default async function Settings() {
     // is not there yet fails the whole read, blanking the identity form.
     db.from("sender_profiles").select("*").eq("owner", me.owner).maybeSingle(),
   ]);
-  if (senderError) return <div><Header /><main className="workspace-page"><section className="card pad" role="alert"><h1>Sender settings could not be loaded</h1><p>Your saved identity and signature have not been changed. Reload before editing or sending a test.</p><a className="btn" href="/settings">Reload settings</a></section></main></div>;
+  if (senderError) return <div><main className="workspace-page"><section className="card pad" role="alert"><h1>Sender settings could not be loaded</h1><p>Your saved identity and signature have not been changed. Reload before editing or sending a test.</p><a className="btn" href="/settings">Reload settings</a></section></main></div>;
   const { count: feedbackCount } = me.role === "admin" ? await admin().from("feedback").select("*", { count: "exact", head: true }) : { count: 0 };
   const senderEmail = (connections ?? []).find((row) => row.owner === me.owner)?.email ?? me.email ?? null;
   const senderProfile = {
@@ -134,7 +135,6 @@ export default async function Settings() {
     },
   ];
   return <div>
-    <Header />
     <main className="workspace-page">
       <ConnectionHealth isAdmin={isAdmin} />
       <SettingsTabs tabs={tabs} />

@@ -1,9 +1,8 @@
-import originalOffers from '../../data/offer-versions.json' with { type: 'json' };
-import batchOffers from '../../data/batch-2-offers.json' with { type: 'json' };
-import nextBatchOffers from '../../data/batch-3-offers.json' with { type: 'json' };
-const offers = [...originalOffers, ...batchOffers, ...nextBatchOffers];
-import rows from '../../data/research-outreach.json' with { type: 'json' };
-import gifts from '../../data/outreach-gifts.json' with { type: 'json' };
+import { researchData } from '#research-data';
+import { derived } from './research-data/derived.ts';
+const offers = derived(() => [...researchData().offerVersions, ...researchData().batch2Offers, ...researchData().batch3Offers]);
+const rows = () => researchData().researchOutreach;
+const gifts = () => researchData().outreachGifts;
 export type ResearchVersion = { id: string; label: string; subject: string; message: string };
 export type ResearchEvidence = {
  domain: string; contactName: string; giftId: string;
@@ -15,9 +14,9 @@ export type ResearchEvidence = {
 };
 const key = (s:string) => s.trim().toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/$/,'').replace(/\s+/g,' ');
 export function contactEvidence(domain?: string|null, name?: string|null): ResearchEvidence | undefined {
- return (rows as ResearchEvidence[]).find(r => domain && name && key(r.domain)===key(domain) && key(r.contactName)===key(name));
+ return (rows() as ResearchEvidence[]).find(r => domain && name && key(r.domain)===key(domain) && key(r.contactName)===key(name));
 }
-export const giftAsset = (id:string) => gifts.find(g=>g.id===id);
+export const giftAsset = (id:string) => gifts().find(g=>g.id===id);
 export function recommendEvidence(row:ResearchEvidence, now = new Date()) {
  const timestamp=row.trigger ? Date.parse(row.trigger.publishedDate+'T00:00:00Z') : NaN;
  const age=Math.floor((now.getTime()-timestamp)/86400000);
@@ -34,7 +33,7 @@ export function recommendEvidence(row:ResearchEvidence, now = new Date()) {
  return {recommended,candidates,giftId:gift?row.giftId:null};
 }
 export function researchRecommendation(domain?:string|null,name?:string|null) {
- const row=offers.find(r=>domain&&name&&key(r.domain)===key(domain)&&key(r.contactName)===key(name));
+ const row=offers().find(r=>domain&&name&&key(r.domain)===key(domain)&&key(r.contactName)===key(name));
  if(!row)return null;
  const reasons=['A direct introduction to what Nine-67 can build with this team.','One specific application and a way to judge whether it helps.','Actual Nine-67 delivery experience connected to this contact’s work.'];
  const candidates=row.variants.map((v,i)=>({id:v.id,label:v.label,eligible:true,score:i===0?100:50,reason:reasons[i]}));
@@ -42,7 +41,7 @@ export function researchRecommendation(domain?:string|null,name?:string|null) {
 }
 export function researchVersions(domain?:string|null,name?:string|null,channel:'email'|'linkedin'='email',now?:Date): ResearchVersion[] {
  void now;
- const row=offers.find(r=>domain&&name&&key(r.domain)===key(domain)&&key(r.contactName)===key(name));
+ const row=offers().find(r=>domain&&name&&key(r.domain)===key(domain)&&key(r.contactName)===key(name));
  return row?.variants.map(v=>({id:v.id,label:v.label,subject:v.subject,message:channel==='linkedin'?v.linkedinMessage:v.message}))??[];
 }
 

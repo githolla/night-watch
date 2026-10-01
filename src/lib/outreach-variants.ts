@@ -1,8 +1,6 @@
-import batchArchive from "../../data/batch-2-offers-archive.json" with { type: "json" };
+import { researchData } from "#research-data";
 import { researchVersions, authoredResearchVersions, researchRecommendation, type ResearchVersion } from "./research-recommendation.ts";
-import archivedEmail from "../../data/outreach-variants-archive.json" with { type: "json" };
-import archivedLinkedIn from "../../data/linkedin-variants-archive.json" with { type: "json" };
-import { allFocus as focus } from "./focus-data.ts";
+import { allFocus } from "./focus-data.ts";
 import { emailStyle } from "./email-style.ts";
 
 export type SavedVariant = ResearchVersion;
@@ -46,7 +44,7 @@ export function withDefaultLinkedIn<T extends { status?: string; accounts: { dom
 /** Blank untouched email cards can render immediately without waiting for an admin repair. */
 export function withDefaultEmail<T extends { status: string; accounts: { domain?: string | null }; people: { full_name: string }; email_body: string | null; email_subject: string | null }>(card: T, greeting = "Hi {first},"): T {
   if (card.status !== "new" || card.email_body?.trim()) return card;
-  const account = focus.find(row => card.accounts.domain && domainKey(row.domain) === domainKey(card.accounts.domain));
+  const account = allFocus().find(row => card.accounts.domain && domainKey(row.domain) === domainKey(card.accounts.domain));
   const contact = account?.contacts.find(row => personKey(row.name) === personKey(card.people.full_name));
   if (!contact) return card;
   const hello = greeting.replace(/\{first\}/gi, contact.name.split(/\s+/)[0]).replace(/\{name\}/gi, contact.name);
@@ -56,5 +54,5 @@ export function withDefaultEmail<T extends { status: string; accounts: { domain?
 /** Historical authored copy is recognizable, but never offered as a new choice. */
 export function archivedVariants(domain?: string | null, contactName?: string | null, channel: "email" | "linkedin" = "email"): SavedVariant[] {
   if (!domain || !contactName) return [];
-  return [...(batchArchive.find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants.map(v => ({ id: v.id, label: v.label, subject: v.subject, message: channel === "linkedin" ? v.linkedinMessage : v.message })) ?? []), ...((channel === "linkedin" ? archivedLinkedIn : archivedEmail).find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants ?? [])].reverse().concat(authoredResearchVersions(domain, contactName, channel));
+  return [...(researchData().batch2OffersArchive.find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants.map(v => ({ id: v.id, label: v.label, subject: v.subject, message: channel === "linkedin" ? v.linkedinMessage : v.message })) ?? []), ...((channel === "linkedin" ? researchData().linkedinVariantsArchive : researchData().outreachVariantsArchive).find(row => domainKey(row.domain) === domainKey(domain) && personKey(row.contactName) === personKey(contactName))?.variants ?? [])].reverse().concat(authoredResearchVersions(domain, contactName, channel));
 }

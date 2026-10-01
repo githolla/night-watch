@@ -16,13 +16,7 @@ export const TARGET_CUT_SOURCE = {
   importedAt: "2026-09-11",
 };
 
-export const TIER_LABEL: Record<TargetTier, string> = {
-  A1: "A1 · Reach out first",
-  A2: "A2 · Second wave",
-  B: "B · Hold, needs a signal",
-  C: "C · Stretch ($1-5B)",
-  removed: "Removed",
-};
+export { TIER_LABEL } from "./tier-labels.ts";
 
 export const TIER_DEFINITION: Record<TargetTier, string> = {
   A1: "$50M-1B revenue, AI signal present, and PE-backed or in a highlighted industry",

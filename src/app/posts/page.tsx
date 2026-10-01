@@ -2,7 +2,6 @@ import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { FilterForm } from "@/components/FilterForm";
-import { Header } from "@/components/Header";
 import { RowLink } from "@/components/RowLink";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -17,9 +16,11 @@ const pageSize = 60;
 /** Every public post the sweep found by someone at a target company about AI or automation in their own work. */
 export default async function PostsPage({ searchParams }: { searchParams: Promise<Params> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   await requireUser();
   {
-    const pending = await pendingMigrations(admin());
+    const pending = await schemaCheck;
     if (pending.length) return <MigrationRequired pending={pending} />;
   }
   const params = await searchParams;
@@ -46,7 +47,6 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
   const href = (nextPage: number) => `/posts?${new URLSearchParams({ ...(query ? { q: query } : {}), ...(sinceDays ? { since: String(sinceDays) } : {}), ...(nextPage > 1 ? { page: String(nextPage) } : {}) }).toString()}`;
 
   return <div className="shell">
-    <Header />
     <main className="targets-page">
       <header className="page-head briefing-head">
         <div><span className="overview-kick">Public posts</span><h1>Employee posts</h1><p>People at the target companies posting publicly about AI in their own work · {total.toLocaleString()} on file.</p></div>

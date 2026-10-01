@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { CompanyRows, type CompanyRow } from "@/components/CompanyRows";
 import { FilterForm } from "@/components/FilterForm";
-import { Header } from "@/components/Header";
 import { AddCompany } from "@/components/AddCompany";
 import { ToolDrawer } from "@/components/ToolDrawer";
 import { MigrationRequired } from "@/components/MigrationRequired";
@@ -33,9 +32,11 @@ const TABS: Array<{ value: string; label: string; test: (row: CompanyRow) => boo
 /** Every company on the file: see what was found, and put companies on or off the reach-out list. */
 export default async function TargetsPage({ searchParams }: { searchParams: Promise<Params> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   const me = await requireUser();
   const db = admin();
-  const pending = await pendingMigrations(db);
+  const pending = await schemaCheck;
   if (pending.length) return <MigrationRequired pending={pending} />;
   if (await targetsNeedSync(db)) await syncTargetAccounts(db);
   const params = await searchParams;
@@ -90,7 +91,6 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
   };
 
   return <div className="shell">
-    <Header />
     <main className="targets-page">
       <header className="page-head">
         <div><h1>All companies</h1><p>Every company on the file, held and excluded included. The reach-out list is the {counts.list} that get scanned and drafted.</p></div>

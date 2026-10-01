@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Header } from "@/components/Header";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { CopyButton } from "@/components/CopyButton";
 import { OutreachForm } from "@/components/OutreachForm";
@@ -51,9 +50,11 @@ function host(url: string) {
 /** One company: why to reach out, what was found (every line opens its source), and who works it. */
 export default async function AccountPage({ params }: { params: Promise<{ domain: string }> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   await requireUser();
   const db = admin();
-  const pending = await pendingMigrations(db);
+  const pending = await schemaCheck;
   if (pending.length) return <MigrationRequired pending={pending} />;
   const { domain: rawDomain } = await params;
   const domain = decodeURIComponent(rawDomain).toLowerCase();
@@ -126,7 +127,6 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
   const listRow = live ? [{ id: live.id, domain, name, industry: target?.vertical ?? "", subSegment: target?.subSegment ?? "", hq: [target?.hqCity, target?.hqState].filter(Boolean).join(", "), tier: tier ?? "", outreach, manual: live.outreach_manual !== null && live.outreach_manual !== undefined, intel: score, roles: targetPostings.length, posts: posts.length, contacts: people.length, verified: people.filter((person) => person.email_status === "verified").length, stage, owner: live.outreach_owner ?? "", lastChange: live.last_change_at ?? null, scanned: Boolean(live.careers_status || live.last_scouted_at), drafts: openCards.length, dropReason: target?.dropReason ?? "" }] : [];
 
   return <div className="shell">
-    <Header />
     <main className="targets-page account-page">
       <div className="company-topnav">
         <p className="crumbs"><Link href="/outreach">Reach-out list</Link><span>/</span><span>{name}</span></p>

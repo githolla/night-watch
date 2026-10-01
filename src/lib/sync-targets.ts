@@ -72,12 +72,23 @@ export async function syncTargetAccounts(db: SupabaseClient) {
  * render — the whole page hanging on a re-import that had nothing to do.
  */
 export async function targetsNeedSync(db: SupabaseClient) {
-  const [{ count: onList }, { count: optedOut }, { count: untiered }] = await Promise.all([
+  const [{ count: onList }, { count: optedOut }, { data: untieredRows }] = await Promise.all([
     db.from("accounts").select("*", { count: "exact", head: true }).eq("status", "active").eq("outreach", true),
     db.from("accounts").select("*", { count: "exact", head: true }).eq("outreach_manual", true).eq("outreach", false),
-    db.from("accounts").select("*", { count: "exact", head: true }).not("domain", "like", "%.example").is("tier", null),
+    db.from("accounts").select("domain").not("domain", "like", "%.example").is("tier", null).limit(5000),
   ]);
-  return needsSync(onList ?? 0, optedOut ?? 0, untiered ?? 0);
+  return needsSync(onList ?? 0, optedOut ?? 0, untieredOnFile((untieredRows ?? []).map((row) => row.domain as string)));
+}
+
+const fileDomains = new Set(targetAccounts.map((account) => account.domain.toLowerCase()));
+
+/**
+ * Untiered companies the sync could actually fix. Companies added from the curated lists or by hand are not in
+ * the target file, so the sync never gives them a tier; counting them kept "needs sync" true forever and
+ * rewrote the whole table on every visit to All companies.
+ */
+export function untieredOnFile(domains: string[]) {
+  return domains.filter((domain) => fileDomains.has(domain.toLowerCase())).length;
 }
 
 /** The number of reach-out companies the file expects the database to account for. */

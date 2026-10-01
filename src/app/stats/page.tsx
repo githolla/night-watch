@@ -6,7 +6,6 @@ import { SAVED_VERSION_MODEL } from "@/lib/version-attribution";
 import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
-import { Header } from "@/components/Header";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
@@ -20,7 +19,7 @@ const emptyExperimentStats: ExperimentStats = { total: 0, selected: 0, sent: 0, 
 function StatsView({ stats, experiments, versions }: { stats: StatsData; experiments: ExperimentStats; versions: React.ReactNode }) {
   const completionRate = experiments.sent ? Math.round(experiments.replied / experiments.sent * 100) : 0;
   const positiveRate = experiments.replied ? Math.round(experiments.positive / experiments.replied * 100) : 0;
-  return <div><Header /><main className="stats learning-page">
+  return <div><main className="stats learning-page">
     <header className="learning-head"><div><div className="eyebrow">Learning system · message optimization</div><h1>What improves response</h1><p>Compare saved email versions using recorded sends, open signals and human replies.</p></div><Link href="/desk" className="learning-cta">Choose a saved version <span>→</span></Link></header>
     <nav className="learning-nav"><a href="#saved-versions">Saved versions</a><a href="#experiments"><span>01</span>Message experiments</a><a href="#signals"><span>02</span>Signal performance</a></nav>
 
@@ -52,29 +51,39 @@ function StatsView({ stats, experiments, versions }: { stats: StatsData; experim
 
 export default async function Stats({ searchParams }: { searchParams: Promise<{ source?: string; days?: string }> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // Check the schema while sign-in is checked, instead of one round trip after it.
+  const schemaCheck = pendingMigrations(admin()).catch(() => []);
   await requireUser();
   {
-    const pending = await pendingMigrations(admin());
+    const pending = await schemaCheck;
     if (pending.length) return <MigrationRequired pending={pending} />;
   }
   const db = admin();
-  const { data: touches } = await db.from("touches").select("reply_at,reply_classification,channel,cards(signals(type),people(level))");
-  const { count: meetings } = await db.from("cards").select("*", { count: "exact", head: true }).eq("status", "meeting");
-  const { data: runs } = await db.from("runs").select("cost_usd").order("started_at", { ascending: false }).limit(30);
+  const params = await searchParams;
+  const source = params.source === "manual" || params.source === "all" ? params.source : "gmail";
+  const days = params.days === "30" || params.days === "90" ? params.days : "all";
+  // Every read on this page is independent, so they all start now. Touches are paged: one unpaged read
+  // stops at 1,000 rows and the reply rate quietly covered only the first thousand sends.
+  const trackedRead = fetchAll<TrackedTouch>((from,to)=>db.from("touches").select("id,card_id,person_id,sent_by,sent_at,gmail_thread_id,reply_at,reply_classification,people(full_name),message_variants(subject,dimensions,message_experiments(context))").in("channel",["email","linkedin_message"]).order("id").range(from,to) as unknown as PromiseLike<{ data: TrackedTouch[] | null; error: { message: string } | null }>);
+  trackedRead.catch(() => {});
+  const experimentsRead = loadExperimentStats(db);
+  type OutcomeTouch = { reply_at: string | null; reply_classification: string; channel: string; cards: unknown };
+  const [touches, { count: meetings }, { data: runs }] = await Promise.all([
+    fetchAll<OutcomeTouch>((from, to) => db.from("touches").select("reply_at,reply_classification,channel,cards(signals(type),people(level))").order("id").range(from, to) as unknown as PromiseLike<{ data: OutcomeTouch[] | null; error: { message: string } | null }>),
+    db.from("cards").select("*", { count: "exact", head: true }).eq("status", "meeting"),
+    db.from("runs").select("cost_usd").order("started_at", { ascending: false }).limit(30),
+  ]);
   const sent = touches?.length ?? 0, replied = touches?.filter((touch) => Boolean(touch.reply_at) && ["positive","neutral","objection","referral","negative"].includes(touch.reply_classification ?? "")).length ?? 0, positive = touches?.filter((touch) => ["positive", "referral"].includes(touch.reply_classification)).length ?? 0;
   const groups = new Map<string, { sent: number; replies: number; positive: number }>();
   for (const touch of touches ?? []) { const type = ((touch.cards as unknown as { signals: { type: string } })?.signals?.type) ?? "unknown", group = groups.get(type) ?? { sent: 0, replies: 0, positive: 0 }; group.sent++; if (Boolean(touch.reply_at) && ["positive","neutral","objection","referral","negative"].includes(touch.reply_classification ?? "")) group.replies++; if (["positive", "referral"].includes(touch.reply_classification)) group.positive++; groups.set(type, group); }
   const stats = { sent, replyRate: sent ? Math.round(replied / sent * 100) : 0, positiveShare: replied ? Math.round(positive / replied * 100) : 0, meetings: meetings ?? 0, cost: (runs ?? []).reduce((sum, run) => sum + Number(run.cost_usd), 0), groups: [...groups].map(([name, group]) => ({ name: name.replaceAll("_", " "), sent: group.sent, replyRate: group.sent ? Math.round(group.replies / group.sent * 100) : 0, positiveShare: group.replies ? Math.round(group.positive / group.replies * 100) : 0 })) };
-  const params = await searchParams;
-  const source = params.source === "manual" || params.source === "all" ? params.source : "gmail";
-  const days = params.days === "30" || params.days === "90" ? params.days : "all";
   let summary = aggregateVersions([]);
   let trackingError: string | undefined;
   try {
-    const tracked = await fetchAll<TrackedTouch>((from,to)=>db.from("touches").select("id,card_id,person_id,sent_by,sent_at,gmail_thread_id,reply_at,reply_classification,people(full_name),message_variants(subject,dimensions,message_experiments(context))").in("channel",["email","linkedin_message"]).order("id").range(from,to) as unknown as PromiseLike<{ data: TrackedTouch[] | null; error: { message: string } | null }>);
+    const tracked = await trackedRead;
     summary = aggregateVersions(tracked, { source, since: days === "all" ? undefined : reportSince(Number(days)) });
   } catch (error) { trackingError = error instanceof Error ? error.message : "Database unavailable"; }
-  return <StatsView stats={stats} experiments={await loadExperimentStats(db)} versions={<VersionAnalytics summary={summary} error={trackingError} source={source} days={days} />} />;
+  return <StatsView stats={stats} experiments={await experimentsRead} versions={<VersionAnalytics summary={summary} error={trackingError} source={source} days={days} />} />;
 }
 
 async function loadExperimentStats(db: ReturnType<typeof admin>): Promise<ExperimentStats> {
