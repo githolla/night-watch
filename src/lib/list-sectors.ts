@@ -16,12 +16,18 @@ export const SECTORS = [
   "multi-unit restaurant operators and franchisees",
 ];
 /**
- * Two sectors a night: the best one by base order and learned reply rate that was not searched yesterday,
- * plus one in rotation so every sector keeps getting explored.
+ * Two sectors a night: the best one by learned reply rate that was not searched yesterday, plus one in
+ * rotation so every sector keeps getting explored. The base order only breaks ties (a factor of 1.05 to
+ * 1.5), so a learned weight can lift any sector to the top.
  */
 export function sectorsForNight(day: number, weights: Record<string, number>) {
-  const ranked = SECTORS.map((_, index) => index).sort((a, b) => (weights[String(b)] ?? 1) * (SECTORS.length - b) - (weights[String(a)] ?? 1) * (SECTORS.length - a));
+  const count = SECTORS.length;
+  const strength = (index: number) => (weights[String(index)] ?? 1) * (1 + (count - index) / (2 * count));
+  const ranked = SECTORS.map((_, index) => index).sort((a, b) => strength(b) - strength(a));
   const best = ranked[day % 2];
-  const explore = (day * 3) % SECTORS.length === best ? ((day * 3) + 1) % SECTORS.length : (day * 3) % SECTORS.length;
+  // Offset by one so that, with no weights, the rotation never lands on that night's best and so visits
+  // every sector over any 10 nights.
+  const slot = (day * 3 + 1) % count;
+  const explore = slot === best ? (slot + 1) % count : slot;
   return [best, explore];
 }

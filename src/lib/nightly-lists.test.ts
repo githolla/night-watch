@@ -109,5 +109,5 @@ test("each night searches the strongest sector plus one in rotation, never the s
     assert.notEqual(best, explore);
     assert.ok(best < SECTORS.length && explore < SECTORS.length);
   }
-  assert.equal(sectorsForNight(0, { "9": 1.5 })[0], 0, "a reply-weighted sector competes with the base order");
+  assert.equal(sectorsForNight(0, { "9": 1.5 })[0], 9, "a reply-weighted sector can become the best");
 });

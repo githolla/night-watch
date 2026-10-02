@@ -11,6 +11,7 @@ import { anthropicCost, SpendLimitError, type UsageRecorder } from "./anthropic-
 import { parseModelJson } from "./model-output.ts";
 import { fallbackChain, researchModel, searchModel, utilityModel, webSearchToolType, writingModel } from "./models.ts";
 import { sanitizeLinks } from "./sender.ts";
+import type { SeenSource } from "./evidence-grounding.ts";
 
 /** Once a model is rejected and a working one is found, later calls skip straight to it instead of retrying the dead model every time. */
 const resolvedModel = new Map<string, string>();
@@ -81,7 +82,7 @@ const signal = z.object({
 export const scoutOutput = z.object({ signals: z.array(signal) });
 export type ScoutSignal = z.infer<typeof signal>;
 
-/** Job families where Nine-67 does the work instead of the company hiring for it. Mirrors docs/scoring.md. */
+/** Job families where Nine-67 does the work instead of the company hiring for it. Mirrors the target job families in docs/scoring.md; ai-fit.ts isAutomatableRole applies the same split to job titles. */
 export const TARGET_JOB_FAMILIES = [
   "process and workflow automation", "data and reporting", "operations analyst", "RevOps", "systems and integration", "CRM administration", "applied AI for internal operations (an internal assistant, not an AI product)",
 ] as const;
@@ -120,9 +121,38 @@ function cleanDraft(draft: OutreachDraft): OutreachDraft {
   return { ...draft, email_subject: emailStyle(draft.email_subject), email_body: emailStyle(sanitizeLinks(draft.email_body)), linkedin_message: sanitizeLinks(draft.linkedin_message), linkedin_note: sanitizeLinks(draft.linkedin_note), linkedin_comment: sanitizeLinks(draft.linkedin_comment) };
 }
 
+let clientOverride: (() => Anthropic) | null = null;
+
+/** Tests swap in a stub client; pass null to restore the real one. */
+export function setAgentClientForTests(factory: (() => Anthropic) | null) {
+  clientOverride = factory;
+}
+
 function client() {
+  if (clientOverride) return clientOverride();
   if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is missing");
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+}
+
+/** A page a web search actually returned to the model, or that the model cited from those results. */
+export type { SeenSource };
+
+/** Every search result and web citation in a turn's content. */
+export function sourcesIn(blocks: Anthropic.Messages.ContentBlock[]): SeenSource[] {
+  const found: SeenSource[] = [];
+  for (const block of blocks) {
+    if (block.type === "web_search_tool_result" && Array.isArray(block.content)) {
+      for (const result of block.content) if (result.type === "web_search_result" && result.url) found.push({ url: result.url, title: result.title ?? null, page_age: result.page_age ?? null });
+    }
+    if (block.type === "text") {
+      for (const citation of block.citations ?? []) if (citation.type === "web_search_result_location" && citation.url) found.push({ url: citation.url, title: citation.title ?? null, page_age: null });
+    }
+  }
+  return found;
+}
+
+function abortError(signal: AbortSignal) {
+  return signal.reason instanceof Error ? signal.reason : new Error("Research call was aborted.");
 }
 
 function text(blocks: Anthropic.Messages.ContentBlock[]) {
@@ -155,18 +185,20 @@ function isUnknownModelError(error: unknown) {
 /** Run one turn on one model. */
 async function completeTurnOn(
   model: string,
-  params: Omit<Anthropic.Messages.MessageCreateParamsNonStreaming, "messages" | "model" | "tools"> & { searches?: number },
+  params: Omit<Anthropic.Messages.MessageCreateParamsNonStreaming, "messages" | "model" | "tools"> & { searches?: number; signal?: AbortSignal },
   prompt: string,
   recordUsage?: UsageRecorder,
-) {
-  const { searches, ...rest } = params;
+): Promise<{ response: Anthropic.Messages.Message; seen: SeenSource[] }> {
+  const { searches, signal, ...rest } = params;
   const budget = recordUsage?.budget;
   const messages: Anthropic.Messages.MessageParam[] = [{ role: "user", content: prompt }];
-  const options = { timeout: TURN_TIMEOUT_MS, maxRetries: 1 };
+  const options = { timeout: TURN_TIMEOUT_MS, maxRetries: 1, ...(signal ? { signal } : {}) };
+  const seen: SeenSource[] = [];
   // Each request (the first and every pause_turn continuation) may only use the searches the company has
   // left, and no request starts once its spend has reached the cap. Re-sending the original max_uses on
   // each continuation is how three requests used nine searches.
   const send = async () => {
+    if (signal?.aborted) throw abortError(signal);
     if (budget && budget.spentUsd >= budget.costCapUsd) throw new SpendLimitError("cost", `Stopped at this company's $${budget.costCapUsd.toFixed(2)} research cap ($${budget.spentUsd.toFixed(2)} spent).`);
     const allowed = searches ? Math.min(searches, budget ? budget.searchesLeft : searches) : 0;
     if (searches && allowed < 1) throw new SpendLimitError("searches", "This company's paid web searches are used up.");
@@ -177,6 +209,7 @@ async function completeTurnOn(
       budget.spentUsd += cost;
       budget.searchesLeft = Math.max(0, budget.searchesLeft - (response.usage.server_tool_use?.web_search_requests ?? 0));
     }
+    seen.push(...sourcesIn(response.content));
     return response;
   };
   let response = await send();
@@ -184,7 +217,7 @@ async function completeTurnOn(
     messages.push({ role: "assistant", content: response.content });
     response = await send();
   }
-  return response;
+  return { response, seen };
 }
 
 /**
@@ -196,26 +229,27 @@ async function completeTurnOn(
  * instead of silently failing every company.
  */
 async function completeTurn(
-  params: Omit<Anthropic.Messages.MessageCreateParamsNonStreaming, "messages" | "tools"> & { searches?: number },
+  params: Omit<Anthropic.Messages.MessageCreateParamsNonStreaming, "messages" | "tools"> & { searches?: number; signal?: AbortSignal },
   prompt: string,
   recordUsage?: UsageRecorder,
-): Promise<{ response: Anthropic.Messages.Message; model: string }> {
+): Promise<{ response: Anthropic.Messages.Message; model: string; seen: SeenSource[] }> {
   const { model, ...rest } = params;
   const start = resolvedModel.get(model) ?? model;
   try {
-    return { response: await completeTurnOn(start, rest, prompt, recordUsage), model: start };
+    return { ...(await completeTurnOn(start, rest, prompt, recordUsage)), model: start };
   } catch (error) {
-    if (!isUnknownModelError(error)) throw error;
+    if (!isUnknownModelError(error) || rest.signal?.aborted) throw error;
     // The configured model is not available to this key. Try each safety-net model until one works — whatever
     // the error on a given candidate (model access, or a web-search tool version the org does not have),
     // move on to the next — and remember the one that works so later calls skip straight to it.
     let last: unknown = error;
     for (const candidate of fallbackChain(model)) {
+      if (rest.signal?.aborted) throw abortError(rest.signal);
       try {
-        const response = await completeTurnOn(candidate, rest, prompt, recordUsage);
+        const turn = await completeTurnOn(candidate, rest, prompt, recordUsage);
         resolvedModel.set(model, candidate);
         console.warn(`[night-watch] model ${start} was rejected for this key; using ${candidate} instead. Set ANTHROPIC_RESEARCH_MODEL to a model this key can use.`);
-        return { response, model: candidate };
+        return { ...turn, model: candidate };
       } catch (inner) {
         last = inner;
       }
@@ -225,14 +259,22 @@ async function completeTurn(
 }
 
 /** One model turn with web search that must answer in JSON. The analysis agents are built on this. */
-export async function runSearchAgent(prompt: string, options: { model: string; maxSearches: number; maxTokens?: number }, recordUsage?: UsageRecorder): Promise<unknown> {
-  const { response } = await completeTurn({ model: options.model, max_tokens: options.maxTokens ?? 16_000, searches: Math.max(1, Math.min(10, options.maxSearches)) }, prompt, recordUsage);
-  return jsonFrom(response);
+export async function runSearchAgent(prompt: string, options: { model: string; maxSearches: number; maxTokens?: number; signal?: AbortSignal }, recordUsage?: UsageRecorder): Promise<unknown> {
+  return (await runGroundedSearchAgent(prompt, options, recordUsage)).json;
+}
+
+/**
+ * runSearchAgent plus the sources the searches actually returned (results and citations, across every
+ * pause_turn round), so cited evidence can be checked against what the model saw rather than trusted.
+ */
+export async function runGroundedSearchAgent(prompt: string, options: { model: string; maxSearches: number; maxTokens?: number; signal?: AbortSignal }, recordUsage?: UsageRecorder): Promise<{ json: unknown; seen: SeenSource[] }> {
+  const { response, seen } = await completeTurn({ model: options.model, max_tokens: options.maxTokens ?? 16_000, searches: Math.max(1, Math.min(10, options.maxSearches)), signal: options.signal }, prompt, recordUsage);
+  return { json: jsonFrom(response), seen };
 }
 
 /** One model turn with no tools that must answer in JSON. */
-export async function runWritingAgent(prompt: string, options: { model: string; maxTokens?: number }, recordUsage?: UsageRecorder): Promise<unknown> {
-  const { response } = await completeTurn({ model: options.model, max_tokens: options.maxTokens ?? 8_000 }, prompt, recordUsage);
+export async function runWritingAgent(prompt: string, options: { model: string; maxTokens?: number; signal?: AbortSignal }, recordUsage?: UsageRecorder): Promise<unknown> {
+  const { response } = await completeTurn({ model: options.model, max_tokens: options.maxTokens ?? 8_000, signal: options.signal }, prompt, recordUsage);
   return jsonFrom(response);
 }
 
@@ -251,7 +293,7 @@ export async function scout(account: {
   name: string; domain: string; vertical?: string | null; employee_range?: string | null;
   careers_url?: string | null; news_query?: string | null;
   researchContext?: { aiSignal: string; sourceUrl: string; ceo: string; buyerTitles: string[]; revenueBand: string; subSegment: string };
-}, recordUsage?: UsageRecorder, options: { maxSearches?: number } = {}): Promise<ScoutResult> {
+}, recordUsage?: UsageRecorder, options: { maxSearches?: number; signal?: AbortSignal } = {}): Promise<ScoutResult> {
   const context = account.researchContext;
   const model = researchModel();
   const maxSearches = Math.max(1, Math.min(10, Math.floor(options.maxSearches ?? Number(process.env.ANTHROPIC_MAX_SEARCHES_PER_COMPANY ?? 3))));
@@ -283,7 +325,7 @@ Verify every returned claim with a public URL and an exact observed or publicati
 For an executive post, include post with the actual visible text, author name, author title, exact published date/time, visible engagement counts or null, hashtags actually present, and is_excerpt=true when only a verified excerpt is available. Put that same individual first in people. For other evidence, include source with its exact headline, publisher, author if shown, date, and a faithful excerpt. Omit post or source instead of filling it with invented content.
 
 Return JSON only as {"signals":[{"type":"job_cluster","evidence_kind":"hiring","operating_need":"the specific work they need done","summary":"why this matters","source_url":"https://...","observed_at":"YYYY-MM-DD","people":[{"name":"Full name","title":"Exact title","role_in_signal":"hiring_manager"}],"job":{"title":"Exact role title","department":"","days_open":0,"reposted":false,"salary_max":0,"tools_named":[],"responsibilities":[]},"confidence":0.0}]} or, for a post asking for help, {"signals":[{"type":"exec_post","evidence_kind":"asking_for_help","operating_need":"...","summary":"...","source_url":"https://...","observed_at":"YYYY-MM-DD","people":[{"name":"Full name","title":"Exact title","role_in_signal":"posted"}],"post":{"text":"actual visible post text","author_name":"Full name","author_title":"Exact title","published_at":"ISO date or date","reactions":null,"comments":null,"reposts":null,"hashtags":[],"is_excerpt":true},"confidence":0.0}]}. Return an empty array when no dated, source-backed operating need exists within 180 days.`;
-  const { response, model: selectedModel } = await completeTurn({ model, max_tokens: SCOUT_MAX_TOKENS, searches: maxSearches }, prompt, recordUsage);
+  const { response, model: selectedModel } = await completeTurn({ model, max_tokens: SCOUT_MAX_TOKENS, searches: maxSearches, signal: options.signal }, prompt, recordUsage);
   const parsed = scoutOutput.parse(jsonFrom(response));
   const kept = parsed.signals
     .filter((item) => item.confidence >= SCOUT_CONFIDENCE_FLOOR)
@@ -442,11 +484,11 @@ const aiPostsOutput = z.object({
  * work. Small model, two searches, no opinion columns or press: the post
  * must be by a named person who works there, in their own words.
  */
-export async function searchAiPosts(account: { name: string; domain: string }, recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string } = {}) {
+export async function searchAiPosts(account: { name: string; domain: string }, recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string; signal?: AbortSignal } = {}) {
   const model = options.model ?? searchModel();
   const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 2));
   const { response } = await completeTurn(
-    { model, max_tokens: 8_000, searches: maxSearches },
+    { model, max_tokens: 8_000, searches: maxSearches, signal: options.signal },
     `Find public posts from the last 180 days by people who work at ${account.name} (${account.domain}) about AI, automation, AI agents, data, systems, or making their own work or team more efficient: what they are trying, what is hard, what they want, what they built, or asking for help or recommendations. Run at least two searches on LinkedIn: site:linkedin.com/posts "${account.name}" AI, and site:linkedin.com/pulse "${account.name}"; then X, personal blogs, podcasts and conference talks. Only count a post if a named person who works at ${account.name} wrote it in their own words (a repost with their own comment counts; a company-page post counts only when a named person is quoted as its author). Do not count press releases, news articles, interviews in publications or opinion columns in magazines. For each post give the author's full name and title as shown, the URL of the post, the date as YYYY-MM-DD when shown, a verbatim excerpt of up to 400 characters, the platform, and a three-to-six-word topic. Up to 10 posts. Return JSON only: {"posts":[{"author_name":"","author_title":"","url":"https://...","posted_at":null,"excerpt":"","platform":"linkedin","topic":""}]}. Return {"posts":[]} if there are none.`,
     recordUsage,
   );
@@ -468,12 +510,12 @@ const peopleSearchOutput = z.object({
  * the company's own site, press releases and bios. Also any work addresses
  * seen on public pages, so the company's email format can be learned.
  */
-export async function searchPeopleWeb(account: { name: string; domain: string }, wantedTitles: string[], recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string } = {}) {
+export async function searchPeopleWeb(account: { name: string; domain: string }, wantedTitles: string[], recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string; signal?: AbortSignal } = {}) {
   const model = options.model ?? searchModel();
   const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 6));
   const titles = wantedTitles.slice(0, 12).join(", ") || "executives and operations, technology, data and finance leaders";
   const { response } = await completeTurn(
-    { model, max_tokens: 8_000, searches: maxSearches },
+    { model, max_tokens: 8_000, searches: maxSearches, signal: options.signal },
     `List people who currently work at ${account.name} (${account.domain}), most useful first: ${titles}, then other managers and leaders in operations, technology, data, finance, revenue and customer teams. Search LinkedIn profile results (site:linkedin.com/in "${account.name}"), the company's leadership or team page, press releases and conference bios. Only include people you actually saw named with a title at ${account.name}; skip people who have left. Also record every work email address at @${account.domain} you see on public pages (press contacts, author bios, PDF footers) so the address format can be learned; never invent one. Up to 30 people. Return JSON only: {"people":[{"name":"","title":"","linkedin_url":null,"source_url":null}],"email_examples":[]}.`,
     recordUsage,
   );
@@ -486,11 +528,11 @@ export async function searchPeopleWeb(account: { name: string; domain: string },
  * model to list the company's open roles from public job boards. Cheap
  * (two searches, Haiku) and only used when the direct read found nothing.
  */
-export async function searchJobBoards(account: { name: string; domain: string }, recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string } = {}) {
+export async function searchJobBoards(account: { name: string; domain: string }, recordUsage?: UsageRecorder, options: { maxSearches?: number; model?: string; signal?: AbortSignal } = {}) {
   const model = options.model ?? searchModel();
   const maxSearches = Math.max(1, Math.min(10, options.maxSearches ?? 2));
   const { response } = await completeTurn(
-    { model, max_tokens: 8_000, searches: maxSearches },
+    { model, max_tokens: 8_000, searches: maxSearches, signal: options.signal },
     `List the currently open job postings at ${account.name} (${account.domain}) that appear on public job boards such as LinkedIn Jobs, Indeed, Glassdoor or ZipRecruiter, or on the company's own careers site. Search for "${account.name}" jobs. Return only postings you actually saw, each with the exact title and the URL of the listing, the posting date as YYYY-MM-DD when shown, and the location. Up to 30 postings. Ignore postings at other companies with similar names. Return JSON only: {"postings":[{"title":"","url":"https://...","posted_at":null,"location":null}]}. Return {"postings":[]} if you find none.`,
     recordUsage,
   );
