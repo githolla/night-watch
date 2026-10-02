@@ -51,6 +51,16 @@ function freshness(date: string | null, now: number, window: number) {
 /** The hires where Nine-67 would build the system instead (docs/scoring.md, target job families). */
 // Stems, so no trailing word boundary: "dispatch" must match Dispatcher, "schedul" Scheduling.
 const AUTOMATABLE_ROLE = /\b(dispatch|schedul|coordinat|estimat|quot|admin|clerk|billing|invoic|payable|receivable|bookkeep|data|report|analyst|automat|process|system|crm|erp|customer service|office manager|order entry|purchas|procure|operations specialist)/i;
+export const isAutomatableRole = (title: string) => AUTOMATABLE_ROLE.test(title);
+
+/** True when a dated item is no older than `windowDays` and not more than a week in the future. Undated is never fresh. */
+export function isFreshDate(date: string | null | undefined, windowDays: number, now: Date = new Date()) {
+  if (!date) return false;
+  const time = Date.parse(date.length === 10 ? `${date}T00:00:00Z` : date);
+  if (Number.isNaN(time)) return false;
+  const age = (now.getTime() - time) / DAY;
+  return age >= -7 && age <= windowDays;
+}
 
 export function aiFitScore(raw: unknown, options: { now?: Date } = {}): AiFit {
   const evidence = aiFitEvidence.parse(raw);

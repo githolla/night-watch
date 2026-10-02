@@ -9,14 +9,26 @@ type FollowupStep = { day: number; channel: FollowupChannel; title: string; deta
 /** The two follow-ups that run after the first touch (business day 3 and 10): hand-written, no model, so they
  *  work even offline. Two, not three: with a daily list going out, a third step pushed each mailbox past its
  *  daily cap within weeks. Warm, specific-enough bumps the sender can copy (or edit) on the day each comes due. */
-export function buildFollowups(channel: FollowupChannel, ctx: { firstName: string; company: string; baseSubject: string }): FollowupStep[] {
+/** A task or metric the follow-up may quote: plain text with no question mark or long dash. */
+const quotable = (value: string | undefined) => {
+  const text = value?.trim().replace(/\s+/g, " ").replace(/[.;:]+$/, "") ?? "";
+  return text.length >= 4 && !/[?—–]/.test(text) ? text : "";
+};
+
+export function buildFollowups(channel: FollowupChannel, ctx: { firstName: string; company: string; baseSubject: string; task?: string; metric?: string }): FollowupStep[] {
   const name = ctx.firstName || "there";
   const company = ctx.company || "your team";
   const re = ctx.baseSubject ? `Re: ${ctx.baseSubject.replace(/[—–]/g, '-')}` : `Following up: ${company}`;
+  const task = quotable(ctx.task);
+  const metric = quotable(ctx.metric);
+  // Only when both are known do the bumps name the work; otherwise the wording is exactly the generic one.
+  const named = Boolean(task && metric);
   const bodies = [
-    `Hi ${name},\n\nFollowing up on the project I suggested for ${company}. We'd work with the people doing the task, build a first version and test whether it saves them time.\n\nIs this a task your team would like help with?`,
+    named
+      ? `Hi ${name},\n\nFollowing up on ${task} for ${company}. A first version would be judged on one number: ${metric}.\n\nIs ${task} something your team would like help with?`
+      : `Hi ${name},\n\nFollowing up on the project I suggested for ${company}. We'd work with the people doing the task, build a first version and test whether it saves them time.\n\nIs this a task your team would like help with?`,
     `Hi ${name},\n\nA useful first build should be easy to judge: compare the time your team spends on the task today with the time it takes using the new tool. Our engineers would handle the build, work through feedback and train the people using it.\n\nWho at ${company} would be best to talk with about that work?`,
-    `Hi ${name},\n\nI'll leave this with you after this note. If the project in my first message becomes a priority at ${company}, our AI engineers can work alongside your team from the first build through testing and training.\n\nWould it be better to revisit this later?`,
+    `Hi ${name},\n\nI'll leave this with you after this note. If ${named ? task : "the project in my first message"} becomes a priority at ${company}, our AI engineers can work alongside your team from the first build through testing and training.\n\nWould it be better to revisit this later?`,
   ];
   // Keeps the first and last of the original three; the middle "how we would measure it" note is dropped.
   return [0, 2].map((index, position) => ({day:[3,10][position],channel,title:['Follow up on the project','How we would measure it','Close the loop'][index],detail:'Continues the original project conversation',subject:channel==='email'?re:null,body:bodies[index]}));
@@ -48,10 +60,10 @@ function scheduleBusinessDays(days: number): string {
  *  Idempotent: does nothing if the card already has a cadence, so re-recording a touch never stacks duplicates. */
 export async function ensureFollowupCadence(
   db: Db,
-  ctx: { cardId: string; personId: string; owner: Owner; touchedChannel: string; firstName: string; company: string; baseSubject: string },
+  ctx: { cardId: string; personId: string; owner: Owner; touchedChannel: string; firstName: string; company: string; baseSubject: string; task?: string; metric?: string },
 ): Promise<{ created: boolean; steps: number }> {
   const channel: FollowupChannel = ctx.touchedChannel === "email" ? "email" : "linkedin_message";
-  const steps = buildFollowups(channel, { firstName: ctx.firstName, company: ctx.company, baseSubject: ctx.baseSubject });
+  const steps = buildFollowups(channel, { firstName: ctx.firstName, company: ctx.company, baseSubject: ctx.baseSubject, task: ctx.task, metric: ctx.metric });
   const rows = steps.map((step, index) => ({
     step_number: index + 1,
     channel: step.channel,

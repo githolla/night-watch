@@ -1,4 +1,8 @@
+import { createHash } from "node:crypto";
+import { z } from "zod";
 import { lintEmail } from "../../tools/email-writer/src/lint.ts";
+import { isAutomatableRole, isFreshDate } from "./ai-fit.ts";
+import { COMPANY_FURNITURE } from "./draft-audit.ts";
 import { firstTouchErrors } from "./first-touch.ts";
 
 /**
@@ -19,7 +23,51 @@ export type Workflow = {
 
 export type ListVariant = { id: string; label: string; subject: string; message: string; linkedinMessage: string };
 
-export function listVariants(company: string, workflow: Workflow): ListVariant[] {
+/** The structured evidence an opening line may draw on. AiFitEvidence satisfies it. */
+export type OpeningEvidence = {
+  hiring?: Array<{ title: string; postedDate: string | null }>;
+  scale?: { locations: number | null; url: string | null } | null;
+};
+
+const UNSAFE_TITLE = /[?!|()[\]{}:;,/\\@#$%*<>"\d—–]|\s-|-\s|https?:|www\.|\.(?:com|net|org|io|co|ai)\b/i;
+
+function article(word: string) {
+  // Acronyms are read letter by letter: "an HR", "an SDR", "a CRM".
+  if (/^[A-Z]{2,}\b/.test(word)) return /^[AEFHILMNORSX]/.test(word) ? "an" : "a";
+  if (/^(?:one|use|user|uni|euro|u[bcgkmnprst][aeiouy])/i.test(word)) return "a";
+  return /^(?:[aeiou]|hour|honest|honor)/i.test(word) ? "an" : "a";
+}
+
+/**
+ * One opening sentence built only from structured, checkable evidence: a fresh automatable hire or a
+ * location count with its source. Free-form facts (change, techOpenness) are never quoted, and the line
+ * states what the signal implies rather than repeating the signal.
+ */
+export function openingLine(company: string, task: string, evidence: OpeningEvidence | undefined, now: Date = new Date()): string | null {
+  if (!evidence || !company.trim()) return null;
+  for (const role of evidence.hiring ?? []) {
+    const title = role.title.trim().replace(/\s+/g, " ").replace(/[.]+$/, "");
+    if (title.length < 3 || title.length > 50 || UNSAFE_TITLE.test(title)) continue;
+    if (!isAutomatableRole(title) || !isFreshDate(role.postedDate, 90, now)) continue;
+    return `${company} is hiring ${article(title)} ${title}, which usually means more ${task} done by hand.`;
+  }
+  const locations = evidence.scale?.locations ?? 0;
+  if (evidence.scale?.url && Number.isInteger(locations) && locations >= 3 && locations <= 5000) {
+    return `Across ${locations} locations, ${task} tends to happen by hand at each one.`;
+  }
+  return null;
+}
+
+export function listVariants(company: string, workflow: Workflow, evidence?: OpeningEvidence, options: { now?: Date } = {}): ListVariant[] {
+  const variants = templateVariants(company, workflow);
+  const line = openingLine(company, workflow.task, evidence, options.now);
+  if (!line) return variants;
+  const led = { ...variants[0], message: `${line}\n\n${variants[0].message}` };
+  // The line is a bonus: if it pushes the email over a limit, send the plain approved version instead.
+  return variantProblems([led]).length ? variants : [led, ...variants.slice(1)];
+}
+
+function templateVariants(company: string, workflow: Workflow): ListVariant[] {
   const { task, subject, inputs, metric } = workflow;
   return [
     {
@@ -42,16 +90,138 @@ export function listVariants(company: string, workflow: Workflow): ListVariant[]
 
 const clean = (value: string) => value.trim().replace(/\s+/g, " ").replace(/[.;:]+$/, "");
 
+/** The shape a researched or repaired workflow must have before checkWorkflow looks at it. */
+export const workflowShape = z.object({ task: z.string(), subject: z.string(), inputs: z.string(), metric: z.string() });
+
+export type WorkflowContext = {
+  company?: string;
+  domain?: string;
+  /** Names grounded in the evidence (for example systems a page confirmed); they may appear capitalised. */
+  allowedNames?: string[];
+};
+
+/** Generic acronyms that may appear capitalised in workflow text. */
+const ACRONYMS = new Set(["AI", "CRM", "ERP", "HR", "IT", "QA"]);
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const containsWord = (text: string, phrase: string) => new RegExp(`(?:^|[^a-z0-9])${escapeRegExp(phrase.toLowerCase())}(?:$|[^a-z0-9])`).test(text.toLowerCase());
+const domainStem = (domain: string) => domain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[./]/)[0] ?? "";
+
+/** Free fixes for punctuation the templates cannot carry: long dashes become commas, question marks go, the subject is lowercased. */
+export function normalizeWorkflow(raw: Workflow): Workflow {
+  const fix = (value: string) => value.replace(/\s*[—–]+\s*/g, ", ").replace(/\?/g, "").replace(/\s+,/g, ",").replace(/,\s*$/, "");
+  return { task: fix(raw.task), subject: fix(raw.subject).toLowerCase(), inputs: fix(raw.inputs), metric: fix(raw.metric) };
+}
+
 /** Normalise a researched idea, or explain why it cannot be used in the templates. */
-export function checkWorkflow(raw: Workflow): { workflow: Workflow } | { problem: string } {
+export function checkWorkflow(raw: Workflow, context: WorkflowContext = {}): { workflow: Workflow } | { problem: string } {
   const workflow = { task: clean(raw.task).replace(/^./, (c) => c.toLowerCase()), subject: clean(raw.subject).toLowerCase(), inputs: clean(raw.inputs), metric: clean(raw.metric).replace(/^./, (c) => c.toLowerCase()) };
+  const names = [context.company ?? "", context.company ? speakableCompany(context.company) : "", domainStem(context.domain ?? "")].filter((name) => name.trim().length >= 3);
+  const allowed = (context.allowedNames ?? []).map((name) => name.trim()).filter(Boolean).sort((a, b) => b.length - a.length);
+  const original = { task: clean(raw.task), subject: clean(raw.subject), inputs: clean(raw.inputs), metric: clean(raw.metric) };
   for (const [key, value, max] of [["task", workflow.task, 70], ["subject", workflow.subject, 40], ["inputs", workflow.inputs, 160], ["metric", workflow.metric, 70]] as const) {
     if (value.length < 4) return { problem: `workflow ${key} is missing` };
     if (value.length > max) return { problem: `workflow ${key} is too long` };
     if (/[?—–]|https?:|www\.|\b[a-z0-9-]+\.(?:com|net|org|io|co|ai)\b/i.test(value)) return { problem: `workflow ${key} has a question mark, a long dash or a link` };
+    // The templates are approved wording; the workflow must stay generic so nothing unverified reaches the prospect.
+    if (/\d/.test(value)) return { problem: `workflow ${key} has a number` };
+    if (/\b(?:your|their|our)\b/i.test(value)) return { problem: `workflow ${key} makes a claim about the company` };
+    if (names.some((name) => containsWord(value, name))) return { problem: `workflow ${key} names the company` };
+    // Checked on the text as written, before lowercasing, so "ServiceTitan notes" cannot hide as "serviceTitan".
+    const rest = allowed.reduce((text, name) => text.replace(new RegExp(escapeRegExp(name), "gi"), " "), original[key]);
+    const proper = rest.match(/[A-Za-z][A-Za-z']*/g)?.find((word, index) => /[A-Z]/.test(word) && !ACRONYMS.has(word) && !(index === 0 && rest.trimStart().startsWith(word) && /^[A-Z][a-z']*$/.test(word)));
+    if (proper) return { problem: `workflow ${key} has a name or place ("${proper}")` };
   }
   if (workflow.subject.split(" ").length > 5) return { problem: "workflow subject is longer than five words" };
   return { workflow };
+}
+
+export type WorkflowAgent = (prompt: string) => Promise<unknown>;
+
+/**
+ * One repair attempt for a workflow that failed its checks, so a researched company is not thrown away
+ * over wording. The agent is injected (the builder passes a cheap writing call on the company's budget).
+ * Returns the repaired workflow and its variants, or the reason it still fails.
+ */
+export async function repairWorkflow(workflow: Workflow, problems: string[], evidenceSummary: string, agent: WorkflowAgent, context: WorkflowContext & { company: string; evidence?: OpeningEvidence; now?: Date }): Promise<{ workflow: Workflow; variants: ListVariant[] } | { problem: string }> {
+  const prompt = `Rewrite this outreach workflow idea so it passes the checks below. Use only the material given here.
+
+Current fields:
+${JSON.stringify({ task: workflow.task, subject: workflow.subject, inputs: workflow.inputs, metric: workflow.metric }, null, 2)}
+
+Problems to fix:
+${problems.map((problem) => `- ${problem}`).join("\n")}
+
+Limits:
+- task: a generic lowercase noun phrase, 4 to 70 characters
+- subject: 2 to 5 lowercase words, at most 40 characters
+- inputs: what the tool would bring together, at most 160 characters
+- metric: what would be measured, 4 to 70 characters
+- No question marks, no long dashes, no links, no numbers, no "your", "their" or "our"
+- No company, product, software or place names; only the acronyms AI, CRM, ERP, HR, IT or QA may be capitalised${context.allowedNames?.length ? ` (these names are also allowed: ${context.allowedNames.join(", ")})` : ""}
+- The whole email must stay at or under 120 words
+
+Evidence (for inspiration only, do not restate it):
+${evidenceSummary.trim() || "none"}
+
+Return JSON only: {"task":"","subject":"","inputs":"","metric":""}`;
+  let reply: unknown;
+  try {
+    reply = await agent(prompt);
+  } catch (error) {
+    return { problem: `repair failed: ${error instanceof Error ? error.message : String(error)}` };
+  }
+  const parsed = workflowShape.safeParse(typeof reply === "string" ? parseJsonText(reply) : reply);
+  if (!parsed.success) return { problem: "repair did not return a workflow" };
+  const checked = checkWorkflow(normalizeWorkflow(parsed.data), context);
+  if ("problem" in checked) return checked;
+  const variants = listVariants(context.company, checked.workflow, context.evidence, { now: context.now });
+  const remaining = variantProblems(variants);
+  if (remaining.length) return { problem: remaining.slice(0, 2).join("; ") };
+  return { workflow: checked.workflow, variants };
+}
+
+function parseJsonText(text: string): unknown {
+  const body = text.match(/\{[\s\S]*\}/)?.[0];
+  if (!body) return null;
+  try { return JSON.parse(body); } catch { return null; }
+}
+
+/** The versions that may be sent automatically. delivery-experience has the same subject for everyone, so it stays manual. */
+export const AUTO_ARMS = ["direct-offer", "concrete-idea"] as const;
+
+/** Pick the version to send by a stable hash of the domain, so arms split evenly and a company never flips between them. */
+export function chooseArm(domain: string, variants: ListVariant[]): { variants: ListVariant[]; armId: string | null } {
+  const arms = AUTO_ARMS.filter((id) => variants.some((variant) => variant.id === id));
+  if (!arms.length) return { variants, armId: null };
+  const key = domain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/.*$/, "");
+  const armId = arms[createHash("sha256").update(key).digest().readUInt32BE(0) % arms.length];
+  const chosen = variants.find((variant) => variant.id === armId)!;
+  return { variants: [chosen, ...variants.filter((variant) => variant !== chosen)], armId };
+}
+
+const LEGAL_SUFFIX = /[\s,]+(?:inc|incorporated|llc|l\.l\.c|co|corp|corporation|ltd|plc|lp|llp)\.?$/i;
+const FURNITURE_WORD = new RegExp(`^(?:${COMPANY_FURNITURE.source})$`, "i");
+const isFurniture = (word: string) => FURNITURE_WORD.test(word) || !/[a-z0-9]/i.test(word);
+
+/**
+ * The name a person would say: "Acme Landscaping, LLC" reads as "Acme Landscaping". Capitalisation is never
+ * changed (BELFOR stays BELFOR), and anything that would leave only generic words falls back to the original.
+ */
+export function speakableCompany(name: string): string {
+  const original = name.trim().replace(/\s+/g, " ");
+  if (!original) return "";
+  let result = original;
+  const dba = result.match(/\s*,?\s*\b(?:d\/b\/a|dba)\b\.?:?\s*(.*)$/i);
+  if (dba) result = dba[1].trim() || result.slice(0, dba.index).trim();
+  result = result.replace(/\s*\([^)]*\)/g, " ").replace(/\s+/g, " ").trim();
+  for (let previous = ""; previous !== result;) { previous = result; result = result.replace(LEGAL_SUFFIX, "").replace(/[\s,]+$/, "").trim(); }
+  let words = result.split(" ").filter(Boolean);
+  if (words.length >= 3 && /^the$/i.test(words[0])) words = words.slice(1);
+  const distinctive = (list: string[]) => list.filter((word) => !isFurniture(word)).length;
+  if (words.length > 1 && /^(?:holdings|group)$/i.test(words.at(-1)!) && distinctive(words.slice(0, -1)) >= 2) words = words.slice(0, -1);
+  result = words.join(" ");
+  if (result.length < 2 || !words.length || words.every(isFurniture)) return original;
+  return result;
 }
 
 /** Every version must pass the writer-kit lint and the first-touch rules before it can go on a list. */

@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import focus from '../../data/revenue-focus.json' with {type:'json'};
 import {contactEvidence,recommendEvidence,researchVersions,giftAsset,type ResearchEvidence} from './research-recommendation.ts';
 import {withResearchDefault} from './recommended-draft.ts';
+import offers from '../../data/batch-3-offers.json' with {type:'json'};
+import {setNightlyLists} from './research-data/server.ts';
+import {researchRecommendation} from './research-recommendation.ts';
 const now=new Date('2026-09-24T12:00:00Z');
 const base=contactEvidence('ansararestaurantgroup.com','Victor Ansara')!;
 test('all25 companies and28contacts have completed individual gifts and exact-recipient drafts',()=>{
@@ -48,4 +51,17 @@ test('unchanged retired authored selections move to Direct Offer while personal 
  const personal={...card,email_body:card.email_body+'\nA personal addition.'};
  assert.equal(withResearchDefault(personal,'Josh','Hi {first},'),personal);
  const sent={...card,status:'sent'};assert.equal(withResearchDefault(sent,'Josh','Hi {first},'),sent);
+});
+test('recommendation reasons follow the variant id when the chosen version is moved first',()=>{
+ const [direct,concrete,delivery]=offers[0].variants;
+ const reasonFor=(id:string)=>researchRecommendation(offers[0].domain,offers[0].contactName)!.candidates.find(c=>c.id===id)!.reason;
+ const original={direct:reasonFor('direct-offer'),concrete:reasonFor('concrete-idea'),delivery:reasonFor('delivery-experience')};
+ setNightlyLists({nightlyFocus:[],nightlyOffers:[{...offers[0],domain:'reordered.test',variants:[concrete,delivery,direct]}],nightlyLatest:{josh:[],suuchi:[]}});
+ try{
+  const rec=researchRecommendation('reordered.test',offers[0].contactName)!;
+  assert.equal(rec.recommended.id,'concrete-idea');assert.equal(rec.recommended.score,100);
+  assert.deepEqual(rec.candidates.map(c=>[c.id,c.score]),[['concrete-idea',100],['delivery-experience',50],['direct-offer',50]]);
+  assert.equal(rec.candidates[0].reason,original.concrete);assert.equal(rec.candidates[1].reason,original.delivery);assert.equal(rec.candidates[2].reason,original.direct);
+  assert.match(original.concrete,/specific application/);assert.match(original.direct,/direct introduction/);
+ }finally{setNightlyLists({nightlyFocus:[],nightlyOffers:[],nightlyLatest:{josh:[],suuchi:[]}});}
 });
