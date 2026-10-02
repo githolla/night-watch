@@ -17,7 +17,13 @@ Research is not scheduled. Outreach works from the curated lists, so the nightly
 
 ## Nightly reach-out list and morning auto-send
 
-Apply `supabase/migrations/0027_nightly_lists.sql` and then `0028_ai_fit.sql` first. Until they are applied nothing builds or sends automatically.
+Apply these migrations in order in the Supabase SQL editor; each is safe to run more than once:
+
+- `0027_nightly_lists.sql` and `0028_ai_fit.sql`: until they are applied nothing builds or sends automatically.
+- `0029_nightly_resilience.sql`: research retries, preparation tracking and the build alerts.
+- `0030_send_safety.sql`: the per-card "Keep for me" hold, "Skip today", the resume time the bounce brake counts from, saved held reasons, case-insensitive opt-out lookup and the atomic sent count. Until it is applied those controls are hidden or refused with a message, and the rest keeps working.
+
+Lists build and auto-send only on send days: `SEND_DAYS` (default `Mon,Tue,Wed,Thu,Fri`), minus any date in `SKIP_DATES`, a comma-separated list of `YYYY-MM-DD` dates in the send timezone (use it for US holidays, for example `SKIP_DATES=2026-11-26,2026-12-25`).
 
 Every night `/api/cron/nightly-list` (every ten minutes, 06:00 to 09:50 UTC) builds a list for Josh and for Suuchi:
 
@@ -28,12 +34,26 @@ Every night `/api/cron/nightly-list` (every ten minutes, 06:00 to 09:50 UTC) bui
 4. It writes the three batch-3 email and LinkedIn versions from the approved templates (`src/lib/list-templates.ts`), and skips any company whose copy fails the writer-kit lint or the first-touch rules.
 5. When a list has evaluated 20, or the night's $10 budget or the pool runs out, it keeps its 12 best by AI fit (`NIGHTLY_LIST_SIZE`, `NIGHTLY_LIST_RESEARCH`, `NIGHTLY_LIST_BUDGET_USD`). The runners-up become reserves for up to 14 days (`NIGHTLY_LIST_RESERVE_DAYS`). It prepares each kept company as a card, exactly as opening the desk would.
 
-The list appears on the desk as **Today's list**, which becomes the default landing list while it exists.
+The list appears on the desk as **Today's list**, which becomes the default landing list while it exists. It opens in send order (list rank, then AI fit), and each row shows its fit score, the year its revenue was reported for, and what the morning run is expected to do with it: sent (with the time), auto-send off, paused or skipped, kept for you, expected to auto-send, or needs a hand send because the address is not confirmed. The last two are predictions; the real checks run at send time.
 
 `/api/cron/morning-send` (every ten minutes, 10:00 to 17:50 UTC) works in local time (`SEND_TIMEZONE`):
 
-- **07:00:** posts the list to Slack, saying whether it will send automatically.
-- **09:00 to 11:30:** with auto-send on, sends each confirmed address (Hunter-verified, or already delivered to without a bounce), spread evenly across the window, through the same guards as a Send click: the daily cap, do-not-contact, one email per person, the opt-out line and one-click unsubscribe. Unconfirmed addresses stay on the list for a person to send.
-- **After 11:30:** posts a summary.
+- **First run of the morning:** finalizes any list the night left building, with the companies it has, and prepares cards for rows that have none. A stuck list never needs a person to close it.
+- **07:00 (`LIST_ANNOUNCE_AT`):** posts the list to Slack, one line per company with its fit and whether it is expected to send or held and why. When there is no usable list (never built, still building or failed) it posts one alert with the top reasons instead.
+- **09:00 to 11:30 (`AUTO_SEND_FROM`, `AUTO_SEND_UNTIL`):** with auto-send on, sends each confirmed address (Hunter-verified, or already delivered to without a bounce), spread evenly across the window with a random wait before each, through the same guards as a Send click: the daily cap, do-not-contact, one email per person, the opt-out line and one-click unsubscribe. Unconfirmed addresses stay on the list for a person to send.
+- **After 11:30:** posts a summary naming every card left unsent and why, and how many you kept to send by hand.
 
-Auto-send is off by default. Each person turns it on in Settings, and it needs the business postal address saved under Sender identity, because US law (CAN-SPAM) requires it in commercial email. It pauses itself, and says so in Slack, when more than 5% of the day's emails bounce once at least 20 have gone out. Each prospect gets two follow-ups, on business days 3 and 10.
+The 8:00 card digest (`/api/cron/morning`) is skipped for a seat whose list is ready, so each person gets one morning message.
+
+**The cron hours assume US Eastern.** The `vercel.json` schedules are fixed UTC hours chosen so 7:00 to 11:30 Eastern falls inside the 10:00 to 17:50 UTC morning-send cron in both EDT and EST. If you change `SEND_TIMEZONE`, `LIST_ANNOUNCE_AT`, `AUTO_SEND_FROM` or `AUTO_SEND_UNTIL`, check the morning-send hours in `vercel.json` too; the 7:00 Slack message warns when part of the morning falls outside them.
+
+Auto-send is off by default. Each person turns it on in Settings, and it needs the business postal address saved under Sender identity, because US law (CAN-SPAM) requires it in commercial email. Each prospect gets two follow-ups, on business days 3 and 10.
+
+- **Bounce brake:** auto-send pauses itself, and says in Slack which addresses bounced, after 2 bounced first emails within 48 hours, or when more than 5% of at least 10 first emails bounce. Pausing also holds automatic follow-ups. After fixing the addresses, Resume in Settings; the brake then counts only first emails sent after the resume.
+- **Follow-ups** for a seat without a postal address wait for a person, the same rule as first emails.
+- **Signature:** automatically sent first emails use a plain-text signature (name and details, no logo or images, at most one link). Emails you send by hand keep the saved signature.
+- **Keep for me:** on Today's list, the "Keep for me (don't auto-send)" toggle next to Send takes one company off the morning auto-send without dismissing it. You can still send it yourself.
+- **Skip today:** the Settings button stops this morning's automatic first emails for that seat only; it clears itself tomorrow. Pause is the longer stop and also holds follow-ups.
+- **Warm-up:** a newly connected mailbox starts at 5 emails a day and adds `SEND_RAMP_PER_DAY` (default 5) each day up to `SEND_DAILY_CAP` (default 40). Settings shows today's cap and how long Gmail has been connected. For a genuinely new domain or mailbox, set `SEND_RAMP_PER_DAY=2` or `3` for a slower ramp.
+
+Settings also shows tonight's build per seat (companies evaluated against the target, the fit range kept, when the 7:00 and summary messages went out, and the top skip reasons with the skipped companies) and the night's research spend once, because the $10 budget is shared by both lists. `/stats` shows list outcomes by AI-fit band and sector, and suggests a `NIGHTLY_LIST_MIN_FIT` once there are enough replies; it never changes the setting.

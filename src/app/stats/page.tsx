@@ -1,6 +1,8 @@
 import { REPLY_MODEL } from "@/lib/reply-event";
-import { VersionAnalytics } from "@/components/VersionAnalytics";
-import { aggregateVersions, type TrackedTouch } from "@/lib/version-analytics";
+import { ListOutcomes, VersionAnalytics } from "@/components/VersionAnalytics";
+import { aggregateVersions, listOutcomeReport, suggestedMinFit, type ListedCard, type ListedCompany, type ListedTouch, type TrackedTouch } from "@/lib/version-analytics";
+import { SECTORS } from "@/lib/list-sectors";
+import { nightlyListConfig } from "@/lib/nightly-list-builder";
 import { fetchAll } from "@/lib/supabase/fetch-all";
 import { SAVED_VERSION_MODEL } from "@/lib/version-attribution";
 import Link from "next/link";
@@ -16,14 +18,15 @@ type ExperimentStats = { total: number; selected: number; sent: number; replied:
 type Dimension = keyof ExperimentStats["dimensions"];
 const emptyExperimentStats: ExperimentStats = { total: 0, selected: 0, sent: 0, replied: 0, positive: 0, averageLift: 0, confidence: 0, winnerA: 0, winnerB: 0, dimensions: { relevance: 0, specificity: 0, trust: 0, replyEase: 0 }, channels: [], recent: [] };
 
-function StatsView({ stats, experiments, versions }: { stats: StatsData; experiments: ExperimentStats; versions: React.ReactNode }) {
+function StatsView({ stats, experiments, versions, lists }: { stats: StatsData; experiments: ExperimentStats; versions: React.ReactNode; lists: React.ReactNode }) {
   const completionRate = experiments.sent ? Math.round(experiments.replied / experiments.sent * 100) : 0;
   const positiveRate = experiments.replied ? Math.round(experiments.positive / experiments.replied * 100) : 0;
   return <div><main className="stats learning-page">
     <header className="learning-head"><div><div className="eyebrow">Learning system · message optimization</div><h1>What improves response</h1><p>Compare saved email versions using recorded sends, open signals and human replies.</p></div><Link href="/desk" className="learning-cta">Choose a saved version <span>→</span></Link></header>
-    <nav className="learning-nav"><a href="#saved-versions">Saved versions</a><a href="#experiments"><span>01</span>Message experiments</a><a href="#signals"><span>02</span>Signal performance</a></nav>
+    <nav className="learning-nav"><a href="#saved-versions">Saved versions</a><a href="#list-outcomes">List outcomes</a><a href="#experiments"><span>01</span>Message experiments</a><a href="#signals"><span>02</span>Signal performance</a></nav>
 
     {versions}
+    {lists}
     <section id="experiments" className="experiment-analytics">
       <div className="analytics-section-head"><div><span className="eyebrow">Message Lab analytics</span><h2>Simulation → selection → outcome</h2></div><span>{experiments.total} TESTS RECORDED</span></div>
       <div className="experiment-metrics">
@@ -49,7 +52,7 @@ function StatsView({ stats, experiments, versions }: { stats: StatsData; experim
   </main></div>;
 }
 
-export default async function Stats({ searchParams }: { searchParams: Promise<{ source?: string; days?: string }> }) {
+export default async function Stats({ searchParams }: { searchParams: Promise<{ source?: string; days?: string; group?: string }> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   // Check the schema while sign-in is checked, instead of one round trip after it.
   const schemaCheck = pendingMigrations(admin()).catch(() => []);
@@ -62,6 +65,10 @@ export default async function Stats({ searchParams }: { searchParams: Promise<{ 
   const params = await searchParams;
   const source = params.source === "manual" || params.source === "all" ? params.source : "gmail";
   const days = params.days === "30" || params.days === "90" ? params.days : "all";
+  const group = params.group === "sender" || params.group === "fit" ? params.group : "version";
+  const since = days === "all" ? undefined : reportSince(Number(days));
+  const listRead = loadListOutcomes(db);
+  listRead.catch(() => {});
   // Every read on this page is independent, so they all start now. Touches are paged: one unpaged read
   // stops at 1,000 rows and the reply rate quietly covered only the first thousand sends.
   const trackedRead = fetchAll<TrackedTouch>((from,to)=>db.from("touches").select("id,card_id,person_id,sent_by,sent_at,gmail_thread_id,reply_at,reply_classification,people(full_name),message_variants(subject,dimensions,message_experiments(context))").in("channel",["email","linkedin_message"]).order("id").range(from,to) as unknown as PromiseLike<{ data: TrackedTouch[] | null; error: { message: string } | null }>);
@@ -77,13 +84,42 @@ export default async function Stats({ searchParams }: { searchParams: Promise<{ 
   const groups = new Map<string, { sent: number; replies: number; positive: number }>();
   for (const touch of touches ?? []) { const type = ((touch.cards as unknown as { signals: { type: string } })?.signals?.type) ?? "unknown", group = groups.get(type) ?? { sent: 0, replies: 0, positive: 0 }; group.sent++; if (Boolean(touch.reply_at) && ["positive","neutral","objection","referral","negative"].includes(touch.reply_classification ?? "")) group.replies++; if (["positive", "referral"].includes(touch.reply_classification)) group.positive++; groups.set(type, group); }
   const stats = { sent, replyRate: sent ? Math.round(replied / sent * 100) : 0, positiveShare: replied ? Math.round(positive / replied * 100) : 0, meetings: meetings ?? 0, cost: (runs ?? []).reduce((sum, run) => sum + Number(run.cost_usd), 0), groups: [...groups].map(([name, group]) => ({ name: name.replaceAll("_", " "), sent: group.sent, replyRate: group.sent ? Math.round(group.replies / group.sent * 100) : 0, positiveShare: group.replies ? Math.round(group.positive / group.replies * 100) : 0 })) };
+  let listData: Awaited<typeof listRead> | null = null;
+  let listError: string | undefined;
+  try { listData = await listRead; } catch (error) { listError = error instanceof Error ? error.message : "Database unavailable"; }
   let summary = aggregateVersions([]);
   let trackingError: string | undefined;
   try {
     const tracked = await trackedRead;
-    summary = aggregateVersions(tracked, { source, since: days === "all" ? undefined : reportSince(Number(days)) });
+    summary = aggregateVersions(tracked, { source, since, groupBy: group === "version" ? undefined : group, fitScoreByCard: listData?.fitScoreByCard });
   } catch (error) { trackingError = error instanceof Error ? error.message : "Database unavailable"; }
-  return <StatsView stats={stats} experiments={await experimentsRead} versions={<VersionAnalytics summary={summary} error={trackingError} source={source} days={days} />} />;
+  const minFit = nightlyListConfig().minFit;
+  const listReport = listData ? listOutcomeReport(listData.companies, listData.cards, listData.touches, { since, sectorLabels: SECTORS }) : null;
+  const lists = <ListOutcomes report={listReport} error={listError} days={days} minFit={minFit} suggested={listReport ? suggestedMinFit(listReport, minFit) : null} />;
+  return <StatsView stats={stats} experiments={await experimentsRead} lists={lists} versions={<VersionAnalytics summary={summary} error={trackingError} source={source} days={days} group={group} />} />;
+}
+
+/** Listed companies, their cards and every email touch on those cards, for the List outcomes section. */
+async function loadListOutcomes(db: ReturnType<typeof admin>) {
+  type Page<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
+  const companies = await fetchAll<ListedCompany>((from, to) => db.from("list_candidates").select("domain,sector_key,fit_score,fit").eq("status", "listed").order("domain").range(from, to) as unknown as Page<ListedCompany>);
+  const domains = companies.map((company) => company.domain);
+  const cards: ListedCard[] = [];
+  const touches: ListedTouch[] = [];
+  for (let index = 0; index < domains.length; index += 200) {
+    const chunk = domains.slice(index, index + 200);
+    const rows = await fetchAll<{ id: string; status: string | null; meeting_at: string | null; qualified_at: string | null; opportunity_at: string | null; accounts: { domain: string } }>((from, to) => db.from("cards").select("id,status,meeting_at,qualified_at,opportunity_at,accounts!inner(domain)").in("accounts.domain", chunk).order("id").range(from, to) as unknown as Page<{ id: string; status: string | null; meeting_at: string | null; qualified_at: string | null; opportunity_at: string | null; accounts: { domain: string } }>);
+    cards.push(...rows.map(({ accounts, ...card }) => ({ ...card, domain: accounts.domain })));
+  }
+  const cardIds = cards.map((card) => card.id);
+  for (let index = 0; index < cardIds.length; index += 200) {
+    const chunk = cardIds.slice(index, index + 200);
+    touches.push(...await fetchAll<ListedTouch>((from, to) => db.from("touches").select("card_id,channel,sent_at,reply_classification").in("card_id", chunk).not("sent_at", "is", null).order("id").range(from, to) as unknown as Page<ListedTouch>));
+  }
+  const fitByDomain = new Map(companies.map((company) => [company.domain.toLowerCase(), company.fit_score]));
+  const fitScoreByCard = new Map<string, number>();
+  for (const card of cards) { const score = fitByDomain.get(card.domain.toLowerCase()); if (typeof score === "number") fitScoreByCard.set(card.id, score); }
+  return { companies, cards, touches, fitScoreByCard };
 }
 
 async function loadExperimentStats(db: ReturnType<typeof admin>): Promise<ExperimentStats> {

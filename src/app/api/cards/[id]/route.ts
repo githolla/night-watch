@@ -6,13 +6,18 @@ import { savedVariants, renderSavedVariant, renderLinkedInVariant } from "@/lib/
 import { senderProfile } from "@/lib/sender";
 import { emailStyle } from "@/lib/email-style";
 import { requireUser } from "@/lib/auth";import { admin } from "@/lib/supabase/admin";import { z } from "zod";
-const update=z.object({expected_updated_at:z.string().optional(),reopen:z.boolean().optional(),saved_variant_channel:z.enum(["email","linkedin"]).default("email"),saved_variant_id:z.enum(["trigger","gift","peer-proof","business-idea","proof","direct-offer","concrete-idea","delivery-experience"]).optional(),status:z.enum(["new","approved","edited","snoozed","dismissed","sent","replied","positive","meeting","archived"]).optional(),email_subject:z.string().max(120).transform(emailStyle).optional(),email_body:z.string().max(1000).transform(emailStyle).optional(),linkedin_note:z.string().max(300).optional(),linkedin_comment:z.string().max(1000).optional(),linkedin_message:z.string().max(1500).optional(),linkedin_subject:z.string().max(120).optional(),assigned_to:z.enum(["josh","jenna"]).optional(),dismiss_reason:z.string().max(200).nullable().optional(),snooze_until:z.string().nullable().optional()});
+const update=z.object({expected_updated_at:z.string().optional(),reopen:z.boolean().optional(),saved_variant_channel:z.enum(["email","linkedin"]).default("email"),saved_variant_id:z.enum(["trigger","gift","peer-proof","business-idea","proof","direct-offer","concrete-idea","delivery-experience"]).optional(),status:z.enum(["new","approved","edited","snoozed","dismissed","sent","replied","positive","meeting","archived"]).optional(),email_subject:z.string().max(120).transform(emailStyle).optional(),email_body:z.string().max(1000).transform(emailStyle).optional(),linkedin_note:z.string().max(300).optional(),linkedin_comment:z.string().max(1000).optional(),linkedin_message:z.string().max(1500).optional(),linkedin_subject:z.string().max(120).optional(),assigned_to:z.enum(["josh","jenna"]).optional(),dismiss_reason:z.string().max(200).nullable().optional(),snooze_until:z.string().nullable().optional(),auto_send_hold:z.boolean().optional()});
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const user = await requireUser();
     const { id } = await context.params;
     const { expected_updated_at, reopen, saved_variant_id, saved_variant_channel, ...body } = update.parse(await request.json());
     const db = admin();
+    // "Keep for me" changes what the morning run sends from a seat, so only that seat (or an admin) may set it.
+    if (body.auto_send_hold !== undefined && user.role !== "admin") {
+      const { data: owned } = await db.from("cards").select("assigned_to").eq("id", id).maybeSingle();
+      if (!owned || owned.assigned_to !== user.owner) return Response.json({ error: "Only the person this company is assigned to can change its auto-send." }, { status: 403 });
+    }
     let writeVersion=expected_updated_at, restored=false;
     const restoredStatus = await restoreSelectedDraft(db, id, reopen === true, {expectedUpdatedAt:reopen?undefined:expected_updated_at,onRestored:(version)=>{writeVersion=version;restored=true;}});
     if (reopen) body.status = restoredStatus as typeof body.status;
@@ -55,6 +60,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (writeVersion && (!reopen || restored)) query = query.eq("updated_at", writeVersion);
     if (editsCopy || reopen) query = query.in("status", editableStatuses);
     const { data, error } = await query.select().maybeSingle();
+    if (error && body.auto_send_hold !== undefined && /auto_send_hold/.test(error.message)) throw new Error("Run supabase/migrations/0030_send_safety.sql in the Supabase SQL editor first.");
     if (error) throw error;
     if (!data) return Response.json({ error: "This draft changed in another session or was sent. Your text is still on screen. Reload the saved draft before resolving your changes." }, { status: 409 });
     return Response.json({...data,restored});

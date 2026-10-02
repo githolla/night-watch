@@ -13,7 +13,7 @@ import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
 import { dateLabel, sourceDomain } from "@/lib/dossier-data";
 import { savedVariants, withDefaultLinkedIn, withDefaultEmail, renderSavedVariant, renderLinkedInVariant, type SavedVariant } from "@/lib/outreach-variants";
-import { focusedAccount, revenueLabel, sortReachouts, reachoutPool, type ReachoutSort } from "@/lib/reachout-sort";
+import { defaultReachoutSort, fitScore, focusedAccount, revenueLabel, revenueYearLabel, sendStateLabel, sortReachouts, reachoutPool, type ReachoutSort } from "@/lib/reachout-sort";
 import { focusedContact } from "@/lib/focused-contact";
 import { withResearchDefault } from "@/lib/recommended-draft";
 import { researchRecommendation, contactEvidence, giftAsset } from "@/lib/research-recommendation";
@@ -58,6 +58,8 @@ type Card = InsightCard & {
   working_by?: string | null;
   working?: boolean;
   isNew?: boolean;
+  /** "Keep for me": the morning auto-send leaves this card for a person (migration 0030). */
+  auto_send_hold?: boolean | null;
   carriedOver?: boolean;
   onWorklist?: boolean;
   followups?: Followup[];
@@ -71,6 +73,9 @@ type Card = InsightCard & {
     level?: string;
   };
 };
+
+/** Today's list only: why the seat will not auto-send (null when it will), when each card was sent, and the window. */
+export type AutoSendView = { blocker: string | null; sentAt: Record<string, string>; sendFrom: number; sendUntil: number; timeZone: string };
 
 export type DeskContext = {
   today: string;
@@ -196,8 +201,10 @@ export function Desk({
   scan,
   tools,
   researchSlice,
+  autoSend,
 }: {
   researchSlice?: ResearchData;
+  autoSend?: AutoSendView;
   initialCards: Card[];
   senderName?: string;
   senderIsViewer?: boolean;
@@ -276,8 +283,8 @@ export function Desk({
   // The one-at-a-time prospect flow is home; "All prospects" opens the full list on demand.
   const [browse, setBrowse] = useState(initialBrowse);
   const overviewHref = `${listHref}${listHref.includes("?") ? "&" : "?"}source=overview`;
-  const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? sortReachouts(initialCards, "revenue-desc")[0]?.id);
-  const [listSort, setListSort] = useState<ReachoutSort>("revenue-desc");
+  const [focusId, setFocusId] = useState<string | undefined>(selectedId ?? sortReachouts(initialCards, defaultReachoutSort(batchSequence))[0]?.id);
+  const [listSort, setListSort] = useState<ReachoutSort>(defaultReachoutSort(batchSequence));
   const changeSort = (value: ReachoutSort) => {
     setListSort(value);
   };
@@ -411,6 +418,15 @@ export function Desk({
     saveQueues.current.set(cardId, task);
     void task.finally(() => { if (saveQueues.current.get(cardId) === task) saveQueues.current.delete(cardId); });
     return task;
+  }
+
+  const [holdBusy, setHoldBusy] = useState(false);
+  /** "Keep for me": take a card off the morning auto-send without dismissing it. Sending by hand still works. */
+  async function toggleHold(cardId: string, hold: boolean) {
+    setHoldBusy(true);
+    try {
+      if (await patchOn(cardId, { auto_send_hold: hold })) setNotice(hold ? "Kept for you: the morning auto-send will skip this company." : "Back on the morning auto-send.");
+    } finally { setHoldBusy(false); }
   }
 
   /** Write to the dossier's card (the one the dossier view renders). */
@@ -1231,7 +1247,7 @@ export function Desk({
             {/* LEFT — companies */}
             <aside className="deskwork-list">
               <div className="deskwork-list-head"><span>{listNeedle ? <>Matches <b>{listed.length}</b></> : <>Companies <b>{new Set(focusPool.map(item => item.accounts.domain)).size}</b></>}</span></div>
-              <label className="reachout-sort-label">Sort by<select aria-label="Sort companies" className="reachout-sort" value={listSort} onChange={event => changeSort(event.target.value as ReachoutSort)}><option value="revenue-desc">Revenue: highest first</option><option value="revenue-asc">Revenue: lowest first</option><option value="name">Company: A to Z</option><option value="verified">Verified email first</option></select></label>
+              <label className="reachout-sort-label">Sort by<select aria-label="Sort companies" className="reachout-sort" value={listSort} onChange={event => changeSort(event.target.value as ReachoutSort)}>{batchSequence === 3 && <option value="list-order">List order (send order)</option>}<option value="revenue-desc">Revenue: highest first</option><option value="revenue-asc">Revenue: lowest first</option><option value="name">Company: A to Z</option><option value="verified">Verified email first</option></select></label>
               <input className="deskwork-search" placeholder="Search a company, a person or a job title" value={query} onChange={(event) => setQuery(event.target.value)} />
               <div className="deskwork-list-scroll">
                 {listed.map((item) => (
@@ -1243,7 +1259,14 @@ export function Desk({
                           without this the list repeats a company name and a search for a person finds a row
                           that does not say it found them. */}
                       <small className="deskwork-row-who">{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small>
-                      <small>{revenueLabel(item.accounts.domain) ? `${revenueLabel(item.accounts.domain)} revenue · 2025` : signalLabel(item)}{item.working ? " · working" : ""}</small>
+                      <small>{revenueLabel(item.accounts.domain) ? `${revenueLabel(item.accounts.domain)} revenue · ${revenueYearLabel(item.accounts.domain)}` : signalLabel(item)}{item.working ? " · working" : ""}</small>
+                      {(fitScore(item.accounts.domain) !== null || (batchSequence === 3 && autoSend)) && <small style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 2 }}>
+                        {fitScore(item.accounts.domain) !== null && <em className="chip chip-fit">Fit {fitScore(item.accounts.domain)}</em>}
+                        {batchSequence === 3 && autoSend && (() => {
+                          const state = sendStateLabel(item, focusedAccount(item.accounts.domain), autoSend.blocker, autoSend.sentAt[item.id] ?? null, autoSend);
+                          return <em className="chip carried" title={state.kind === "auto" || state.kind === "manual" ? "A prediction: the real checks run at send time." : undefined}>{state.label}</em>;
+                        })()}
+                      </small>}
                     </span>
                     <span className={`reachout-email-dot ${item.people.email_status === "verified" ? "verified" : item.people.email ? "published" : "missing"}`} title={item.people.email_status === "verified" ? "Verified email" : item.people.email ? "Email needs verification" : "Email not found"} aria-label={item.people.email_status === "verified" ? "Verified email" : item.people.email ? "Email needs verification" : "Email not found"} />
                   </button>
@@ -1263,7 +1286,7 @@ export function Desk({
                 </header>
 
                 <div className="deskwork-opening">
-                  {focusedAccount(focusCard.accounts.domain) && <div className="reachout-account-facts"><a href={focusedAccount(focusCard.accounts.domain)!.revenue.sourceUrl} target="_blank" rel="noreferrer"><strong>{revenueLabel(focusCard.accounts.domain)}</strong><span>2025 reported revenue ↗</span></a><span>{focusedAccount(focusCard.accounts.domain)!.sector}</span></div>}
+                  {focusedAccount(focusCard.accounts.domain) && <div className="reachout-account-facts"><a href={focusedAccount(focusCard.accounts.domain)!.revenue.sourceUrl} target="_blank" rel="noreferrer"><strong>{revenueLabel(focusCard.accounts.domain)}</strong><span>{revenueYearLabel(focusCard.accounts.domain)} reported revenue ↗</span></a><span>{focusedAccount(focusCard.accounts.domain)!.sector}</span></div>}
                   {(() => {
                     // Nightly companies carry the scored evidence that put them on the list.
                     const fit = (focusedAccount(focusCard.accounts.domain) as { aiFit?: AiFit } | undefined)?.aiFit;
@@ -1474,6 +1497,10 @@ export function Desk({
                   <div className="composer-action-context"><strong>{previewingVersion && tonePreview ? `${tonePreview.label} preview` : sentAlready ? "Sent message" : "Ready for a final check"}</strong><small>{!senderIsViewer ? `Prospect sends use ${senderName}’s account. You can test in your inbox.` : previewingVersion ? "Testing uses the version shown above." : "Tests go only to your own inbox."}</small></div>
                   <div className="composer-action-buttons">
                     {channelTab === "email" && !altContact && !sentAlready && <TestEmailButton key={`${focusCard.id}:${tonePreview?.versionId ?? "draft"}:${tonePreview?.body ?? focusCard.email_body}:${tonePreview?.subject ?? focusCard.email_subject}`} cardId={focusCard.id} subject={previewingVersion && tonePreview ? tonePreview.subject : focusCard.email_subject ?? ""} body={previewingVersion && tonePreview ? tonePreview.body : focusCard.email_body ?? ""} disabled={demo || busy || sending} />}
+                    {batchSequence === 3 && channelTab === "email" && !altContact && !sentAlready && !previewingVersion && <label className="btn" title="The morning auto-send skips this company; you can still send it yourself." style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
+                      <input type="checkbox" checked={Boolean(focusCard.auto_send_hold)} disabled={demo || holdBusy || !senderIsViewer} onChange={event => void toggleHold(focusCard.id, event.target.checked)} />
+                      {focusCard.auto_send_hold ? "Kept for you" : "Keep for me (don't auto-send)"}
+                    </label>}
                     {previewingVersion && tonePreview ? <><button type="button" className="btn" onClick={() => setTonePreview(null)}>Cancel</button><button type="button" className="btn primary" disabled={busy} onClick={applyTone}>{busy ? "Saving…" : "Use this version"}</button></> : channelTab === "email" ? !sentAlready && <button type="button" disabled={!senderIsViewer || sending || !contact.email} className="btn primary" title={!senderIsViewer ? `Sign in as ${senderName} to send to this contact` : `Send to ${contact.full_name}`} onClick={sendEmail}>{sending ? "Sending…" : "Send email"} →</button> : <button type="button" className="btn primary" onClick={openLinkedIn}>Open LinkedIn ↗</button>}
                   </div>
                 </footer>
