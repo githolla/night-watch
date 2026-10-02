@@ -62,7 +62,7 @@ export async function preparePriorityDraft(domain: string, me: AppUser, db = adm
     if (touches.error) throw touches.error;
     if (touches.count) return Response.json({ error: "Outreach is already recorded for this person. Continue from History or Follow-ups." }, { status: 409 });
     const hash = `operator-shortlist-20260923:${selected.domain}`;
-    const signalWrite = await db.from("signals").upsert({ account_id: account.id, person_id: person.id, type: "other", summary: selected.trigger.fact, source_url: selected.trigger.sourceUrl, source_domain: new URL(selected.trigger.sourceUrl).hostname, observed_at: selected.researchDate, hash, strength: 0, raw: { operating_need: selected.hypothesis, research_date: selected.researchDate, source_date: selected.trigger.date, curated: true } }, { onConflict: "account_id,hash", ignoreDuplicates: true });
+    const signalWrite = await db.from("signals").upsert({ account_id: account.id, person_id: person.id, type: "other", summary: selected.trigger.fact, source_url: selected.trigger.sourceUrl, source_domain: new URL(selected.trigger.sourceUrl).hostname, observed_at: selected.researchDate, hash, strength: 0, raw: { operating_need: selected.hypothesis, research_date: selected.researchDate, source_date: selected.trigger.date, curated: true, ...(selected.trigger.date ? { source: { published_at: selected.trigger.date } } : {}) } }, { onConflict: "account_id,hash", ignoreDuplicates: true });
     if (signalWrite.error) throw signalWrite.error;
     const signal = await db.from("signals").select("id").eq("account_id", account.id).eq("hash", hash).single();
     if (signal.error) throw signal.error;

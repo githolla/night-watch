@@ -15,7 +15,10 @@ export function verifierConfigured() {
 }
 
 type HunterVerify = { data?: { status?: string; result?: string; score?: number } };
-type HunterFind = { data?: { email?: string | null; score?: number; verification?: { status?: string } } };
+export type HunterSource = { uri: string; last_seen_on?: string | null; still_on_page?: boolean | null };
+type HunterFind = { data?: { email?: string | null; score?: number; position?: string | null; sources?: HunterSource[] | null; verification?: { status?: string } } };
+/** The finder's address and its check, plus what Hunter knows of the person: their title and the pages it saw the address on. */
+export type FoundEmail = { email: string; result: VerifyResult; position: string | null; sources: HunterSource[] };
 
 async function hunter<T>(path: string, params: Record<string, string>): Promise<T> {
   const url = new URL(`https://api.hunter.io/v2/${path}`);
@@ -45,17 +48,19 @@ export async function verifyEmail(email: string): Promise<VerifyResult> {
 }
 
 /** Find an address for a person at a domain. Returns null when the finder has nothing confident. */
-export async function findEmail(fullName: string, domain: string): Promise<{ email: string; result: VerifyResult } | null> {
+export async function findEmail(fullName: string, domain: string): Promise<FoundEmail | null> {
   if (!verifierConfigured()) return null;
   const parts = fullName.trim().split(/\s+/);
   if (parts.length < 2) return null;
   const json = await hunter<HunterFind>("email-finder", { domain, first_name: parts[0], last_name: parts[parts.length - 1] });
   const email = json.data?.email?.toLowerCase();
   if (!email) return null;
+  const position = json.data?.position?.trim() || null;
+  const sources = (json.data?.sources ?? []).filter((source) => typeof source?.uri === "string");
   const result = fromHunterStatus(json.data?.verification?.status, json.data?.score);
   // The finder's own score stands in when it did not verify: 70+ is Hunter's "confident" band.
-  if (result.status === "unknown" && (json.data?.score ?? 0) >= 70) return { email, result: { status: "unverified", score: json.data?.score ?? null } };
-  return { email, result };
+  if (result.status === "unknown" && (json.data?.score ?? 0) >= 70) return { email, result: { status: "unverified", score: json.data?.score ?? null }, position, sources };
+  return { email, result, position, sources };
 }
 
 type PersonRow = { id: string; full_name: string; level: string; email: string | null; email_status: string; email_source: string | null; email_verified_at: string | null };

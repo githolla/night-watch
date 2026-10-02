@@ -97,3 +97,20 @@ export function guessFromExamples(examples: string[], domain: string): PatternGu
   if (!top) return null;
   return { key: top[0], confidence: top[1] >= 2 ? 0.55 : 0.4, matched: top[1], samples: locals.length };
 }
+
+/** A shared mailbox rather than a person: sales@, info@, office2@, support.team@. */
+const ROLE_LOCAL = /^(info|sales|office|admin|contact|hello|support|service|careers|jobs|hr|accounting|billing|team|marketing|orders|dispatch|estimating|quotes|help|inquiries|mail)([._-]|\d|$)/;
+
+/**
+ * Whether an address plausibly belongs to the named person: never a role inbox; otherwise the local part is
+ * one of the name's formats, or contains the first or last name when that name has 3 or more letters.
+ */
+export function addressMatchesPerson(email: string, fullName: string): boolean {
+  const local = (email.trim().split("@")[0] ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (!local || ROLE_LOCAL.test(local)) return false;
+  if (PATTERN_KEYS.some((key) => localPart(fullName, key) === local)) return true;
+  const name = splitName(fullName);
+  if (!name) return false;
+  const letters = local.replace(/[^a-z]/g, "");
+  return [name.first, name.last].some((part) => part.length >= 3 && letters.includes(part));
+}

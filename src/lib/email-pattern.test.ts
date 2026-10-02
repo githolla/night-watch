@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildEmail, detectPattern, guessFromExamples, splitName } from "./email-pattern.ts";
+import { addressMatchesPerson, buildEmail, detectPattern, guessFromExamples, splitName } from "./email-pattern.ts";
 
 test("names split without credentials or suffixes", () => {
   assert.deepEqual(splitName("John Smith"), { first: "john", last: "smith" });
@@ -41,4 +41,19 @@ test("bare addresses seen on the web give a weaker guess", () => {
   assert.equal(guessFromExamples(["press@example.com", "jane.doe@example.com"], "example.com")?.key, "first.last");
   assert.equal(guessFromExamples(["jdoe@example.com"], "example.com")?.key, "flast");
   assert.equal(guessFromExamples(["info@example.com"], "example.com"), null);
+});
+
+test("an address belongs to the buyer only when it carries their name", () => {
+  assert.equal(addressMatchesPerson("jsmith@acme.com", "John Smith"), true);
+  assert.equal(addressMatchesPerson("john@acme.com", "John Smith"), true);
+  assert.equal(addressMatchesPerson("john.smith@acme.com", "John Smith"), true);
+  assert.equal(addressMatchesPerson("smithj2@acme.com", "John Smith"), true);
+  assert.equal(addressMatchesPerson("jane.doe@acme.com", "John Smith"), false);
+  assert.equal(addressMatchesPerson("info@acme.com", "John Smith"), false);
+  assert.equal(addressMatchesPerson("sales.team@acme.com", "John Smith"), false);
+  assert.equal(addressMatchesPerson("office2@acme.com", "John Smith"), false);
+  assert.equal(addressMatchesPerson("jose.nunez@acme.com", "José Núñez"), true);
+  assert.equal(addressMatchesPerson("JNunez@acme.com", "José Núñez"), true);
+  assert.equal(addressMatchesPerson("bo@acme.com", "Bo Li"), true, "a two-letter first name still matches the 'first' format");
+  assert.equal(addressMatchesPerson("bob@acme.com", "Bo Li"), false);
 });
