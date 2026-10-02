@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { sendEmail } from "@/lib/gmail";
-import { emailHtml, fromHeader, senderProfile, withSignature } from "@/lib/sender";
+import { outreachDelivery } from "@/lib/outreach-ending";
+import { fromHeader, senderProfile } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
 import { z } from "zod";
 
@@ -31,8 +32,8 @@ export async function POST(request: Request) {
       `This is a test send from Night Watch. Nothing went to a real prospect.\n\n` +
       `A live email would open with a short, personal line about the company you're reaching, then your signature below. ` +
       `If this arrived and the From line and signature look right, you're ready to send for real.`;
-    const fullBody = withSignature(body, profile, mailbox);
-    const html = emailHtml(body, profile, mailbox, "");
+    // The same ending a real send gets: name, signature and the postal address footer.
+    const { text: fullBody, html } = outreachDelivery(body, profile);
     const result = await sendEmail(owner, fromHeader(profile, mailbox), to, subject, fullBody, undefined, undefined, html);
     return Response.json({ ok: true, to, from: mailbox, toSelf: to === mailbox, threadId: result.threadId });
   } catch (error) {

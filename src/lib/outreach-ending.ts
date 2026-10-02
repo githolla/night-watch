@@ -44,9 +44,17 @@ export function signatureText(profile: SignatureSettings): string {
 }
 /** The business postal address commercial email must carry (CAN-SPAM). Shown under the signature when set. */
 const postalLine = (profile: SignatureSettings) => profile.postalAddress?.trim().replace(/\s*\n\s*/g, ", ") ?? "";
+const comparable = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+/** The postal line to add as the signature's last line: empty when unset or already written into the signature. */
+function signaturePostal(profile: SignatureSettings): string {
+  const postal = postalLine(profile);
+  if (!postal) return "";
+  return comparable(signatureText(profile)).includes(comparable(postal)) ? "" : postal;
+}
 
 export function withOutreachSignature(body: string, profile: SignatureSettings): string {
-  return [withOutreachName(body, profile), signatureText(profile), postalLine(profile)].filter(Boolean).join("\n\n");
+  const signature = [signatureText(profile), signaturePostal(profile)].filter(Boolean).join("\n");
+  return [withOutreachName(body, profile), signature].filter(Boolean).join("\n\n");
 }
 /** Both real sends and self-tests call this exact assembler. */
 export function outreachDelivery(body: string, profile: SignatureSettings) {
@@ -57,6 +65,9 @@ export function outreachEmailHtml(body: string, profile: SignatureSettings): str
   const text = withOutreachName(body, profile).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   const linked = text.replace(/https:\/\/night-watch-snowy\.vercel\.app\/gift\/[a-f0-9]{32}(?:\?t=[a-zA-Z0-9_.-]+)?/g, url => `<a href="${url}">Read your one-page brief</a>`);
   const footer = outreachFooterHtml(profile);
-  const postal = postalLine(profile).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  return `<div style="font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#1a1712">${linked.replace(/\n/g, "<br>")}${footer ? `<div style="margin-top:24px">${footer}</div>` : ""}${postal ? `<div style="margin-top:16px;font-size:12px;color:#6b645a">${postal}</div>` : ""}</div>`;
+  const postal = signaturePostal(profile).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // The address closes the signature block as its last line rather than standing apart below it.
+  const postalHtml = postal ? `<div style="margin-top:4px;font:400 12px/1.5 Arial,Helvetica,sans-serif;color:#6b645a">${postal}</div>` : "";
+  const signature = footer || postalHtml ? `<div style="margin-top:24px">${footer}${postalHtml}</div>` : "";
+  return `<div style="font:400 14px/1.6 Arial,Helvetica,sans-serif;color:#1a1712">${linked.replace(/\n/g, "<br>")}${signature}</div>`;
 }

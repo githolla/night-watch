@@ -39,3 +39,14 @@ test("uploaded footer survives outreach send rendering without restoring pleasan
   assert.equal(outreachFooterHtml({ fromName: "Suuchi" }), "");
   assert.doesNotMatch(outreachEmailHtml(body, { fromName: "Suuchi" }), /Josh|<table>/);
 });
+
+test("the postal address closes the signature block instead of standing apart, and is never printed twice", () => {
+  const html = '<table><tr><td style="font:12px Arial">Suuchi Rao<br>Partner, Nine-67</td></tr></table>';
+  const profile = { fromName: "Suuchi Rao", signature: html, postalAddress: "123 Main St\nPittsburgh, PA 15222" };
+  assert.match(withOutreachSignature("Hi Pat,\n\nIs this useful?", profile), /Partner, Nine-67\n123 Main St, Pittsburgh, PA 15222$/, "the address is the signature's last line, not a separate paragraph");
+  const rendered = outreachEmailHtml("Hi Pat,\n\nIs this useful?", profile);
+  assert.match(rendered, /<\/table><div style="margin-top:4px;[^"]*">123 Main St, Pittsburgh, PA 15222<\/div><\/div><\/div>$/, "inside the signature's container, directly under it");
+  const written = { ...profile, signature: html.replace("Partner, Nine-67", "Partner, Nine-67<br>123 Main St, Pittsburgh PA 15222") };
+  assert.equal(withOutreachSignature("Hi Pat,\n\nIs this useful?", written).match(/123 Main St/g)?.length, 1);
+  assert.equal(outreachEmailHtml("Hi Pat,\n\nIs this useful?", written).match(/123 Main St/g)?.length, 1);
+});

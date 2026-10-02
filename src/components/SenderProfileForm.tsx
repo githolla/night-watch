@@ -40,6 +40,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   // Same sanitizer the server applies on save and on render — one definition, so the preview can't show
   // something safer than what is stored. The previous hand-rolled version missed `<img src=x/onerror=…>`.
   const previewHtml = sanitizeSignatureHtml(signature);
+  const postalPreview = postalAddress.trim().replace(/\s*\n\s*/g, ", ");
   // A <style> block or an external stylesheet is removed on save: CSS can carry its own ways of loading
   // and executing things, so only styles written on the element itself survive. Say so, because otherwise
   // the signature simply renders in the wrong font and colour with no explanation.
@@ -137,7 +138,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
       {usesStylesheet && <p className="panel-watch">This signature sets its font and colour in a <code>&lt;style&gt;</code> block, which is removed for safety &mdash; so it will render in the wrong font. Re-export it with <strong>inline styles</strong> (<code>style=&quot;font-family:…;color:…&quot;</code> on each element), which most email clients produce by default and which is kept exactly as pasted.</p>}
       <p className="sender-profile-preview"><span>From line</span><code>{preview}</code></p>
       {isHtmlSig
-        ? <div className="sig-preview" aria-label="Signature preview" dangerouslySetInnerHTML={{ __html: previewHtml }} />
+        ? <div className="sig-preview" aria-label="Signature preview"><div dangerouslySetInnerHTML={{ __html: previewHtml }} />{postalPreview && <div className="sig-postal">{postalPreview}</div>}</div>
         : <div className="sig-preview" aria-label="Signature preview">
             <table><tbody><tr>
               <td className="sig-mark">Nine&#8209;67</td>
@@ -148,6 +149,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
                   <div>✉&nbsp;&nbsp;{senderEmail ?? "you@nine-67.com"}</div>
                   {website && <div>◎&nbsp;&nbsp;{website}</div>}
                   {location && <div>⌖&nbsp;&nbsp;{location}</div>}
+                  {postalPreview && <div>⌂&nbsp;&nbsp;{postalPreview}</div>}
                 </div>
               </td>
             </tr></tbody></table>

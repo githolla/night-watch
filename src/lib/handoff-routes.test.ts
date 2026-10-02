@@ -235,13 +235,14 @@ test('sequence setup uses the existing expression-indexed person without an inva
  }
 });
 test('the settings test send comes from the seat mailbox and reaches the admin acting as that seat',async()=>{
- const sent:Array<{from:string;to:string}>=[];
+ const sent:Array<{from:string;to:string;body:string}>=[];
  const db={from(){const q={select(){return q},eq(){return q},maybeSingle:async()=>({data:{email:'Suuchi@nine-67.com'}})};return q}};
  const mocks=(actor?:{email:string})=>({
   '@/lib/auth':{requireUser:async()=>({id:'u2',name:'Suuchi Rao',owner:'suuchi',role:'member',...(actor?{actor}:{})})},
   '@/lib/supabase/admin':{admin:()=>db},
-  '@/lib/gmail':{sendEmail:async(_owner:string,from:string,to:string)=>{sent.push({from,to});return {threadId:'t1'}}},
-  '@/lib/sender':{senderProfile:async()=>({fromName:'Suuchi Rao'}),fromHeader:(_p:unknown,email:string)=>`Suuchi Rao <${email}>`,withSignature:(body:string)=>body,emailHtml:()=>''},
+  '@/lib/gmail':{sendEmail:async(_owner:string,from:string,to:string,_subject:string,body:string)=>{sent.push({from,to,body});return {threadId:'t1'}}},
+  '@/lib/sender':{senderProfile:async()=>({fromName:'Suuchi Rao',signature:'',postalAddress:'123 Main St, Pittsburgh, PA 15222'}),fromHeader:(_p:unknown,email:string)=>`Suuchi Rao <${email}>`},
+  '@/lib/outreach-ending':{outreachDelivery:(body:string,profile:{postalAddress:string})=>({text:`${body}\n\n${profile.postalAddress}`,html:''})},
  });
  const send=async(actor:{email:string}|undefined,body:unknown)=>{const response=await route('../app/api/gmail/test/route.ts',mocks(actor)).POST(new Request('https://test/api',{method:'POST',body:JSON.stringify(body)}));return {status:response.status,json:await response.json()}};
  const self=await send(undefined,{});
@@ -253,4 +254,5 @@ test('the settings test send comes from the seat mailbox and reaches the admin a
  assert.deepEqual(sent.map(item=>item.from),Array(3).fill('Suuchi Rao <suuchi@nine-67.com>'),'From is always the seat mailbox, never the recipient');
  assert.equal((await send(undefined,{to:'not-an-email'})).status,400);
  assert.equal(sent.length,3);
+ assert.ok(sent.every(item=>item.body.includes('123 Main St, Pittsburgh, PA 15222')),'the test shows the postal address footer a real send carries');
 });
