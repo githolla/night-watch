@@ -1,6 +1,6 @@
 import { processReplyEvent } from "@/lib/reply-event";
-import { isBounce } from "@/lib/bounce";
-import { markBounced, type RecipientPerson } from "@/lib/recipient-verification";
+import { isBounce, markTouchBounced, prioritizeThreads } from "@/lib/bounce";
+import { isOptOutReply, optOutPerson } from "@/lib/email-suppression";
 import { cronAuthorized } from "@/lib/auth";
 import { classifyReply } from "@/lib/agents";
 import { thread } from "@/lib/gmail";
@@ -14,22 +14,6 @@ export const maxDuration=300;
 const decode=(data?:string)=>data?Buffer.from(data,"base64url").toString("utf8"):"";
 // The email address inside a "Name <addr>" (or bare) From header, lowercased.
 const fromAddress=(headers:Array<{name:string;value:string}>)=>{const v=headers.find(h=>h.name.toLowerCase()==="from")?.value??"";const m=v.match(/<([^>]+)>/);return (m?m[1]:v).trim().toLowerCase()};
-
-/** A delivery failure is not a reply: remember the address is bad (so no path emails it again), stop the
- *  sequence, and leave the card's status alone. Safe to repeat for the same bounce. */
-async function handleBounce(db: ReturnType<typeof admin>, touch: { card_id: string; person_id: string; gmail_thread_id: string }) {
-  // Counted by the morning auto-send's bounce brake. Before migration 0027 the column is missing and this is skipped.
-  await db.from("touches").update({ bounced_at: new Date().toISOString() }).eq("gmail_thread_id", touch.gmail_thread_id).is("bounced_at", null);
-  const { data: person, error } = await db.from("people").select("id,full_name,email,email_status,email_source,email_check,account_id,accounts(domain)").eq("id", touch.person_id).single();
-  if (error || !person) throw new Error("Could not load the bounced contact.");
-  const account = person.accounts as unknown as { domain: string } | null;
-  if (person.email_status !== "invalid") await markBounced(db, person as RecipientPerson, account ? { id: person.account_id as string, domain: account.domain } : null);
-  const { data: cadence } = await db.from("cadences").select("id").eq("card_id", touch.card_id).maybeSingle();
-  if (cadence) {
-    await db.from("cadences").update({ status: "stopped", completed_at: new Date().toISOString() }).eq("id", cadence.id).in("status", ["active", "paused"]);
-    await db.from("cadence_steps").update({ status: "skipped", error: "The email bounced; sequence stopped. Fix the address before writing again." }).eq("cadence_id", cadence.id).in("status", ["pending", "ready", "failed"]).is("sent_at", null);
-  }
-}
 
 /** When a prospect replies picking one of the times we proposed, book the invite automatically. Best-effort. */
 async function autoBook(db: ReturnType<typeof admin>, cardId: string, owner: Owner, reply: string, personId: string) {
@@ -70,8 +54,8 @@ export async function GET(request:Request){
     if((data?.length??0)<1000)break;
   }
   const unique=[...new Map([...candidates].reverse().map(t=>[`${t.sent_by}:${t.gmail_thread_id}`,t])).values()];
-  const start=unique.length ? (Math.floor(Date.now()/(15*60*1000))*300)%unique.length : 0;
-  const touches=[...unique.slice(start),...unique.slice(0,start)].slice(0,300);
+  // Threads sent in the last 48h go first so a new bounce reaches the auto-send brake within one run.
+  const touches=prioritizeThreads(unique,Math.floor(Date.now()/(15*60*1000))*300,Date.now());
   let replies=0,bounces=0; const failures:Array<{cardId:string;error:string}>=[];
   // A card with a first touch + a follow-up has TWO unreplied touches on one thread; without this a real
   // reply would be handled once per touch — duplicate Slack posts and a card status written twice (which can
@@ -85,7 +69,7 @@ export async function GET(request:Request){
       const value=await thread(touch.sent_by,touch.gmail_thread_id);
       // A genuine reply is a thread message AFTER our send that is NOT from one of our own seat mailboxes.
       const inbound=value.messages.filter(message=>Number(message.internalDate)>new Date(touch.sent_at).getTime()&&!ourEmails.has(fromAddress(message.payload.headers)));
-      if(inbound.some(message=>isBounce(message.payload.headers))){await handleBounce(db,touch);bounces++;}
+      if(inbound.some(message=>isBounce(message.payload.headers))){await markTouchBounced(db,touch);bounces++;}
       const messages=inbound.filter(message=>!isBounce(message.payload.headers));
       if(!messages.length)continue;
       seenThreads.add(`${touch.sent_by}:${touch.gmail_thread_id}`);
@@ -108,6 +92,8 @@ export async function GET(request:Request){
             }
             const history=await db.from('touches').update({reply_at:replyAt,reply_classification:state.classification}).eq('gmail_thread_id',touch.gmail_thread_id).eq('sent_by',touch.sent_by).lte('sent_at',replyAt);
             if(history.error)throw new Error('Could not save reply history.');
+            // "No thanks" opts the address out everywhere: every row with it, every card's sequence.
+            if(isOptOutReply(body,state.classification))await optOutPerson(db,touch.person_id);
           },
           async(state)=>{
             try{return {booked:state.classification==='positive'?Boolean(await autoBook(db,touch.card_id,touch.sent_by,body,touch.person_id)):false};}

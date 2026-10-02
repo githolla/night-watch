@@ -110,3 +110,30 @@ test("recording a delivery starts the bounce window for that exact address", asy
   assert.equal(check.lastSentEmail, "dana.ortiz@acme.test");
   assert.ok(Date.parse(check.lastSentAt) > Date.now() - 5000);
 });
+
+test("a Hunter-verified role inbox is only risky: a person may send it, the morning run may not", async () => {
+  const { db } = memoryDb();
+  const check = await checkRecipient(db, person({ full_name: "John Smith", email: "sales@acme.com" }), { id: "acct", domain: "acme.com" }, { hunter: hunterSays("verified"), mailHost: mailOk });
+  assert.equal(check.level, "risky");
+  assert.match(check.reason, /shared inbox/);
+  assert.equal(recipientAllowed(check, true), false);
+  assert.equal(recipientAllowed(check, false), true);
+});
+
+test("a verified address that is someone else's is capped at risky, even from history", async () => {
+  const { db } = memoryDb();
+  const other = await checkRecipient(db, person({ full_name: "John Smith", email: "jane.doe@acme.com" }), { id: "acct", domain: "acme.com" }, { hunter: hunterSays("verified"), mailHost: mailOk });
+  assert.equal(other.level, "risky");
+  const delivered = await checkRecipient(db, person({ full_name: "John Smith", email: "office2@acme.com", email_check: { lastSentEmail: "office2@acme.com", lastSentAt: new Date(Date.now() - 2 * 3600_000).toISOString() } }), { id: "acct", domain: "acme.com" }, { hunter: neverHunter });
+  assert.equal(delivered.level, "risky");
+});
+
+test("the person's own address formats stay deliverable", async () => {
+  const { db } = memoryDb();
+  for (const email of ["jsmith@acme.com", "john@acme.com", "john.smith@acme.com", "smithj@acme.com"]) {
+    const check = await checkRecipient(db, person({ full_name: "John Smith", email }), { id: "acct", domain: "acme.com" }, { hunter: hunterSays("verified"), mailHost: mailOk });
+    assert.equal(check.level, "deliverable", email);
+  }
+  const accented = await checkRecipient(db, person({ full_name: "José Núñez", email: "jose.nunez@acme.com" }), { id: "acct", domain: "acme.com" }, { hunter: hunterSays("verified"), mailHost: mailOk });
+  assert.equal(accented.level, "deliverable");
+});

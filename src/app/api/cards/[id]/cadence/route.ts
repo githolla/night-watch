@@ -1,5 +1,6 @@
 import { enrollCadence, CadenceExists } from "@/lib/cadence-enrollment";
 import { assertCardSender } from "@/lib/focus-data";
+import { emailSuppressed } from "@/lib/email-suppression";
 import { checkRecipient, recipientAllowed, recordRecipientCheck, type RecipientPerson } from "@/lib/recipient-verification";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -16,6 +17,7 @@ export async function POST(request:Request,context:{params:Promise<{id:string}>}
     assertCardSender((card.accounts as unknown as {domain:string} | null)?.domain,card.assigned_to,user.owner);
     const person=card.people as unknown as RecipientPerson&{do_not_contact:boolean},account=card.accounts as unknown as {status:string;domain:string};
     if(person.do_not_contact||["client","do_not_contact"].includes(account.status))throw new Error("Do-not-contact guard blocked this cadence");
+    if(await emailSuppressed(db,person.email))throw new Error("This address opted out. Do-not-contact guard blocked this cadence");
     // Automatic email goes out with no click per message, so the address must be known good now, the same
     // rule the cron applies at send time. Asking here gives the answer while the sender is still looking.
     if(input.mode==="automatic"&&input.steps.some(item=>item.channel==="email")){

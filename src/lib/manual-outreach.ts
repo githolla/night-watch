@@ -1,6 +1,7 @@
 import { trackEmailVersion, trackLinkedInVersion } from "@/lib/version-tracking";
 import { admin } from "@/lib/supabase/admin";
 import { ensureFollowupCadence } from "@/lib/followups";
+import { optOutPerson } from "@/lib/email-suppression";
 import type { Owner } from "@/lib/types";
 
 export type ManualChannel = "linkedin_comment" | "linkedin_request" | "linkedin_message" | "email" | "intro_ask";
@@ -78,7 +79,7 @@ export async function recordCardOutcome(cardId: string, outcome: RecordedOutcome
   const db = admin();
   const { data: touch } = await db
     .from("touches")
-    .select("id")
+    .select("id,person_id")
     .eq("card_id", cardId)
     .order("sent_at", { ascending: false })
     .limit(1)
@@ -97,5 +98,7 @@ export async function recordCardOutcome(cardId: string, outcome: RecordedOutcome
     await db.from("cadences").update({ status: "stopped", completed_at: replyAt }).eq("id", cadence.id);
     await db.from("cadence_steps").update({ status: "skipped" }).eq("cadence_id", cadence.id).eq("status", "pending");
   }
+  // A "not interested" outcome opts the address out everywhere, the same as a negative reply.
+  if (outcome === "negative" && touch.person_id) await optOutPerson(db, touch.person_id as string);
   return { ok: true, status: cardStatus, outcome };
 }

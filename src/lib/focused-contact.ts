@@ -1,3 +1,4 @@
+import { addressIdentityProblem } from "./address-identity.ts";
 import { allFocus as focus } from "./focus-data.ts";
 
 const key = (value: string) => value.trim().toLowerCase();
@@ -24,7 +25,13 @@ export function publishedEmailPatch(domain: string, name: string, stored: Stored
   const knownPublishedAlias = contact.emailStatus === 'published_unverified'
     && publishedAlias[domain] && contact.email?.endsWith(`@${publishedAlias[domain]}`);
   if (contact.email && contact.emailSourceUrl && (knownPublishedAlias || contact.email.toLowerCase().endsWith(`@${domain.toLowerCase()}`) || (domain === "wolverinetruckgroup.com" && contact.email.endsWith("@wolverinefordsales.com")) || (contact.emailStatus === "published_unverified" && ["nationwideconstructiongroup.com", "nationalstoragemgmt.com"].includes(domain)))) {
-    return { email: contact.email, email_status: "unverified", email_source: contact.emailStatus === "inferred" ? "pattern" : contact.emailSourceUrl, email_verified_at: null };
+    const patch = { email: contact.email, email_status: "unverified", email_source: contact.emailStatus === "inferred" ? "pattern" : contact.emailSourceUrl, email_verified_at: null };
+    // A published role inbox or someone else's address is kept for a person to send by hand, but marked
+    // so it never counts as confirmed for an automatic send.
+    const problem = addressIdentityProblem(contact.email, name);
+    if (!problem) return patch;
+    const email = contact.email.toLowerCase();
+    return { ...patch, email_check: { email, level: "risky", reason: `${problem} Automatic sends need the person's own address.`, source: "own", status: "unverified", suggestion: null, hunter: null, mailHost: null, checkedAt: new Date().toISOString() } };
   }
   return inferred ? { email: null, email_status: "none", email_source: null, email_verified_at: null } : {};
 }
