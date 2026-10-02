@@ -32,11 +32,16 @@ export function recommendEvidence(row:ResearchEvidence, now = new Date()) {
  const recommended=[...candidates].filter(c=>c.eligible).sort((a,b)=>b.score-a.score)[0] ?? null;
  return {recommended,candidates,giftId:gift?row.giftId:null};
 }
+const VARIANT_REASONS:Record<string,string>={
+ 'direct-offer':'A direct introduction to what Nine-67 can build with this team.',
+ 'concrete-idea':'One specific application and a way to judge whether it helps.',
+ 'delivery-experience':'Actual Nine-67 delivery experience connected to this contact’s work.',
+};
 export function researchRecommendation(domain?:string|null,name?:string|null) {
  const row=offers().find(r=>domain&&name&&key(r.domain)===key(domain)&&key(r.contactName)===key(name));
  if(!row)return null;
- const reasons=['A direct introduction to what Nine-67 can build with this team.','One specific application and a way to judge whether it helps.','Actual Nine-67 delivery experience connected to this contact’s work.'];
- const candidates=row.variants.map((v,i)=>({id:v.id,label:v.label,eligible:true,score:i===0?100:50,reason:reasons[i]}));
+ // Keyed by id, not position: the version chosen to send is moved first, which reorders the list.
+ const candidates=row.variants.map((v,i)=>({id:v.id,label:v.label,eligible:true,score:i===0?100:50,reason:VARIANT_REASONS[v.id]??`The ${v.label} version.`}));
  return {recommended:candidates[0],candidates,giftId:null};
 }
 export function researchVersions(domain?:string|null,name?:string|null,channel:'email'|'linkedin'='email',now?:Date): ResearchVersion[] {

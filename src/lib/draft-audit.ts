@@ -115,7 +115,7 @@ export function auditDraft(row: AuditRow): Fault[] {
 // Words that carry no identity: what is left once they go is what a person would actually write. Without
 // this, an email to Q2 Holdings that says "Q2" eight times was reported as never naming the company, and an
 // audit that invents faults is no more use than one that misses them.
-const COMPANY_FURNITURE = /\b(inc|inc\.|incorporated|corp|corp\.|corporation|company|co|co\.|llc|l\.l\.c\.|ltd|ltd\.|limited|plc|group|holdings?|technologies|technology|software|solutions?|systems?|services?|enterprises?|partners|ventures|labs?|global|international|worldwide|usa?|of|the|and|&)\b/gi;
+export const COMPANY_FURNITURE = /\b(inc|inc\.|incorporated|corp|corp\.|corporation|company|co|co\.|llc|l\.l\.c\.|ltd|ltd\.|limited|plc|group|holdings?|technologies|technology|software|solutions?|systems?|services?|enterprises?|partners|ventures|labs?|global|international|worldwide|usa?|of|the|and|&)\b/gi;
 
 /**
  * True when the draft names the company, allowing for the way people actually write it.
