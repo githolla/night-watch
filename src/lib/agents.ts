@@ -541,13 +541,19 @@ export async function searchJobBoards(account: { name: string; domain: string },
 }
 
 export async function classifyReply(body: string): Promise<"positive" | "neutral" | "objection" | "referral" | "ooo" | "negative"> {
-  const { response } = await completeTurn({ model: utilityModel(), max_tokens: 1_000 }, `Classify this email reply as exactly one of positive, neutral, objection, referral, ooo, negative. Return only the label.\n${body.slice(0, 5000)}`);
-  const raw = text(response.content).trim().toLowerCase();
   const labels = ["positive", "neutral", "objection", "referral", "ooo", "negative"] as const;
-  // Tolerant match — the model sometimes returns "positive." or a short phrase. NEVER throw: a throw here
-  // would skip recording the reply and leave the cadence sending to someone who already answered. Any reply
-  // (even the "neutral" default) stops the cadence, which is the safe fallback.
-  return labels.find((label) => raw === label) ?? labels.find((label) => raw.includes(label)) ?? "neutral";
+  // NEVER throw: a throw here would skip recording the reply and leave the cadence sending to someone who
+  // already answered. Any reply (even the "neutral" default) stops the cadence, which is the safe fallback,
+  // so a missing API key, an outage or an odd answer all record the reply as neutral.
+  try {
+    const { response } = await completeTurn({ model: utilityModel(), max_tokens: 1_000 }, `Classify this email reply as exactly one of positive, neutral, objection, referral, ooo, negative. Return only the label.\n${body.slice(0, 5000)}`);
+    const raw = text(response.content).trim().toLowerCase();
+    // Tolerant match: the model sometimes returns "positive." or a short phrase.
+    return labels.find((label) => raw === label) ?? labels.find((label) => raw.includes(label)) ?? "neutral";
+  } catch (error) {
+    console.error(`[night-watch] reply classification unavailable, recorded as neutral: ${error instanceof Error ? error.message : error}`);
+    return "neutral";
+  }
 }
 
 const simulationOutput = z.object({

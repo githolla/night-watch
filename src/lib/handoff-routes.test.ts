@@ -256,3 +256,16 @@ test('the settings test send comes from the seat mailbox and reaches the admin a
  assert.equal(sent.length,3);
  assert.ok(sent.every(item=>item.body.includes('123 Main St, Pittsburgh, PA 15222')),'the test shows the postal address footer a real send carries');
 });
+test('without an Anthropic key the nightly list cron skips quietly: no build, no failure alert',async()=>{
+ let built=0,alerts=0;
+ const r=route('../app/api/cron/nightly-list/route.ts',{
+  '@/lib/auth':{cronAuthorized:()=>true},
+  '@/lib/morning-messages':{buildFailureText:()=> 'failed'},
+  '@/lib/nightly-list-builder':{runNightlyListBuild:async()=>{built++;return {}},claimBuildAlert:async()=>true},
+  '@/lib/slack':{postSlackMessage:async()=>{alerts++;return true}},
+  '@/lib/supabase/admin':{admin:()=>({})},
+ });
+ const response=await r.GET(new Request('https://test/api/cron/nightly-list'));
+ assert.equal(response.status,200);assert.match((await response.json()).skipped,/ANTHROPIC_API_KEY/);
+ assert.equal(built,0);assert.equal(alerts,0);
+});

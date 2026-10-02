@@ -112,14 +112,29 @@ test("a failed list gives exactly one alert across five runs", async () => {
   assert.equal(h.sends.length, 0);
 });
 
+async function withAnthropicKey<T>(value: string | undefined, run: () => Promise<T>) {
+  const previous = process.env.ANTHROPIC_API_KEY;
+  if (value === undefined) delete process.env.ANTHROPIC_API_KEY; else process.env.ANTHROPIC_API_KEY = value;
+  try { return await run(); } finally { if (previous === undefined) delete process.env.ANTHROPIC_API_KEY; else process.env.ANTHROPIC_API_KEY = previous; }
+}
+
 test("a missing list row gives one alert and leaves a failed row behind", async () => {
   const h = harness({ reachout_lists: [list("suuchi", { announced_at: at("07:00").toISOString() })], sender_profiles: [profile("josh"), profile("suuchi")], cards: [] });
-  const early = await h.run(at("06:50"));
-  assert.equal(early[0].action, "no list");
-  for (const time of ["07:00", "07:10", "07:20"]) await h.run(at(time));
+  await withAnthropicKey("sk-ant-test", async () => {
+    const early = await h.run(at("06:50"));
+    assert.equal(early[0].action, "no list");
+    for (const time of ["07:00", "07:10", "07:20"]) await h.run(at(time));
+  });
   assert.equal(h.posts.length, 1);
   assert.match(h.posts[0], /No list for Josh today: the nightly build never started/);
   assert.equal(h.tables.reachout_lists.find((row) => row.owner === "josh")?.status, "failed");
+});
+
+test("with the nightly build switched off (no Anthropic key), a day without a list posts nothing", async () => {
+  const h = harness({ reachout_lists: [], sender_profiles: [profile("josh"), profile("suuchi")], cards: [] });
+  await withAnthropicKey(undefined, async () => { for (const time of ["07:00", "07:10", "11:40"]) await h.run(at(time)); });
+  assert.equal(h.posts.length, 0);
+  assert.equal(h.tables.reachout_lists.length, 0);
 });
 
 test("yesterday's bounces pause this morning before anything sends, with names and a Settings link", async () => {

@@ -168,7 +168,8 @@ export async function runMorningSend(db: Db, options: MorningOptions = {}): Prom
     const read = () => db.from("reachout_lists").select("id,status,rows,errors,announced_at,summary_posted_at,sent_count,held_count").eq("list_date", local.date).eq("owner", owner).maybeSingle();
     let { data: list } = await read();
     let missing = false;
-    if (!list && local.minutes >= MORNING.announceAt) {
+    // Without the Anthropic key the nightly build is switched off, so a day with no list is expected, not an alert.
+    if (!list && local.minutes >= MORNING.announceAt && process.env.ANTHROPIC_API_KEY?.trim()) {
       // No row means the nightly build never ran. Create a failed one so the alert below posts exactly once.
       missing = true;
       await db.from("reachout_lists").upsert({ list_date: local.date, owner, status: "failed" }, { onConflict: "list_date,owner", ignoreDuplicates: true });
