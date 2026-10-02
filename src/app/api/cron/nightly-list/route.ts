@@ -1,5 +1,7 @@
 import { cronAuthorized } from "@/lib/auth";
-import { runNightlyListBuild } from "@/lib/nightly-list-builder";
+import { buildFailureText } from "@/lib/morning-messages";
+import { claimBuildAlert, runNightlyListBuild } from "@/lib/nightly-list-builder";
+import { postSlackMessage } from "@/lib/slack";
 import { admin } from "@/lib/supabase/admin";
 
 export const maxDuration = 300;
@@ -10,6 +12,8 @@ export async function GET(request: Request) {
   try {
     return Response.json(await runNightlyListBuild(admin()));
   } catch (error) {
+    // At most one Slack alert a night, however many invocations fail.
+    if (await claimBuildAlert(admin()).catch(() => false)) await postSlackMessage(buildFailureText(error)).catch(() => false);
     return Response.json({ error: error instanceof Error ? error.message : "Nightly list failed" }, { status: 500 });
   }
 }

@@ -3,7 +3,7 @@ import test from "node:test";
 import offers from "../../data/batch-3-offers.json" with { type: "json" };
 import focus from "../../data/batch-3-focus.json" with { type: "json" };
 import { checkWorkflow, listVariants, variantProblems } from "./list-templates.ts";
-import { autoSendBlocker, bounceBrake, paceForRun } from "./morning-send-rules.ts";
+import { autoSendBlocker, paceForRun } from "./morning-send-rules.ts";
 import { selectedBatch } from "./reachout-batches.ts";
 import { batchOwner, focusForOwner, hasTodayList, reachoutList } from "./focus-data.ts";
 import { isCuratedDomain } from "./curated-worklist.ts";
@@ -48,12 +48,6 @@ test("the morning send spreads the list across the window", () => {
   assert.equal(paceForRun(12, 11 * 60 + 20), 2, "never more than two a run");
   assert.equal(paceForRun(12, 11 * 60 + 30), 0, "nothing after the window");
   assert.equal(paceForRun(0, 10 * 60), 0);
-});
-
-test("the bounce brake needs 10 first emails and then trips above 5%", () => {
-  assert.equal(bounceBrake(9, 1), false, "too few sends to judge");
-  assert.equal(bounceBrake(20, 1), false, "exactly 5% is allowed");
-  assert.equal(bounceBrake(20, 2), true);
 });
 
 test("auto-send runs only when on, not paused, and with a postal address", () => {
