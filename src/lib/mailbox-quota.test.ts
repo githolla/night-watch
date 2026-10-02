@@ -10,7 +10,7 @@ function harness(){
  const output=ts.transpileModule(readFileSync(new URL('./mailbox-quota.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
  const exports:{withMailboxQuota?:(db:unknown,input:unknown,send:()=>Promise<unknown>)=>Promise<unknown>}={};
  runInNewContext(output,{exports,Error,require:()=>({DeliveryError,deliveryReservationId})});
- const input={owner:'jenna',cardId:'card',personId:'person',count:0,cap:1,dayStart:new Date('2026-09-29T04:00:00Z'),reservationId:'reservation'};
+ const input={owner:'suuchi',cardId:'card',personId:'person',count:0,cap:1,dayStart:new Date('2026-09-29T04:00:00Z'),reservationId:'reservation'};
  return {run:(send:()=>Promise<unknown>,override={})=>exports.withMailboxQuota!(db,{...input,...override},send),rows,offline:()=>{unavailable=true}};
 }
 test('simultaneous different contacts cannot both take the final mailbox slot',async()=>{

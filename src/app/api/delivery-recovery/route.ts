@@ -70,10 +70,10 @@ export async function POST(request:Request) {
 }
 
 
-async function recoverLegacy(db:ReturnType<typeof admin>,owner:'josh'|'jenna',payload:z.infer<typeof input>) {
+async function recoverLegacy(db:ReturnType<typeof admin>,owner:'josh'|'suuchi',payload:z.infer<typeof input>) {
  const {data:step,error}=await db.from('cadence_steps').select('id,title,step_number,status,sent_at,subject,body,cadences!inner(owner,card_id,person_id,people(email))').eq('id',payload.id).eq('cadences.owner',owner).in('status',['pending','ready','failed']).not('sent_at','is',null).maybeSingle();
  if(error||!step)throw new Error('This attempt is unavailable or already resolved. Refresh the list.');
- const cadence=step.cadences as unknown as {owner:'josh'|'jenna';card_id:string;person_id:string;people:{email:string}};
+ const cadence=step.cadences as unknown as {owner:'josh'|'suuchi';card_id:string;person_id:string;people:{email:string}};
  const reservationId=deliveryReservationId(step.title==='Intro email'&&step.step_number===1?cadence.card_id:`cadence:${step.id}`,cadence.person_id);
  const {data:reserved,error:reservationError}=await db.from('message_experiments').select('id').eq('id',reservationId).maybeSingle();
  if(reservationError||reserved)throw new Error('A protected attempt exists for this follow-up. Refresh the recovery list.');

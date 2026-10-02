@@ -25,9 +25,9 @@ function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; reci
   const gmail: Array<{ text: string; html: string }> = [];
   const followups: Row[] = [];
   const { db, tables } = queryDb({
-    cards: [{ id: "card", status: "edited", person_id: "p1", account_id: "acct", assigned_to: "jenna", auto_send_hold: false, people: { id: "p1", full_name: "Dana Ortiz", email: "dana.ortiz@acme.test", email_status: "verified", do_not_contact: false }, accounts: { id: "acct", name: "Acme Landscaping, LLC", domain: "acme.test", status: "prospect" }, ...options.cardExtra }],
+    cards: [{ id: "card", status: "edited", person_id: "p1", account_id: "acct", assigned_to: "suuchi", auto_send_hold: false, people: { id: "p1", full_name: "Dana Ortiz", email: "dana.ortiz@acme.test", email_status: "verified", do_not_contact: false }, accounts: { id: "acct", name: "Acme Landscaping, LLC", domain: "acme.test", status: "prospect" }, ...options.cardExtra }],
     people: options.people ?? [{ id: "p1", email: "dana.ortiz@acme.test", do_not_contact: false }],
-    gmail_connections: [{ owner: "jenna", email: "suuchi@nine-67.test", connected_at: "2026-01-01T00:00:00Z" }],
+    gmail_connections: [{ owner: "suuchi", email: "suuchi@nine-67.test", connected_at: "2026-01-01T00:00:00Z" }],
     touches: [], message_experiments: [],
   });
   const mocks: Record<string, unknown> = {
@@ -56,7 +56,7 @@ function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; reci
   const exports: Record<string, unknown> = {};
   runInNewContext(output, { exports, Date, Error, console, process, require: (name: string) => { if (name in mocks) return mocks[name]; throw new Error(`Unmocked ${name}`); } });
   const loaded = exports as unknown as Module;
-  const send = (automatic: boolean) => loaded.sendCardEmail(db, { cardId: "card", owner: "jenna", subject: "An idea for Acme", body: "Hi Dana,\n\nWould this help?", baseUrl: "https://app.test", automatic });
+  const send = (automatic: boolean) => loaded.sendCardEmail(db, { cardId: "card", owner: "suuchi", subject: "An idea for Acme", body: "Hi Dana,\n\nWould this help?", baseUrl: "https://app.test", automatic });
   return { send, loaded, gmail, followups, tables };
 }
 

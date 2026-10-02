@@ -53,7 +53,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const versionId = await trackEmailVersion(db, { actor: user.actor, cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
     const deliveredBody = fullBody;
     const html = delivery.html;
-    await sendEmail(user.owner, fromHeader(mailboxProfile, connection.email), connection.email, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);
+    // Gmail files a message the API sends to its own mailbox under Sent, not the inbox, so an admin acting
+    // as this seat gets the test in their own inbox instead.
+    const to = user.actor?.email || connection.email;
+    await sendEmail(user.owner, fromHeader(mailboxProfile, connection.email), to, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);
     // Tests never create touches, change card status or enroll follow-ups.
     let warning: string | undefined;
     let label = 'Test email';
@@ -66,7 +69,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         if (error) warning = 'The test was sent, but its delivery status could not be saved. Do not resend just to fix that.';
       }
     } catch { warning = 'The test was sent, but saving its history was interrupted. Check your inbox; do not resend just to fix that.'; }
-    return Response.json({ ok: true, id: versionId, to: connection.email, label, openAt: null, warning });
+    return Response.json({ ok: true, id: versionId, to, toSelf: to.toLowerCase() === String(connection.email).toLowerCase(), label, openAt: null, warning });
   } catch (error) { return deliveryErrorResponse(error); }
 }
 

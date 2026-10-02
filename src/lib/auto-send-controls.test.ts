@@ -55,9 +55,9 @@ const profile = (owner: string, extra: Row = {}) => ({ owner, auto_send: true, a
 const post = (route: Record<string, Handler>, body: Row) => route.POST(new Request("https://test/api/settings/auto-send", { method: "POST", body: JSON.stringify(body) }));
 
 test("resuming auto-send records when it was resumed; pausing does not", async () => {
-  const tables = { sender_profiles: [profile("jenna", { auto_send_paused: true, auto_send_paused_reason: "bounces" })] };
+  const tables = { sender_profiles: [profile("suuchi", { auto_send_paused: true, auto_send_paused_reason: "bounces" })] };
   const writes: Array<{ table: string; kind: string; value: Row }> = [];
-  const route = settingsRoute({ owner: "jenna", role: "member", name: "Suuchi" }, tables, writes);
+  const route = settingsRoute({ owner: "suuchi", role: "member", name: "Suuchi" }, tables, writes);
   const before = Date.now();
   const response = await post(route, { paused: false });
   assert.equal(response.status, 200);
@@ -81,9 +81,9 @@ test("skip today sets today's local date and undo clears it", async () => {
 });
 
 test("a member cannot change another seat", async () => {
-  const tables = { sender_profiles: [profile("josh"), profile("jenna")] };
+  const tables = { sender_profiles: [profile("josh"), profile("suuchi")] };
   const writes: Array<{ table: string; kind: string; value: Row }> = [];
-  const route = settingsRoute({ owner: "jenna", role: "member", name: "Suuchi" }, tables, writes);
+  const route = settingsRoute({ owner: "suuchi", role: "member", name: "Suuchi" }, tables, writes);
   for (const body of [{ owner: "josh", skipToday: true }, { owner: "josh", paused: true }]) {
     const response = await post(route, body);
     assert.equal(response.status, 403);
@@ -103,14 +103,14 @@ test("skip today asks for migration 0030 before the column exists", async () => 
 
 test("settings return the build report per seat and the shared night spend once", async () => {
   const tables = {
-    sender_profiles: [profile("jenna")],
-    gmail_connections: [{ owner: "jenna", connected_at: new Date(Date.now() - 2 * 86_400_000).toISOString(), created_at: null }],
+    sender_profiles: [profile("suuchi")],
+    gmail_connections: [{ owner: "suuchi", connected_at: new Date(Date.now() - 2 * 86_400_000).toISOString(), created_at: null }],
     reachout_lists: [
       { owner: "josh", list_date: TODAY, status: "ready", rows: [], attempts: 20, sent_count: 0, held_count: 0, announced_at: null, summary_posted_at: null, errors: [], cost_usd: 4.25 },
-      { owner: "jenna", list_date: TODAY, status: "ready", rows: [{ aiFit: { score: 52 } }, { aiFit: { score: 88 } }], attempts: 18, sent_count: 3, held_count: 1, announced_at: "2026-10-01T11:00:00Z", summary_posted_at: null, errors: [{ domain: "a.test", reason: "AI fit 20 is below 40" }], cost_usd: 2.15 },
+      { owner: "suuchi", list_date: TODAY, status: "ready", rows: [{ aiFit: { score: 52 } }, { aiFit: { score: 88 } }], attempts: 18, sent_count: 3, held_count: 1, announced_at: "2026-10-01T11:00:00Z", summary_posted_at: null, errors: [{ domain: "a.test", reason: "AI fit 20 is below 40" }], cost_usd: 2.15 },
     ],
   };
-  const route = settingsRoute({ owner: "jenna", role: "member", name: "Suuchi" }, tables, []);
+  const route = settingsRoute({ owner: "suuchi", role: "member", name: "Suuchi" }, tables, []);
   const data = await (await route.GET(new Request("https://test"))).json();
   assert.equal(data.seats.length, 1);
   assert.deepEqual(data.night, { costUsd: 6.4, budgetUsd: 10 });
@@ -145,9 +145,9 @@ function cardsRoute(user: Row, card: Row, writes: Row[]) {
 const patch = (route: Record<string, Handler>, body: Row) => route.PATCH(new Request("https://test/api/cards/card", { method: "PATCH", body: JSON.stringify(body) }), { params: Promise.resolve({ id: "card" }) });
 
 test("the card's owner can keep it for themselves and put it back", async () => {
-  const card = { id: "card", status: "new", assigned_to: "jenna", auto_send_hold: false };
+  const card = { id: "card", status: "new", assigned_to: "suuchi", auto_send_hold: false };
   const writes: Row[] = [];
-  const route = cardsRoute({ owner: "jenna", role: "member" }, card, writes);
+  const route = cardsRoute({ owner: "suuchi", role: "member" }, card, writes);
   const response = await patch(route, { auto_send_hold: true });
   assert.equal(response.status, 200);
   assert.equal((await response.json()).auto_send_hold, true);
@@ -160,7 +160,7 @@ test("the card's owner can keep it for themselves and put it back", async () => 
 test("someone else cannot change a card's auto-send hold", async () => {
   const card = { id: "card", status: "new", assigned_to: "josh", auto_send_hold: false };
   const writes: Row[] = [];
-  const response = await patch(cardsRoute({ owner: "jenna", role: "member" }, card, writes), { auto_send_hold: true });
+  const response = await patch(cardsRoute({ owner: "suuchi", role: "member" }, card, writes), { auto_send_hold: true });
   assert.equal(response.status, 403);
   assert.equal(writes.length, 0);
   assert.equal(card.auto_send_hold, false);

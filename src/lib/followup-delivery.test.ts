@@ -19,8 +19,8 @@ function harness(options:{suppressed?:boolean|Error;countError?:boolean;reply?:b
  };
  const exports:Record<string,(...args:unknown[])=>Promise<Record<string,unknown>>>={};
  runInNewContext(ts.transpileModule(readFileSync(new URL('./followup-delivery.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,Date,Error,Set,require:(name:string)=>{if(name in mocks)return mocks[name];throw new Error(name)}});
- const step={id:'step',status:'pending',sent_at:null,channel:'email',subject:'Subject',body:'Hello?',cadences:{id:'cadence',status:'active',owner:'jenna',card_id:'card',people:{id:'person',email:'buyer@example.com',full_name:'Buyer',email_status:'verified'},cards:{accounts:{status:'prospect'}}}};
- return {send:(...viewer:[string?])=>exports.sendFollowup(db,step,viewer.length?viewer[0]:'jenna'),step,stats:()=>({sends,reserved,releases,bounced,unsubscribe})};
+ const step={id:'step',status:'pending',sent_at:null,channel:'email',subject:'Subject',body:'Hello?',cadences:{id:'cadence',status:'active',owner:'suuchi',card_id:'card',people:{id:'person',email:'buyer@example.com',full_name:'Buyer',email_status:'verified'},cards:{accounts:{status:'prospect'}}}};
+ return {send:(...viewer:[string?])=>exports.sendFollowup(db,step,viewer.length?viewer[0]:'suuchi'),step,stats:()=>({sends,reserved,releases,bounced,unsubscribe})};
 }
 test('a shared viewer cannot send from the other owner mailbox',async()=>{const h=harness();await assert.rejects(h.send('josh'),/Sign in as Suuchi/);assert.equal(h.stats().sends,0)});
 test('follow-up count lookup failure blocks Gmail',async()=>{const h=harness({countError:true});await assert.rejects(h.send(),/daily sending limit/);assert.equal(h.stats().sends,0)});

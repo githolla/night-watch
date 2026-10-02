@@ -63,11 +63,11 @@ test("a nightly list becomes Today's list for its owner, with offers and ownersh
   setNightlyLists({ nightlyFocus: [row], nightlyOffers: [offer], nightlyLatest: { josh: [], suuchi: ["nightly-example.test"] } });
   try {
     assert.equal(selectedBatch("today", 1), 3);
-    assert.equal(focusForOwner("jenna", 3).length, 1);
+    assert.equal(focusForOwner("suuchi", 3).length, 1);
     assert.equal(focusForOwner("josh", 3).length, 0);
-    assert.equal(hasTodayList("jenna"), true);
-    assert.equal(batchOwner("nightly-example.test"), "jenna");
-    assert.equal(reachoutList("suuchi", "jenna", 3).href, "/outreach?list=suuchi&batch=today");
+    assert.equal(hasTodayList("suuchi"), true);
+    assert.equal(batchOwner("nightly-example.test"), "suuchi");
+    assert.equal(reachoutList("suuchi", "suuchi", 3).href, "/outreach?list=suuchi&batch=today");
     assert.ok(researchRecommendation("nightly-example.test", offer.contactName), "its versions are found like a curated company's");
     assert.equal(isCuratedDomain("nightly-example.test"), false, "automatic copy keeps the reply-no line");
     const slice = researchSlice(["nightly-example.test"]);

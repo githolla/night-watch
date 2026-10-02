@@ -9,7 +9,7 @@ type Today = {
   skipBuckets: Array<{ bucket: string; count: number }>; skips: Skip[];
 };
 type Seat = {
-  owner: "josh" | "jenna"; autoSend: boolean; paused: boolean; pausedReason: string | null; postalAddressSet: boolean; migrated: boolean;
+  owner: "josh" | "suuchi"; autoSend: boolean; paused: boolean; pausedReason: string | null; postalAddressSet: boolean; migrated: boolean;
   safetyMigrated?: boolean; skippedToday?: boolean; dailyCap?: number; daysConnected?: number | null; today: Today | null;
 };
 type Night = { costUsd: number; budgetUsd: number };

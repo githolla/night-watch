@@ -44,7 +44,7 @@ export async function GET(request: Request) {
   let delivered = 0;
 
   let slack: Awaited<ReturnType<typeof sendMorningSlack>> | { delivered: false; reason: string };
-  if (!["josh", "jenna"].some(digestFor)) {
+  if (!["josh", "suuchi"].some(digestFor)) {
     slack = { delivered: false, reason: "today's lists are ready; the 7:00 list message covers this morning" };
   } else {
     try {

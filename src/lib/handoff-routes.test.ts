@@ -23,7 +23,7 @@ test('restore with existing copy returns an updated card rather than an empty up
  const record={id:'card',email_body:'Saved copy',email_subject:'Subject',status:'edited'};
  const db={from(){const q={select(){return q},eq(){return q},in(){return q},update(value:Record<string,unknown>){patch=value;return q},single:async()=>({data:record}),maybeSingle:async()=>Object.keys(patch).length?{data:record}:{error:new Error('Empty update')}};return q;}};
  const r=route('../app/api/cards/[id]/route.ts',{
-  '@/lib/restore-selected-draft':{restoreSelectedDraft:async()=> 'edited'},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/supabase/admin':{admin:()=>db},
+  '@/lib/restore-selected-draft':{restoreSelectedDraft:async()=> 'edited'},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'suuchi'})},'@/lib/supabase/admin':{admin:()=>db},
  });
  const response=await r.PATCH(new Request('https://test/api',{method:'PATCH',body:JSON.stringify({reopen:true})}),{params:Promise.resolve({id:'card'})});
  assert.equal(response.status,200);assert.equal(patch.status,'edited');assert.equal(patch.email_body,undefined);
@@ -32,7 +32,7 @@ test('a self-test accepted by Gmail remains successful when the history read thr
  let sends=0;
  const db={from(table:string){const q={select(){return q},eq(){return q},gte(){return q},maybeSingle:async()=>({data:{email:'self@example.com'}}),single:async()=>{if(table==='message_variants')throw new Error('DB disconnected');return {data:{person_id:'person',account_id:'account',people:{full_name:'Louis'},accounts:{domain:'dortchenterprises.com'}}}},then(resolve:(v:unknown)=>unknown){return Promise.resolve(resolve({count:0,error:null}))}};return q;}};
  const r=route('../app/api/cards/[id]/test-email/route.ts',{
-  '@/lib/focus-data':{batchOwner:()=> 'jenna'},'@/lib/first-touch':{firstTouchErrors:()=>[]},'@/lib/gift-tracking':{},'@/lib/authored-sender':{authoredSenderDraft:()=>({body:'Hello?'})},'@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/supabase/admin':{admin:()=>db},'@/lib/gmail':{sendEmail:async(...args:unknown[])=>{sends++;assert.equal(args[2],'self@example.com');assert.deepEqual(Array.from(args[6] as unknown[]),[]);return {id:'message',threadId:'thread'}}},'@/lib/sender':{senderProfile:async()=>({fromName:'Suuchi'}),fromHeader:()=> 'Suuchi',sanitizeLinks:(v:string)=>v},'@/lib/outreach-ending':{outreachDelivery:()=>({text:'Hello?',html:'<p>Hello?</p>'})},'@/lib/open-tracking':{},'@/lib/version-tracking':{trackEmailVersion:async()=> 'snapshot'},'@/lib/version-attribution':{SAVED_VERSION_MODEL:'saved',versionLabel:()=> 'Direct Offer'},
+  '@/lib/focus-data':{batchOwner:()=> 'suuchi'},'@/lib/first-touch':{firstTouchErrors:()=>[]},'@/lib/gift-tracking':{},'@/lib/authored-sender':{authoredSenderDraft:()=>({body:'Hello?'})},'@/lib/auth':{requireUser:async()=>({owner:'suuchi'})},'@/lib/supabase/admin':{admin:()=>db},'@/lib/gmail':{sendEmail:async(...args:unknown[])=>{sends++;assert.equal(args[2],'self@example.com');assert.deepEqual(Array.from(args[6] as unknown[]),[]);return {id:'message',threadId:'thread'}}},'@/lib/sender':{senderProfile:async()=>({fromName:'Suuchi'}),fromHeader:()=> 'Suuchi',sanitizeLinks:(v:string)=>v},'@/lib/outreach-ending':{outreachDelivery:()=>({text:'Hello?',html:'<p>Hello?</p>'})},'@/lib/open-tracking':{},'@/lib/version-tracking':{trackEmailVersion:async()=> 'snapshot'},'@/lib/version-attribution':{SAVED_VERSION_MODEL:'saved',versionLabel:()=> 'Direct Offer'},
  });
  const response=await r.POST(new Request('https://test/api',{method:'POST',body:JSON.stringify({subject:'Test',body:'Hello?'})}),{params:Promise.resolve({id:'card'})});
  const result=await response.json();assert.equal(response.status,200);assert.equal(result.ok,true);assert.match(result.warning,/test was sent/i);assert.equal(sends,1);
@@ -58,17 +58,17 @@ test('restoring a blank Suuchi draft uses Suuchi identity even when Josh views i
  const record={email_body:'',email_subject:'',status:'edited',accounts:{domain:'dortchenterprises.com'},people:{full_name:'Louis Dortch Jr.'}};
  const db={from(){const q={select(){return q},eq(){return q},in(){return q},update(value:Record<string,unknown>){patch=value;return q},single:async()=>({data:record}),maybeSingle:async()=>({data:{...record,...patch}})};return q;}};
  const r=route('../app/api/cards/[id]/route.ts',{
-  '@/lib/restore-selected-draft':{restoreSelectedDraft:async()=> 'edited'},'@/lib/focus-data':{batchOwner:()=> 'jenna'},'@/lib/version-tracking':{},'@/lib/version-attribution':{},
+  '@/lib/restore-selected-draft':{restoreSelectedDraft:async()=> 'edited'},'@/lib/focus-data':{batchOwner:()=> 'suuchi'},'@/lib/version-tracking':{},'@/lib/version-attribution':{},
   '@/lib/outreach-variants':{savedVariants:()=>[{id:'direct-offer'}],renderSavedVariant:(_v:unknown,name:string,sender:string)=>({subject:'Direct offer',body:`Hi ${name}, I am ${sender}. Can we help?`})},
   '@/lib/sender':{senderProfile:async(_db:unknown,owner:string)=>{profileOwner=owner;return {fromName:'Suuchi',greeting:'Hi {first},'}}},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'josh'})},'@/lib/supabase/admin':{admin:()=>db},
  });
  const response=await r.PATCH(new Request('https://test/api',{method:'PATCH',body:JSON.stringify({reopen:true})}),{params:Promise.resolve({id:'card'})});
- assert.equal(response.status,200);assert.equal(profileOwner,'jenna');assert.match(String(patch.email_body),/Suuchi/);assert.doesNotMatch(String(patch.email_body),/Josh/);assert.equal(patch.email_subject,'Direct offer');
+ assert.equal(response.status,200);assert.equal(profileOwner,'suuchi');assert.match(String(patch.email_body),/Suuchi/);assert.doesNotMatch(String(patch.email_body),/Josh/);assert.equal(patch.email_subject,'Direct offer');
 });
 test('a revoked Google connection cannot show green',async()=>{
  const r=route('../app/api/admin/connection-health/route.ts',{
   '@/lib/auth':{requireAdmin:async()=>({owner:'josh'})},
-  '@/lib/supabase/admin':{admin:()=>({from:()=>({select:async()=>({data:[{owner:'jenna',email:'self@example.com',scopes:'https://www.googleapis.com/auth/gmail.send'}]})})})},
+  '@/lib/supabase/admin':{admin:()=>({from:()=>({select:async()=>({data:[{owner:'suuchi',email:'self@example.com',scopes:'https://www.googleapis.com/auth/gmail.send'}]})})})},
   '@/lib/gmail':{ownerAccessToken:async()=>{throw new Error('revoked')}},
  });
  const result=await (await r.GET()).json();assert.equal(result.accounts[1].connected,false);assert.match(result.accounts[1].detail,/verify Google access/);
@@ -85,7 +85,7 @@ test('database uniqueness permits only one concurrent delivery snapshot', async 
    variants++; return {data:{id:'variant'}};
  }}}}}}}};
  const r=route('./version-tracking.ts',{'./sender':{},'./version-attribution':{SAVED_VERSION_MODEL:'saved-email-v1'}});
- const input={cardId:'card',personId:'person',owner:'jenna',subject:'Subject',body:'Body',reservationId:deliveryReservationId('card','person'),meta:{channel:'email',source:'gmail'}};
+ const input={cardId:'card',personId:'person',owner:'suuchi',subject:'Subject',body:'Body',reservationId:deliveryReservationId('card','person'),meta:{channel:'email',source:'gmail'}};
  const outcomes=await Promise.allSettled([r.snapshotVersion(db,input),r.snapshotVersion(db,input)]);
  assert.equal(outcomes.filter(x=>x.status==='fulfilled').length,1);assert.equal(variants,1);
  const failure=outcomes.find(x=>x.status==='rejected') as PromiseRejectedResult;
@@ -115,7 +115,7 @@ function sendHarness(options: { count?: number | null; countError?: boolean; tra
   '@/lib/opt-out':{withOptOut:(delivery:unknown)=>delivery,unsubscribeUrl:()=> 'https://test/api/unsubscribe?t=token'},'@/lib/first-touch':{firstTouchErrors:()=>[]},
   '@/lib/authored-sender':{authoredSenderDraft:()=>({body:'Can we help?'})},
   '@/lib/version-tracking':{trackEmailVersion:async()=>{if(reserved)throw new DeliveryError('delivery_reserved','Already sending');reserved=true;return 'variant'}},
-  '@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/crypto':{encrypt:()=> 'token'},
+  '@/lib/auth':{requireUser:async()=>({owner:'suuchi'})},'@/lib/crypto':{encrypt:()=> 'token'},
   '@/lib/gmail':{sendEmail:async()=>{sends++;if(options.transportError)throw options.transportError;return {id:'message',threadId:'thread'}}},
   '@/lib/followups':{ensureFollowupCadence:async()=>{}},'@/lib/send-action':{sendInput:{parse:(x:unknown)=>x},validateEmail:()=>{}},
   '@/lib/send-guards':{dailyCap:()=>5,sendDayStart:()=>new Date()},
@@ -124,7 +124,7 @@ function sendHarness(options: { count?: number | null; countError?: boolean; tra
   '@/lib/outreach-ending':{outreachBody:(v:string)=>v,outreachDelivery:()=>({text:'Can we help?',html:'<p>Can we help?</p>'})},
  });
  // The route is a thin wrapper now: call the shared send and map errors exactly as it does.
- return {run:async()=>{try{return Response.json(await (r.sendCardEmail as unknown as (db:unknown,input:unknown)=>Promise<unknown>)(db,{cardId:'card',owner:'jenna',subject:'Subject',body:'Can we help?',baseUrl:'https://test'}))}catch(error){return deliveryErrorResponse(error)}},state:()=>({sends,reserved,releases})};
+ return {run:async()=>{try{return Response.json(await (r.sendCardEmail as unknown as (db:unknown,input:unknown)=>Promise<unknown>)(db,{cardId:'card',owner:'suuchi',subject:'Subject',body:'Can we help?',baseUrl:'https://test'}))}catch(error){return deliveryErrorResponse(error)}},state:()=>({sends,reserved,releases})};
 }
 for(const options of [{count:null},{countError:true}]) test('daily count failure blocks Gmail: '+JSON.stringify(options),async()=>{
  const h=sendHarness(options);const result=await h.run();assert.equal(result.status,400);assert.match((await result.json()).error,/daily sending limit/);assert.equal(h.state().sends,0);
@@ -158,7 +158,7 @@ test('a stale draft revision returns conflict and cannot overwrite another sessi
   }
  };return q;}};
  const r=route('../app/api/cards/[id]/route.ts',{
-  '@/lib/restore-selected-draft':{restoreSelectedDraft:async()=> 'edited'},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/supabase/admin':{admin:()=>db},
+  '@/lib/restore-selected-draft':{restoreSelectedDraft:async()=> 'edited'},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'suuchi'})},'@/lib/supabase/admin':{admin:()=>db},
  });
  const response=await r.PATCH(new Request('https://test/api',{method:'PATCH',body:JSON.stringify({email_subject:'My stale edit',expected_updated_at:'2026-09-29T14:00:00.000Z'})}),{params:Promise.resolve({id:'card'})});
  assert.equal(response.status,409);assert.equal(wrote,false);assert.match((await response.json()).error,/another session/);
@@ -169,14 +169,14 @@ test('version-checked edit restores an automatic shortlist archive without losin
  const {memoryDb}=await import('./testing/memory-db.ts');
  const {restoreSelectedDraft}=await import('./restore-selected-draft.ts');
  const h=memoryDb({cards:[{id:'card',person_id:'person',status:'archived',updated_at:'v1',dismiss_reason:null,score_breakdown:{},accounts:{domain:'dortchenterprises.com',status:'active'},signals:{hash:'operator-shortlist-20260923:dortchenterprises.com'},people:{do_not_contact:false},email_body:'Old draft'}]});
- const r=route('../app/api/cards/[id]/route.ts',{'@/lib/restore-selected-draft':{restoreSelectedDraft},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/supabase/admin':{admin:()=>h.db}});
+ const r=route('../app/api/cards/[id]/route.ts',{'@/lib/restore-selected-draft':{restoreSelectedDraft},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'suuchi'})},'@/lib/supabase/admin':{admin:()=>h.db}});
  const response=await r.PATCH(new Request('https://test',{method:'PATCH',body:JSON.stringify({email_body:'Suuchi edited this',expected_updated_at:'v1'})}),{params:Promise.resolve({id:'card'})});
  assert.equal(response.status,200);const data=await response.json();assert.equal(data.email_body,'Suuchi edited this');assert.equal(data.status,'edited');assert.equal(data.restored,true);
 });
 test('stale archived edit never overwrites another session',async()=>{
  const {memoryDb}=await import('./testing/memory-db.ts');const {restoreSelectedDraft}=await import('./restore-selected-draft.ts');
  const h=memoryDb({cards:[{id:'card',person_id:'person',status:'archived',updated_at:'v2',dismiss_reason:null,score_breakdown:{},accounts:{domain:'dortchenterprises.com',status:'active'},signals:{hash:'operator-shortlist-20260923:dortchenterprises.com'},people:{do_not_contact:false},email_body:'Other session text'}]});
- const r=route('../app/api/cards/[id]/route.ts',{'@/lib/restore-selected-draft':{restoreSelectedDraft},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/supabase/admin':{admin:()=>h.db}});
+ const r=route('../app/api/cards/[id]/route.ts',{'@/lib/restore-selected-draft':{restoreSelectedDraft},'@/lib/focus-data':{},'@/lib/version-tracking':{},'@/lib/version-attribution':{},'@/lib/outreach-variants':{},'@/lib/sender':{},'@/lib/email-style':{emailStyle:(v:string)=>v},'@/lib/auth':{requireUser:async()=>({owner:'suuchi'})},'@/lib/supabase/admin':{admin:()=>h.db}});
  const response=await r.PATCH(new Request('https://test',{method:'PATCH',body:JSON.stringify({email_body:'Stale edit',expected_updated_at:'v1'})}),{params:Promise.resolve({id:'card'})});
  assert.equal(response.status,409);assert.equal(h.tables.cards[0].email_body,'Other session text');assert.equal(h.tables.cards[0].status,'archived');
 });
@@ -185,7 +185,7 @@ test('admin acting mode enforces role and origin, selects Suuchi and preserves p
  let actor={id:'admin',role:'admin'}; let reads=0; const cookies:unknown[][]=[];
  const r=route('../app/api/admin/act-as/route.ts',{
   '@/lib/auth':{requireActualUser:async()=>actor},
-  '@/lib/supabase/admin':{admin:()=>({from:()=>({select:()=>({eq:async()=>{reads++;return {data:[{id:'suuchi',name:'Suuchi Ramesh',owner:'jenna'}]}}})})})},
+  '@/lib/supabase/admin':{admin:()=>({from:()=>({select:()=>({eq:async()=>{reads++;return {data:[{id:'suuchi',name:'Suuchi Ramesh',owner:'suuchi'}]}}})})})},
   '@/lib/acting-session':{ACTING_COOKIE:'nw_acting',issueActingSession:(a:string,b:string)=>`${a}:${b}`},
   'next/server':{NextResponse:{json:(data:unknown)=>Object.assign(Response.json(data),{cookies:{set:(...args:unknown[])=>cookies.push(args)}})}},
  });
@@ -199,7 +199,7 @@ test('admin acting mode enforces role and origin, selects Suuchi and preserves p
 
 test('effective user uses Suuchi owner while retaining the real administrator', async () => {
  const actual={id:'admin',role:'admin',owner:'josh',name:'Josh',email:'j@example.com'};
- const target={id:'suuchi',role:'member',owner:'jenna',name:'Suuchi',email:'s@example.com'};
+ const target={id:'suuchi',role:'member',owner:'suuchi',name:'Suuchi',email:'s@example.com'};
  let available=true;let role='admin';
  const r=route('./auth.ts',{
   'node:crypto':{timingSafeEqual:()=>false},'react':{cache:(fn:unknown)=>fn},'next/headers':{cookies:async()=>({get:(key:string)=>({value:key==='session'?'real':'acting'})})},
@@ -208,7 +208,7 @@ test('effective user uses Suuchi owner while retaining the real administrator', 
   './acting-session.ts':{ACTING_COOKIE:'acting',actingTarget:(_token:string,user:{role:string})=>{if(user.role!=='admin')throw new Error('Denied');return 'suuchi'}},
  });
  const effective=await r.requireUser() as unknown as {owner:string;actor:{id:string}};
- assert.equal(effective.owner,'jenna');assert.equal(effective.actor.id,'admin');
+ assert.equal(effective.owner,'suuchi');assert.equal(effective.actor.id,'admin');
  assert.equal((await r.requireAdmin() as unknown as {id:string}).id,'admin');
  available=false;await assert.rejects(r.requireUser(),/unavailable/);
  available=true;role='member';await assert.rejects(r.requireUser(),/Denied/);
@@ -226,11 +226,31 @@ test('sequence setup uses the existing expression-indexed person without an inva
   then(resolve:(v:unknown)=>unknown){return Promise.resolve(resolve({error:null}))},
  };return q;}};
  const r=route('../app/api/admin/test-sequence/route.ts',{
-  '@/lib/auth':{requireUser:async()=>({role:'member',owner:'jenna',actor:{id:'admin'}})},
+  '@/lib/auth':{requireUser:async()=>({role:'member',owner:'suuchi',actor:{id:'admin'}})},
   '@/lib/supabase/admin':{admin:()=>db},
  });
  const response=await r.POST(new Request('https://test/api',{method:'POST',body:'{}'}));
  assert.equal(response.status,200);assert.equal((await response.json()).to,'suuchi@example.com');
  assert.equal(inserts,exists?0:1);assert.equal(updates,1);
  }
+});
+test('the settings test send comes from the seat mailbox and reaches the admin acting as that seat',async()=>{
+ const sent:Array<{from:string;to:string}>=[];
+ const db={from(){const q={select(){return q},eq(){return q},maybeSingle:async()=>({data:{email:'Suuchi@nine-67.com'}})};return q}};
+ const mocks=(actor?:{email:string})=>({
+  '@/lib/auth':{requireUser:async()=>({id:'u2',name:'Suuchi Rao',owner:'suuchi',role:'member',...(actor?{actor}:{})})},
+  '@/lib/supabase/admin':{admin:()=>db},
+  '@/lib/gmail':{sendEmail:async(_owner:string,from:string,to:string)=>{sent.push({from,to});return {threadId:'t1'}}},
+  '@/lib/sender':{senderProfile:async()=>({fromName:'Suuchi Rao'}),fromHeader:(_p:unknown,email:string)=>`Suuchi Rao <${email}>`,withSignature:(body:string)=>body,emailHtml:()=>''},
+ });
+ const send=async(actor:{email:string}|undefined,body:unknown)=>{const response=await route('../app/api/gmail/test/route.ts',mocks(actor)).POST(new Request('https://test/api',{method:'POST',body:JSON.stringify(body)}));return {status:response.status,json:await response.json()}};
+ const self=await send(undefined,{});
+ assert.equal(self.json.to,'suuchi@nine-67.com');assert.equal(self.json.toSelf,true);
+ const acting=await send({email:'Josh@nine-67.com'},{});
+ assert.equal(acting.json.to,'josh@nine-67.com');assert.equal(acting.json.toSelf,false);
+ const typed=await send(undefined,{to:'Friend@Example.com'});
+ assert.equal(typed.json.to,'friend@example.com');
+ assert.deepEqual(sent.map(item=>item.from),Array(3).fill('Suuchi Rao <suuchi@nine-67.com>'),'From is always the seat mailbox, never the recipient');
+ assert.equal((await send(undefined,{to:'not-an-email'})).status,400);
+ assert.equal(sent.length,3);
 });

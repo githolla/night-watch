@@ -22,7 +22,7 @@ type Db = ReturnType<typeof admin>;
 export const followupSelect = 'id,title,step_number,status,sent_at,kind,channel,subject,body,cadence_id,cadences!inner(id,status,owner,card_id,person_id,people(id,full_name,email,email_status,email_source,email_verified_at,email_check,do_not_contact),cards(account_id,accounts(status,name,domain)))';
 type Step = { id:string; title:string; step_number:number; status:string; sent_at:string|null; kind:string; channel:string; subject:string|null; body:string|null; cadence_id:string; cadences: { id:string; status:string; owner:Owner; card_id:string; person_id:string; people:{id:string; full_name:string; email:string|null; email_status:string; email_source?:string|null; email_verified_at?:string|null; email_check?:unknown; do_not_contact:boolean}|null; cards:{account_id?:string; accounts:{status:string;name:string;domain:string}|null}|null }|null };
 export function assertFollowupOwner(owner: Owner, viewer: Owner) {
-  if (owner !== viewer) throw new Error(`Sign in as ${owner === 'jenna' ? 'Suuchi' : 'Josh'} to send this follow-up. Shared viewing does not change the sender.`);
+  if (owner !== viewer) throw new Error(`Sign in as ${owner === 'suuchi' ? 'Suuchi' : 'Josh'} to send this follow-up. Shared viewing does not change the sender.`);
 }
 type ThreadMessage = {internalDate:string;payload:{headers:Array<{name:string;value:string}>}};
 /** Messages after our send that are not from us. Delivery failures are split out: they are not replies. */

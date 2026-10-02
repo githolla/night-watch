@@ -28,10 +28,10 @@ const step = (id: string, owner: string, extra: Row = {}) => ({ id, status: "pen
 
 test("a paused seat's automatic follow-up waits for a person and is never sent", async () => {
   const h = cron({
-    cadence_steps: [step("s1", "josh"), step("s2", "jenna")],
+    cadence_steps: [step("s1", "josh"), step("s2", "suuchi")],
     sender_profiles: [
       { owner: "josh", auto_send: false, auto_send_paused: true, auto_send_paused_reason: "2 first emails bounced in the last 48 hours. Auto-send and automatic follow-ups are paused.", postal_address: "1 Main St" },
-      { owner: "jenna", auto_send: false, auto_send_paused: false, postal_address: "1 Main St" },
+      { owner: "suuchi", auto_send: false, auto_send_paused: false, postal_address: "1 Main St" },
     ],
   });
   const body = await (await h.run()).json();

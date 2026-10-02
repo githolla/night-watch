@@ -47,7 +47,7 @@ export async function repairBrokenDrafts(limit = 2000, budgetMs = 90_000, afterI
     !isSendable(auditDraft(toAuditRow(row))), contacted.has(`${row.id}:${row.person_id}`)));
   if (!broken.length) return { checked: rows.length, repaired: 0, failed: 0, done: exhausted, nextCursor: rows.at(-1)?.id ?? afterId };
 
-  // Each card's own seat: the draft introduces the sender by name, so repairing Jenna's card with Josh's
+  // Each card's own seat: the draft introduces the sender by name, so repairing Suuchi's card with Josh's
   // profile would put the wrong person's name in the first line of her email. Looked up once per seat.
   const profiles = new Map<string, Awaited<ReturnType<typeof senderProfile>> | null>();
   for (const owner of new Set(broken.map((row) => row.assigned_to))) {

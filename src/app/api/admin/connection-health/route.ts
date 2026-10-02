@@ -7,7 +7,7 @@ export async function GET() {
  const db=admin();
  const {data,error}=await db.from('gmail_connections').select('owner,email,scopes');
  if(error)return Response.json({error:'Could not read connections. Please retry.'},{status:503});
- const accounts=await Promise.all((['josh','jenna'] as const).map(async owner=>{
+ const accounts=await Promise.all((['josh','suuchi'] as const).map(async owner=>{
   const name=owner==='josh'?'Josh':'Suuchi';
   const row=data?.find(r=>r.owner===owner);
   const base={owner,name,email:row?.email??null};

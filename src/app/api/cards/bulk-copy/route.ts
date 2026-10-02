@@ -4,7 +4,7 @@ import {batchOwner} from '@/lib/focus-data';
 import {replaceOpening} from '@/lib/bulk-copy';
 import {firstTouchErrors} from '@/lib/first-touch';
 import {z} from 'zod';
-const input=z.object({ids:z.array(z.string().uuid()).min(1).max(100),owner:z.enum(['josh','jenna']),field:z.enum(['subject','opening']),value:z.string().trim().min(1).max(400)});
+const input=z.object({ids:z.array(z.string().uuid()).min(1).max(100),owner:z.enum(['josh','suuchi']),field:z.enum(['subject','opening']),value:z.string().trim().min(1).max(400)});
 export async function POST(request:Request){
  try {
   await requireUser();const payload=input.parse(await request.json());const db=admin();

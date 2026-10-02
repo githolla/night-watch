@@ -48,18 +48,18 @@ test("sessions carry an id and version; shared-password sessions die when the pa
 });
 
 test("non-list cards may only be sent by their assigned owner; list cards follow the list", () => {
-  assert.throws(() => assertCardSender("acme.test", "josh", "jenna"), /assigned to Josh/);
-  assert.doesNotThrow(() => assertCardSender("acme.test", "jenna", "jenna"));
+  assert.throws(() => assertCardSender("acme.test", "josh", "suuchi"), /assigned to Josh/);
+  assert.doesNotThrow(() => assertCardSender("acme.test", "suuchi", "suuchi"));
   const listRow = batchFocus()[0];
   const owner = batchOwner(listRow.domain)!;
-  const other = owner === "josh" ? "jenna" : "josh";
+  const other = owner === "josh" ? "suuchi" : "josh";
   assert.doesNotThrow(() => assertCardSender(listRow.domain, other, owner), "the list owner sends even if assigned_to disagrees");
   assert.throws(() => assertCardSender(listRow.domain, owner, other), /Sign in as/);
 });
 
 test("the Gmail handshake cookie is sealed and records seat and user", () => {
-  const cookie = oauthStateCookie({ nonce: "n1", owner: "jenna", uid: "suuchi" });
-  assert.deepEqual(readOAuthStateCookie(cookie), { nonce: "n1", owner: "jenna", uid: "suuchi" });
+  const cookie = oauthStateCookie({ nonce: "n1", owner: "suuchi", uid: "suuchi" });
+  assert.deepEqual(readOAuthStateCookie(cookie), { nonce: "n1", owner: "suuchi", uid: "suuchi" });
   assert.equal(readOAuthStateCookie("n1"), null, "a bare nonce (the old format) is not accepted");
   assert.equal(readOAuthStateCookie(cookie.slice(0, -2) + "xx"), null, "tampering breaks the seal");
 });

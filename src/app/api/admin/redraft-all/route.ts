@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     const cards = (data ?? []) as unknown as CardRow[];
 
     // Per card's assigned seat, not whoever pressed the button: a draft introduces the person who will send
-    // it, so rewriting Jenna's cards under Josh's identity would put the wrong name in her first line — and
+    // it, so rewriting Suuchi's cards under Josh's identity would put the wrong name in her first line — and
     // mixing the two across one list is what made the sender appear in some emails and not others.
     const profiles = new Map<string, Awaited<ReturnType<typeof senderProfile>>>();
     for (const owner of new Set(cards.map((card) => card.assigned_to).filter(Boolean))) {

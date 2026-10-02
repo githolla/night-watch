@@ -7,7 +7,7 @@ import { z } from "zod";
 const create = z.object({
   email: z.string().email().max(200),
   name: z.string().min(1).max(120),
-  owner: z.enum(["josh", "jenna"]),
+  owner: z.enum(["josh", "suuchi"]),
   role: z.enum(["admin", "member"]).default("member"),
   // Either send an invite (no password) or set a temp password directly.
   password: z.string().min(8).max(200).optional(),

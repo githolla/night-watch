@@ -99,7 +99,7 @@ export function FollowupsBoard({ items }: { items: FollowupItem[] }) {
             <span className={`followup-when ${item.due ? "is-due" : ""}`}>Step {item.step} · {whenLabel(item.scheduledAt, now)}</span>
           </div>
         </div>
-        <p><strong>{item.manualPending ? "Finish saving manual activity" : item.claimed ? "Needs delivery confirmation" : item.status}</strong> · {item.owner === "jenna" ? "Suuchi" : "Josh"}{item.cadenceStatus&&item.cadenceStatus!=='active'&&<> · Sequence {item.cadenceStatus}</>}{item.error && <><br />{item.error}</>}</p>
+        <p><strong>{item.manualPending ? "Finish saving manual activity" : item.claimed ? "Needs delivery confirmation" : item.status}</strong> · {item.owner === "suuchi" ? "Suuchi" : "Josh"}{item.cadenceStatus&&item.cadenceStatus!=='active'&&<> · Sequence {item.cadenceStatus}</>}{item.error && <><br />{item.error}</>}</p>
         <div className="followup-title">{item.title}<small>{item.detail}</small></div>
         <div className="followup-draft">
           {item.subject && <div className="mail-row"><span>Subject</span><b>{item.subject}</b></div>}

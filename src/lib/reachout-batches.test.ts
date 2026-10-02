@@ -6,12 +6,12 @@ import { savedVariants, renderSavedVariant, renderLinkedInVariant } from './outr
 import { firstTouchErrors } from './first-touch.ts';
 import { publishedEmailPatch } from './focused-contact.ts';
 
-const cardsFor = (owner: 'josh' | 'jenna', status = 'sent'): BatchCard[] => focusForOwner(owner).map(row => ({domain: row.domain, owner, status}));
+const cardsFor = (owner: 'josh' | 'suuchi', status = 'sent'): BatchCard[] => focusForOwner(owner).map(row => ({domain: row.domain, owner, status}));
 
 test('next batches contain 25 distinct operating businesses per sender, never merged with current or retired companies', () => {
   assert.equal(nextBatchFocus().length, 50);
   assert.equal(new Set([...originalFocus(), ...batchFocus(), ...nextBatchFocus()].map(r => r.domain)).size, 125);
-  for (const owner of ['josh', 'jenna'] as const) {
+  for (const owner of ['josh', 'suuchi'] as const) {
     const next = focusForOwner(owner, 2);
     assert.equal(next.length, 25);
     assert.deepEqual(reachoutList(owner === 'josh' ? 'josh' : 'suuchi', owner, 2).drafts, next);
@@ -36,12 +36,12 @@ test('missing, approved, snoozed, edited and archived companies cannot unlock th
 });
 
 test('sender progress is independent and sending or explicit dismissal unlocks only the finished sender', () => {
-  const cards = [...cardsFor('josh'), ...cardsFor('jenna','new')];
+  const cards = [...cardsFor('josh'), ...cardsFor('suuchi','new')];
   assert.equal(batchProgress('josh', cards).sequence, 2);
-  assert.equal(batchProgress('jenna', cards).sequence, 1);
-  assert.equal(batchProgress('jenna', cardsFor('jenna','dismissed')).sequence, 2);
+  assert.equal(batchProgress('suuchi', cards).sequence, 1);
+  assert.equal(batchProgress('suuchi', cardsFor('suuchi','dismissed')).sequence, 2);
   for (const status of ['replied','positive','negative','meeting']) assert.equal(batchProgress('josh',cardsFor('josh',status)).sequence,2);
-  const wrongOwner = cardsFor('josh').map(c=>({...c,owner:'jenna'}));
+  const wrongOwner = cardsFor('josh').map(c=>({...c,owner:'suuchi'}));
   assert.equal(batchProgress('josh',wrongOwner).sequence,1);
   const mixed = cardsFor('josh','dismissed');
   mixed.push({...mixed[0],status:'new'});
@@ -53,7 +53,7 @@ test('recorded outreach remains complete when a follow-up changes the card statu
   assert.equal(batchProgress('josh',cards).sequence,2);
   const completedOnLoad=focusForOwner('josh').slice(0,24).map(row=>row.domain);
   assert.equal(batchProgress('josh',[cardsFor('josh')[24]],completedOnLoad).sequence,2);
-  assert.equal(batchProgress('jenna',[],completedOnLoad).sequence,1);
+  assert.equal(batchProgress('suuchi',[],completedOnLoad).sequence,1);
 });
 
 test('all 50 next contacts have three complete authored email and LinkedIn variants with correct sender identity', () => {
@@ -87,7 +87,7 @@ test('either sender can open either separate batch before or after completion', 
   assert.equal(selectedBatch('2',defaultSequence),2);
   assert.equal(selectedBatch(undefined,defaultSequence),defaultSequence);
   assert.equal(selectedBatch('invalid',defaultSequence),defaultSequence);
-  for(const viewer of ['josh','jenna'] as const) for(const owner of ['josh','suuchi']) for(const requested of ['1','2']){
+  for(const viewer of ['josh','suuchi'] as const) for(const owner of ['josh','suuchi']) for(const requested of ['1','2']){
    const list=reachoutList(owner,viewer,selectedBatch(requested,defaultSequence));
    assert.equal(list.drafts.length,25);
    assert.equal(list.href,`/outreach?list=${owner}&batch=${requested}`);

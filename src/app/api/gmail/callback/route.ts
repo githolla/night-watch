@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     // must agree, and the person finishing must be that user and still allowed to connect that seat. The
     // seat in `state` is never trusted on its own: it arrives in a URL anyone can edit.
     const [ownerPart, ...nonceParts] = (url.searchParams.get("state") ?? "").split(".");
-    const owner = z.enum(["josh", "jenna"]).parse(ownerPart);
+    const owner = z.enum(["josh", "suuchi"]).parse(ownerPart);
     const handshake = readOAuthStateCookie(readCookie(request.headers.get("cookie"), OAUTH_STATE_COOKIE));
     if (!handshake || !nonceMatches(nonceParts.join("."), handshake.nonce) || handshake.owner !== owner) throw new Error("OAuth state check failed. Start the connection again from Settings.");
     const user = await requireActualUser().catch(() => null);

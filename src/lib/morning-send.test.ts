@@ -23,7 +23,7 @@ function load(): Module {
     "./card-send.ts": { sendCardEmail: async () => { throw new Error("inject sendCardEmail"); } },
     "./local-time.ts": localTime,
     "./morning-send-rules.ts": rules,
-    "./nightly-list-builder.ts": { LIST_OWNERS: ["josh", "jenna"], nightlyListConfig: () => ({ size: 12 }) },
+    "./nightly-list-builder.ts": { LIST_OWNERS: ["josh", "suuchi"], nightlyListConfig: () => ({ size: 12 }) },
     "./opt-out.ts": { configuredBaseUrl: () => "https://app.test" },
     "./slack.ts": { postSlackMessage: async () => { throw new Error("inject postSlackMessage"); } },
   };
@@ -64,7 +64,7 @@ function harness(seed: Record<string, Row[]>) {
 }
 
 test("nothing builds, posts or sends on a Saturday", async () => {
-  const h = harness({ reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")] })], sender_profiles: [profile("josh"), profile("jenna")], cards: [card("c1", "josh", "acme.test", "Acme")] });
+  const h = harness({ reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")] })], sender_profiles: [profile("josh"), profile("suuchi")], cards: [card("c1", "josh", "acme.test", "Acme")] });
   let finalized = 0;
   for (const time of ["07:00", "09:30", "11:30"]) {
     const result = await h.run(at(time, "2026-10-03"), { finalizeOpenLists: async () => { finalized += 1; } });
@@ -76,7 +76,7 @@ test("nothing builds, posts or sends on a Saturday", async () => {
 });
 
 test("two runs at 7:00, one after the other or at once, post the announcement once", async () => {
-  const h = harness({ reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")] }), list("jenna", { rows: [listRow("beta.test", "Beta")] })], sender_profiles: [profile("josh"), profile("jenna")], cards: [] });
+  const h = harness({ reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")] }), list("suuchi", { rows: [listRow("beta.test", "Beta")] })], sender_profiles: [profile("josh"), profile("suuchi")], cards: [] });
   await Promise.all([h.run(at("07:00")), h.run(at("07:00"))]);
   await h.run(at("07:10"));
   assert.equal(h.posts.filter((text) => text.includes("Josh")).length, 1);
@@ -84,7 +84,7 @@ test("two runs at 7:00, one after the other or at once, post the announcement on
 });
 
 test("a thrown Slack error releases the claim; Slack not being set up does not", async () => {
-  const h = harness({ reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")] }), list("jenna")], sender_profiles: [profile("josh"), profile("jenna")], cards: [] });
+  const h = harness({ reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")] }), list("suuchi")], sender_profiles: [profile("josh"), profile("suuchi")], cards: [] });
   await h.run(at("07:00"), { postSlackMessage: async () => { throw new Error("Slack down"); } });
   assert.equal(h.tables.reachout_lists[0].announced_at, null);
   await h.run(at("07:10"), { postSlackMessage: async () => false });
@@ -94,7 +94,7 @@ test("a thrown Slack error releases the claim; Slack not being set up does not",
 });
 
 test("a list still building at the first run is finalized, then announced", async () => {
-  const h = harness({ reachout_lists: [list("josh", { status: "building", rows: [listRow("acme.test", "Acme")] }), list("jenna", { status: "building" })], sender_profiles: [profile("josh"), profile("jenna")], cards: [] });
+  const h = harness({ reachout_lists: [list("josh", { status: "building", rows: [listRow("acme.test", "Acme")] }), list("suuchi", { status: "building" })], sender_profiles: [profile("josh"), profile("suuchi")], cards: [] });
   const finalizeOpenLists = async (_db: unknown, listDate: string) => {
     for (const row of h.tables.reachout_lists) if (row.list_date === listDate && row.status === "building") row.status = (row.rows as Row[]).length ? "ready" : "failed";
   };
@@ -105,7 +105,7 @@ test("a list still building at the first run is finalized, then announced", asyn
 });
 
 test("a failed list gives exactly one alert across five runs", async () => {
-  const h = harness({ reachout_lists: [list("josh", { status: "failed", errors: [{ domain: "a.test", reason: "no buyer found" }, { domain: "b.test", reason: "no buyer found" }] }), list("jenna", { status: "ready", announced_at: at("07:00").toISOString(), summary_posted_at: at("11:30").toISOString() })], sender_profiles: [profile("josh"), profile("jenna")], cards: [] });
+  const h = harness({ reachout_lists: [list("josh", { status: "failed", errors: [{ domain: "a.test", reason: "no buyer found" }, { domain: "b.test", reason: "no buyer found" }] }), list("suuchi", { status: "ready", announced_at: at("07:00").toISOString(), summary_posted_at: at("11:30").toISOString() })], sender_profiles: [profile("josh"), profile("suuchi")], cards: [] });
   for (const time of ["07:00", "07:10", "09:00", "10:00", "11:40"]) await h.run(at(time));
   assert.equal(h.posts.length, 1);
   assert.match(h.posts[0], /No list for Josh today: the nightly build failed.*no buyer found \(2\)/);
@@ -113,7 +113,7 @@ test("a failed list gives exactly one alert across five runs", async () => {
 });
 
 test("a missing list row gives one alert and leaves a failed row behind", async () => {
-  const h = harness({ reachout_lists: [list("jenna", { announced_at: at("07:00").toISOString() })], sender_profiles: [profile("josh"), profile("jenna")], cards: [] });
+  const h = harness({ reachout_lists: [list("suuchi", { announced_at: at("07:00").toISOString() })], sender_profiles: [profile("josh"), profile("suuchi")], cards: [] });
   const early = await h.run(at("06:50"));
   assert.equal(early[0].action, "no list");
   for (const time of ["07:00", "07:10", "07:20"]) await h.run(at(time));
@@ -124,8 +124,8 @@ test("a missing list row gives one alert and leaves a failed row behind", async 
 
 test("yesterday's bounces pause this morning before anything sends, with names and a Settings link", async () => {
   const h = harness({
-    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("jenna", { announced_at: at("07:00").toISOString() })],
-    sender_profiles: [profile("josh"), profile("jenna", { auto_send: false })],
+    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("suuchi", { announced_at: at("07:00").toISOString() })],
+    sender_profiles: [profile("josh"), profile("suuchi", { auto_send: false })],
     cards: [card("c1", "josh", "acme.test", "Acme")],
     touches: [
       { id: "t1", sent_by: "josh", channel: "email", gmail_thread_id: "th1", sent_at: at("10:00", "2026-09-30").toISOString(), bounced_at: at("16:00", "2026-09-30").toISOString(), people: { email: "bad@zeta.test" }, cards: { accounts: { name: "Zeta" } } },
@@ -145,8 +145,8 @@ test("yesterday's bounces pause this morning before anything sends, with names a
 test("bounces from before the last resume do not pause again, and follow-ups on a thread are not first emails", async () => {
   const bounced = (id: string, thread: string, sent: string) => ({ id, sent_by: "josh", channel: "email", gmail_thread_id: thread, sent_at: at(sent, "2026-09-30").toISOString(), bounced_at: at("18:00", "2026-09-30").toISOString() });
   const h = harness({
-    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("jenna", { announced_at: at("07:00").toISOString() })],
-    sender_profiles: [profile("josh", { auto_send_resumed_at: at("08:00").toISOString() }), profile("jenna", { auto_send: false })],
+    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("suuchi", { announced_at: at("07:00").toISOString() })],
+    sender_profiles: [profile("josh", { auto_send_resumed_at: at("08:00").toISOString() }), profile("suuchi", { auto_send: false })],
     cards: [card("c1", "josh", "acme.test", "Acme")],
     touches: [bounced("t1", "th1", "10:00"), bounced("t2", "th2", "10:10")],
   });
@@ -155,8 +155,8 @@ test("bounces from before the last resume do not pause again, and follow-ups on 
   assert.equal(h.tables.reachout_lists[0].sent_count, 1);
 
   const followups = harness({
-    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("jenna", { announced_at: at("07:00").toISOString() })],
-    sender_profiles: [profile("josh"), profile("jenna", { auto_send: false })],
+    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("suuchi", { announced_at: at("07:00").toISOString() })],
+    sender_profiles: [profile("josh"), profile("suuchi", { auto_send: false })],
     cards: [card("c1", "josh", "acme.test", "Acme")],
     touches: [
       { id: "first", sent_by: "josh", channel: "email", gmail_thread_id: "th1", sent_at: at("10:00", "2026-09-01").toISOString(), bounced_at: null },
@@ -169,8 +169,8 @@ test("bounces from before the last resume do not pause again, and follow-ups on 
 
 test("identity holds and kept cards are not sent; the summary names each card left and why", async () => {
   const h = harness({
-    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme"), listRow("beta.test", "Beta", { identityHold: "the buyer left the company" }), listRow("kept.test", "Kept"), listRow("gamma.test", "Gamma")], announced_at: at("07:00").toISOString() }), list("jenna", { announced_at: at("07:00").toISOString() })],
-    sender_profiles: [profile("josh"), profile("jenna", { auto_send: false })],
+    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme"), listRow("beta.test", "Beta", { identityHold: "the buyer left the company" }), listRow("kept.test", "Kept"), listRow("gamma.test", "Gamma")], announced_at: at("07:00").toISOString() }), list("suuchi", { announced_at: at("07:00").toISOString() })],
+    sender_profiles: [profile("josh"), profile("suuchi", { auto_send: false })],
     cards: [
       card("c1", "josh", "acme.test", "Acme"),
       card("c2", "josh", "beta.test", "Beta"),
@@ -202,9 +202,9 @@ test("identity holds and kept cards are not sent; the summary names each card le
 test("no send starts once the run is 240 seconds old", async () => {
   const domains = ["a", "b", "c", "d"];
   const h = harness({
-    reachout_lists: [list("josh", { rows: domains.slice(0, 2).map((d) => listRow(`${d}.test`, d)), announced_at: at("07:00").toISOString() }), list("jenna", { rows: domains.slice(2).map((d) => listRow(`${d}.test`, d)), announced_at: at("07:00").toISOString() })],
-    sender_profiles: [profile("josh"), profile("jenna")],
-    cards: [card("c1", "josh", "a.test", "A"), card("c2", "josh", "b.test", "B"), card("c3", "jenna", "c.test", "C"), card("c4", "jenna", "d.test", "D")],
+    reachout_lists: [list("josh", { rows: domains.slice(0, 2).map((d) => listRow(`${d}.test`, d)), announced_at: at("07:00").toISOString() }), list("suuchi", { rows: domains.slice(2).map((d) => listRow(`${d}.test`, d)), announced_at: at("07:00").toISOString() })],
+    sender_profiles: [profile("josh"), profile("suuchi")],
+    cards: [card("c1", "josh", "a.test", "A"), card("c2", "josh", "b.test", "B"), card("c3", "suuchi", "c.test", "C"), card("c4", "suuchi", "d.test", "D")],
   });
   let now = 0;
   const starts: number[] = [];
@@ -220,8 +220,8 @@ test("no send starts once the run is 240 seconds old", async () => {
 
 test("pacing sends at most two a run", async () => {
   const h = harness({
-    reachout_lists: [list("josh", { rows: ["a", "b", "c", "d"].map((d) => listRow(`${d}.test`, d)), announced_at: at("07:00").toISOString() }), list("jenna", { announced_at: at("07:00").toISOString() })],
-    sender_profiles: [profile("josh"), profile("jenna", { auto_send: false })],
+    reachout_lists: [list("josh", { rows: ["a", "b", "c", "d"].map((d) => listRow(`${d}.test`, d)), announced_at: at("07:00").toISOString() }), list("suuchi", { announced_at: at("07:00").toISOString() })],
+    sender_profiles: [profile("josh"), profile("suuchi", { auto_send: false })],
     cards: ["a", "b", "c", "d"].map((d, index) => card(`c${index}`, "josh", `${d}.test`, d)),
   });
   await h.run(at("11:20"));
@@ -230,8 +230,8 @@ test("pacing sends at most two a run", async () => {
 
 test("a one-day skip stops today's sends", async () => {
   const h = harness({
-    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("jenna", { announced_at: at("07:00").toISOString() })],
-    sender_profiles: [profile("josh", { auto_send_skip_on: TODAY }), profile("jenna", { auto_send: false })],
+    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("suuchi", { announced_at: at("07:00").toISOString() })],
+    sender_profiles: [profile("josh", { auto_send_skip_on: TODAY }), profile("suuchi", { auto_send: false })],
     cards: [card("c1", "josh", "acme.test", "Acme")],
   });
   const result = await h.run(at("09:30"));

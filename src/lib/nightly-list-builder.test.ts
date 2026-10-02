@@ -77,7 +77,7 @@ const builder = load();
 const NOW = new Date("2026-10-01T07:00:00Z");
 const TODAY = "2026-10-01";
 const list = (owner: string, extra: Row = {}) => ({ id: `list-${owner}`, list_date: TODAY, owner, status: "building", rows: [], offers: [], attempts: 0, cost_usd: 0, errors: [], ...extra });
-const lists = (extra: Row = {}) => [list("josh", extra), list("jenna", extra)];
+const lists = (extra: Row = {}) => [list("josh", extra), list("suuchi", extra)];
 const candidate = (domain: string, extra: Row = {}) => ({ id: `c-${domain}`, company: domain.split(".")[0], domain, sector: "landscape", revenue_usd_m: 40, revenue_year: 2025, source_url: "https://rank.test/list", sector_key: 2, status: "new", prior_score: 50, research_attempts: 0, retry_count: 0, cost_usd: 0, ...extra });
 const listRow = (domain: string, fit: number, extra: Row = {}) => ({ domain, company: domain, buyer: { name: "Pat Lee" }, contacts: [], aiFit: { score: fit }, emailCheck: { level: "deliverable", email: `pat@${domain}` }, identityHold: null, ...extra });
 const json = <T>(value: T): T => JSON.parse(JSON.stringify(value));
@@ -104,7 +104,7 @@ test("nothing is built for a Saturday: no list rows and no agent calls", async (
 
 test("with 60 cents of budget left at a 50 cent cap, at most one company is launched", async () => {
   reset({ research: async () => ({ skip: "AI fit 10 is below 40", cost: 0.5, searches: 3 }) });
-  const { db } = queryDb({ reachout_lists: [list("josh", { cost_usd: 9.4 }), list("jenna")], list_candidates: ["a.test", "b.test", "c.test", "d.test"].map((domain) => candidate(domain)) });
+  const { db } = queryDb({ reachout_lists: [list("josh", { cost_usd: 9.4 }), list("suuchi")], list_candidates: ["a.test", "b.test", "c.test", "d.test"].map((domain) => candidate(domain)) });
   const result = await builder.runNightlyListBuild(db, { now: NOW });
   assert.equal(calls.research.length, 1);
   assert.equal(result.stopped, "cost_budget");
@@ -114,7 +114,7 @@ test("companies still being researched count against the budget at the cap", asy
   reset();
   const fresh = new Date(NOW.getTime() - 60_000).toISOString();
   const researching = ["r1.test", "r2.test", "r3.test"].map((domain) => candidate(domain, { status: "researching", list_date: TODAY, owner: "josh", updated_at: fresh }));
-  const { db, tables } = queryDb({ reachout_lists: [list("josh", { cost_usd: 8.5 }), list("jenna")], list_candidates: [...researching, candidate("a.test")] });
+  const { db, tables } = queryDb({ reachout_lists: [list("josh", { cost_usd: 8.5 }), list("suuchi")], list_candidates: [...researching, candidate("a.test")] });
   const result = await builder.runNightlyListBuild(db, { now: NOW });
   assert.equal(result.stopped, "cost_budget");
   assert.equal(calls.research.length, 0);
@@ -251,7 +251,7 @@ test("a sourced company whose homepage is unconfirmed is kept lower in the queue
 
 test("a list still building after the deadline is finalized with its rows", async () => {
   reset();
-  const { db, tables } = queryDb({ reachout_lists: [list("josh", { rows: [listRow("a.test", 70), listRow("b.test", 50)], attempts: 5 }), list("jenna")], sender_profiles: [] });
+  const { db, tables } = queryDb({ reachout_lists: [list("josh", { rows: [listRow("a.test", 70), listRow("b.test", 50)], attempts: 5 }), list("suuchi")], sender_profiles: [] });
   const result = await builder.runNightlyListBuild(db, { now: new Date("2026-10-01T09:45:00Z") });
   assert.equal(result.stopped, "deadline");
   assert.equal(tables.reachout_lists[0].status, "ready");

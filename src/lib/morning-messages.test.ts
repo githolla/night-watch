@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { announceBlocks, bouncePauseText, buildFailureText, listProblemAlert, shouldSendMorningDigest, SLACK_MAX_BLOCKS, SLACK_MAX_SECTION, summaryBlocks, windowWarningText, type SlackBlock, type SlackMessage } from "./morning-messages.ts";
 
-const window = { owner: "jenna", baseUrl: "https://nw.test", sendFrom: 9 * 60, sendUntil: 11 * 60 + 30, size: 12 };
+const window = { owner: "suuchi", baseUrl: "https://nw.test", sendFrom: 9 * 60, sendUntil: 11 * 60 + 30, size: 12 };
 const row = (index: number, deliverable: boolean, extra: Record<string, unknown> = {}) => ({
   company: `Company ${index} & Sons`, domain: `c${index}.test`, rank: index, sector: "wholesale distribution",
   aiFit: { score: 90 - index, summary: `Hiring three dispatchers <urgent> for branch ${index}`, reasons: [], disqualified: null },
@@ -74,8 +74,8 @@ test("summary names each held card with its reason and the cards kept by hand", 
 });
 
 test("missing, building and failed lists each produce a clear alert", () => {
-  const missing = listProblemAlert("jenna", "missing", 0, 12, [], { baseUrl: "https://nw.test" });
-  const building = listProblemAlert("jenna", "building", 5, 12, ["AI fit 20 is below 40 (4)"], { baseUrl: "https://nw.test" });
+  const missing = listProblemAlert("suuchi", "missing", 0, 12, [], { baseUrl: "https://nw.test" });
+  const building = listProblemAlert("suuchi", "building", 5, 12, ["AI fit 20 is below 40 (4)"], { baseUrl: "https://nw.test" });
   const failed = listProblemAlert("josh", "failed", 0, 12, ["research failed: overloaded", "excluded sector", "rejected: closed", "fourth"], { baseUrl: "https://nw.test" });
   for (const message of [missing, building, failed]) assertWithinLimits(message);
   assert.match(missing.text, /No list for Suuchi today: the nightly build never started \(0 of 12/);
@@ -87,10 +87,10 @@ test("missing, building and failed lists each produce a clear alert", () => {
 
 test("a seat with a ready list gets no 8:00 digest; a seat without one still does", () => {
   assert.equal(shouldSendMorningDigest("josh", "ready"), false);
-  assert.equal(shouldSendMorningDigest("jenna", null), true);
-  assert.equal(shouldSendMorningDigest("jenna", undefined), true);
-  assert.equal(shouldSendMorningDigest("jenna", "failed"), true);
-  assert.equal(shouldSendMorningDigest("jenna", "building"), true);
+  assert.equal(shouldSendMorningDigest("suuchi", null), true);
+  assert.equal(shouldSendMorningDigest("suuchi", undefined), true);
+  assert.equal(shouldSendMorningDigest("suuchi", "failed"), true);
+  assert.equal(shouldSendMorningDigest("suuchi", "building"), true);
 });
 
 test("pause, failure and window warnings are plain text with the details an operator needs", () => {

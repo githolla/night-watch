@@ -14,21 +14,21 @@ function load(path:string,mocks:Record<string,unknown>){
 }
 test('a member cannot reconnect the other seat or silently change their own',async()=>{
  let oauthCalls=0;
- const route=load('../app/api/gmail/connect/route.ts',{'@/lib/auth':{requireUser:async()=>({owner:'jenna',role:'member'})},'@/lib/gmail':{oauthUrl:()=>{oauthCalls++;return 'https://google.test'},OAUTH_STATE_COOKIE:'state'}});
+ const route=load('../app/api/gmail/connect/route.ts',{'@/lib/auth':{requireUser:async()=>({owner:'suuchi',role:'member'})},'@/lib/gmail':{oauthUrl:()=>{oauthCalls++;return 'https://google.test'},OAUTH_STATE_COOKIE:'state'}});
  const response=await route.GET(new Request('https://test/api/gmail/connect?owner=josh'));
  assert.equal(response.status,403);assert.equal(oauthCalls,0);assert.equal(response.headers.get('set-cookie'),null);
 });
 test('member connection health queries and checks only their own mailbox',async()=>{
  let queried='';const checked:string[]=[];
  const route=load('../app/api/gmail/health/route.ts',{
-  '@/lib/auth':{requireUser:async()=>({owner:'jenna',role:'member'})},
-  '@/lib/supabase/admin':{admin:()=>({from:()=>({select:()=>({eq:async(_key:string,owner:string)=>{queried=owner;return {data:[{owner:'jenna',email:'suuchi@example.com',scopes:'https://www.googleapis.com/auth/gmail.send'}]}}})})})},
+  '@/lib/auth':{requireUser:async()=>({owner:'suuchi',role:'member'})},
+  '@/lib/supabase/admin':{admin:()=>({from:()=>({select:()=>({eq:async(_key:string,owner:string)=>{queried=owner;return {data:[{owner:'suuchi',email:'suuchi@example.com',scopes:'https://www.googleapis.com/auth/gmail.send'}]}}})})})},
   '@/lib/gmail':{ownerAccessToken:async(owner:string)=>{checked.push(owner);return 'secret'}},fetch:async()=>Response.json({emailAddress:'suuchi@example.com'})
  });
  const response=await route.GET();const data=await response.json();
- assert.equal(queried,'jenna');assert.deepEqual(checked,['jenna']);assert.equal(data.accounts.length,1);assert.equal(data.accounts[0].connected,true);assert.ok(!JSON.stringify(data).includes('secret'));
+ assert.equal(queried,'suuchi');assert.deepEqual(checked,['suuchi']);assert.equal(data.accounts.length,1);assert.equal(data.accounts[0].connected,true);assert.ok(!JSON.stringify(data).includes('secret'));
 });
 test('disconnect reports database failure instead of false success',async()=>{
- const route=load('../app/api/gmail/disconnect/route.ts',{'@/lib/auth':{requireUser:async()=>({owner:'jenna',role:'member'})},'@/lib/supabase/admin':{admin:()=>({from:()=>({delete:()=>({eq:async()=>({error:{message:'offline'}})})})})}});
- const response=await route.POST(new Request('https://test/api',{method:'POST',body:JSON.stringify({owner:'jenna'})}));assert.equal(response.status,400);assert.match((await response.json()).error,/Could not disconnect/);
+ const route=load('../app/api/gmail/disconnect/route.ts',{'@/lib/auth':{requireUser:async()=>({owner:'suuchi',role:'member'})},'@/lib/supabase/admin':{admin:()=>({from:()=>({delete:()=>({eq:async()=>({error:{message:'offline'}})})})})}});
+ const response=await route.POST(new Request('https://test/api',{method:'POST',body:JSON.stringify({owner:'suuchi'})}));assert.equal(response.status,400);assert.match((await response.json()).error,/Could not disconnect/);
 });

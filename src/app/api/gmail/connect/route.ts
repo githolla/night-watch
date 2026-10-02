@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { oauthStateCookie, oauthUrl, OAUTH_STATE_COOKIE } from "@/lib/gmail";
 import { z } from "zod";
 
-const owner = z.enum(["josh", "jenna"]);
+const owner = z.enum(["josh", "suuchi"]);
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     const seat = requested;
     // Mint a one-time nonce and carry it in the OAuth `state`. The cookie is an encrypted record of the nonce,
     // the seat and the user who began, so the callback can refuse a `state` whose seat was edited (a member
-    // swapping "jenna." for "josh." to bind their own Google account to the admin's seat) and a callback
+    // swapping "suuchi." for "josh." to bind their own Google account to the admin's seat) and a callback
     // finished by anyone other than the person who started it. SameSite=Lax rides the redirect back.
     const nonce = randomBytes(24).toString("base64url");
     // Secure only in production: on plain-HTTP local dev the browser would drop a Secure cookie and every

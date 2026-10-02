@@ -13,8 +13,8 @@ const touchFor = (variantId: string, id: string, sentBy: string, reply: string |
   return { id, card_id: `card-${id}`, person_id: `p-${id}`, sent_by: sentBy, sent_at: '2026-09-23T12:00:00Z', gmail_thread_id: `thread-${id}`, reply_at: reply ? '2026-09-24T12:00:00Z' : null, reply_classification: reply ?? 'none', message_variants: { subject: draft.subject, dimensions: identifyVersion(base, selected), message_experiments: { context: '' } } };
 };
 const touches = [
-  touchFor('direct-offer', '1', 'josh', 'positive'), touchFor('direct-offer', '2', 'josh'), touchFor('direct-offer', '3', 'jenna', 'neutral'),
-  touchFor('concrete-idea', '4', 'jenna'), touchFor('concrete-idea', '5', 'josh', 'referral'),
+  touchFor('direct-offer', '1', 'josh', 'positive'), touchFor('direct-offer', '2', 'josh'), touchFor('direct-offer', '3', 'suuchi', 'neutral'),
+  touchFor('concrete-idea', '4', 'suuchi'), touchFor('concrete-idea', '5', 'josh', 'referral'),
 ];
 const sum = (rows: Array<{ label: string; sent: number; replies: number; positive: number }>) => {
   const out = new Map<string, { sent: number; replies: number; positive: number }>();
@@ -28,7 +28,7 @@ test('grouping by sender splits each version and leaves per-version totals uncha
   assert.ok(plain.rows.every(row => !('group' in row)), 'ungrouped rows keep their old shape');
   assert.deepEqual(sum(bySender.rows), sum(plain.rows));
   const direct = bySender.rows.filter(row => row.label === 'Direct Offer');
-  assert.deepEqual(direct.map(row => [row.group, row.sent, row.replies, row.positive]).sort(), [['jenna', 1, 1, 0], ['josh', 2, 1, 1]]);
+  assert.deepEqual(direct.map(row => [row.group, row.sent, row.replies, row.positive]).sort(), [['josh', 2, 1, 1], ['suuchi', 1, 1, 0]]);
 });
 
 test('grouping by fit band covers every send exactly once', () => {

@@ -8,7 +8,7 @@ import { ResearchError } from "./research-errors.ts";
  * until it is applied. A page or run that would otherwise die with a
  * redacted server error instead says which file to apply.
  */
-const MIGRATIONS: Array<{ file: string; table: string; column: string; adds: string }> = [
+const MIGRATIONS: Array<{ file: string; table: string; column: string; adds: string; equals?: string }> = [
   { file: "0004_run_accounts.sql", table: "run_accounts", column: "id", adds: "run records with one row per company" },
   { file: "0005_job_sweep.sql", table: "job_postings", column: "id", adds: "job postings and the careers sweep" },
   { file: "0006_sweep_sources.sql", table: "job_postings", column: "source", adds: "posting sources, salary and description" },
@@ -28,6 +28,8 @@ const MIGRATIONS: Array<{ file: string; table: string; column: string; adds: str
   { file: "0020_invites_signature.sql", table: "app_users", column: "invite_token", adds: "invite links for new teammates and website/location fields for the branded signature" },
   { file: "0021_pipeline.sql", table: "cards", column: "qualified_at", adds: "post-outreach pipeline stages (qualified/opportunity) and timestamps for conversion tracking" },
   { file: "0022_feedback.sql", table: "feedback", column: "message", adds: "tester feedback captured per page, with CSV export for admins" },
+  // A filter on a seat value the enum does not have is refused, so this fails until the rename is applied.
+  { file: "0031_rename_seat_suuchi.sql", table: "app_users", column: "owner", equals: "suuchi", adds: "Suuchi's seat under her own name (it was stored as \"jenna\")" },
 ];
 
 /**
@@ -108,12 +110,16 @@ export async function pendingMigrations(db: SupabaseClient, now = Date.now()): P
   // one cheap query on the (normal) fully-migrated path. Only when it fails do we run the full scan
   // in parallel to name exactly what's missing.
   const newest = MIGRATIONS[MIGRATIONS.length - 1];
-  const { error: newestError } = await db.from(newest.table).select(newest.column).limit(1);
+  const probe = (migration: (typeof MIGRATIONS)[number]) => {
+    const query = db.from(migration.table).select(migration.column);
+    return (migration.equals === undefined ? query : query.eq(migration.column, migration.equals)).limit(1);
+  };
+  const { error: newestError } = await probe(newest);
   let pending: PendingMigration[] = [];
   if (newestError) {
     const probes = await Promise.all(
       MIGRATIONS.map(async (migration) => {
-        const { error } = await db.from(migration.table).select(migration.column).limit(1);
+        const { error } = await probe(migration);
         return error ? { file: migration.file, adds: migration.adds, reason: error.message, sql: migrationSql(migration.file) } : null;
       }),
     );

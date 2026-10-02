@@ -108,7 +108,7 @@ test("the copy arm splits evenly and never auto-picks delivery-experience", asyn
   const arms = new Map<string, number>();
   for (let index = 0; index < 40; index++) {
     const { deps } = harness(research({ buyer: { name: "John Smith", title: "Owner", sourceUrl: `https://acme${index}.com/about` } }));
-    const row = rowOf(await researchOne({ ...candidate, domain: `acme${index}.com` }, "jenna", LIST_DATE, deps));
+    const row = rowOf(await researchOne({ ...candidate, domain: `acme${index}.com` }, "suuchi", LIST_DATE, deps));
     arms.set(String(row.variantArm), (arms.get(String(row.variantArm)) ?? 0) + 1);
   }
   assert.ok(!arms.has("delivery-experience"));

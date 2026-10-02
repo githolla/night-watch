@@ -64,7 +64,7 @@ export function Users() {
     if (owner === row.owner) return;
     setRows((current) => current.map((item) => (item.id === row.id ? { ...item, owner } : item)));
     const res = await fetch(`/api/admin/users/${row.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner }) });
-    if (res.ok) { setMessage(`${row.name} moved to ${owner === "jenna" ? "Seat 2" : "Seat 1"}. They connect their own Google on that seat.`); await load(); }
+    if (res.ok) { setMessage(`${row.name} moved to ${owner === "suuchi" ? "Suuchi's seat" : "Josh's seat"}. They connect their own Google on that seat.`); await load(); }
     else { setMessage("Could not change the seat."); await load(); }
   }
   async function remove(row: Row) {
@@ -90,7 +90,7 @@ export function Users() {
           <label className="grow"><span>Email</span><input type="email" placeholder="josh@nine-67.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></label>
         </div>
         <div className="users-form-row">
-          <label><span>Seat</span><select value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })}><option value="josh">Seat 1</option><option value="jenna">Seat 2</option></select></label>
+          <label><span>Seat</span><select value={form.owner} onChange={(e) => setForm({ ...form, owner: e.target.value })}><option value="josh">Josh</option><option value="suuchi">Suuchi</option></select></label>
           <label><span>Role</span><select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}><option value="member">Member</option><option value="admin">Admin</option></select></label>
           <label className="grow"><span>Password <em>optional</em></span><input type="text" placeholder="Leave blank to send an invite link" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
         </div>
@@ -105,7 +105,7 @@ export function Users() {
         {rows.map((row) => (
           <div key={row.id} className="conn-row is-on">
             <div className="conn-who"><span className="conn-dot is-on" /><div><strong>{row.name} {row.role === "admin" && <em className="conn-chip is-on">Admin</em>}</strong><small>{row.email}{row.last_login_at ? ` · last in ${new Date(row.last_login_at).toLocaleDateString()}` : " · never signed in"}</small></div></div>
-            <div className="conn-actions"><label className="users-seat"><span>Seat</span><select value={row.owner} onChange={(e) => changeSeat(row, e.target.value)}><option value="josh">Seat 1</option><option value="jenna">Seat 2</option></select></label><button type="button" className="btn" disabled={sending === row.id} onClick={() => emailInvite(row)}>{sending === row.id ? "Sending…" : "Email invite"}</button><button type="button" className="btn" onClick={() => resetPassword(row)}>Reset password</button><button type="button" className="btn ghost danger" onClick={() => remove(row)}>Remove</button></div>
+            <div className="conn-actions"><label className="users-seat"><span>Seat</span><select value={row.owner} onChange={(e) => changeSeat(row, e.target.value)}><option value="josh">Josh</option><option value="suuchi">Suuchi</option></select></label><button type="button" className="btn" disabled={sending === row.id} onClick={() => emailInvite(row)}>{sending === row.id ? "Sending…" : "Email invite"}</button><button type="button" className="btn" onClick={() => resetPassword(row)}>Reset password</button><button type="button" className="btn ghost danger" onClick={() => remove(row)}>Remove</button></div>
           </div>
         ))}
       </div>

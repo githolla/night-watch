@@ -1,5 +1,7 @@
-export type Owner = "josh" | "jenna";
-export const OWNERS: Owner[] = ["josh", "jenna"];
+export type Owner = "josh" | "suuchi";
+export const OWNERS: Owner[] = ["josh", "suuchi"];
+/** Suuchi's seat was stored as "jenna" before migration 0031; old links and saved JSON can still carry that key. */
+export function seatOwner(value: string | null | undefined): Owner | null { return value === "josh" ? "josh" : value === "suuchi" || value === "jenna" ? "suuchi" : null; }
 export type SignalType = "job_post"|"job_cluster"|"exec_post"|"new_leader"|"funding"|"event"|"stack_change"|"other";
 export type PersonLevel = "owner"|"influencer"|"adjacent"|"unknown";
 export type CardStatus = "new"|"approved"|"edited"|"snoozed"|"dismissed"|"sent"|"replied"|"positive"|"meeting"|"qualified"|"opportunity"|"archived";

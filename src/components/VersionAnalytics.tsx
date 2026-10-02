@@ -3,7 +3,7 @@ import type { aggregateVersions, listOutcomeReport, OutcomeLine } from '@/lib/ve
 type Summary = ReturnType<typeof aggregateVersions>;
 type Grouping = 'version' | 'sender' | 'fit';
 const rate = (n: number, total: number) => total ? `${Math.round(n / total * 100)}%` : '—';
-const seat = (owner: string) => owner === 'josh' ? 'Josh' : owner === 'jenna' ? 'Suuchi' : owner;
+const seat = (owner: string) => owner === 'josh' ? 'Josh' : owner === 'suuchi' ? 'Suuchi' : owner;
 export function VersionAnalytics({ summary, error, source, days, group = 'version' }: { summary: Summary; error?: string; source: string; days: string; group?: Grouping }) {
   const totals = summary.rows.reduce((sum,r)=>({sent:sum.sent+r.sent,replies:sum.replies+r.replies,opens:sum.opens+r.opens,gmail:sum.gmail+r.gmail}),{sent:0,replies:0,opens:0,gmail:0});
   const grouped = group !== 'version';

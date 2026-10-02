@@ -31,7 +31,7 @@ type StepRow = {
 
 export default async function Followups({searchParams}:{searchParams:Promise<{view?:string;page?:string;owner?:string}>}) {
   const params=await searchParams, history=params.view==='sent', paused=params.view==='paused', page=Math.max(1,Math.min(10000,Math.floor(Number(params.page)||1))), pageSize=100;
-  const owner=['josh','jenna'].includes(params.owner??'')?params.owner:undefined;
+  const owner=['josh','suuchi'].includes(params.owner??'')?params.owner:undefined;
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   // Check the schema while sign-in is checked, instead of one round trip after it.
   const schemaCheck = pendingMigrations(admin()).catch(() => []);
@@ -90,7 +90,7 @@ export default async function Followups({searchParams}:{searchParams:Promise<{vi
         <Link className="btn" href={`/followups?view=sent&owner=${owner??''}`}>Sent history</Link>
         <Link className="btn" href={`/followups?view=paused&owner=${owner??''}`}>Paused and stopped</Link>
         <Link className="btn" href={`/followups?view=${history?'sent':paused?'paused':''}&owner=josh`}>Josh</Link>
-        <Link className="btn" href={`/followups?view=${history?'sent':paused?'paused':''}&owner=jenna`}>Suuchi</Link>
+        <Link className="btn" href={`/followups?view=${history?'sent':paused?'paused':''}&owner=suuchi`}>Suuchi</Link>
         <Link className="btn" href={`/followups?view=${history?'sent':paused?'paused':''}`}>Both</Link>
       </nav>
       <FollowupsBoard items={items} />

@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-type TestResult = { id: string; label: string; to?: string; openAt: string | null; giftViewAt?: string | null; status?: string; warning?: string };
+type TestResult = { id: string; label: string; to?: string; toSelf?: boolean; openAt: string | null; giftViewAt?: string | null; status?: string; warning?: string };
 export function TestEmailButton({ cardId, subject, body, disabled = false }: { cardId: string; subject: string; body: string; disabled?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<TestResult | null>(null);
@@ -33,7 +33,7 @@ export function TestEmailButton({ cardId, subject, body, disabled = false }: { c
     <button className="btn composer-test-button" type="button" disabled={busy || disabled || !subject.trim() || !body.trim()} onClick={sendTest}>{busy ? 'Sending test…' : result ? 'Send another test' : 'Send test to myself'}</button>
     {(error || result) && <div className="composer-test-result" role={error ? 'alert' : 'status'}>
       <button className="composer-test-close" type="button" aria-label="Dismiss test result" onClick={() => { setError(''); setResult(null); }}>×</button>
-      {error ? <p>{error}</p> : <><strong>Test sent{result?.to ? ` to ${result.to}` : ''}</strong><p>Check your inbox for the version shown here. No prospect was emailed.</p>{result?.warning && <p>{result.warning}</p>}<button type="button" onClick={check} disabled={busy}>Refresh delivery record</button></>}
+      {error ? <p>{error}</p> : <><strong>Test sent{result?.to ? ` to ${result.to}` : ''}</strong><p>{result?.toSelf ? 'Gmail keeps an email a mailbox sends to itself under Sent, not Inbox: look in Sent for the version shown here.' : 'Check that inbox for the version shown here.'} No prospect was emailed.</p>{result?.warning && <p>{result.warning}</p>}<button type="button" onClick={check} disabled={busy}>Refresh delivery record</button></>}
     </div>}
   </div>;
 }

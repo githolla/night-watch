@@ -209,7 +209,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
   const researched = researchedAccounts ?? 0;
   const batchSize = nightlyBatchSize();
   // Seat → the name that seat sends as, so the worklist says "Suuchi Ramesh" rather than the internal slug
-  // "jenna". History already did this; the worklist and the dossier were still showing the raw seat, which
+  // "suuchi". History already did this; the worklist and the dossier were still showing the raw seat, which
   // is the kind of thing a person notices immediately when it is their own prospect list.
   const seatNames: Record<string, string> = {};
   for (const row of (seatRows ?? []) as Array<{ owner: string; from_name: string | null }>) {

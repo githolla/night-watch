@@ -9,7 +9,7 @@ export function selectedBatch(requested: string | undefined, defaultSequence: Li
 }
 
 /** Missing, snoozed, edited, approved and automatically archived work do not advance the default batch. */
-export function batchProgress(owner: 'josh' | 'jenna', cards: BatchCard[], completedOnLoad: string[] = []) {
+export function batchProgress(owner: 'josh' | 'suuchi', cards: BatchCard[], completedOnLoad: string[] = []) {
   const current = focusForOwner(owner);
   const completedDomains = current.filter(company => {
     if (completedOnLoad.includes(company.domain)) return true;

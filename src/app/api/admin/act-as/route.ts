@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     let token = '';
     if (!stop) {
       if (actor.role !== "admin") throw new Error("Admins only");
-      const { data, error } = await admin().from('app_users').select('id,name,email,owner').eq('owner', 'jenna');
+      const { data, error } = await admin().from('app_users').select('id,name,email,owner').eq('owner', 'suuchi');
       if (error) throw new Error('Could not load Suuchi’s account.');
       const named = (data ?? []).filter(user => /suuchi/i.test(user.name));
       const candidates = named.length ? named : data ?? [];

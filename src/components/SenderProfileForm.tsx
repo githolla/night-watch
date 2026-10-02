@@ -26,6 +26,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   const [warning, setWarning] = useState("");
   const [testing, setTesting] = useState(false);
   const [testMsg, setTestMsg] = useState("");
+  const [testTo, setTestTo] = useState("");
   const [uploadErr, setUploadErr] = useState("");
   const [uploading, setUploading] = useState(false);
   const payload = { from_name: fromName, title, signature, website, location, postal_address: postalAddress, cc: cc.split(/[,\s]+/).map(value => value.trim()).filter(Boolean), greeting, signoff, intro };
@@ -60,10 +61,11 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
     setTesting(true); setTestMsg("");
     try {
       if (dirty && !(await save())) { setTestMsg("Test not sent. Save your settings successfully first."); return; }
-      const response = await fetch("/api/gmail/test", { method: "POST" });
+      const response = await fetch("/api/gmail/test", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ to: testTo.trim() }) });
       const json = await response.json().catch(() => ({}));
       if (response.ok && json.ok === true && typeof json.threadId === "string" && json.threadId.trim() && typeof json.to === "string" && json.to.trim()) {
-        setTestMsg(`Test sent to ${json.to} — check your inbox.`);
+        // Gmail files a message the API sends to its own mailbox under Sent, never the inbox.
+        setTestMsg(json.toSelf ? `Test sent from ${json.to} to itself. Gmail keeps those under Sent, not Inbox: look in Sent, or enter another address to see it arrive.` : `Test sent from ${json.from ?? "this seat"} to ${json.to}. Check that inbox.`);
       } else if (!response.ok && typeof json.error === "string" && response.status < 500) {
         setTestMsg(json.error);
       } else {
@@ -153,11 +155,12 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
       </fieldset>
       <div className="sender-profile-actions">
         <button type="button" className="btn primary" onClick={save} disabled={state === "saving" || testing || uploading}>{state === "saving" ? "Saving…" : "Save identity"}</button>
-        <button type="button" className="btn" onClick={sendTest} disabled={testing || state === "saving" || uploading} title="Send a sample email to your own inbox">{testing ? "Sending…" : (dirty ? "Save and send test to myself" : "Send test to myself")}</button>
+        <label className="sender-profile-test-to"><span>Send test to</span><input type="email" value={testTo} onChange={(event) => setTestTo(event.target.value)} placeholder="Any inbox; blank sends to you" maxLength={254} /></label>
+        <button type="button" className="btn" onClick={sendTest} disabled={testing || state === "saving" || uploading} title="Send a sample email from this seat's mailbox">{testing ? "Sending…" : (dirty ? "Save and send test" : "Send test")}</button>
         {dirty && <span className="sender-profile-warn">Unsaved changes.</span>}
         {state === "saved" && !dirty && (warning ? <span className="sender-profile-warn">{warning}</span> : <span className="sender-profile-ok">Saved.</span>)}
         {state === "error" && <span className="sender-profile-err">{error}</span>}
-        {testMsg && <span className={/check your inbox/.test(testMsg) ? "sender-profile-ok" : "sender-profile-err"}>{testMsg}</span>}
+        {testMsg && <span className={testMsg.startsWith("Test sent") ? "sender-profile-ok" : "sender-profile-err"}>{testMsg}</span>}
       </div>
       <p className="sender-profile-lead" style={{ marginTop: 8 }}>Testing saves any changed settings first. If saving fails, no test is sent.</p>
     </section>

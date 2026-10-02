@@ -215,7 +215,7 @@ export function Desk({
   batchSequence?: ListSequence;
   initialBrowse?: boolean;
   autoAdvanceBatch?: boolean;
-  listOwner?: 'josh' | 'jenna';
+  listOwner?: 'josh' | 'suuchi';
   batchCompletedDomains?: string[];
   /** A page-level tool rendered in the desk header (Draft tools), passed in from the server page. */
   tools?: ReactNode;
@@ -369,7 +369,7 @@ export function Desk({
   const hasSourceResults = (context?.recentSignals.length ?? 0) > 0;
   const cardIndex = Math.max(0, cards.findIndex((item) => item.id === card?.id));
   const focusIndex = focusCard ? focusPool.findIndex((item) => item.id === focusCard.id) : -1;
-  // "jenna" is a seat, not a person: the operator on it is Suuchi. Show the name that seat sends as,
+  // "suuchi" is a seat, not a person: the operator on it is Suuchi. Show the name that seat sends as,
   // falling back to the slug only when no profile has been filled in.
   const seatLabel = (owner: string | null | undefined) => {
     const seat = (owner ?? "").trim();

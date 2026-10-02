@@ -6,11 +6,11 @@ import { dailyCap } from "@/lib/send-guards";
 import { admin } from "@/lib/supabase/admin";
 import { z } from "zod";
 
-const owner = z.enum(["josh", "jenna"]);
+const owner = z.enum(["josh", "suuchi"]);
 const input = z.object({ owner: owner.optional(), autoSend: z.boolean().optional(), paused: z.boolean().optional(), skipToday: z.boolean().optional() });
 const daysSince = (iso: string | null | undefined) => (iso ? Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)) : null);
 
-async function seatState(seat: "josh" | "jenna") {
+async function seatState(seat: "josh" | "suuchi") {
   const db = admin();
   const today = localParts().date;
   const [{ data: profile, error }, { data: list }, { data: connection }] = await Promise.all([
@@ -47,7 +47,7 @@ async function nightState() {
 export async function GET() {
   try {
     const user = await requireUser();
-    const seats = user.role === "admin" ? ["josh", "jenna"] as const : [user.owner];
+    const seats = user.role === "admin" ? ["josh", "suuchi"] as const : [user.owner];
     const [states, night] = await Promise.all([Promise.all(seats.map(seatState)), nightState()]);
     return Response.json({ seats: states, night });
   } catch (error) {

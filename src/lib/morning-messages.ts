@@ -3,6 +3,7 @@
  * Pure and free of app imports so a plain node test can drive them.
  */
 import { rowForecast } from "./morning-send-rules.ts";
+import { seatOwner } from "./types.ts";
 
 export type SlackBlock = Record<string, unknown>;
 export type SlackMessage = { text: string; blocks: SlackBlock[] };
@@ -20,7 +21,7 @@ const clip = (value: string, max: number) => (value.length > max ? `${value.slic
 const link = (url: string, label: string) => `<${url}|${escape(label).replace(/\|/g, "/")}>`;
 const section = (text: string): SlackBlock => ({ type: "section", text: { type: "mrkdwn", text: clip(text, SECTION_BUDGET) } });
 const context = (text: string): SlackBlock => ({ type: "context", elements: [{ type: "mrkdwn", text: clip(text, SECTION_BUDGET) }] });
-const seatName = (owner: string) => (owner === "josh" ? "Josh" : owner === "jenna" || owner === "suuchi" ? "Suuchi" : owner);
+const seatName = (owner: string) => { const seat = seatOwner(owner); return seat === "josh" ? "Josh" : seat === "suuchi" ? "Suuchi" : owner; };
 const listKey = (owner: string) => (owner === "josh" ? "josh" : "suuchi");
 
 /** Pack lines into as few sections as fit Slack's limits, leaving `reserve` blocks for the rest of the message. */

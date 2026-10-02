@@ -8,8 +8,8 @@ import {memoryDb} from './testing/memory-db.ts';
 import {deliveryReservationId} from './delivery-state.ts';
 const require=createRequire(import.meta.url);
 function harness(claimed=false){
- const h=memoryDb({cadence_steps:[{id:'s',status:'pending',channel:'email',body:'Hi?',subject:'Hello',sent_at:claimed?'2026-01-01':null,cadences:{card_id:'c',owner:'jenna',person_id:'p'}}],cards:[{id:'c',account_id:'a',person_id:'p',status:'sent'}],people:[{id:'p',account_id:'a',full_name:'Buyer',first_name:'Buyer'}],accounts:[{id:'a',name:'Example',status:'prospect'}]});
- const mocks:Record<string,unknown>={'@/lib/supabase/admin':{admin:()=>h.db},'@/lib/auth':{requireUser:async()=>({owner:'jenna'})},'@/lib/delivery-state':{deliveryReservationId},'@/lib/version-tracking':{trackEmailVersion:async()=> 'v',trackLinkedInVersion:async()=> 'v'},'@/lib/followups':{ensureFollowupCadence:async()=>({})}};
+ const h=memoryDb({cadence_steps:[{id:'s',status:'pending',channel:'email',body:'Hi?',subject:'Hello',sent_at:claimed?'2026-01-01':null,cadences:{card_id:'c',owner:'suuchi',person_id:'p'}}],cards:[{id:'c',account_id:'a',person_id:'p',status:'sent'}],people:[{id:'p',account_id:'a',full_name:'Buyer',first_name:'Buyer'}],accounts:[{id:'a',name:'Example',status:'prospect'}]});
+ const mocks:Record<string,unknown>={'@/lib/supabase/admin':{admin:()=>h.db},'@/lib/auth':{requireUser:async()=>({owner:'suuchi'})},'@/lib/delivery-state':{deliveryReservationId},'@/lib/version-tracking':{trackEmailVersion:async()=> 'v',trackLinkedInVersion:async()=> 'v'},'@/lib/followups':{ensureFollowupCadence:async()=>({})}};
  function load(path:string){const exports:Record<string,unknown>={};runInNewContext(ts.transpileModule(readFileSync(new URL(path,import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,Error,Date,Response,require:(n:string)=>n==='zod'?require('zod'):mocks[n]});return exports;}
  mocks['@/lib/manual-outreach']=load('./manual-outreach.ts');
  const route=load('../app/api/cadence-steps/[id]/route.ts') as {PATCH:(r:Request,c:unknown)=>Promise<Response>};

@@ -44,7 +44,7 @@ export function nightlyListConfig() {
   };
 }
 
-export const LIST_OWNERS: Owner[] = ["josh", "jenna"];
+export const LIST_OWNERS: Owner[] = ["josh", "suuchi"];
 const ownerKey = (owner: Owner) => (owner === "josh" ? "josh" : "suuchi");
 const domainOf = (value: string) => value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split(/[/:?#]/)[0];
 const validDomain = (domain: string) => /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(domain);

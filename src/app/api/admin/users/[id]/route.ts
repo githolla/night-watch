@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const patch = z.object({
   name: z.string().min(1).max(120).optional(),
-  owner: z.enum(["josh", "jenna"]).optional(),
+  owner: z.enum(["josh", "suuchi"]).optional(),
   role: z.enum(["admin", "member"]).optional(),
   password: z.string().min(8).max(200).optional(),
 });
