@@ -339,14 +339,19 @@ export async function preparePendingRows(db: Db, listDate: string): Promise<numb
  * Take a reserve onto this list: an earlier night's finished row, moved to this seat and date. Free. For a
  * seat whose auto-send is live, reserves with a deliverable address come first.
  */
-async function claimReserve(db: Db, write: ListWrite, list: ListRecord, listDate: string, minFit: number, reserveDays: number, live: boolean): Promise<boolean> {
+async function claimReserve(db: Db, write: ListWrite, list: ListRecord, listDate: string, minFit: number, reserveDays: number, live: boolean, blocked: Blocked): Promise<boolean> {
   const since = new Date(Date.now() - reserveDays * 86_400_000).toISOString();
-  const { data } = await db.from("list_candidates").select("id,domain,prepared,fit_score").eq("status", "reserve").gte("researched_at", since).gte("fit_score", minFit).order("fit_score", { ascending: false }).limit(10);
-  const reserves = (data ?? []) as Array<{ id: string; domain: string; prepared: Prepared | null; fit_score: number | null }>;
+  const { data } = await db.from("list_candidates").select("id,domain,company,prepared,fit_score").eq("status", "reserve").gte("researched_at", since).gte("fit_score", minFit).order("fit_score", { ascending: false }).limit(10);
+  const reserves = (data ?? []) as Array<{ id: string; domain: string; company?: string | null; prepared: Prepared | null; fit_score: number | null }>;
   const order = live ? [...reserves].sort((a, b) => Number(autoSendable(b.prepared?.row)) - Number(autoSendable(a.prepared?.row)) || (b.fit_score ?? 0) - (a.fit_score ?? 0)) : reserves;
   for (const reserve of order) {
     const prepared = reserve.prepared;
     if (!prepared?.row || !prepared.offer) continue;
+    // A reserve can wait up to reserveDays: drop it if the account became a client or do-not-contact since.
+    if (blocked.domains.has(domainOf(reserve.domain)) || blocked.names.has(normalizeCompanyName(String(reserve.company ?? prepared.row.company ?? "")))) {
+      await db.from("list_candidates").update({ status: "skipped", skip_reason: "excluded: client or do-not-contact account", updated_at: new Date().toISOString() }).eq("id", reserve.id).eq("status", "reserve");
+      continue;
+    }
     const { data: claimed } = await db.from("list_candidates").update({ status: "listed", owner: list.owner, list_date: listDate, updated_at: new Date().toISOString() }).eq("id", reserve.id).eq("status", "reserve").select("id");
     if (!claimed?.length) continue;
     const row = { ...prepared.row, assignedOwner: ownerKey(list.owner), contacts: prepared.row.contacts.map((contact) => ({ ...contact, contact_id: `nightly-${listDate}-${reserve.domain}` })) } as ListRow;
@@ -533,9 +538,10 @@ export async function runNightlyListBuild(db: Db, options: NightlyBuildOptions =
       if (!open.length) continue;
       if (signal.aborted || !canStartBatch(clock() - started, cutoff)) { stopped = "time_budget"; break; }
 
+      blocked ??= await blockedAccounts(db);
       if (!reservesExhausted) {
         let claimedAny = false;
-        for (const list of open) if (await claimReserve(db, write, list, listDate, config.minFit, config.reserveDays, await isLive(list.owner))) { claimedAny = true; reservesUsed += 1; }
+        for (const list of open) if (await claimReserve(db, write, list, listDate, config.minFit, config.reserveDays, await isLive(list.owner), blocked)) { claimedAny = true; reservesUsed += 1; }
         if (claimedAny) continue;
         reservesExhausted = true;
       }

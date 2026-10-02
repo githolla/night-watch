@@ -325,6 +325,18 @@ test("a company later marked do not contact under another domain is not research
   assert.match(String(tables.list_candidates[0].skip_reason), /do-not-contact/);
 });
 
+test("a reserve whose account became do not contact is skipped, not listed", async () => {
+  reset();
+  const recent = new Date(NOW.getTime() - 86_400_000).toISOString();
+  const reserve = (domain: string, company: string, fit: number) => candidate(domain, { company, status: "reserve", fit_score: fit, researched_at: recent, prepared: { row: listRow(domain, fit, { company }), offer: { domain } } });
+  const { db, tables } = queryDb({ reachout_lists: lists(), accounts: [{ id: "acc", name: "Blocked Co", domain: "blocked-old.test", status: "client" }], list_candidates: [reserve("blocked.test", "Blocked Co", 90), reserve("ok.test", "Ok Co", 80)] });
+  await builder.runNightlyListBuild(db, { now: NOW });
+  const listed = tables.reachout_lists.flatMap((item) => (item.rows as Row[]).map((row) => row.domain));
+  assert.ok(!listed.includes("blocked.test"));
+  assert.ok(listed.includes("ok.test"));
+  assert.match(String(tables.list_candidates.find((item) => item.domain === "blocked.test")!.skip_reason), /do-not-contact/);
+});
+
 test("learned sector weights count qualified cards as positive and keep dismissed sent cards as sends", async () => {
   const listed = (domain: string, sector: number) => ({ id: `l-${domain}`, domain, sector_key: sector, status: "listed" });
   const cards: Row[] = [], touches: Row[] = [], candidates: Row[] = [];
