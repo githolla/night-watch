@@ -1,16 +1,16 @@
 import { decrypt } from "@/lib/crypto";
+import { optOutPerson } from "@/lib/email-suppression";
 import { admin } from "@/lib/supabase/admin";
 
 // One-click unsubscribe (RFC 8058) + a click-through page. The token is the encrypted person id, so no
-// login is needed; acting on it flips the person's do_not_contact flag, which every send path already
-// honors (manual send, cadence steps, worklists).
+// login is needed; acting on it flips do_not_contact on every people row with that person's address and
+// stops their sequences, and every send path checks the address before sending.
 async function optOut(token: string | null): Promise<boolean> {
   if (!token) return false;
   let personId: string;
   try { personId = decrypt(token); } catch { return false; }
   if (!personId) return false;
-  const { error } = await admin().from("people").update({ do_not_contact: true }).eq("id", personId);
-  return !error;
+  try { await optOutPerson(admin(), personId); return true; } catch { return false; }
 }
 
 // Gmail's RFC 8058 one-click sends a POST — that's the ONLY thing that mutates.

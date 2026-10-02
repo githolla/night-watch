@@ -1,7 +1,9 @@
 import { withMailboxQuota } from '@/lib/mailbox-quota';
 import { DeliveryError, deliveryReservationId } from '@/lib/delivery-state';
 import { restoreSelectedDraft } from "@/lib/restore-selected-draft";
-import { assertCardSender } from "@/lib/focus-data";
+import { allFocus, assertCardSender } from "@/lib/focus-data";
+import { emailSuppressed } from "@/lib/email-suppression";
+import { automaticContentProblem } from "@/lib/morning-send-rules";
 import { checkRecipient, recipientAllowed, recordDelivery, recordRecipientCheck, type RecipientPerson } from "@/lib/recipient-verification";
 import { unsubscribeUrl, withOptOut } from "@/lib/opt-out";
 import { firstTouchErrors } from "@/lib/first-touch";
@@ -14,7 +16,7 @@ import { dailyCap, sendDayStart } from "@/lib/send-guards";
 import { fromHeader, sanitizeLinks, senderProfile } from "@/lib/sender";
 import type { admin } from "@/lib/supabase/admin";
 import { isCuratedDomain } from "@/lib/curated-worklist";
-import { outreachBody, outreachDelivery } from "@/lib/outreach-ending";
+import { outreachBody, outreachDelivery, signatureText } from "@/lib/outreach-ending";
 
 import { loadNightlyLists } from "@/lib/nightly-lists";
 import type { AppUser } from "@/lib/users";
@@ -36,6 +38,24 @@ export type CardSendInput = {
 };
 
 const daysBetween = (iso: string | null | undefined) => (iso ? Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)) : 0);
+
+const LEGAL_SUFFIX = /(?:,?\s+(?:llc|l\.l\.c\.|inc\.?|incorporated|corp\.?|corporation|co\.|ltd\.?|limited|lp|llp|pllc|pc|p\.c\.))+\.?$/i;
+/** The company name as a person would say it: "Acme Landscaping, LLC" becomes "Acme Landscaping". */
+const speakable = (name: string) => name.trim().replace(LEGAL_SUFFIX, "").replace(/[,\s]+$/, "").trim() || name.trim();
+
+const text = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim() : undefined);
+
+/**
+ * What the follow-ups may say about this company. The task and metric come only from a nightly list row's
+ * researched workflow; curated rows carry a differently worded `reframe` that must not be reused.
+ */
+export function followupContext(card: { accounts?: { name?: string | null } | null }, focused: unknown): { company: string; task?: string; metric?: string } {
+  const company = speakable(card.accounts?.name ?? "");
+  const workflow = focused && typeof focused === "object" && "workflow" in focused ? (focused as { workflow: unknown }).workflow : null;
+  if (!workflow || typeof workflow !== "object") return { company };
+  const task = text((workflow as { task?: unknown }).task), metric = text((workflow as { metric?: unknown }).metric);
+  return task && metric ? { company, task, metric } : { company };
+}
 
 /**
  * Send a card's first email: every guard a person's click goes through (list ownership, card status,
@@ -77,6 +97,9 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     }
     if (!recipient.email) throw new Error(`There is no email address on file for ${recipient.full_name}.`);
     if (recipient.do_not_contact || ["client", "do_not_contact"].includes(card.accounts.status)) throw new Error("Do-not-contact guard blocked this send");
+    if (await emailSuppressed(db, recipient.email)) throw new Error("This address opted out on another record. Do-not-contact guard blocked this send. Nothing was sent.");
+    // "Keep for me": the person will send this one by hand, so nothing automatic may.
+    if (automatic && card.auto_send_hold) throw new Error("Kept for sending by hand, so it was not auto-sent. Nothing was sent.");
     // Researched list addresses are inferred or published, not verified. Block a known-bad address
     // (bounced, rejected by Hunter, no mail server); let the rest through with what the check found.
     const recipientCheck = await checkRecipient(db, recipient, { id: card.account_id, domain: card.accounts?.domain ?? recipient.email.split("@")[1] });
@@ -116,7 +139,14 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     const fromEmail = connection.email;
     // Send multipart/alternative: a plain-text part (spam filters prefer it) AND an HTML part carrying the
     // branded signature, so the sender's signature actually renders in the recipient's client.
-    const { text: fullBody, html } = withOptOut(outreachDelivery(body, profile), curated);
+    // Unattended mail carries the text version of the signature (no logo, images or extra links); a person
+    // clicking Send keeps the saved signature as it is.
+    const deliveryProfile = automatic ? { ...profile, signature: signatureText(profile) } : profile;
+    const { text: fullBody, html } = withOptOut(outreachDelivery(body, deliveryProfile), curated);
+    if (automatic) {
+      const problem = automaticContentProblem(fullBody, html);
+      if (problem) throw new Error(`${problem} Nothing was sent.`);
+    }
     const unsubscribe = unsubscribeUrl(input.baseUrl, recipient.id);
     const recipientEmail = recipient.email;
     const reservationId = deliveryReservationId(id, recipient.id);
@@ -158,10 +188,11 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     // Schedule the follow-up cadence off this first touch (idempotent, best-effort — a failure here never
     // undoes the send).
     try {
+      const focused = allFocus().find((row) => row.domain.toLowerCase() === String(card.accounts?.domain ?? "").toLowerCase());
       await ensureFollowupCadence(db, {
         cardId: id, personId: recipient.id, owner, touchedChannel: "email",
         firstName: (recipient.full_name ?? "").trim().split(/\s+/)[0] || "there",
-        company: card.accounts?.name ?? "", baseSubject: subject,
+        baseSubject: subject, ...followupContext(card, focused),
       });
     } catch { /* follow-up scheduling is best-effort */ }
     return ({ ok: true, threadId: result.threadId, to: recipient.full_name, from: fromEmail, messageId: result.id, recipientCheck: { level: recipientCheck.level, reason: recipientCheck.reason, suggestion: recipientCheck.suggestion } });

@@ -45,13 +45,13 @@ test("a researched idea with a question, a dash, a link or too many words is ref
 
 test("the morning send spreads the list across the window", () => {
   assert.equal(paceForRun(12, 9 * 60), 1, "fifteen runs left: one each");
-  assert.equal(paceForRun(12, 11 * 60 + 20), 12, "last run sends the rest");
+  assert.equal(paceForRun(12, 11 * 60 + 20), 2, "never more than two a run");
   assert.equal(paceForRun(12, 11 * 60 + 30), 0, "nothing after the window");
   assert.equal(paceForRun(0, 10 * 60), 0);
 });
 
-test("the bounce brake needs 20 sends and then trips above 5%", () => {
-  assert.equal(bounceBrake(10, 2), false, "too few sends to judge");
+test("the bounce brake needs 10 first emails and then trips above 5%", () => {
+  assert.equal(bounceBrake(9, 1), false, "too few sends to judge");
   assert.equal(bounceBrake(20, 1), false, "exactly 5% is allowed");
   assert.equal(bounceBrake(20, 2), true);
 });

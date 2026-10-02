@@ -11,6 +11,7 @@ import { fromHeader, sanitizeLinks, senderProfile } from './sender';
 import { outreachDelivery } from './outreach-ending';
 import { isBounce, senderAddress } from './bounce';
 import { isCuratedDomain } from './curated-worklist';
+import { emailSuppressed } from './email-suppression';
 import { configuredBaseUrl, unsubscribeUrl, withOptOut } from './opt-out';
 import { checkRecipient, markBounced, recipientAllowed, recordDelivery, recordRecipientCheck } from './recipient-verification';
 import type { admin } from './supabase/admin';
@@ -47,6 +48,7 @@ export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner, actor?:
   if (step.sent_at) throw new DeliveryError('delivery_reserved', 'This follow-up needs delivery confirmation. Check Gmail Sent before taking further action.');
   if (step.channel !== 'email' || !step.subject || !step.body || !to.email) throw new Error('An email address, subject and message are required.');
   if (to.do_not_contact || ['client','do_not_contact'].includes(cadence.cards?.accounts?.status ?? '')) throw new Error('Do-not-contact guard blocked this follow-up.');
+  if (await emailSuppressed(db,to.email)) throw new Error('This address opted out on another record. Do-not-contact guard blocked this follow-up. Nothing was sent.');
   const {data:connection,error:connectionError} = await db.from('gmail_connections').select('email,connected_at,created_at').eq('owner',cadence.owner).maybeSingle();
   if (connectionError || !connection?.email) throw new Error('Connect the sender’s Gmail in Settings before sending.');
   // One day start for both the count and the quota slot, so they always describe the same window.

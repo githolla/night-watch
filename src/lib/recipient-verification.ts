@@ -1,5 +1,6 @@
 import { promises as dns } from "node:dns";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { addressIdentityProblem } from "./address-identity.ts";
 import { buildEmail, detectPattern } from "./email-pattern.ts";
 import { verifierConfigured, verifyEmail, type VerifyResult } from "./email-verify.ts";
 import { focusedContacts } from "./focused-contact.ts";
@@ -98,7 +99,18 @@ function result(email: string, level: RecipientLevel, reason: string, source: Re
   return { email, level, reason, source, status, suggestion: null, hunter: null, mailHost: null, checkedAt: new Date(now).toISOString(), ...extra };
 }
 
+/**
+ * A role inbox, or an address that does not look like the person's, is never confirmed for an automatic
+ * send, even when Hunter verified that the mailbox exists. A person may still send it by hand.
+ */
 export async function checkRecipient(db: SupabaseClient, person: RecipientPerson, account: RecipientAccount, deps: Deps = {}): Promise<RecipientCheck> {
+  const check = await mailboxCheck(db, person, account, deps);
+  if (check.level !== "deliverable") return check;
+  const problem = addressIdentityProblem(check.email, person.full_name);
+  return problem ? { ...check, level: "risky", reason: `${problem} ${check.reason} Automatic sends need the person's own address.` } : check;
+}
+
+async function mailboxCheck(db: SupabaseClient, person: RecipientPerson, account: RecipientAccount, deps: Deps): Promise<RecipientCheck> {
   const now = deps.now?.() ?? Date.now();
   const email = (person.email ?? "").trim().toLowerCase();
   const previous = stored(person.email_check);
