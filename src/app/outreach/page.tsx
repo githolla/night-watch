@@ -10,7 +10,9 @@ import { loadNightlyLists } from "@/lib/nightly-lists";
 import { researchSlice } from "@/lib/research-data/slice";
 import { batchProgress, selectedBatch } from "@/lib/reachout-batches";
 import { RefreshDraftCopy } from "@/components/RefreshDraftCopy";
-import { Desk, type DeskContext } from "@/components/Desk";
+import { Desk, type AutoSendView, type DeskContext } from "@/components/Desk";
+import { localParts } from "@/lib/local-time";
+import { autoSendBlocker, isSendDay, MORNING } from "@/lib/morning-send-rules";
 import { ScanControl } from "@/components/ScanControl";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
@@ -283,6 +285,24 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
     return { ...card, isNew: created >= dayStart, carriedOver: Boolean(created) && created < dayStart, working: Boolean(workingAt && Date.parse(workingAt) > workingCutoff), onWorklist: true, followups: followupsByCard.get(card.id as string) ?? [] };
   });
 
+  // Today's list shows what the morning run is expected to do with each card. Display only: the real checks
+  // run at send time.
+  let autoSend: AutoSendView | undefined;
+  if (selectedList.sequence === 3 && selectedList.owner) {
+    const [{ data: seatProfile }, { data: sentTouches }] = await Promise.all([
+      db.from("sender_profiles").select("*").eq("owner", selectedList.owner).maybeSingle(),
+      cardIds.length ? db.from("touches").select("card_id,sent_at").in("card_id", cardIds).eq("channel", "email").not("sent_at", "is", null).order("sent_at", { ascending: true }) : Promise.resolve({ data: [] }),
+    ]);
+    const local = localParts();
+    const sentAt: Record<string, string> = {};
+    for (const touch of (sentTouches ?? []) as Array<{ card_id: string; sent_at: string }>) sentAt[touch.card_id] ??= touch.sent_at;
+    let blocker: string | null = isSendDay(local.weekday, local.date)
+      ? autoSendBlocker({ autoSend: Boolean(seatProfile?.auto_send), paused: Boolean(seatProfile?.auto_send_paused), postalAddress: ((seatProfile?.postal_address as string | null) ?? "").trim(), skipOn: (seatProfile?.auto_send_skip_on as string | null | undefined) ?? null, today: local.date })
+      : "no auto-send today (not a send day)";
+    if (!blocker && local.minutes >= MORNING.sendUntil) blocker = "the auto-send window has closed for today";
+    autoSend = { blocker, sentAt, sendFrom: MORNING.sendFrom, sendUntil: MORNING.sendUntil, timeZone: process.env.SEND_TIMEZONE ?? "America/New_York" };
+  }
+
   // The app runs itself: opening the desk starts or continues the scan and shows progress, so nobody has to drive the Runs page.
   const openRun = openRunRow.data ? await loadRunSummary(db, openRunRow.data.id as string) : null;
   const listed = listedOutreach ?? 0;
@@ -302,6 +322,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       {missing.length > 0 && <BatchPreparation domains={missing} />}
       <Desk
         researchSlice={researchSlice(cards.map((card) => card.accounts.domain as string | null))}
+        autoSend={autoSend}
         initialBrowse={params.source === "overview"}
         key={`${me.owner}:${selectedList.id}:${selectedList.sequence}`}
         batchSequence={selectedList.sequence}
