@@ -9,9 +9,9 @@ const input = z.object({ to: z.string().trim().toLowerCase().email().max(254).op
 
 /** Send a sample outreach email from the seat's connected mailbox, so the sender can see exactly how a live
  *  send looks (From line, signature, formatting) before sending to real prospects. It goes to the address
- *  typed in, else to the admin acting as this seat, else back to the mailbox itself. Gmail files a message
- *  the API sends to its own mailbox under Sent only, so a self-test never shows in the inbox; the reply says
- *  so. The body is fixed test text, so the verified-recipient guard doesn't apply. */
+ *  typed in, else to the admin acting as this seat, else back to the mailbox itself. A message to its own
+ *  mailbox can land under Sent rather than the inbox, so the reply says where to look. The body is fixed
+ *  test text, so the verified-recipient guard doesn't apply. */
 export async function POST(request: Request) {
   try {
     const user = await requireUser();

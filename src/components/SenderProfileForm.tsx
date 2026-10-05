@@ -65,8 +65,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
       const response = await fetch("/api/gmail/test", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ to: testTo.trim() }) });
       const json = await response.json().catch(() => ({}));
       if (response.ok && json.ok === true && typeof json.threadId === "string" && json.threadId.trim() && typeof json.to === "string" && json.to.trim()) {
-        // Gmail files a message the API sends to its own mailbox under Sent, never the inbox.
-        setTestMsg(json.toSelf ? `Test sent from ${json.to} to itself. Gmail keeps those under Sent, not Inbox: look in Sent, or enter another address to see it arrive.` : `Test sent from ${json.from ?? "this seat"} to ${json.to}. Check that inbox.`);
+        setTestMsg(json.toSelf ? `Test sent from ${json.to} to itself. If it is not in your inbox, look in Sent, or enter another address to see it arrive.` : `Test sent from ${json.from ?? "this seat"} to ${json.to}. Check that inbox.`);
       } else if (!response.ok && typeof json.error === "string" && response.status < 500) {
         setTestMsg(json.error);
       } else {

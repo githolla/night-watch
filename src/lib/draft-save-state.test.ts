@@ -20,6 +20,11 @@ test('a background write is retried against the stored version, a sent card is n
  // Left the editable statuses: a real conflict, never written over.
  assert.deepEqual(resolveSaveConflict({email_body:'mine'},{status:'sent',updated_at:'v2',email_body:'sent copy'}),{retry:false,replaced:false});
  assert.deepEqual(resolveSaveConflict({email_body:'mine'},null),{retry:false,replaced:false});
+ // A background write that left the text alone (a rescore, a stamp) replaces nothing, even though the new
+ // edit differs from the stored copy: the stored copy is still what this editor last saved.
+ assert.deepEqual(resolveSaveConflict({email_body:'edit two'},{status:'edited',updated_at:'v3',email_body:'edit one'},{email_body:'edit one'}),{retry:true,replaced:false,version:'v3'});
+ // Someone else changed the text since this editor last saved: say so.
+ assert.deepEqual(resolveSaveConflict({email_body:'edit two'},{status:'edited',updated_at:'v3',email_body:'repaired'},{email_body:'edit one'}),{retry:true,replaced:true,version:'v3'});
  // A field the save is not writing never counts as a replacement.
  assert.deepEqual(resolveSaveConflict({email_body:'mine'},{status:'edited',updated_at:'v2',email_body:'mine',email_subject:'theirs'}),{retry:true,replaced:false,version:'v2'});
 });

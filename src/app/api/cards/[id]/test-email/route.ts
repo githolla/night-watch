@@ -53,8 +53,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const versionId = await trackEmailVersion(db, { actor: user.actor, cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
     const deliveredBody = fullBody;
     const html = delivery.html;
-    // Gmail files a message the API sends to its own mailbox under Sent, not the inbox, so an admin acting
-    // as this seat gets the test in their own inbox instead.
+    // An admin acting as this seat gets the test in their own inbox; a self-test can land under Sent.
     const to = user.actor?.email || connection.email;
     await sendEmail(user.owner, fromHeader(mailboxProfile, connection.email), to, `[Night Watch test] ${payload.subject}`, deliveredBody, undefined, [], html);
     // Tests never create touches, change card status or enroll follow-ups.

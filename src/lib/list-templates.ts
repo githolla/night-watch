@@ -64,7 +64,7 @@ export function listVariants(company: string, workflow: Workflow, evidence?: Ope
   if (!line) return variants;
   const led = { ...variants[0], message: `${line}\n\n${variants[0].message}` };
   // The line is a bonus: if it pushes the email over a limit, send the plain approved version instead.
-  return variantProblems([led]).length ? variants : [led, ...variants.slice(1)];
+  return variantProblems([led], undefined, company).length ? variants : [led, ...variants.slice(1)];
 }
 
 function templateVariants(company: string, workflow: Workflow): ListVariant[] {
@@ -175,7 +175,7 @@ Return JSON only: {"task":"","subject":"","inputs":"","metric":""}`;
   const checked = checkWorkflow(normalizeWorkflow(parsed.data), context);
   if ("problem" in checked) return checked;
   const variants = listVariants(context.company, checked.workflow, context.evidence, { now: context.now });
-  const remaining = variantProblems(variants);
+  const remaining = variantProblems(variants, undefined, context.company);
   if (remaining.length) return { problem: remaining.slice(0, 2).join("; ") };
   return { workflow: checked.workflow, variants };
 }
@@ -225,12 +225,23 @@ export function speakableCompany(name: string): string {
 }
 
 /** Every version must pass the writer-kit lint and the first-touch rules before it can go on a list. */
-export function variantProblems(variants: ListVariant[], sampleSender = "Josh") {
+/** The company's own name stands in as a neutral word, so a name such as "Mainscape Landscaping" never trips a
+ *  banned-word rule ("landscape" is banned as jargon) that its copy cannot be rewritten to avoid. */
+const withoutName = (text: string, company: string) => {
+  const name = company.trim();
+  if (!name) return text;
+  // One neutral word per word of the name, so the word count (and the 120-word limit) is unchanged.
+  const stand = name.split(/\s+/).map(() => "Acme").join(" ");
+  return text.replace(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), stand);
+};
+
+export function variantProblems(variants: ListVariant[], sampleSender = "Josh", company = "") {
   const problems: string[] = [];
   for (const variant of variants) {
-    const body = `Hi Pat,\n\n${variant.message.replaceAll("{sender}", sampleSender)}`;
+    const message = withoutName(variant.message.replaceAll("{sender}", sampleSender), company);
+    const body = `Hi Pat,\n\n${message}`;
     problems.push(...firstTouchErrors(variant.subject, body).map((issue) => `${variant.id}: ${issue}`));
-    const lint = lintEmail({ touch: 1, subject: variant.subject, body: variant.message.replaceAll("{sender}", sampleSender) });
+    const lint = lintEmail({ touch: 1, subject: variant.subject, body: message });
     if (!lint.pass) problems.push(...lint.issues.filter((issue) => issue.severity === "error").map((issue) => `${variant.id}: ${issue.rule} ${issue.detail}`));
   }
   return problems;

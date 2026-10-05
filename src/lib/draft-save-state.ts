@@ -17,7 +17,7 @@ export function meetingTimesBody(body: string, labels: string[]) {
 
 /** Statuses a draft can still be written to — mirrors the PATCH route's allowlist. */
 export const EDITABLE_DRAFT_STATUSES = ['new', 'approved', 'edited'];
-const DRAFT_TEXT_FIELDS = ['email_subject', 'email_body', 'linkedin_subject', 'linkedin_message'];
+export const DRAFT_TEXT_FIELDS = ['email_subject', 'email_body', 'linkedin_subject', 'linkedin_message'];
 
 /**
  * Decide what to do when a guarded save is rejected because the row moved underneath it.
@@ -36,8 +36,11 @@ const DRAFT_TEXT_FIELDS = ['email_subject', 'email_body', 'linkedin_subject', 'l
 export function resolveSaveConflict(
   values: Record<string, unknown>,
   saved: { status: string; updated_at: string } & Record<string, unknown> | null,
+  /** The text this editor last read from or wrote to the server. A stored field that still matches it was
+   *  not changed by anyone else, so overwriting it with the new edit replaces nothing. */
+  base: Record<string, unknown> = {},
 ) {
   if (!saved?.updated_at || !EDITABLE_DRAFT_STATUSES.includes(saved.status)) return { retry: false, replaced: false };
-  const replaced = DRAFT_TEXT_FIELDS.some(key => key in values && (saved[key] ?? '') !== (values[key] ?? ''));
+  const replaced = DRAFT_TEXT_FIELDS.some(key => key in values && (saved[key] ?? '') !== (values[key] ?? '') && (!(key in base) || (saved[key] ?? '') !== (base[key] ?? '')));
   return { retry: true, replaced, version: saved.updated_at };
 }

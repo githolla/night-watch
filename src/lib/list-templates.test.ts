@@ -154,3 +154,12 @@ test("chooseArm is stable per domain, even across domains, and never picks deliv
   const onlyDelivery = variants.filter((variant) => variant.id === "delivery-experience");
   assert.deepEqual(chooseArm("x.com", onlyDelivery), { variants: onlyDelivery, armId: null });
 });
+
+test("a company whose name contains a banned word (landscape) still gets copy, and the word stays banned elsewhere", () => {
+  const workflow = { task: "crew schedule changes", subject: "schedule changes", inputs: "weather delays, crew availability and customer notices", metric: "time spent rescheduling" };
+  const variants = listVariants("Mainscape Landscape", workflow);
+  assert.deepEqual(variantProblems(variants, undefined, "Mainscape Landscape"), []);
+  assert.ok(variantProblems(variants).some((issue) => /banned_phrase landscape/.test(issue)), "without the name the rule still fires");
+  const jargon = variants.map((variant) => ({ ...variant, message: `${variant.message}\nThe AI landscape is changing.` }));
+  assert.ok(variantProblems(jargon, undefined, "Mainscape Landscape").some((issue) => /banned_phrase landscape/.test(issue)), "the word outside the name is still caught");
+});

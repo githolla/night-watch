@@ -405,7 +405,7 @@ export async function researchOne(candidate: Candidate, owner: Owner, listDate: 
     if ("problem" in checked) checked = checkWorkflow(normalizeWorkflow(found.workflow), context);
     let workflow = "workflow" in checked ? checked.workflow : found.workflow;
     let variants = "workflow" in checked ? listVariants(company, workflow, opening, { now }) : [];
-    const problems = "problem" in checked ? [checked.problem] : variantProblems(variants);
+    const problems = "problem" in checked ? [checked.problem] : variantProblems(variants, undefined, company);
     if (problems.length) {
       const writer = (prompt: string) => deps.repair(prompt, { model: researchModel(), maxTokens: 400, signal }, recorder);
       const repaired = await repairWorkflow(workflow, problems, evidenceSummary(evidence), writer, { ...context, company, evidence: opening, now });

@@ -14,7 +14,8 @@ import {
   sourcingPrompt, START_CUTOFF_MS, UNCONFIRMED_PRIOR_PENALTY,
 } from "./nightly-list-rules.ts";
 import { loadNightlyLists } from "./nightly-lists.ts";
-import { isExcludedSector, researchOne, type Candidate, type ResearchResult } from "./nightly-research.ts";
+import { onDomain, safeFetch, type Fetcher, type SeenSource } from "./evidence-grounding.ts";
+import { isExcludedSector, researchOne, type Candidate, type ResearchDeps, type ResearchResult } from "./nightly-research.ts";
 import { preparePriorityDraft } from "./prepare-priority-draft.ts";
 import { domainAcceptsMail, recordRecipientCheck, type RecipientCheck, type RecipientPerson } from "./recipient-verification.ts";
 import type { ListOffer, ListRow } from "./research-data/server.ts";
@@ -625,3 +626,115 @@ export async function runNightlyListBuild(db: Db, options: NightlyBuildOptions =
   };
 }
 
+
+// ---------- lists researched outside the app ----------
+
+/** A company researched by hand or in another tool, with research in the shape researchPrompt asks for. */
+export type ResearchedCompany = {
+  company: string; domain: string; sector?: string; revenueUsdM?: number | null; revenueYear?: number | null; sourceUrl?: string | null; research: unknown;
+};
+export type ResearchedImport = {
+  listDate: string; owner: Owner; status: string;
+  listed: Array<{ domain: string; company: string; fit: number }>; reserved: string[]; skipped: Array<{ domain: string; reason: string }>;
+};
+
+/** Which of these domains a list could still use, and why each other one is out. Read-only. */
+export async function screenDomains(db: Db, domains: string[]): Promise<Array<{ domain: string; usable: boolean; reason: string | null }>> {
+  const known = await knownCompanies(db);
+  return domains.map((raw) => {
+    const domain = domainOf(raw);
+    if (!validDomain(domain)) return { domain: raw, usable: false, reason: "not a valid domain" };
+    if (known.domains.has(domain)) return { domain, usable: false, reason: "already known: on a list, researched before, contacted, a client or do-not-contact" };
+    return { domain, usable: true, reason: null };
+  });
+}
+
+/** An off-domain buyer page counts as seen only when it can be fetched and names the buyer. */
+async function buyerPageSeen(research: unknown, domain: string, fetcher: Fetcher | undefined): Promise<SeenSource[]> {
+  const buyer = (research as { buyer?: { name?: unknown; sourceUrl?: unknown } } | null)?.buyer;
+  const url = typeof buyer?.sourceUrl === "string" ? buyer.sourceUrl : "";
+  const surname = typeof buyer?.name === "string" ? buyer.name.trim().split(/\s+/).at(-1)?.toLowerCase() ?? "" : "";
+  if (!url || !surname || onDomain(url, domain)) return [];
+  const page = await safeFetch(url, fetcher).catch(() => null);
+  return page?.kind === "page" && page.html.toLowerCase().includes(surname) ? [{ url, title: null, page_age: null }] : [];
+}
+
+/**
+ * Add companies researched outside the app to a seat's list for a date, through the same checks as the
+ * nightly build: exclusions and companies already known, revenue and buyer rules, evidence confirmed by
+ * fetching its page (nothing is taken on trust), the AI-fit minimum, template copy and the Hunter address
+ * check. No model is called; copy that fails its checks is skipped rather than rewritten. The list keeps its
+ * best `size` by AI fit, merged with any rows it already has; the rest become reserves. Cards are prepared
+ * at once, and the morning run announces the list as usual.
+ */
+export async function importResearchedList(db: Db, input: { listDate: string; owner: Owner; companies: ResearchedCompany[] }, overrides: Partial<ResearchDeps> = {}): Promise<ResearchedImport> {
+  const config = nightlyListConfig();
+  const { listDate, owner } = input;
+  const known = await knownCompanies(db);
+  const existing = (await loadLists(db, listDate)).find((list) => list.owner === owner) ?? null;
+  const skipped: ResearchedImport["skipped"] = [];
+  const fresh: Array<{ row: ListRow; offer: ListOffer | undefined; fit: number }> = [];
+  const seenNow = new Set<string>();
+
+  for (const item of input.companies) {
+    const domain = domainOf(item.domain ?? "");
+    const skip = (reason: string) => skipped.push({ domain: domain || String(item.domain), reason });
+    if (!validDomain(domain)) { skip("not a valid domain"); continue; }
+    if (seenNow.has(domain)) { skip("listed twice in this import"); continue; }
+    seenNow.add(domain);
+    if (known.domains.has(domain)) { skip("already known: on a list, researched before, contacted, a client or do-not-contact"); continue; }
+    if (known.names.has(normalizeCompanyName(item.company))) { skip("matches a client or do-not-contact company by name"); continue; }
+    if (isExcludedSector(item.sector)) { skip("excluded sector"); continue; }
+
+    const { data: saved, error } = await db.from("list_candidates").insert({
+      company: item.company.trim(), domain, sector: (item.sector ?? "").trim(), revenue_usd_m: item.revenueUsdM ?? null, revenue_year: item.revenueYear ?? null,
+      source_url: item.sourceUrl ?? null, status: "researching", owner, list_date: listDate, prior_score: 0, updated_at: new Date().toISOString(),
+    }).select("id").single();
+    if (error || !saved) { skip(`could not save the company: ${error?.message ?? "no row"}`); continue; }
+    const candidate: Candidate = { id: saved.id as string, company: item.company.trim(), domain, sector: (item.sector ?? "").trim(), revenue_usd_m: item.revenueUsdM ?? null, revenue_year: item.revenueYear ?? null, source_url: item.sourceUrl ?? null, sector_key: null };
+
+    const seen = await buyerPageSeen(item.research, domain, overrides.fetcher);
+    const result = await researchOne(candidate, owner, listDate, {
+      agent: async () => ({ json: item.research, seen }),
+      repair: async () => { throw new Error("no rewrite for researched imports: adjust the workflow fields and import again"); },
+      ...overrides,
+    });
+    const now = new Date().toISOString();
+    if (result.row) {
+      fresh.push({ row: result.row, offer: result.offer, fit: result.fit?.score ?? 0 });
+      await db.from("list_candidates").update({ status: "listed", fit_score: result.fit?.score ?? null, fit: result.fit ?? null, researched_at: now, updated_at: now }).eq("id", candidate.id);
+    } else {
+      skip(result.skip ?? "not listed");
+      await db.from("list_candidates").update({ status: "skipped", skip_reason: (result.skip ?? "not listed").slice(0, 300), fit_score: result.fit?.score ?? null, fit: result.fit ?? null, researched_at: now, updated_at: now }).eq("id", candidate.id);
+    }
+  }
+
+  const freshDomains = new Set(fresh.map((item) => item.row.domain));
+  const prior = (existing?.rows ?? []).filter((row) => !freshDomains.has(row.domain));
+  const offers = [...(existing?.offers ?? []).filter((offer) => !freshDomains.has(offer.domain)), ...fresh.flatMap((item) => (item.offer ? [item.offer] : []))];
+  const ranked = rankForList([...prior, ...fresh.map((item) => item.row)], await autoSendLive(db, owner));
+  const kept = ranked.slice(0, config.size).map((row, index) => ({ ...row, rank: index + 1 }) as ListRow);
+  const keptDomains = new Set(kept.map((row) => row.domain));
+  for (const row of ranked.slice(config.size)) {
+    await db.from("list_candidates").update({ status: "reserve", owner: null, list_date: null, prepared: { row, offer: offers.find((offer) => offer.domain === row.domain) } satisfies Partial<Prepared>, updated_at: new Date().toISOString() }).eq("domain", row.domain);
+  }
+
+  const status = kept.length ? "ready" : existing?.status ?? "failed";
+  const change = { status, rows: kept, offers: offers.filter((offer) => keptDomains.has(offer.domain)), updated_at: new Date().toISOString() };
+  let listId = existing?.id ?? null;
+  if (listId) {
+    const { error } = await db.from("reachout_lists").update(change).eq("id", listId);
+    if (error) throw new Error(`Could not save ${owner}'s list: ${error.message}`);
+  } else {
+    const { data, error } = await db.from("reachout_lists").insert({ list_date: listDate, owner, ...change }).select("id").single();
+    if (error || !data) throw new Error(`Could not save ${owner}'s list: ${error?.message ?? "no row"}`);
+    listId = data.id as string;
+  }
+  if (kept.length) await prepareRows(db, { id: listId, owner, errors: existing?.errors ?? [] }, kept.filter((row) => freshDomains.has(row.domain)));
+  return {
+    listDate, owner, status,
+    listed: kept.filter((row) => freshDomains.has(row.domain)).map((row) => ({ domain: row.domain, company: row.company, fit: fresh.find((item) => item.row.domain === row.domain)?.fit ?? 0 })),
+    reserved: ranked.slice(config.size).map((row) => row.domain).filter((domain) => freshDomains.has(domain)),
+    skipped,
+  };
+}

@@ -10,6 +10,7 @@ import * as listSectors from "./list-sectors.ts";
 import * as localTime from "./local-time.ts";
 import * as morningRules from "./morning-send-rules.ts";
 import * as rules from "./nightly-list-rules.ts";
+import * as grounding from "./evidence-grounding.ts";
 import { isExcludedSector } from "./nightly-research.ts";
 import { queryDb } from "./testing/query-db.ts";
 
@@ -18,7 +19,7 @@ const require = createRequire(import.meta.url);
 type Row = Record<string, unknown>;
 type Result = { listDate: string; lists: Array<{ owner: string; status: string; rows: number; deliverable: number; attempts: number; costUsd: number }>; sourced: number; sourcing: Array<{ parsed: number; kept: number }>; reservesUsed: number; stopped: string };
 type Options = { now?: Date; clock?: () => number; timeBudgetMs?: number; abortAtMs?: number; abortGraceMs?: number };
-type ResearchCall = { candidate: Row; owner: string; overrides: { signal?: AbortSignal } };
+type ResearchCall = { candidate: Row; owner: string; overrides: { signal?: AbortSignal; agent?: () => Promise<{ json: unknown; seen: unknown[] }>; repair?: () => Promise<unknown> } };
 type Hooks = {
   research: (call: ResearchCall) => Promise<Row>;
   source: (prompt: string, options: Row, recorder?: (cost: number) => void) => Promise<unknown>;
@@ -32,6 +33,8 @@ type Module = {
   claimBuildAlert: (db: unknown, now?: Date) => Promise<boolean>;
   learnedSectorWeights: (db: unknown) => Promise<Record<string, number>>;
   nightlyListConfig: () => { budgetUsd: number; maxCostPerCompanyUsd: number; research: number; size: number };
+  importResearchedList: (db: unknown, input: { listDate: string; owner: string; companies: Row[] }) => Promise<{ status: string; listed: Array<{ domain: string; fit: number }>; reserved: string[]; skipped: Array<{ domain: string; reason: string }> }>;
+  screenDomains: (db: unknown, domains: string[]) => Promise<Array<{ domain: string; usable: boolean; reason: string | null }>>;
 };
 
 const calls = { research: [] as ResearchCall[], source: [] as string[], prepare: [] as string[] };
@@ -51,6 +54,7 @@ function load(): Module {
     "./ai-fit.ts": aiFit,
     "./anthropic-cost.ts": anthropicCost,
     "./agents.ts": { runSearchAgent: (prompt: string, options: Row, recorder?: (cost: number) => void) => { calls.source.push(prompt); return hooks.source(prompt, options, recorder); } },
+    "./evidence-grounding.ts": grounding,
     "./focus-data.ts": { allFocus: () => [] },
     "./local-time.ts": localTime,
     "./list-sectors.ts": listSectors,
@@ -361,4 +365,36 @@ test("two failing invocations claim one alert", async () => {
   const results = [await builder.claimBuildAlert(db, NOW), await builder.claimBuildAlert(db, NOW)];
   assert.deepEqual(results, [true, false]);
   assert.equal(await builder.claimBuildAlert(db, new Date("2026-10-03T07:00:00Z")), false, "no alert on a day nothing builds");
+});
+
+test("a list researched outside the app goes through the same checks, makes no model call and prepares its cards", async () => {
+  const research = { buyer: { name: "Pat Lee", title: "President", sourceUrl: "https://good.test/team" } };
+  reset({
+    research: async (call) => {
+      const given = await call.overrides.agent!();
+      assert.deepEqual(given.json, research, "the research handed in is what the pipeline reads");
+      await assert.rejects(call.overrides.repair!(), /no rewrite/, "copy that fails its checks is never rewritten by a model");
+      return call.candidate.domain === "good.test" ? { row: listRow("good.test", 72), offer: { domain: "good.test" }, fit: { score: 72 }, cost: 0, searches: 0 } : { skip: "AI fit 20 is below 40", fit: { score: 20 }, cost: 0, searches: 0 };
+    },
+  });
+  const { db, tables } = queryDb({ list_candidates: [candidate("known.test", { status: "listed" })], reachout_lists: [] });
+  const result = await builder.importResearchedList(db, { listDate: TODAY, owner: "suuchi", companies: [
+    { company: "Good Co", domain: "https://www.Good.test/", sector: "landscape construction", research },
+    { company: "Weak Co", domain: "weak.test", sector: "plumbing", research },
+    { company: "Known Co", domain: "known.test", research },
+    { company: "Soft Co", domain: "soft.test", sector: "software", research },
+  ] });
+  assert.equal(calls.source.length, 0);
+  assert.deepEqual(calls.research.map((call) => call.candidate.domain), ["good.test", "weak.test"]);
+  assert.equal(result.status, "ready");
+  assert.deepEqual(json(result.listed), [{ domain: "good.test", company: "good.test", fit: 72 }]);
+  assert.deepEqual(json(result.skipped.map((item) => item.domain)), ["weak.test", "known.test", "soft.test"]);
+  assert.match(result.skipped.find((item) => item.domain === "known.test")!.reason, /already known/);
+  const saved = tables.reachout_lists.find((row) => row.owner === "suuchi")!;
+  assert.equal(saved.status, "ready");
+  assert.deepEqual(json((saved.rows as Row[]).map((row) => [row.domain, row.rank])), [["good.test", 1]]);
+  assert.deepEqual(json(calls.prepare), ["good.test"]);
+  assert.equal(tables.list_candidates.find((row) => row.domain === "good.test")!.status, "listed");
+  assert.equal(tables.list_candidates.find((row) => row.domain === "weak.test")!.status, "skipped");
+  assert.deepEqual(json((await builder.screenDomains(db, ["good.test", "fresh.test"])).map((row) => row.usable)), [false, true], "an imported company is known from then on");
 });

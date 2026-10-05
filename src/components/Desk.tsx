@@ -1,6 +1,6 @@
 "use client";
 import { replaceOpening } from "@/lib/bulk-copy";
-import { acknowledgedDraftFields, meetingTimesBody, resolveSaveConflict } from "@/lib/draft-save-state";
+import { acknowledgedDraftFields, DRAFT_TEXT_FIELDS, meetingTimesBody, resolveSaveConflict } from "@/lib/draft-save-state";
 import { batchOwner, type ListSequence } from "@/lib/focus-data";
 import type { AiFit } from "@/lib/ai-fit";
 import { hydrateResearch } from "#research-data";
@@ -182,6 +182,8 @@ function personalizeCard(card: Card, senderName: string, senderGreeting: string)
 }
 
 
+const textFields = (row: Record<string, unknown>) => Object.fromEntries(DRAFT_TEXT_FIELDS.filter(key => key in row).map(key => [key, row[key] ?? ""]));
+
 export function Desk({
   initialCards,
   senderName = "",
@@ -233,6 +235,9 @@ export function Desk({
   const revisions = useRef<Record<string, Record<string, number>>>({});
   const dirtyFields = useRef(new Set<string>());
   const serverVersions = useRef(new Map(initialCards.map(c => [c.id, c.updated_at])));
+  // The draft text as this editor last read it from, or wrote it to, the server. A save that has to retry
+  // compares against it to tell a background write (text untouched) from someone else's edit.
+  const serverText = useRef(new Map<string, Record<string, unknown>>(initialCards.map(c => [c.id, textFields(c as unknown as Record<string, unknown>)])));
   const [saveState, setSaveState] = useState("Saved");
   const [conflict,setConflict]=useState<{id:string;saved?:{status:string;updated_at:string;email_subject:string;email_body:string;linkedin_subject:string;linkedin_message:string}}|null>(null);
   async function reviewConflict(id:string){
@@ -296,6 +301,26 @@ export function Desk({
   };
   // Start on a tight worklist — the top prospects only — and let the chips widen it when it is cleared.
   const [kind, setKind] = useState<"top" | "all" | "job" | "social">(initialCards.length > SHORTLIST ? "top" : "all");
+  // Drafts prepared after the page loaded arrive on the next server render (BatchPreparation refreshes the
+  // route). Add any card not already on the desk; cards already here keep their local state, so an edit in
+  // progress is never replaced by the refreshed copy.
+  const [seenInitial, setSeenInitial] = useState(initialCards);
+  if (seenInitial !== initialCards) {
+    setSeenInitial(initialCards);
+    const known = new Set(cards.map(card => card.id));
+    const added = initialCards.filter(card => !known.has(card.id));
+    if (added.length) {
+      setCards(current => [...current, ...added.filter(card => !current.some(item => item.id === card.id)).map(card => personalizeCard(card, senderName, senderGreeting))]);
+      if (!focusId) setFocusId(sortReachouts(added, listSort)[0]?.id);
+      if (!cards.length && added.length > SHORTLIST) setKind("top");
+    }
+  }
+  useEffect(() => {
+    for (const card of initialCards) {
+      if (!serverVersions.current.has(card.id)) serverVersions.current.set(card.id, card.updated_at);
+      if (!serverText.current.has(card.id)) serverText.current.set(card.id, textFields(card as unknown as Record<string, unknown>));
+    }
+  }, [initialCards]);
   // A different contact at the same company, chosen from the "everyone on file" list, to retarget the draft to.
   const [alt, setAlt] = useState<{ cardId: string; person: AltContact } | null>(null);
   // Where clicking a colleague came from, so there is a way back to them. Carries the company too: without
@@ -419,7 +444,7 @@ export function Desk({
         let replacedStoredCopy = false;
         if (response.status === 409) {
           const saved = await fetch(`/api/cards/${cardId}`, { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null);
-          const resolution = resolveSaveConflict(values, saved);
+          const resolution = resolveSaveConflict(values, saved, serverText.current.get(cardId));
           if (resolution.retry) {
             response = await write(resolution.version);
             json = await response.json();
@@ -429,6 +454,7 @@ export function Desk({
         if (!response.ok) { if(response.status===409)setConflict(current=>current?.id===cardId?current:{id:cardId});setSaveState("Save failed"); setNotice(`Not saved: ${json.error ?? "Please retry. Your text remains on screen."}`); return false; }
         if (replacedStoredCopy) setNotice("Saved. Your text replaced a copy of this draft that had changed since you opened it.");
         if (json.updated_at) serverVersions.current.set(cardId, json.updated_at);
+        serverText.current.set(cardId, { ...serverText.current.get(cardId), ...textFields(values), ...textFields(Object.fromEntries(Object.keys(values).filter(key => key in json).map(key => [key, json[key]]))) });
         if(conflict?.id===cardId)setConflict(null);
         const acknowledged = acknowledgedDraftFields(values, json, submitted, revisions.current[cardId] ?? {});
         if(json.restored || values.reopen)acknowledged.status=json.status;
