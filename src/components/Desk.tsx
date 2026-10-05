@@ -1,6 +1,6 @@
 "use client";
 import { replaceOpening } from "@/lib/bulk-copy";
-import { acknowledgedDraftFields, meetingTimesBody } from "@/lib/draft-save-state";
+import { acknowledgedDraftFields, meetingTimesBody, resolveSaveConflict } from "@/lib/draft-save-state";
 import { batchOwner } from "@/lib/focus-data";
 import { batchProgress } from "@/lib/reachout-batches";
 import { useRouter } from "next/navigation";
@@ -249,12 +249,18 @@ export function Desk({
   }, [progress?.sequence, batchSequence, autoAdvanceBatch, listOwner, demo, router]);
   useEffect(() => {
     const receive = (event: Event) => {
-      const updates = (event as CustomEvent<Array<{ id: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string; updated_at?: string }>>).detail;
+      const updates = (event as CustomEvent<Array<{ id: string; beforeStatus?: string; beforeSubject: string | null; beforeBody: string | null; subject: string; body: string; updated_at?: string }>>).detail;
       setCards(current => current.map(card => {
         const change = updates.find(update => update.id === card.id);
-        // Never replace a local edit or a card sent while background repair was running.
-        if (!change || !preservesCurrentDraft(card, { status: "new", email_subject: change.beforeSubject, email_body: change.beforeBody })) return card;
+        if (!change) return card;
+        // The repair pass wrote this row, so its version moved. Remember the new one even when the local
+        // copy keeps its own text below: a save guarded on a version that no longer exists is rejected, and
+        // the operator can then neither save nor send until they reload.
         if (change.updated_at) serverVersions.current.set(card.id, change.updated_at);
+        // Never replace a local edit or a card sent while background repair was running. Compare against
+        // the status the pass actually read, not a hardcoded "new" — an edited draft it legitimately
+        // rewrote used to be treated as a local edit.
+        if (!preservesCurrentDraft(card, { status: change.beforeStatus ?? card.status, email_subject: change.beforeSubject, email_body: change.beforeBody })) return card;
         return personalizeCard({ ...card, updated_at:change.updated_at??card.updated_at, email_subject: change.subject, email_body: change.body }, senderName, senderGreeting);
       }));
     };
@@ -382,12 +388,31 @@ export function Desk({
     const prior = saveQueues.current.get(cardId) ?? Promise.resolve(true);
     const task = prior.then(async () => {
       try {
-        const response = await fetch(`/api/cards/${cardId}`, {
+        const write = (version: string | null | undefined) => fetch(`/api/cards/${cardId}`, {
           method: "PATCH", headers: { "content-type": "application/json" },
-          body: JSON.stringify({ ...values, expected_updated_at: serverVersions.current.get(cardId) }),
+          body: JSON.stringify({ ...values, expected_updated_at: version }),
         });
-        const json = await response.json();
-        if (!response.ok) { if(response.status===409)setConflict({id:cardId});setSaveState("Save failed"); setNotice(`Not saved: ${json.error ?? "Please retry. Your text remains on screen."}`); return false; }
+        let response = await write(serverVersions.current.get(cardId));
+        let json = await response.json();
+        // The row moved between loading it and saving. Background work — the nightly rescore, the draft
+        // repair pass that runs on every page load, worklist stamping — writes to cards while somebody is
+        // typing, and every write bumps the version this save is guarded on. Left alone, that save fails
+        // until the page is reloaded, which also blocks sending, since the composer refuses to send with an
+        // unsaved field. Read the stored copy and, if the draft can still be written to, save again over it
+        // and say so when the stored text differed. A card that has been sent is a real conflict: it keeps
+        // the banner and is never written over.
+        let replacedStoredCopy = false;
+        if (response.status === 409) {
+          const saved = await fetch(`/api/cards/${cardId}`, { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null);
+          const resolution = resolveSaveConflict(values, saved);
+          if (resolution.retry) {
+            response = await write(resolution.version);
+            json = await response.json();
+            replacedStoredCopy = resolution.replaced && response.ok;
+          } else if (saved) setConflict({ id: cardId, saved });
+        }
+        if (!response.ok) { if(response.status===409)setConflict(current=>current?.id===cardId?current:{id:cardId});setSaveState("Save failed"); setNotice(`Not saved: ${json.error ?? "Please retry. Your text remains on screen."}`); return false; }
+        if (replacedStoredCopy) setNotice("Saved. Your text replaced a copy of this draft that had changed since you opened it.");
         if (json.updated_at) serverVersions.current.set(cardId, json.updated_at);
         if(conflict?.id===cardId)setConflict(null);
         const acknowledged = acknowledgedDraftFields(values, json, submitted, revisions.current[cardId] ?? {});
@@ -441,7 +466,7 @@ export function Desk({
     try {
     await saveQueues.current.get(onCard.id);
     if (submittedRevision !== JSON.stringify(revisions.current[onCard.id] ?? {})) { setNotice("The draft changed while preparing the send. Review the latest text, then send again."); return; }
-    if ([...dirtyFields.current].some(key => key.startsWith(`${onCard.id}:`))) { setNotice("Save your changes successfully before sending."); return; }
+    if ([...dirtyFields.current].some(key => key.startsWith(`${onCard.id}:`))) { setNotice("Not sent: this draft still has unsaved changes. Press “Save changes” above the message, then send."); return; }
     const response = await fetch(`/api/cards/${onCard.id}/send`, {
       method: "POST",
       headers: { "content-type": "application/json" },
