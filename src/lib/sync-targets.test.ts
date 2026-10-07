@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { needsSync, outreachOnFile, untieredOnFile } from "./sync-targets.ts";
+import { needsSync, outreachOnFile, syncTargetAccounts, untieredOnFile } from "./sync-targets.ts";
+import { queryDb } from "./testing/query-db.ts";
 import { targetAccounts } from "./target-accounts.ts";
 
 test("taking a company off the list by hand never forces a permanent re-sync", () => {
@@ -30,4 +31,22 @@ test("companies outside the target file never count as needing a sync", () => {
   assert.equal(untieredOnFile(["globalpartsllc.com", "dodsonbros.com", "someone-added.test"]), 0);
   assert.equal(untieredOnFile([targetAccounts[0].domain, "globalpartsllc.com"]), 1);
   assert.equal(untieredOnFile([targetAccounts[0].domain.toUpperCase()]), 1);
+});
+
+test("the sync never pauses a company on someone's reach-out list or takes it off outreach", async () => {
+  // Her First 25 and nightly-list companies are not in the target file. The sync used to pause them and set
+  // outreach=false, the worklist refresh then archived their drafts, and she could neither save nor send.
+  const { db, tables } = queryDb({
+    accounts: [
+      { id: "a1", domain: "listedco.test", name: "Listed Co", status: "active", outreach: true, outreach_manual: null, tier: null },
+      { id: "a2", domain: "goneco.test", name: "Gone Co", status: "active", outreach: true, outreach_manual: null, tier: null },
+    ],
+    signals: [{ id: "s1", hash: "operator-shortlist-20260923:listedco.test" }],
+  });
+  await syncTargetAccounts(db);
+  const listed = tables.accounts.find((row) => row.domain === "listedco.test")!;
+  const gone = tables.accounts.find((row) => row.domain === "goneco.test")!;
+  assert.equal(listed.status, "active", "a listed company stays active");
+  assert.equal(listed.outreach, true, "a listed company stays on outreach");
+  assert.equal(gone.status, "paused", "a company neither on the file nor on a list is still paused");
 });

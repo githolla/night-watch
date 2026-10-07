@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { isSelectedDraft, wasAutomaticallyArchived } from './curated-card-state.ts';
+import { isListDraft, wasAutomaticallyArchived } from './curated-card-state.ts';
 
 /** Recover an automated shortlist retirement, never a user decision or contacted person. */
 export async function restoreSelectedDraft(db: SupabaseClient, id: string, explicit = false, options?: { expectedUpdatedAt?: string; onRestored?: (updatedAt: string) => void }) {
@@ -12,7 +12,7 @@ export async function restoreSelectedDraft(db: SupabaseClient, id: string, expli
   const signal = card.signals as unknown as { hash: string } | null;
   const person = card.people as unknown as { do_not_contact: boolean } | null;
   if (!account || account.status !== 'active' || !person || person.do_not_contact ||
-      !isSelectedDraft(account.domain, signal?.hash) || card.status !== 'archived' || (!explicit && !wasAutomaticallyArchived(card))) {
+      !isListDraft(account.domain, signal?.hash) || card.status !== 'archived' || (!explicit && !wasAutomaticallyArchived(card))) {
     if (explicit) throw new Error('This draft cannot be restored. Check the company and contact restrictions.');
     return card.status as string;
   }

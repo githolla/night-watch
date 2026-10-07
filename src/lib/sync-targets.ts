@@ -13,6 +13,20 @@ function batches<T>(items: T[], size = 200) {
  * paused, companies no longer on the file are paused, and the reach-out flag
  * follows the tier unless someone decided by hand on the company page.
  */
+/** Companies on someone's reach-out list (a First 25, Next 25 or nightly list draft). The target file does
+ *  not include them, so without this the sync paused them and took them off outreach, and the worklist
+ *  refresh then archived their drafts: no save and no send for the person working that list. */
+async function listedDomains(db: SupabaseClient) {
+  const domains = new Set<string>();
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await db.from("signals").select("hash").like("hash", "operator-shortlist-20260923:%").range(from, from + 999);
+    if (error) throw error;
+    for (const row of data ?? []) { const domain = String(row.hash).split(":")[1]; if (domain) domains.add(domain); }
+    if ((data?.length ?? 0) < 1000) break;
+  }
+  return domains;
+}
+
 export async function syncTargetAccounts(db: SupabaseClient) {
   const { error: cleanupError } = await db.from("accounts").delete().in("domain", DEMO_DOMAINS);
   if (cleanupError) throw cleanupError;
@@ -28,6 +42,12 @@ export async function syncTargetAccounts(db: SupabaseClient) {
   if (promoteError) throw promoteError;
   const { error: demoteError } = await db.from("accounts").update({ outreach: false }).or(`tier.is.null,tier.not.in.(${OUTREACH_TIERS.join(",")})`).is("outreach_manual", null).eq("outreach", true);
   if (demoteError) throw demoteError;
+  const listed = await listedDomains(db);
+  // A company on someone's list stays on outreach whatever its tier.
+  for (const batch of batches([...listed])) {
+    const { error } = await db.from("accounts").update({ outreach: true }).in("domain", batch).is("outreach_manual", null).eq("outreach", false);
+    if (error) throw error;
+  }
 
   // Companies that sell this service themselves are taken off outreach here too. The promote step above
   // keys on tier alone, so without this the database would put them straight back on the list.
@@ -47,7 +67,8 @@ export async function syncTargetAccounts(db: SupabaseClient) {
   }
   // Pause companies no longer on the file — but never a hand-added company (outreach_manual set); those are
   // managed from the admin "Add company" tool, not the file, so the sync must leave them active.
-  const stale = active.filter((row) => !row.domain.endsWith(".example") && !targetDomains.has(row.domain) && !row.outreach_manual).map((row) => row.domain);
+  // Never a company on someone's reach-out list either: its drafts would be archived out from under them.
+  const stale = active.filter((row) => !row.domain.endsWith(".example") && !targetDomains.has(row.domain) && !row.outreach_manual && !listed.has(row.domain)).map((row) => row.domain);
   for (const batch of batches(stale)) {
     const { error } = await db.from("accounts").update({ status: "paused" }).in("domain", batch);
     if (error) throw error;

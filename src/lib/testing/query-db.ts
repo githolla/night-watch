@@ -18,7 +18,7 @@ export function queryDb(seed: Record<string, Row[]> = {}, rpcs: Record<string, R
   const log: Array<{ table: string; op: string; payload?: unknown }> = [];
   let tick = 0;
   function from(table: string) {
-    let op = "select", payload: Row | Row[] = {}, single = false, head = false, count = false, ignore = false, max = Infinity, conflict: string[] = [];
+    let op = "select", payload: Row | Row[] = {}, single = false, head = false, count = false, ignore = false, max = Infinity, offset = 0, conflict: string[] = [];
     const filters: Array<(row: Row) => boolean> = [];
     const order: Array<{ key: string; ascending: boolean }> = [];
     const q = {
@@ -38,9 +38,28 @@ export function queryDb(seed: Record<string, Row[]> = {}, rpcs: Record<string, R
       lt(key: string, value: string | number) { filters.push((row) => read(row, key) != null && String(read(row, key)) < String(value)); return q; },
       like(key: string, value: string) { filters.push((row) => pattern(value, "").test(String(read(row, key) ?? ""))); return q; },
       ilike(key: string, value: string) { filters.push((row) => pattern(value, "i").test(String(read(row, key) ?? ""))); return q; },
+      // PostgREST's or(): comma-separated "column.op.value" terms, for the ops the code uses (is, eq, in, not.in).
+      or(expression: string) {
+        const terms = expression.split(/,(?![^(]*\))/).map((term) => {
+          const [key, ...rest] = term.split(".");
+          const negate = rest[0] === "not";
+          const [op, ...valueParts] = negate ? rest.slice(1) : rest;
+          const raw = valueParts.join(".");
+          const test = (row: Row) => {
+            const value = read(row, key);
+            if (op === "is") return (value ?? null) === (raw === "null" ? null : raw === "true" ? true : raw === "false" ? false : raw);
+            if (op === "eq") return String(value) === raw;
+            if (op === "in") return raw.replace(/^\(|\)$/g, "").split(",").includes(String(value));
+            throw new Error(`queryDb or(): unsupported operator ${op}`);
+          };
+          return negate ? (row: Row) => !test(row) : test;
+        });
+        filters.push((row) => terms.some((test) => test(row)));
+        return q;
+      },
       order(key: string, opts?: { ascending?: boolean }) { order.push({ key, ascending: opts?.ascending !== false }); return q; },
       limit(n: number) { max = n; return q; },
-      range(fromIndex: number, toIndex: number) { max = toIndex - fromIndex + 1; return q; },
+      range(fromIndex: number, toIndex: number) { offset = fromIndex; max = toIndex - fromIndex + 1; return q; },
       single() { single = true; return q; },
       maybeSingle() { single = true; return q; },
       then(resolve: (result: Result) => unknown, reject?: (error: unknown) => unknown) {
@@ -51,7 +70,7 @@ export function queryDb(seed: Record<string, Row[]> = {}, rpcs: Record<string, R
           const rows = tables[table] ?? (tables[table] = []);
           let result = rows.filter((row) => filters.every((fn) => fn(row)));
           for (const { key, ascending } of [...order].reverse()) result = [...result].sort((a, b) => (String(read(a, key)) < String(read(b, key)) ? -1 : String(read(a, key)) > String(read(b, key)) ? 1 : 0) * (ascending ? 1 : -1));
-          result = result.slice(0, max);
+          result = result.slice(offset, offset + max);
           if (op === "insert") {
             result = [];
             for (const value of Array.isArray(payload) ? payload : [payload]) {

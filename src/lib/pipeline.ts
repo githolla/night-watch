@@ -1,4 +1,4 @@
-import { isSelectedDraft } from "./curated-card-state.ts";
+import { isListDraft } from "./curated-card-state.ts";
 import { authoredDraft } from "./authored-outreach.ts";
 import { angleFor, composeContactDraft } from "./contact-draft.ts";
 import { senderProfile } from "./sender.ts";
@@ -697,8 +697,9 @@ export async function recomputeAndSurface() {
   for (const card of cards ?? []) {
     const signal = card.signals as unknown as { type?: string; hash?: string; observed_at: string; raw?: { operating_need?: unknown } | null };
     const account = card.accounts as unknown as { outreach?: boolean | null; domain?: string; status?: string } | null;
-    // The operator selected these accounts explicitly; research scores must not remove them.
-    if (account?.status === "active" && isSelectedDraft(account.domain, signal.hash)) continue;
+    // The operator selected these accounts explicitly; research scores must not remove them, whatever the
+    // company's status. A paused, client or do-not-contact company is still refused at send time.
+    if (isListDraft(account?.domain, signal.hash)) continue;
     // The reach-out list is Tier A. A dossier for a company the cut holds or removed is retired, not sent.
     if (account && account.outreach === false) {
       await db.from("cards").update({ status: "archived", dismiss_reason: "Not on the reach-out list. Promote the company on its page if it belongs there." }).eq("id", card.id);

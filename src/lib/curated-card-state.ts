@@ -4,6 +4,12 @@ export function isSelectedDraft(domain: string | null | undefined, hash: string 
   return isCuratedDomain(domain) && hash === `operator-shortlist-20260923:${domain}`;
 }
 
+/** A draft prepared for any reach-out list: First 25, Next 25 or a nightly list. All of them share this
+ *  signal hash, whether or not the company is in a hand-curated batch file. */
+export function isListDraft(domain: string | null | undefined, hash: string | null | undefined) {
+  return Boolean(domain) && hash === `operator-shortlist-20260923:${domain}`;
+}
+
 /** Only recover cards retired by the automated research rules, never user dismissals. */
 export function wasAutomaticallyArchived(card: { status: string; dismiss_reason?: string | null; score_breakdown?: unknown }) {
   if (card.status !== 'archived') return false;
