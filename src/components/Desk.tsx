@@ -1,7 +1,7 @@
 "use client";
 import { leftoverSourceNames, replaceOpening, retargetCopy } from "@/lib/bulk-copy";
 import { autoSendLine, sentTodayLine, type AutoSendSeat } from "@/lib/auto-send-line";
-import { bulkSendable } from "@/lib/bulk-sendable";
+import { bulkSendable, sendableAddress } from "@/lib/bulk-sendable";
 import { acknowledgedDraftFields, DRAFT_TEXT_FIELDS, meetingTimesBody, resolveSaveConflict } from "@/lib/draft-save-state";
 import { batchOwner, type ListSequence } from "@/lib/focus-data";
 import type { AiFit } from "@/lib/ai-fit";
@@ -983,6 +983,16 @@ export function Desk({
     fetch("/api/settings/auto-send").then(response => response.ok ? response.json() : null).then((json: { seats?: Array<AutoSendSeat & { owner: string }> } | null) => { if (live && json?.seats) setAutoSeats(json.seats); }).catch(() => {});
     return () => { live = false; };
   }, [sentOnDesk, demo]);
+  // Her own switch: turning auto-send on or off (or resuming after a pause) from the desk, without Settings.
+  async function setAutoSend(owner: string, change: { autoSend?: boolean; paused?: boolean }, waiting: number) {
+    if (change.autoSend === true && !window.confirm(`Turn on auto-send?\n\nEvery weekday between 9:00 and 11:30am Eastern, your unsent drafts (${waiting} now) go out on their own, spaced apart, up to your daily limit. Unconfirmed addresses go too, so a few may bounce; auto-send pauses itself if bounces pile up.\n\nYou can turn it off here at any time.`)) return;
+    const response = await fetch("/api/settings/auto-send", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, ...change }) });
+    const json = await response.json().catch(() => ({})) as { seat?: AutoSendSeat & { owner: string }; error?: string };
+    if (!response.ok || !json.seat) { setNotice(json.error ?? "Could not change auto-send. Try again in Settings."); return; }
+    const seat = json.seat;
+    setAutoSeats(current => current.map(item => item.owner === owner ? seat : item));
+    setNotice(seat.autoSend && !seat.paused ? "Auto-send is on. Your drafts go out each weekday morning between 9:00 and 11:30am." : "Auto-send is off. Nothing goes out unless you send it.");
+  }
   async function skipAutoSendToday(owner: string) {
     const response = await fetch("/api/settings/auto-send", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, skipToday: true }) });
     const json = await response.json().catch(() => ({})) as { seat?: AutoSendSeat & { owner: string }; error?: string };
@@ -999,10 +1009,11 @@ export function Desk({
     const owner = batchOwner(focusCard.accounts.domain ?? "");
     if (!(await flushPendingSaves())) { setNotice("An edit could not be saved, so nothing was sent. Press “Save changes”, then try again."); return; }
     const all = readyToSend(owner);
-    const verified = all.filter(c => bulkSendable(c.people as unknown as Parameters<typeof bulkSendable>[0]));
+    const verified = all.filter(c => sendableAddress(c.people as unknown as Parameters<typeof sendableAddress>[0]));
+    const unconfirmed = verified.filter(c => !addressConfirmed(c.people)).length;
     const others = all.length - verified.length;
-    if (!verified.length) { setNotice(others ? `None of the ${others} unsent drafts has a confirmed or likely address yet. Send them one at a time so you see the warning for each.` : "Nothing is left to send in this list."); return; }
-    if (!window.confirm(`Send ${verified.length} email${verified.length === 1 ? "" : "s"} now from ${senderName}?\n\nThey go out one at a time, about 10 seconds apart, exactly as written. Your daily sending limit still applies, and you can press Stop at any time. Keep this tab open until it finishes.${others ? `\n\n${others} draft${others === 1 ? " has an" : "s have"} unconfirmed address${others === 1 ? "" : "es"} and will be left for you to send one by one.` : ""}`)) return;
+    if (!verified.length) { setNotice(others ? `None of the ${others} unsent drafts has a usable address: each is missing one or bounced before.` : "Nothing is left to send in this list."); return; }
+    if (!window.confirm(`Send ${verified.length} email${verified.length === 1 ? "" : "s"} now from ${senderName}?\n\nThey go out one at a time, about 10 seconds apart, exactly as written. Your daily sending limit still applies, and you can press Stop at any time. Keep this tab open until it finishes.${unconfirmed ? `\n\n${unconfirmed} of them ${unconfirmed === 1 ? "has an" : "have"} unconfirmed address${unconfirmed === 1 ? "" : "es"}, so a few may bounce. Auto-send pauses itself if bounces pile up.` : ""}${others ? `\n\n${others} draft${others === 1 ? " has" : "s have"} no usable address and will be skipped.` : ""}`)) return;
     bulkStop.current = false;
     sendInFlight.current = true;
     setBulkSending(true);
@@ -1033,7 +1044,7 @@ export function Desk({
       }
       progress.current = "";
       setBulkProgress({ ...progress });
-      setNotice(`${bulkStop.current ? "Stopped. " : ""}Sent ${progress.sent} of ${progress.total}.${progress.failed.length ? ` ${progress.failed.length} not sent: ${progress.failed.map(f => `${f.name} (${f.error})`).join("; ")}` : ""}${others ? ` ${others} draft${others === 1 ? " with an unconfirmed address is" : "s with unconfirmed addresses are"} left for you to send one by one.` : ""}`);
+      setNotice(`${bulkStop.current ? "Stopped. " : ""}Sent ${progress.sent} of ${progress.total}.${progress.failed.length ? ` ${progress.failed.length} not sent: ${progress.failed.map(f => `${f.name} (${f.error})`).join("; ")}` : ""}${others ? ` ${others} draft${others === 1 ? " with no usable address was" : "s with no usable address were"} skipped.` : ""}`);
     } finally { sendInFlight.current = false; setBulkSending(false); }
   }
   // "Propose times": pull open slots from the connected calendar and drop them into the email draft to edit.
@@ -1579,14 +1590,18 @@ export function Desk({
                           <button type="button" className="btn" disabled={bulkSending || applyingSubject || applyingOpening || applyingMessage || !focusCard.email_subject?.trim()} onClick={applySubjectToAll} title="Use this subject on the other unsent emails; each company's name is swapped in">{applyingSubject ? "Applying…" : "Apply subject to batch"}</button>
                           <button type="button" className="btn" disabled={bulkSending || applyingSubject || applyingOpening || applyingMessage || !focusCard.email_body?.trim()} onClick={applyMessageToAll} title="Use this message on the other unsent emails; each company's name and each greeting's first name are swapped in">{applyingMessage ? "Applying…" : "Apply message to batch"}</button>
                           {bulkUndo.length > 0 && <button type="button" className="btn ghost" disabled={bulkSending} onClick={undoBulk}>Undo last batch edit</button>}
-                          {senderIsViewer && (() => { const ready = readyToSend(batchOwner(focusCard.accounts.domain ?? "")); const verified = ready.filter(c => bulkSendable(c.people as unknown as Parameters<typeof bulkSendable>[0])).length; return <><button type="button" className="btn primary" disabled={bulkSending || sending || !verified} onClick={() => void sendAllReady()} title="Send every unsent draft with a verified or likely address, one at a time">{bulkSending ? "Sending…" : `Send all ready (${verified})`}</button></>; })()}
+                          {senderIsViewer && (() => { const ready = readyToSend(batchOwner(focusCard.accounts.domain ?? "")); const verified = ready.filter(c => sendableAddress(c.people as unknown as Parameters<typeof sendableAddress>[0])).length; return <><button type="button" className="btn primary" disabled={bulkSending || sending || !verified} onClick={() => void sendAllReady()} title="Send every unsent draft with an address, confirmed or not, one at a time">{bulkSending ? "Sending…" : `Send all ready (${verified})`}</button></>; })()}
                         </div>}
                         {!altContact && senderIsViewer && (() => {
                           const owner = batchOwner(focusCard.accounts.domain ?? "");
                           const seat = autoSeats.find(item => item.owner === owner);
                           if (!seat || !owner) return null;
-                          const line = autoSendLine(seat, readyToSend(owner).filter(c => addressConfirmed(c.people)).length);
-                          return <div className="composer-autosend" role="status"><span>{line.text}</span>{line.canSkip && <button type="button" className="btn ghost" onClick={() => void skipAutoSendToday(seat.owner)}>Skip today</button>}<span className="composer-sent-today">{sentTodayLine(seat)}</span></div>;
+                          const waiting = readyToSend(owner).filter(c => sendableAddress(c.people as unknown as Parameters<typeof sendableAddress>[0])).length;
+                          const line = autoSendLine(seat, waiting);
+                          const toggle = seat.autoSend && seat.paused
+                            ? <button type="button" className="btn" onClick={() => void setAutoSend(seat.owner, { paused: false }, waiting)}>Resume auto-send</button>
+                            : <button type="button" className={`btn autosend-toggle ${seat.autoSend ? "is-on" : ""}`} aria-pressed={seat.autoSend} onClick={() => void setAutoSend(seat.owner, { autoSend: !seat.autoSend }, waiting)}>{seat.autoSend ? "Auto-send: On" : "Auto-send: Off"}</button>;
+                          return <div className="composer-autosend" role="status">{toggle}<span>{line.text}</span>{line.canSkip && <button type="button" className="btn ghost" onClick={() => void skipAutoSendToday(seat.owner)}>Skip today</button>}<span className="composer-sent-today">{sentTodayLine(seat)}</span></div>;
                         })()}
                         {bulkProgress && <div className="composer-batch-progress" role="status" aria-live="polite">
                           <progress max={bulkProgress.total} value={bulkProgress.sent + bulkProgress.failed.length} />

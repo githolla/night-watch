@@ -269,7 +269,7 @@ test("concurrent sent-count increments of 1 and 2 add up to 3", async () => {
   assert.equal(h.tables.reachout_lists[0].sent_count, 3);
 });
 
-test("with no list today, confirmed leftover drafts send in the window and unconfirmed ones stay", async () => {
+test("with no list today, leftover drafts with a usable address send in the window; held and paused ones do not", async () => {
   const leftover = (id: string, domain: string, people: Row, extra: Row = {}) => card(id, "suuchi", domain, domain, { accounts: { domain, name: domain, status: "active" }, people, ...extra });
   const h = harness({
     reachout_lists: [],
@@ -285,8 +285,11 @@ test("with no list today, confirmed leftover drafts send in the window and uncon
   assert.equal(h.sends.length, 0);
   await h.run(at("08:30"));
   assert.equal(h.sends.length, 0, "nothing before the window");
-  const result = await h.run(at("11:20"));
-  assert.deepEqual(h.sends.map((input) => input.cardId).sort(), ["likely", "verified"]);
+  const sendCardEmail = async (_db: unknown, input: SendInput) => { h.sends.push(input); h.tables.cards.find((row) => row.id === input.cardId)!.status = "sent"; return { ok: true }; };
+  const result = await h.run(at("11:20"), { sendCardEmail });
+  assert.equal(h.sends.length, 2, "two a run");
+  await h.run(at("11:25"), { sendCardEmail });
+  assert.deepEqual(h.sends.map((input) => input.cardId).sort(), ["guess", "likely", "verified"], "the unconfirmed guess goes too");
   assert.ok(h.sends.every((input) => input.automatic === true && input.owner === "suuchi"));
   assert.equal(result[1].action, "sent");
   assert.equal(result[0].action, "no list");

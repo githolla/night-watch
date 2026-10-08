@@ -2440,3 +2440,5 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .composer-autosend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:-4px 0 12px;font-size:12px;color:var(--muted)}
 .composer-autosend .btn{padding:2px 10px;font-size:12px}
 .composer-sent-today{margin-left:auto;font:600 12px/1.4 var(--mono);color:var(--ink-soft)}
+.composer-autosend .autosend-toggle{font-weight:600}
+.composer-autosend .autosend-toggle.is-on{background:#e3f2ec;border-color:#9fcdb9;color:#2d715c}

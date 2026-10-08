@@ -4,7 +4,7 @@ import { localParts } from "./local-time.ts";
 import { LIST_OWNERS, nightlyListConfig } from "./nightly-list-builder.ts";
 import { configuredBaseUrl } from "./opt-out.ts";
 import { postSlackMessage } from "./slack.ts";
-import { bulkSendable } from "./bulk-sendable.ts";
+import { sendableAddress } from "./bulk-sendable.ts";
 import type { ListRow } from "./research-data/server.ts";
 import type { Owner } from "./types.ts";
 import {
@@ -62,7 +62,7 @@ async function todaysCards(db: Db, owner: Owner, rows: ListRow[]): Promise<DeskC
 }
 
 /**
- * Unsent list drafts outside today's list whose address passes the desk's Send all ready rule, so the First 25
+ * Unsent list drafts outside today's list whose address is sendable (the desk's Send all ready rule), so the First 25
  * and earlier lists keep going out without the tab open. A card held before (its hold reason set) waits for a
  * person rather than being retried every run.
  */
@@ -74,7 +74,7 @@ async function leftoverCards(db: Db, owner: Owner, todays: Set<string>): Promise
   if (error) return [];
   return ((data ?? []) as unknown as DeskCard[]).filter((card) =>
     !todays.has(card.accounts?.domain ?? "") && card.accounts?.status === "active" && !card.auto_send_hold && !card.auto_send_hold_reason &&
-    Boolean(card.people && !card.people.do_not_contact && bulkSendable(card.people)) && Boolean(card.email_subject?.trim() && card.email_body?.trim()));
+    Boolean(card.people && !card.people.do_not_contact && sendableAddress(card.people)) && Boolean(card.email_subject?.trim() && card.email_body?.trim()));
 }
 
 const CAP_REACHED = /Daily sender cap of \d+ reached/;

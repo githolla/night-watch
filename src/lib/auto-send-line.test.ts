@@ -8,22 +8,22 @@ const seat = (extra: Partial<AutoSendSeat> = {}): AutoSendSeat => ({
 });
 
 test("before the window on a send day: today's window, and Skip today is offered", () => {
-  assert.deepEqual(autoSendLine(seat(), 3), { text: "Auto-send is on. 3 confirmed drafts go out today 9:00am to 11:30am, spaced apart.", canSkip: true });
-  assert.equal(autoSendLine(seat(), 1).text, "Auto-send is on. 1 confirmed draft goes out today 9:00am to 11:30am, spaced apart.");
+  assert.deepEqual(autoSendLine(seat(), 3), { text: "Auto-send is on. 3 drafts go out today 9:00am to 11:30am, spaced apart.", canSkip: true });
+  assert.equal(autoSendLine(seat(), 1).text, "Auto-send is on. 1 draft goes out today 9:00am to 11:30am, spaced apart.");
 });
 
 test("during the window it says until when; after it, the next send day with no skip", () => {
-  assert.equal(autoSendLine(seat({ minutesNow: 10 * 60 }), 2).text, "Auto-send is on. 2 confirmed drafts go out until 11:30am, spaced apart.");
-  assert.deepEqual(autoSendLine(seat({ minutesNow: 15 * 60 }), 2), { text: "Auto-send is on. 2 confirmed drafts go out on the next send day, 9:00am to 11:30am.", canSkip: false });
+  assert.equal(autoSendLine(seat({ minutesNow: 10 * 60 }), 2).text, "Auto-send is on. 2 drafts go out until 11:30am, spaced apart.");
+  assert.deepEqual(autoSendLine(seat({ minutesNow: 15 * 60 }), 2), { text: "Auto-send is on. 2 drafts go out on the next send day, 9:00am to 11:30am.", canSkip: false });
   assert.equal(autoSendLine(seat({ sendDay: false }), 2).canSkip, false);
 });
 
-test("off, paused, no address, nothing confirmed and skipped each say so plainly", () => {
-  assert.match(autoSendLine(seat({ autoSend: false }), 3).text, /^Auto-send is off/);
+test("off, paused, no address, nothing waiting and skipped each say so plainly", () => {
+  assert.equal(autoSendLine(seat({ autoSend: false }), 3).text, "Nothing goes out unless you send it.");
   assert.match(autoSendLine(seat({ paused: true, pausedReason: "2 bounces in 48 hours." }), 3).text, /paused \(2 bounces in 48 hours\)\. Resume/);
   assert.match(autoSendLine(seat({ postalAddressSet: false }), 3).text, /postal address/);
-  assert.equal(autoSendLine(seat(), 0).text, "Auto-send is on. No confirmed drafts are waiting.");
-  assert.deepEqual(autoSendLine(seat({ skippedToday: true }), 3), { text: "Auto-send is skipped today. 3 confirmed drafts go out on the next send day, 9:00am to 11:30am.", canSkip: false });
+  assert.equal(autoSendLine(seat(), 0).text, "Auto-send is on. No drafts are waiting.");
+  assert.deepEqual(autoSendLine(seat({ skippedToday: true }), 3), { text: "Auto-send is skipped today. 3 drafts go out on the next send day, 9:00am to 11:30am.", canSkip: false });
 });
 
 test("the counter reads like the daily limit", () => {

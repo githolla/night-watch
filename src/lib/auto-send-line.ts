@@ -10,18 +10,18 @@ const clock = (minutes: number) => {
   const h = Math.floor(minutes / 60), m = minutes % 60;
   return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")}${h < 12 ? "am" : "pm"}`;
 };
-const drafts = (count: number) => `${count} confirmed ${count === 1 ? "draft goes" : "drafts go"}`;
+const drafts = (count: number) => `${count} ${count === 1 ? "draft goes" : "drafts go"}`;
 
-export function autoSendLine(seat: AutoSendSeat, confirmed: number): { text: string; canSkip: boolean } {
+export function autoSendLine(seat: AutoSendSeat, waiting: number): { text: string; canSkip: boolean } {
   const window = `${clock(seat.sendFrom)} to ${clock(seat.sendUntil)}`;
-  if (!seat.autoSend) return { text: "Auto-send is off. Send all ready or Send email sends by hand.", canSkip: false };
+  if (!seat.autoSend) return { text: "Nothing goes out unless you send it.", canSkip: false };
   if (seat.paused) return { text: `Auto-send is paused${seat.pausedReason ? ` (${seat.pausedReason.replace(/\.\s*$/, "")})` : ""}. Resume it in Settings.`, canSkip: false };
   if (!seat.postalAddressSet) return { text: "Auto-send is on but needs a postal address in Settings before anything sends.", canSkip: false };
-  if (!confirmed) return { text: "Auto-send is on. No confirmed drafts are waiting.", canSkip: false };
+  if (!waiting) return { text: "Auto-send is on. No drafts are waiting.", canSkip: false };
   const today = seat.sendDay && seat.minutesNow < seat.sendUntil;
-  if (today && seat.skippedToday) return { text: `Auto-send is skipped today. ${drafts(confirmed)} out on the next send day, ${window}.`, canSkip: false };
-  if (today) return { text: `Auto-send is on. ${drafts(confirmed)} out ${seat.minutesNow < seat.sendFrom ? "today" : "until"} ${seat.minutesNow < seat.sendFrom ? window : clock(seat.sendUntil)}, spaced apart.`, canSkip: true };
-  return { text: `Auto-send is on. ${drafts(confirmed)} out on the next send day, ${window}.`, canSkip: false };
+  if (today && seat.skippedToday) return { text: `Auto-send is skipped today. ${drafts(waiting)} out on the next send day, ${window}.`, canSkip: false };
+  if (today) return { text: `Auto-send is on. ${drafts(waiting)} out ${seat.minutesNow < seat.sendFrom ? "today" : "until"} ${seat.minutesNow < seat.sendFrom ? window : clock(seat.sendUntil)}, spaced apart.`, canSkip: true };
+  return { text: `Auto-send is on. ${drafts(waiting)} out on the next send day, ${window}.`, canSkip: false };
 }
 
 export function sentTodayLine(seat: Pick<AutoSendSeat, "sentToday" | "dailyCap">) {

@@ -22,7 +22,7 @@ type Module = {
 
 const SIGNATURE = `<p>Suuchi Ramesh<br><img src="https://cdn.example.com/logo.png" alt="Nine-67"><br><a href="https://nine-67.com">Nine-67</a> | <a href="https://www.linkedin.com/in/suuchi">LinkedIn</a></p>`;
 
-function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; recipient?: "deliverable" | "risky" } = {}) {
+function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; recipient?: "deliverable" | "risky" | "undeliverable" } = {}) {
   const gmail: Array<{ text: string; html: string }> = [];
   const followups: Row[] = [];
   const { db, tables } = queryDb({
@@ -103,12 +103,12 @@ test("follow-ups get the speakable name and only a nightly row's workflow", asyn
   assert.equal(context({ accounts: { name: "Gamma Holdings Inc" } }, undefined).company, "Gamma Holdings");
 });
 
-test("an automatic send takes an address research confirmed, but not an unconfirmed guess", async () => {
+test("an automatic send takes an unconfirmed guess like Send all ready, but never a known-bad address", async () => {
   const person = { id: "p1", full_name: "Dana Ortiz", email: "dana.ortiz@acme.test", email_status: "unverified", do_not_contact: false };
-  const likely = harness({ recipient: "risky", cardExtra: { people: { ...person, email_check: { email: "dana.ortiz@acme.test", likely: true, source: "research" } } } });
-  assert.equal((await likely.send(true)).ok, true);
-  assert.equal(likely.gmail.length, 1);
   const guess = harness({ recipient: "risky", cardExtra: { people: { ...person, email_check: { level: "risky", reason: "Not confirmed." } } } });
-  await assert.rejects(guess.send(true), /Not confirmed|Verified address/);
-  assert.equal(guess.gmail.length, 0);
+  assert.equal((await guess.send(true)).ok, true);
+  assert.equal(guess.gmail.length, 1);
+  const bad = harness({ recipient: "undeliverable", cardExtra: { people: { ...person, email_status: "invalid" } } });
+  await assert.rejects(bad.send(true));
+  assert.equal(bad.gmail.length, 0);
 });
