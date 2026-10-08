@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { DraftSetup, type DraftSample } from "@/components/DraftSetup";
 import { RewriteDrafts } from "@/components/RewriteDrafts";
+import { speakableCompany } from "@/lib/list-templates";
 import { requireUser } from "@/lib/auth";
 import { bulkSendable, sendableAddress } from "@/lib/bulk-sendable";
 import { sendDayStart } from "@/lib/send-guards";
@@ -24,53 +26,57 @@ async function seatSummary(owner: Owner) {
   return { unsent: people.length, confirmed, unconfirmed: sendable - confirmed, noAddress: people.length - sendable, sentToday: sentToday ?? 0 };
 }
 
-/** Everything about setting up and fixing drafts, on its own page instead of a drawer on the reach-out list. */
+/** Two real drafts, so every change can be shown on actual names before it is applied. */
+async function sampleDrafts(owner: Owner): Promise<DraftSample[]> {
+  const { data } = await admin().from("cards").select("email_subject,accounts(name),people(full_name)").eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).order("updated_at", { ascending: false }).limit(2);
+  return ((data ?? []) as unknown as Array<{ email_subject: string | null; accounts: { name: string | null } | null; people: { full_name: string | null } | null }>).map((row) => ({
+    first: (row.people?.full_name ?? "").trim().split(/\s+/)[0] || "there",
+    company: row.accounts?.name ? speakableCompany(row.accounts.name) : "their company",
+    subject: row.email_subject ?? "",
+  }));
+}
+
+/** Setting up all of one seat's drafts at once, in plain steps; the technical tools stay folded under Advanced. */
 export default async function Drafts({ searchParams }: { searchParams: Promise<{ owner?: string }> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   const user = await requireUser();
   const isAdmin = user.role === "admin";
   const params = await searchParams;
-  // A member works on their own drafts only; an admin picks a seat or works on both.
-  const chosen: Owner | null = isAdmin ? (params.owner === "josh" || params.owner === "suuchi" ? params.owner : null) : user.owner;
-  const shown = SEATS.filter((seat) => !chosen || seat.owner === chosen);
-  const summaries = await Promise.all(shown.map(async (seat) => ({ ...seat, ...(await seatSummary(seat.owner)) })));
+  // Always one seat: a member's own, or the one an admin picks (their own by default).
+  const owner: Owner = isAdmin && (params.owner === "josh" || params.owner === "suuchi") ? params.owner : user.owner;
+  const name = SEATS.find((seat) => seat.owner === owner)?.name ?? "";
+  const [summary, samples] = await Promise.all([seatSummary(owner), sampleDrafts(owner)]);
+  const listHref = `/outreach?list=${owner}`;
+  const yours = !isAdmin || owner === user.owner;
 
   return (
     <main className="workspace-page drafts-page">
       <div className="feature-center drafts-shell">
         <header className="drafts-head">
           <div>
-            <h1>Drafts</h1>
-            <p>Set up how every unsent email reads, check the whole list for problems, and fix them in one place. To edit a single email, open it on the <Link href="/outreach">Reach-out list</Link>.</p>
+            <h1>{yours ? "Your emails" : `${name}'s emails`}</h1>
+            <p>Change all {yours ? "your" : `${name}'s`} unsent emails at once. To change just one, open it on the <Link href={listHref}>Reach-out list</Link>.</p>
           </div>
           {isAdmin && (
-            <nav className="drafts-seats" aria-label="Whose drafts">
-              <Link href="/drafts" className={!chosen ? "is-active" : ""}>Both</Link>
-              {SEATS.map((seat) => <Link key={seat.owner} href={`/drafts?owner=${seat.owner}`} className={chosen === seat.owner ? "is-active" : ""}>{seat.name}</Link>)}
+            <nav className="drafts-seats" aria-label="Whose emails">
+              {SEATS.map((seat) => <Link key={seat.owner} href={`/drafts?owner=${seat.owner}`} className={owner === seat.owner ? "is-active" : ""}>{seat.name}</Link>)}
             </nav>
           )}
         </header>
 
-        <section className="drafts-summary" aria-label="Drafts at a glance">
-          {summaries.map((seat) => (
-            <div className="drafts-seat-card" key={seat.owner}>
-              <h2>{isAdmin ? `${seat.name}'s drafts` : "Your drafts"}</h2>
-              <dl>
-                <div><dt>Unsent</dt><dd>{seat.unsent}</dd></div>
-                <div><dt>Confirmed address</dt><dd className="is-good">{seat.confirmed}</dd></div>
-                <div><dt>Unconfirmed address</dt><dd className="is-warn">{seat.unconfirmed}</dd></div>
-                <div><dt>No usable address</dt><dd>{seat.noAddress}</dd></div>
-                <div><dt>Sent today</dt><dd>{seat.sentToday}</dd></div>
-              </dl>
-            </div>
-          ))}
+        <section className="drafts-status" aria-label="Where things stand">
+          <p><b>{summary.unsent}</b> email{summary.unsent === 1 ? "" : "s"} waiting to send. <b>{summary.sentToday}</b> sent today.
+            {summary.noAddress > 0 && <> {summary.noAddress} {summary.noAddress === 1 ? "has" : "have"} no email address yet.</>}</p>
+          <Link className="btn primary" href={listHref}>Review and send &rarr;</Link>
         </section>
 
-        <nav className="drafts-jump" aria-label="Sections">
-          <a href="#setup">Set up</a><a href="#check">Check and fix</a><a href="#ai">Rewrite with AI</a>
-        </nav>
-        <p className="drafts-scope">These tools change {!chosen ? "both seats' unsent drafts" : isAdmin ? `${shown[0].name}'s unsent drafts` : "your unsent drafts"}. Emails already sent are never touched.</p>
-        <RewriteDrafts owner={chosen} />
+        <DraftSetup owner={owner} unsent={summary.unsent} samples={samples} listHref={listHref} />
+
+        <details className="drafts-advanced">
+          <summary>Advanced tools</summary>
+          <p className="drafts-scope">Bigger changes, for when something looks wrong across the whole list. They change {yours ? "your" : `${name}'s`} unsent emails only; sent emails are never touched.</p>
+          <RewriteDrafts owner={owner} />
+        </details>
       </div>
     </main>
   );
