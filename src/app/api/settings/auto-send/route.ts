@@ -5,6 +5,7 @@ import { nightlyListConfig } from "@/lib/nightly-list-builder";
 import { isSendDay, MORNING } from "@/lib/morning-send-rules";
 import { dailyCap, sendDayStart } from "@/lib/send-guards";
 import { admin } from "@/lib/supabase/admin";
+import { nextFollowups } from "@/lib/next-followups";
 import { z } from "zod";
 
 const owner = z.enum(["josh", "suuchi"]);
@@ -38,6 +39,7 @@ async function seatState(seat: "josh" | "suuchi") {
     dailyCap: dailyCap(daysConnected ?? 0),
     daysConnected,
     sentToday: sentToday ?? 0,
+    followupsNeedYou: [...(await nextFollowups(db, { owner: seat }).catch(() => new Map())).values()].filter((next) => next.needsYou).length,
     sendDay: isSendDay(local.weekday, local.date), minutesNow: local.minutes, sendFrom: MORNING.sendFrom, sendUntil: MORNING.sendUntil,
     today: list ? listReport(list as Parameters<typeof listReport>[0], nightlyListConfig().research) : null,
   };

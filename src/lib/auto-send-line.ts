@@ -2,6 +2,8 @@
 export type AutoSendSeat = {
   autoSend: boolean; paused: boolean; pausedReason: string | null; postalAddressSet: boolean; skippedToday: boolean;
   sentToday: number; dailyCap: number;
+  /** Follow-ups that came due and could not go out by themselves. */
+  followupsNeedYou?: number;
   /** From the server, in SEND_TIMEZONE: whether today sends at all, the time now and the window, in minutes after midnight. */
   sendDay: boolean; minutesNow: number; sendFrom: number; sendUntil: number;
 };

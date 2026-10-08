@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { FollowupPanel, followupLine, type FollowupView } from "./FollowupPanel";
 
 export type ActivityEvent = {
   id: string;
@@ -27,6 +28,8 @@ export type ActivityEvent = {
   giftViewAt?: string | null;
   trackedOpen?: boolean;
   sendSource?: string;
+  /** The next follow-up waiting after this email, when there is one. */
+  followup?: FollowupView;
 };
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -259,6 +262,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
                       {event.version && <small>{event.version} · {event.sendSource}{event.openAt ? " · Open detected" : ""}{event.giftViewAt ? " · Gift viewed" : ""}</small>}
                       {event.subject && <p className="activity-row-subject">{event.subject}</p>}
                       {event.snippet && <p className="activity-row-snip">{event.snippet}</p>}
+                      {event.followup && <p className={`activity-row-followup ${event.followup.needsYou ? "needs-you" : ""}`}>{followupLine(event.followup)}</p>}
                     </div>
                     <time className="activity-row-time">{timeOf(event.at)}</time>
                     {canDelete && <button type="button" className="activity-row-del" title="Remove this record" onClick={(e) => { e.stopPropagation(); removeEvent(event.id); }}>✕</button>}
@@ -291,8 +295,9 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
               {detail.channel === "email" && <div><dt>Open signal</dt><dd>{detail.openAt ? `Detected ${fullWhen(detail.openAt)}` : detail.trackedOpen ? "No open detected" : "Not tracked"}<small> Image loading is not proof of reading; privacy tools can trigger or block it.</small></dd></div>}
               <div><dt>When</dt><dd>{fullWhen(detail.at)}</dd></div>
               <div><dt>Status</dt><dd>{detail.replied ? <span className={`act-modal-reply ${detail.replyClass === "positive" ? "is-pos" : ""}`}>Replied{detail.replyClass === "positive" ? " · positive" : ""}</span> : "Sent · no reply yet"}</dd></div>
-              {detail.inCadence && <div><dt>Cadence</dt><dd>In an active follow-up sequence</dd></div>}
+              {detail.inCadence && !detail.followup && <div><dt>Follow-ups</dt><dd>In an active follow-up sequence</dd></div>}
             </dl>
+            {detail.followup && <FollowupPanel key={detail.followup.stepId} followup={detail.followup} onChange={(next) => { setEvents((current) => current.map((item) => item.id === detail.id ? { ...item, followup: next ?? undefined } : item)); setDetail((current) => current ? { ...current, followup: next ?? undefined } : current); }} />}
             <div className="act-modal-body">
               {loadingBody && <span className="act-modal-loading">Loading the full message…</span>}
               {(() => {

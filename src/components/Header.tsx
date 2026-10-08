@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Building2, BriefcaseBusiness, ChevronDown, LifeBuoy, Lock, MessageSquareText, PlayCircle, Settings, TrendingUp, Trophy, type LucideIcon } from "lucide-react";
+import { Building2, BriefcaseBusiness, ChevronDown, LifeBuoy, Lock, MessageSquareText, PlayCircle, Repeat, Settings, TrendingUp, Trophy, type LucideIcon } from "lucide-react";
 import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
 const primary = [
   { href: "/outreach", label: "Reach-out list", hint: "The selected companies and their custom emails" },
   { href: "/drafts", label: "Drafts", hint: "Set up, check and fix your email drafts" },
-  { href: "/followups", label: "Follow-ups", hint: "Queued follow-ups and anything due now" },
   { href: "/activity", label: "History", hint: "Everything sent, and every reply" },
   { href: "/people", label: "People", hint: "Every contact on file" },
 ];
@@ -20,6 +19,7 @@ const moreGroups: Array<{ title: string; items: MoreItem[] }> = [
   { title: "How it's going", items: [
     { href: "/stats", label: "Results", hint: "Replies, meetings and what's working", icon: Trophy },
     { href: "/pipeline", label: "Pipeline", hint: "Conversations turning into deals", icon: TrendingUp },
+    { href: "/followups", label: "Follow-ups", hint: "What goes out after each first email", icon: Repeat },
   ] },
   { title: "Find companies", items: [
     { href: "/targets", label: "All companies", hint: "Search, add or remove companies", icon: Building2 },
