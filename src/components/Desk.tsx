@@ -1,5 +1,6 @@
 "use client";
 import { leftoverSourceNames, replaceOpening, retargetCopy } from "@/lib/bulk-copy";
+import { autoSendLine, sentTodayLine, type AutoSendSeat } from "@/lib/auto-send-line";
 import { bulkSendable } from "@/lib/bulk-sendable";
 import { acknowledgedDraftFields, DRAFT_TEXT_FIELDS, meetingTimesBody, resolveSaveConflict } from "@/lib/draft-save-state";
 import { batchOwner, type ListSequence } from "@/lib/focus-data";
@@ -754,6 +755,14 @@ export function Desk({
   const evidence = contactEvidence(focusCard?.accounts.domain, contact?.full_name);
   const asset = evidence ? giftAsset(evidence.giftId) : undefined;
   const research = priorResearch && asset ? { ...priorResearch, trigger: evidence?.trigger ? {fact:evidence.trigger.fact,sourceUrl:evidence.trigger.sourceUrl,date:evidence.trigger.publishedDate} : asset.source, researchDate:asset.preparedAt, hypothesis:`Proposed first test: ${asset.title}. ${asset.scope}` } : priorResearch;
+  // One line of why this company is on the list: the top fit reasons, or the research trigger.
+  const whyText = (() => {
+    if (!focusCard) return null;
+    const fit = (focusedAccount(focusCard.accounts.domain) as { aiFit?: AiFit } | undefined)?.aiFit;
+    const reasons = fit && !fit.disqualified ? fit.reasons.slice(0, 2).map((reason) => reason.text) : [];
+    return reasons.length ? reasons.join(" · ") : research?.trigger.fact ?? null;
+  })();
+  const addressConfirmed = (person: { email?: string | null }) => bulkSendable(person as unknown as Parameters<typeof bulkSendable>[0]);
   const brief = accountBrief(focusCard?.accounts.domain);
   const matchesResearch = research ? hasResearchCopy(focusCard?.email_subject, focusCard?.email_body, research) : false;
   // "Already gone out" is a fact about a PERSON, not about the card. The card is marked sent the moment its
@@ -965,6 +974,23 @@ export function Desk({
   const [bulkSending, setBulkSending] = useState(false);
   const [bulkProgress, setBulkProgress] = useState<{ total: number; sent: number; failed: Array<{ name: string; error: string }>; current: string } | null>(null);
   const bulkStop = useRef(false);
+  const [autoSeats, setAutoSeats] = useState<Array<AutoSendSeat & { owner: string }>>([]);
+  // Re-read after every send so the counter and the auto-send line stay current.
+  const sentOnDesk = cards.filter(c => c.status === "sent").length;
+  useEffect(() => {
+    if (demo) return;
+    let live = true;
+    fetch("/api/settings/auto-send").then(response => response.ok ? response.json() : null).then((json: { seats?: Array<AutoSendSeat & { owner: string }> } | null) => { if (live && json?.seats) setAutoSeats(json.seats); }).catch(() => {});
+    return () => { live = false; };
+  }, [sentOnDesk, demo]);
+  async function skipAutoSendToday(owner: string) {
+    const response = await fetch("/api/settings/auto-send", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, skipToday: true }) });
+    const json = await response.json().catch(() => ({})) as { seat?: AutoSendSeat & { owner: string }; error?: string };
+    if (!response.ok || !json.seat) { setNotice(json.error ?? "Could not skip today's auto-send. Try again in Settings."); return; }
+    const seat = json.seat;
+    setAutoSeats(current => current.map(item => item.owner === owner ? seat : item));
+    setNotice("Auto-send is skipped for today. Nothing goes out automatically until the next send day.");
+  }
   const readyToSend = (owner: string | null) => cards.filter(c => ["new","edited","approved"].includes(c.status) && batchOwner(c.accounts.domain ?? "") === owner && c.email_subject?.trim() && c.email_body?.trim() && c.people.email);
   async function sendAllReady() {
     if (!focusCard || bulkSending || sending || sendInFlight.current) return;
@@ -1516,7 +1542,8 @@ export function Desk({
                   editing.email && !sentAlready ? (() => {
                     return (
                       <div className="deskwork-edit deskwork-compose">
-                        <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
+                        {whyText && <p className="composer-why"><b>Why this company:</b> {whyText}</p>}
+                        <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b>{contact.email && <em className={`address-badge ${addressConfirmed(contact) ? "is-confirmed" : "is-unconfirmed"}`} title={addressConfirmed(contact) ? "Confirmed: included in Send all ready and auto-send" : "Unconfirmed: send this one by hand"}>{addressConfirmed(contact) ? "Confirmed" : "Unconfirmed"}</em>}</div>
                         <div className={`reachout-address-status ${contact.email_status === "verified" ? "verified" : ""}`}>
                           {contact.email_status === "verified" ? "Verified email" : contact.email ? ((focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred") ? "Address inferred · unverified" : "Saved address · unverified") : "Email not found. This draft is ready to edit; add a confirmed address before sending."}
                           {contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailSourceUrl && <a href={focusedContact(focusCard.accounts.domain ?? "", contact.full_name)!.emailSourceUrl!} target="_blank" rel="noreferrer">{focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred" ? "Research source ↗" : "Address source ↗"}</a>}
@@ -1554,6 +1581,13 @@ export function Desk({
                           {bulkUndo.length > 0 && <button type="button" className="btn ghost" disabled={bulkSending} onClick={undoBulk}>Undo last batch edit</button>}
                           {senderIsViewer && (() => { const ready = readyToSend(batchOwner(focusCard.accounts.domain ?? "")); const verified = ready.filter(c => bulkSendable(c.people as unknown as Parameters<typeof bulkSendable>[0])).length; return <><button type="button" className="btn primary" disabled={bulkSending || sending || !verified} onClick={() => void sendAllReady()} title="Send every unsent draft with a verified or likely address, one at a time">{bulkSending ? "Sending…" : `Send all ready (${verified})`}</button></>; })()}
                         </div>}
+                        {!altContact && senderIsViewer && (() => {
+                          const owner = batchOwner(focusCard.accounts.domain ?? "");
+                          const seat = autoSeats.find(item => item.owner === owner);
+                          if (!seat || !owner) return null;
+                          const line = autoSendLine(seat, readyToSend(owner).filter(c => addressConfirmed(c.people)).length);
+                          return <div className="composer-autosend" role="status"><span>{line.text}</span>{line.canSkip && <button type="button" className="btn ghost" onClick={() => void skipAutoSendToday(seat.owner)}>Skip today</button>}<span className="composer-sent-today">{sentTodayLine(seat)}</span></div>;
+                        })()}
                         {bulkProgress && <div className="composer-batch-progress" role="status" aria-live="polite">
                           <progress max={bulkProgress.total} value={bulkProgress.sent + bulkProgress.failed.length} />
                           <span>{bulkSending ? `Sending ${Math.min(bulkProgress.sent + bulkProgress.failed.length + 1, bulkProgress.total)} of ${bulkProgress.total}${bulkProgress.current ? `: ${bulkProgress.current}` : ""}` : `Done: ${bulkProgress.sent} sent${bulkProgress.failed.length ? `, ${bulkProgress.failed.length} not sent` : ""}`}</span>
@@ -1566,7 +1600,8 @@ export function Desk({
                   })() : (
                     <div className="deskwork-doc">
                       <div className="deskwork-doc-head">
-                        <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b></div>
+                        {whyText && <p className="composer-why"><b>Why this company:</b> {whyText}</p>}
+                        <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b>{contact.email && <em className={`address-badge ${addressConfirmed(contact) ? "is-confirmed" : "is-unconfirmed"}`} title={addressConfirmed(contact) ? "Confirmed: included in Send all ready and auto-send" : "Unconfirmed: send this one by hand"}>{addressConfirmed(contact) ? "Confirmed" : "Unconfirmed"}</em>}</div>
                         <div className="mail-row"><span>Subject · {focusCard.email_subject?.length ?? 0}/120</span><b>{subjectView("email", focusCard.email_subject || subjectGuess(focusCard, "email"))}</b></div>
                       </div>
                       {sentAlready && <div className="deskwork-sent-note">This email has been sent{focusCard.people.full_name ? ` to ${contact.full_name}` : ""}. It is kept here as a record &mdash; the follow-ups below are what happens next.</div>}

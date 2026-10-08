@@ -2432,3 +2432,11 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .composer-batch .btn.primary{margin-left:auto}
 .composer-batch-progress{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper-bright);font-size:13px}
 .composer-batch-progress progress{flex:0 0 160px;height:8px}
+.address-badge{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;font:600 11px/1.5 var(--sans,inherit);font-style:normal;vertical-align:middle}
+.address-badge.is-confirmed{background:#e3f2ec;color:#2d715c}
+.address-badge.is-unconfirmed{background:#f6eedf;color:#775a2d}
+.composer-why{margin:0 0 10px;font-size:13px;line-height:1.5;color:var(--ink-soft)}
+.composer-why b{color:var(--ink);font-weight:600}
+.composer-autosend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:-4px 0 12px;font-size:12px;color:var(--muted)}
+.composer-autosend .btn{padding:2px 10px;font-size:12px}
+.composer-sent-today{margin-left:auto;font:600 12px/1.4 var(--mono);color:var(--ink-soft)}

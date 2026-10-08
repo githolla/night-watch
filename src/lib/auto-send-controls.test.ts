@@ -5,6 +5,7 @@ import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import * as report from "./list-build-report.ts";
+import * as morningRules from "./morning-send-rules.ts";
 
 const require = createRequire(import.meta.url);
 type Handler = (request: Request, context?: unknown) => Promise<Response>;
@@ -26,6 +27,8 @@ function fakeDb(tables: Record<string, Row[]>, writes: Array<{ table: string; ki
       const query = {
         select: () => query,
         eq: (key: string, value: unknown) => { filters.push([key, value]); return query; },
+        not: () => query,
+        gte: () => query,
         maybeSingle: async () => ({ data: rows()[0] ?? null, error: null }),
         then: (resolve: (value: unknown) => unknown) => Promise.resolve(resolve({ data: rows(), error: null })),
         upsert: async (value: Row) => {
@@ -47,7 +50,8 @@ function settingsRoute(user: Row, tables: Record<string, Row[]>, writes: Array<{
     "@/lib/list-build-report": report,
     "@/lib/local-time": { localParts: () => ({ date: TODAY, weekday: "Thu", hour: 8, minute: 0, minutes: 480 }) },
     "@/lib/nightly-list-builder": { nightlyListConfig: () => ({ research: 20, budgetUsd: 10 }) },
-    "@/lib/send-guards": { dailyCap: (days: number) => Math.min(40, 5 + 5 * days) },
+    "@/lib/morning-send-rules": morningRules,
+    "@/lib/send-guards": { dailyCap: (days: number) => Math.min(40, 5 + 5 * days), sendDayStart: () => new Date(`${TODAY}T04:00:00Z`) },
     "@/lib/supabase/admin": { admin: () => fakeDb(tables, writes) },
   });
 }

@@ -2,7 +2,8 @@ import { requireUser } from "@/lib/auth";
 import { listReport, nightSpend } from "@/lib/list-build-report";
 import { localParts } from "@/lib/local-time";
 import { nightlyListConfig } from "@/lib/nightly-list-builder";
-import { dailyCap } from "@/lib/send-guards";
+import { isSendDay, MORNING } from "@/lib/morning-send-rules";
+import { dailyCap, sendDayStart } from "@/lib/send-guards";
 import { admin } from "@/lib/supabase/admin";
 import { z } from "zod";
 
@@ -13,10 +14,13 @@ const daysSince = (iso: string | null | undefined) => (iso ? Math.max(0, Math.fl
 async function seatState(seat: "josh" | "suuchi") {
   const db = admin();
   const today = localParts().date;
-  const [{ data: profile, error }, { data: list }, { data: connection }] = await Promise.all([
+  const local = localParts();
+  const [{ data: profile, error }, { data: list }, { data: connection }, { count: sentToday }] = await Promise.all([
     db.from("sender_profiles").select("*").eq("owner", seat).maybeSingle(),
     db.from("reachout_lists").select("status,rows,attempts,sent_count,held_count,announced_at,summary_posted_at,errors").eq("owner", seat).eq("list_date", today).maybeSingle(),
     db.from("gmail_connections").select("connected_at,created_at").eq("owner", seat).maybeSingle(),
+    // Counted the way the send guard counts toward the daily cap: emails that left through Gmail since local midnight.
+    db.from("touches").select("id", { count: "exact", head: true }).eq("sent_by", seat).eq("channel", "email").not("gmail_thread_id", "is", null).gte("sent_at", sendDayStart().toISOString()),
   ]);
   if (error) throw new Error(error.message);
   const daysConnected = connection ? daysSince((connection.connected_at as string | null) ?? (connection.created_at as string | null)) : null;
@@ -33,6 +37,8 @@ async function seatState(seat: "josh" | "suuchi") {
     /** Warm-up: the cap a new mailbox ramps up to, and how long it has been connected. */
     dailyCap: dailyCap(daysConnected ?? 0),
     daysConnected,
+    sentToday: sentToday ?? 0,
+    sendDay: isSendDay(local.weekday, local.date), minutesNow: local.minutes, sendFrom: MORNING.sendFrom, sendUntil: MORNING.sendUntil,
     today: list ? listReport(list as Parameters<typeof listReport>[0], nightlyListConfig().research) : null,
   };
 }
