@@ -193,7 +193,10 @@ export async function markBounced(db: SupabaseClient, person: RecipientPerson, a
   return suggestion;
 }
 
-/** Manual sends stop only on a known-bad address; automatic sends need a known-good one. */
-export function recipientAllowed(check: RecipientCheck, automatic: boolean) {
-  return automatic ? check.level === "deliverable" : check.level !== "undeliverable";
+/**
+ * Manual sends stop only on a known-bad address; automatic sends need a known-good one, or one that research
+ * confirmed (bulkSendable: published on a page or proven by colleagues' addresses) and nothing since marked bad.
+ */
+export function recipientAllowed(check: RecipientCheck, automatic: boolean, researched = false) {
+  return automatic ? check.level === "deliverable" || (researched && check.level !== "undeliverable") : check.level !== "undeliverable";
 }

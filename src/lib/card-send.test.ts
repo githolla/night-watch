@@ -10,6 +10,7 @@ import { emailMime } from "./email-mime.ts";
 import * as ending from "./outreach-ending.ts";
 import { withOptOut } from "./opt-out.ts";
 import { recipientAllowed } from "./recipient-verification.ts";
+import { bulkSendable } from "./bulk-sendable.ts";
 import { queryDb } from "./testing/query-db.ts";
 
 type Row = Record<string, unknown>;
@@ -37,6 +38,7 @@ function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; reci
     "@/lib/focus-data": { assertCardSender: () => {}, allFocus: () => options.focus ?? [] },
     "@/lib/email-suppression": suppression,
     "@/lib/morning-send-rules": rules,
+    "@/lib/bulk-sendable": { bulkSendable },
     "@/lib/recipient-verification": { checkRecipient: async () => ({ level: options.recipient ?? "deliverable", reason: "Verified address.", suggestion: null }), recipientAllowed, recordRecipientCheck: async () => {}, recordDelivery: async () => {} },
     "@/lib/opt-out": { withOptOut, unsubscribeUrl: () => "https://app.test/api/unsubscribe?t=x" },
     "@/lib/first-touch": { firstTouchErrors: () => [] },
@@ -99,4 +101,14 @@ test("follow-ups get the speakable name and only a nightly row's workflow", asyn
   assert.equal(JSON.stringify(context({ accounts: { name: "Beta Corp." } }, { workflow: { task: "  ", metric: "hours" } })), JSON.stringify({ company: "Beta" }));
   assert.equal(context({ accounts: null }, null).company, "");
   assert.equal(context({ accounts: { name: "Gamma Holdings Inc" } }, undefined).company, "Gamma Holdings");
+});
+
+test("an automatic send takes an address research confirmed, but not an unconfirmed guess", async () => {
+  const person = { id: "p1", full_name: "Dana Ortiz", email: "dana.ortiz@acme.test", email_status: "unverified", do_not_contact: false };
+  const likely = harness({ recipient: "risky", cardExtra: { people: { ...person, email_check: { email: "dana.ortiz@acme.test", likely: true, source: "research" } } } });
+  assert.equal((await likely.send(true)).ok, true);
+  assert.equal(likely.gmail.length, 1);
+  const guess = harness({ recipient: "risky", cardExtra: { people: { ...person, email_check: { level: "risky", reason: "Not confirmed." } } } });
+  await assert.rejects(guess.send(true), /Not confirmed|Verified address/);
+  assert.equal(guess.gmail.length, 0);
 });

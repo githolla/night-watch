@@ -111,6 +111,7 @@ function sendHarness(options: { count?: number | null; countError?: boolean; tra
   '@/lib/nightly-lists':{loadNightlyLists:async()=>{}},
   '@/lib/mailbox-quota':{withMailboxQuota:async(_db:unknown,_input:unknown,action:()=>Promise<unknown>)=>action()},'@/lib/restore-selected-draft':{},'@/lib/focus-data':{assertListSender:()=>{},assertCardSender:()=>{},allFocus:()=>[]},
   '@/lib/email-suppression':{emailSuppressed:async()=>false},'@/lib/morning-send-rules':{automaticContentProblem:()=>null},
+  '@/lib/bulk-sendable':{bulkSendable:()=>false},
   '@/lib/recipient-verification':{checkRecipient:async()=>({level:'risky',reason:'Not confirmed.',suggestion:null}),recipientAllowed:()=>true,recordRecipientCheck:async()=>{},recordDelivery:async()=>{}},
   '@/lib/opt-out':{withOptOut:(delivery:unknown)=>delivery,unsubscribeUrl:()=> 'https://test/api/unsubscribe?t=token'},'@/lib/first-touch':{firstTouchErrors:()=>[]},
   '@/lib/authored-sender':{authoredSenderDraft:()=>({body:'Can we help?'})},

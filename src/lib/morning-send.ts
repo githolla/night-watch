@@ -4,6 +4,7 @@ import { localParts } from "./local-time.ts";
 import { LIST_OWNERS, nightlyListConfig } from "./nightly-list-builder.ts";
 import { configuredBaseUrl } from "./opt-out.ts";
 import { postSlackMessage } from "./slack.ts";
+import { bulkSendable } from "./bulk-sendable.ts";
 import type { ListRow } from "./research-data/server.ts";
 import type { Owner } from "./types.ts";
 import {
@@ -23,7 +24,8 @@ type Seat = { owner: Owner; autoSend: boolean; paused: boolean; postalAddress: s
 type ListState = { id: string; status: string; rows: ListRow[]; errors: unknown[]; announced_at: string | null; summary_posted_at: string | null; sent_count: number; held_count: number };
 type DeskCard = {
   id: string; status: string; email_subject: string | null; email_body: string | null; auto_send_hold?: boolean | null; auto_send_hold_reason?: string | null;
-  accounts: { domain: string; name?: string | null } | null; people?: { email_check?: unknown } | null;
+  accounts: { domain: string; name?: string | null; status?: string | null } | null;
+  people?: { email?: string | null; email_status?: string | null; email_check?: unknown; do_not_contact?: boolean | null } | null;
 };
 
 /** Everything the run touches outside the database, injectable so tests can drive it. */
@@ -58,6 +60,24 @@ async function todaysCards(db: Db, owner: Owner, rows: ListRow[]): Promise<DeskC
   const order = new Map(domains.map((domain, index) => [domain, index]));
   return ((data ?? []) as unknown as DeskCard[]).sort((a, b) => (order.get(a.accounts?.domain ?? "") ?? 99) - (order.get(b.accounts?.domain ?? "") ?? 99));
 }
+
+/**
+ * Unsent list drafts outside today's list whose address passes the desk's Send all ready rule, so the First 25
+ * and earlier lists keep going out without the tab open. A card held before (its hold reason set) waits for a
+ * person rather than being retried every run.
+ */
+async function leftoverCards(db: Db, owner: Owner, todays: Set<string>): Promise<DeskCard[]> {
+  const query = (columns: string) => db.from("cards").select(`${columns},accounts!inner(domain,name,status),signals!inner(hash),people(email,email_status,email_check,do_not_contact)`)
+    .eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).like("signals.hash", "operator-shortlist-20260923:%").limit(500);
+  let { data, error } = await query("id,status,email_subject,email_body,auto_send_hold,auto_send_hold_reason");
+  if (error) ({ data, error } = await query("id,status,email_subject,email_body"));
+  if (error) return [];
+  return ((data ?? []) as unknown as DeskCard[]).filter((card) =>
+    !todays.has(card.accounts?.domain ?? "") && card.accounts?.status === "active" && !card.auto_send_hold && !card.auto_send_hold_reason &&
+    Boolean(card.people && !card.people.do_not_contact && bulkSendable(card.people)) && Boolean(card.email_subject?.trim() && card.email_body?.trim()));
+}
+
+const CAP_REACHED = /Daily sender cap of \d+ reached/;
 
 type BounceCounts = { sent: number; bounced: number; bouncedRecently: number; addresses: Array<{ email: string; company: string }> };
 type TouchRow = { gmail_thread_id: string; sent_at: string; bounced_at: string | null; people?: { email?: string | null } | null; cards?: { accounts?: { name?: string | null; domain?: string | null } | null } | null };
@@ -142,7 +162,8 @@ export type MorningSendResult = Array<{ owner: Owner; action: string; sent?: num
  * list at 7:00 (or say there is none), send between 9:00 and 11:30 at an even, capped pace with a random
  * wait before each email, then name every card left unsent. Every email goes through sendCardEmail with
  * automatic=true, so it takes the same guards as a click and an address that is not confirmed deliverable
- * is left for a person to send.
+ * (or confirmed by research, the Send all ready rule) is left for a person to send. After today's list it
+ * sends confirmed drafts left from earlier lists, list or no list, until the seat's daily cap.
  */
 export async function runMorningSend(db: Db, options: MorningOptions = {}): Promise<MorningSendResult> {
   const now = options.now ?? new Date();
@@ -175,27 +196,28 @@ export async function runMorningSend(db: Db, options: MorningOptions = {}): Prom
       await db.from("reachout_lists").upsert({ list_date: local.date, owner, status: "failed" }, { onConflict: "list_date,owner", ignoreDuplicates: true });
       ({ data: list } = await read());
     }
-    if (!list) { out.push({ owner, action: "no list" }); continue; }
-    const state = { ...(list as unknown as ListState), rows: ((list as { rows?: ListRow[] }).rows ?? []), errors: ((list as { errors?: unknown[] }).errors ?? []) };
-    const ready = state.status === "ready";
+    const state = list ? { ...(list as unknown as ListState), rows: ((list as { rows?: ListRow[] }).rows ?? []), errors: ((list as { errors?: unknown[] }).errors ?? []) } : null;
+    const ready = state?.status === "ready";
     const seatState = await seat(db, owner);
     const blocker = autoSendBlocker({ ...seatState, today: local.date });
-    const cards = ready ? await todaysCards(db, owner, state.rows) : [];
+    const cards = state && ready ? await todaysCards(db, owner, state.rows) : [];
     const kept = cards.filter((card) => card.auto_send_hold);
     const unsent = cards.filter((card) => !card.auto_send_hold && ["new", "edited", "approved"].includes(card.status) && card.email_subject?.trim() && card.email_body?.trim());
+    const sending = local.minutes >= MORNING.sendFrom && local.minutes < MORNING.sendUntil;
+    const leftovers = sending && !blocker ? await leftoverCards(db, owner, new Set(state?.rows.map((row) => row.domain) ?? [])) : [];
 
-    if (local.minutes >= MORNING.announceAt && !state.announced_at && await claim(db, state.id, "announced_at", now)) {
+    if (state && local.minutes >= MORNING.announceAt && !state.announced_at && await claim(db, state.id, "announced_at", now)) {
       const warning = owner === LIST_OWNERS[0] && windowProblems.length ? `\nCheck the morning send times: ${windowProblems.join("; ")}.` : "";
       const text = ready
         ? announceText({ seat: seatName(owner), rows: state.rows.map((row) => ({ company: row.company, ...rowForecast(row) })), blocker, size, link: listLink(owner) })
         : listAlertText({ seat: seatName(owner), status: missing ? "missing" : state.status === "building" ? "building" : "failed", rows: state.rows.length, size, errors: topErrors(state.errors), link: listLink(owner) });
       await postClaimed(db, state.id, "announced_at", post, `${text}${warning}`);
     }
-    if (!ready) { out.push({ owner, action: "no list", reason: state.status }); continue; }
+    if (!ready && !leftovers.length) { out.push(state ? { owner, action: "no list", reason: state.status } : { owner, action: "no list" }); continue; }
     if (blocker) { out.push({ owner, action: "skipped", reason: blocker }); continue; }
 
     if (local.minutes >= MORNING.sendUntil) {
-      if (!state.summary_posted_at && await claim(db, state.id, "summary_posted_at", now, { held_count: unsent.length })) {
+      if (state && !state.summary_posted_at && await claim(db, state.id, "summary_posted_at", now, { held_count: unsent.length })) {
         const held: HeldCard[] = unsent.map((card) => ({
           company: card.accounts?.name || card.accounts?.domain || "Unknown company",
           reason: addressProblem(card) ?? card.auto_send_hold_reason ?? "not reached before the send window closed",
@@ -208,21 +230,24 @@ export async function runMorningSend(db: Db, options: MorningOptions = {}): Prom
     }
     if (local.minutes < MORNING.sendFrom) { out.push({ owner, action: "waiting" }); continue; }
 
+    // Today's list first, then confirmed drafts left from earlier lists.
+    const queue = [...unsent, ...leftovers];
     // Checked before every run's first send, so yesterday's bounces stop this morning before anything leaves.
     const bounces = await bounceCounts(db, owner, now, seatState.resumedAt);
     if (!bounces) { out.push({ owner, action: "held", reason: "could not read the bounce history" }); continue; }
     if (bounceBrake(bounces.sent, bounces.bounced, bounces.bouncedRecently)) {
       const reason = bounceReason(bounces.sent, bounces.bounced, bounces.bouncedRecently);
       await db.from("sender_profiles").update({ auto_send_paused: true, auto_send_paused_reason: reason }).eq("owner", owner);
-      await Promise.resolve(post(pauseText({ seat: seatName(owner), reason, bounced: bounces.addresses, unsent: unsent.length, listLink: listLink(owner), settingsLink: settingsLink() }))).catch(() => false);
+      await Promise.resolve(post(pauseText({ seat: seatName(owner), reason, bounced: bounces.addresses, unsent: queue.length, listLink: listLink(owner), settingsLink: settingsLink() }))).catch(() => false);
       out.push({ owner, action: "paused", reason });
       continue;
     }
 
-    const rowsByDomain = new Map(state.rows.map((row) => [row.domain, row]));
-    const quota = paceForRun(unsent.length, local.minutes);
-    let sent = 0, held = 0;
-    for (const card of unsent) {
+    const rowsByDomain = new Map((state?.rows ?? []).map((row) => [row.domain, row]));
+    const todays = new Set(unsent.map((card) => card.id));
+    const quota = paceForRun(queue.length, local.minutes);
+    let sent = 0, sentToday = 0, held = 0, capped = false;
+    for (const card of queue) {
       if (sent >= quota) break;
       const identity = identityHoldReason(rowsByDomain.get(card.accounts?.domain ?? ""));
       if (identity) { held += 1; if (card.auto_send_hold_reason !== identity) await holdCard(db, card, identity); continue; }
@@ -232,15 +257,19 @@ export async function runMorningSend(db: Db, options: MorningOptions = {}): Prom
       try {
         await send(db, { cardId: card.id, owner, subject: card.email_subject!, body: card.email_body!, baseUrl: configuredBaseUrl(), automatic: true });
         sent += 1;
+        if (todays.has(card.id)) sentToday += 1;
       } catch (error) {
-        // Not confirmed deliverable, kept by hand, already sent, or the cap: leave it on the desk for a person.
+        // The day's cap is not the card's fault: stop for today and leave it untouched for tomorrow.
+        if (CAP_REACHED.test(message(error))) { capped = true; break; }
+        // Not confirmed deliverable, kept by hand or already sent: leave it on the desk for a person.
         held += 1;
         await holdCard(db, card, message(error));
         console.warn(`[night-watch] auto-send held ${card.accounts?.domain} for ${owner}: ${message(error)}`);
       }
     }
-    await addSentCount(db, state.id, sent);
-    out.push({ owner, action: "sent", sent, held, ...(budgetSpent ? { reason: "the run's time budget ran out; the rest go next run" } : {}) });
+    if (state && ready) await addSentCount(db, state.id, sentToday);
+    const reason = capped ? "the daily sending cap is reached; the rest go tomorrow" : budgetSpent ? "the run's time budget ran out; the rest go next run" : null;
+    out.push({ owner, action: "sent", sent, held, ...(reason ? { reason } : {}) });
   }
   return out;
 }

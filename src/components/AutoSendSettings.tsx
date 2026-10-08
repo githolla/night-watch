@@ -52,7 +52,7 @@ export function AutoSendSettings() {
   return (
     <section className="feature-center" style={{ marginBottom: 18 }}>
       <h2>Morning list and auto-send</h2>
-      <p className="notice">A fresh list of companies is built for each of you overnight, Monday to Friday. Slack announces it at 7:00. With auto-send on, confirmed addresses go out between 9:00 and 11:30 (Eastern), spaced apart; unconfirmed addresses stay on the list for you to send. On Today&apos;s list, &quot;Keep for me&quot; takes one company off auto-send without dismissing it. Auto-send pauses itself after 2 bounces in 48 hours, or when more than 5% of at least 10 first emails bounce. Pause also stops automatic follow-ups; Skip today only skips this morning&apos;s first emails.</p>
+      <p className="notice">A fresh list of companies is built for each of you overnight, Monday to Friday. Slack announces it at 7:00. With auto-send on, confirmed addresses go out between 9:00 and 11:30 (Eastern), spaced apart: today&apos;s list first, then confirmed drafts left from earlier lists, up to the daily cap. Unconfirmed addresses stay on the list for you to send. On Today&apos;s list, &quot;Keep for me&quot; takes one company off auto-send without dismissing it. Auto-send pauses itself after 2 bounces in 48 hours, or when more than 5% of at least 10 first emails bounce. Pause also stops automatic follow-ups; Skip today only skips this morning&apos;s first emails.</p>
       {error && <p className="notice error">{error}</p>}
       {!seats && !error && <p>Loading…</p>}
       {night && <p style={{ margin: "8px 0" }}><strong>Tonight:</strong> ${night.costUsd.toFixed(2)} of ${night.budgetUsd.toFixed(0)} research budget, shared by both lists.</p>}

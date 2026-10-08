@@ -5,6 +5,7 @@ import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import * as localTime from "./local-time.ts";
 import * as rules from "./morning-send-rules.ts";
+import * as bulkSendable from "./bulk-sendable.ts";
 import { queryDb } from "./testing/query-db.ts";
 
 type Row = Record<string, unknown>;
@@ -20,6 +21,7 @@ function load(): Module {
   const source = readFileSync(new URL("./morning-send.ts", import.meta.url), "utf8");
   const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const mocks: Record<string, unknown> = {
+    "./bulk-sendable.ts": bulkSendable,
     "./card-send.ts": { sendCardEmail: async () => { throw new Error("inject sendCardEmail"); } },
     "./local-time.ts": localTime,
     "./morning-send-rules.ts": rules,
@@ -258,4 +260,39 @@ test("concurrent sent-count increments of 1 and 2 add up to 3", async () => {
   const h = harness({ reachout_lists: [list("josh")] });
   await Promise.all([morning.addSentCount(h.db, "list-josh", 1), morning.addSentCount(h.db, "list-josh", 2)]);
   assert.equal(h.tables.reachout_lists[0].sent_count, 3);
+});
+
+test("with no list today, confirmed leftover drafts send in the window and unconfirmed ones stay", async () => {
+  const leftover = (id: string, domain: string, people: Row, extra: Row = {}) => card(id, "suuchi", domain, domain, { accounts: { domain, name: domain, status: "active" }, people, ...extra });
+  const h = harness({
+    reachout_lists: [],
+    sender_profiles: [profile("josh", { auto_send: false }), profile("suuchi")],
+    cards: [
+      leftover("verified", "v.test", { email: "a@v.test", email_status: "verified" }),
+      leftover("likely", "l.test", { email: "b@l.test", email_status: "unverified", email_check: { email: "b@l.test", likely: true } }),
+      leftover("guess", "g.test", { email: "c@g.test", email_status: "unverified", email_check: { level: "risky" } }),
+      leftover("held", "h.test", { email: "d@h.test", email_status: "verified" }, { auto_send_hold_reason: "Bounced before." }),
+      leftover("paused", "p.test", { email: "e@p.test", email_status: "verified" }, { accounts: { domain: "p.test", name: "P", status: "paused" } }),
+    ],
+  });
+  assert.equal(h.sends.length, 0);
+  await h.run(at("08:30"));
+  assert.equal(h.sends.length, 0, "nothing before the window");
+  const result = await h.run(at("11:20"));
+  assert.deepEqual(h.sends.map((input) => input.cardId).sort(), ["likely", "verified"]);
+  assert.ok(h.sends.every((input) => input.automatic === true && input.owner === "suuchi"));
+  assert.equal(result[1].action, "sent");
+  assert.equal(result[0].action, "no list");
+  assert.equal(h.posts.length, 0);
+});
+
+test("the daily cap stops the run without holding the card", async () => {
+  const h = harness({
+    reachout_lists: [],
+    sender_profiles: [profile("josh", { auto_send: false }), profile("suuchi")],
+    cards: [card("c1", "suuchi", "a.test", "A", { accounts: { domain: "a.test", name: "A", status: "active" }, people: { email: "a@a.test", email_status: "verified" } })],
+  });
+  const result = await h.run(at("11:20"), { sendCardEmail: async () => { throw new Error("Daily sender cap of 25 reached"); } });
+  assert.match(String(result[1].reason), /daily sending cap/);
+  assert.equal(h.tables.cards[0].auto_send_hold_reason, undefined);
 });

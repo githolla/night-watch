@@ -4,6 +4,7 @@ import { restoreSelectedDraft } from "@/lib/restore-selected-draft";
 import { allFocus, assertCardSender } from "@/lib/focus-data";
 import { emailSuppressed } from "@/lib/email-suppression";
 import { automaticContentProblem } from "@/lib/morning-send-rules";
+import { bulkSendable } from "@/lib/bulk-sendable";
 import { checkRecipient, recipientAllowed, recordDelivery, recordRecipientCheck, type RecipientPerson } from "@/lib/recipient-verification";
 import { unsubscribeUrl, withOptOut } from "@/lib/opt-out";
 import { firstTouchErrors } from "@/lib/first-touch";
@@ -102,9 +103,11 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     if (automatic && card.auto_send_hold) throw new Error("Kept for sending by hand, so it was not auto-sent. Nothing was sent.");
     // Researched list addresses are inferred or published, not verified. Block a known-bad address
     // (bounced, rejected by Hunter, no mail server); let the rest through with what the check found.
+    // Read before the check is recorded: the same rule as the desk's Send all ready.
+    const researched = bulkSendable(recipient);
     const recipientCheck = await checkRecipient(db, recipient, { id: card.account_id, domain: card.accounts?.domain ?? recipient.email.split("@")[1] });
     await recordRecipientCheck(db, recipient, recipientCheck);
-    if (!recipientAllowed(recipientCheck, automatic)) throw new Error(`${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ""} Nothing was sent.`);
+    if (!recipientAllowed(recipientCheck, automatic, researched)) throw new Error(`${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ""} Nothing was sent.`);
     // Idempotency: if an email to THIS PERSON is already logged for this card, don't send again even if a
     // prior status write failed. Scoped to the person, not the card, so emailing a second contact at the
     // same company is still possible while a duplicate to the same one is not.
