@@ -13,7 +13,6 @@ export type ReviewDraft = {
 export type ReviewSender = { fromName: string; signature?: string; postalAddress?: string };
 
 type Filter = "todo" | "all" | "unconfirmed" | "noAddress";
-type Mode = "list" | "read";
 const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 /**
@@ -25,7 +24,8 @@ const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g,
 export function DraftReview({ drafts: initial, listHref, sender, optOut }: { drafts: ReviewDraft[]; listHref: string; sender: ReviewSender; optOut: string }) {
   const [drafts, setDrafts] = useState(initial);
   const [filter, setFilter] = useState<Filter>(initial.some((d) => d.sendable && d.status !== "approved") ? "todo" : "all");
-  const [mode, setMode] = useState<Mode>("list");
+  // Which open email is being edited; an open email otherwise shows read-only, exactly as it will be sent.
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [edit, setEdit] = useState<{ subject: string; body: string }>({ subject: "", body: "" });
   const [saving, setSaving] = useState(false);
@@ -44,6 +44,7 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut }: { dra
 
   function open(draft: ReviewDraft) {
     setOpenId(draft.id);
+    setEditingId(null);
     setEdit({ subject: draft.subject, body: draft.body });
     setNotice(null);
   }
@@ -62,24 +63,23 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut }: { dra
 
   /** Save any edit; with `approve`, also mark it reviewed and move to the next one still to review. */
   async function save(draft: ReviewDraft, approve: boolean) {
-    const editing = openId === draft.id;
+    const editing = editingId === draft.id;
     const changed = editing && (edit.subject !== draft.subject || edit.body !== draft.body);
     if (changed && (!edit.subject.trim() || !edit.body.trim())) { setNotice({ id: draft.id, text: "An email needs a subject and a message.", ok: false }); return; }
-    if (!changed && !approve) { setOpenId(null); return; }
+    if (!changed && !approve) { setEditingId(null); return; }
     setSaving(true);
     try {
       const saved = await patch(draft, { ...(changed ? { email_subject: edit.subject, email_body: edit.body } : {}), ...(approve ? { status: "approved" } : {}) });
       if (!saved) return;
-      if (!approve) { setNotice({ id: draft.id, text: "Saved.", ok: true }); return; }
+      if (!approve) { setEditingId(null); setNotice({ id: draft.id, text: "Saved.", ok: true }); return; }
       const order = drafts.filter((item) => matches(item, filter === "todo" ? "all" : filter));
       const index = order.findIndex((item) => item.id === draft.id);
       const next = [...order.slice(index + 1), ...order.slice(0, index)].find((item) => !reviewed(item) && item.id !== draft.id);
       setNotice({ id: draft.id, text: "Marked as reviewed.", ok: true });
-      if (mode === "list") { if (next) open(next); else setOpenId(null); }
-      else {
-        setOpenId(null);
-        if (next) requestAnimationFrame(() => document.getElementById(`review-${next.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
-      }
+      if (next) {
+        open(next);
+        requestAnimationFrame(() => document.getElementById(`review-${next.id}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+      } else { setOpenId(null); setEditingId(null); }
     } catch { setNotice({ id: draft.id, text: "Not saved: the connection dropped. Your text is still here; try again.", ok: false }); }
     finally { setSaving(false); }
   }
@@ -115,40 +115,54 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut }: { dra
   const badge = (draft: ReviewDraft) => <span className={`address-badge ${draft.confirmed ? "is-confirmed" : draft.sendable ? "is-unconfirmed" : "is-missing"}`}>{draft.confirmed ? "Confirmed" : draft.sendable ? "Unconfirmed" : "No address"}</span>;
   const noteFor = (draft: ReviewDraft) => (notice?.id === draft.id ? notice : null);
 
-  const editor = (draft: ReviewDraft) => {
+  const actionsNote = (draft: ReviewDraft) => {
     const note = noteFor(draft);
-    return (
-      <div className="review-editor">
-        {draft.why && <p className="composer-why"><b>Why this company:</b> {draft.why}</p>}
-        <p className="review-to">To {draft.name}{draft.email ? ` · ${draft.email}` : " · no address on file"}</p>
-        <label><span>Subject</span><input value={edit.subject} maxLength={120} onChange={(event) => setEdit((e) => ({ ...e, subject: event.target.value }))} /></label>
-        <label><span>Message</span><textarea rows={10} maxLength={1000} value={edit.body} onChange={(event) => setEdit((e) => ({ ...e, body: event.target.value }))} /></label>
-        <details className="review-as-sent"><summary>See it exactly as it will be sent</summary><div className="review-email" dangerouslySetInnerHTML={{ __html: emailHtml(draft, edit.body) }} /></details>
-        <div className="review-actions">
-          <button type="button" className="btn primary" disabled={saving} onClick={() => void save(draft, true)}>{saving ? "Saving…" : "Looks good, next"}</button>
-          <button type="button" className="btn" disabled={saving} onClick={() => void save(draft, false)}>Save</button>
-          <button type="button" className="btn ghost" disabled={saving} onClick={() => setOpenId(null)}>Close</button>
-          <Link className="review-open" href={`${listHref}&card=${draft.id}`}>Open on the Reach-out list &rarr;</Link>
-          {note && <span className={`review-note ${note.ok ? "is-ok" : "is-bad"}`} role="status">{note.text}</span>}
-          {note?.conflict && <button type="button" className="btn" onClick={() => void loadSaved(draft)}>Load the saved version</button>}
-        </div>
-      </div>
-    );
+    return <>
+      {note && <span className={`review-note ${note.ok ? "is-ok" : "is-bad"}`} role="status">{note.text}</span>}
+      {note?.conflict && <button type="button" className="btn" onClick={() => void loadSaved(draft)}>Load the saved version</button>}
+    </>;
   };
+
+  // Open, read-only: the whole email as it will go out, with the one decision to make.
+  const reader = (draft: ReviewDraft) => (
+    <div className="review-editor">
+      {draft.why && <p className="composer-why"><b>Why this company:</b> {draft.why}</p>}
+      <p className="review-to">To {draft.name}{draft.email ? ` · ${draft.email}` : " · no address on file"}</p>
+      <h3 className="review-subject">{draft.subject || "No subject"}</h3>
+      <div className="review-email" dangerouslySetInnerHTML={{ __html: emailHtml(draft, draft.body) }} />
+      <div className="review-actions">
+        {reviewed(draft)
+          ? <button type="button" className="btn ghost" disabled={saving} onClick={() => void unreview(draft)}>Mark not reviewed</button>
+          : <button type="button" className="btn primary" disabled={saving} onClick={() => void save(draft, true)}>{saving ? "Saving…" : "Looks good, next"}</button>}
+        <button type="button" className="btn" disabled={saving} onClick={() => { setEdit({ subject: draft.subject, body: draft.body }); setEditingId(draft.id); setNotice(null); }}>Edit</button>
+        <button type="button" className="btn ghost" disabled={saving} onClick={() => setOpenId(null)}>Close</button>
+        <Link className="review-open" href={`${listHref}&card=${draft.id}`}>Open on the Reach-out list &rarr;</Link>
+        {actionsNote(draft)}
+      </div>
+    </div>
+  );
+
+  const editor = (draft: ReviewDraft) => (
+    <div className="review-editor">
+      {draft.why && <p className="composer-why"><b>Why this company:</b> {draft.why}</p>}
+      <p className="review-to">To {draft.name}{draft.email ? ` · ${draft.email}` : " · no address on file"}</p>
+      <label><span>Subject</span><input value={edit.subject} maxLength={120} onChange={(event) => setEdit((e) => ({ ...e, subject: event.target.value }))} /></label>
+      <label><span>Message</span><textarea rows={10} maxLength={1000} value={edit.body} onChange={(event) => setEdit((e) => ({ ...e, body: event.target.value }))} /></label>
+      <details className="review-as-sent"><summary>See it exactly as it will be sent</summary><div className="review-email" dangerouslySetInnerHTML={{ __html: emailHtml(draft, edit.body) }} /></details>
+      <div className="review-actions">
+        <button type="button" className="btn primary" disabled={saving} onClick={() => void save(draft, true)}>{saving ? "Saving…" : "Save, looks good, next"}</button>
+        <button type="button" className="btn" disabled={saving} onClick={() => void save(draft, false)}>Save</button>
+        <button type="button" className="btn ghost" disabled={saving} onClick={() => setEditingId(null)}>Cancel</button>
+        {actionsNote(draft)}
+      </div>
+    </div>
+  );
 
   return (
     <section className="draft-review" aria-label="Review emails">
       <div className="review-head">
-        <div className="review-head-top">
-          <div>
-            <h2>Review your emails</h2>
-            <p>Read each one, fix anything right here, and press <b>Looks good</b>. Changes save to the same email on the Reach-out list.</p>
-          </div>
-          <div className="review-mode" role="group" aria-label="View">
-            <button type="button" aria-pressed={mode === "list"} className={mode === "list" ? "is-active" : ""} onClick={() => { setMode("list"); setOpenId(null); }}>One at a time</button>
-            <button type="button" aria-pressed={mode === "read"} className={mode === "read" ? "is-active" : ""} onClick={() => { setMode("read"); setOpenId(null); }}>Read all</button>
-          </div>
-        </div>
+        <h2>Review your emails</h2>
+        <p>Click an email to read it as it will be sent. Press <b>Looks good</b> to move to the next one, or <b>Edit</b> to change it. Changes save to the same email on the Reach-out list.</p>
         <div className="review-progress" aria-label="Progress"><progress max={Math.max(sendable.length, 1)} value={doneCount} /><span><b>{doneCount}</b> of {sendable.length} reviewed</span></div>
         <div className="review-filters" role="tablist" aria-label="Show">
           {([["todo", "Not reviewed yet"], ["all", "All"], ["unconfirmed", "Unconfirmed address"], ["noAddress", "No address"]] as Array<[Filter, string]>).filter(([key]) => key !== "noAddress" || count("noAddress") > 0).map(([key, label]) => (
@@ -157,43 +171,19 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut }: { dra
         </div>
       </div>
       {shown.length === 0 ? <p className="review-empty">{filter === "todo" ? "All done. Every email has been reviewed." : "Nothing here."}</p> : (
-        <ol className={`review-list ${mode === "read" ? "is-reading" : ""}`}>
+        <ol className="review-list">
           {shown.map((draft) => {
             const isOpen = openId === draft.id;
             const note = noteFor(draft);
-            if (mode === "read") return (
-              <li key={draft.id} id={`review-${draft.id}`} className={`review-item review-letter ${reviewed(draft) ? "is-reviewed" : ""}`}>
-                <div className="review-letter-head">
-                  <span className="review-who"><b>{draft.name}</b><small>{draft.title ? `${draft.title} · ` : ""}{draft.company}</small></span>
-                  {reviewed(draft) && <span className="review-done">Reviewed</span>}
-                  {badge(draft)}
-                </div>
-                {isOpen ? editor(draft) : (
-                  <>
-                    {draft.why && <p className="composer-why"><b>Why this company:</b> {draft.why}</p>}
-                    <p className="review-to">To {draft.email ?? "no address on file"}</p>
-                    <h3 className="review-subject">{draft.subject || "No subject"}</h3>
-                    <div className="review-email" dangerouslySetInnerHTML={{ __html: emailHtml(draft, draft.body) }} />
-                    <div className="review-actions">
-                      {reviewed(draft)
-                        ? <button type="button" className="btn ghost" disabled={saving} onClick={() => void unreview(draft)}>Mark not reviewed</button>
-                        : <button type="button" className="btn primary" disabled={saving} onClick={() => void save(draft, true)}>Looks good</button>}
-                      <button type="button" className="btn" onClick={() => open(draft)}>Edit</button>
-                      {note && <span className={`review-note ${note.ok ? "is-ok" : "is-bad"}`} role="status">{note.text}</span>}
-                    </div>
-                  </>
-                )}
-              </li>
-            );
             return (
               <li key={draft.id} id={`review-${draft.id}`} className={`review-item ${isOpen ? "is-open" : ""} ${reviewed(draft) ? "is-reviewed" : ""}`}>
                 <button type="button" className="review-row" aria-expanded={isOpen} onClick={() => (isOpen ? setOpenId(null) : open(draft))}>
                   <span className="review-who"><b>{draft.name}</b><small>{draft.title ? `${draft.title} · ` : ""}{draft.company}</small></span>
                   <span className="review-mail"><b>{draft.subject || "No subject"}</b><small>{preview(draft.body, draft.company)}</small></span>
-                  <span className="review-tags">{reviewed(draft) && <span className="review-done">Reviewed</span>}{badge(draft)}</span>
+                  <span className="review-tags">{reviewed(draft) && <span className="review-done">Reviewed</span>}{badge(draft)}<span className="review-caret" aria-hidden="true">{isOpen ? "▴" : "▾"}</span></span>
                 </button>
                 {!isOpen && note && <p className={`review-note ${note.ok ? "is-ok" : "is-bad"}`} role="status">{note.text}</p>}
-                {isOpen && editor(draft)}
+                {isOpen && (editingId === draft.id ? editor(draft) : reader(draft))}
               </li>
             );
           })}

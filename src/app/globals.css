@@ -2451,12 +2451,6 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .autosend-skip{padding:3px 10px;font-size:12px}
 .autosend-count{margin-left:auto;font:600 12px/1.4 var(--mono);color:var(--ink-soft);white-space:nowrap}
 
-/* More menu: three short groups instead of nine described links. */
-.appbar-more-groups{display:grid;grid-template-columns:repeat(3,max-content);gap:4px 22px;padding:14px 16px;width:max-content}
-.appbar-more-group{display:flex;flex-direction:column;gap:2px}
-.appbar-more-title{font:700 10px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:2px 8px 6px}
-.appbar-more-groups a{padding:7px 8px;font-size:13px;white-space:nowrap}
-@media(max-width:700px){.appbar-more-groups{grid-template-columns:1fr}}
 
 /* Drafts page */
 .drafts-shell{max-width:1100px}
@@ -2551,3 +2545,17 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .review-subject{margin:4px 0 0;font-size:16px}
 .review-letter .review-actions{margin-top:10px}
 .review-letter .review-editor{padding:4px 0 0}
+
+/* More menu: three groups, each link with an icon, a plain name and what it is for. */
+.appbar-more-list.appbar-more-groups{display:grid;grid-template-columns:repeat(3,230px);gap:6px 12px;padding:16px;width:max-content;left:auto;right:0}
+.appbar-more-group{display:flex;flex-direction:column;gap:2px}
+.appbar-more-title{font:700 11px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:2px 10px 8px}
+.appbar-more-groups a.appbar-more-item{display:flex;flex-direction:row;align-items:flex-start;gap:10px;padding:9px 10px;border-radius:8px;text-transform:none;letter-spacing:0;font:inherit;color:var(--ink)}
+.appbar-more-item svg{flex:none;margin-top:1px;color:var(--ink-soft)}
+.appbar-more-item span{display:flex;flex-direction:column;gap:2px}
+.appbar-more-item b{font:600 14px/1.2 var(--sans)}
+.appbar-more-item small{font:400 12px/1.35 var(--sans);color:var(--muted)}
+.appbar-more-groups a.appbar-more-item:hover,.appbar-more-groups a.appbar-more-item.is-active{background:var(--soft)}
+@media(max-width:820px){.appbar-more-groups{grid-template-columns:1fr;width:auto}}
+
+.review-caret{margin-left:4px;font-size:12px;color:var(--muted)}

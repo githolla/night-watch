@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Lock } from "lucide-react";
+import { Building2, BriefcaseBusiness, ChevronDown, LifeBuoy, Lock, MessageSquareText, PlayCircle, Settings, TrendingUp, Trophy, type LucideIcon } from "lucide-react";
 import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
@@ -14,21 +14,22 @@ const primary = [
   { href: "/activity", label: "History", hint: "Everything sent, and every reply" },
   { href: "/people", label: "People", hint: "Every contact on file" },
 ];
-// Grouped and short: the descriptions live in each link's tooltip. System pages are for admins only.
-const moreGroups: Array<{ title: string; adminOnly?: boolean; items: Array<{ href: string; label: string; hint: string }> }> = [
-  { title: "Results", items: [
-    { href: "/pipeline", label: "Pipeline", hint: "Qualified conversations and opportunities" },
-    { href: "/stats", label: "Results", hint: "Replies, meetings and what is working" },
+// Plain names, an icon and one short line each, so it is obvious what is behind every link. System pages are admin only.
+type MoreItem = { href: string; label: string; hint: string; icon: LucideIcon };
+const moreGroups: Array<{ title: string; items: MoreItem[] }> = [
+  { title: "How it's going", items: [
+    { href: "/stats", label: "Results", hint: "Replies, meetings and what's working", icon: Trophy },
+    { href: "/pipeline", label: "Pipeline", hint: "Conversations turning into deals", icon: TrendingUp },
   ] },
-  { title: "Research", items: [
-    { href: "/targets", label: "All companies", hint: "The full company table: search, filter, add or exclude" },
-    { href: "/roles", label: "Job signals", hint: "Open roles found at target companies" },
-    { href: "/posts", label: "Employee posts", hint: "Public posts found from people at target companies" },
+  { title: "Find companies", items: [
+    { href: "/targets", label: "All companies", hint: "Search, add or remove companies", icon: Building2 },
+    { href: "/roles", label: "Hiring signals", hint: "Jobs companies are hiring for", icon: BriefcaseBusiness },
+    { href: "/posts", label: "Employee posts", hint: "What their people are posting", icon: MessageSquareText },
   ] },
-  { title: "System", items: [
-    { href: "/settings", label: "Settings", hint: "Mailbox, identity, team and integrations" },
-    { href: "/runs", label: "Runs", hint: "Research runs and what each one cost" },
-    { href: "/delivery-recovery", label: "Delivery recovery", hint: "Check uncertain sends before retrying" },
+  { title: "Settings", items: [
+    { href: "/settings", label: "Settings", hint: "Gmail, signature and your team", icon: Settings },
+    { href: "/runs", label: "Research runs", hint: "Nightly research and its cost", icon: PlayCircle },
+    { href: "/delivery-recovery", label: "Unsure sends", hint: "Check emails that may not have sent", icon: LifeBuoy },
   ] },
 ];
 const more = moreGroups.flatMap((group) => group.items);
@@ -91,7 +92,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
             <button type="button" onClick={() => setMoreOpen((open) => !open)} className={more.some((item) => active(item.href)) ? "is-active" : ""} aria-expanded={moreOpen}>More <ChevronDown size={14} strokeWidth={1.8} /></button>
             {moreOpen && <div className="appbar-more-list appbar-more-groups">{moreGroups.map((group) => {
               const items = group.items.filter((item) => me?.role === "admin" || !["/runs", "/delivery-recovery"].includes(item.href));
-              return items.length ? <div className="appbar-more-group" key={group.title}><span className="appbar-more-title">{group.title}</span>{items.map((item) => <Link key={item.href} href={item.href} title={item.hint} className={active(item.href) ? "is-active" : ""} onClick={() => setMoreOpen(false)}>{item.label}</Link>)}</div> : null;
+              return items.length ? <div className="appbar-more-group" key={group.title}><span className="appbar-more-title">{group.title}</span>{items.map((item) => { const Icon = item.icon; return <Link key={item.href} href={item.href} className={`appbar-more-item ${active(item.href) ? "is-active" : ""}`} onClick={() => setMoreOpen(false)}><Icon size={18} strokeWidth={1.7} aria-hidden="true" /><span><b>{item.label}</b><small>{item.hint}</small></span></Link>; })}</div> : null;
             })}</div>}
           </div>
         </nav>
