@@ -51,10 +51,19 @@ export async function adminGate(): Promise<Response | null> {
 }
 
 export function cronAuthorized(request: Request) {
-  const secret = process.env.CRON_SECRET;
+  return bearerAuthorized(request, "CRON_SECRET");
+}
+
+/** The nightly list routine's import calls: a separate secret that can only add lists and address evidence. */
+export function listImportAuthorized(request: Request) {
+  return bearerAuthorized(request, "LIST_IMPORT_SECRET");
+}
+
+function bearerAuthorized(request: Request, name: "CRON_SECRET" | "LIST_IMPORT_SECRET") {
+  const secret = process.env[name];
   if (!secret) {
-    // A cron endpoint with no secret set is a dead cron: it would run for anyone. Log loudly and refuse.
-    console.error("[cron] CRON_SECRET is not set — cron endpoint refusing all requests");
+    // An endpoint with no secret set would run for anyone. Log loudly and refuse.
+    console.error(`[auth] ${name} is not set; refusing all requests`);
     return false;
   }
   const expected = `Bearer ${secret}`;
