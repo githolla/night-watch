@@ -26,7 +26,7 @@ export function DraftSetup({ owner, unsent, samples, listHref }: { owner: string
     const before = new Date().toISOString();
     let total = 0;
     for (let i = 0; i < 200; i++) {
-      const response = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, ...body, before }) });
+      const response = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, listOnly: true, ...body, before }) });
       const json = await response.json().catch(() => ({})) as Record<string, unknown>;
       if (!response.ok) throw new Error(String(json.error ?? "Something went wrong. Nothing else was changed."));
       total += Number(json[key] ?? json.applied ?? 0);
@@ -56,7 +56,7 @@ export function DraftSetup({ owner, unsent, samples, listHref }: { owner: string
     try {
       const totals: Audit = { checked: 0, clean: 0, problems: [] };
       for (let offset = 0, i = 0; i < 100; i++) {
-        const response = await fetch("/api/admin/audit-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, offset }) });
+        const response = await fetch("/api/admin/audit-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, listOnly: true, offset }) });
         const json = await response.json().catch(() => ({})) as { checked?: number; clean?: number; problems?: Problem[]; next?: number; done?: boolean; error?: string };
         if (!response.ok) throw new Error(json.error ?? "Could not check your emails.");
         totals.checked += json.checked ?? 0; totals.clean += json.clean ?? 0; totals.problems.push(...(json.problems ?? []));
@@ -73,7 +73,7 @@ export function DraftSetup({ owner, unsent, samples, listHref }: { owner: string
     try {
       let fixed = 0;
       for (let offset = 0, i = 0; i < 100; i++) {
-        const response = await fetch("/api/admin/clean-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, offset }) });
+        const response = await fetch("/api/admin/clean-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, listOnly: true, offset }) });
         const json = await response.json().catch(() => ({})) as { cleaned?: number; offset?: number; done?: boolean; error?: string };
         if (!response.ok) throw new Error(json.error ?? "Could not tidy your emails.");
         fixed += json.cleaned ?? 0;

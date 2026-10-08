@@ -24,7 +24,7 @@ const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g,
  */
 export function DraftReview({ drafts: initial, listHref, sender, optOut }: { drafts: ReviewDraft[]; listHref: string; sender: ReviewSender; optOut: string }) {
   const [drafts, setDrafts] = useState(initial);
-  const [filter, setFilter] = useState<Filter>(initial.some((d) => d.status !== "approved") ? "todo" : "all");
+  const [filter, setFilter] = useState<Filter>(initial.some((d) => d.sendable && d.status !== "approved") ? "todo" : "all");
   const [mode, setMode] = useState<Mode>("list");
   const [openId, setOpenId] = useState<string | null>(null);
   const [edit, setEdit] = useState<{ subject: string; body: string }>({ subject: "", body: "" });
@@ -32,10 +32,12 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut }: { dra
   const [notice, setNotice] = useState<{ id: string; text: string; ok: boolean; conflict?: boolean } | null>(null);
 
   const reviewed = (draft: ReviewDraft) => draft.status === "approved";
-  const matches = (draft: ReviewDraft, which: Filter) => which === "all" || (which === "todo" ? !reviewed(draft) : which === "unconfirmed" ? draft.sendable && !draft.confirmed : !draft.sendable);
+  // Emails with no usable address cannot be sent, so they only show under their own filter.
+  const matches = (draft: ReviewDraft, which: Filter) => which === "noAddress" ? !draft.sendable : draft.sendable && (which === "all" || (which === "todo" ? !reviewed(draft) : !draft.confirmed));
   const shown = drafts.filter((draft) => matches(draft, filter));
   const count = (which: Filter) => drafts.filter((draft) => matches(draft, which)).length;
-  const doneCount = drafts.filter(reviewed).length;
+  const sendable = drafts.filter((draft) => draft.sendable);
+  const doneCount = sendable.filter(reviewed).length;
 
   // The email as the recipient will get it: the same body transform, signature, postal line and opt-out.
   const emailHtml = (draft: ReviewDraft, body: string) => `${outreachEmailHtml(draft.curated ? outreachBody(body) : body, sender)}${draft.curated ? "" : `<p style="font:400 13px/1.5 Arial,Helvetica,sans-serif;color:#6b645a">${escapeHtml(optOut)}</p>`}`;
@@ -147,7 +149,7 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut }: { dra
             <button type="button" aria-pressed={mode === "read"} className={mode === "read" ? "is-active" : ""} onClick={() => { setMode("read"); setOpenId(null); }}>Read all</button>
           </div>
         </div>
-        <div className="review-progress" aria-label="Progress"><progress max={Math.max(drafts.length, 1)} value={doneCount} /><span><b>{doneCount}</b> of {drafts.length} reviewed</span></div>
+        <div className="review-progress" aria-label="Progress"><progress max={Math.max(sendable.length, 1)} value={doneCount} /><span><b>{doneCount}</b> of {sendable.length} reviewed</span></div>
         <div className="review-filters" role="tablist" aria-label="Show">
           {([["todo", "Not reviewed yet"], ["all", "All"], ["unconfirmed", "Unconfirmed address"], ["noAddress", "No address"]] as Array<[Filter, string]>).filter(([key]) => key !== "noAddress" || count("noAddress") > 0).map(([key, label]) => (
             <button key={key} type="button" role="tab" aria-selected={filter === key} className={filter === key ? "is-active" : ""} onClick={() => { setFilter(key); setOpenId(null); }}>{label} ({count(key)})</button>

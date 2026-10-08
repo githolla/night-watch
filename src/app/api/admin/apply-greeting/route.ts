@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { draftMatch, draftSeat } from "@/lib/draft-scope";
+import { draftMatch, draftSeat, listPattern } from "@/lib/draft-scope";
 import { sanitizeLinks, similarText } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
 
@@ -38,12 +38,13 @@ export async function POST(request: Request) {
   const input = await request.json().catch(() => ({}));
   const { greeting, before } = input;
   const seat = draftSeat(user, input?.owner);
+  const listOnly = input?.listOnly === true;
   const template = typeof greeting === "string" ? greeting.trim() : "";
   if (!template) return Response.json({ error: "Type a greeting first (use {first} for the first name)." }, { status: 400 });
   const cutoff = typeof before === "string" && before ? before : new Date().toISOString();
   const db = admin();
 
-  const filter = () => db.from("cards").select("id,email_body,people(full_name)", { count: "exact" }).match(draftMatch(seat))
+  const filter = () => db.from("cards").select("id,email_body,people(full_name),signals!inner(hash)", { count: "exact" }).match(draftMatch(seat)).like("signals.hash", listPattern(listOnly))
     .in("status", ["new", "approved", "edited"]).not("email_body", "is", null).lt("updated_at", cutoff);
   const { data } = await filter().order("updated_at", { ascending: true }).limit(50);
   const cards = (data ?? []) as unknown as CardRow[];

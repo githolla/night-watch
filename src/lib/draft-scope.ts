@@ -10,3 +10,9 @@ export function draftSeat(user: { role: string; owner: Owner }, requested?: unkn
 }
 
 export const draftMatch = (seat: Owner | null): Record<string, string> => (seat ? { assigned_to: seat } : {});
+
+/** The signal every Reach-out list draft hangs from (the list, Send all ready and the morning run use it too). */
+export const LIST_DRAFT_HASH = "operator-shortlist-20260923:%";
+
+/** Pattern for `.like("signals.hash", …)` on a query that selects `signals!inner(hash)`: list drafts, or every draft. */
+export const listPattern = (listOnly: boolean) => (listOnly ? LIST_DRAFT_HASH : "%");

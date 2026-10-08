@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { draftMatch, draftSeat } from "@/lib/draft-scope";
+import { draftMatch, draftSeat, listPattern } from "@/lib/draft-scope";
 import { speakableCompany } from "@/lib/list-templates";
 import { admin } from "@/lib/supabase/admin";
 
@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     const input = await request.json().catch(() => ({}));
     const { subject, before } = input;
     const seat = draftSeat(user, input?.owner);
+    const listOnly = input?.listOnly === true;
     const line = typeof subject === "string" ? subject.trim() : "";
     if (!line) return Response.json({ error: "Write a subject first." }, { status: 400 });
     if (line.length > 120) return Response.json({ error: "That subject is too long (120 characters max)." }, { status: 400 });
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
     const cutoff = typeof before === "string" && before ? before : new Date().toISOString();
     const db = admin();
 
-    const filter = () => db.from("cards").select("id,accounts(name),people(full_name)", { count: "exact" }).match(draftMatch(seat))
+    const filter = () => db.from("cards").select("id,accounts(name),people(full_name),signals!inner(hash)", { count: "exact" }).match(draftMatch(seat)).like("signals.hash", listPattern(listOnly))
       .in("status", ["new", "approved", "edited"]).not("email_body", "is", null).lt("updated_at", cutoff);
     const { data } = await filter().order("updated_at", { ascending: true }).limit(50);
     const cards = (data ?? []) as unknown as Array<{ id: string; accounts: { name: string | null } | null; people: { full_name: string | null } | null }>;

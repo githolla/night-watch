@@ -14,20 +14,25 @@ import { requireUser } from "@/lib/auth";
 import { bulkSendable, sendableAddress } from "@/lib/bulk-sendable";
 import { sendDayStart } from "@/lib/send-guards";
 import { admin } from "@/lib/supabase/admin";
+import { LIST_DRAFT_HASH } from "@/lib/draft-scope";
+import { isLikelyPersonName } from "@/lib/pipeline";
 import type { Owner } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 const SEATS: Array<{ owner: Owner; name: string }> = [{ owner: "josh", name: "Josh" }, { owner: "suuchi", name: "Suuchi" }];
-type Person = { email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null;
+type Person = { full_name: string; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null;
 
 async function seatSummary(owner: Owner) {
   const db = admin();
   const [{ data }, { count: sentToday }] = await Promise.all([
-    db.from("cards").select("id,people(email,email_status,email_check,do_not_contact)").eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).limit(5000),
+    db.from("cards").select("id,person_id,people(full_name,email,email_status,email_check,do_not_contact),signals!inner(hash)").eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).limit(2000),
     db.from("touches").select("id", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").not("gmail_thread_id", "is", null).gte("sent_at", sendDayStart().toISOString()),
   ]);
-  const people = ((data ?? []) as unknown as Array<{ people: Person }>).map((row) => row.people).filter((person): person is NonNullable<Person> => Boolean(person && !person.do_not_contact));
+  const seen = new Set<string>();
+  const people = ((data ?? []) as unknown as Array<{ person_id: string; people: Person }>)
+    .filter((row) => row.people && !row.people.do_not_contact && isLikelyPersonName(row.people.full_name) && !seen.has(row.person_id) && Boolean(seen.add(row.person_id)))
+    .map((row) => row.people as NonNullable<Person>);
   const confirmed = people.filter((person) => bulkSendable(person)).length;
   const sendable = people.filter((person) => sendableAddress(person)).length;
   return { unsent: people.length, confirmed, unconfirmed: sendable - confirmed, noAddress: people.length - sendable, sentToday: sentToday ?? 0 };
@@ -35,7 +40,7 @@ async function seatSummary(owner: Owner) {
 
 /** Two real drafts, so every change can be shown on actual names before it is applied. */
 async function sampleDrafts(owner: Owner): Promise<DraftSample[]> {
-  const { data } = await admin().from("cards").select("email_subject,accounts(name),people(full_name)").eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).order("updated_at", { ascending: false }).limit(2);
+  const { data } = await admin().from("cards").select("email_subject,accounts(name),people(full_name),signals!inner(hash)").eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).order("updated_at", { ascending: false }).limit(2);
   return ((data ?? []) as unknown as Array<{ email_subject: string | null; accounts: { name: string | null } | null; people: { full_name: string | null } | null }>).map((row) => ({
     first: (row.people?.full_name ?? "").trim().split(/\s+/)[0] || "there",
     company: row.accounts?.name ? speakableCompany(row.accounts.name) : "their company",
@@ -52,9 +57,11 @@ function whyThisCompany(domain: string | null | undefined): string | null {
 
 /** Every unsent email for the seat, for the quick review list. */
 async function reviewDrafts(owner: Owner): Promise<ReviewDraft[]> {
-  const { data } = await admin().from("cards").select("id,status,updated_at,email_subject,email_body,accounts(name,domain),people(full_name,title,email,email_status,email_check,do_not_contact)").eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).order("updated_at", { ascending: false }).limit(300);
-  type Row = { id: string; status: string; updated_at: string; email_subject: string | null; email_body: string | null; accounts: { name: string | null; domain: string | null } | null; people: { full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
-  return ((data ?? []) as unknown as Row[]).filter((row) => row.people && !row.people.do_not_contact).map((row) => ({
+  const { data } = await admin().from("cards").select("id,person_id,status,updated_at,email_subject,email_body,accounts(name,domain),people(full_name,title,email,email_status,email_check,do_not_contact),signals!inner(hash)").eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).order("updated_at", { ascending: false }).limit(500);
+  type Row = { id: string; person_id: string; status: string; updated_at: string; email_subject: string | null; email_body: string | null; accounts: { name: string | null; domain: string | null } | null; people: { full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
+  // Only real people, once each: the same filters as the summary above.
+  const seen = new Set<string>();
+  return ((data ?? []) as unknown as Row[]).filter((row) => row.people && !row.people.do_not_contact && isLikelyPersonName(row.people.full_name) && !seen.has(row.person_id) && Boolean(seen.add(row.person_id))).map((row) => ({
     id: row.id, status: row.status, updatedAt: row.updated_at, subject: row.email_subject ?? "", body: row.email_body ?? "",
     curated: isCuratedDomain(row.accounts?.domain), why: whyThisCompany(row.accounts?.domain),
     name: row.people!.full_name, title: row.people!.title ?? "", company: row.accounts?.name ?? "", email: row.people!.email,

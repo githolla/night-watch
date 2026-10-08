@@ -1,5 +1,5 @@
 import { requireUser } from "@/lib/auth";
-import { draftMatch, draftSeat } from "@/lib/draft-scope";
+import { draftMatch, draftSeat, listPattern } from "@/lib/draft-scope";
 import { auditDraft, isSendable, type AuditRow } from "@/lib/draft-audit";
 import { admin } from "@/lib/supabase/admin";
 
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     const user = await requireUser();
     const body = await request.json().catch(() => ({}));
     const seat = draftSeat(user, body?.owner);
+    const listOnly = body?.listOnly === true;
     const offset = Number.isFinite(Number(body?.offset)) ? Math.max(0, Math.floor(Number(body.offset))) : 0;
     // Sent emails are a record of what went out, not a draft to be corrected — but they are still worth
     // counting, because a fault in one is a fault a prospect has already read.
@@ -34,8 +35,8 @@ export async function POST(request: Request) {
     const db = admin();
 
     let query = db.from("cards")
-      .select("id,status,email_subject,email_body,accounts(name),people(full_name,title,email)", { count: "exact" })
-      .match(draftMatch(seat))
+      .select("id,status,email_subject,email_body,accounts(name),people(full_name,title,email),signals!inner(hash)", { count: "exact" })
+      .match(draftMatch(seat)).like("signals.hash", listPattern(listOnly))
       .not("email_body", "is", null)
       .order("id", { ascending: true })
       .range(offset, offset + PAGE - 1);
