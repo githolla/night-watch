@@ -1,5 +1,5 @@
 "use client";
-import { replaceOpening } from "@/lib/bulk-copy";
+import { leftoverSourceNames, replaceOpening, retargetCopy } from "@/lib/bulk-copy";
 import { acknowledgedDraftFields, DRAFT_TEXT_FIELDS, meetingTimesBody, resolveSaveConflict } from "@/lib/draft-save-state";
 import { batchOwner, type ListSequence } from "@/lib/focus-data";
 import type { AiFit } from "@/lib/ai-fit";
@@ -890,6 +890,7 @@ export function Desk({
   const [applyingSubject, setApplyingSubject] = useState(false);
   const [bulkOpening, setBulkOpening] = useState("");
   const [applyingOpening, setApplyingOpening] = useState(false);
+  const [applyingMessage, setApplyingMessage] = useState(false);
   const [bulkUndo, setBulkUndo] = useState<Array<{id:string; field:string; before:string; after:string}>>([]);
   async function undoBulk() {
     if (!bulkUndo.length || !confirm(`Undo the last batch edit on ${bulkUndo.length} drafts? Drafts edited since will be skipped.`)) return;
@@ -901,35 +902,113 @@ export function Desk({
     }
     setBulkUndo([]); setNotice(`Restored ${restored} drafts. Later changes were preserved.`);
   }
-  const applyCopyToAll = async (field: "subject" | "opening") => {
-    if (sending || sendInFlight.current || !focusCard || applyingSubject || applyingOpening) return;
-    const value = (field === "subject" ? focusCard.email_subject ?? "" : bulkOpening).trim();
-    if (!value) { setNotice(`Write ${field === "subject" ? "a subject" : "an opening"} first.`); return; }
-    const owner = batchOwner(focusCard.accounts.domain ?? "");
-    const targets = cards.filter(c => ["new","edited","approved"].includes(c.status) && batchOwner(c.accounts.domain ?? "") === owner && c.email_body?.trim());
-    if (!owner || !targets.length) return;
-    if (dirtyFields.current.size || saveQueues.current.size) { setNotice("Save your current changes before applying a batch edit."); return; }
-    if (!window.confirm(`Replace the ${field} in ${targets.length} unsent drafts in ${owner === "josh" ? "Josh" : "Suuchi"}'s ${batchSequence === 2 ? "Next 25" : "First 25"}?\n\n${value}\n\nThis includes edited and approved drafts.`)) return;
-    const setApplying = field === "subject" ? setApplyingSubject : setApplyingOpening;
+  /** Save whatever is still being typed on the open draft, then wait for every save in flight. Clicking a
+   *  batch button takes focus out of the field, which starts a save; refusing because of that save is what
+   *  made "Apply to this batch" do nothing every time. */
+  async function flushPendingSaves() {
+    const open = focusCard;
+    if (open) {
+      const pending = ["email_subject", "email_body"].filter(key => dirtyFields.current.has(`${open.id}:${key}`));
+      if (pending.length) await patchOn(open.id, Object.fromEntries(pending.map(key => [key, (open as unknown as Record<string, unknown>)[key] ?? ""])));
+    }
+    await Promise.all([...saveQueues.current.values()]);
+    return dirtyFields.current.size === 0;
+  }
+  const applyCopyToAll = async (field: "subject" | "message" | "opening") => {
+    if (sending || sendInFlight.current || bulkSending || !focusCard || applyingSubject || applyingOpening || applyingMessage) return;
+    const source = focusCard;
+    const value = (field === "subject" ? source.email_subject ?? "" : field === "message" ? source.email_body ?? "" : bulkOpening).trim();
+    if (!value) { setNotice(`Write ${field === "subject" ? "a subject" : field === "message" ? "a message" : "an opening"} first.`); return; }
+    const owner = batchOwner(source.accounts.domain ?? "");
+    const targets = cards.filter(c => c.id !== source.id && ["new","edited","approved"].includes(c.status) && batchOwner(c.accounts.domain ?? "") === owner && c.email_body?.trim());
+    if (!owner) return;
+    if (!targets.length) { setNotice("There are no other unsent drafts in this list to apply it to."); return; }
+    if (!(await flushPendingSaves())) { setNotice("Your edit could not be saved, so nothing was applied. Press “Save changes”, then try again."); return; }
+    const what = field === "subject" ? "subject line" : field === "message" ? "message" : "opening paragraph";
+    const personalized = field === "opening" ? "Each greeting and the rest of each message stay as they are." : `Each company's name${field === "message" ? " and each person's first name in the greeting" : ""} is swapped in automatically.`;
+    if (!window.confirm(`Use this ${what} on the other ${targets.length} unsent drafts in ${owner === "josh" ? "Josh" : "Suuchi"}'s ${batchSequence === 3 ? "list for today" : batchSequence === 2 ? "Next 25" : "First 25"}?\n\n${value.slice(0, 400)}\n\n${personalized} You can undo it afterwards.`)) return;
+    const setApplying = field === "subject" ? setApplyingSubject : field === "message" ? setApplyingMessage : setApplyingOpening;
     setApplying(true);
     try {
       if (demo) { setNotice("Bulk changes are disabled in the local preview."); return; }
       const key = field === "subject" ? "email_subject" : "email_body";
-      const changes = targets.map(c => ({id:c.id,field:key,before:(field === "subject" ? c.email_subject : c.email_body) ?? "",after:field === "subject" ? value : replaceOpening(c.email_body ?? "",value)}));
+      const from = { company: source.accounts.name, person: source.people.full_name };
+      const changes = targets.map(c => {
+        const to = { company: c.accounts.name, person: c.people.full_name };
+        const after = field === "opening" ? replaceOpening(c.email_body ?? "", value) : retargetCopy(value, from, to, field === "message");
+        return { id: c.id, field: key, before: (field === "subject" ? c.email_subject : c.email_body) ?? "", after };
+      });
       for (const change of changes) {
         const target = targets.find(c => c.id === change.id)!;
-        const errors = firstTouchErrors(field === "subject" ? change.after : target.email_subject ?? "", field === "opening" ? change.after : target.email_body ?? "");
-        if (errors.length) throw new Error(errors[0]);
+        if (field !== "opening") {
+          const leftover = leftoverSourceNames(change.after, from, { company: target.accounts.name, person: target.people.full_name });
+          if (leftover.length) throw new Error(`Nothing was applied: this ${what} mentions “${leftover[0]}”, which belongs to ${from.company ?? "this company"}${leftover[0] === (from.person ?? "").trim().split(/\s+/)[0]?.toLowerCase() ? " (the person's first name)" : ""}, and it would appear in ${target.accounts.name}'s email. Write the company's name exactly as “${(from.company ?? "").split(" / ")[0]}” (it is swapped automatically), or remove the name, then apply again.`);
+        }
+        const errors = firstTouchErrors(field === "subject" ? change.after : target.email_subject ?? "", field === "subject" ? target.email_body ?? "" : change.after);
+        if (errors.length) throw new Error(`${target.accounts.name}: ${errors[0]}`);
       }
       if (changes.some(c => c.after.length > (field === "subject" ? 120 : 1000))) throw new Error("This edit exceeds a draft's character limit. Shorten it before applying.");
       const applied: typeof changes = [];
       for (const change of changes) if (await patchOn(change.id, { [key]: change.after, status: "edited" })) applied.push(change);
       setBulkUndo(applied);
-      setNotice(`Applied to ${applied.length} of ${targets.length} drafts. Undo is available below the batch controls.`);
+      setNotice(applied.length === targets.length ? `Applied to all ${targets.length} other unsent drafts. “Undo last batch edit” puts them back.` : `Applied to ${applied.length} of ${targets.length} drafts; ${targets.length - applied.length} changed elsewhere and were left alone. “Undo last batch edit” puts the applied ones back.`);
     } catch(error) {setNotice(error instanceof Error ? error.message : "Could not update drafts.");}
     finally {setApplying(false);}
   };
   const applySubjectToAll = () => applyCopyToAll("subject");
+  const applyMessageToAll = () => applyCopyToAll("message");
+
+  // Send every ready draft in this list, one at a time, through the same send route (and so the same daily
+  // cap, recipient, do-not-contact and duplicate checks) as the Send button. Only verified addresses go out
+  // this way; the rest are left for a person to send one by one after the per-email warning.
+  const [bulkSending, setBulkSending] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState<{ total: number; sent: number; failed: Array<{ name: string; error: string }>; current: string } | null>(null);
+  const bulkStop = useRef(false);
+  const readyToSend = (owner: string | null) => cards.filter(c => ["new","edited","approved"].includes(c.status) && batchOwner(c.accounts.domain ?? "") === owner && c.email_subject?.trim() && c.email_body?.trim() && c.people.email);
+  async function sendAllReady() {
+    if (!focusCard || bulkSending || sending || sendInFlight.current) return;
+    if (!senderIsViewer) { setNotice(`Sign in as ${senderName} to send from this list.`); return; }
+    if (demo) { setNotice("Sending is disabled in the local preview."); return; }
+    const owner = batchOwner(focusCard.accounts.domain ?? "");
+    if (!(await flushPendingSaves())) { setNotice("An edit could not be saved, so nothing was sent. Press “Save changes”, then try again."); return; }
+    const all = readyToSend(owner);
+    const verified = all.filter(c => c.people.email_status === "verified");
+    const others = all.length - verified.length;
+    if (!verified.length) { setNotice(others ? `None of the ${others} unsent drafts has a verified address. Send them one at a time so you see the warning for each.` : "Nothing is left to send in this list."); return; }
+    if (!window.confirm(`Send ${verified.length} email${verified.length === 1 ? "" : "s"} now from ${senderName}?\n\nThey go out one at a time, about 10 seconds apart, exactly as written. Your daily sending limit still applies, and you can press Stop at any time. Keep this tab open until it finishes.${others ? `\n\n${others} draft${others === 1 ? " has an" : "s have"} unverified address${others === 1 ? "" : "es"} and will be left for you to send one by one.` : ""}`)) return;
+    bulkStop.current = false;
+    sendInFlight.current = true;
+    setBulkSending(true);
+    const progress = { total: verified.length, sent: 0, failed: [] as Array<{ name: string; error: string }>, current: "" };
+    setBulkProgress({ ...progress });
+    try {
+      for (const [index, item] of verified.entries()) {
+        if (bulkStop.current) break;
+        progress.current = `${item.people.full_name}, ${item.accounts.name}`;
+        setBulkProgress({ ...progress });
+        try {
+          const response = await fetch(`/api/cards/${item.id}/send`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ subject: item.email_subject, body: item.email_body }) });
+          const json = await response.json().catch(() => ({}));
+          if (response.ok && json.ok && json.threadId) {
+            progress.sent += 1;
+            setCards(current => current.map(card => card.id === item.id ? { ...card, status: "sent" } : card));
+          } else {
+            const error = String(json.error ?? "Send failed.");
+            progress.failed.push({ name: `${item.people.full_name}, ${item.accounts.name}`, error });
+            // The daily limit applies to every remaining send too: stop rather than fail each one.
+            if (/daily (sender )?cap|daily sending limit|cap of \d+ reached/i.test(error)) { progress.current = ""; setBulkProgress({ ...progress }); setNotice(`Stopped: ${error} ${progress.sent} sent today from this run; the rest stay ready for tomorrow.`); return; }
+          }
+        } catch {
+          progress.failed.push({ name: `${item.people.full_name}, ${item.accounts.name}`, error: "Connection interrupted; check Gmail Sent before retrying this one." });
+        }
+        setBulkProgress({ ...progress });
+        if (index < verified.length - 1 && !bulkStop.current) await new Promise(resolve => setTimeout(resolve, 8000 + Math.floor(Math.random() * 4000)));
+      }
+      progress.current = "";
+      setBulkProgress({ ...progress });
+      setNotice(`${bulkStop.current ? "Stopped. " : ""}Sent ${progress.sent} of ${progress.total}.${progress.failed.length ? ` ${progress.failed.length} not sent: ${progress.failed.map(f => `${f.name} (${f.error})`).join("; ")}` : ""}${others ? ` ${others} unverified draft${others === 1 ? " is" : "s are"} left for you to send one by one.` : ""}`);
+    } finally { sendInFlight.current = false; setBulkSending(false); }
+  }
   // "Propose times": pull open slots from the connected calendar and drop them into the email draft to edit.
   // Strictly opt-in — nothing adds times on its own — and reversible, because it writes into the saved draft.
   const [proposing, setProposing] = useState(false);
@@ -1458,7 +1537,7 @@ export function Desk({
                             maxLength={120} onBlur={(event) => { if (event.target.value.trim()) saveField("email_subject", event.target.value); else restoreSubject(true); }}
                           />
                           </label>
-                          <button type="button" className="focus-apply-all" title="Use this subject for unsent emails in this batch" disabled={applyingSubject || applyingOpening || !focusCard.email_subject?.trim()} onClick={applySubjectToAll}>{applyingSubject ? "Applying…" : "Apply to this batch"}</button>
+                          
                           {subjectIsBlank && subjectFallback && <button type="button" className="focus-apply-all" onClick={() => restoreSubject(false)}>Restore subject</button>}
                         </div>
                         <details className="composer-bulk-opening"><summary>Set an opening for all emails</summary>
@@ -1466,7 +1545,19 @@ export function Desk({
                           <textarea id="bulk-opening" rows={3} maxLength={400} value={bulkOpening} onChange={event=>setBulkOpening(event.target.value)} placeholder="Write the opening you want each email to start with…" />
                           <div><small>Replaces the first paragraph after the greeting in this list’s unsent drafts. Keeps each greeting and the rest of the message.</small><button type="button" className="btn" disabled={applyingOpening || applyingSubject || !bulkOpening.trim()} onClick={()=>applyCopyToAll("opening")}>{applyingOpening ? "Applying…" : "Apply opening to this batch"}</button></div>
                         </details>
-                        <div role="status" aria-live="polite"><small>Subject {focusCard.email_subject?.length ?? 0}/120 · </small>{bulkUndo.length > 0 && <button type="button" className="btn" onClick={undoBulk}>Undo last batch edit</button>}{saveState}{saveState !== "Saved" && <button type="button" className="btn" onClick={() => { void patchFocus({ email_subject: focusCard.email_subject ?? "", email_body: focusCard.email_body ?? "" }); }}>Save changes</button>}</div><label className="compose-field"><span>Message · {focusCard.email_body?.length ?? 0}/1000</span><textarea disabled={sending} maxLength={1000} className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
+                        <div role="status" aria-live="polite"><small>Subject {focusCard.email_subject?.length ?? 0}/120 · </small>{bulkUndo.length > 0 && <button type="button" className="btn" onClick={undoBulk}>Undo last batch edit</button>}{saveState}{saveState !== "Saved" && <button type="button" className="btn" onClick={() => { void patchFocus({ email_subject: focusCard.email_subject ?? "", email_body: focusCard.email_body ?? "" }); }}>Save changes</button>}</div>
+                        {!altContact && <div className="composer-batch" role="group" aria-label="Batch actions">
+                          <span className="composer-batch-label">Whole list</span>
+                          <button type="button" className="btn" disabled={bulkSending || applyingSubject || applyingOpening || applyingMessage || !focusCard.email_subject?.trim()} onClick={applySubjectToAll} title="Use this subject on the other unsent emails; each company's name is swapped in">{applyingSubject ? "Applying…" : "Apply subject to batch"}</button>
+                          <button type="button" className="btn" disabled={bulkSending || applyingSubject || applyingOpening || applyingMessage || !focusCard.email_body?.trim()} onClick={applyMessageToAll} title="Use this message on the other unsent emails; each company's name and each greeting's first name are swapped in">{applyingMessage ? "Applying…" : "Apply message to batch"}</button>
+                          {bulkUndo.length > 0 && <button type="button" className="btn ghost" disabled={bulkSending} onClick={undoBulk}>Undo last batch edit</button>}
+                          {senderIsViewer && (() => { const verified = readyToSend(batchOwner(focusCard.accounts.domain ?? "")).filter(c => c.people.email_status === "verified").length; return <button type="button" className="btn primary" disabled={bulkSending || sending || !verified} onClick={() => void sendAllReady()} title="Send every unsent draft with a verified address, one at a time">{bulkSending ? "Sending…" : `Send all verified (${verified})`}</button>; })()}
+                        </div>}
+                        {bulkProgress && <div className="composer-batch-progress" role="status" aria-live="polite">
+                          <progress max={bulkProgress.total} value={bulkProgress.sent + bulkProgress.failed.length} />
+                          <span>{bulkSending ? `Sending ${Math.min(bulkProgress.sent + bulkProgress.failed.length + 1, bulkProgress.total)} of ${bulkProgress.total}${bulkProgress.current ? `: ${bulkProgress.current}` : ""}` : `Done: ${bulkProgress.sent} sent${bulkProgress.failed.length ? `, ${bulkProgress.failed.length} not sent` : ""}`}</span>
+                          {bulkSending ? <button type="button" className="btn" onClick={() => { bulkStop.current = true; }}>Stop</button> : <button type="button" className="btn ghost" onClick={() => setBulkProgress(null)}>Dismiss</button>}
+                        </div>}<label className="compose-field"><span>Message · {focusCard.email_body?.length ?? 0}/1000</span><textarea disabled={sending} maxLength={1000} className="focus-msg-body" rows={14} value={emailStyle(brief ? outreachBody(adapt(focusCard.email_body ?? "")) : adapt(focusCard.email_body ?? ""))} readOnly={!!altContact} onChange={(event) => editFocus("email_body", emailStyle(event.target.value))} onBlur={(event) => { if (!altContact) saveField("email_body", event.target.value); }} /></label>
                         <p className="compose-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</p>
                     {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" dangerouslySetInnerHTML={{__html:firstTouchFooterHtml(senderFooterHtml)}} />)}
                       </div>
