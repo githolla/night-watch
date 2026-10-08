@@ -51,7 +51,6 @@ function settingsRoute(user: Row, tables: Record<string, Row[]>, writes: Array<{
     "@/lib/local-time": { localParts: () => ({ date: TODAY, weekday: "Thu", hour: 8, minute: 0, minutes: 480 }) },
     "@/lib/nightly-list-builder": { nightlyListConfig: () => ({ research: 20, budgetUsd: 10 }) },
     "@/lib/morning-send-rules": morningRules,
-    "@/lib/next-followups": { nextFollowups: async () => new Map() },
     "@/lib/send-guards": { dailyCap: (days: number) => Math.min(40, 5 + 5 * days), sendDayStart: () => new Date(`${TODAY}T04:00:00Z`) },
     "@/lib/supabase/admin": { admin: () => fakeDb(tables, writes) },
   });

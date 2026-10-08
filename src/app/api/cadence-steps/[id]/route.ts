@@ -30,7 +30,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (!step) throw new Error("Follow-up not found");
     const cadence = step.cadences as unknown as { card_id: string; owner: Owner; person_id: string } | null;
 
-    if (!cadence || cadence.owner !== user.owner) throw new Error("Sign in as the list owner to update delivery status.");
+    // The sender, or an admin for changes that send nothing (edit, skip, stop). Marking a step sent stays with
+    // the sender, since it records outreach from their seat.
+    const mayChange = Boolean(cadence) && (cadence!.owner === user.owner || (user.role === "admin" && action !== "sent"));
+    if (!mayChange) throw new Error("Sign in as the list owner to update this follow-up.");
     if (action === "stop") {
       // Steps already being delivered are left to finish; everything still waiting is skipped.
       const { error: stopError } = await db.from("cadences").update({ status: "stopped" }).eq("id", step.cadence_id as string).in("status", ["active", "paused", "draft"]);

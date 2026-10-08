@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 
-export type FollowupView = { stepId: string; step: number; scheduledAt: string; channel: string; subject: string | null; body: string; auto: boolean; needsYou: boolean; canAct: boolean };
+/** canAct: may edit, skip or stop (the sender or an admin). canSend: may send it now (only the sender's own seat). */
+export type FollowupView = { stepId: string; step: number; scheduledAt: string; channel: string; subject: string | null; body: string; auto: boolean; needsYou: boolean; canAct: boolean; canSend: boolean };
 
 const dayLabel = (iso: string) => new Date(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
 
@@ -82,14 +83,14 @@ export function FollowupPanel({ followup, onChange, inThread = false }: { follow
             <button type="button" className="btn primary" disabled={busy || !body.trim()} onClick={() => void save()}>{busy ? "Saving…" : "Save"}</button>
             <button type="button" className="btn ghost" disabled={busy} onClick={() => { setEditing(false); setSubject(followup.subject ?? ""); setBody(followup.body); }}>Cancel</button>
           </> : <>
-            {followup.needsYou && isEmail && <button type="button" className="btn primary" disabled={busy} onClick={() => void sendNow()}>Send now</button>}
+            {followup.needsYou && isEmail && followup.canSend && <button type="button" className="btn primary" disabled={busy} onClick={() => void sendNow()}>Send now</button>}
             <button type="button" className="btn" disabled={busy} onClick={() => setEditing(true)}>Edit</button>
             <button type="button" className="btn" disabled={busy} onClick={() => void skip()}>Skip this one</button>
             {!inThread && <button type="button" className="btn ghost" disabled={busy} onClick={() => void stop()}>Stop all follow-ups</button>}
           </>}
           {note && <span className={`followup-note ${note.ok ? "is-ok" : "is-bad"}`} role="status">{note.text}</span>}
         </div>
-      ) : <p className="followup-note">Only the person who sent this email can change its follow-ups.</p>}
+      ) : <p className="followup-note">Only the person who sent this email, or an admin, can change its follow-ups.</p>}
     </section>
   );
 }

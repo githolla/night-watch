@@ -56,7 +56,7 @@ export default async function Followups({ searchParams }: { searchParams: Promis
     return {
       stepId: row.id, step: row.step_number, scheduledAt: row.scheduled_at, channel: row.channel, subject: row.subject,
       body: refreshLegacyFollowup(row.body ?? "", { firstName: person?.full_name?.split(/\s+/)[0] ?? "there", company: company || "your team", baseSubject: row.subject ?? "", step: row.step_number, channel: row.channel === "email" ? "email" : "linkedin_message" }),
-      auto, needsYou, canAct: cadence.owner === user.owner,
+      auto, needsYou, canAct: cadence.owner === user.owner || isAdmin, canSend: cadence.owner === user.owner,
       person: person?.full_name ?? "Unknown contact", title: person?.title ?? "", company, status: row.status, sentAt: row.sent_at,
     };
   };

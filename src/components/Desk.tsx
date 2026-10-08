@@ -1018,7 +1018,6 @@ export function Desk({
               : <button type="button" role="switch" aria-checked={on} className={`autosend-switch ${on ? "is-on" : ""}`} onClick={() => void setAutoSend(seat.owner, { autoSend: !seat.autoSend }, waiting)}><span className="autosend-knob" />Auto-send {on ? "On" : "Off"}</button>}
             <span className="autosend-text">{line.text}</span>
             {line.canSkip && <button type="button" className="btn ghost autosend-skip" onClick={() => void skipAutoSendToday(seat.owner)}>Skip today</button>}
-            {(seat.followupsNeedYou ?? 0) > 0 && <Link className="autosend-followups" href={`/followups?view=needs&owner=${seat.owner}`}>{seat.followupsNeedYou} follow-up{seat.followupsNeedYou === 1 ? "" : "s"} need{seat.followupsNeedYou === 1 ? "s" : ""} you &rarr;</Link>}
             <span className="autosend-count">{sentTodayLine(seat)}</span>
           </div>
         );

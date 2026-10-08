@@ -105,7 +105,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
         const steps = row.card_id ? followups.get(row.card_id) : undefined;
         if (!steps?.length || !row.card_id || shownFollowup.has(row.card_id)) return undefined;
         shownFollowup.add(row.card_id);
-        return steps.map((next) => ({ stepId: next.stepId, step: next.step, scheduledAt: next.scheduledAt, channel: next.channel, subject: next.subject, body: next.body, auto: next.auto, needsYou: next.needsYou, canAct: next.owner === me.owner }));
+        return steps.map((next) => ({ stepId: next.stepId, step: next.step, scheduledAt: next.scheduledAt, channel: next.channel, subject: next.subject, body: next.body, auto: next.auto, needsYou: next.needsYou, canAct: next.owner === me.owner || me.role === "admin", canSend: next.owner === me.owner }));
       })(),
 
     };

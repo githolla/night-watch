@@ -2578,7 +2578,6 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .followup-note{font-size:12px;margin:6px 0 0;color:var(--muted)}
 .followup-note.is-ok{color:#2d715c}.followup-note.is-bad{color:#9a3b2b}
 
-.autosend-followups{padding:4px 10px;border-radius:999px;background:#fdf1dc;color:#9a5b14;font-size:12px;font-weight:600;text-decoration:none}
 
 /* Follow-ups queue */
 .review-filters a{padding:5px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:13px;color:var(--ink-soft);text-decoration:none}
