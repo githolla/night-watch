@@ -430,3 +430,13 @@ test("researched addresses are checked against their pages: published on the pag
   assert.equal((person("p2").email_check as Row).likely, true);
   assert.equal(person("p1").email_status, "none", "unconfirmed evidence changes nothing");
 });
+
+test("an import where every company fails leaves no empty failed list to announce", async () => {
+  reset({ research: async () => ({ skip: "AI fit 18 is below 40", fit: { score: 18 }, cost: 0, searches: 0 }) });
+  const { db, tables } = queryDb({ list_candidates: [], reachout_lists: [] });
+  const result = await builder.importResearchedList(db, { listDate: TODAY, owner: "suuchi", companies: [{ company: "Weak Co", domain: "weak.test", sector: "roofing", research: {} }] });
+  assert.equal(result.status, "failed");
+  assert.equal(result.skipped[0].reason, "AI fit 18 is below 40");
+  assert.equal(tables.reachout_lists.length, 0);
+  assert.equal(calls.prepare.length, 0);
+});

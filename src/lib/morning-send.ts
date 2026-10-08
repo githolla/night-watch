@@ -206,7 +206,9 @@ export async function runMorningSend(db: Db, options: MorningOptions = {}): Prom
     const sending = local.minutes >= MORNING.sendFrom && local.minutes < MORNING.sendUntil;
     const leftovers = sending && !blocker ? await leftoverCards(db, owner, new Set(state?.rows.map((row) => row.domain) ?? [])) : [];
 
-    if (state && local.minutes >= MORNING.announceAt && !state.announced_at && await claim(db, state.id, "announced_at", now)) {
+    // With the in-app build off, an empty list that is not ready is the same as no list: nothing to announce.
+    const quietEmpty = Boolean(state && !ready && !state.rows.length && !process.env.ANTHROPIC_API_KEY?.trim());
+    if (state && !quietEmpty && local.minutes >= MORNING.announceAt && !state.announced_at && await claim(db, state.id, "announced_at", now)) {
       const warning = owner === LIST_OWNERS[0] && windowProblems.length ? `\nCheck the morning send times: ${windowProblems.join("; ")}.` : "";
       const text = ready
         ? announceText({ seat: seatName(owner), rows: state.rows.map((row) => ({ company: row.company, ...rowForecast(row) })), blocker, size, link: listLink(owner) })

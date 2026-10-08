@@ -100,7 +100,8 @@ test("a list still building at the first run is finalized, then announced", asyn
   const finalizeOpenLists = async (_db: unknown, listDate: string) => {
     for (const row of h.tables.reachout_lists) if (row.list_date === listDate && row.status === "building") row.status = (row.rows as Row[]).length ? "ready" : "failed";
   };
-  await h.run(at("07:00"), { finalizeOpenLists });
+  // The in-app build is on, so a failed empty list is news.
+  await withAnthropicKey("sk-ant-test", () => h.run(at("07:00"), { finalizeOpenLists }));
   assert.equal(h.tables.reachout_lists[0].status, "ready");
   assert.match(h.posts.find((text) => text.includes("Josh")) ?? "", /expected to auto-send/);
   assert.match(h.posts.find((text) => text.includes("Suuchi")) ?? "", /No list for Suuchi today: the nightly build failed/);
@@ -108,7 +109,7 @@ test("a list still building at the first run is finalized, then announced", asyn
 
 test("a failed list gives exactly one alert across five runs", async () => {
   const h = harness({ reachout_lists: [list("josh", { status: "failed", errors: [{ domain: "a.test", reason: "no buyer found" }, { domain: "b.test", reason: "no buyer found" }] }), list("suuchi", { status: "ready", announced_at: at("07:00").toISOString(), summary_posted_at: at("11:30").toISOString() })], sender_profiles: [profile("josh"), profile("suuchi")], cards: [] });
-  for (const time of ["07:00", "07:10", "09:00", "10:00", "11:40"]) await h.run(at(time));
+  await withAnthropicKey("sk-ant-test", async () => { for (const time of ["07:00", "07:10", "09:00", "10:00", "11:40"]) await h.run(at(time)); });
   assert.equal(h.posts.length, 1);
   assert.match(h.posts[0], /No list for Josh today: the nightly build failed.*no buyer found \(2\)/);
   assert.equal(h.sends.length, 0);
@@ -137,6 +138,12 @@ test("with the nightly build switched off (no Anthropic key), a day without a li
   await withAnthropicKey(undefined, async () => { for (const time of ["07:00", "07:10", "11:40"]) await h.run(at(time)); });
   assert.equal(h.posts.length, 0);
   assert.equal(h.tables.reachout_lists.length, 0);
+});
+
+test("with the nightly build switched off, an empty failed list posts nothing either", async () => {
+  const h = harness({ reachout_lists: [list("josh", { status: "failed" }), list("suuchi", { status: "failed" })], sender_profiles: [profile("josh"), profile("suuchi")], cards: [] });
+  await withAnthropicKey(undefined, async () => { for (const time of ["07:00", "07:10", "11:40"]) await h.run(at(time)); });
+  assert.equal(h.posts.length, 0);
 });
 
 test("yesterday's bounces pause this morning before anything sends, with names and a Settings link", async () => {

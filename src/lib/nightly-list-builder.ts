@@ -768,6 +768,9 @@ export async function importResearchedList(db: Db, input: { listDate: string; ow
     await db.from("list_candidates").update({ status: "reserve", owner: null, list_date: null, prepared: { row, offer: offers.find((offer) => offer.domain === row.domain) } satisfies Partial<Prepared>, updated_at: new Date().toISOString() }).eq("domain", row.domain);
   }
 
+  // Nothing passed and there is no list yet: write nothing, so a researched batch that all failed its checks
+  // never leaves an empty "failed" list behind for the morning run to announce.
+  if (!kept.length && !existing) return { listDate, owner, status: "failed", listed: [], reserved: [], skipped, addresses: [] };
   const status = kept.length ? "ready" : existing?.status ?? "failed";
   const change = { status, rows: kept, offers: offers.filter((offer) => keptDomains.has(offer.domain)), updated_at: new Date().toISOString() };
   let listId = existing?.id ?? null;
