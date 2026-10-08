@@ -44,6 +44,28 @@ Imports can take a few minutes; send at most about 8 companies per `import` call
 6. Finish with `status` and a short report: per seat, companies listed by sector, addresses confirmed, and what was
    skipped and why.
 
+## Persistence and sourcing that works
+
+This run has hours, not minutes. Do not stop because the first searches return article summaries instead of a
+ready-made ranked list; that is normal. Keep going until both seats have 12 or you have honestly worked through at
+least 60 candidates, then report. A partial list is fine: import every company that passes, even if it is only a few.
+
+Ways that find companies that pass:
+
+- **Start from hiring.** Search for current office openings in the target sectors (for example "dispatcher" or
+  "service coordinator" or "estimator" plus "HVAC" or "pest control" or "landscape" or "trucking" plus a state or
+  city). A company posting such roles on its own careers page or a server-rendered applicant page already has the
+  strongest fit evidence. Then look up its revenue.
+- **Revenue from profiles.** Inc. 5000 company profiles, business journal "largest private companies" and "fastest
+  growing" lists, trade lists (LM150, Roofing Contractor Top 100, PCT Top 100, ENR regional, Transport Topics,
+  Modern Distribution Management), local news about the company, and the company's own site or press releases
+  often state annual revenue with a year. Try WebFetch when curl is blocked; a revenue page only has to state the
+  figure, it is not re-fetched as fit evidence.
+- **Ranking articles.** When a ranking is split across several articles ("the next 25", regional spotlights,
+  "company profiles"), work through them one by one; each names companies with revenue.
+- Screen candidates with `check` in batches as you go, and skip any company whose site is behind a Cloudflare
+  challenge or needs JavaScript, since the app cannot confirm its evidence either.
+
 ## Gates a company must pass (or it is skipped)
 
 - Revenue inside the band, reported for a year no more than three years back, with the URL that states it.
