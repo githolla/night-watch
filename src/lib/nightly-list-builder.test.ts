@@ -11,6 +11,8 @@ import * as localTime from "./local-time.ts";
 import * as morningRules from "./morning-send-rules.ts";
 import * as rules from "./nightly-list-rules.ts";
 import * as grounding from "./evidence-grounding.ts";
+import * as emailPattern from "./email-pattern.ts";
+import * as bulkSendable from "./bulk-sendable.ts";
 import { isExcludedSector } from "./nightly-research.ts";
 import { queryDb } from "./testing/query-db.ts";
 
@@ -33,7 +35,7 @@ type Module = {
   claimBuildAlert: (db: unknown, now?: Date) => Promise<boolean>;
   learnedSectorWeights: (db: unknown) => Promise<Record<string, number>>;
   nightlyListConfig: () => { budgetUsd: number; maxCostPerCompanyUsd: number; research: number; size: number };
-  importResearchedList: (db: unknown, input: { listDate: string; owner: string; companies: Row[] }) => Promise<{ status: string; listed: Array<{ domain: string; fit: number }>; reserved: string[]; skipped: Array<{ domain: string; reason: string }> }>;
+  importResearchedList: (db: unknown, input: { listDate: string; owner: string; companies: Row[] }, overrides?: Row) => Promise<{ status: string; listed: Array<{ domain: string; fit: number }>; reserved: string[]; skipped: Array<{ domain: string; reason: string }>; addresses: Array<{ domain: string; address: string; outcome: string; reason: string }> }>;
   screenDomains: (db: unknown, domains: string[]) => Promise<Array<{ domain: string; usable: boolean; reason: string | null }>>;
 };
 
@@ -55,6 +57,8 @@ function load(): Module {
     "./anthropic-cost.ts": anthropicCost,
     "./agents.ts": { runSearchAgent: (prompt: string, options: Row, recorder?: (cost: number) => void) => { calls.source.push(prompt); return hooks.source(prompt, options, recorder); } },
     "./evidence-grounding.ts": grounding,
+    "./email-pattern.ts": emailPattern,
+    "./bulk-sendable.ts": bulkSendable,
     "./focus-data.ts": { allFocus: () => [] },
     "./local-time.ts": localTime,
     "./list-sectors.ts": listSectors,
@@ -397,4 +401,32 @@ test("a list researched outside the app goes through the same checks, makes no m
   assert.equal(tables.list_candidates.find((row) => row.domain === "good.test")!.status, "listed");
   assert.equal(tables.list_candidates.find((row) => row.domain === "weak.test")!.status, "skipped");
   assert.deepEqual(json((await builder.screenDomains(db, ["good.test", "fresh.test"])).map((row) => row.usable)), [false, true], "an imported company is known from then on");
+});
+
+test("researched addresses are checked against their pages: published on the page is verified, a format proven by two colleagues is likely", async () => {
+  const pages: Record<string, string> = {
+    "https://pub.test/team": "<p>Pat Lee, President: pat.lee@pub.test</p>",
+    "https://fmt.test/a": "<p>Sam Reyes sam.reyes@fmt.test</p>", "https://fmt.test/b": "<p>Kim Bell kim.bell@fmt.test</p>",
+    "https://one.test/a": "<p>Sam Reyes sam.reyes@one.test</p>",
+  };
+  const fetcher = async (url: string) => new Response(pages[url] ?? "not here", { status: pages[url] ? 200 : 404, headers: { "content-type": "text/html" } });
+  const domains = ["pub.test", "gone.test", "fmt.test", "one.test"];
+  reset({ research: async (call) => ({ row: listRow(String(call.candidate.domain), 70), offer: { domain: call.candidate.domain }, fit: { score: 70 }, cost: 0, searches: 0 }) });
+  const { db, tables } = queryDb({ list_candidates: [], reachout_lists: [], accounts: domains.map((domain, index) => ({ id: `a${index}`, domain, status: "active" })), people: domains.map((domain, index) => ({ id: `p${index}`, account_id: `a${index}`, full_name: "Pat Lee", email: null, email_status: "none", do_not_contact: false })) });
+  const result = await builder.importResearchedList(db, { listDate: TODAY, owner: "suuchi", companies: [
+    { company: "Pub", domain: "pub.test", research: {}, emailEvidence: { kind: "published", address: "pat.lee@pub.test", sourceUrl: "https://pub.test/team" } },
+    { company: "Gone", domain: "gone.test", research: {}, emailEvidence: { kind: "published", address: "pat.lee@gone.test", sourceUrl: "https://gone.test/team" } },
+    { company: "Fmt", domain: "fmt.test", research: {}, emailEvidence: { kind: "format", address: "pat.lee@fmt.test", examples: [{ name: "Sam Reyes", email: "sam.reyes@fmt.test", sourceUrl: "https://fmt.test/a" }, { name: "Kim Bell", email: "kim.bell@fmt.test", sourceUrl: "https://fmt.test/b" }] } },
+    { company: "One", domain: "one.test", research: {}, emailEvidence: { kind: "format", address: "pat.lee@one.test", examples: [{ name: "Sam Reyes", email: "sam.reyes@one.test", sourceUrl: "https://one.test/a" }] } },
+  ] }, { fetcher, lookup: async () => ["93.184.216.34"], mailHost: async () => true });
+  const outcome = (domain: string) => result.addresses.find((item) => item.domain === domain)?.outcome;
+  assert.equal(outcome("pub.test"), "verified");
+  assert.equal(outcome("gone.test"), "unconfirmed", "an address not on its cited page is not trusted");
+  assert.equal(outcome("fmt.test"), "likely");
+  assert.equal(outcome("one.test"), "unconfirmed", "one colleague does not prove a format");
+  const person = (id: string) => tables.people.find((row) => row.id === id)!;
+  assert.equal(person("p0").email_status, "verified");
+  assert.equal(person("p0").email, "pat.lee@pub.test");
+  assert.equal((person("p2").email_check as Row).likely, true);
+  assert.equal(person("p1").email_status, "none", "unconfirmed evidence changes nothing");
 });

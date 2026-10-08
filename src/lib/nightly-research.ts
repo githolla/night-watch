@@ -7,6 +7,7 @@ import { findEmail, verifierConfigured, verifyEmail, type FoundEmail, type Verif
 import { groundEvidence, normalizeUrl, onDomain, pageAgeDate, type Fetcher, type Lookup, type SeenSource } from "./evidence-grounding.ts";
 import { checkWorkflow, chooseArm, listVariants, normalizeWorkflow, repairWorkflow, speakableCompany, variantProblems, type ListVariant, type OpeningEvidence, type Workflow } from "./list-templates.ts";
 import { researchModel } from "./models.ts";
+import { inRevenueBand, REVENUE_BAND_TEXT } from "./list-sectors.ts";
 import { isLikelyPersonName } from "./pipeline.ts";
 import { domainAcceptsMail, type RecipientCheck } from "./recipient-verification.ts";
 import type { ListOffer, ListRow } from "./research-data/server.ts";
@@ -149,7 +150,6 @@ export function sourcedRevenueUsable(candidate: Candidate, listDate: string): bo
 
 export type RowRevenue = { usdMillions: number; year: number; status: "reported" | "unconfirmed"; sourceUrl: string; note: string };
 
-const inRange = (value: number) => value >= 10 && value <= 100;
 const disagree = (a: number, b: number) => Math.abs(a - b) / Math.max(1e-9, Math.min(a, b)) > 0.35;
 
 /**
@@ -163,12 +163,12 @@ export function settleRevenue(candidate: Candidate, found: Researched["revenue"]
   const primary = found ?? sourced;
   if (!primary) return { problem: "research output invalid at revenue" };
   if (primary.year > current || primary.year < current - 3) return { problem: `revenue year ${primary.year} is outside ${current - 3} to ${current}` };
-  if (!inRange(primary.usdMillions)) return { problem: `revenue $${primary.usdMillions}M is outside $10M to $100M` };
+  if (!inRevenueBand(primary.usdMillions)) return { problem: `revenue $${primary.usdMillions}M is outside ${REVENUE_BAND_TEXT}` };
   const limitations: string[] = [];
   const ranked = candidate.revenue_usd_m;
   const split = Boolean(found && ranked !== null && disagree(ranked, found.usdMillions));
   if (split && ranked !== null && found) {
-    if (!inRange(ranked)) return { problem: `ranking revenue $${ranked}M is outside $10M to $100M` };
+    if (!inRevenueBand(ranked)) return { problem: `ranking revenue $${ranked}M is outside ${REVENUE_BAND_TEXT}` };
     limitations.push(`Ranking lists $${ranked}M for ${candidate.revenue_year ?? "an unstated year"}; research found $${found.usdMillions}M.`);
   }
   const twoPages = Boolean(found && candidate.source_url && normalizeUrl(found.sourceUrl) !== normalizeUrl(candidate.source_url));
@@ -216,7 +216,7 @@ ${revenueStep}
    Leave a part empty rather than guess.
 6. Workflow: one practical piece of work a company like this probably handles by hand that an AI tool could help with, inspired by the evidence above; do not restate the evidence. It is an idea, not a claim about them. Keep every field generic and lowercase: no numbers, no company, product, software or place names, and no "your", "their" or "our". Give: task, a short noun phrase such as "branch service follow-up"; subject, two words for an email subject, such as "branch follow-ups" (one version prefixes it with "one AI project:", which must stay within five words); inputs, what the tool would bring together, three items in one phrase such as "site inspection notes, the promised fix and evidence that it was completed"; metric, what to measure, such as "time spent chasing updates". No question marks, dashes or links in these.
 
-Return {"reject":"reason"} instead if revenue is outside $10M to $100M, the company is consulting, IT, software, staffing, an agency, a financial firm, a nonprofit or public, it has closed or been acquired, or no current senior leader can be named from a source.
+Return {"reject":"reason"} instead if revenue is outside ${REVENUE_BAND_TEXT}, the company is consulting, IT, software, staffing, an agency, a financial firm, a nonprofit or public, it has closed or been acquired, or no current senior leader can be named from a source.
 
 Return JSON only, in this shape, filling the arrays with items as described above: {"sector":"","revenue":${reuse ? "null" : `{"usdMillions":0,"year":${year},"sourceUrl":""}`},"buyer":{"name":"","title":"","sourceUrl":""},"email":null,"trigger":null,"evidence":{"hiring":[],"scale":null,"change":[],"techOpenness":[],"systems":[],"disqualifiers":[],"concerns":[]},"workflow":{"task":"","subject":"","inputs":"","metric":""}}`;
 }

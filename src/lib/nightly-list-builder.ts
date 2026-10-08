@@ -5,7 +5,7 @@ import { researchBudget, withBudget } from "./anthropic-cost.ts";
 import { runSearchAgent } from "./agents.ts";
 import { allFocus } from "./focus-data.ts";
 import { localParts } from "./local-time.ts";
-import { sectorsForNight } from "./list-sectors.ts";
+import { inRevenueBand, sectorsForNight } from "./list-sectors.ts";
 import { researchModel } from "./models.ts";
 import { autoSendBlocker, isSendDay } from "./morning-send-rules.ts";
 import {
@@ -14,12 +14,14 @@ import {
   sourcingPrompt, START_CUTOFF_MS, UNCONFIRMED_PRIOR_PENALTY,
 } from "./nightly-list-rules.ts";
 import { loadNightlyLists } from "./nightly-lists.ts";
-import { onDomain, safeFetch, type Fetcher, type SeenSource } from "./evidence-grounding.ts";
+import { onDomain, safeFetch, type Fetcher, type Lookup, type SeenSource } from "./evidence-grounding.ts";
 import { isExcludedSector, researchOne, type Candidate, type ResearchDeps, type ResearchResult } from "./nightly-research.ts";
 import { preparePriorityDraft } from "./prepare-priority-draft.ts";
 import { domainAcceptsMail, recordRecipientCheck, type RecipientCheck, type RecipientPerson } from "./recipient-verification.ts";
 import type { ListOffer, ListRow } from "./research-data/server.ts";
 import { verifySite } from "./site-check.ts";
+import { buildEmail, detectPattern } from "./email-pattern.ts";
+import { bulkSendable } from "./bulk-sendable.ts";
 import type { Owner } from "./types.ts";
 
 type Db = SupabaseClient;
@@ -200,7 +202,7 @@ async function sourceCandidates(db: Db, listDate: string, context: { recordCost:
     .flatMap((result) => (result.success && result.data.sourceUrl ? [{ ...result.data, sourceUrl: result.data.sourceUrl, domain: domainOf(result.data.domain) }] : []))
     .filter((company) => usable(company.domain) && !known.names.has(normalizeCompanyName(company.company)))
     .filter((company) => !isExcludedSector(company.sector))
-    .filter((company) => company.revenueUsdM === null || (company.revenueUsdM >= 10 && company.revenueUsdM <= 100))
+    .filter((company) => company.revenueUsdM === null || inRevenueBand(company.revenueUsdM))
     .filter((company) => !seen.has(company.domain) && Boolean(seen.add(company.domain)));
   const checked = await mapLimit(companies, config.concurrency, async (company) => {
     if (context.signal.aborted) return null;
@@ -630,13 +632,60 @@ export async function runNightlyListBuild(db: Db, options: NightlyBuildOptions =
 // ---------- lists researched outside the app ----------
 
 /** A company researched by hand or in another tool, with research in the shape researchPrompt asks for. */
+/** How the researcher found the buyer's address: published by name on a page, or built from the company's
+ *  format as shown by other people's published addresses. Both are checked again on import. */
+export type EmailEvidence =
+  | { kind: "published"; address: string; sourceUrl: string }
+  | { kind: "format"; address: string; examples: Array<{ name: string; email: string; sourceUrl: string }> };
 export type ResearchedCompany = {
   company: string; domain: string; sector?: string; revenueUsdM?: number | null; revenueYear?: number | null; sourceUrl?: string | null; research: unknown;
+  emailEvidence?: EmailEvidence;
 };
+export type AddressOutcome = { domain: string; address: string; outcome: "verified" | "likely" | "unconfirmed"; reason: string };
 export type ResearchedImport = {
   listDate: string; owner: Owner; status: string;
   listed: Array<{ domain: string; company: string; fit: number }>; reserved: string[]; skipped: Array<{ domain: string; reason: string }>;
+  addresses: AddressOutcome[];
 };
+
+const pageHas = async (url: string, needle: string, fetcher: Fetcher | undefined, lookup?: Lookup) => {
+  const page = await safeFetch(url, fetcher, lookup ? { lookup } : {}).catch(() => null);
+  return page?.kind === "page" && page.html.toLowerCase().includes(needle.toLowerCase());
+};
+
+/**
+ * Check the researcher's address evidence against the pages it cites, then record it on the buyer: a
+ * published address that is on its page is verified; a format-built address is likely when at least two
+ * colleagues' addresses on their pages prove the format and the domain takes mail. Anything that does not
+ * hold up is left unconfirmed, for a person to send one at a time.
+ */
+async function applyEmailEvidence(db: Db, domain: string, buyerName: string, evidence: EmailEvidence, deps: { fetcher?: Fetcher; lookup?: Lookup; mailHost?: (domain: string) => Promise<boolean | null>; personId?: string }): Promise<AddressOutcome> {
+  const address = evidence.address.trim().toLowerCase();
+  const out = (outcome: AddressOutcome["outcome"], reason: string): AddressOutcome => ({ domain, address, outcome, reason });
+  if (!address.endsWith(`@${domain}`)) return out("unconfirmed", `the address is not at ${domain}`);
+  const { data: account } = await db.from("accounts").select("id").eq("domain", domain).maybeSingle();
+  if (!account) return out("unconfirmed", "the company was not saved");
+  const query = db.from("people").select("id,email_check,do_not_contact").eq("account_id", account.id);
+  const { data: person } = await (deps.personId ? query.eq("id", deps.personId) : query.ilike("full_name", buyerName)).maybeSingle();
+  if (!person || person.do_not_contact) return out("unconfirmed", "the buyer was not found or is do-not-contact");
+  const now = new Date().toISOString();
+  if (evidence.kind === "published") {
+    if (!(await pageHas(evidence.sourceUrl, address, deps.fetcher, deps.lookup))) return out("unconfirmed", `${address} is not on ${evidence.sourceUrl}`);
+    await db.from("people").update({ email: address, email_source: "published", email_status: "verified", email_verified_at: now, email_check: { email: address, source: "research", evidenceUrl: evidence.sourceUrl, checkedAt: now } }).eq("id", person.id);
+    return out("verified", `published on ${evidence.sourceUrl}`);
+  }
+  const proven: Array<{ name: string; email: string }> = [];
+  for (const example of evidence.examples.slice(0, 4)) {
+    if (example.email.toLowerCase().endsWith(`@${domain}`) && example.email.toLowerCase() !== address && (await pageHas(example.sourceUrl, example.email, deps.fetcher, deps.lookup))) proven.push({ name: example.name, email: example.email.toLowerCase() });
+  }
+  if (proven.length < 2) return out("unconfirmed", `only ${proven.length} colleague address${proven.length === 1 ? " was" : "es were"} found on the cited pages; two are needed to prove the format`);
+  const format = detectPattern(proven, domain);
+  const expected = format ? buildEmail(buyerName, format.key, domain) : null;
+  if (!format || expected !== address) return out("unconfirmed", `the colleagues' addresses do not produce ${address}${expected ? ` (they give ${expected})` : ""}`);
+  if ((await (deps.mailHost ?? domainAcceptsMail)(domain)) === false) return out("unconfirmed", `${domain} does not accept email`);
+  await db.from("people").update({ email: address, email_source: "pattern", email_check: { email: address, source: "research", likely: true, format: format.key, proof: proven.map((item) => item.email), checkedAt: now } }).eq("id", person.id);
+  return out("likely", `matches the ${format.key} format of ${proven.map((item) => item.email).join(", ")}`);
+}
 
 /** Which of these domains a list could still use, and why each other one is out. Read-only. */
 export async function screenDomains(db: Db, domains: string[]): Promise<Array<{ domain: string; usable: boolean; reason: string | null }>> {
@@ -731,10 +780,39 @@ export async function importResearchedList(db: Db, input: { listDate: string; ow
     listId = data.id as string;
   }
   if (kept.length) await prepareRows(db, { id: listId, owner, errors: existing?.errors ?? [] }, kept.filter((row) => freshDomains.has(row.domain)));
+  const addresses: AddressOutcome[] = [];
+  for (const row of kept.filter((item) => freshDomains.has(item.domain))) {
+    const evidence = input.companies.find((item) => domainOf(item.domain) === row.domain)?.emailEvidence;
+    if (evidence) addresses.push(await applyEmailEvidence(db, row.domain, row.buyer.name, evidence, { fetcher: overrides.fetcher, lookup: overrides.lookup, mailHost: overrides.mailHost ?? undefined }));
+  }
   return {
     listDate, owner, status,
     listed: kept.filter((row) => freshDomains.has(row.domain)).map((row) => ({ domain: row.domain, company: row.company, fit: fresh.find((item) => item.row.domain === row.domain)?.fit ?? 0 })),
     reserved: ranked.slice(config.size).map((row) => row.domain).filter((domain) => freshDomains.has(domain)),
     skipped,
+    addresses,
   };
+}
+
+/** Unsent reach-out list drafts whose address is not yet ready for Send all: what the nightly researcher works. */
+export async function addressesToWork(db: Db) {
+  const { data, error } = await db.from("cards")
+    .select("assigned_to,status,signals!inner(hash),people(id,full_name,title,email,email_status,email_source,email_check,do_not_contact),accounts(name,domain,status)")
+    .in("status", ["new", "edited", "approved"])
+    .like("signals.hash", "operator-shortlist-20260923:%")
+    .limit(2000);
+  if (error) throw new Error(`Could not read list drafts: ${error.message}`);
+  return (data ?? []).flatMap((row) => {
+    const person = row.people as unknown as { id: string; full_name: string; title: string | null; email: string | null; email_status: string; email_source: string | null; email_check: unknown; do_not_contact: boolean } | null;
+    const account = row.accounts as unknown as { name: string; domain: string; status: string } | null;
+    if (!person || !account || person.do_not_contact || account.status !== "active" || bulkSendable(person)) return [];
+    return [{ owner: row.assigned_to as string, personId: person.id, name: person.full_name, title: person.title, company: account.name, domain: account.domain, email: person.email, emailStatus: person.email_status, emailSource: person.email_source }];
+  });
+}
+
+/** Record researched address evidence for existing list contacts, checked against the cited pages. */
+export async function importAddressEvidence(db: Db, items: Array<{ personId: string; domain: string; name: string; emailEvidence: EmailEvidence }>, overrides: { fetcher?: Fetcher; lookup?: Lookup; mailHost?: (domain: string) => Promise<boolean | null> } = {}) {
+  const out: AddressOutcome[] = [];
+  for (const item of items) out.push(await applyEmailEvidence(db, domainOf(item.domain), item.name, item.emailEvidence, { ...overrides, personId: item.personId }));
+  return out;
 }

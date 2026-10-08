@@ -1,5 +1,5 @@
 /** Pure rules for the nightly list build, kept free of app imports so they can be tested directly. */
-import { SECTORS } from "./list-sectors.ts";
+import { REVENUE_BAND_USD_M, SECTORS } from "./list-sectors.ts";
 
 // ---------- time ----------
 
@@ -88,7 +88,7 @@ export function minedHosts(sourceUrls: Array<string | null | undefined>, max = 4
  */
 export function sourcingPrompt(chosen: number[], priorDomains: string[], mined: string[]) {
   const skip = [...new Set(priorDomains)].join(", ");
-  return `Find privately held U.S. operating companies with annual revenue between $10M and $100M that appear in a published, dated industry ranking or list, for example Landscape Management's LM150, ENR regional rankings, a Crain's or Business Journal list of largest private companies, a trade association top-100 list, or an Inc. regional list that states revenue.
+  return `Find privately held U.S. operating companies with annual revenue between $${REVENUE_BAND_USD_M.min}M and $${REVENUE_BAND_USD_M.max}M that appear in a published, dated industry ranking or list, for example Landscape Management's LM150, ENR regional rankings, a Crain's or Business Journal list of largest private companies, a trade association top-100 list, or an Inc. regional list that states revenue.
 
 Focus on these sectors, numbered: ${chosen.map((index) => `${index}. ${SECTORS[index]}`).join("; ")}.
 Prefer companies with several locations or branches, field crews or a fleet, or high order and quoting volume: the coordination and paperwork an AI tool can take on.

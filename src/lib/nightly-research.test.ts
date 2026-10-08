@@ -252,11 +252,12 @@ test("revenue: bounded year, ranking disagreement, status and merging", () => {
   const found = (usdMillions: number, year = 2025, sourceUrl = "https://bizjournal.example.com/acme") => ({ usdMillions, year, sourceUrl });
   assert.match(String((settleRevenue(candidate, found(45, 2017), LIST_DATE) as { problem: string }).problem), /2017/);
   assert.ok("problem" in settleRevenue(candidate, found(45, 2027), LIST_DATE));
+  assert.match(String((settleRevenue(candidate, found(60), LIST_DATE) as { problem: string }).problem), /outside \$10M to \$50M/);
 
-  const split = settleRevenue({ ...candidate, revenue_usd_m: 18 }, found(92), LIST_DATE);
+  const split = settleRevenue({ ...candidate, revenue_usd_m: 18 }, found(42), LIST_DATE);
   assert.ok("revenue" in split);
   assert.equal(split.revenue.status, "unconfirmed");
-  assert.ok(split.limitations.some((line) => line.includes("Ranking lists $18M for 2025; research found $92M")));
+  assert.ok(split.limitations.some((line) => line.includes("Ranking lists $18M for 2025; research found $42M")));
   assert.match(split.revenue.note, /disagree/);
 
   const agree = settleRevenue(candidate, found(46), LIST_DATE);

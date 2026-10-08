@@ -6,10 +6,12 @@
 // Reads NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL) and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SECRET_KEY)
 // from .env.local, plus HUNTER_API_KEY for the address check when set. The JSON is one import or an array:
 //   { "listDate": "2026-10-05", "owner": "suuchi", "companies": [ { "company", "domain", "sector",
-//     "revenueUsdM", "revenueYear", "sourceUrl", "research": { ...the shape researchPrompt asks for } } ] }
+//     "revenueUsdM", "revenueYear", "sourceUrl", "research": { ...the shape researchPrompt asks for },
+//     "emailEvidence": { "kind": "published", "address", "sourceUrl" } or
+//                      { "kind": "format", "address", "examples": [ { "name", "email", "sourceUrl" }, ... ] } } ] }
 import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
-import { importResearchedList, screenDomains, type ResearchedCompany } from "../src/lib/nightly-list-builder.ts";
+import { addressesToWork, importAddressEvidence, importResearchedList, screenDomains, type EmailEvidence, type ResearchedCompany } from "../src/lib/nightly-list-builder.ts";
 import { seatOwner } from "../src/lib/types.ts";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
@@ -31,7 +33,14 @@ if (command === "check") {
     for (const row of result.listed) console.log(`  + ${row.company} (${row.domain}) fit ${row.fit}`);
     for (const domain of result.reserved) console.log(`  ~ ${domain} kept as a reserve`);
     for (const row of result.skipped) console.log(`  - ${row.domain}: ${row.reason}`);
+    for (const row of result.addresses) console.log(`  @ ${row.address}: ${row.outcome} (${row.reason})`);
   }
+} else if (command === "addresses") {
+  // Unsent list drafts whose address is not ready for Send all, as JSON for the researcher.
+  console.log(JSON.stringify(await addressesToWork(db), null, 2));
+} else if (command === "addresses-import") {
+  const items = JSON.parse(readFileSync(rest[0], "utf8")) as Array<{ personId: string; domain: string; name: string; emailEvidence: EmailEvidence }>;
+  for (const row of await importAddressEvidence(db, items)) console.log(`  @ ${row.address} (${row.domain}): ${row.outcome} (${row.reason})`);
 } else {
-  console.log("Usage: pnpm list:check <domain...>  |  pnpm list:import <file.json>");
+  console.log("Usage: pnpm list:check <domain...> | pnpm list:import <file.json> | pnpm list:addresses | pnpm list:addresses-import <file.json>");
 }

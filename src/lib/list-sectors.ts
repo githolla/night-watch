@@ -1,3 +1,8 @@
+/** The ICP revenue band in USD millions: mid-market operators from $10M to $50M a year. */
+export const REVENUE_BAND_USD_M = { min: 10, max: 50 } as const;
+export const inRevenueBand = (usdMillions: number) => usdMillions >= REVENUE_BAND_USD_M.min && usdMillions <= REVENUE_BAND_USD_M.max;
+export const REVENUE_BAND_TEXT = `$${REVENUE_BAND_USD_M.min}M to $${REVENUE_BAND_USD_M.max}M`;
+
 /**
  * Sectors like the curated lists (operating businesses, never consulting, IT, software or staffing), ordered
  * by how much repetitive coordination and paperwork the work carries: dispatching crews, scheduling, quoting,
