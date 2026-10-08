@@ -33,6 +33,12 @@ export function followupState(row: Pick<Row, "channel" | "kind" | "status" | "sc
  * Steps already being delivered (sent_at set) are left out: they are no longer something to edit or skip.
  */
 export async function nextFollowups(db: SupabaseClient, options: { owner?: string; now?: number } = {}): Promise<Map<string, NextFollowup>> {
+  const all = await pendingFollowups(db, options);
+  return new Map([...all].map(([card, steps]) => [card, steps[0]]));
+}
+
+/** Every follow-up still waiting on each active sequence, in send order, keyed by card. */
+export async function pendingFollowups(db: SupabaseClient, options: { owner?: string; now?: number } = {}): Promise<Map<string, NextFollowup[]>> {
   const now = options.now ?? Date.now();
   let query = db.from("cadence_steps")
     .select("id,step_number,channel,kind,subject,body,status,scheduled_at,error,sent_at,cadences!inner(card_id,owner,status,people(full_name,email,email_status,email_check),cards(accounts(name)))")
@@ -41,17 +47,17 @@ export async function nextFollowups(db: SupabaseClient, options: { owner?: strin
   if (options.owner) query = query.eq("cadences.owner", options.owner);
   const { data, error } = await query;
   if (error) throw new Error(`Could not read follow-ups: ${error.message}`);
-  const next = new Map<string, NextFollowup>();
+  const next = new Map<string, NextFollowup[]>();
   for (const row of (data ?? []) as unknown as Row[]) {
     const cadence = row.cadences;
-    if (!cadence || next.has(cadence.card_id)) continue;
+    if (!cadence) continue;
     const person = cadence.people;
     const { auto, needsYou } = followupState(row, Boolean(person && bulkSendable(person)), now);
-    next.set(cadence.card_id, {
+    next.set(cadence.card_id, [...(next.get(cadence.card_id) ?? []), {
       stepId: row.id, cardId: cadence.card_id, owner: cadence.owner, step: row.step_number, scheduledAt: row.scheduled_at, channel: row.channel,
       subject: row.subject, body: row.body ?? "", auto, needsYou,
       person: person?.full_name ?? "", company: cadence.cards?.accounts?.name ?? "",
-    });
+    }].sort((x, y) => x.step - y.step));
   }
   return next;
 }

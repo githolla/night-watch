@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { FollowupPanel, followupLine, type FollowupView } from "./FollowupPanel";
+import { FollowupThread, followupLine, type FollowupView } from "./FollowupPanel";
 
 export type ActivityEvent = {
   id: string;
@@ -28,8 +28,8 @@ export type ActivityEvent = {
   giftViewAt?: string | null;
   trackedOpen?: boolean;
   sendSource?: string;
-  /** The next follow-up waiting after this email, when there is one. */
-  followup?: FollowupView;
+  /** Follow-ups still waiting after this email, in send order. */
+  followups?: FollowupView[];
 };
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -262,7 +262,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
                       {event.version && <small>{event.version} · {event.sendSource}{event.openAt ? " · Open detected" : ""}{event.giftViewAt ? " · Gift viewed" : ""}</small>}
                       {event.subject && <p className="activity-row-subject">{event.subject}</p>}
                       {event.snippet && <p className="activity-row-snip">{event.snippet}</p>}
-                      {event.followup && <p className={`activity-row-followup ${event.followup.needsYou ? "needs-you" : ""}`}>{followupLine(event.followup)}</p>}
+                      {event.followups?.[0] && <p className={`activity-row-followup ${event.followups[0].needsYou ? "needs-you" : ""}`}>{followupLine(event.followups[0])}</p>}
                     </div>
                     <time className="activity-row-time">{timeOf(event.at)}</time>
                     {canDelete && <button type="button" className="activity-row-del" title="Remove this record" onClick={(e) => { e.stopPropagation(); removeEvent(event.id); }}>✕</button>}
@@ -285,19 +285,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
               </div>
               <button type="button" className="act-modal-x" onClick={() => setDetail(null)} aria-label="Close">✕</button>
             </header>
-            <dl className="act-modal-meta">
-              <div><dt>To</dt><dd>{detail.person}{detail.title ? `, ${detail.title}` : ""}{detail.to ? ` · ${detail.to}` : ""}</dd></div>
-              <div><dt>Company</dt><dd>{detail.company}</dd></div>
-              <div><dt>Sent by</dt><dd>{detail.sentBy}</dd></div>
-              {detail.version && <div><dt>Version</dt><dd>{detail.version}</dd></div>}
-              {detail.sendSource && <div><dt>Recorded via</dt><dd>{detail.sendSource}</dd></div>}
-              {detail.giftViewAt && <div><dt>Gift view signal</dt><dd>{fullWhen(detail.giftViewAt)}<small> Consider a personal follow-up. Scanners or forwarded links may trigger this; it does not prove interest.</small></dd></div>}
-              {detail.channel === "email" && <div><dt>Open signal</dt><dd>{detail.openAt ? `Detected ${fullWhen(detail.openAt)}` : detail.trackedOpen ? "No open detected" : "Not tracked"}<small> Image loading is not proof of reading; privacy tools can trigger or block it.</small></dd></div>}
-              <div><dt>When</dt><dd>{fullWhen(detail.at)}</dd></div>
-              <div><dt>Status</dt><dd>{detail.replied ? <span className={`act-modal-reply ${detail.replyClass === "positive" ? "is-pos" : ""}`}>Replied{detail.replyClass === "positive" ? " · positive" : ""}</span> : "Sent · no reply yet"}</dd></div>
-              {detail.inCadence && !detail.followup && <div><dt>Follow-ups</dt><dd>In an active follow-up sequence</dd></div>}
-            </dl>
-            {detail.followup && <FollowupPanel key={detail.followup.stepId} followup={detail.followup} onChange={(next) => { setEvents((current) => current.map((item) => item.id === detail.id ? { ...item, followup: next ?? undefined } : item)); setDetail((current) => current ? { ...current, followup: next ?? undefined } : current); }} />}
+            <p className="act-modal-line">To <b>{detail.person}</b>{detail.to ? ` · ${detail.to}` : ""} · {detail.company} · sent {fullWhen(detail.at)} by {detail.sentBy} · {detail.replied ? <span className={`act-modal-reply ${detail.replyClass === "positive" ? "is-pos" : ""}`}>Replied{detail.replyClass === "positive" ? " · positive" : ""}</span> : "no reply yet"}</p>
             <div className="act-modal-body">
               {loadingBody && <span className="act-modal-loading">Loading the full message…</span>}
               {(() => {
@@ -307,6 +295,23 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
                 return <em className="act-modal-empty">{text ? text : "No message text was recorded for this send."}</em>;
               })()}
             </div>
+            {detail.followups && detail.followups.length > 0 && (
+              <section className="act-modal-followups" aria-label="Follow-ups">
+                <h3>Follow-ups after this email</h3>
+                <FollowupThread followups={detail.followups} onChange={(next) => { const value = next.length ? next : undefined; setEvents((current) => current.map((item) => item.id === detail.id ? { ...item, followups: value } : item)); setDetail((current) => current ? { ...current, followups: value } : current); }} />
+              </section>
+            )}
+            {!detail.followups?.length && detail.inCadence && <p className="act-modal-line">No follow-ups are waiting after this email.</p>}
+            <details className="act-modal-more">
+              <summary>More details</summary>
+              <dl className="act-modal-meta">
+                {detail.title && <div><dt>Title</dt><dd>{detail.title}</dd></div>}
+                {detail.version && <div><dt>Version</dt><dd>{detail.version}</dd></div>}
+                {detail.sendSource && <div><dt>Recorded via</dt><dd>{detail.sendSource}</dd></div>}
+                {detail.giftViewAt && <div><dt>Gift view signal</dt><dd>{fullWhen(detail.giftViewAt)}<small> Consider a personal follow-up. Scanners or forwarded links may trigger this; it does not prove interest.</small></dd></div>}
+                {detail.channel === "email" && <div><dt>Open signal</dt><dd>{detail.openAt ? `Detected ${fullWhen(detail.openAt)}` : detail.trackedOpen ? "No open detected" : "Not tracked"}<small> Image loading is not proof of reading; privacy tools can trigger or block it.</small></dd></div>}
+              </dl>
+            </details>
           </div>
         </div>
       )}

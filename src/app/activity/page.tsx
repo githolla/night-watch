@@ -7,7 +7,7 @@ import { pendingMigrations } from "@/lib/schema-check";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
-import { nextFollowups } from "@/lib/next-followups";
+import { pendingFollowups, type NextFollowup } from "@/lib/next-followups";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +60,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
     db.from("cadences").select("card_id").eq("status", "active"),
   ]);
   // Each sent email's next follow-up, shown on its most recent touch so History is where follow-ups live.
-  const followups = await nextFollowups(db).catch(() => new Map());
+  const followups = await pendingFollowups(db).catch(() => new Map<string, NextFollowup[]>());
   const shownFollowup = new Set<string>();
   const seatName: Record<string, string> = {};
   for (const row of (profileRows ?? []) as Array<{ owner: string; from_name: string | null }>)
@@ -101,11 +101,11 @@ export default async function Activity({ searchParams }: { searchParams: Promise
       openAt: firstOpenAt(row.message_variants?.message_experiments?.context),
       trackedOpen: Boolean(versionMeta(row.message_variants?.dimensions) && row.gmail_thread_id),
       sendSource: row.gmail_thread_id ? "Gmail" : versionMeta(row.message_variants?.dimensions)?.source === "manual" ? "Marked sent" : "Legacy record: delivery not confirmed",
-      followup: (() => {
-        const next = row.card_id ? followups.get(row.card_id) : undefined;
-        if (!next || shownFollowup.has(next.cardId)) return undefined;
-        shownFollowup.add(next.cardId);
-        return { stepId: next.stepId, step: next.step, scheduledAt: next.scheduledAt, channel: next.channel, subject: next.subject, body: next.body, auto: next.auto, needsYou: next.needsYou, canAct: next.owner === me.owner };
+      followups: (() => {
+        const steps = row.card_id ? followups.get(row.card_id) : undefined;
+        if (!steps?.length || !row.card_id || shownFollowup.has(row.card_id)) return undefined;
+        shownFollowup.add(row.card_id);
+        return steps.map((next) => ({ stepId: next.stepId, step: next.step, scheduledAt: next.scheduledAt, channel: next.channel, subject: next.subject, body: next.body, auto: next.auto, needsYou: next.needsYou, canAct: next.owner === me.owner }));
       })(),
 
     };
