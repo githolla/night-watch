@@ -1001,6 +1001,29 @@ export function Desk({
     setAutoSeats(current => current.map(item => item.owner === owner ? seat : item));
     setNotice("Auto-send is skipped for today. Nothing goes out automatically until the next send day.");
   }
+  // The seat whose list is open (or, with none open, every seat the viewer may see): always on screen, above the list.
+  const waitingFor = (owner: string) => cards.filter(c => c.assigned_to === owner && ["new","edited","approved"].includes(c.status) && c.email_subject?.trim() && c.email_body?.trim() && sendableAddress(c.people as unknown as Parameters<typeof sendableAddress>[0])).length;
+  const barSeats = autoSeats.filter(seat => !listOwner || seat.owner === listOwner);
+  const autoSendBar = barSeats.length > 0 && !demo ? (
+    <div className="autosend-bar" aria-label="Auto-send">
+      {barSeats.map(seat => {
+        const waiting = waitingFor(seat.owner);
+        const line = autoSendLine(seat, waiting);
+        const on = seat.autoSend && !seat.paused;
+        return (
+          <div className="autosend-seat" key={seat.owner}>
+            {barSeats.length > 1 && <b className="autosend-who">{context?.seatNames?.[seat.owner] ?? (seat.owner === "josh" ? "Josh" : "Suuchi")}</b>}
+            {seat.autoSend && seat.paused
+              ? <button type="button" className="autosend-switch is-paused" onClick={() => void setAutoSend(seat.owner, { paused: false }, waiting)}><span className="autosend-knob" />Paused · Resume</button>
+              : <button type="button" role="switch" aria-checked={on} className={`autosend-switch ${on ? "is-on" : ""}`} onClick={() => void setAutoSend(seat.owner, { autoSend: !seat.autoSend }, waiting)}><span className="autosend-knob" />Auto-send {on ? "On" : "Off"}</button>}
+            <span className="autosend-text">{line.text}</span>
+            {line.canSkip && <button type="button" className="btn ghost autosend-skip" onClick={() => void skipAutoSendToday(seat.owner)}>Skip today</button>}
+            <span className="autosend-count">{sentTodayLine(seat)}</span>
+          </div>
+        );
+      })}
+    </div>
+  ) : null;
   const readyToSend = (owner: string | null) => cards.filter(c => ["new","edited","approved"].includes(c.status) && batchOwner(c.accounts.domain ?? "") === owner && c.email_subject?.trim() && c.email_body?.trim() && c.people.email);
   async function sendAllReady() {
     if (!focusCard || bulkSending || sending || sendInFlight.current) return;
@@ -1410,6 +1433,7 @@ export function Desk({
             <div className="workspace-progress"><h1>Reach-out list</h1>{batchSequence && progress && <span>{batchSequence === 1 ? `${progress.completed} of ${progress.total} completed` : batchSequence === 3 ? `Today's list · ${cards.length} companies` : 'Next 25'}</span>}</div>
             <div className="deskwork-head-actions">{tools}<a className="deskwork-overview" href={overviewHref}>Overview &rarr;</a></div>
           </header>
+          {autoSendBar}
 
           <div className="deskwork-grid">
             {/* LEFT — companies */}
@@ -1592,17 +1616,6 @@ export function Desk({
                           {bulkUndo.length > 0 && <button type="button" className="btn ghost" disabled={bulkSending} onClick={undoBulk}>Undo last batch edit</button>}
                           {senderIsViewer && (() => { const ready = readyToSend(batchOwner(focusCard.accounts.domain ?? "")); const verified = ready.filter(c => sendableAddress(c.people as unknown as Parameters<typeof sendableAddress>[0])).length; return <><button type="button" className="btn primary" disabled={bulkSending || sending || !verified} onClick={() => void sendAllReady()} title="Send every unsent draft with an address, confirmed or not, one at a time">{bulkSending ? "Sending…" : `Send all ready (${verified})`}</button></>; })()}
                         </div>}
-                        {!altContact && senderIsViewer && (() => {
-                          const owner = batchOwner(focusCard.accounts.domain ?? "");
-                          const seat = autoSeats.find(item => item.owner === owner);
-                          if (!seat || !owner) return null;
-                          const waiting = readyToSend(owner).filter(c => sendableAddress(c.people as unknown as Parameters<typeof sendableAddress>[0])).length;
-                          const line = autoSendLine(seat, waiting);
-                          const toggle = seat.autoSend && seat.paused
-                            ? <button type="button" className="btn" onClick={() => void setAutoSend(seat.owner, { paused: false }, waiting)}>Resume auto-send</button>
-                            : <button type="button" className={`btn autosend-toggle ${seat.autoSend ? "is-on" : ""}`} aria-pressed={seat.autoSend} onClick={() => void setAutoSend(seat.owner, { autoSend: !seat.autoSend }, waiting)}>{seat.autoSend ? "Auto-send: On" : "Auto-send: Off"}</button>;
-                          return <div className="composer-autosend" role="status">{toggle}<span>{line.text}</span>{line.canSkip && <button type="button" className="btn ghost" onClick={() => void skipAutoSendToday(seat.owner)}>Skip today</button>}<span className="composer-sent-today">{sentTodayLine(seat)}</span></div>;
-                        })()}
                         {bulkProgress && <div className="composer-batch-progress" role="status" aria-live="polite">
                           <progress max={bulkProgress.total} value={bulkProgress.sent + bulkProgress.failed.length} />
                           <span>{bulkSending ? `Sending ${Math.min(bulkProgress.sent + bulkProgress.failed.length + 1, bulkProgress.total)} of ${bulkProgress.total}${bulkProgress.current ? `: ${bulkProgress.current}` : ""}` : `Done: ${bulkProgress.sent} sent${bulkProgress.failed.length ? `, ${bulkProgress.failed.length} not sent` : ""}`}</span>

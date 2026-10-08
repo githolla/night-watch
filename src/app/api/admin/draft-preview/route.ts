@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth";
+import { draftMatch, draftSeat } from "@/lib/draft-scope";
 import { sanitizeLinks, similarText } from "@/lib/sender";
 import { dedupeParagraphs } from "@/lib/clean";
 import { admin } from "@/lib/supabase/admin";
@@ -37,14 +38,14 @@ const stripGreeting = (body: string, line: string) => {
 export async function POST(request: Request) {
   try {
     const user = await requireUser();
-    if (user.role !== "admin") return Response.json({ error: "Admins only" }, { status: 403 });
     const body = await request.json().catch(() => ({}));
+    const seat = draftSeat(user, body?.owner);
     const tool = body?.tool === "greeting" ? "greeting" : "clean";
     const template = typeof body?.greeting === "string" ? body.greeting.trim() : "";
     if (tool === "greeting" && !template) return Response.json({ error: "Type a greeting first." }, { status: 400 });
 
     const db = admin();
-    const base = () => db.from("cards").select("id,email_body,people(full_name)", { count: "exact" })
+    const base = () => db.from("cards").select("id,email_body,people(full_name)", { count: "exact" }).match(draftMatch(seat))
       .in("status", ["new", "approved", "edited"]).not("email_body", "is", null);
 
     const { data, count: total } = await base().order("id", { ascending: true }).limit(SCAN);

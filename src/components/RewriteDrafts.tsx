@@ -18,7 +18,9 @@ type Preview = { total: number; scanned: number; wouldChange: number; exact: boo
  * Each is now its own card, saying up front how many drafts it would touch and — for the two deterministic
  * ones — letting you see the exact before and after on real drafts before anything is written.
  */
-export function RewriteDrafts() {
+export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) {
+  // Whose drafts every tool below touches; the server limits a member to their own seat whatever is sent.
+  const seat = owner ? { owner } : {};
   const [running, setRunning] = useState<"" | "rewrite" | "greeting" | "clean" | "contacts" | "redraft" | "people" | "audit">("");
   const [msg, setMsg] = useState("");
   const [greeting, setGreeting] = useState("Hi {first},");
@@ -46,7 +48,7 @@ export function RewriteDrafts() {
     if (tool === "greeting" && !greeting.trim()) { setMsg("Type a greeting first."); return; }
     setPreviewing(tool); setMsg("");
     try {
-      const response = await fetch("/api/admin/draft-preview", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ tool, greeting }) });
+      const response = await fetch("/api/admin/draft-preview", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...seat, tool, greeting }) });
       const json = await response.json();
       if (!response.ok) { setMsg(json.error ?? "Could not check the drafts."); return; }
       setPreview({ tool, data: json as Preview });
@@ -63,7 +65,7 @@ export function RewriteDrafts() {
     try {
       let offset = 0, fixed = 0, blanked = 0;
       for (let i = 0; i < 60; i++) {
-        const res = await fetch("/api/admin/clean-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ offset }) });
+        const res = await fetch("/api/admin/clean-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...seat, offset }) });
         const json = await res.json();
         if (!res.ok) { setMsg(json.error ?? "Clean-up failed."); return; }
         fixed += json.cleaned ?? 0; blanked += json.skipped ?? 0; offset = json.offset ?? offset;
@@ -80,7 +82,7 @@ export function RewriteDrafts() {
     const before = new Date().toISOString();
     let total = 0;
     for (let i = 0; i < 60; i++) {
-      const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...extra, before }) });
+      const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...seat, ...extra, before }) });
       const json = await res.json();
       if (!res.ok) { setMsg(json.error ?? "Something went wrong."); return; }
       total += json[key] ?? 0;
@@ -117,7 +119,7 @@ export function RewriteDrafts() {
       const before = new Date().toISOString();
       let offset = 0, written = 0, failed = 0, done = false;
       for (let i = 0; i < 200; i++) {
-        const res = await fetch("/api/admin/draft-contacts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ offset, perCompany, before }) });
+        const res = await fetch("/api/admin/draft-contacts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...seat, offset, perCompany, before }) });
         const json = await res.json();
         if (!res.ok) { setMsg(json.error ?? "Could not write the drafts."); return; }
         written += json.written ?? 0; failed += json.failed ?? 0; offset = json.offset ?? offset;
@@ -142,7 +144,7 @@ export function RewriteDrafts() {
       const before = new Date().toISOString();
       let offset = 0, written = 0, failed = 0, done = false;
       for (let i = 0; i < 200; i++) {
-        const res = await fetch("/api/admin/redraft-all", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ offset, before }) });
+        const res = await fetch("/api/admin/redraft-all", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...seat, offset, before }) });
         const json = await res.json();
         if (!res.ok) { setMsg(json.error ?? "Could not rewrite the drafts."); return; }
         written += json.written ?? 0; failed += json.failed ?? 0; offset = json.next ?? offset;
@@ -180,7 +182,7 @@ export function RewriteDrafts() {
       let offset = 0, done = false;
       const totals: AuditResult = { checked: 0, clean: 0, unsendable: 0, byRule: {}, problems: [] };
       for (let i = 0; i < 200; i++) {
-        const res = await fetch("/api/admin/audit-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ offset }) });
+        const res = await fetch("/api/admin/audit-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...seat, offset }) });
         const json = await res.json();
         if (!res.ok) { setMsg(json.error ?? "Could not read the drafts."); return; }
         totals.checked += json.checked ?? 0;
@@ -206,12 +208,49 @@ export function RewriteDrafts() {
 
   return (
     <div className="draft-tools">
-      {/* The three that fix a list end to end, in the order they should be pressed. Everything below them is
-          a single change you reach for on purpose; these are a sequence, and running them out of order wastes
-          the work — rewriting before the fake contacts are gone just writes emails to them. */}
-      <p className="draft-tools-lead"><strong>Steps 1 and 2 now run on their own</strong> &mdash; every night, and whenever the worklist refreshes. Anything filed as a contact that is not a person comes off, and any draft that could not be sent as it stands is rewritten. The buttons are here for when you do not want to wait for that. Step 3 reads the list back to you. All free, no AI. The rest below are single changes to reach for on purpose.</p>
+      <h2 className="draft-group-title" id="setup">Set up</h2>
+      <p className="draft-group-lead">How every unsent email starts, and who gets one.</p>
+      {/* 2 — rewrites one line across the list. */}
+      <section className="draft-tool">
+        <header>
+          <div><h3>Update greeting</h3><p>Replaces the opening line of every un-sent email. Write <code>{"{first}"}</code> where the first name goes, so <em>Hi {"{first}"},</em> reaches Robert as <em>Hi Robert,</em>. The rest of each email is untouched.</p></div>
+          <span className="panel-cost is-free">Free</span>
+        </header>
+        <input
+          value={greeting}
+          onChange={(event) => { setGreeting(event.target.value); if (preview?.tool === "greeting") setPreview(null); }}
+          placeholder="Hi {first},"
+          className="draft-tool-input"
+        />
+        <div className="draft-tool-actions">
+          <button type="button" className="btn" disabled={!!running || !!previewing} onClick={() => runPreview("greeting")}>{previewing === "greeting" ? "Checking…" : "Preview changes"}</button>
+          <button type="button" className="btn primary" disabled={!!running} onClick={applyGreeting}>{running === "greeting" ? "Updating…" : "Update greeting"}</button>
+        </div>
+        {preview?.tool === "greeting" && shown && <PreviewBlock data={shown} />}
+      </section>
 
-{/* 0a — nothing else matters if the list is not people. */}
+      {/* 0 — writes the list you actually work. */}
+      <section className="draft-tool">
+        <header>
+          <div><h3>Write a draft for every contact</h3><p>Everyone worth emailing at every company gets their own draft, aimed at what their role owns: a CFO is asked about cost, an engineering lead about what gets built, a CEO about headcount. Same evidence, different email.</p></div>
+          <span className="panel-cost is-free">Free</span>
+        </header>
+        <p className="panel-watch">Written from each company&rsquo;s own signal, with no AI call, so the whole list costs nothing. Anything already drafted or sent is left alone. The new drafts appear under <strong>All active</strong> on the desk rather than today&rsquo;s worklist.</p>
+        <label className="draft-tool-row">
+          <span>People per company</span>
+          <select value={perCompany} onChange={(event) => setPerCompany(Number(event.target.value))}>
+            {[2, 3, 4, 5, 6, 8, 10].map((count) => <option key={count} value={count}>{count}</option>)}
+          </select>
+          <small>Most senior first, verified addresses ahead of guessed ones &mdash; a company can carry forty contacts and you don&rsquo;t want all of them on the desk.</small>
+        </label>
+        <div className="draft-tool-actions">
+          <button type="button" className="btn primary" disabled={!!running} onClick={draftContacts}>{running === "contacts" ? "Writing…" : "Write the drafts"}</button>
+        </div>
+      </section>
+
+      <h2 className="draft-group-title" id="check">Check and fix</h2>
+      <p className="draft-group-lead">Steps 1 and 2 already run on their own every night. Press them here when you don&rsquo;t want to wait. All free, no AI.</p>
+      {/* 0a — nothing else matters if the list is not people. */}
       <section className="draft-tool">
         <header>
           <div><h3><em className="draft-step">Step 1</em>Check the contact list</h3><p>Websites put their own sales copy in the same place as their people, so phrases get filed as contacts: &ldquo;Discover Untapped Performance&rdquo;, titled &ldquo;Your Industry Partner&rdquo;. Three capitalised words look exactly like a name. This finds them and takes them off.</p></div>
@@ -228,7 +267,7 @@ export function RewriteDrafts() {
         )}
       </section>
 
-{/* 0b — makes the list read as one voice. */}
+      {/* 0b — makes the list read as one voice. */}
       <section className="draft-tool">
         <header>
           <div><h3><em className="draft-step">Step 2</em>Make every draft read the same way</h3><p>The contact a company arrived with kept whatever was written for them at the time, while their colleagues got the per-person writer &mdash; so working down the list you met one email with the greeting doubled into the first line, the next with no subject, the next written properly. This puts all of them through the same writer.</p></div>
@@ -240,7 +279,7 @@ export function RewriteDrafts() {
         </div>
       </section>
 
-{/* 0 — read before you write: what is actually wrong, by name. */}
+      {/* 0 — read before you write: what is actually wrong, by name. */}
       <section className="draft-tool">
         <header>
           <div><h3><em className="draft-step">Step 3</em>Audit every draft</h3><p>Reads every un-sent email on file and checks it against every rule at once: greets the right person, names the company, has a real subject, no placeholder left in, no link in the body, no role list read as a job title, within the length the send route accepts, and addressed to someone who is actually a person.</p></div>
@@ -268,25 +307,6 @@ export function RewriteDrafts() {
         )}
       </section>
 
-{/* 0 — writes the list you actually work. */}
-      <section className="draft-tool">
-        <header>
-          <div><h3>Write a draft for every contact</h3><p>Everyone worth emailing at every company gets their own draft, aimed at what their role owns: a CFO is asked about cost, an engineering lead about what gets built, a CEO about headcount. Same evidence, different email.</p></div>
-          <span className="panel-cost is-free">Free</span>
-        </header>
-        <p className="panel-watch">Written from each company&rsquo;s own signal, with no AI call, so the whole list costs nothing. Anything already drafted or sent is left alone. The new drafts appear under <strong>All active</strong> on the desk rather than today&rsquo;s worklist.</p>
-        <label className="draft-tool-row">
-          <span>People per company</span>
-          <select value={perCompany} onChange={(event) => setPerCompany(Number(event.target.value))}>
-            {[2, 3, 4, 5, 6, 8, 10].map((count) => <option key={count} value={count}>{count}</option>)}
-          </select>
-          <small>Most senior first, verified addresses ahead of guessed ones &mdash; a company can carry forty contacts and you don&rsquo;t want all of them on the desk.</small>
-        </label>
-        <div className="draft-tool-actions">
-          <button type="button" className="btn primary" disabled={!!running} onClick={draftContacts}>{running === "contacts" ? "Writing…" : "Write the drafts"}</button>
-        </div>
-      </section>
-
       {/* 1 — the safe one, first on purpose. */}
       <section className="draft-tool">
         <header>
@@ -300,25 +320,8 @@ export function RewriteDrafts() {
         {preview?.tool === "clean" && shown && <PreviewBlock data={shown} />}
       </section>
 
-      {/* 2 — rewrites one line across the list. */}
-      <section className="draft-tool">
-        <header>
-          <div><h3>Update greeting</h3><p>Replaces the opening line of every un-sent email. Write <code>{"{first}"}</code> where the first name goes, so <em>Hi {"{first}"},</em> reaches Robert as <em>Hi Robert,</em>. The rest of each email is untouched.</p></div>
-          <span className="panel-cost is-free">Free</span>
-        </header>
-        <input
-          value={greeting}
-          onChange={(event) => { setGreeting(event.target.value); if (preview?.tool === "greeting") setPreview(null); }}
-          placeholder="Hi {first},"
-          className="draft-tool-input"
-        />
-        <div className="draft-tool-actions">
-          <button type="button" className="btn" disabled={!!running || !!previewing} onClick={() => runPreview("greeting")}>{previewing === "greeting" ? "Checking…" : "Preview changes"}</button>
-          <button type="button" className="btn primary" disabled={!!running} onClick={applyGreeting}>{running === "greeting" ? "Updating…" : "Update greeting"}</button>
-        </div>
-        {preview?.tool === "greeting" && shown && <PreviewBlock data={shown} />}
-      </section>
-
+      <h2 className="draft-group-title" id="ai">Rewrite with AI</h2>
+      <p className="draft-group-lead">Only when the drafts read generically. It costs AI credits and replaces hand edits.</p>
       {/* 3 — the expensive, destructive one, last and clearly marked. */}
       <section className="draft-tool">
         <header>

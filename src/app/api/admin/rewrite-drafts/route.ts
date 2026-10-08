@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth";
+import { draftMatch, draftSeat } from "@/lib/draft-scope";
 import { refineDraft } from "@/lib/agents";
 import { admin } from "@/lib/supabase/admin";
 import { spendTally } from "@/lib/spend";
@@ -17,9 +18,10 @@ type CardRow = {
 // calls make progress and stop cleanly instead of rewriting the same cards.
 export async function POST(request: Request) {
   const user = await requireUser();
-  if (user.role !== "admin") return Response.json({ error: "Admins only" }, { status: 403 });
   const db = admin();
-  const { before } = await request.json().catch(() => ({ before: new Date().toISOString() }));
+  const input = await request.json().catch(() => ({ before: new Date().toISOString() }));
+  const { before } = input;
+  const seat = draftSeat(user, input?.owner);
   const cutoff = typeof before === "string" && before ? before : new Date().toISOString();
 
   const { data: profiles } = await db.from("sender_profiles").select("owner,from_name,title");
@@ -27,7 +29,7 @@ export async function POST(request: Request) {
   for (const p of (profiles ?? []) as Array<{ owner: string; from_name: string | null; title: string | null }>)
     prof.set(p.owner, { name: p.from_name ?? "", title: p.title ?? "" });
 
-  const filter = () => db.from("cards").select("id,why_now,email_subject,email_body,assigned_to,people(full_name,title),accounts(name,domain)", { count: "exact" })
+  const filter = () => db.from("cards").select("id,why_now,email_subject,email_body,assigned_to,people(full_name,title),accounts(name,domain)", { count: "exact" }).match(draftMatch(seat))
     .in("status", ["new", "approved", "edited"]).not("email_body", "is", null).lt("updated_at", cutoff);
 
   // Small batch, processed concurrently, so each request returns in seconds and the caller can show

@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { purgeNonPeople } from "@/lib/pipeline";
 
 /**
@@ -14,7 +14,8 @@ import { purgeNonPeople } from "@/lib/pipeline";
  */
 export async function POST() {
   try {
-    await requireAdmin();
+    // Any signed-in user: it only takes non-people (page titles, slogans, shared inboxes) off the contact list.
+    await requireUser();
     const { removed, names } = await purgeNonPeople();
     return Response.json({ ok: true, removed, names });
   } catch (error) {

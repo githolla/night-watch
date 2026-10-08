@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth";
+import { draftMatch, draftSeat } from "@/lib/draft-scope";
 import { composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
 import { senderProfile } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
@@ -32,8 +33,8 @@ const PAGE = 40;
 export async function POST(request: Request) {
   try {
     const user = await requireUser();
-    if (user.role !== "admin") return Response.json({ error: "Admins only" }, { status: 403 });
     const body = await request.json().catch(() => ({}));
+    const seat = draftSeat(user, body?.owner);
     const offset = Number.isFinite(Number(body?.offset)) ? Math.max(0, Math.floor(Number(body.offset))) : 0;
     // Freeze the source set at the start of the drain. Every row this writes stays in OPEN, so a moving
     // count would let the run keep finding its own output.
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
     const { data, count, error } = await db.from("cards")
       // assigned_to is READ below to decide whose voice each draft is written in. It was missing here while
       // the row type declared it, so TypeScript was satisfied and every card arrived with it undefined.
-      .select("id,signal_id,why_now,assigned_to,signals(raw),accounts(name,domain),people(full_name,title)", { count: "exact" })
+      .select("id,signal_id,why_now,assigned_to,signals(raw),accounts(name,domain),people(full_name,title)", { count: "exact" }).match(draftMatch(seat))
       .in("status", OPEN)
       .lt("created_at", before)
       .order("id", { ascending: true })

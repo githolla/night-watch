@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth";
+import { draftMatch, draftSeat } from "@/lib/draft-scope";
 import { sanitizeLinks } from "@/lib/sender";
 import { dedupeParagraphs } from "@/lib/clean";
 import { admin } from "@/lib/supabase/admin";
@@ -16,15 +17,15 @@ type CardRow = { id: string; email_body: string | null };
 export async function POST(request: Request) {
   try {
     const user = await requireUser();
-    if (user.role !== "admin") return Response.json({ error: "Admins only" }, { status: 403 });
     const body = await request.json().catch(() => ({}));
+    const seat = draftSeat(user, body?.owner);
     // Offset pagination, NOT an updated_at cursor: this tool deliberately leaves untouched rows alone, so
     // there is nothing to advance a timestamp cursor and the drain would re-read the same page forever.
     const offset = Number.isFinite(Number(body?.offset)) ? Math.max(0, Math.floor(Number(body.offset))) : 0;
     const PAGE = 100;
     const db = admin();
 
-    const { data, count } = await db.from("cards").select("id,email_body", { count: "exact" })
+    const { data, count } = await db.from("cards").select("id,email_body", { count: "exact" }).match(draftMatch(seat))
       .in("status", ["new", "approved", "edited"]).not("email_body", "is", null)
       .order("id", { ascending: true }).range(offset, offset + PAGE - 1);
     const cards = (data ?? []) as CardRow[];

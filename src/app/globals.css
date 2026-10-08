@@ -2437,8 +2437,44 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .address-badge.is-unconfirmed{background:#f6eedf;color:#775a2d}
 .composer-why{margin:0 0 10px;font-size:13px;line-height:1.5;color:var(--ink-soft)}
 .composer-why b{color:var(--ink);font-weight:600}
-.composer-autosend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:-4px 0 12px;font-size:12px;color:var(--muted)}
-.composer-autosend .btn{padding:2px 10px;font-size:12px}
-.composer-sent-today{margin-left:auto;font:600 12px/1.4 var(--mono);color:var(--ink-soft)}
-.composer-autosend .autosend-toggle{font-weight:600}
-.composer-autosend .autosend-toggle.is-on{background:#e3f2ec;border-color:#9fcdb9;color:#2d715c}
+.autosend-bar{display:flex;flex-direction:column;gap:6px;margin:0 0 14px;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper-bright)}
+.autosend-seat{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:13px;color:var(--ink-soft)}
+.autosend-who{min-width:56px;color:var(--ink)}
+.autosend-switch{display:inline-flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border:1px solid var(--line);border-radius:999px;background:var(--soft);font:600 13px/1 var(--sans);color:var(--ink-soft);cursor:pointer}
+.autosend-knob{width:28px;height:16px;border-radius:999px;background:#cfc8bd;position:relative;transition:background .15s}
+.autosend-knob::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:left .15s}
+.autosend-switch.is-on{background:#e3f2ec;border-color:#9fcdb9;color:#2d715c}
+.autosend-switch.is-on .autosend-knob{background:#2d715c}
+.autosend-switch.is-on .autosend-knob::after{left:14px}
+.autosend-switch.is-paused{background:#f6eedf;border-color:#e2cfa8;color:#775a2d}
+.autosend-text{flex:1 1 260px}
+.autosend-skip{padding:3px 10px;font-size:12px}
+.autosend-count{margin-left:auto;font:600 12px/1.4 var(--mono);color:var(--ink-soft);white-space:nowrap}
+
+/* More menu: three short groups instead of nine described links. */
+.appbar-more-groups{display:grid;grid-template-columns:repeat(3,max-content);gap:4px 22px;padding:14px 16px;width:max-content}
+.appbar-more-group{display:flex;flex-direction:column;gap:2px}
+.appbar-more-title{font:700 10px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:2px 8px 6px}
+.appbar-more-groups a{padding:7px 8px;font-size:13px;white-space:nowrap}
+@media(max-width:700px){.appbar-more-groups{grid-template-columns:1fr}}
+
+/* Drafts page */
+.drafts-shell{max-width:1100px}
+.drafts-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px}
+.drafts-head h1{margin:0 0 6px;font-size:28px;letter-spacing:-.02em}
+.drafts-head p{margin:0;max-width:640px;font-size:14px;line-height:1.55;color:var(--ink-soft)}
+.drafts-seats{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:10px;background:var(--soft)}
+.drafts-seats a{padding:7px 14px;border-radius:7px;font-size:13px;font-weight:600;color:var(--ink-soft);text-decoration:none}
+.drafts-seats a.is-active{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.drafts-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-bottom:18px}
+.drafts-seat-card{padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff}
+.drafts-seat-card h2{margin:0 0 10px;font-size:14px}
+.drafts-seat-card dl{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0}
+.drafts-seat-card dt{font-size:11px;color:var(--muted)}
+.drafts-seat-card dd{margin:2px 0 0;font-size:20px;font-weight:600}
+.drafts-seat-card dd.is-good{color:#2d715c}.drafts-seat-card dd.is-warn{color:#775a2d}
+.drafts-jump{display:flex;gap:8px;margin:4px 0 8px}
+.drafts-jump a{padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink-soft);text-decoration:none;background:#fff}
+.drafts-scope{font-size:13px;color:var(--muted);margin:0 0 6px}
+.draft-group-title{margin:26px 0 4px;font-size:18px;scroll-margin-top:90px}
+.draft-group-lead{margin:0 0 10px;font-size:13px;color:var(--muted)}

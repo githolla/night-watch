@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ReachoutListNavigation } from "@/components/ReachoutListNavigation";
 import { BatchPreparation } from "@/components/BatchPreparation";
 import { wasAutomaticallyArchived } from "@/lib/curated-card-state";
@@ -17,8 +18,6 @@ import { ScanControl } from "@/components/ScanControl";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
 import { requireUser } from "@/lib/auth";
-import { RewriteDrafts } from "@/components/RewriteDrafts";
-import { ToolDrawer } from "@/components/ToolDrawer";
 import { maxCostPerAccountUsd, nightlyBatchSize, populateConfig, populateSweepConfig, sweepAccountLimit } from "@/lib/run-config";
 import { latestRunSummary, loadRunSummary, SWEEP_SOURCES } from "@/lib/run-status";
 import { isLikelyPersonName } from "@/lib/pipeline";
@@ -339,7 +338,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
         gmailConnected={(gmailRows ?? []).some((row) => (row as { owner: string }).owner === me.owner)}
         context={context}
         scan={params.source === "overview" ? scan : undefined}
-        tools={me.role === "admin" ? <ToolDrawer label="Draft tools" title="Draft tools"><RewriteDrafts /></ToolDrawer> : null}
+        tools={<Link className="btn" href={`/drafts${me.role === "admin" && selectedList.owner ? `?owner=${selectedList.owner}` : ""}`}>Draft setup</Link>}
       />
     </div>
   );

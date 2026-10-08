@@ -9,20 +9,29 @@ import { FeedbackWidget } from "./FeedbackWidget";
 
 const primary = [
   { href: "/outreach", label: "Reach-out list", hint: "The selected companies and their custom emails" },
+  { href: "/drafts", label: "Drafts", hint: "Set up, check and fix your email drafts" },
   { href: "/followups", label: "Follow-ups", hint: "Queued follow-ups and anything due now" },
+  { href: "/activity", label: "History", hint: "Everything sent, and every reply" },
   { href: "/people", label: "People", hint: "Every contact on file" },
 ];
-const more = [
-  { href: "/delivery-recovery", label: "Delivery recovery", hint: "Check uncertain sends before retrying" },
-  { href: "/pipeline", label: "Pipeline", hint: "Qualified conversations and opportunities" },
-  { href: "/activity", label: "History", hint: "Everything sent, and every reply" },
-  { href: "/targets", label: "All companies", hint: "The full company table: search, filter, add or exclude" },
-  { href: "/roles", label: "Job signals", hint: "Open roles found at target companies" },
-  { href: "/posts", label: "Employee posts", hint: "Public posts found from people at target companies" },
-  { href: "/runs", label: "Runs", hint: "Research runs and what each one cost" },
-  { href: "/stats", label: "Results", hint: "Replies, meetings and what is working" },
-  { href: "/settings", label: "Settings", hint: "Mailbox, identity, team and integrations" },
+// Grouped and short: the descriptions live in each link's tooltip. System pages are for admins only.
+const moreGroups: Array<{ title: string; adminOnly?: boolean; items: Array<{ href: string; label: string; hint: string }> }> = [
+  { title: "Results", items: [
+    { href: "/pipeline", label: "Pipeline", hint: "Qualified conversations and opportunities" },
+    { href: "/stats", label: "Results", hint: "Replies, meetings and what is working" },
+  ] },
+  { title: "Research", items: [
+    { href: "/targets", label: "All companies", hint: "The full company table: search, filter, add or exclude" },
+    { href: "/roles", label: "Job signals", hint: "Open roles found at target companies" },
+    { href: "/posts", label: "Employee posts", hint: "Public posts found from people at target companies" },
+  ] },
+  { title: "System", items: [
+    { href: "/settings", label: "Settings", hint: "Mailbox, identity, team and integrations" },
+    { href: "/runs", label: "Runs", hint: "Research runs and what each one cost" },
+    { href: "/delivery-recovery", label: "Delivery recovery", hint: "Check uncertain sends before retrying" },
+  ] },
 ];
+const more = moreGroups.flatMap((group) => group.items);
 
 export function Header({showTour=true}:{showTour?:boolean}) {
   const pathname = usePathname();
@@ -80,7 +89,10 @@ export function Header({showTour=true}:{showTour?:boolean}) {
           })}
           <div className={`appbar-more ${moreOpen ? "is-open" : ""}`} ref={moreRef}>
             <button type="button" onClick={() => setMoreOpen((open) => !open)} className={more.some((item) => active(item.href)) ? "is-active" : ""} aria-expanded={moreOpen}>More <ChevronDown size={14} strokeWidth={1.8} /></button>
-            {moreOpen && <div className="appbar-more-list">{more.map((item) => <Link key={item.href} href={item.href} title={item.hint} className={active(item.href) ? "is-active" : ""}>{item.label}<small>{item.hint}</small></Link>)}</div>}
+            {moreOpen && <div className="appbar-more-list appbar-more-groups">{moreGroups.map((group) => {
+              const items = group.items.filter((item) => me?.role === "admin" || !["/runs", "/delivery-recovery"].includes(item.href));
+              return items.length ? <div className="appbar-more-group" key={group.title}><span className="appbar-more-title">{group.title}</span>{items.map((item) => <Link key={item.href} href={item.href} title={item.hint} className={active(item.href) ? "is-active" : ""} onClick={() => setMoreOpen(false)}>{item.label}</Link>)}</div> : null;
+            })}</div>}
           </div>
         </nav>
       </div>

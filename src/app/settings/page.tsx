@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Building2, Mail, MessageSquare, PenLine, Plug, UsersRound } from "lucide-react";
 import { SpendPanel } from "@/components/SpendPanel";
 import { TestSequence } from "@/components/TestSequence";
-import { RewriteDrafts } from "@/components/RewriteDrafts";
 import { AddCompany } from "@/components/AddCompany";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
@@ -104,10 +103,9 @@ export default async function Settings() {
       blurb: "Check every email still waiting to be sent, and put the whole list right in three steps instead of opening them one at a time.",
       content: <>
         <div className="settings-moved">
-          <p>Also on <strong>Outreach</strong>, behind <strong>Draft tools</strong> in the header &mdash; the same tools, next to the drafts they change.</p>
-          <Link className="btn" href="/desk">Open Outreach</Link>
+          <p>Draft tools now have their own page: <strong>Drafts</strong>, in the menu at the top.</p>
+          <Link className="btn" href="/drafts">Open Drafts</Link>
         </div>
-        <div className="feature-center"><RewriteDrafts /></div>
       </>,
     }] : []),
     ...(isAdmin ? [{

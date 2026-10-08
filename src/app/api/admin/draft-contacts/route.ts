@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth";
+import { draftMatch, draftSeat } from "@/lib/draft-scope";
 import { angleFor, composeContactDraft, rolesFromSignal } from "@/lib/contact-draft";
 import { isRealContact } from "@/lib/clean";
 import { isLikelyPersonName } from "@/lib/pipeline";
@@ -38,8 +39,8 @@ const EMAIL_RANK: Record<string, number> = { verified: 0, guessed: 1, unverified
 export async function POST(request: Request) {
   try {
     const user = await requireUser();
-    if (user.role !== "admin") return Response.json({ error: "Admins only" }, { status: 403 });
     const body = await request.json().catch(() => ({}));
+    const seat = draftSeat(user, body?.owner);
     const offset = Number.isFinite(Number(body?.offset)) ? Math.max(0, Math.floor(Number(body.offset))) : 0;
     // A cap per company, because a company can carry forty contacts and drafting all of them would bury
     // the desk in people nobody intends to write to.
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
     const db = admin();
 
     const { data, count, error: sourceError } = await db.from("cards")
-      .select("id,signal_id,account_id,person_id,score,score_breakdown,brief,why_now,channel,assigned_to,signals(raw),accounts(name,domain)", { count: "exact" })
+      .select("id,signal_id,account_id,person_id,score,score_breakdown,brief,why_now,channel,assigned_to,signals(raw),accounts(name,domain)", { count: "exact" }).match(draftMatch(seat))
       .in("status", ["new", "approved", "edited"])
       .lt("created_at", before)
       .order("id", { ascending: true })
