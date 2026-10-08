@@ -1,5 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { DraftReview, type ReviewDraft } from "@/components/DraftReview";
+import type { AiFit } from "@/lib/ai-fit";
+import { isCuratedDomain } from "@/lib/curated-worklist";
+import { loadNightlyLists } from "@/lib/nightly-lists";
+import { optOutLine } from "@/lib/opt-out";
+import { focusedAccount } from "@/lib/reachout-sort";
+import { senderProfile } from "@/lib/sender";
 import { DraftSetup, type DraftSample } from "@/components/DraftSetup";
 import { RewriteDrafts } from "@/components/RewriteDrafts";
 import { speakableCompany } from "@/lib/list-templates";
@@ -36,6 +43,25 @@ async function sampleDrafts(owner: Owner): Promise<DraftSample[]> {
   }));
 }
 
+/** The same one line the desk shows: the top fit reasons, or the research trigger. */
+function whyThisCompany(domain: string | null | undefined): string | null {
+  const focused = focusedAccount(domain) as { aiFit?: AiFit; trigger?: { fact?: string } } | undefined;
+  const reasons = focused?.aiFit && !focused.aiFit.disqualified ? focused.aiFit.reasons.slice(0, 2).map((reason) => reason.text) : [];
+  return reasons.length ? reasons.join(" · ") : focused?.trigger?.fact ?? null;
+}
+
+/** Every unsent email for the seat, for the quick review list. */
+async function reviewDrafts(owner: Owner): Promise<ReviewDraft[]> {
+  const { data } = await admin().from("cards").select("id,status,updated_at,email_subject,email_body,accounts(name,domain),people(full_name,title,email,email_status,email_check,do_not_contact)").eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).order("updated_at", { ascending: false }).limit(300);
+  type Row = { id: string; status: string; updated_at: string; email_subject: string | null; email_body: string | null; accounts: { name: string | null; domain: string | null } | null; people: { full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
+  return ((data ?? []) as unknown as Row[]).filter((row) => row.people && !row.people.do_not_contact).map((row) => ({
+    id: row.id, status: row.status, updatedAt: row.updated_at, subject: row.email_subject ?? "", body: row.email_body ?? "",
+    curated: isCuratedDomain(row.accounts?.domain), why: whyThisCompany(row.accounts?.domain),
+    name: row.people!.full_name, title: row.people!.title ?? "", company: row.accounts?.name ?? "", email: row.people!.email,
+    confirmed: bulkSendable(row.people!), sendable: sendableAddress(row.people!),
+  })).sort((a, b) => a.company.localeCompare(b.company));
+}
+
 /** Setting up all of one seat's drafts at once, in plain steps; the technical tools stay folded under Advanced. */
 export default async function Drafts({ searchParams }: { searchParams: Promise<{ owner?: string }> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
@@ -45,7 +71,9 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
   // Always one seat: a member's own, or the one an admin picks (their own by default).
   const owner: Owner = isAdmin && (params.owner === "josh" || params.owner === "suuchi") ? params.owner : user.owner;
   const name = SEATS.find((seat) => seat.owner === owner)?.name ?? "";
-  const [summary, samples] = await Promise.all([seatSummary(owner), sampleDrafts(owner)]);
+  // Nightly list rows carry each company's fit reasons; load them before the review list reads them.
+  await loadNightlyLists(admin()).catch(() => undefined);
+  const [summary, samples, review, profile] = await Promise.all([seatSummary(owner), sampleDrafts(owner), reviewDrafts(owner), senderProfile(admin(), owner)]);
   const listHref = `/outreach?list=${owner}`;
   const yours = !isAdmin || owner === user.owner;
 
@@ -55,7 +83,7 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
         <header className="drafts-head">
           <div>
             <h1>{yours ? "Your emails" : `${name}'s emails`}</h1>
-            <p>Change all {yours ? "your" : `${name}'s`} unsent emails at once. To change just one, open it on the <Link href={listHref}>Reach-out list</Link>.</p>
+            <p>Change all {yours ? "your" : `${name}'s`} unsent emails at once, then read through them and fix any one right here.</p>
           </div>
           {isAdmin && (
             <nav className="drafts-seats" aria-label="Whose emails">
@@ -67,10 +95,13 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
         <section className="drafts-status" aria-label="Where things stand">
           <p><b>{summary.unsent}</b> email{summary.unsent === 1 ? "" : "s"} waiting to send. <b>{summary.sentToday}</b> sent today.
             {summary.noAddress > 0 && <> {summary.noAddress} {summary.noAddress === 1 ? "has" : "have"} no email address yet.</>}</p>
-          <Link className="btn primary" href={listHref}>Review and send &rarr;</Link>
+          <span className="drafts-status-actions"><a className="btn" href="#review">Review them here &darr;</a><Link className="btn primary" href={listHref}>Send on the Reach-out list &rarr;</Link></span>
         </section>
 
+        <h2 className="drafts-section-title">Change all your emails at once</h2>
         <DraftSetup owner={owner} unsent={summary.unsent} samples={samples} listHref={listHref} />
+
+        <div id="review" className="drafts-review-anchor"><DraftReview key={owner} drafts={review} listHref={listHref} sender={{ fromName: profile.fromName, signature: profile.signature, postalAddress: profile.postalAddress }} optOut={optOutLine()} /></div>
 
         <details className="drafts-advanced">
           <summary>Advanced tools</summary>
