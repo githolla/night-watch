@@ -3,11 +3,16 @@
 // Usage: import { lintEmail } from "./lint"; or `npx tsx src/lint.ts data/few_shot_examples.jsonl`
 
 import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+// Imported, not read from disk at load, so the bundler ships it with every route that lints (a runtime
+// read of a path outside the app is not traced into Vercel functions and crashed /stats on load).
+import styleRules from "../data/style_rules.json" with { type: "json" };
 
-const here = dirname(fileURLToPath(import.meta.url));
-const rules = JSON.parse(readFileSync(resolve(here, "../data/style_rules.json"), "utf8"));
+type WordRange = { min: number; max: number; min_sentences?: number };
+type StyleRules = Omit<typeof styleRules, "length" | "format"> & {
+  length: Omit<typeof styleRules.length, `touch_${Touch}_words`> & Record<`touch_${Touch}_words`, WordRange>;
+  format: Omit<typeof styleRules.format, "links_allowed"> & { links_allowed: Record<string, number> };
+};
+const rules: StyleRules = styleRules;
 
 export type Touch = 1 | 2 | 3 | 4;
 export interface Draft {
