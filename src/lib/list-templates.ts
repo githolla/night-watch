@@ -1,7 +1,6 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { lintEmail } from "../../tools/email-writer/src/lint.ts";
-import { isAutomatableRole, isFreshDate } from "./ai-fit.ts";
 import { COMPANY_FURNITURE } from "./draft-audit.ts";
 import { firstTouchErrors } from "./first-touch.ts";
 
@@ -23,48 +22,8 @@ export type Workflow = {
 
 export type ListVariant = { id: string; label: string; subject: string; message: string; linkedinMessage: string };
 
-/** The structured evidence an opening line may draw on. AiFitEvidence satisfies it. */
-export type OpeningEvidence = {
-  hiring?: Array<{ title: string; postedDate: string | null }>;
-  scale?: { locations: number | null; url: string | null } | null;
-};
-
-const UNSAFE_TITLE = /[?!|()[\]{}:;,/\\@#$%*<>"\d—–]|\s-|-\s|https?:|www\.|\.(?:com|net|org|io|co|ai)\b/i;
-
-function article(word: string) {
-  // Acronyms are read letter by letter: "an HR", "an SDR", "a CRM".
-  if (/^[A-Z]{2,}\b/.test(word)) return /^[AEFHILMNORSX]/.test(word) ? "an" : "a";
-  if (/^(?:one|use|user|uni|euro|u[bcgkmnprst][aeiouy])/i.test(word)) return "a";
-  return /^(?:[aeiou]|hour|honest|honor)/i.test(word) ? "an" : "a";
-}
-
-/**
- * One opening sentence built only from structured, checkable evidence: a fresh automatable hire or a
- * location count with its source. Free-form facts (change, techOpenness) are never quoted, and the line
- * states what the signal implies rather than repeating the signal.
- */
-export function openingLine(company: string, task: string, evidence: OpeningEvidence | undefined, now: Date = new Date()): string | null {
-  if (!evidence || !company.trim()) return null;
-  for (const role of evidence.hiring ?? []) {
-    const title = role.title.trim().replace(/\s+/g, " ").replace(/[.]+$/, "");
-    if (title.length < 3 || title.length > 50 || UNSAFE_TITLE.test(title)) continue;
-    if (!isAutomatableRole(title) || !isFreshDate(role.postedDate, 90, now)) continue;
-    return `${company} is hiring ${article(title)} ${title}, which usually means more ${task} done by hand.`;
-  }
-  const locations = evidence.scale?.locations ?? 0;
-  if (evidence.scale?.url && Number.isInteger(locations) && locations >= 3 && locations <= 5000) {
-    return `Across ${locations} locations, ${task} tends to happen by hand at each one.`;
-  }
-  return null;
-}
-
-export function listVariants(company: string, workflow: Workflow, evidence?: OpeningEvidence, options: { now?: Date } = {}): ListVariant[] {
-  const variants = templateVariants(company, workflow);
-  const line = openingLine(company, workflow.task, evidence, options.now);
-  if (!line) return variants;
-  const led = { ...variants[0], message: `${line}\n\n${variants[0].message}` };
-  // The line is a bonus: if it pushes the email over a limit, send the plain approved version instead.
-  return variantProblems([led], undefined, company).length ? variants : [led, ...variants.slice(1)];
+export function listVariants(company: string, workflow: Workflow): ListVariant[] {
+  return templateVariants(company, workflow);
 }
 
 function templateVariants(company: string, workflow: Workflow): ListVariant[] {
@@ -72,7 +31,7 @@ function templateVariants(company: string, workflow: Workflow): ListVariant[] {
   return [
     {
       id: "direct-offer", label: "Direct Offer", subject,
-      message: `I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate.\n\nFor ${company}, I'd start with ${task}: bringing together ${inputs}. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with ${task} be useful, or is another task higher on your list?`,
+      message: `I'm {sender} at Nine-67. Our AI engineers work alongside business and operations teams, building tools around the work they want off their plate: reports that pull themselves together, paperwork read and entered for you, and systems that share data instead of retyping it.\n\nFor ${company}, I'd start with ${task}: bringing together ${inputs}. We'd learn the process from your team, build a first version and stay through testing and training.\n\nWould help with ${task} be useful, or is another task higher on your list?`,
       linkedinMessage: `I'm {sender} at Nine-67. We put AI engineers alongside operations teams to build tools around their work. For ${company}, I'd explore ${task}. We'd build with your team and stay through testing and training. Is that something you'd like help with?`,
     },
     {
@@ -142,7 +101,7 @@ export type WorkflowAgent = (prompt: string) => Promise<unknown>;
  * over wording. The agent is injected (the builder passes a cheap writing call on the company's budget).
  * Returns the repaired workflow and its variants, or the reason it still fails.
  */
-export async function repairWorkflow(workflow: Workflow, problems: string[], evidenceSummary: string, agent: WorkflowAgent, context: WorkflowContext & { company: string; evidence?: OpeningEvidence; now?: Date }): Promise<{ workflow: Workflow; variants: ListVariant[] } | { problem: string }> {
+export async function repairWorkflow(workflow: Workflow, problems: string[], evidenceSummary: string, agent: WorkflowAgent, context: WorkflowContext & { company: string }): Promise<{ workflow: Workflow; variants: ListVariant[] } | { problem: string }> {
   const prompt = `Rewrite this outreach workflow idea so it passes the checks below. Use only the material given here.
 
 Current fields:
@@ -174,7 +133,7 @@ Return JSON only: {"task":"","subject":"","inputs":"","metric":""}`;
   if (!parsed.success) return { problem: "repair did not return a workflow" };
   const checked = checkWorkflow(normalizeWorkflow(parsed.data), context);
   if ("problem" in checked) return checked;
-  const variants = listVariants(context.company, checked.workflow, context.evidence, { now: context.now });
+  const variants = listVariants(context.company, checked.workflow);
   const remaining = variantProblems(variants, undefined, context.company);
   if (remaining.length) return { problem: remaining.slice(0, 2).join("; ") };
   return { workflow: checked.workflow, variants };

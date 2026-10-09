@@ -17,14 +17,16 @@ import { SECTORS, sectorsForNight } from "./list-sectors.ts";
 
 const workflow = { task: "branch service follow-up", subject: "branch follow-ups", inputs: "site inspection notes, the promised fix and evidence that it was completed", metric: "time spent chasing updates" };
 
-test("nightly copy is the approved batch-3 wording, word for word", () => {
+test("nightly copy is the approved batch-3 wording, plus the Direct Offer's line on what Nine-67 builds", () => {
   let same = 0;
   for (const offer of offers) {
     const row = focus.find((item) => item.domain === offer.domain)!;
     const inputs = offer.variants[0].message.match(/: bringing together (.+?)\. We'd learn/)?.[1] ?? "";
     const metric = offer.variants[1].message.match(/measure (.+?)\.\n/)?.[1] ?? "";
     const generated = listVariants(row.company, { task: row.reframe, subject: offer.variants[0].subject, inputs, metric });
-    for (let index = 0; index < 3; index++) if (generated[index].message === offer.variants[index].message && generated[index].linkedinMessage === offer.variants[index].linkedinMessage) same++;
+    const direct = generated[0].message.replace(": reports that pull themselves together, paperwork read and entered for you, and systems that share data instead of retyping it.", ".");
+    if (direct === offer.variants[0].message && generated[0].linkedinMessage === offer.variants[0].linkedinMessage) same++;
+    for (let index = 1; index < 3; index++) if (generated[index].message === offer.variants[index].message && generated[index].linkedinMessage === offer.variants[index].linkedinMessage) same++;
   }
   assert.ok(same >= 145, `templates drifted from batch 3: ${same}/150 match`);
 });

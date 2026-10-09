@@ -36,7 +36,7 @@ export function nightlyListConfig() {
     size: Math.floor(num("NIGHTLY_LIST_SIZE", 12, 1, 25)),
     research: Math.floor(num("NIGHTLY_LIST_RESEARCH", 20, 1, 40)),
     /** Lowest AI-fit score (0 to 100) that may go on a list. */
-    minFit: Math.floor(num("NIGHTLY_LIST_MIN_FIT", 40, 0, 100)),
+    minFit: Math.floor(num("NIGHTLY_LIST_MIN_FIT", 0, 0, 100)),
     /** How long a well-scoring runner-up may fill a later list without being researched again. */
     reserveDays: Math.floor(num("NIGHTLY_LIST_RESERVE_DAYS", 14, 0, 60)),
     budgetUsd: num("NIGHTLY_LIST_BUDGET_USD", 10, 0.5, 50),

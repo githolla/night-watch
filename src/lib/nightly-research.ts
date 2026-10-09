@@ -5,7 +5,7 @@ import { NOT_TARGET_ROLES, runGroundedSearchAgent, runWritingAgent } from "./age
 import { addressMatchesPerson, buildEmail } from "./email-pattern.ts";
 import { findEmail, verifierConfigured, verifyEmail, type FoundEmail, type VerifyResult } from "./email-verify.ts";
 import { groundEvidence, normalizeUrl, onDomain, pageAgeDate, type Fetcher, type Lookup, type SeenSource } from "./evidence-grounding.ts";
-import { checkWorkflow, chooseArm, listVariants, normalizeWorkflow, repairWorkflow, speakableCompany, variantProblems, type ListVariant, type OpeningEvidence, type Workflow } from "./list-templates.ts";
+import { checkWorkflow, chooseArm, listVariants, normalizeWorkflow, repairWorkflow, speakableCompany, variantProblems, type ListVariant, type Workflow } from "./list-templates.ts";
 import { researchModel } from "./models.ts";
 import { inRevenueBand, REVENUE_BAND_TEXT } from "./list-sectors.ts";
 import { isLikelyPersonName } from "./pipeline.ts";
@@ -35,7 +35,7 @@ export function researchLimits() {
     return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
   };
   return {
-    minFit: Math.floor(num("NIGHTLY_LIST_MIN_FIT", 40, 0, 100)),
+    minFit: Math.floor(num("NIGHTLY_LIST_MIN_FIT", 0, 0, 100)),
     maxCostPerCompanyUsd: num("NIGHTLY_LIST_MAX_COST_PER_COMPANY_USD", 0.5, 0.05, 2),
     searchesPerCompany: Math.floor(num("ANTHROPIC_MAX_SEARCHES_PER_COMPANY", 3, 1, 5)),
   };
@@ -216,7 +216,7 @@ ${revenueStep}
    Leave a part empty rather than guess.
 6. Workflow: one practical piece of work a company like this probably handles by hand that an AI tool could help with, inspired by the evidence above; do not restate the evidence. It is an idea, not a claim about them. Keep every field generic and lowercase: no numbers, no company, product, software or place names, and no "your", "their" or "our". Give: task, a short noun phrase such as "branch service follow-up"; subject, two words for an email subject, such as "branch follow-ups" (one version prefixes it with "one AI project:", which must stay within five words); inputs, what the tool would bring together, three items in one phrase such as "site inspection notes, the promised fix and evidence that it was completed"; metric, what to measure, such as "time spent chasing updates". No question marks, dashes or links in these.
 
-Return {"reject":"reason"} instead if revenue is outside ${REVENUE_BAND_TEXT}, the company is consulting, IT, software, staffing, an agency, a financial firm, a nonprofit or public, it has closed or been acquired, or no current senior leader can be named from a source.
+Return {"reject":"reason"} instead if revenue is outside ${REVENUE_BAND_TEXT}, the company is consulting, IT, software, staffing, an agency, a financial firm or a nonprofit, it has closed or been acquired, or no current senior leader can be named from a source.
 
 Return JSON only, in this shape, filling the arrays with items as described above: {"sector":"","revenue":${reuse ? "null" : `{"usdMillions":0,"year":${year},"sourceUrl":""}`},"buyer":{"name":"","title":"","sourceUrl":""},"email":null,"trigger":null,"evidence":{"hiring":[],"scale":null,"change":[],"techOpenness":[],"systems":[],"disqualifiers":[],"concerns":[]},"workflow":{"task":"","subject":"","inputs":"","metric":""}}`;
 }
@@ -399,16 +399,15 @@ export async function researchOne(candidate: Candidate, owner: Owner, listDate: 
     const evidence = grounded.evidence;
     const allowedNames = [...evidence.systems.filter(countedItem).map((item) => item.name), ...deps.knownNames];
     const company = speakableCompany(candidate.company);
-    const opening: OpeningEvidence = { hiring: evidence.hiring.filter(countedItem), scale: evidence.scale && countedItem(evidence.scale) ? evidence.scale : null };
     const context = { company: candidate.company, domain: candidate.domain, allowedNames };
     let checked = checkWorkflow(found.workflow, context);
     if ("problem" in checked) checked = checkWorkflow(normalizeWorkflow(found.workflow), context);
     let workflow = "workflow" in checked ? checked.workflow : found.workflow;
-    let variants = "workflow" in checked ? listVariants(company, workflow, opening, { now }) : [];
+    let variants = "workflow" in checked ? listVariants(company, workflow) : [];
     const problems = "problem" in checked ? [checked.problem] : variantProblems(variants, undefined, company);
     if (problems.length) {
       const writer = (prompt: string) => deps.repair(prompt, { model: researchModel(), maxTokens: 400, signal }, recorder);
-      const repaired = await repairWorkflow(workflow, problems, evidenceSummary(evidence), writer, { ...context, company, evidence: opening, now });
+      const repaired = await repairWorkflow(workflow, problems, evidenceSummary(evidence), writer, { ...context, company });
       if ("problem" in repaired) {
         if (signal?.aborted) return done({ aborted: true, fit });
         return done({ skip: `copy failed checks after repair: ${repaired.problem}`.slice(0, 300), fit });
