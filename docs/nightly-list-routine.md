@@ -31,7 +31,7 @@ Imports can take a few minutes; send at most about 8 companies per `import` call
 1. Work out `listDate`: the next weekday in America/New_York after the run starts (a run on Sunday to Thursday
    night builds Monday to Friday). Call `status`; if both seats already have 12 rows for that date, skip to step 5.
 2. Call `brief` and follow its research prompt and numbers exactly.
-3. **Source.** Find about 40 U.S. privately held operating companies sized for the ICP: revenue inside the band, or,
+3. **Source.** Find about 40 U.S. operating companies, private or public, sized for the ICP: revenue inside the band, or,
    when no revenue is published, 50 to 300 employees. Spread them across all the `sectors` (there are 26). Screen them
    with `check` and keep only `usable` ones. Budget web searches: no more than about a third on sourcing.
 4. **Research and import.** For each company, produce the research object below, then import. Split the passing
@@ -58,8 +58,7 @@ Ways that find companies that pass:
 - **Size from the company itself.** Most private companies never publish revenue but do say how big they are: "a
   team of 120", "over 80 technicians", a careers page, an association or chamber profile. That headcount is enough.
   Rankings that state revenue (LM150, Roofing Contractor Top 100, PCT Top 100, ENR regional, business journal lists,
-  Inc. 5000 profiles) are still good sources when they work. Never use SEC filings or stock pages: those companies
-  are public and out of scope.
+  Inc. 5000 profiles) are still good sources when they work, and so are a public company's own results.
 - **Ranking articles.** When a ranking is split across several articles ("the next 25", regional spotlights,
   "company profiles"), work through them one by one; each names companies with revenue.
 - Screen candidates with `check` in batches as you go, and skip any company whose site is behind a Cloudflare
@@ -75,8 +74,8 @@ Ways that find companies that pass:
 - Buyer: the current owner, CEO, President, COO, founder or general manager, or the VP or Director of Operations
   (not any other vice president, and not an interim, acting, assistant or former leader), with a page that shows
   their name and title, ideally the company's own about or team page.
-- **Privately held.** Never a publicly traded company: no stock tickers, SEC filings or market-data pages. The app
-  rejects any company whose research cites them.
+- **Private or public.** Both are fine. A public company's revenue in its own filings or results release counts as a
+  revenue source, as long as it is inside the band.
 - Not consulting, IT, software, staffing, an agency, a financial firm or a nonprofit; not closed or acquired; not a
   franchise unit or a subsidiary of a large company.
 - Healthcare companies (home health, medical equipment, dental, veterinary and therapy groups): the workflow idea

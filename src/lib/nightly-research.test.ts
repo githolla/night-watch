@@ -4,7 +4,7 @@ import type { UsageRecorder } from "./anthropic-cost.ts";
 import type { FoundEmail, VerifyResult } from "./email-verify.ts";
 import type { Fetcher, SeenSource } from "./evidence-grounding.ts";
 import {
-  buyerTitleProblem, chooseEmail, isExcludedSector, parseResearch, pickTrigger, publicCompanySign, researchOne, researchPrompt, settleRevenue,
+  buyerTitleProblem, chooseEmail, isExcludedSector, parseResearch, pickTrigger, researchOne, researchPrompt, settleRevenue,
   type Candidate, type ResearchDeps, type ResearchResult,
 } from "./nightly-research.ts";
 
@@ -290,7 +290,7 @@ test("the prompt carries the tightened rules and no placeholder items", () => {
   const prompt = researchPrompt(candidate, LIST_DATE);
   assert.ok(!prompt.includes('"url":"https://..."'));
   assert.ok(prompt.includes('"hiring":[]'));
-  for (const phrase of ["inspired by the evidence above; do not restate the evidence", "no numbers", "this company's own leaders", "Never industry commentary", "machine learning engineer", "A lack of public information is not a disqualifier", "software_or_it", "Not any other vice president", "publicly traded", "\"size\":null"]) {
+  for (const phrase of ["inspired by the evidence above; do not restate the evidence", "no numbers", "this company's own leaders", "Never industry commentary", "machine learning engineer", "A lack of public information is not a disqualifier", "software_or_it", "Not any other vice president", "\"size\":null"]) {
     assert.ok(prompt.includes(phrase), phrase);
   }
 });
@@ -379,11 +379,3 @@ test("with no published revenue, a headcount of 50 to 300 sizes the company and 
   assert.ok("problem" in settleRevenue(noRanking, { usdMillions: 80, year: 2025, sourceUrl: "https://x.example.com" }, LIST_DATE, { employees: 90, sourceUrl: "https://acmeland.com/about" }), "a published figure outside the band still rules it out");
 });
 
-test("public companies are recognised and skipped", async () => {
-  assert.equal(publicCompanySign({ trigger: { fact: "Acme (NASDAQ: ACME) opened a plant" } }), true);
-  assert.equal(publicCompanySign({ revenue: { sourceUrl: "https://www.sec.gov/Archives/edgar/data/1/form10-k.htm" } }), true);
-  assert.equal(publicCompanySign(research()), false);
-  const { deps } = harness(research({ trigger: { fact: "Acme Landscaping (OTCQB: ACME) announced results", sourceUrl: "https://news.example.com/acme", date: "2026-09-01" } }));
-  const result = await researchOne(candidate, "josh", LIST_DATE, deps);
-  assert.match(String(result.skip), /public company/);
-});

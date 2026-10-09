@@ -201,17 +201,6 @@ export function settleRevenue(candidate: Candidate, found: Researched["revenue"]
   return { revenue: { ...primary, status, note }, limitations };
 }
 
-/**
- * A publicly traded company: a stock ticker in the research, or a source on SEC or market-data sites. Nine-67
- * sells to privately held businesses, so these are skipped however well they score.
- */
-export function publicCompanySign(research: unknown): boolean {
-  const text = JSON.stringify(research ?? "");
-  return /\b(?:NASDAQ|NYSE(?: American)?|NYSEAMERICAN|OTC(?:QB|QX| Markets)?|TSX)\s*:\s*[A-Z]{1,5}\b/.test(text)
-    || /https?:\/\/(?:www\.)?(?:sec\.gov|finviz\.com|stocktitan\.net|seekingalpha\.com|marketbeat\.com)\b/i.test(text)
-    || /\b(?:10-K|10-Q|annual report on form)\b/i.test(text);
-}
-
 // ---------- trigger ----------
 
 type Trigger = { fact: string; sourceUrl: string; date: string | null };
@@ -250,7 +239,7 @@ ${revenueStep}
 
 Size: if no revenue figure is published, give "size" as {employees, sourceUrl}: the employee count a page states (the company's site, a job post or a profile), which must be ${HEADCOUNT_BAND.min} to ${HEADCOUNT_BAND.max}. Otherwise set "size" to null.
 
-Return {"reject":"reason"} instead if revenue is outside ${REVENUE_BAND_TEXT} (or, with no revenue, headcount is outside ${HEADCOUNT_BAND.min} to ${HEADCOUNT_BAND.max}), the company is publicly traded, consulting, IT, software, staffing, an agency, a financial firm or a nonprofit, it has closed or been acquired, or no current senior leader can be named from a source.
+Return {"reject":"reason"} instead if revenue is outside ${REVENUE_BAND_TEXT} (or, with no revenue, headcount is outside ${HEADCOUNT_BAND.min} to ${HEADCOUNT_BAND.max}), the company is consulting, IT, software, staffing, an agency, a financial firm or a nonprofit, it has closed or been acquired, or no current senior leader can be named from a source.
 
 Return JSON only, in this shape, filling the arrays with items as described above: {"sector":"","revenue":${reuse ? "null" : `{"usdMillions":0,"year":${year},"sourceUrl":""}`},"size":null,"buyer":{"name":"","title":"","sourceUrl":""},"email":null,"trigger":null,"evidence":{"hiring":[],"scale":null,"change":[],"techOpenness":[],"systems":[],"disqualifiers":[],"concerns":[]},"workflow":{"task":"","subject":"","inputs":"","metric":""}}`;
 }
@@ -409,7 +398,6 @@ export async function researchOne(candidate: Candidate, owner: Owner, listDate: 
     if ("problem" in parsed) return done({ skip: parsed.problem });
     const found = parsed.found;
 
-    if (publicCompanySign(json)) return done({ skip: "public company: Nine-67 sells to privately held businesses" });
     const money = settleRevenue(candidate, found.revenue, listDate, found.size);
     if ("problem" in money) return done({ skip: money.problem });
     if (!isLikelyPersonName(found.buyer.name)) return done({ skip: `"${found.buyer.name}" is not a person's name` });
