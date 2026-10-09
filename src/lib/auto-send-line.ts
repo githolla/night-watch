@@ -4,6 +4,8 @@ export type AutoSendSeat = {
   sentToday: number; dailyCap: number;
   /** From the server, in SEND_TIMEZONE: whether today sends at all, the time now and the window, in minutes after midnight. */
   sendDay: boolean; minutesNow: number; sendFrom: number; sendUntil: number;
+  /** What the next window sends, from the morning run's own queue; missing when it could not be read. */
+  nextSend?: { going: number; dayLabel: string; windowLabel: string } | null;
 };
 
 const clock = (minutes: number) => {

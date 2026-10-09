@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DraftReview, type ReviewDraft } from "@/components/DraftReview";
+import { loadSendPlan } from "@/lib/send-plan-loader";
+import { allFocus } from "@/lib/focus-data";
+import { industryOf, roleOf, sizeOf, type SendPlan } from "@/lib/send-plan";
 import type { AiFit } from "@/lib/ai-fit";
 import { isCuratedDomain } from "@/lib/curated-worklist";
 import { loadNightlyLists } from "@/lib/nightly-lists";
@@ -56,17 +59,25 @@ function whyThisCompany(domain: string | null | undefined): string | null {
 }
 
 /** Every unsent email for the seat, for the quick review list. */
-async function reviewDrafts(owner: Owner): Promise<ReviewDraft[]> {
-  const { data } = await admin().from("cards").select("id,person_id,status,updated_at,email_subject,email_body,accounts(name,domain),people(full_name,title,email,email_status,email_check,do_not_contact),signals!inner(hash)").eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).order("updated_at", { ascending: false }).limit(500);
-  type Row = { id: string; person_id: string; status: string; updated_at: string; email_subject: string | null; email_body: string | null; accounts: { name: string | null; domain: string | null } | null; people: { full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
+async function reviewDrafts(owner: Owner, plan: SendPlan | null): Promise<ReviewDraft[]> {
+  const { data } = await admin().from("cards").select("id,person_id,status,updated_at,email_subject,email_body,auto_send_hold,accounts(name,domain,vertical),people(full_name,title,email,email_status,email_check,do_not_contact),signals!inner(hash)").eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).order("updated_at", { ascending: false }).limit(500);
+  type Row = { id: string; person_id: string; status: string; updated_at: string; email_subject: string | null; email_body: string | null; auto_send_hold: boolean | null; accounts: { name: string | null; domain: string | null; vertical: string | null } | null; people: { full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
   // Only real people, once each: the same filters as the summary above.
   const seen = new Set<string>();
+  // Sector and size come from the list row (nightly or curated), the same data the Reach-out list shows.
+  const listRows = new Map(allFocus().map((row) => [row.domain.toLowerCase(), row]));
+  const listRow = (domain: string | null | undefined) => (domain ? listRows.get(domain.toLowerCase()) : undefined);
   return ((data ?? []) as unknown as Row[]).filter((row) => row.people && !row.people.do_not_contact && isLikelyPersonName(row.people.full_name) && !seen.has(row.person_id) && Boolean(seen.add(row.person_id))).map((row) => ({
     id: row.id, status: row.status, updatedAt: row.updated_at, subject: row.email_subject ?? "", body: row.email_body ?? "",
     curated: isCuratedDomain(row.accounts?.domain), why: whyThisCompany(row.accounts?.domain),
     name: row.people!.full_name, title: row.people!.title ?? "", company: row.accounts?.name ?? "", email: row.people!.email,
     confirmed: bulkSendable(row.people!), sendable: sendableAddress(row.people!),
-  })).sort((a, b) => a.company.localeCompare(b.company));
+    kept: Boolean(row.auto_send_hold),
+    industry: industryOf(listRow(row.accounts?.domain)?.sector ?? row.accounts?.vertical, row.accounts?.name),
+    role: roleOf(row.people!.title),
+    size: sizeOf(listRow(row.accounts?.domain)?.revenue),
+    slot: plan?.slots[row.id] ?? null,
+  })).sort((a, b) => (a.slot?.position || 1e6) - (b.slot?.position || 1e6) || a.company.localeCompare(b.company));
 }
 
 /** Setting up all of one seat's drafts at once, in plain steps; the technical tools stay folded under Advanced. */
@@ -80,7 +91,9 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
   const name = SEATS.find((seat) => seat.owner === owner)?.name ?? "";
   // Nightly list rows carry each company's fit reasons; load them before the review list reads them.
   await loadNightlyLists(admin()).catch(() => undefined);
-  const [summary, samples, review, profile] = await Promise.all([seatSummary(owner), sampleDrafts(owner), reviewDrafts(owner), senderProfile(admin(), owner)]);
+  // What the morning auto-send will do next, from its own queue; the page still works if it cannot be read.
+  const plan = await loadSendPlan(admin(), owner).catch(() => null);
+  const [summary, samples, review, profile] = await Promise.all([seatSummary(owner), sampleDrafts(owner), reviewDrafts(owner, plan), senderProfile(admin(), owner)]);
   const listHref = `/outreach?list=${owner}`;
   const yours = !isAdmin || owner === user.owner;
 
@@ -105,10 +118,10 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
           <span className="drafts-status-actions"><a className="btn" href="#review">Review them here &darr;</a><Link className="btn primary" href={listHref}>Send on the Reach-out list &rarr;</Link></span>
         </section>
 
+        <div id="review" className="drafts-review-anchor"><DraftReview key={owner} drafts={review} listHref={listHref} sender={{ fromName: profile.fromName, signature: profile.signature, postalAddress: profile.postalAddress }} optOut={optOutLine()} plan={plan ? { when: plan.when, dayLabel: plan.dayLabel, windowLabel: plan.windowLabel, going: plan.going, later: plan.later, held: plan.held, blocker: plan.blocker } : null} /></div>
+
         <h2 className="drafts-section-title">Change all your emails at once</h2>
         <DraftSetup owner={owner} unsent={summary.unsent} samples={samples} listHref={listHref} />
-
-        <div id="review" className="drafts-review-anchor"><DraftReview key={owner} drafts={review} listHref={listHref} sender={{ fromName: profile.fromName, signature: profile.signature, postalAddress: profile.postalAddress }} optOut={optOutLine()} /></div>
 
         <details className="drafts-advanced">
           <summary>Advanced tools</summary>

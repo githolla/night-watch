@@ -2450,6 +2450,8 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .autosend-text{flex:1 1 260px}
 .autosend-skip{padding:3px 10px;font-size:12px}
 .autosend-count{margin-left:auto;font:600 12px/1.4 var(--mono);color:var(--ink-soft);white-space:nowrap}
+.autosend-next{font:600 13px/1.4 var(--sans);color:#2b4f7a;white-space:nowrap}
+.autosend-next:hover{text-decoration:underline}
 
 
 /* Drafts page */
@@ -2597,3 +2599,23 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .followup-thread-foot small{font-size:12px;color:var(--muted)}
 .act-modal-more{margin:6px 24px 20px;font-size:13px}
 .act-modal-more summary{cursor:pointer;color:var(--ink-soft)}
+
+/* Drafts: what the morning auto-send will send next, and where each email sits in that queue. */
+.send-plan{margin:0 0 18px;padding:16px 18px;border:1px solid var(--line);border-radius:10px;background:var(--soft)}
+.send-plan h2{margin:0 0 6px;font-size:18px}
+.send-plan-lead{margin:0;font-size:15px}
+.send-plan-notes{margin:8px 0 0;padding-left:18px;font-size:13px;color:var(--ink-soft)}
+.send-plan-hint{margin:12px 0 6px;font-size:12px;color:var(--muted)}
+.plan-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.plan-group h4{margin:0 0 6px;font:700 11px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.plan-chips{display:flex;flex-wrap:wrap;gap:6px}
+.plan-chip{padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;font:500 13px/1.4 var(--sans);color:var(--ink);cursor:pointer}
+.plan-chip b{margin-left:4px}
+.plan-chip:hover{border-color:var(--ink-soft)}
+.plan-chip.is-active{background:var(--ink);border-color:var(--ink);color:#fff}
+.review-facet{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 0;font-size:13px}
+.review-slot{display:inline-block;padding:2px 8px;border-radius:999px;background:#f1eeea;color:var(--ink-soft);font:600 11px/1.5 var(--sans);white-space:nowrap}
+.review-slot.is-going{background:#e6eef8;color:#2b4f7a}
+.review-slot.is-kept{background:#f6eedf;color:#775a2d}
+.review-when{margin:0 0 6px;font-size:13px;color:var(--ink-soft)}
+@media(max-width:760px){.review-tags{flex-wrap:wrap}}

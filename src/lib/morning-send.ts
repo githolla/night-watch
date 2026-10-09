@@ -68,13 +68,30 @@ async function todaysCards(db: Db, owner: Owner, rows: ListRow[]): Promise<DeskC
  */
 async function leftoverCards(db: Db, owner: Owner, todays: Set<string>): Promise<DeskCard[]> {
   const query = (columns: string) => db.from("cards").select(`${columns},accounts!inner(domain,name,status),signals!inner(hash),people(email,email_status,email_check,do_not_contact)`)
-    .eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).like("signals.hash", "operator-shortlist-20260923:%").limit(500);
+    // Oldest first, in a fixed order, so the Drafts page can show the send order the morning run will use.
+    .eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).like("signals.hash", "operator-shortlist-20260923:%").order("created_at", { ascending: true }).order("id", { ascending: true }).limit(500);
   let { data, error } = await query("id,status,email_subject,email_body,auto_send_hold,auto_send_hold_reason");
   if (error) ({ data, error } = await query("id,status,email_subject,email_body"));
   if (error) return [];
   return ((data ?? []) as unknown as DeskCard[]).filter((card) =>
     !todays.has(card.accounts?.domain ?? "") && card.accounts?.status === "active" && !card.auto_send_hold && !card.auto_send_hold_reason &&
     Boolean(card.people && !card.people.do_not_contact && sendableAddress(card.people)) && Boolean(card.email_subject?.trim() && card.email_body?.trim()));
+}
+
+/**
+ * The order the morning run would send in for one seat and date: today's ready list (cards it would hold for an
+ * unconfirmed buyer are marked), then confirmed-sendable drafts left from earlier lists. Built from the same
+ * helpers the run uses, so the Drafts page shows what will actually happen. Read-only.
+ */
+export async function autoSendQueue(db: Db, owner: Owner, listDate: string): Promise<Array<{ cardId: string; held: string | null }>> {
+  const { data: list } = await db.from("reachout_lists").select("status,rows").eq("list_date", listDate).eq("owner", owner).maybeSingle();
+  const rows = list?.status === "ready" ? ((list as { rows?: ListRow[] }).rows ?? []) : [];
+  const cards = rows.length ? await todaysCards(db, owner, rows) : [];
+  const rowsByDomain = new Map(rows.map((row) => [row.domain, row]));
+  const today = cards.filter((card) => !card.auto_send_hold && ["new", "edited", "approved"].includes(card.status) && card.email_subject?.trim() && card.email_body?.trim())
+    .map((card) => ({ cardId: card.id, held: identityHoldReason(rowsByDomain.get(card.accounts?.domain ?? "")) }));
+  const leftovers = (await leftoverCards(db, owner, new Set(rows.map((row) => row.domain)))).map((card) => ({ cardId: card.id, held: null }));
+  return [...today, ...leftovers];
 }
 
 const CAP_REACHED = /Daily sender cap of \d+ reached/;
