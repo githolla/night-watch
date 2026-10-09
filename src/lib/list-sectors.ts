@@ -31,6 +31,14 @@ export const SECTORS = [
   "building materials suppliers",
   "property management",
   "general contractors",
+  "fire protection and sprinkler inspection contractors",
+  "solar and battery storage installers",
+  "collision repair and auto body groups",
+  "customs brokers and freight forwarders",
+  "home health and hospice agencies",
+  "durable medical equipment suppliers",
+  "multi-location dental, veterinary and physical therapy groups",
+  "state-licensed cannabis cultivators, processors and dispensary groups",
 ];
 /**
  * Two sectors a night: the best one by learned reply rate that was not searched yesterday, plus one in

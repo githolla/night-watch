@@ -32,7 +32,7 @@ Imports can take a few minutes; send at most about 8 companies per `import` call
    night builds Monday to Friday). Call `status`; if both seats already have 12 rows for that date, skip to step 5.
 2. Call `brief` and follow its research prompt and numbers exactly.
 3. **Source.** Find about 40 U.S. privately held operating companies sized for the ICP: revenue inside the band, or,
-   when no revenue is published, 50 to 300 employees. Spread them across all the `sectors` (there are 18). Screen them
+   when no revenue is published, 50 to 300 employees. Spread them across all the `sectors` (there are 26). Screen them
    with `check` and keep only `usable` ones. Budget web searches: no more than about a third on sourcing.
 4. **Research and import.** For each company, produce the research object below, then import. Split the passing
    companies between the two seats so each seat's list mixes sectors: **no more than 3 of a seat's 12 from one
@@ -79,6 +79,9 @@ Ways that find companies that pass:
   rejects any company whose research cites them.
 - Not consulting, IT, software, staffing, an agency, a financial firm or a nonprofit; not closed or acquired; not a
   franchise unit or a subsidiary of a large company.
+- Healthcare companies (home health, medical equipment, dental, veterinary and therapy groups): the workflow idea
+  must be office work (scheduling, intake, authorizations, follow-ups), never patient records or clinical decisions.
+- Cannabis: state-licensed cultivators, processors and dispensary groups only.
 - AI fit of at least `minFit` out of 100 (now 25), scored by the app from evidence it can confirm: fresh open office roles
   (coordination, scheduling, dispatch, estimating, quoting, admin, billing, data entry, customer service, order entry,
   purchasing, reporting), 3+ locations, 50+ field staff or vehicles, changes in the last 12 months (acquisitions, new
