@@ -1,3 +1,4 @@
+import * as pageEmailsModule from "./page-emails.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
@@ -59,6 +60,7 @@ function load(): Module {
     "./agents.ts": { runSearchAgent: (prompt: string, options: Row, recorder?: (cost: number) => void) => { calls.source.push(prompt); return hooks.source(prompt, options, recorder); } },
     "./evidence-grounding.ts": grounding,
     "./email-pattern.ts": emailPattern,
+    "./page-emails.ts": pageEmailsModule,
     "./bulk-sendable.ts": bulkSendable,
     "./focus-data.ts": { allFocus: () => [] },
     "./local-time.ts": localTime,
@@ -436,7 +438,12 @@ test("a bounced guess can be corrected by research, but the bounced address itse
   const pages: Record<string, string> = { "https://fix.test/a": "<p>sam@fix.test</p>", "https://fix.test/b": "<p>kim@fix.test</p>", "https://fix.test/team": "<p>pat.lee@fix.test</p>" };
   const fetcher = async (url: string) => new Response(pages[url] ?? "not here", { status: pages[url] ? 200 : 404, headers: { "content-type": "text/html" } });
   const bounced = { email: "pat.lee@fix.test", level: "undeliverable", reason: "pat.lee@fix.test bounced.", source: "history" };
-  const seed = () => queryDb({ accounts: [{ id: "a1", domain: "fix.test", status: "active" }], people: [{ id: "p1", account_id: "a1", full_name: "Pat Lee", email: "pat.lee@fix.test", email_status: "invalid", email_check: bounced, do_not_contact: false }] });
+  const seed = () => queryDb({
+    accounts: [{ id: "a1", domain: "fix.test", status: "active" }],
+    people: [{ id: "p1", account_id: "a1", full_name: "Pat Lee", email: "pat.lee@fix.test", email_status: "invalid", email_check: bounced, do_not_contact: false }],
+    cards: [{ id: "c1", person_id: "p1", status: "sent", auto_send_hold_reason: "pat.lee@fix.test bounced." }],
+    touches: [{ id: "t1", card_id: "c1", person_id: "p1", channel: "email", bounced_at: "2026-10-09T15:58:00Z" }],
+  });
   const deps = { fetcher, lookup: async () => ["93.184.216.34"], mailHost: async () => true };
   // The colleagues show first-name addresses, so the right one is pat@fix.test.
   const fixed = seed();
@@ -445,12 +452,24 @@ test("a bounced guess can be corrected by research, but the bounced address itse
   const person = fixed.tables.people[0];
   assert.equal(person.email, "pat@fix.test");
   assert.equal(person.email_status, "unverified", "the bounce belonged to the old guess");
+  assert.equal(fixed.tables.cards[0].status, "edited", "the card goes back in the queue, to the right address this time");
+  assert.equal(fixed.tables.cards[0].auto_send_hold_reason, null);
   // A page that still lists the bounced address does not bring it back.
   const stale = seed();
   const [refused] = await builder.importAddressEvidence(stale.db, [{ personId: "p1", domain: "fix.test", name: "Pat Lee", emailEvidence: { kind: "published", address: "pat.lee@fix.test", sourceUrl: "https://fix.test/team" } }], deps);
   assert.equal(refused.outcome, "unconfirmed");
   assert.match(refused.reason, /already bounced/);
   assert.equal(stale.tables.people[0].email_status, "invalid");
+  assert.equal(stale.tables.cards[0].status, "sent", "no proven address, no resend");
+});
+
+test("a large staff page counts: colleagues listed past the first 300KB still prove the format", async () => {
+  const filler = "<p>" + "x".repeat(400_000) + "</p>";
+  const pages: Record<string, string> = { "https://big.test/management": `${filler}<p>paul.frank@big.test</p><p>brad.frank@big.test</p>` };
+  const fetcher = async (url: string) => new Response(pages[url] ?? "", { status: pages[url] ? 200 : 404, headers: { "content-type": "text/html" } });
+  const { db } = queryDb({ accounts: [{ id: "a1", domain: "big.test", status: "active" }], people: [{ id: "p1", account_id: "a1", full_name: "David R. Frank", email: null, email_status: "none", do_not_contact: false }], touches: [], cards: [] });
+  const [result] = await builder.importAddressEvidence(db, [{ personId: "p1", domain: "big.test", name: "David R. Frank", emailEvidence: { kind: "format", address: "david.frank@big.test", examples: [{ name: "Paul Frank", email: "paul.frank@big.test", sourceUrl: "https://big.test/management" }, { name: "Brad Frank", email: "brad.frank@big.test", sourceUrl: "https://big.test/management" }] } }], { fetcher, lookup: async () => ["93.184.216.34"], mailHost: async () => true });
+  assert.equal(result.outcome, "likely", result.reason);
 });
 
 test("an import where every company fails leaves no empty failed list to announce", async () => {

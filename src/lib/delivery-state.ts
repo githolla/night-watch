@@ -13,6 +13,11 @@ export function deliveryReservationId(cardId: string, personId: string) {
   return `${hex.slice(0,8)}-${hex.slice(8,12)}-5${hex.slice(13,16)}-a${hex.slice(17,20)}-${hex.slice(20,32)}`;
 }
 
+/** A card's first email. After a bounce, a resend to a corrected address gets its own reservation, once per bounce. */
+export function initialReservationId(cardId: string, personId: string, resend = 0) {
+  return resend > 0 ? deliveryReservationId(`${cardId}:resend:${resend}`, personId) : deliveryReservationId(cardId, personId);
+}
+
 export function deliveryErrorResponse(error: unknown) {
   const delivery = error instanceof DeliveryError;
   return Response.json({ error: error instanceof Error ? error.message : 'Send failed', code: delivery ? error.code : undefined },

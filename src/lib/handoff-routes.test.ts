@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
-import { DeliveryError, deliveryErrorResponse, deliveryReservationId } from './delivery-state.ts';
+import { DeliveryError, deliveryErrorResponse, deliveryReservationId, initialReservationId } from './delivery-state.ts';
 const require = createRequire(import.meta.url);
 function route(path:string, mocks:Record<string,unknown>) {
  const source=readFileSync(new URL(path,import.meta.url),'utf8');
@@ -12,7 +12,7 @@ function route(path:string, mocks:Record<string,unknown>) {
  const exports:Record<string,(...args:unknown[])=>Promise<Response>>={};
  runInNewContext(output,{exports,Error,Response,URL,Date,AbortSignal,process:{env:{}},fetch:mocks.fetch,require:(name:string)=>{
   if(name==='zod')return require('zod');
-  if(name==='@/lib/delivery-state' || name==='./delivery-state') return {DeliveryError, deliveryErrorResponse, deliveryReservationId};
+  if(name==='@/lib/delivery-state' || name==='./delivery-state') return {DeliveryError, deliveryErrorResponse, deliveryReservationId, initialReservationId};
   if(name in mocks)return mocks[name];
   throw new Error('Unmocked dependency '+name);
  }});
@@ -96,7 +96,7 @@ function sendHarness(options: { count?: number | null; countError?: boolean; tra
  let sends=0; let reserved=false; let releases=0;
  const db={from(){
   let countQuery=false; let daily=false; let deleting=false; let updating=false;
-  const q={select(_fields?:unknown,opts?:{head?:boolean}){countQuery=!!opts?.head;return q},eq(){return q},not(){return q},gte(){daily=true;return q},
+  const q={select(_fields?:unknown,opts?:{head?:boolean}){countQuery=!!opts?.head;return q},eq(){return q},not(){return q},is(){return q},gte(){daily=true;return q},
    delete(){deleting=true;return q},update(){updating=true;return q},insert(){updating=true;return q},
    single:async()=>({data:{status:'edited',person_id:'person',account_id:'account',people:{id:'person',full_name:'Louis',email:'recipient@example.com',email_status:'verified'},accounts:{domain:'example.com',status:'active'}}}),
    maybeSingle:async()=>({data:{email:'suuchi@example.com'}}),

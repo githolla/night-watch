@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { AddressFix } from "@/components/AddressFix";
 import type { ReviewSender } from "@/components/DraftReview";
 import type { AutoSendControl, AutoSendEmail, AutoSendSummary } from "@/lib/autosend-view";
 import { outreachBody, outreachEmailHtml } from "@/lib/outreach-ending";
@@ -221,7 +222,7 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
         </div>
         {open && (
           <div className="as-email">
-            <p className="as-email-to">To {email.name}{email.email ? ` · ${email.email}` : " · no address on file"}</p>
+            <p className="as-email-to">To {email.name}{email.email ? ` · ${email.email}` : " · no address on file"} <span className={`address-badge ${email.confirmed ? "is-confirmed" : "is-unconfirmed"}`}>{email.confirmed ? "Confirmed" : "Unconfirmed"}</span>{canChange && email.personId && <AddressFix key={email.email ?? ""} personId={email.personId} current={email.email} />}</p>
             {edit ? (
               <div className="as-email-edit">
                 <label><span>Subject</span><input value={edit.subject} maxLength={120} aria-label="Edit subject" onChange={(event) => setEditing({ ...edit, subject: event.target.value })} /></label>

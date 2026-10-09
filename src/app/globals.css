@@ -2800,3 +2800,12 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .as-sendnow select{margin:0 2px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;font:inherit;background:#fff}
 .as-sendnow .btn{margin-left:6px}
 .as-sendnow-progress .btn{margin-left:0}
+/* Fix an address in place. */
+.address-fix{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:8px;vertical-align:middle}
+.address-fix-form{display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center}
+.address-fix-form input{min-width:240px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;font:400 13px/1.4 var(--sans);background:#fff}
+.address-fix .btn{padding:4px 10px;font-size:12px}
+.address-fix-note{flex-basis:100%;font-size:12px}
+.address-fix-note.is-ok{color:#2d715c}.address-fix-note.is-bad{color:#9a3b2b}
+.sent-outcome-cell{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.sent-row{grid-template-columns:130px minmax(0,1fr) minmax(0,1.4fr) minmax(120px,auto)}

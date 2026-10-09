@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AddressFix } from "@/components/AddressFix";
 import type { SentRow, SentStats } from "@/lib/sent-stats";
 
 type Kind = "industry" | "role" | "size";
@@ -139,7 +140,7 @@ export function SentView({ owner, stats, listHref, updatedAt }: { owner: string;
                   <span className="sent-when">{when(row.sentAt)}</span>
                   <span className="as-who"><b>{row.name}</b><small>{row.title || row.role}</small></span>
                   <span className="as-company"><Link href={`${listHref}&card=${row.cardId}`}>{row.company}</Link><small>{row.followup ? "Follow-up" : row.subject || `${row.industry} · ${row.size}`}</small></span>
-                  <span className={`sent-outcome is-${row.outcome.replace(/ /g, "-")}`}>{OUTCOME_LABEL[row.outcome]}</span>
+                  <span className="sent-outcome-cell"><span className={`sent-outcome is-${row.outcome.replace(/ /g, "-")}`}>{OUTCOME_LABEL[row.outcome]}</span>{row.outcome === "bounced" && row.personId && <AddressFix personId={row.personId} current={row.email ?? null} label="Fix address" />}</span>
                 </li>
               ))}
             </ol>}

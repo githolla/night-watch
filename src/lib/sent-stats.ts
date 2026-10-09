@@ -5,6 +5,8 @@
 
 export type SentTouch = {
   id: string; cardId: string; sentAt: string;
+  /** Who it went to, so a bounced address can be fixed from the list. */
+  personId?: string; email?: string | null;
   replyAt: string | null; replyClass: string | null; bouncedAt: string | null;
   name: string; title: string; company: string; subject: string;
   industry: string; role: string; size: string;

@@ -1,5 +1,5 @@
 import { withMailboxQuota } from '@/lib/mailbox-quota';
-import { DeliveryError, deliveryReservationId } from '@/lib/delivery-state';
+import { DeliveryError, initialReservationId } from '@/lib/delivery-state';
 import { restoreSelectedDraft } from "@/lib/restore-selected-draft";
 import { allFocus, assertCardSender } from "@/lib/focus-data";
 import { emailSuppressed } from "@/lib/email-suppression";
@@ -113,8 +113,11 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     // Idempotency: if an email to THIS PERSON is already logged for this card, don't send again even if a
     // prior status write failed. Scoped to the person, not the card, so emailing a second contact at the
     // same company is still possible while a duplicate to the same one is not.
-    const { count: alreadySent, error: historyError } = await db.from("touches").select("*", { count: "exact", head: true }).eq("card_id", id).eq("person_id", recipient.id).eq("channel", "email").not("gmail_thread_id", "is", null);
+    // A bounced email never arrived, so it does not count; that lets a corrected address be sent once.
+    const { count: alreadySent, error: historyError } = await db.from("touches").select("*", { count: "exact", head: true }).eq("card_id", id).eq("person_id", recipient.id).eq("channel", "email").not("gmail_thread_id", "is", null).is("bounced_at", null);
     if (historyError || alreadySent === null) throw new Error("Could not check send history. Nothing was sent; try again after the connection recovers.");
+    const { count: bouncedBefore, error: bounceError } = await db.from("touches").select("*", { count: "exact", head: true }).eq("card_id", id).eq("person_id", recipient.id).eq("channel", "email").not("bounced_at", "is", null);
+    if (bounceError || bouncedBefore === null) throw new Error("Could not check send history. Nothing was sent; try again after the connection recovers.");
     if ((alreadySent ?? 0) > 0) throw new Error(`An email to ${recipient.full_name} is already logged for this card.`);
     // Send from the signed-in user's own seat (their connected Google account).
     const owner = input.owner;
@@ -154,7 +157,7 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     }
     const unsubscribe = unsubscribeUrl(input.baseUrl, recipient.id);
     const recipientEmail = recipient.email;
-    const reservationId = deliveryReservationId(id, recipient.id);
+    const reservationId = initialReservationId(id, recipient.id, bouncedBefore ?? 0);
     const deliveredBody = fullBody;
     const { result, versionId } = await withMailboxQuota(db, { owner, cardId: id, personId: recipient.id, count, cap, dayStart: since, reservationId }, async () => {
       const versionId = await trackEmailVersion(db, { actor: input.actor, cardId: id, personId: recipient.id, owner, subject, body: fullBody, source: "gmail", reservationId });

@@ -1,3 +1,4 @@
+import { pageShowsAddress } from "./page-emails.ts";
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { listOutcomes, priorScore, sectorWeights, type OutcomeTouch } from "./ai-fit.ts";
@@ -648,9 +649,12 @@ export type ResearchedImport = {
   addresses: AddressOutcome[];
 };
 
+/** Staff pages run large (one listing every manager was 450KB), so address checks read up to 3MB. */
+const ADDRESS_PAGE_BYTES = 3_000_000;
 const pageHas = async (url: string, needle: string, fetcher: Fetcher | undefined, lookup?: Lookup) => {
-  const page = await safeFetch(url, fetcher, lookup ? { lookup } : {}).catch(() => null);
-  return page?.kind === "page" && page.html.toLowerCase().includes(needle.toLowerCase());
+  const page = await safeFetch(url, fetcher, { ...(lookup ? { lookup } : {}), maxBytes: ADDRESS_PAGE_BYTES }).catch(() => null);
+  // Hidden addresses count too (entities, encoded mailto, Cloudflare email protection): they are published.
+  return page?.kind === "page" && pageShowsAddress(page.html, needle);
 };
 
 /**
@@ -675,6 +679,7 @@ async function applyEmailEvidence(db: Db, domain: string, buyerName: string, evi
   if (evidence.kind === "published") {
     if (!(await pageHas(evidence.sourceUrl, address, deps.fetcher, deps.lookup))) return out("unconfirmed", `${address} is not on ${evidence.sourceUrl}`);
     await db.from("people").update({ email: address, email_source: "published", email_status: "verified", email_verified_at: now, email_check: { email: address, source: "research", evidenceUrl: evidence.sourceUrl, checkedAt: now } }).eq("id", person.id);
+    await reopenBouncedCards(db, person.id);
     return out("verified", `published on ${evidence.sourceUrl}`);
   }
   const proven: Array<{ name: string; email: string }> = [];
@@ -689,6 +694,7 @@ async function applyEmailEvidence(db: Db, domain: string, buyerName: string, evi
   // A corrected address starts clean: the "invalid" left by the old guess's bounce belongs to that guess.
   const changed = (person.email ?? "").toLowerCase() !== address;
   await db.from("people").update({ email: address, email_source: "pattern", ...(changed || person.email_status === "invalid" ? { email_status: "unverified" } : {}), email_check: { email: address, source: "research", likely: true, format: format.key, proof: proven.map((item) => item.email), checkedAt: now } }).eq("id", person.id);
+  await reopenBouncedCards(db, person.id);
   return out("likely", `matches the ${format.key} format of ${proven.map((item) => item.email).join(", ")}`);
 }
 
@@ -806,7 +812,8 @@ export async function importResearchedList(db: Db, input: { listDate: string; ow
 export async function addressesToWork(db: Db) {
   const { data, error } = await db.from("cards")
     .select("assigned_to,status,signals!inner(hash),people(id,full_name,title,email,email_status,email_source,email_check,do_not_contact),accounts(name,domain,status)")
-    .in("status", ["new", "edited", "approved"])
+    // Sent cards too, for the people whose email bounced: they need a different, proven address.
+    .in("status", ["new", "edited", "approved", "sent"])
     .like("signals.hash", "operator-shortlist-20260923:%")
     .limit(2000);
   if (error) throw new Error(`Could not read list drafts: ${error.message}`);
@@ -814,8 +821,19 @@ export async function addressesToWork(db: Db) {
     const person = row.people as unknown as { id: string; full_name: string; title: string | null; email: string | null; email_status: string; email_source: string | null; email_check: unknown; do_not_contact: boolean } | null;
     const account = row.accounts as unknown as { name: string; domain: string; status: string } | null;
     if (!person || !account || person.do_not_contact || account.status !== "active" || bulkSendable(person)) return [];
+    if (row.status === "sent" && person.email_status !== "invalid") return [];
     return [{ owner: row.assigned_to as string, personId: person.id, name: person.full_name, title: person.title, company: account.name, domain: account.domain, email: person.email, emailStatus: person.email_status, emailSource: person.email_source }];
   });
+}
+
+/**
+ * A person whose first email bounced has a proven address now: put that card back in the queue, so the
+ * email goes again, to the right address this time. Cards that got a reply are left alone.
+ */
+export async function reopenBouncedCards(db: Db, personId: string) {
+  const { data: bounced } = await db.from("touches").select("card_id").eq("person_id", personId).eq("channel", "email").not("bounced_at", "is", null);
+  const ids = [...new Set(((bounced ?? []) as Array<{ card_id: string }>).map((row) => row.card_id))];
+  if (ids.length) await db.from("cards").update({ status: "edited", auto_send_hold_reason: null }).in("id", ids).eq("status", "sent");
 }
 
 /** Record researched address evidence for existing list contacts, checked against the cited pages. */

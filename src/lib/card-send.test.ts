@@ -23,14 +23,14 @@ type Module = {
 
 const SIGNATURE = `<p>Suuchi Ramesh<br><img src="https://cdn.example.com/logo.png" alt="Nine-67"><br><a href="https://nine-67.com">Nine-67</a> | <a href="https://www.linkedin.com/in/suuchi">LinkedIn</a></p>`;
 
-function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; recipient?: "deliverable" | "risky" | "undeliverable" } = {}) {
+function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; recipient?: "deliverable" | "risky" | "undeliverable"; touches?: Row[] } = {}) {
   const gmail: Array<{ text: string; html: string }> = [];
   const followups: Row[] = [];
   const { db, tables } = queryDb({
     cards: [{ id: "card", status: "edited", person_id: "p1", account_id: "acct", assigned_to: "suuchi", auto_send_hold: false, people: { id: "p1", full_name: "Dana Ortiz", email: "dana.ortiz@acme.test", email_status: "verified", do_not_contact: false }, accounts: { id: "acct", name: "Acme Landscaping, LLC", domain: "acme.test", status: "prospect" }, ...options.cardExtra }],
     people: options.people ?? [{ id: "p1", email: "dana.ortiz@acme.test", do_not_contact: false }],
     gmail_connections: [{ owner: "suuchi", email: "suuchi@nine-67.test", connected_at: "2026-01-01T00:00:00Z" }],
-    touches: [], message_experiments: [],
+    touches: options.touches ?? [], message_experiments: [],
   });
   const mocks: Record<string, unknown> = {
     "@/lib/mailbox-quota": { withMailboxQuota: async (_db: unknown, _input: unknown, fn: () => unknown) => fn() },
@@ -122,4 +122,14 @@ test("a shared mailbox filed as a contact is never emailed, by hand or automatic
     await assert.rejects(h.send(automatic), /shared mailbox or a phrase/);
     assert.equal(h.gmail.length, 0);
   }
+});
+
+test("after a bounce, a corrected address can be sent once; an email that arrived still blocks a second", async () => {
+  const bounced = { id: "t-old", card_id: "card", person_id: "p1", channel: "email", gmail_thread_id: "thread-old", sent_at: "2026-10-09T15:57:00Z", sent_by: "suuchi", bounced_at: "2026-10-09T15:58:00Z" };
+  const resend = harness({ touches: [bounced] });
+  assert.equal((await resend.send(false)).ok, true);
+  assert.equal(resend.gmail.length, 1);
+  const arrived = harness({ touches: [{ ...bounced, bounced_at: null }] });
+  await assert.rejects(arrived.send(false), /already logged/);
+  assert.equal(arrived.gmail.length, 0);
 });
