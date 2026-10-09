@@ -68,8 +68,9 @@ async function todaysCards(db: Db, owner: Owner, rows: ListRow[]): Promise<DeskC
  */
 async function leftoverCards(db: Db, owner: Owner, todays: Set<string>): Promise<DeskCard[]> {
   const query = (columns: string) => db.from("cards").select(`${columns},accounts!inner(domain,name,status),signals!inner(hash),people(email,email_status,email_check,do_not_contact)`)
-    // Oldest first, in a fixed order, so the Drafts page can show the send order the morning run will use.
-    .eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).like("signals.hash", "operator-shortlist-20260923:%").order("created_at", { ascending: true }).order("id", { ascending: true }).limit(500);
+    // Newest lists first (they are built to the current ICP), in a fixed order, so the Auto-send page can show
+    // the send order the morning run will use.
+    .eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).like("signals.hash", "operator-shortlist-20260923:%").order("created_at", { ascending: false }).order("id", { ascending: true }).limit(500);
   let { data, error } = await query("id,status,email_subject,email_body,auto_send_hold,auto_send_hold_reason");
   if (error) ({ data, error } = await query("id,status,email_subject,email_body"));
   if (error) return [];

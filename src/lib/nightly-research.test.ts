@@ -252,7 +252,8 @@ test("revenue: bounded year, ranking disagreement, status and merging", () => {
   const found = (usdMillions: number, year = 2025, sourceUrl = "https://bizjournal.example.com/acme") => ({ usdMillions, year, sourceUrl });
   assert.match(String((settleRevenue(candidate, found(45, 2017), LIST_DATE) as { problem: string }).problem), /2017/);
   assert.ok("problem" in settleRevenue(candidate, found(45, 2027), LIST_DATE));
-  assert.match(String((settleRevenue(candidate, found(60), LIST_DATE) as { problem: string }).problem), /outside \$10M to \$50M/);
+  assert.match(String((settleRevenue(candidate, found(120), LIST_DATE) as { problem: string }).problem), /outside \$10M to \$100M/);
+  assert.ok("revenue" in settleRevenue(candidate, found(80), LIST_DATE), "$80M is inside the band now");
 
   const split = settleRevenue({ ...candidate, revenue_usd_m: 18 }, found(42), LIST_DATE);
   assert.ok("revenue" in split);
@@ -376,6 +377,6 @@ test("with no published revenue, a headcount of 50 to 300 sizes the company and 
   assert.ok("problem" in settleRevenue(noRanking, null, LIST_DATE, null), "neither revenue nor headcount");
   const stale = settleRevenue(noRanking, { usdMillions: 30, year: 2019, sourceUrl: "https://old.example.com" }, LIST_DATE, { employees: 90, sourceUrl: "https://acmeland.com/about" });
   assert.ok("revenue" in stale && stale.revenue.status === "estimated", "a stale figure falls back to headcount");
-  assert.ok("problem" in settleRevenue(noRanking, { usdMillions: 80, year: 2025, sourceUrl: "https://x.example.com" }, LIST_DATE, { employees: 90, sourceUrl: "https://acmeland.com/about" }), "a published figure outside the band still rules it out");
+  assert.ok("problem" in settleRevenue(noRanking, { usdMillions: 150, year: 2025, sourceUrl: "https://x.example.com" }, LIST_DATE, { employees: 90, sourceUrl: "https://acmeland.com/about" }), "a published figure outside the band still rules it out");
 });
 

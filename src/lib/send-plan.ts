@@ -99,7 +99,8 @@ export function sizeOf(revenue: { usdMillions?: number | null; status?: string |
   if (typeof value !== "number") return "Size not known";
   if (value < 25) return "$10M to $25M";
   if (value <= 50) return "$25M to $50M";
-  return "Over $50M";
+  if (value <= 100) return "$50M to $100M";
+  return "Over $100M";
 }
 
 /** Counts per label, largest first. */

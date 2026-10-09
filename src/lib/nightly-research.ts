@@ -83,7 +83,7 @@ export function isExcludedSector(sector: string | null | undefined): boolean {
 
 const BUYER_TITLE = /\b(ceo|chief executive|president|coo|chief operating|owner|founder|co-founder|managing (director|partner)|general manager|principal)\b/i;
 const NOT_BUYER_TITLE = /\b(former|retired|emeritus|vice[ -]president|vp|assistant|interim|acting)\b|\bex-/i;
-/** At $10M to $50M the operations leader often owns the work: VP or Director of Operations. */
+/** At $10M to $100M the operations leader often owns the work: VP or Director of Operations. */
 const OPERATIONS_LEADER = /\b(?:(?:senior |sr\.? )?(?:vp|vice[ -]president|director)\b[^;|]{0,12}\boperations|operations director)\b/i;
 const NOT_CURRENT = /\b(former|retired|emeritus|assistant|interim|acting)\b|\bex-/i;
 

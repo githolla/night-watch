@@ -318,7 +318,7 @@ test("the queue the Drafts page shows is the order the morning run sends in", as
     ],
   });
   const queue = await morning.autoSendQueue(h.db, "suuchi", TODAY);
-  assert.deepEqual(JSON.parse(JSON.stringify(queue)), [{ cardId: "t1", held: null }, { cardId: "t2", held: "the buyer left" }, { cardId: "old", held: null }, { cardId: "mid", held: null }, { cardId: "newer", held: null }]);
+  assert.deepEqual(JSON.parse(JSON.stringify(queue)), [{ cardId: "t1", held: null }, { cardId: "t2", held: "the buyer left" }, { cardId: "newer", held: null }, { cardId: "mid", held: null }, { cardId: "old", held: null }]);
   const sendCardEmail = async (_db: unknown, input: SendInput) => { h.sends.push(input); h.tables.cards.find((row) => row.id === input.cardId)!.status = "sent"; return { ok: true }; };
   for (const time of ["09:00", "09:10", "09:20", "09:30", "09:40"]) await h.run(at(time), { sendCardEmail });
   assert.deepEqual(JSON.parse(JSON.stringify(h.sends.map((input) => input.cardId))), JSON.parse(JSON.stringify(queue.filter((entry) => !entry.held).map((entry) => entry.cardId))));

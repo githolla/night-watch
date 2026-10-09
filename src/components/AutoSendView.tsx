@@ -3,23 +3,32 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { ReviewSender } from "@/components/DraftReview";
 import type { AutoSendControl, AutoSendEmail, AutoSendSummary } from "@/lib/autosend-view";
+import { outreachBody, outreachEmailHtml } from "@/lib/outreach-ending";
 import { tally } from "@/lib/send-plan";
 import type { Owner } from "@/lib/types";
 
 type Kind = "industry" | "role" | "size";
+const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/** Outside the ICP: sized over the top of the revenue band. */
+const OUT_OF_RANGE = "Over $100M";
 
 /**
  * The morning auto-send in plain steps: is it on and what happens next, how it works, who gets emailed in
  * what order, and what it will not send. The order comes from the morning run's own queue, and Keep for me
  * is the card's auto_send_hold, the same switch as the Reach-out list.
  */
-export function AutoSendView({ owner, plan, emails, control, canChange, listHref }: { owner: Owner; plan: AutoSendSummary; emails: AutoSendEmail[]; control: AutoSendControl; canChange: boolean; listHref: string }) {
+export function AutoSendView({ owner, plan, emails, control, canChange, listHref, sender, optOut }: { owner: Owner; plan: AutoSendSummary; emails: AutoSendEmail[]; control: AutoSendControl; canChange: boolean; listHref: string; sender: ReviewSender; optOut: string }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ text: string; ok: boolean } | null>(null);
   const [filter, setFilter] = useState<{ kind: Kind; label: string } | null>(null);
+  // One email open at a time, read-only as it will be sent unless Edit is pressed.
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [editing, setEditing] = useState<{ id: string; subject: string; body: string; updatedAt: string } | null>(null);
+  const [rowNote, setRowNote] = useState<{ id: string; text: string; ok: boolean; conflict?: boolean } | null>(null);
 
   const on = !plan.blocker;
   const paused = control.autoSend && control.paused;
@@ -57,6 +66,49 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
       router.refresh();
     } catch { setNotice({ text: "Not saved: the connection dropped. Try again.", ok: false }); }
     finally { setBusy(null); }
+  }
+
+  const outOfRange = emails.filter((email) => (email.group === "going" || email.group === "later") && email.size === OUT_OF_RANGE);
+  async function keepOutOfRange() {
+    setBusy("range");
+    setNotice(null);
+    let kept = 0;
+    for (const email of outOfRange) {
+      const response = await fetch(`/api/cards/${email.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ auto_send_hold: true }) }).catch(() => null);
+      if (response?.ok) kept += 1;
+    }
+    setBusy(null);
+    setNotice({ text: kept === outOfRange.length ? `Kept ${kept} for you. Auto-send will skip companies over $100M; you can still send them yourself.` : `Kept ${kept} of ${outOfRange.length}. Try again for the rest.`, ok: kept === outOfRange.length });
+    router.refresh();
+  }
+
+  // The email as the recipient will get it: the same body transform, signature, postal line and opt-out.
+  const emailHtml = (email: AutoSendEmail, body: string) => `${outreachEmailHtml(email.curated ? outreachBody(body) : body, sender)}${email.curated ? "" : `<p style="font:400 13px/1.5 Arial,Helvetica,sans-serif;color:#6b645a">${escapeHtml(optOut)}</p>`}`;
+
+  async function saveEdit(email: AutoSendEmail) {
+    if (!editing) return;
+    if (!editing.subject.trim() || !editing.body.trim()) { setRowNote({ id: email.id, text: "An email needs a subject and a message.", ok: false }); return; }
+    setBusy(email.id);
+    try {
+      const response = await fetch(`/api/cards/${email.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ email_subject: editing.subject, email_body: editing.body, expected_updated_at: editing.updatedAt }) });
+      const json = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) {
+        setRowNote({ id: email.id, text: response.status === 409 ? "Not saved: this email was changed somewhere else (or sent) since you opened it. Your text is still here." : json.error ?? "Not saved. Try again.", ok: false, conflict: response.status === 409 });
+        return;
+      }
+      setEditing(null);
+      setRowNote({ id: email.id, text: "Saved. This is what auto-send will send.", ok: true });
+      router.refresh();
+    } catch { setRowNote({ id: email.id, text: "Not saved: the connection dropped. Your text is still here.", ok: false }); }
+    finally { setBusy(null); }
+  }
+
+  async function loadSaved(email: AutoSendEmail) {
+    const response = await fetch(`/api/cards/${email.id}`, { cache: "no-store" });
+    const json = await response.json().catch(() => ({})) as { email_subject?: string | null; email_body?: string | null; updated_at?: string };
+    if (!response.ok || !json.updated_at) { setRowNote({ id: email.id, text: "Could not load the saved version.", ok: false, conflict: true }); return; }
+    setEditing({ id: email.id, subject: json.email_subject ?? "", body: json.email_body ?? "", updatedAt: json.updated_at });
+    setRowNote({ id: email.id, text: "Showing the saved version. Edit it and save again if you like.", ok: true });
   }
 
   // One sentence: where things stand and what happens next.
@@ -102,14 +154,48 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
     ? <button type="button" className="btn ghost" disabled={busy !== null} onClick={() => void keep(email, false)}>{busy === email.id ? "Saving…" : "Let auto-send it"}</button>
     : email.group !== "held" && <button type="button" className="btn ghost" disabled={busy !== null} onClick={() => void keep(email, true)}>{busy === email.id ? "Saving…" : "Keep for me"}</button>);
 
-  const row = (email: AutoSendEmail, lead: string, note?: string) => (
-    <li key={email.id} className={`as-row is-${email.group}`}>
-      <span className="as-time">{lead}</span>
-      <span className="as-who"><b>{email.name}</b><small>{email.title || email.role}</small></span>
-      <span className="as-company"><Link href={`${listHref}&card=${email.id}`}>{email.company}</Link><small>{note ?? `${email.industry} · ${email.size}`}</small></span>
-      <span className="as-action">{keepButton(email)}</span>
-    </li>
-  );
+  const toggle = (email: AutoSendEmail) => { setOpenId(openId === email.id ? null : email.id); setEditing(null); setRowNote(null); };
+  const row = (email: AutoSendEmail, lead: string, note?: string) => {
+    const open = openId === email.id;
+    const edit = editing?.id === email.id ? editing : null;
+    const rowMessage = rowNote?.id === email.id ? rowNote : null;
+    return (
+      <li key={email.id} className={`as-item ${open ? "is-open" : ""}`}>
+        <div className={`as-row is-${email.group}`}>
+          <span className="as-time">{lead}</span>
+          <button type="button" className="as-who as-open" aria-expanded={open} onClick={() => toggle(email)}><b>{email.name}</b><small>{email.title || email.role}</small></button>
+          <button type="button" className="as-company as-open" aria-expanded={open} onClick={() => toggle(email)}><b>{email.company}</b><small>{note ?? `${email.industry} · ${email.size}`}</small></button>
+          <span className="as-action"><button type="button" className="btn ghost" onClick={() => toggle(email)}>{open ? "Close" : "Read"}</button>{keepButton(email)}</span>
+        </div>
+        {open && (
+          <div className="as-email">
+            <p className="as-email-to">To {email.name}{email.email ? ` · ${email.email}` : " · no address on file"}</p>
+            {edit ? (
+              <div className="as-email-edit">
+                <label><span>Subject</span><input value={edit.subject} maxLength={120} aria-label="Edit subject" onChange={(event) => setEditing({ ...edit, subject: event.target.value })} /></label>
+                <label><span>Message</span><textarea rows={11} maxLength={1000} value={edit.body} aria-label="Edit message" onChange={(event) => setEditing({ ...edit, body: event.target.value })} /></label>
+                <div className="as-controls">
+                  <button type="button" className="btn primary" disabled={busy !== null} onClick={() => void saveEdit(email)}>{busy === email.id ? "Saving…" : "Save"}</button>
+                  <button type="button" className="btn ghost" disabled={busy !== null} onClick={() => { setEditing(null); setRowNote(null); }}>Cancel</button>
+                  {rowMessage?.conflict && <button type="button" className="btn" onClick={() => void loadSaved(email)}>Load the saved version</button>}
+                </div>
+              </div>
+            ) : (
+              <>
+                <h3 className="as-email-subject">{email.subject || "No subject"}</h3>
+                <div className="review-email" dangerouslySetInnerHTML={{ __html: emailHtml(email, email.body) }} />
+                <div className="as-controls">
+                  {canChange && <button type="button" className="btn" disabled={busy !== null} onClick={() => { setEditing({ id: email.id, subject: email.subject, body: email.body, updatedAt: email.updatedAt }); setRowNote(null); }}>Edit</button>}
+                  <Link className="review-open" href={`${listHref}&card=${email.id}`}>Open on the Reach-out list &rarr;</Link>
+                </div>
+              </>
+            )}
+            {rowMessage && <p className={`as-notice ${rowMessage.ok ? "is-ok" : "is-bad"}`} role="status">{rowMessage.text}</p>}
+          </div>
+        )}
+      </li>
+    );
+  };
 
   const mixFrom = allGoing.length ? allGoing : emails.filter((email) => email.group === "later");
   const mix = (kind: Kind, title: string) => {
@@ -162,6 +248,13 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
         </section>
       )}
 
+      {canChange && outOfRange.length > 0 && (
+        <p className="as-range">
+          <span><b>{outOfRange.length} {outOfRange.length === 1 ? "company is" : "companies are"} over $100M</b>, outside your range.</span>
+          <button type="button" className="btn" disabled={busy !== null} onClick={() => void keepOutOfRange()}>{busy === "range" ? "Keeping…" : `Keep ${outOfRange.length === 1 ? "it" : "these"} for me`}</button>
+        </p>
+      )}
+
       {filter && <p className="as-filter">Showing <b>{filter.label}</b> only. <button type="button" className="btn ghost" onClick={() => setFilter(null)}>Show all</button></p>}
 
       <section className="as-how" aria-label="How auto-send works">
@@ -171,7 +264,7 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
       </section>
 
       <section className="as-queue" aria-label="Who gets emailed next">
-        <div className="as-queue-head"><h2>Who gets emailed {plan.dayLabel} <span>{going.length}</span></h2><p>{on ? "In this order." : "In this order, once auto-send is on."} Click a company to read or change its email.</p></div>
+        <div className="as-queue-head"><h2>Who gets emailed {plan.dayLabel} <span>{going.length}</span></h2><p>{on ? "In this order." : "In this order, once auto-send is on."} Click anyone to read their email as it will be sent, or change it.</p></div>
         {going.length
           ? <ol className="as-list">{going.map((email) => row(email, email.time ?? `#${email.position}`))}</ol>
           : <p className="as-empty">Nobody is waiting for {plan.dayLabel}.</p>}

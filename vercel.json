@@ -9,6 +9,7 @@
     { "path": "/api/cron/replies", "schedule": "*/15 * * * *" },
     { "path": "/api/cron/cadences", "schedule": "*/15 * * * *" },
     { "path": "/api/cron/feedback-digest", "schedule": "30 9 * * *" },
-    { "path": "/api/cron/sent-sync", "schedule": "*/15 * * * *" }
+    { "path": "/api/cron/sent-sync", "schedule": "*/15 * * * *" },
+    { "path": "/api/cron/notices", "schedule": "*/10 11-18 * * 1-5" }
   ]
 }

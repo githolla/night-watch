@@ -1,4 +1,5 @@
 import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
+import { isCuratedDomain } from "./curated-worklist.ts";
 import { LIST_DRAFT_HASH } from "./draft-scope.ts";
 import { allFocus } from "./focus-data.ts";
 import { localParts } from "./local-time.ts";
@@ -10,6 +11,10 @@ import type { Owner } from "./types.ts";
 /** One email in the auto-send view: who, what kind of company, and where it sits in the queue. */
 export type AutoSendEmail = {
   id: string; name: string; title: string; company: string; subject: string;
+  /** The saved draft and its version, so it can be read and edited on the page with the desk's version check. */
+  body: string; updatedAt: string; email: string | null;
+  /** Curated companies send the short body and no opt-out line, exactly as card-send does. */
+  curated: boolean;
   industry: string; role: string; size: string; confirmed: boolean;
   /** going: in the next window; later: over the limit; held: the run skips it; kept: Keep for me. */
   group: "going" | "later" | "held" | "kept";
@@ -30,12 +35,12 @@ export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSu
     skippedToday: ((profile?.auto_send_skip_on as string | null | undefined) ?? null) === localParts().date,
   };
   const queued = Object.keys(slots);
-  const select = "id,email_subject,auto_send_hold,accounts(name,domain,vertical),people(full_name,title,email,email_status,email_check)";
+  const select = "id,email_subject,email_body,updated_at,auto_send_hold,accounts(name,domain,vertical),people(full_name,title,email,email_status,email_check)";
   const [{ data: inQueue }, { data: kept }] = await Promise.all([
     queued.length ? db.from("cards").select(select).in("id", queued) : Promise.resolve({ data: [] }),
     db.from("cards").select(`${select},signals!inner(hash)`).eq("assigned_to", owner).eq("auto_send_hold", true).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).limit(200),
   ]);
-  type Row = { id: string; email_subject: string | null; auto_send_hold: boolean | null; accounts: { name: string | null; domain: string | null; vertical: string | null } | null; people: { full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown } | null };
+  type Row = { id: string; email_subject: string | null; email_body: string | null; updated_at: string; auto_send_hold: boolean | null; accounts: { name: string | null; domain: string | null; vertical: string | null } | null; people: { full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown } | null };
   const listRows = new Map(allFocus().map((row) => [row.domain.toLowerCase(), row]));
   const toEmail = (row: Row): AutoSendEmail => {
     const listRow = row.accounts?.domain ? listRows.get(row.accounts.domain.toLowerCase()) : undefined;
@@ -44,7 +49,8 @@ export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSu
     const group: AutoSendEmail["group"] = row.auto_send_hold ? "kept" : !slot || held ? "held" : slot.position <= plan.going ? "going" : "later";
     return {
       id: row.id, name: row.people?.full_name ?? "", title: row.people?.title ?? "", company: row.accounts?.name ?? row.accounts?.domain ?? "",
-      subject: row.email_subject ?? "",
+      subject: row.email_subject ?? "", body: row.email_body ?? "", updatedAt: row.updated_at, email: row.people?.email ?? null,
+      curated: isCuratedDomain(row.accounts?.domain),
       industry: industryOf(listRow?.sector ?? row.accounts?.vertical, row.accounts?.name), role: roleOf(row.people?.title), size: sizeOf(listRow?.revenue),
       confirmed: Boolean(row.people && bulkSendable(row.people)) && Boolean(row.people && sendableAddress(row.people)),
       group, position: slot?.position ?? 0,

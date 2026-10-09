@@ -6,6 +6,7 @@ import { classifyReply } from "@/lib/agents";
 import { thread } from "@/lib/gmail";
 import { createInvite, matchProposedSlot, type Slot } from "@/lib/calendar";
 import { sendReplySlack } from "@/lib/slack";
+import { sendReplyAlert } from "@/lib/seat-notices";
 import { admin } from "@/lib/supabase/admin";
 import { daysAgoIso } from "@/lib/time";
 import type { Owner } from "@/lib/types";
@@ -105,6 +106,11 @@ export async function GET(request:Request){
             const account=person.accounts as unknown as {name:string}|null;
             const result=await sendReplySlack({cardId:touch.card_id,name:person.full_name,company:account?.name??'',title:person.title,classification:state.booked?'meeting':state.classification!,body:state.bookingError?`${body}\n\nScheduling needs review: ${state.bookingError}`:body,booked:state.booked,eventId});
             if(!result.delivered&&result.reason!=='Slack is not configured')throw new Error(result.reason??'Reply notification failed.');
+          },
+          async(state)=>{
+            // An email to the seat's own inbox. Its own step, so it goes once; it never throws, so a missed alert cannot stall the reply.
+            const {data:person}=await db.from('people').select('full_name,title,accounts(name)').eq('id',touch.person_id).maybeSingle();
+            await sendReplyAlert(db,{owner:touch.sent_by,cardId:touch.card_id,name:person?.full_name??'Someone',title:(person?.title as string|null)??null,company:(person?.accounts as unknown as {name:string}|null)?.name??'',classification:state.booked?'meeting':state.classification!,body});
           }
         ]);
         if(completed==='busy')break;

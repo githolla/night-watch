@@ -3,6 +3,8 @@ import { AutoSendView } from "@/components/AutoSendView";
 import { requireUser } from "@/lib/auth";
 import { loadAutoSendView } from "@/lib/autosend-view";
 import { loadNightlyLists } from "@/lib/nightly-lists";
+import { optOutLine } from "@/lib/opt-out";
+import { senderProfile } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
 
@@ -20,7 +22,7 @@ export default async function AutoSendPage({ searchParams }: { searchParams: Pro
   const yours = !isAdmin || owner === user.owner;
   // Sector and size come from the list rows, which live in the database.
   await loadNightlyLists(admin()).catch(() => undefined);
-  const view = await loadAutoSendView(owner).catch(() => null);
+  const [view, profile] = await Promise.all([loadAutoSendView(owner).catch(() => null), senderProfile(admin(), owner)]);
 
   return (
     <main className="workspace-page drafts-page">
@@ -37,7 +39,7 @@ export default async function AutoSendPage({ searchParams }: { searchParams: Pro
           )}
         </header>
         {view
-          ? <AutoSendView key={owner} owner={owner} plan={view.plan} emails={view.emails} control={view.control} canChange={isAdmin || owner === user.owner} listHref={`/outreach?list=${owner}`} />
+          ? <AutoSendView key={owner} owner={owner} plan={view.plan} emails={view.emails} control={view.control} canChange={isAdmin || owner === user.owner} listHref={`/outreach?list=${owner}`} sender={{ fromName: profile.fromName, signature: profile.signature, postalAddress: profile.postalAddress }} optOut={optOutLine()} />
           : <p className="as-empty">Auto-send could not be read just now. Reload the page to try again.</p>}
       </div>
     </main>

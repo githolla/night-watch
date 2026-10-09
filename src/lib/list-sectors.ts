@@ -1,5 +1,5 @@
-/** The ICP revenue band in USD millions: mid-market operators from $10M to $50M a year. */
-export const REVENUE_BAND_USD_M = { min: 10, max: 50 } as const;
+/** The ICP revenue band in USD millions: mid-market operators from $10M to $100M a year (raised from $50M on 2026-10-09). */
+export const REVENUE_BAND_USD_M = { min: 10, max: 100 } as const;
 export const inRevenueBand = (usdMillions: number) => usdMillions >= REVENUE_BAND_USD_M.min && usdMillions <= REVENUE_BAND_USD_M.max;
 export const REVENUE_BAND_TEXT = `$${REVENUE_BAND_USD_M.min}M to $${REVENUE_BAND_USD_M.max}M`;
 /** When a company publishes no revenue, a headcount in this range stands in for the band. */
