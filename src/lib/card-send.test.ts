@@ -11,6 +11,7 @@ import * as ending from "./outreach-ending.ts";
 import { withOptOut } from "./opt-out.ts";
 import { recipientAllowed } from "./recipient-verification.ts";
 import { bulkSendable } from "./bulk-sendable.ts";
+import { isRealContact } from "./clean.ts";
 import { queryDb } from "./testing/query-db.ts";
 
 type Row = Record<string, unknown>;
@@ -50,6 +51,7 @@ function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; reci
     "@/lib/send-guards": { dailyCap: () => 20, sendDayStart: () => new Date("2026-10-01T04:00:00Z") },
     "@/lib/sender": { sanitizeLinks: (value: string) => value, senderProfile: async () => ({ fromName: "Suuchi", signature: SIGNATURE, postalAddress: "1 Main St, Austin TX", cc: [], greeting: "Hi {first}," }), fromHeader: () => "Suuchi" },
     "@/lib/curated-worklist": { isCuratedDomain: () => false },
+    "@/lib/clean": { isRealContact },
     "@/lib/outreach-ending": ending,
     "@/lib/nightly-lists": { loadNightlyLists: async () => {} },
   };
@@ -111,4 +113,13 @@ test("an automatic send takes an unconfirmed guess like Send all ready, but neve
   const bad = harness({ recipient: "undeliverable", cardExtra: { people: { ...person, email_status: "invalid" } } });
   await assert.rejects(bad.send(true));
   assert.equal(bad.gmail.length, 0);
+});
+
+test("a shared mailbox filed as a contact is never emailed, by hand or automatically", async () => {
+  const mailbox = { id: "p1", full_name: "Human Resources", email: "human.resources@acme.test", email_status: "verified", do_not_contact: false };
+  for (const automatic of [true, false]) {
+    const h = harness({ cardExtra: { people: mailbox } });
+    await assert.rejects(h.send(automatic), /shared mailbox or a phrase/);
+    assert.equal(h.gmail.length, 0);
+  }
 });

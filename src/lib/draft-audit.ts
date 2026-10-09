@@ -48,8 +48,10 @@ export function auditDraft(row: AuditRow): Fault[] {
   // decodeBody, not decodeEntities: the latter collapses newlines, which would flatten the email into
   // one paragraph and quietly disable every check below that depends on its shape.
   const body = decodeBody(row.body);
-  const first = firstNameOf(row.personName);
   const company = decodeEntities(row.company ?? "").trim();
+  // "J. Christopher Hurt" goes by Christopher: any given name counts, never an initial or the surname.
+  const given = decodeEntities(row.personName ?? "").trim().split(/\s+/).filter((part, index, all) => index < all.length - 1 && !/^[A-Z]\.?$/i.test(part));
+  const first = given[0] ?? firstNameOf(row.personName);
 
   // — Is there an email at all —
   if (!body) { say("no-body", "No message written yet."); return faults; }
@@ -68,13 +70,19 @@ export function auditDraft(row: AuditRow): Fault[] {
   // — Is it addressed to them —
   const greeted = greetedName(body);
   if (!greeted) say("no-greeting", "It does not open with a greeting.", false);
-  else if (first && greeted.toLowerCase() !== first.toLowerCase()) {
+  else if (first && !given.concat(first).some((name) => name.toLowerCase() === greeted.toLowerCase())) {
     say("wrong-greeting", `It greets “${greeted}” but is addressed to ${row.personName}.`);
   }
   // The name a second time reads as a mail merge; the WRONG name means it was written for someone else.
   const afterGreeting = stripLeadingGreeting(body);
-  if (first && new RegExp(`\\b${escapeRegExp(first)}\\b`).test(afterGreeting)) {
-    say("name-twice", `“${first}” appears again inside the message.`, false);
+  // Their name inside the company's name ("Lucas" at Lucas Tree Experts) or the sender's own ("I'm Josh at
+  // Nine-67" to Josh Kline) is not the mail-merge repeat this looks for.
+  const greetedAs = given.find((name) => name.toLowerCase() === greeted?.toLowerCase()) ?? first;
+  const nameScan = afterGreeting
+    .replace(company ? new RegExp(escapeRegExp(company), "gi") : /$^/, " ")
+    .replace(/\bI(?:'m|’m| am) [A-Z][\w.-]*(?: [A-Z][\w.-]*)?(?=,| at | from )/g, " ");
+  if (greetedAs && new RegExp(`\\b${escapeRegExp(greetedAs)}\\b`).test(nameScan)) {
+    say("name-twice", `“${greetedAs}” appears again inside the message.`, false);
   }
 
   // — Would it embarrass you —
@@ -90,7 +98,8 @@ export function auditDraft(row: AuditRow): Fault[] {
   if (/\b(\w[\w -]{2,}?) and \1\b/i.test(text)) say("same-role-twice", `The same thing is named twice: “${text.match(/\b(\w[\w -]{2,}?) and \1\b/i)?.[0]}”.`);
   if (/\b(\w+) \1\b/i.test(text)) say("doubled-word", `A word is repeated: “${text.match(/\b(\w+) \1\b/i)?.[0]}”.`);
   if (/\b(a) +[aeiou]/i.test(text) && !/\b(a) +(one|use|user|uni|euro|u[bcgkmnprst])/i.test(text)) say("article", "“a” is used before a vowel sound.", false);
-  if (/\b(Apply|Req #|Requisition)\b/i.test(text)) say("posting-junk", "Boilerplate from the job posting is still in the text.", false);
+  // Capitalised and case-sensitive: "we'd apply that experience" is prose, "Apply now" and "Req #" are not.
+  if (/\bApply\b|\bReq ?#|\bRequisition\b/.test(text)) say("posting-junk", "Boilerplate from the job posting is still in the text.", false);
   // "We put the financial reporting and the reconciliation under it behind one scheduled job" — one phrase
   // ending in a preposition, followed by another. It read as a typo and was in most of the drafts.
   if (/\b(under|behind|around|over|into|on|with|from) (it|them) (behind|under|around|over|into|on|with|from|first|once|end)\b/i.test(text)) {
@@ -133,8 +142,22 @@ function namesCompany(body: string, company: string): boolean {
   if (!core) return false;
   // The first surviving word is the identifying one: Seacoast, Q2, RealReal.
   const identifier = core.split(/\s+/)[0];
-  return new RegExp(`\\b${escapeRegExp(identifier)}\\b`, "i").test(body);
+  if (new RegExp(`\\b${escapeRegExp(identifier)}\\b`, "i").test(body)) return true;
+  // Written as one word ("SugarCreek" for Sugar Creek Packing) or by its initials ("MEC").
+  const squashed = text.replace(/[^a-z0-9]/g, "");
+  const words = company.replace(/[^A-Za-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
+  const coreWords = core.split(/\s+/).filter(Boolean);
+  for (let count = 2; count <= coreWords.length; count++) if (squashed.includes(coreWords.slice(0, count).join("").toLowerCase())) return true;
+  for (const set of [words, coreWords]) {
+    const initials = set.map((word) => word[0]).join("");
+    if (initials.length >= 2 && new RegExp(`\\b${escapeRegExp(initials.toUpperCase())}\\b`).test(body)) return true;
+  }
+  // Or by any other distinctive word, as a proper noun: "the Vicari group" for Joe Vicari Restaurant Group.
+  return coreWords.slice(1).some((word) => word.length >= 3 && !GENERIC_WORDS.test(word) && new RegExp(`\\b${escapeRegExp(word)}\\b`).test(body));
 }
+
+/** Trade words that name what a company does, not which company it is. */
+const GENERIC_WORDS = /^(restaurants?|landscap\w*|electric\w*|engineering|packing|logistics|industries|equipment|care|tree|experts?|brothers|workshop|contracting|construction|manufacturing|pest|control|management|tax|supply|distribution|foods?|farms?|transport\w*|trucking|roofing|plumbing|heating|cooling|air|mechanical|health|medical|dental|home|homes|properties|realty|capital|energy|power|water|auto|motors?|machine\w*|tool\w*|products?|materials?|metals?|steel)$/i;
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

@@ -121,7 +121,7 @@ function sendHarness(options: { count?: number | null; countError?: boolean; tra
   '@/lib/followups':{ensureFollowupCadence:async()=>{}},'@/lib/send-action':{sendInput:{parse:(x:unknown)=>x},validateEmail:()=>{}},
   '@/lib/send-guards':{dailyCap:()=>5,sendDayStart:()=>new Date()},
   '@/lib/sender':{sanitizeLinks:(v:string)=>v,senderProfile:async()=>({fromName:'Suuchi',cc:[]}),fromHeader:()=> 'Suuchi'},
-  '@/lib/urls':{outboundBaseUrl:()=> 'https://test'},'@/lib/supabase/admin':{admin:()=>db},'@/lib/curated-worklist':{isCuratedDomain:()=>true},
+  '@/lib/urls':{outboundBaseUrl:()=> 'https://test'},'@/lib/supabase/admin':{admin:()=>db},'@/lib/curated-worklist':{isCuratedDomain:()=>true},'@/lib/clean':{isRealContact:()=>true},
   '@/lib/outreach-ending':{outreachBody:(v:string)=>v,outreachDelivery:()=>({text:'Can we help?',html:'<p>Can we help?</p>'})},
  });
  // The route is a thin wrapper now: call the shared send and map errors exactly as it does.

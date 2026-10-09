@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { draftMatch, draftSeat, listPattern } from "@/lib/draft-scope";
 import { auditDraft, isSendable, type AuditRow } from "@/lib/draft-audit";
+import { isRealContact } from "@/lib/clean";
 import { admin } from "@/lib/supabase/admin";
 
 export const maxDuration = 300;
@@ -57,6 +58,9 @@ export async function POST(request: Request) {
     let unsendable = 0;
 
     for (const card of cards) {
+      // A shared mailbox filed as a contact can never be sent (the send guard refuses it), so it is not a
+      // draft for a person to fix.
+      if (card.people && !isRealContact({ full_name: card.people.full_name, title: card.people.title, email: card.people.email })) continue;
       const row: AuditRow = {
         id: card.id,
         status: card.status,

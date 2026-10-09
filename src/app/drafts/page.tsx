@@ -9,6 +9,7 @@ import { focusedAccount } from "@/lib/reachout-sort";
 import { senderProfile } from "@/lib/sender";
 import { DraftSetup, type DraftSample } from "@/components/DraftSetup";
 import { DraftsTabs } from "@/components/DraftsTabs";
+import { currentTemplates, type CurrentTemplates } from "@/lib/draft-templates";
 import { RewriteDrafts } from "@/components/RewriteDrafts";
 import { speakableCompany } from "@/lib/list-templates";
 import { requireUser } from "@/lib/auth";
@@ -49,6 +50,16 @@ async function sampleDrafts(owner: Owner): Promise<DraftSample[]> {
   }));
 }
 
+/** The greeting and subject the seat's unsent drafts use now, so the setup boxes show what is really saved. */
+async function draftTemplates(owner: Owner): Promise<CurrentTemplates> {
+  const { data } = await admin().from("cards").select("email_subject,email_body,accounts(name),people(full_name),signals!inner(hash)").eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).limit(500);
+  return currentTemplates(((data ?? []) as unknown as Array<{ email_subject: string | null; email_body: string | null; accounts: { name: string | null } | null; people: { full_name: string | null } | null }>).map((row) => ({
+    body: row.email_body, subject: row.email_subject,
+    first: (row.people?.full_name ?? "").trim().split(/\s+/)[0] ?? "",
+    company: row.accounts?.name ? speakableCompany(row.accounts.name) : "",
+  })));
+}
+
 /** The same one line the desk shows: the top fit reasons, or the research trigger. */
 function whyThisCompany(domain: string | null | undefined): string | null {
   const focused = focusedAccount(domain) as { aiFit?: AiFit; trigger?: { fact?: string } } | undefined;
@@ -81,7 +92,7 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
   const name = SEATS.find((seat) => seat.owner === owner)?.name ?? "";
   // Nightly list rows carry each company's fit reasons; load them before the review list reads them.
   await loadNightlyLists(admin()).catch(() => undefined);
-  const [summary, samples, review, profile] = await Promise.all([seatSummary(owner), sampleDrafts(owner), reviewDrafts(owner), senderProfile(admin(), owner)]);
+  const [summary, samples, review, profile, templates] = await Promise.all([seatSummary(owner), sampleDrafts(owner), reviewDrafts(owner), senderProfile(admin(), owner), draftTemplates(owner)]);
   const listHref = `/outreach?list=${owner}`;
   const yours = !isAdmin || owner === user.owner;
 
@@ -108,7 +119,7 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
         </section>
 
         <h2 className="drafts-section-title">Change all your emails at once</h2>
-        <DraftSetup owner={owner} unsent={summary.unsent} samples={samples} listHref={listHref} />
+        <DraftSetup owner={owner} unsent={summary.unsent} samples={samples} listHref={listHref} current={templates} sender={{ fromName: profile.fromName, signature: profile.signature, postalAddress: profile.postalAddress }} optOut={optOutLine()} />
 
         <div id="review" className="drafts-review-anchor"><DraftReview key={owner} drafts={review} listHref={listHref} sender={{ fromName: profile.fromName, signature: profile.signature, postalAddress: profile.postalAddress }} optOut={optOutLine()} /></div>
 

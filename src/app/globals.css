@@ -2681,3 +2681,18 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .setup-fix-editor input,.setup-fix-editor textarea{padding:8px 10px;border:1px solid var(--line);border-radius:7px;font:400 14px/1.5 var(--sans);color:var(--ink);background:#fff}
 .setup-fix-note{margin:6px 0 0;font-size:13px}
 .setup-fix-note.is-ok{color:#2d715c}.setup-fix-note.is-bad{color:#9a3b2b}
+/* Draft setup: what is in use now, ideas to pick from, and how every email looks. */
+.setup-current{margin:2px 0 8px;font-size:13px;color:var(--ink-soft)}
+.setup-current b{color:var(--ink)}
+.setup-suggest{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.setup-chip{padding:4px 11px;border:1px solid var(--line);border-radius:999px;background:#fff;font:500 12px/1.4 var(--sans);color:var(--ink-soft);cursor:pointer}
+.setup-chip:hover{border-color:var(--ink-soft);color:var(--ink)}
+.setup-chip.is-active{background:var(--ink);border-color:var(--ink);color:#fff}
+.setup-pending{font:600 12px/1.4 var(--sans);color:#775a2d}
+.setup-preview{max-width:640px;margin:10px 0 4px;border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden}
+.setup-preview-meta{margin:0;padding:8px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink)}
+.setup-preview-meta span{display:inline-block;width:64px;color:var(--muted)}
+.setup-preview-body{padding:14px 16px}
+.setup-preview-middle{display:block;margin:2px 0;padding:12px 14px;border:1.5px dashed #d9cfbf;border-radius:8px;background:#fbf8f2;font-style:italic;color:#8a7f70}
+.setup-optional{margin:6px 0 4px}
+.setup-optional summary{cursor:pointer;font-size:13px;color:var(--ink-soft)}

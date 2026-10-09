@@ -104,3 +104,24 @@ test("EVERY email the writer can produce passes the audit", () => {
   assert.equal(failures.length, 0, `${failures.length} of ${swept} composed drafts failed the audit:\n\n${failures.join("\n\n")}`);
   assert.ok(swept > 5000, `expected a wide sweep, got ${swept}`);
 });
+
+test("the faults the check wrongly put on a person to fix (2026-10-09) are not faults", () => {
+  const rules = (over: Partial<AuditRow>) => auditDraft(row(over)).map((fault) => fault.rule);
+  // The sender's own name, and a first name that is part of the company's name.
+  assert.ok(!rules({ personName: "Josh Kline", company: "Kline Brothers", body: "Hi Josh,\n\nI'm Josh at Nine-67. For Kline Brothers, I'd start with job coordination.\n\nThank you," }).includes("name-twice"));
+  assert.ok(!rules({ personName: "Lucas Beane", company: "Lucas Tree Experts", body: "Hi Lucas,\n\nI'm Josh at Nine-67. For Lucas Tree Experts, I'd start with crew packages.\n\nThank you," }).includes("name-twice"));
+  assert.ok(!rules({ personName: "David R. Frank", company: "David J. Frank Landscape Contracting", body: "Hi David,\n\nFor David J. Frank Landscape Contracting, I'd start with scheduling.\n\nThank you," }).includes("name-twice"));
+  // A real repeat is still caught.
+  assert.ok(rules({ body: "Hi Jim,\n\nJim, Quantiphi is hiring.\n\nThank you," }).includes("name-twice"));
+  // Someone who goes by their middle name.
+  assert.ok(!rules({ personName: "J. Christopher Hurt", company: "Build-A-Bear Workshop", body: "Hi Christopher,\n\nA first application for Build-A-Bear.\n\nThank you," }).includes("wrong-greeting"));
+  // "apply" the verb is not job-posting boilerplate; "Apply now" is.
+  assert.ok(!rules({ body: "Hi Jim,\n\nAt Quantiphi, we'd apply that experience to one workflow.\n\nThank you," }).includes("posting-junk"));
+  assert.ok(rules({ body: "Hi Jim,\n\nQuantiphi is hiring. Apply now.\n\nThank you," }).includes("posting-junk"));
+  // The ways people actually write a company's name.
+  assert.ok(!rules({ company: "Sugar Creek Packing", personName: "Derek Boesken", body: "Hi Derek,\n\nAcross SugarCreek's six plants.\n\nThank you," }).includes("no-company"));
+  assert.ok(!rules({ company: "Mayville Engineering Company", personName: "Craig D. Nichols", body: "Hi Craig,\n\nMEC is adding operators.\n\nThank you," }).includes("no-company"));
+  assert.ok(!rules({ company: "Joe Vicari Restaurant Group", personName: "Rosalie Vicari", body: "Hi Rosalie,\n\nWith different concepts in the Vicari group.\n\nThank you," }).includes("no-company"));
+  // And a company named only by its trade words is still not "named".
+  assert.ok(rules({ company: "Pioneer Tree Experts", personName: "Lucas Beane", body: "Hi Lucas,\n\nTree crews need packages.\n\nThank you," }).includes("no-company"));
+});

@@ -16,6 +16,7 @@ import { dailyCap, sendDayStart } from "@/lib/send-guards";
 import { fromHeader, sanitizeLinks, senderProfile } from "@/lib/sender";
 import type { admin } from "@/lib/supabase/admin";
 import { isCuratedDomain } from "@/lib/curated-worklist";
+import { isRealContact } from "@/lib/clean";
 import { outreachBody, outreachDelivery, signatureText } from "@/lib/outreach-ending";
 
 import { loadNightlyLists } from "@/lib/nightly-lists";
@@ -97,6 +98,8 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     }
     if (!recipient.email) throw new Error(`There is no email address on file for ${recipient.full_name}.`);
     if (recipient.do_not_contact || ["client", "do_not_contact"].includes(card.accounts.status)) throw new Error("Do-not-contact guard blocked this send");
+    // A shared mailbox or a scraped phrase ("Human Resources", "Domestic Sales") is never a person to pitch.
+    if (!isRealContact({ full_name: recipient.full_name, email: recipient.email, title: (recipient as { title?: string | null }).title ?? null })) throw new Error(`${recipient.full_name} is a shared mailbox or a phrase, not a person, so nothing was sent.`);
     if (await emailSuppressed(db, recipient.email)) throw new Error("This address opted out on another record. Do-not-contact guard blocked this send. Nothing was sent.");
     // "Keep for me": the person will send this one by hand, so nothing automatic may.
     if (automatic && card.auto_send_hold) throw new Error("Kept for sending by hand, so it was not auto-sent. Nothing was sent.");
