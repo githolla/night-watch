@@ -21,6 +21,8 @@ export type SendPlan = {
   held: number;
   /** Why auto-send is not running, when it is not; the plan then shows what would happen. */
   blocker: string | null;
+  dailyCap: number;
+  sentToday: number;
   slots: Record<string, PlanSlot>;
 };
 
@@ -49,7 +51,7 @@ export function buildSendPlan(queue: PlanEntry[], seat: PlanSeat, time: PlanCloc
       : { position: index + 1, today: false, label: `#${index + 1} · a later day (over the daily limit)` };
   });
   for (const entry of queue) if (entry.held) slots[entry.cardId] = { position: 0, today: false, label: `Held: ${entry.held}` };
-  return { when, dayLabel, windowLabel: `${clock(start)} to ${clock(time.sendUntil)}`, going, later: sendable.length - going, held: queue.length - sendable.length, blocker, slots };
+  return { when, dayLabel, windowLabel: `${clock(start)} to ${clock(time.sendUntil)}`, going, later: sendable.length - going, held: queue.length - sendable.length, blocker, dailyCap: seat.dailyCap, sentToday: seat.sentToday, slots };
 }
 
 /** Short industry names for the breakdown, from a list row's sector text. */
@@ -70,7 +72,7 @@ const INDUSTRIES: Array<[RegExp, string]> = [
   [/food|beverage|bakery|brew|meat|packing/i, "Food and beverage"],
   [/distribut|wholesale|supply|suppliers/i, "Distribution"],
   [/manufactur|machin|fabricat|industrial|stamping|plastics|print|packag/i, "Manufacturing"],
-  [/clean|janitor|restoration|services/i, "Home and commercial services"],
+  [/clean|janitor|restoration|home services|commercial services/i, "Home and commercial services"],
   [/construct|contractor|builder|remodel/i, "Construction"],
   [/rental|waste|environmental|security|alarm|property management/i, "Other services"],
 ];

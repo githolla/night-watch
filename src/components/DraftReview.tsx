@@ -1,24 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { outreachBody, outreachEmailHtml } from "@/lib/outreach-ending";
-import { tally } from "@/lib/send-plan";
 
 export type ReviewDraft = {
   id: string; updatedAt: string; status: string; subject: string; body: string;
   name: string; title: string; company: string; email: string | null; confirmed: boolean; sendable: boolean;
   /** Curated companies send the short form of the body and no opt-out line, exactly as card-send does. */
   curated: boolean; why: string | null;
-  /** "Keep for me": the morning auto-send skips it. */
-  kept: boolean;
-  industry: string; role: string; size: string;
-  /** Where it sits in the morning auto-send's queue, or null when auto-send will not pick it up. */
-  slot: { position: number; label: string; today: boolean } | null;
 };
-export type ReviewPlan = { when: "today" | "next"; dayLabel: string; windowLabel: string; going: number; later: number; held: number; blocker: string | null };
-type Facet = { kind: "industry" | "role" | "size" | "address"; label: string };
 export type ReviewSender = { fromName: string; signature?: string; postalAddress?: string };
 
 type Filter = "todo" | "all" | "unconfirmed" | "noAddress";
@@ -30,13 +21,8 @@ const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g,
  * Saves go through the desk's own route with its version check, so a change made elsewhere is reported,
  * never overwritten.
  */
-export function DraftReview({ drafts: initial, listHref, sender, optOut, plan }: { drafts: ReviewDraft[]; listHref: string; sender: ReviewSender; optOut: string; plan: ReviewPlan | null }) {
-  const router = useRouter();
+export function DraftReview({ drafts: initial, listHref, sender, optOut }: { drafts: ReviewDraft[]; listHref: string; sender: ReviewSender; optOut: string }) {
   const [drafts, setDrafts] = useState(initial);
-  // A refresh (after Keep for me reorders the queue) brings new drafts from the server; take them as they come.
-  const [lastInitial, setLastInitial] = useState(initial);
-  if (lastInitial !== initial) { setLastInitial(initial); setDrafts(initial); }
-  const [facet, setFacet] = useState<Facet | null>(null);
   const [filter, setFilter] = useState<Filter>(initial.some((d) => d.sendable && d.status !== "approved") ? "todo" : "all");
   // Which open email is being edited; an open email otherwise shows read-only, exactly as it will be sent.
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -48,13 +34,7 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut, plan }:
   const reviewed = (draft: ReviewDraft) => draft.status === "approved";
   // Emails with no usable address cannot be sent, so they only show under their own filter.
   const matches = (draft: ReviewDraft, which: Filter) => which === "noAddress" ? !draft.sendable : draft.sendable && (which === "all" || (which === "todo" ? !reviewed(draft) : !draft.confirmed));
-  const going = (draft: ReviewDraft) => Boolean(plan && draft.slot && draft.slot.position > 0 && draft.slot.position <= plan.going);
-  const addressLabel = (draft: ReviewDraft) => (draft.confirmed ? "Confirmed address" : "Unconfirmed address");
-  const facetValue = (draft: ReviewDraft, kind: Facet["kind"]) => (kind === "address" ? addressLabel(draft) : draft[kind]);
-  const inFacet = (draft: ReviewDraft) => !facet || (going(draft) && facetValue(draft, facet.kind) === facet.label);
-  const shown = drafts.filter((draft) => matches(draft, filter) && inFacet(draft));
-  const goingDrafts = drafts.filter(going);
-  const keptCount = drafts.filter((draft) => draft.kept && draft.sendable).length;
+  const shown = drafts.filter((draft) => matches(draft, filter));
   const count = (which: Filter) => drafts.filter((draft) => matches(draft, which)).length;
   const sendable = drafts.filter((draft) => draft.sendable);
   const doneCount = sendable.filter(reviewed).length;
@@ -104,19 +84,6 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut, plan }:
     finally { setSaving(false); }
   }
 
-  async function keep(draft: ReviewDraft, hold: boolean) {
-    setSaving(true);
-    try {
-      const saved = await patch(draft, { auto_send_hold: hold });
-      if (!saved) return;
-      setDrafts((current) => current.map((item) => item.id === draft.id ? { ...item, kept: hold, slot: hold ? null : item.slot } : item));
-      setNotice({ id: draft.id, text: hold ? "Kept for you: the morning auto-send will skip this one. You can still send it yourself." : "Back on the morning auto-send.", ok: true });
-      // The queue order and counts change, so read them again.
-      router.refresh();
-    } catch { setNotice({ id: draft.id, text: "Not saved: the connection dropped. Try again.", ok: false }); }
-    finally { setSaving(false); }
-  }
-
   async function unreview(draft: ReviewDraft) {
     setSaving(true);
     try { if (await patch(draft, { status: "edited" })) setNotice({ id: draft.id, text: "Moved back to not reviewed.", ok: true }); }
@@ -161,7 +128,6 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut, plan }:
     <div className="review-editor">
       {draft.why && <p className="composer-why"><b>Why this company:</b> {draft.why}</p>}
       <p className="review-to">To {draft.name}{draft.email ? ` · ${draft.email}` : " · no address on file"}</p>
-      {plan && draft.sendable && <p className="review-when">{whenLine(draft)}</p>}
       <h3 className="review-subject">{draft.subject || "No subject"}</h3>
       <div className="review-email" dangerouslySetInnerHTML={{ __html: emailHtml(draft, draft.body) }} />
       <div className="review-actions">
@@ -169,7 +135,6 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut, plan }:
           ? <button type="button" className="btn ghost" disabled={saving} onClick={() => void unreview(draft)}>Mark not reviewed</button>
           : <button type="button" className="btn primary" disabled={saving} onClick={() => void save(draft, true)}>{saving ? "Saving…" : "Looks good, next"}</button>}
         <button type="button" className="btn" disabled={saving} onClick={() => { setEdit({ subject: draft.subject, body: draft.body }); setEditingId(draft.id); setNotice(null); }}>Edit</button>
-        {draft.sendable && <button type="button" className="btn ghost" disabled={saving} onClick={() => void keep(draft, !draft.kept)}>{draft.kept ? "Let auto-send it" : "Keep for me (don't auto-send)"}</button>}
         <button type="button" className="btn ghost" disabled={saving} onClick={() => setOpenId(null)}>Close</button>
         <Link className="review-open" href={`${listHref}&card=${draft.id}`}>Open on the Reach-out list &rarr;</Link>
         {actionsNote(draft)}
@@ -193,67 +158,17 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut, plan }:
     </div>
   );
 
-  function whenLine(draft: ReviewDraft) {
-    if (draft.kept) return "Kept for you: auto-send skips it. Send it yourself from the Reach-out list.";
-    if (!draft.slot) return "Not in the auto-send queue: send it yourself from the Reach-out list.";
-    if (draft.slot.position === 0) return `${draft.slot.label}. Auto-send skips it.`;
-    return `Auto-send: ${draft.slot.label}${plan?.blocker ? ` (once auto-send is on)` : ""}`;
-  }
-
-  const breakdown = (kind: Facet["kind"], title: string) => {
-    const rows = tally(goingDrafts.map((draft) => facetValue(draft, kind)));
-    if (!rows.length) return null;
-    return (
-      <div className="plan-group">
-        <h4>{title}</h4>
-        <div className="plan-chips">
-          {rows.map((row) => {
-            const active = facet?.kind === kind && facet.label === row.label;
-            return <button key={row.label} type="button" className={`plan-chip ${active ? "is-active" : ""}`} aria-pressed={active} onClick={() => { setFacet(active ? null : { kind, label: row.label }); setFilter("all"); setOpenId(null); }}>{row.label} <b>{row.count}</b></button>;
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  const summary = plan && (
-    <div className="send-plan" aria-label="What goes out next">
-      <h2>What goes out next</h2>
-      {plan.blocker
-        ? <p className="send-plan-lead"><b>{plan.blocker}.</b> Nothing goes out on its own. When it is on, {plan.going === 1 ? "this 1 email goes" : `these ${plan.going} emails go`} out {plan.dayLabel}, {plan.windowLabel} Eastern.</p>
-        : <p className="send-plan-lead"><b>{plan.going} {plan.going === 1 ? "email goes" : "emails go"} out {plan.dayLabel}</b>, {plan.windowLabel} Eastern, spread out a few minutes apart.</p>}
-      {(plan.later > 0 || plan.held > 0 || keptCount > 0) && (
-        <ul className="send-plan-notes">
-          {plan.later > 0 && <li>{plan.later} more {plan.later === 1 ? "waits" : "wait"} for a later day (the daily limit).</li>}
-          {plan.held > 0 && <li>{plan.held} held back (no usable address, or the buyer is not confirmed), so auto-send skips {plan.held === 1 ? "it" : "them"}.</li>}
-          {keptCount > 0 && <li>{keptCount} kept for you, so auto-send skips {keptCount === 1 ? "it" : "them"}.</li>}
-        </ul>
-      )}
-      {goingDrafts.length > 0 && <>
-        <p className="send-plan-hint">Click any number to see those emails below.</p>
-        <div className="plan-groups">
-          {breakdown("industry", "Industry")}
-          {breakdown("role", "Who it goes to")}
-          {breakdown("size", "Company size")}
-          {breakdown("address", "Address")}
-        </div>
-      </>}
-    </div>
-  );
-
   return (
     <section className="draft-review" aria-label="Review emails">
-      {summary}
       <div className="review-head">
         <h2>Review your emails</h2>
         <p>Click an email to read it as it will be sent. Press <b>Looks good</b> to move to the next one, or <b>Edit</b> to change it. Changes save to the same email on the Reach-out list.</p>
         <div className="review-progress" aria-label="Progress"><progress max={Math.max(sendable.length, 1)} value={doneCount} /><span><b>{doneCount}</b> of {sendable.length} reviewed</span></div>
         <div className="review-filters" role="tablist" aria-label="Show">
           {([["todo", "Not reviewed yet"], ["all", "All"], ["unconfirmed", "Unconfirmed address"], ["noAddress", "No address"]] as Array<[Filter, string]>).filter(([key]) => key !== "noAddress" || count("noAddress") > 0).map(([key, label]) => (
-            <button key={key} type="button" role="tab" aria-selected={filter === key} className={filter === key ? "is-active" : ""} onClick={() => { setFilter(key); setFacet(null); setOpenId(null); }}>{label} ({count(key)})</button>
+            <button key={key} type="button" role="tab" aria-selected={filter === key} className={filter === key ? "is-active" : ""} onClick={() => { setFilter(key); setOpenId(null); }}>{label} ({count(key)})</button>
           ))}
         </div>
-        {facet && <p className="review-facet">Showing what goes out {plan?.dayLabel}: <b>{facet.label}</b> ({shown.length}) <button type="button" className="btn ghost" onClick={() => setFacet(null)}>Show all</button></p>}
       </div>
       {shown.length === 0 ? <p className="review-empty">{filter === "todo" ? "All done. Every email has been reviewed." : "Nothing here."}</p> : (
         <ol className="review-list">
@@ -265,7 +180,7 @@ export function DraftReview({ drafts: initial, listHref, sender, optOut, plan }:
                 <button type="button" className="review-row" aria-expanded={isOpen} onClick={() => (isOpen ? setOpenId(null) : open(draft))}>
                   <span className="review-who"><b>{draft.name}</b><small>{draft.title ? `${draft.title} · ` : ""}{draft.company}</small></span>
                   <span className="review-mail"><b>{draft.subject || "No subject"}</b><small>{preview(draft.body, draft.company)}</small></span>
-                  <span className="review-tags">{plan && draft.sendable && (draft.kept ? <span className="review-slot is-kept">Kept for you</span> : draft.slot && <span className={`review-slot ${going(draft) ? "is-going" : ""}`}>{draft.slot.label}</span>)}{reviewed(draft) && <span className="review-done">Reviewed</span>}{badge(draft)}<span className="review-caret" aria-hidden="true">{isOpen ? "▴" : "▾"}</span></span>
+                  <span className="review-tags">{reviewed(draft) && <span className="review-done">Reviewed</span>}{badge(draft)}<span className="review-caret" aria-hidden="true">{isOpen ? "▴" : "▾"}</span></span>
                 </button>
                 {!isOpen && note && <p className={`review-note ${note.ok ? "is-ok" : "is-bad"}`} role="status">{note.text}</p>}
                 {isOpen && (editingId === draft.id ? editor(draft) : reader(draft))}
