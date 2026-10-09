@@ -1806,8 +1806,8 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .deskwork-brief-link{font:600 11.5px/1 var(--sans);color:var(--accent-strong);text-decoration:none}
 .deskwork-brief-link:hover{text-decoration:underline}
 
-/* Call brief */
-.brief{max-width:900px;margin:0 auto;padding:22px clamp(18px,2vw,40px) 72px}
+/* Call brief: its own class, because the company page hides its old ".brief". */
+.call-brief{max-width:900px;margin:0 auto;padding:22px clamp(18px,2vw,40px) 72px}
 .brief-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
 .brief-head h1{font-size:30px;font-weight:600;letter-spacing:-.03em;margin:6px 0 2px}
 .brief-head p{margin:0;color:var(--muted);font-size:14px}
@@ -1825,7 +1825,7 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .brief-list li{font-size:14.5px;line-height:1.5;color:var(--ink)}
 .brief-contact{font-size:14px}
 @media(max-width:760px){.brief-grid{grid-template-columns:1fr}}
-@media print{.appbar{display:none}.brief{padding-top:0}}
+@media print{.appbar{display:none}.call-brief{padding-top:0}}
 
 /* Conversion funnel + pipeline columns */
 .funnel{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 8px}
@@ -2734,3 +2734,12 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .sent-outcome.is-bounced{background:#f8e5e1;color:#9a3b2b}
 .sent-outcome.is-out-of-office{background:#f6eedf;color:#775a2d}
 @media(max-width:760px){.sent-row{grid-template-columns:1fr auto}.sent-row .as-who,.sent-row .as-company{grid-column:1/-1}}
+/* Call brief: where it stands, ways to reach them, and plain sections. */
+.brief-actions{display:inline-flex;gap:8px}
+.brief-status{margin:4px 0 12px;padding:10px 14px;border-radius:8px;background:var(--soft);font-size:14px;color:var(--ink)}
+.brief-status.is-meeting{background:#e3f2ec;color:#2d715c;font-weight:600}
+.brief-links{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.brief-source{font-size:12px;color:var(--muted)}
+.brief-subject{margin:0 0 6px;font-weight:600}
+.brief-email{margin:0;white-space:pre-wrap;font-size:14px;line-height:1.6;color:var(--ink-soft)}
+@media print{.appbar,.brief-actions,.brief-links,.feedback-button{display:none!important}.call-brief{max-width:none}}
