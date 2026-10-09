@@ -2743,3 +2743,22 @@ a.desk-stat:hover{box-shadow:var(--shadow);border-color:var(--line-strong);trans
 .brief-subject{margin:0 0 6px;font-weight:600}
 .brief-email{margin:0;white-space:pre-wrap;font-size:14px;line-height:1.6;color:var(--ink-soft)}
 @media print{.appbar,.brief-actions,.brief-links,.feedback-button{display:none!important}.call-brief{max-width:none}}
+/* Auto-send page, plain version: one status card, how it works, then the people in order. */
+.as-status-card{padding:22px 24px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.as-status-card.is-on{border-color:#bfdccf;background:linear-gradient(180deg,#f3faf6,#fff)}
+.as-status-card.is-paused{border-color:#ecd9b5;background:#fdf8ee}
+.as-headline{margin:0;font:700 20px/1.3 var(--sans);color:var(--ink)}
+.as-status-card.is-on .as-headline{color:#2d715c}
+.as-next{margin:6px 0 0;font-size:15px;line-height:1.5;color:var(--ink)}
+.as-today{margin:16px 0 0;font-size:13px;color:var(--ink-soft)}
+.as-how{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.as-how div{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--soft)}
+.as-how b{font-size:14px;color:var(--ink)}
+.as-how span{font-size:13px;line-height:1.5;color:var(--ink-soft)}
+.as-list .as-row{grid-template-columns:110px minmax(0,1fr) minmax(0,1.3fr) 150px}
+.as-row.is-held .as-time{color:#9a3b2b}
+.as-row.is-kept .as-time{color:#775a2d}
+.as-bar.is-static{cursor:default}
+.as-bar.is-static:hover{background:none}
+.as-details summary{cursor:pointer;font:600 14px/1.4 var(--sans);color:var(--ink-soft);margin-bottom:12px}
+@media(max-width:860px){.as-list .as-row{grid-template-columns:1fr}.as-list .as-row>*{grid-column:1}}

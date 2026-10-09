@@ -10,6 +10,7 @@ import { FeedbackWidget } from "./FeedbackWidget";
 const primary = [
   { href: "/outreach", label: "Reach-out list", hint: "The selected companies and their custom emails" },
   { href: "/drafts", label: "Drafts", hint: "Set up, check and fix your email drafts" },
+  { href: "/auto-send", label: "Auto-send", hint: "Emails sent for you each weekday morning" },
   { href: "/activity", label: "History", hint: "Everything sent, and every reply" },
   { href: "/people", label: "People", hint: "Every contact on file" },
 ];
