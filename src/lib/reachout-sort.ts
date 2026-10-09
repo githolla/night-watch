@@ -5,14 +5,24 @@ import { domainKey } from "./recipient-research.ts";
 
 export type ReachoutSort = "list-order" | "revenue-desc" | "revenue-asc" | "name" | "verified";
 export const focusedAccount = (domain?: string | null) => curatedDrafts().find(row => domain && domainKey(row.domain) === domainKey(domain));
+/** Headcount-sized rows carry an estimate only for ordering; they show their headcount, never that figure. */
+const sizedByHeadcount = (domain?: string | null) => {
+  const revenue = focusedAccount(domain)?.revenue as { status?: string; employees?: number } | undefined;
+  return revenue?.status === "estimated" && typeof revenue.employees === "number" ? revenue.employees : null;
+};
 export const revenueLabel = (domain?: string | null) => {
+  const employees = sizedByHeadcount(domain);
+  if (employees !== null) return `~${employees} employees`;
   const revenue = focusedAccount(domain)?.revenue.usdMillions;
   return revenue == null ? null : `$${Number(revenue.toFixed(1))}M`;
 };
+/** What the figure is: "revenue" for a reported number, "headcount" when the company is sized by employees. */
+export const sizeKind = (domain?: string | null) => (sizedByHeadcount(domain) !== null ? "headcount" : "revenue");
 /** The year the revenue was reported for, marked when the source did not confirm it. */
 export const revenueYearLabel = (domain?: string | null) => {
   const revenue = focusedAccount(domain)?.revenue as { year?: number | null; status?: string | null } | undefined;
   if (!revenue) return null;
+  if (revenue.status === "estimated") return "revenue not published";
   const year = revenue.year ? String(revenue.year) : "year not stated";
   return revenue.status === "unconfirmed" ? `${year} · unconfirmed` : year;
 };

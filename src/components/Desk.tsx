@@ -15,7 +15,7 @@ import { curatedDomains } from "@/lib/curated-worklist";
 import { accountBrief } from "@/lib/dossier-data";
 import { dateLabel, sourceDomain } from "@/lib/dossier-data";
 import { savedVariants, withDefaultLinkedIn, withDefaultEmail, renderSavedVariant, renderLinkedInVariant, type SavedVariant } from "@/lib/outreach-variants";
-import { defaultReachoutSort, fitScore, focusedAccount, revenueLabel, revenueYearLabel, sendStateLabel, sortReachouts, reachoutPool, type ReachoutSort } from "@/lib/reachout-sort";
+import { defaultReachoutSort, fitScore, focusedAccount, revenueLabel, revenueYearLabel, sendStateLabel, sizeKind, sortReachouts, reachoutPool, type ReachoutSort } from "@/lib/reachout-sort";
 import { focusedContact } from "@/lib/focused-contact";
 import { withResearchDefault } from "@/lib/recommended-draft";
 import { researchRecommendation, contactEvidence, giftAsset } from "@/lib/research-recommendation";
@@ -1451,7 +1451,7 @@ export function Desk({
                           without this the list repeats a company name and a search for a person finds a row
                           that does not say it found them. */}
                       <small className="deskwork-row-who">{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small>
-                      <small>{revenueLabel(item.accounts.domain) ? `${revenueLabel(item.accounts.domain)} revenue · ${revenueYearLabel(item.accounts.domain)}` : signalLabel(item)}{item.working ? " · working" : ""}</small>
+                      <small>{revenueLabel(item.accounts.domain) ? sizeKind(item.accounts.domain) === "headcount" ? `${revenueLabel(item.accounts.domain)} · ${revenueYearLabel(item.accounts.domain)}` : `${revenueLabel(item.accounts.domain)} revenue · ${revenueYearLabel(item.accounts.domain)}` : signalLabel(item)}{item.working ? " · working" : ""}</small>
                       {(fitScore(item.accounts.domain) !== null || (batchSequence === 3 && autoSend)) && <small style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 2 }}>
                         {fitScore(item.accounts.domain) !== null && <em className="chip chip-fit">Fit {fitScore(item.accounts.domain)}</em>}
                         {batchSequence === 3 && autoSend && (() => {
@@ -1478,7 +1478,7 @@ export function Desk({
                 </header>
 
                 <div className="deskwork-opening">
-                  {focusedAccount(focusCard.accounts.domain) && <div className="reachout-account-facts"><a href={focusedAccount(focusCard.accounts.domain)!.revenue.sourceUrl} target="_blank" rel="noreferrer"><strong>{revenueLabel(focusCard.accounts.domain)}</strong><span>{revenueYearLabel(focusCard.accounts.domain)} reported revenue ↗</span></a><span>{focusedAccount(focusCard.accounts.domain)!.sector}</span></div>}
+                  {focusedAccount(focusCard.accounts.domain) && <div className="reachout-account-facts"><a href={focusedAccount(focusCard.accounts.domain)!.revenue.sourceUrl} target="_blank" rel="noreferrer"><strong>{revenueLabel(focusCard.accounts.domain)}</strong><span>{sizeKind(focusCard.accounts.domain) === "headcount" ? "headcount; revenue not published ↗" : `${revenueYearLabel(focusCard.accounts.domain)} reported revenue ↗`}</span></a><span>{focusedAccount(focusCard.accounts.domain)!.sector}</span></div>}
                   {(() => {
                     // Nightly companies carry the scored evidence that put them on the list.
                     const fit = (focusedAccount(focusCard.accounts.domain) as { aiFit?: AiFit } | undefined)?.aiFit;

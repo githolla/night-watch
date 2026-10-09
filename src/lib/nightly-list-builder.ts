@@ -26,7 +26,7 @@ import type { Owner } from "./types.ts";
 
 type Db = SupabaseClient;
 
-/** Tunables. Defaults: 12 a day each, chosen by AI fit from 20 evaluated per person, $10 a night. */
+/** Tunables. Defaults: 12 a day each, chosen by AI fit (25 or more) from 20 evaluated per person, $10 a night. */
 export function nightlyListConfig() {
   const num = (name: string, fallback: number, min: number, max: number) => {
     const value = Number(process.env[name] ?? fallback);
@@ -36,7 +36,7 @@ export function nightlyListConfig() {
     size: Math.floor(num("NIGHTLY_LIST_SIZE", 12, 1, 25)),
     research: Math.floor(num("NIGHTLY_LIST_RESEARCH", 20, 1, 40)),
     /** Lowest AI-fit score (0 to 100) that may go on a list. */
-    minFit: Math.floor(num("NIGHTLY_LIST_MIN_FIT", 0, 0, 100)),
+    minFit: Math.floor(num("NIGHTLY_LIST_MIN_FIT", 25, 0, 100)),
     /** How long a well-scoring runner-up may fill a later list without being researched again. */
     reserveDays: Math.floor(num("NIGHTLY_LIST_RESERVE_DAYS", 14, 0, 60)),
     budgetUsd: num("NIGHTLY_LIST_BUDGET_USD", 10, 0.5, 50),

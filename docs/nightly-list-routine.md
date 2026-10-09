@@ -31,10 +31,9 @@ Imports can take a few minutes; send at most about 8 companies per `import` call
 1. Work out `listDate`: the next weekday in America/New_York after the run starts (a run on Sunday to Thursday
    night builds Monday to Friday). Call `status`; if both seats already have 12 rows for that date, skip to step 5.
 2. Call `brief` and follow its research prompt and numbers exactly.
-3. **Source.** Find about 40 U.S. privately held operating companies inside the revenue band, from published, dated
-   rankings that state revenue (LM150, Roofing Contractor Top 100, PCT Top 100, ENR regional lists, business journal
-   largest-private-company lists, Inc. 5000 profiles). Spread them across all the `sectors`. Screen them with `check`
-   and keep only `usable` ones. Budget web searches: no more than about a third on sourcing.
+3. **Source.** Find about 40 U.S. privately held operating companies sized for the ICP: revenue inside the band, or,
+   when no revenue is published, 50 to 300 employees. Spread them across all the `sectors` (there are 18). Screen them
+   with `check` and keep only `usable` ones. Budget web searches: no more than about a third on sourcing.
 4. **Research and import.** For each company, produce the research object below, then import. Split the passing
    companies between the two seats so each seat's list mixes sectors: **no more than 3 of a seat's 12 from one
    sector**. Stop a seat at 12 listed. A failed import still marks the domain as known, so import only companies
@@ -56,11 +55,11 @@ Ways that find companies that pass:
   "service coordinator" or "estimator" plus "HVAC" or "pest control" or "landscape" or "trucking" plus a state or
   city). A company posting such roles on its own careers page or a server-rendered applicant page already has the
   strongest fit evidence. Then look up its revenue.
-- **Revenue from profiles.** Inc. 5000 company profiles, business journal "largest private companies" and "fastest
-  growing" lists, trade lists (LM150, Roofing Contractor Top 100, PCT Top 100, ENR regional, Transport Topics,
-  Modern Distribution Management), local news about the company, and the company's own site or press releases
-  often state annual revenue with a year. Try WebFetch when curl is blocked; a revenue page only has to state the
-  figure, it is not re-fetched as fit evidence.
+- **Size from the company itself.** Most private companies never publish revenue but do say how big they are: "a
+  team of 120", "over 80 technicians", a careers page, an association or chamber profile. That headcount is enough.
+  Rankings that state revenue (LM150, Roofing Contractor Top 100, PCT Top 100, ENR regional, business journal lists,
+  Inc. 5000 profiles) are still good sources when they work. Never use SEC filings or stock pages: those companies
+  are public and out of scope.
 - **Ranking articles.** When a ranking is split across several articles ("the next 25", regional spotlights,
   "company profiles"), work through them one by one; each names companies with revenue.
 - Screen candidates with `check` in batches as you go, and skip any company whose site is behind a Cloudflare
@@ -68,12 +67,19 @@ Ways that find companies that pass:
 
 ## Gates a company must pass (or it is skipped)
 
-- Revenue inside the band, reported for a year no more than three years back, with the URL that states it.
-- Buyer: the current owner, CEO, President, COO or founder (not a VP, interim, acting or former leader), with a page
-  that shows their name and title, ideally the company's own about or team page.
-- Not consulting, IT, software, staffing, an agency, a financial firm, a nonprofit or public; not closed or acquired;
-  not a franchise unit or a subsidiary of a large company.
-- AI fit of at least `minFit` out of 100, scored by the app from evidence it can confirm: fresh open office roles
+- **Size**, one of:
+  - revenue inside the band, reported for a year no more than three years back, with the URL that states it; or
+  - when no revenue is published, `size: {employees, sourceUrl}`: 50 to 300 employees stated on a page (the company's
+    site, a job post, a LinkedIn or association profile). Most private companies only have this; use it.
+  A published revenue figure outside the band still rules a company out.
+- Buyer: the current owner, CEO, President, COO, founder or general manager, or the VP or Director of Operations
+  (not any other vice president, and not an interim, acting, assistant or former leader), with a page that shows
+  their name and title, ideally the company's own about or team page.
+- **Privately held.** Never a publicly traded company: no stock tickers, SEC filings or market-data pages. The app
+  rejects any company whose research cites them.
+- Not consulting, IT, software, staffing, an agency, a financial firm or a nonprofit; not closed or acquired; not a
+  franchise unit or a subsidiary of a large company.
+- AI fit of at least `minFit` out of 100 (now 25), scored by the app from evidence it can confirm: fresh open office roles
   (coordination, scheduling, dispatch, estimating, quoting, admin, billing, data entry, customer service, order entry,
   purchasing, reporting), 3+ locations, 50+ field staff or vehicles, changes in the last 12 months (acquisitions, new
   locations, new leaders, investment), leaders' own statements about technology or efficiency, and named business

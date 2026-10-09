@@ -11,10 +11,10 @@ test("with no weights the base order decides: sector 0 is best on even days", ()
   assert.equal(sectorsForNight(1, {})[0], 1, "the runner-up on odd days, so the best is not searched two nights running");
 });
 
-test("over any 10 nights the explore slot visits every sector and never repeats the best", () => {
+test("over as many nights as there are sectors, the explore slot visits every sector and never repeats the best", () => {
   for (const start of [0, 7, 1234]) {
     const explored = new Set<number>();
-    for (let day = start; day < start + 10; day++) {
+    for (let day = start; day < start + SECTORS.length; day++) {
       const [best, explore] = sectorsForNight(day, {});
       assert.notEqual(best, explore);
       explored.add(explore);

@@ -4,7 +4,7 @@ import type { UsageRecorder } from "./anthropic-cost.ts";
 import type { FoundEmail, VerifyResult } from "./email-verify.ts";
 import type { Fetcher, SeenSource } from "./evidence-grounding.ts";
 import {
-  buyerTitleProblem, chooseEmail, isExcludedSector, parseResearch, pickTrigger, researchOne, researchPrompt, settleRevenue,
+  buyerTitleProblem, chooseEmail, isExcludedSector, parseResearch, pickTrigger, publicCompanySign, researchOne, researchPrompt, settleRevenue,
   type Candidate, type ResearchDeps, type ResearchResult,
 } from "./nightly-research.ts";
 
@@ -290,7 +290,7 @@ test("the prompt carries the tightened rules and no placeholder items", () => {
   const prompt = researchPrompt(candidate, LIST_DATE);
   assert.ok(!prompt.includes('"url":"https://..."'));
   assert.ok(prompt.includes('"hiring":[]'));
-  for (const phrase of ["inspired by the evidence above; do not restate the evidence", "no numbers", "this company's own leaders", "Never industry commentary", "machine learning engineer", "A lack of public information is not a disqualifier", "software_or_it", "Not a vice president"]) {
+  for (const phrase of ["inspired by the evidence above; do not restate the evidence", "no numbers", "this company's own leaders", "Never industry commentary", "machine learning engineer", "A lack of public information is not a disqualifier", "software_or_it", "Not any other vice president", "publicly traded", "\"size\":null"]) {
     assert.ok(prompt.includes(phrase), phrase);
   }
 });
@@ -358,4 +358,32 @@ test("copy that fails its checks is repaired once, on the company's budget", asy
   const failed = await researchOne(candidate, "josh", LIST_DATE, deps);
   assert.match(String(failed.skip), /^copy failed checks after repair: /);
   assert.equal(calls.repair, 1);
+});
+
+test("operations leaders count as buyers; other vice presidents and acting leaders still do not", () => {
+  for (const title of ["VP of Operations", "Vice President, Operations", "Director of Operations", "Senior Director of Field Operations", "Operations Director", "General Manager"]) assert.equal(buyerTitleProblem(title), null, title);
+  for (const title of ["Vice President of Sales", "Interim Director of Operations", "Former VP Operations", "Operations Coordinator", "Assistant Director of Operations"]) assert.ok(buyerTitleProblem(title), title);
+});
+
+test("with no published revenue, a headcount of 50 to 300 sizes the company and says so", () => {
+  const noRanking = { ...candidate, revenue_usd_m: null, revenue_year: null, source_url: null };
+  const sized = settleRevenue(noRanking, null, LIST_DATE, { employees: 120, sourceUrl: "https://acmeland.com/about" });
+  assert.ok("revenue" in sized);
+  assert.equal(sized.revenue.status, "estimated");
+  assert.equal(sized.revenue.employees, 120);
+  assert.match(sized.revenue.note, /about 120 employees/);
+  assert.match(String((settleRevenue(noRanking, null, LIST_DATE, { employees: 400, sourceUrl: "https://acmeland.com/about" }) as { problem: string }).problem), /headcount 400 is outside 50 to 300/);
+  assert.ok("problem" in settleRevenue(noRanking, null, LIST_DATE, null), "neither revenue nor headcount");
+  const stale = settleRevenue(noRanking, { usdMillions: 30, year: 2019, sourceUrl: "https://old.example.com" }, LIST_DATE, { employees: 90, sourceUrl: "https://acmeland.com/about" });
+  assert.ok("revenue" in stale && stale.revenue.status === "estimated", "a stale figure falls back to headcount");
+  assert.ok("problem" in settleRevenue(noRanking, { usdMillions: 80, year: 2025, sourceUrl: "https://x.example.com" }, LIST_DATE, { employees: 90, sourceUrl: "https://acmeland.com/about" }), "a published figure outside the band still rules it out");
+});
+
+test("public companies are recognised and skipped", async () => {
+  assert.equal(publicCompanySign({ trigger: { fact: "Acme (NASDAQ: ACME) opened a plant" } }), true);
+  assert.equal(publicCompanySign({ revenue: { sourceUrl: "https://www.sec.gov/Archives/edgar/data/1/form10-k.htm" } }), true);
+  assert.equal(publicCompanySign(research()), false);
+  const { deps } = harness(research({ trigger: { fact: "Acme Landscaping (OTCQB: ACME) announced results", sourceUrl: "https://news.example.com/acme", date: "2026-09-01" } }));
+  const result = await researchOne(candidate, "josh", LIST_DATE, deps);
+  assert.match(String(result.skip), /public company/);
 });

@@ -7,7 +7,7 @@ import { findEmail, verifierConfigured, verifyEmail, type FoundEmail, type Verif
 import { groundEvidence, normalizeUrl, onDomain, pageAgeDate, type Fetcher, type Lookup, type SeenSource } from "./evidence-grounding.ts";
 import { checkWorkflow, chooseArm, listVariants, normalizeWorkflow, repairWorkflow, speakableCompany, variantProblems, type ListVariant, type Workflow } from "./list-templates.ts";
 import { researchModel } from "./models.ts";
-import { inRevenueBand, REVENUE_BAND_TEXT } from "./list-sectors.ts";
+import { HEADCOUNT_BAND, inHeadcountBand, inRevenueBand, REVENUE_BAND_TEXT } from "./list-sectors.ts";
 import { isLikelyPersonName } from "./pipeline.ts";
 import { domainAcceptsMail, type RecipientCheck } from "./recipient-verification.ts";
 import type { ListOffer, ListRow } from "./research-data/server.ts";
@@ -35,7 +35,7 @@ export function researchLimits() {
     return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
   };
   return {
-    minFit: Math.floor(num("NIGHTLY_LIST_MIN_FIT", 0, 0, 100)),
+    minFit: Math.floor(num("NIGHTLY_LIST_MIN_FIT", 25, 0, 100)),
     maxCostPerCompanyUsd: num("NIGHTLY_LIST_MAX_COST_PER_COMPANY_USD", 0.5, 0.05, 2),
     searchesPerCompany: Math.floor(num("ANTHROPIC_MAX_SEARCHES_PER_COMPANY", 3, 1, 5)),
   };
@@ -83,10 +83,14 @@ export function isExcludedSector(sector: string | null | undefined): boolean {
 
 const BUYER_TITLE = /\b(ceo|chief executive|president|coo|chief operating|owner|founder|co-founder|managing (director|partner)|general manager|principal)\b/i;
 const NOT_BUYER_TITLE = /\b(former|retired|emeritus|vice[ -]president|vp|assistant|interim|acting)\b|\bex-/i;
+/** At $10M to $50M the operations leader often owns the work: VP or Director of Operations. */
+const OPERATIONS_LEADER = /\b(?:(?:senior |sr\.? )?(?:vp|vice[ -]president|director)\b[^;|]{0,12}\boperations|operations director)\b/i;
+const NOT_CURRENT = /\b(former|retired|emeritus|assistant|interim|acting)\b|\bex-/i;
 
 /** Why this title is not a current senior leader, or null when it is. */
 export function buyerTitleProblem(title: string): string | null {
-  if (!BUYER_TITLE.test(title)) return `"${title}" is not a CEO, president, COO, owner or founder`;
+  if (OPERATIONS_LEADER.test(title)) return NOT_CURRENT.test(title) ? `"${title}" is not a current senior leader` : null;
+  if (!BUYER_TITLE.test(title)) return `"${title}" is not a CEO, president, COO, owner, founder, general manager or operations leader`;
   if (NOT_BUYER_TITLE.test(title)) return `"${title}" is not a current senior leader`;
   return null;
 }
@@ -120,6 +124,8 @@ const present = (value: unknown) => value ?? {};
 const researched = z.object({
   sector: z.string().default("").catch(""),
   revenue: z.object({ usdMillions: z.number(), year: z.number().int(), sourceUrl: z.string().url() }).nullish(),
+  // Headcount stands in for revenue when none is published.
+  size: z.object({ employees: z.number().int().positive(), sourceUrl: z.string().url() }).nullish().catch(null),
   buyer: z.preprocess(present, z.object({ name: z.string().min(3), title: z.string().min(2), sourceUrl: z.string().url() })),
   email: z.object({ address: z.string().nullable().default(null), sourceUrl: z.string().nullable().default(null) }).nullable().default(null).catch(null),
   trigger: z.object({ fact: z.string().min(10), sourceUrl: z.string().url(), date: z.string().nullable().default(null) }).nullable().default(null).catch(null),
@@ -148,7 +154,13 @@ export function sourcedRevenueUsable(candidate: Candidate, listDate: string): bo
   return candidate.revenue_usd_m !== null && candidate.revenue_year !== null && Boolean(candidate.source_url) && candidate.revenue_year >= year - 3 && candidate.revenue_year <= year;
 }
 
-export type RowRevenue = { usdMillions: number; year: number; status: "reported" | "unconfirmed"; sourceUrl: string; note: string };
+/**
+ * "estimated" rows are sized by headcount because no revenue is published: usdMillions is a rough figure used
+ * only to order the list, and every label shows the headcount instead.
+ */
+export type RowRevenue = { usdMillions: number; year: number; status: "reported" | "unconfirmed" | "estimated"; sourceUrl: string; note: string; employees?: number };
+/** A deliberately rough revenue per employee for this segment, only to rank headcount-sized rows among the rest. */
+const REVENUE_PER_EMPLOYEE_M = 0.15;
 
 const disagree = (a: number, b: number) => Math.abs(a - b) / Math.max(1e-9, Math.min(a, b)) > 0.35;
 
@@ -156,13 +168,22 @@ const disagree = (a: number, b: number) => Math.abs(a - b) / Math.max(1e-9, Math
  * The revenue a row carries. Research's figure when it gave one, else the ranking's. "reported" only when
  * the two agree and come from different pages; anything else is "unconfirmed" and the note says so.
  */
-export function settleRevenue(candidate: Candidate, found: Researched["revenue"], listDate: string): { revenue: RowRevenue; limitations: string[] } | { problem: string } {
+export function settleRevenue(candidate: Candidate, found: Researched["revenue"], listDate: string, size?: Researched["size"]): { revenue: RowRevenue; limitations: string[] } | { problem: string } {
   const current = yearOf(listDate);
   const sourced = candidate.revenue_usd_m !== null && candidate.revenue_year !== null && candidate.source_url
     ? { usdMillions: candidate.revenue_usd_m, year: candidate.revenue_year, sourceUrl: candidate.source_url } : null;
   const primary = found ?? sourced;
-  if (!primary) return { problem: "research output invalid at revenue" };
-  if (primary.year > current || primary.year < current - 3) return { problem: `revenue year ${primary.year} is outside ${current - 3} to ${current}` };
+  // No usable published revenue: a headcount in the band sizes the company instead.
+  const bySize = (why: string): { revenue: RowRevenue; limitations: string[] } | { problem: string } => {
+    if (!size) return { problem: why };
+    if (!inHeadcountBand(size.employees)) return { problem: `${why}; headcount ${size.employees} is outside ${HEADCOUNT_BAND.min} to ${HEADCOUNT_BAND.max}` };
+    return {
+      revenue: { usdMillions: Number((size.employees * REVENUE_PER_EMPLOYEE_M).toFixed(1)), year: current, status: "estimated", sourceUrl: size.sourceUrl, employees: size.employees, note: `Sized by headcount: about ${size.employees} employees. No revenue figure is published. Size does not establish budget or buying intent.` },
+      limitations: [`Revenue is not published; sized by headcount (about ${size.employees} employees).`],
+    };
+  };
+  if (!primary) return bySize("no published revenue");
+  if (primary.year > current || primary.year < current - 3) return bySize(`revenue year ${primary.year} is outside ${current - 3} to ${current}`);
   if (!inRevenueBand(primary.usdMillions)) return { problem: `revenue $${primary.usdMillions}M is outside ${REVENUE_BAND_TEXT}` };
   const limitations: string[] = [];
   const ranked = candidate.revenue_usd_m;
@@ -178,6 +199,17 @@ export function settleRevenue(candidate: Candidate, found: Researched["revenue"]
     : `${primary.year} revenue from ${split ? "sources that disagree" : "a single source"}; not confirmed. Revenue fit does not establish budget or buying intent.`;
   limitations.push(status === "reported" ? `Revenue is reported for ${primary.year}, not verified current revenue.` : `Revenue for ${primary.year} is unconfirmed.`);
   return { revenue: { ...primary, status, note }, limitations };
+}
+
+/**
+ * A publicly traded company: a stock ticker in the research, or a source on SEC or market-data sites. Nine-67
+ * sells to privately held businesses, so these are skipped however well they score.
+ */
+export function publicCompanySign(research: unknown): boolean {
+  const text = JSON.stringify(research ?? "");
+  return /\b(?:NASDAQ|NYSE(?: American)?|NYSEAMERICAN|OTC(?:QB|QX| Markets)?|TSX)\s*:\s*[A-Z]{1,5}\b/.test(text)
+    || /https?:\/\/(?:www\.)?(?:sec\.gov|finviz\.com|stocktitan\.net|seekingalpha\.com|marketbeat\.com)\b/i.test(text)
+    || /\b(?:10-K|10-Q|annual report on form)\b/i.test(text);
 }
 
 // ---------- trigger ----------
@@ -203,7 +235,7 @@ export function researchPrompt(candidate: Candidate, listDate: string) {
   return `Research ${candidate.company} (${candidate.domain}), a ${candidate.sector || "U.S. operating"} company. Nine-67 builds AI tools with operations teams, and we are preparing one short cold email to a senior leader there. Use public sources and never invent a fact, a person, an address, a date or a URL. Copy every URL exactly as a search result gave it.
 
 ${revenueStep}
-2. Buyer: the current CEO, President, COO, owner or founder, with the URL of a page showing their name and current title, ideally the company's own about, team or leadership page. Not a vice president, an assistant, or a former, retired, interim or acting leader.
+2. Buyer: the current CEO, President, COO, owner, founder or general manager, or the VP or Director of Operations, with the URL of a page showing their name and current title, ideally the company's own about, team or leadership page. Not any other vice president, an assistant, or a former, retired, interim or acting leader.
 3. Email: only if a public page shows that person's own business email at this company, give it as {address, sourceUrl}. Otherwise null. Never guess an address and never give a shared inbox such as info@ or sales@.
 4. Trigger (optional): a public development dated in the last 180 days, such as a new location, an acquisition, a leadership change or an award, as {fact, sourceUrl, date} with the date as YYYY-MM-DD. Otherwise null.
 5. AI-fit evidence. Only facts a page shows, each with its https URL, and a date (YYYY-MM-DD or YYYY-MM) where the page gives one:
@@ -216,9 +248,11 @@ ${revenueStep}
    Leave a part empty rather than guess.
 6. Workflow: one practical piece of work a company like this probably handles by hand that an AI tool could help with, inspired by the evidence above; do not restate the evidence. It is an idea, not a claim about them. Keep every field generic and lowercase: no numbers, no company, product, software or place names, and no "your", "their" or "our". Give: task, a short noun phrase such as "branch service follow-up"; subject, two words for an email subject, such as "branch follow-ups" (one version prefixes it with "one AI project:", which must stay within five words); inputs, what the tool would bring together, three items in one phrase such as "site inspection notes, the promised fix and evidence that it was completed"; metric, what to measure, such as "time spent chasing updates". No question marks, dashes or links in these.
 
-Return {"reject":"reason"} instead if revenue is outside ${REVENUE_BAND_TEXT}, the company is consulting, IT, software, staffing, an agency, a financial firm or a nonprofit, it has closed or been acquired, or no current senior leader can be named from a source.
+Size: if no revenue figure is published, give "size" as {employees, sourceUrl}: the employee count a page states (the company's site, a job post or a profile), which must be ${HEADCOUNT_BAND.min} to ${HEADCOUNT_BAND.max}. Otherwise set "size" to null.
 
-Return JSON only, in this shape, filling the arrays with items as described above: {"sector":"","revenue":${reuse ? "null" : `{"usdMillions":0,"year":${year},"sourceUrl":""}`},"buyer":{"name":"","title":"","sourceUrl":""},"email":null,"trigger":null,"evidence":{"hiring":[],"scale":null,"change":[],"techOpenness":[],"systems":[],"disqualifiers":[],"concerns":[]},"workflow":{"task":"","subject":"","inputs":"","metric":""}}`;
+Return {"reject":"reason"} instead if revenue is outside ${REVENUE_BAND_TEXT} (or, with no revenue, headcount is outside ${HEADCOUNT_BAND.min} to ${HEADCOUNT_BAND.max}), the company is publicly traded, consulting, IT, software, staffing, an agency, a financial firm or a nonprofit, it has closed or been acquired, or no current senior leader can be named from a source.
+
+Return JSON only, in this shape, filling the arrays with items as described above: {"sector":"","revenue":${reuse ? "null" : `{"usdMillions":0,"year":${year},"sourceUrl":""}`},"size":null,"buyer":{"name":"","title":"","sourceUrl":""},"email":null,"trigger":null,"evidence":{"hiring":[],"scale":null,"change":[],"techOpenness":[],"systems":[],"disqualifiers":[],"concerns":[]},"workflow":{"task":"","subject":"","inputs":"","metric":""}}`;
 }
 
 // ---------- address ----------
@@ -375,7 +409,8 @@ export async function researchOne(candidate: Candidate, owner: Owner, listDate: 
     if ("problem" in parsed) return done({ skip: parsed.problem });
     const found = parsed.found;
 
-    const money = settleRevenue(candidate, found.revenue, listDate);
+    if (publicCompanySign(json)) return done({ skip: "public company: Nine-67 sells to privately held businesses" });
+    const money = settleRevenue(candidate, found.revenue, listDate, found.size);
     if ("problem" in money) return done({ skip: money.problem });
     if (!isLikelyPersonName(found.buyer.name)) return done({ skip: `"${found.buyer.name}" is not a person's name` });
     const title = buyerTitleProblem(found.buyer.title);

@@ -88,11 +88,11 @@ export function minedHosts(sourceUrls: Array<string | null | undefined>, max = 4
  */
 export function sourcingPrompt(chosen: number[], priorDomains: string[], mined: string[]) {
   const skip = [...new Set(priorDomains)].join(", ");
-  return `Find U.S. operating companies, private or public, with annual revenue between $${REVENUE_BAND_USD_M.min}M and $${REVENUE_BAND_USD_M.max}M that appear in a published, dated industry ranking or list, for example Landscape Management's LM150, ENR regional rankings, a Crain's or Business Journal list of largest private companies, a trade association top-100 list, or an Inc. regional list that states revenue.
+  return `Find privately held U.S. operating companies with annual revenue between $${REVENUE_BAND_USD_M.min}M and $${REVENUE_BAND_USD_M.max}M that appear in a published, dated industry ranking or list, for example Landscape Management's LM150, ENR regional rankings, a Crain's or Business Journal list of largest private companies, a trade association top-100 list, or an Inc. regional list that states revenue.
 
 Focus on these sectors, numbered: ${chosen.map((index) => `${index}. ${SECTORS[index]}`).join("; ")}.
 Prefer companies with several locations or branches, field crews or a fleet, or high order and quoting volume: the coordination and paperwork an AI tool can take on.
-Exclude consulting, IT services, software, staffing, marketing agencies, banks, insurance, investment firms, nonprofits, schools and hospitals.${skip ? `\nAlready found, do not repeat these domains: ${skip}.` : ""}${mined.length ? `\nRankings already used: ${mined.join(", ")}. Use a different ranking, or the positions after those already used.` : ""}
+Exclude consulting, IT services, software, staffing, marketing agencies, banks, insurance, investment firms, nonprofits, schools, hospitals and publicly traded companies.${skip ? `\nAlready found, do not repeat these domains: ${skip}.` : ""}${mined.length ? `\nRankings already used: ${mined.join(", ")}. Use a different ranking, or the positions after those already used.` : ""}
 
 For each company give its official website domain, its sector and the sector's number from the list above, the reported revenue in USD millions, the year it was reported for, the URL of the ranking page that states it, and, only if the ranking or the company's site shows it, how many locations it has and whether it runs field crews or a fleet. Never invent a company, a revenue figure, a domain or a URL; list only what the page shows. Aim for 25 companies.
 
