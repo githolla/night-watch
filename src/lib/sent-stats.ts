@@ -8,6 +8,8 @@ export type SentTouch = {
   replyAt: string | null; replyClass: string | null; bouncedAt: string | null;
   name: string; title: string; company: string; subject: string;
   industry: string; role: string; size: string;
+  /** Which email version it was (Direct Offer, Concrete Idea…), or null when not recorded. */
+  version?: string | null;
 };
 export type SentRow = SentTouch & { followup: boolean; outcome: "interested" | "replied" | "bounced" | "out of office" | "sent" };
 export type SentStats = {
@@ -18,6 +20,8 @@ export type SentStats = {
   /** One bar per day of the period (at most the last 14), oldest first. */
   daily: Array<{ date: string; label: string; sent: number; replies: number }>;
   mix: { industry: Array<{ label: string; count: number }>; role: Array<{ label: string; count: number }>; size: Array<{ label: string; count: number }> };
+  /** First emails by version: the test of which version gets replies. Most sent first. */
+  versions: Array<{ label: string; sent: number; replies: number; interested: number; bounced: number; replyRate: number }>;
   recent: SentRow[];
 };
 
@@ -64,6 +68,11 @@ export function sentStats(touches: SentTouch[], days: number, today: string, day
     })),
     // Who the first emails went to; a follow-up is the same person again.
     mix: { industry: tallyOf(firsts.map((row) => row.industry)), role: tallyOf(firsts.map((row) => row.role)), size: tallyOf(firsts.map((row) => row.size)) },
+    versions: [...new Set(firsts.map((row) => row.version ?? "Not recorded"))].map((label) => {
+      const group = firsts.filter((row) => (row.version ?? "Not recorded") === label);
+      const replied = group.filter((row) => row.outcome === "replied" || row.outcome === "interested").length;
+      return { label, sent: group.length, replies: replied, interested: group.filter((row) => row.outcome === "interested").length, bounced: group.filter((row) => row.outcome === "bounced").length, replyRate: pct(replied, group.length) };
+    }).sort((a, b) => b.sent - a.sent || a.label.localeCompare(b.label)),
     recent: rows.slice(0, 100),
   };
 }

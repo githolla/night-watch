@@ -293,3 +293,48 @@ export async function runMorningSend(db: Db, options: MorningOptions = {}): Prom
   }
   return out;
 }
+
+export type SendNowResult =
+  | { action: "sent"; cardId: string; company: string }
+  | { action: "held"; cardId: string; company: string; reason: string }
+  | { action: "stopped"; reason: string };
+
+/**
+ * "Send now": the next email in the auto-send queue, at any hour, because the person chose to. The same queue
+ * in the same order as the morning run, the same bounce brake (which pauses the seat), and every email goes
+ * through sendCardEmail with automatic=true, so Keep for me, do-not-contact, the address rules and the daily
+ * cap all hold. `tried` lists cards already attempted in this session, so a refused one is not retried.
+ */
+export async function sendNextQueued(db: Db, owner: Owner, options: { now?: Date; tried?: string[]; sendCardEmail?: MorningOptions["sendCardEmail"] } = {}): Promise<SendNowResult> {
+  const now = options.now ?? new Date();
+  const send = options.sendCardEmail ?? sendCardEmail;
+  const local = localParts(now);
+  const seatState = await seat(db, owner);
+  if (seatState.paused) return { action: "stopped", reason: "Auto-send is paused. Resume it first." };
+  if (!seatState.postalAddress) return { action: "stopped", reason: "Add your business postal address in Settings first." };
+  const bounces = await bounceCounts(db, owner, now, seatState.resumedAt);
+  if (!bounces) return { action: "stopped", reason: "Could not read the bounce history, so nothing was sent." };
+  if (bounceBrake(bounces.sent, bounces.bounced, bounces.bouncedRecently)) {
+    const reason = bounceReason(bounces.sent, bounces.bounced, bounces.bouncedRecently);
+    await db.from("sender_profiles").update({ auto_send_paused: true, auto_send_paused_reason: reason }).eq("owner", owner);
+    return { action: "stopped", reason: `Auto-send paused itself: ${reason}` };
+  }
+  const tried = new Set(options.tried ?? []);
+  const { data: list } = await db.from("reachout_lists").select("id,status,rows").eq("list_date", local.date).eq("owner", owner).maybeSingle();
+  const todays = new Set(list?.status === "ready" ? ((list as { rows?: ListRow[] }).rows ?? []).map((row) => row.domain) : []);
+  const next = (await autoSendQueue(db, owner, local.date)).find((entry) => !entry.held && !tried.has(entry.cardId));
+  if (!next) return { action: "stopped", reason: "Nothing else is waiting to send." };
+  const { data: card } = await db.from("cards").select("id,status,email_subject,email_body,auto_send_hold,auto_send_hold_reason,accounts(name,domain)").eq("id", next.cardId).maybeSingle();
+  const row = card as unknown as DeskCard | null;
+  const company = row?.accounts?.name || row?.accounts?.domain || "this company";
+  if (!row || !row.email_subject?.trim() || !row.email_body?.trim()) return { action: "held", cardId: next.cardId, company, reason: "it has no subject or message" };
+  try {
+    await send(db, { cardId: row.id, owner, subject: row.email_subject, body: row.email_body, baseUrl: configuredBaseUrl(), automatic: true });
+    if (list?.id && todays.has(row.accounts?.domain ?? "")) await addSentCount(db, list.id as string, 1);
+    return { action: "sent", cardId: row.id, company };
+  } catch (error) {
+    if (CAP_REACHED.test(message(error))) return { action: "stopped", reason: "Today's sending limit is reached. The rest go out on the next send day." };
+    await holdCard(db, row, message(error));
+    return { action: "held", cardId: row.id, company, reason: message(error) };
+  }
+}

@@ -22,7 +22,9 @@ test('identifies exact saved copy across sender and signature changes',()=>{
 });
 test('manual edits preserve selected lineage, but cannot borrow another contact attribution',()=>{
  const result=identifyVersion({...base,subject:'a different subject'},selected);
- assert.equal(versionLabel(result),'Direct Offer · edited'); assert.equal(result.revision,selectedMeta.revision);
+ // A new subject alone (one set for every email on the Drafts page) keeps the version: the message decides it.
+ assert.equal(versionLabel(result),'Direct Offer'); assert.equal(result.revision,selectedMeta.revision);
+ assert.equal(versionLabel(identifyVersion({...base,body:base.body.replace(/\?$/,', or is something else higher on your list?')},selected)),'Direct Offer · edited');
  assert.equal(identifyVersion({...base,personId:'someone-else',body:'Different copy?'},selected).label,'Custom / other');
  assert.equal(identifyVersion({...base,domain:'other.example',body:'Different copy?'},selected).label,'Custom / other');
  assert.equal(identifyVersion({...base,body:'A completely custom question?'}).label,'Custom / other');

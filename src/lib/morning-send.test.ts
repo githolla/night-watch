@@ -15,7 +15,7 @@ type Options = {
   now?: Date; postSlackMessage?: (text: string) => Promise<unknown>; sendCardEmail?: (db: unknown, input: SendInput) => Promise<unknown>;
   sleep?: (ms: number) => Promise<void>; random?: () => number; clock?: () => number; finalizeOpenLists?: (db: unknown, listDate: string) => Promise<unknown>;
 };
-type Module = { runMorningSend: (db: unknown, options: Options) => Promise<Result>; addSentCount: (db: unknown, id: string, amount: number) => Promise<void>; autoSendQueue: (db: unknown, owner: string, listDate: string) => Promise<Array<{ cardId: string; held: string | null }>> };
+type Module = { runMorningSend: (db: unknown, options: Options) => Promise<Result>; addSentCount: (db: unknown, id: string, amount: number) => Promise<void>; autoSendQueue: (db: unknown, owner: string, listDate: string) => Promise<Array<{ cardId: string; held: string | null }>>; sendNextQueued: (db: unknown, owner: string, options: { now?: Date; tried?: string[]; sendCardEmail?: (db: unknown, input: SendInput) => Promise<unknown> }) => Promise<{ action: string; cardId?: string; company?: string; reason?: string }> };
 
 function load(): Module {
   const source = readFileSync(new URL("./morning-send.ts", import.meta.url), "utf8");
@@ -322,4 +322,33 @@ test("the queue the Drafts page shows is the order the morning run sends in", as
   const sendCardEmail = async (_db: unknown, input: SendInput) => { h.sends.push(input); h.tables.cards.find((row) => row.id === input.cardId)!.status = "sent"; return { ok: true }; };
   for (const time of ["09:00", "09:10", "09:20", "09:30", "09:40"]) await h.run(at(time), { sendCardEmail });
   assert.deepEqual(JSON.parse(JSON.stringify(h.sends.map((input) => input.cardId))), JSON.parse(JSON.stringify(queue.filter((entry) => !entry.held).map((entry) => entry.cardId))));
+});
+
+test("Send now sends the next queued email at any hour, in queue order, with the same guards", async () => {
+  const leftover = (id: string, domain: string, created: string) => card(id, "suuchi", domain, domain, { created_at: created, accounts: { domain, name: domain, status: "active" }, people: { email: `x@${domain}`, email_status: "verified" } });
+  const h = harness({
+    reachout_lists: [list("suuchi", { rows: [listRow("t1.test", "T1")], announced_at: at("07:00").toISOString() })],
+    sender_profiles: [profile("josh", { auto_send: false }), profile("suuchi", { auto_send: false })],
+    cards: [card("t1", "suuchi", "t1.test", "T1"), leftover("old", "old.test", "2026-09-01T00:00:00Z"), leftover("new", "new.test", "2026-09-20T00:00:00Z")],
+  });
+  const sendCardEmail = async (_db: unknown, input: SendInput) => { h.sends.push(input); h.tables.cards.find((row) => row.id === input.cardId)!.status = "sent"; return { ok: true }; };
+  // 4pm: long after the window, and auto-send itself is off. The person chose to send.
+  const first = await morning.sendNextQueued(h.db, "suuchi", { now: at("16:00"), sendCardEmail });
+  assert.equal(first.action, "sent");
+  assert.equal(first.cardId, "t1");
+  assert.equal(h.sends[0].automatic, true, "the same automatic guards as the morning run");
+  assert.equal((await morning.sendNextQueued(h.db, "suuchi", { now: at("16:01"), sendCardEmail })).cardId, "new", "then the newest leftover");
+  // A card already tried in this session is not tried again.
+  assert.equal((await morning.sendNextQueued(h.db, "suuchi", { now: at("16:02"), sendCardEmail, tried: ["old"] })).action, "stopped");
+  // A refusal holds that card and says why; the daily cap stops the run.
+  const refusing = async () => { throw new Error("Kept for sending by hand, so it was not auto-sent. Nothing was sent."); };
+  const held = await morning.sendNextQueued(h.db, "suuchi", { now: at("16:03"), sendCardEmail: refusing });
+  assert.equal(held.action, "held");
+  const capped = harness({ reachout_lists: [], sender_profiles: [profile("suuchi")], cards: [leftover("a", "a.test", "2026-09-01T00:00:00Z")] });
+  const cap = await morning.sendNextQueued(capped.db, "suuchi", { now: at("16:00"), sendCardEmail: async () => { throw new Error("Daily sender cap of 25 reached"); } });
+  assert.equal(cap.action, "stopped");
+  assert.match(String(cap.reason), /limit is reached/);
+  // A paused seat sends nothing.
+  const paused = harness({ reachout_lists: [], sender_profiles: [profile("suuchi", { auto_send_paused: true })], cards: [leftover("a", "a.test", "2026-09-01T00:00:00Z")] });
+  assert.equal((await morning.sendNextQueued(paused.db, "suuchi", { now: at("16:00"), sendCardEmail })).action, "stopped");
 });

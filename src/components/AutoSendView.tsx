@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ReviewSender } from "@/components/DraftReview";
 import type { AutoSendControl, AutoSendEmail, AutoSendSummary } from "@/lib/autosend-view";
 import { outreachBody, outreachEmailHtml } from "@/lib/outreach-ending";
@@ -29,6 +29,10 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
   const [openId, setOpenId] = useState<string | null>(null);
   const [editing, setEditing] = useState<{ id: string; subject: string; body: string; updatedAt: string } | null>(null);
   const [rowNote, setRowNote] = useState<{ id: string; text: string; ok: boolean; conflict?: boolean } | null>(null);
+  // "Send now": the next emails in the queue, at any hour, one at a time with a pause between them.
+  const [sendCount, setSendCount] = useState(5);
+  const [sendNow, setSendNow] = useState<{ asking: boolean; running: boolean; sent: string[]; held: Array<{ company: string; reason: string }>; current: string; stopped: string | null } | null>(null);
+  const stopRef = useRef(false);
 
   const on = !plan.blocker;
   const paused = control.autoSend && control.paused;
@@ -111,13 +115,61 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
     setRowNote({ id: email.id, text: "Showing the saved version. Edit it and save again if you like.", ok: true });
   }
 
+  const queued = plan.going + plan.later;
+  const roomToday = Math.max(0, plan.dailyCap - plan.sentToday);
+  async function runSendNow() {
+    stopRef.current = false;
+    const total = Math.min(sendCount, queued, roomToday);
+    const tried: string[] = [];
+    const state = { asking: false, running: true, sent: [] as string[], held: [] as Array<{ company: string; reason: string }>, current: "", stopped: null as string | null };
+    setSendNow({ ...state });
+    while (state.sent.length < total && !stopRef.current) {
+      state.current = `Sending ${state.sent.length + 1} of ${total}…`;
+      setSendNow({ ...state });
+      const response = await fetch("/api/auto-send/send-now", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, tried }) }).catch(() => null);
+      const json = await response?.json().catch(() => ({})) as { action?: string; cardId?: string; company?: string; reason?: string; error?: string } | undefined;
+      if (!response?.ok || !json?.action) { state.stopped = json?.error ?? "The connection dropped. Nothing else was sent."; break; }
+      if (json.action === "stopped") { state.stopped = json.reason ?? "Stopped."; break; }
+      if (json.cardId) tried.push(json.cardId);
+      if (json.action === "sent") state.sent.push(json.company ?? "");
+      if (json.action === "held") state.held.push({ company: json.company ?? "", reason: json.reason ?? "" });
+      setSendNow({ ...state });
+      // A short pause between emails, as the morning run spaces them, so Gmail does not see a burst.
+      if (state.sent.length < total && !stopRef.current) for (let wait = 15; wait > 0 && !stopRef.current; wait--) { state.current = `Next one in ${wait}s…`; setSendNow({ ...state }); await new Promise((resolve) => setTimeout(resolve, 1000)); }
+    }
+    if (stopRef.current && !state.stopped) state.stopped = "Stopped. The rest wait for auto-send.";
+    setSendNow({ ...state, running: false, current: "" });
+    router.refresh();
+  }
+
+  const sendNowArea = !canChange || queued === 0 ? null : (
+    <div className="as-sendnow">
+      {!sendNow || (!sendNow.asking && !sendNow.running && sendNow.sent.length + sendNow.held.length === 0 && !sendNow.stopped)
+        ? <p><b>Don&rsquo;t want to wait?</b> Send the next{" "}
+            <select value={sendCount} aria-label="How many to send now" onChange={(event) => setSendCount(Number(event.target.value))}>{[1, 5, 10, 20, 40].filter((n) => n <= Math.max(1, Math.min(queued, roomToday)) || n === 1).map((n) => <option key={n} value={n}>{n}</option>)}</select>{" "}
+            now, outside the morning window. <button type="button" className="btn" disabled={busy !== null || roomToday === 0} onClick={() => setSendNow({ asking: true, running: false, sent: [], held: [], current: "", stopped: null })}>Send now</button>
+            {roomToday === 0 && <span className="as-control-note"> Today&rsquo;s limit of {plan.dailyCap} is reached.</span>}</p>
+        : sendNow.asking
+          ? <div className="as-confirm"><h3>Send {Math.min(sendCount, queued, roomToday)} now?</h3><ul><li>They go out from your Gmail one at a time, about 15 seconds apart, in the order below.</li><li>Keep this page open until it finishes. You can stop at any time.</li><li>They count toward today&rsquo;s limit of {plan.dailyCap}.</li></ul>
+              <div className="as-controls"><button type="button" className="btn primary" onClick={() => void runSendNow()}>Yes, send them</button><button type="button" className="btn ghost" onClick={() => setSendNow(null)}>Cancel</button></div></div>
+          : <div className="as-sendnow-progress" role="status">
+              <p><b>{sendNow.running ? sendNow.current : sendNow.stopped ?? "Done."}</b> {sendNow.sent.length} sent{sendNow.held.length ? `, ${sendNow.held.length} held` : ""}.</p>
+              {sendNow.sent.length > 0 && <p className="as-control-note">Sent: {sendNow.sent.join(", ")}</p>}
+              {sendNow.held.map((item, index) => <p key={index} className="as-control-note">Held {item.company}: {item.reason}</p>)}
+              {sendNow.running ? <button type="button" className="btn ghost" onClick={() => { stopRef.current = true; }}>Stop</button> : <button type="button" className="btn ghost" onClick={() => setSendNow(null)}>Close</button>}
+            </div>}
+    </div>
+  );
+
   // One sentence: where things stand and what happens next.
   const headline = paused ? `Auto-send is paused${control.pausedReason ? `: ${control.pausedReason.replace(/\.\s*$/, "")}` : ""}.`
     : !control.autoSend ? "Auto-send is off. Nothing goes out unless you send it yourself."
     : !control.postalAddressSet ? "Auto-send is on, but it needs your postal address before anything can go out."
     : control.skippedToday ? `Auto-send is on, but you skipped today.`
     : "Auto-send is on.";
-  const next = plan.going === 0
+  const next = plan.going === 0 && plan.later > 0
+    ? `${on ? "Next" : "If you turn it on"}: none fit in what is left of ${plan.dayLabel}'s window, so ${count(plan.later, "email goes", "emails go")} out from the next send day, 9:00am Eastern.`
+    : plan.going === 0
     ? "No emails are waiting. New ones go out each weekday morning as your lists arrive."
     : `${on ? "Next" : "If you turn it on"}: ${count(plan.going, "email goes", "emails go")} out ${plan.dayLabel}, ${plan.windowLabel} Eastern.${plan.later ? ` ${count(plan.later, "more goes", "more go")} out on the send days after that.` : ""}`;
 
@@ -224,6 +276,7 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
         <p className="as-headline">{headline}</p>
         <p className="as-next">{next}</p>
         {switchArea}
+        {sendNowArea}
         <p className="as-today">Sent today: <b>{plan.sentToday} of {plan.dailyCap}</b> · <Link href={`/drafts/sent?owner=${owner}&days=1`}>See what was sent &rarr;</Link></p>
       </section>
 

@@ -39,3 +39,18 @@ test("an auto-reply is not counted as a reply", () => {
   assert.equal(outcomeOf({ replyAt: "x", replyClass: "none", bouncedAt: null }), "sent");
   assert.equal(outcomeOf({ replyAt: "x", replyClass: "objection", bouncedAt: null }), "replied");
 });
+
+test("first emails are split by version, so the test shows which one gets replies", () => {
+  const touches = [
+    touch("a", "a", "2026-10-08T14:00:00Z", { version: "Direct Offer", replyAt: "2026-10-08T15:00:00Z", replyClass: "positive" }),
+    touch("b", "b", "2026-10-08T14:00:00Z", { version: "Direct Offer" }),
+    touch("c", "c", "2026-10-08T14:00:00Z", { version: "Concrete Idea", bouncedAt: "2026-10-08T14:01:00Z" }),
+    touch("c2", "c", "2026-10-09T14:00:00Z", { version: "Concrete Idea", replyAt: "2026-10-09T15:00:00Z", replyClass: "neutral" }),
+    touch("d", "d", "2026-10-08T14:00:00Z", { version: null }),
+  ];
+  assert.deepEqual(sentStats(touches, 7, "2026-10-09", dayOf).versions, [
+    { label: "Direct Offer", sent: 2, replies: 1, interested: 1, bounced: 0, replyRate: 50 },
+    { label: "Concrete Idea", sent: 1, replies: 0, interested: 0, bounced: 1, replyRate: 0 },
+    { label: "Not recorded", sent: 1, replies: 0, interested: 0, bounced: 0, replyRate: 0 },
+  ]);
+});
