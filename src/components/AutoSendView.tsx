@@ -19,11 +19,14 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ text: string; ok: boolean } | null>(null);
+  const [filter, setFilter] = useState<{ kind: Kind; label: string } | null>(null);
 
   const on = !plan.blocker;
   const paused = control.autoSend && control.paused;
-  const going = emails.filter((email) => email.group === "going");
-  const later = emails.filter((email) => email.group === "later");
+  const matches = (email: AutoSendEmail) => !filter || email[filter.kind] === filter.label;
+  const allGoing = emails.filter((email) => email.group === "going");
+  const going = allGoing.filter(matches);
+  const later = emails.filter((email) => email.group === "later").filter(matches);
   const kept = emails.filter((email) => email.group === "kept");
   const held = emails.filter((email) => email.group === "held");
   const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -108,19 +111,23 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
     </li>
   );
 
+  const mixFrom = allGoing.length ? allGoing : emails.filter((email) => email.group === "later");
   const mix = (kind: Kind, title: string) => {
-    const rows = tally((going.length ? going : later).map((email) => email[kind]));
+    const rows = tally(mixFrom.map((email) => email[kind]));
     const top = Math.max(1, ...rows.map((item) => item.count));
     return (
       <div className="as-mix-card">
         <h3>{title}</h3>
-        {rows.map((item) => (
-          <div key={item.label} className="as-bar is-static">
-            <span className="as-bar-label">{item.label}</span>
-            <span className="as-bar-track"><span style={{ width: `${Math.round((item.count / top) * 100)}%` }} /></span>
-            <b>{item.count}</b>
-          </div>
-        ))}
+        {rows.map((item) => {
+          const active = filter?.kind === kind && filter.label === item.label;
+          return (
+            <button key={item.label} type="button" className={`as-bar ${active ? "is-active" : ""}`} aria-pressed={active} onClick={() => setFilter(active ? null : { kind, label: item.label })}>
+              <span className="as-bar-label">{item.label}</span>
+              <span className="as-bar-track"><span style={{ width: `${Math.round((item.count / top) * 100)}%` }} /></span>
+              <b>{item.count}</b>
+            </button>
+          );
+        })}
       </div>
     );
   };
@@ -135,6 +142,27 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
       </section>
 
       {notice && <p className={`as-notice ${notice.ok ? "is-ok" : "is-bad"}`} role="status">{notice.text}</p>}
+
+      <section className="as-tiles" aria-label="At a glance">
+        <div className="as-tile is-main"><span>{on ? "Going out" : "Would go out"} {plan.dayLabel}</span><b>{plan.going}</b><small>{plan.windowLabel} Eastern</small></div>
+        <div className="as-tile"><span>Sent today</span><b>{plan.sentToday}</b><small>of {plan.dailyCap} a day</small></div>
+        <div className="as-tile"><span>After that</span><b>{plan.later}</b><small>over the daily limit</small></div>
+        <div className="as-tile"><span>Kept for you</span><b>{kept.length}</b><small>you send these yourself</small></div>
+        <div className={`as-tile ${held.length ? "is-warn" : ""}`}><span>Needs you</span><b>{held.length}</b><small>auto-send can&rsquo;t send these</small></div>
+      </section>
+
+      {mixFrom.length > 0 && (
+        <section className="as-mix" aria-label="Who gets them">
+          <div className="as-queue-head"><h2>Who gets them</h2><p>Click a bar to see just those emails below.</p></div>
+          <div className="as-mix-grid">
+            {mix("industry", "Industry")}
+            {mix("role", "Who it goes to")}
+            {mix("size", "Company size")}
+          </div>
+        </section>
+      )}
+
+      {filter && <p className="as-filter">Showing <b>{filter.label}</b> only. <button type="button" className="btn ghost" onClick={() => setFilter(null)}>Show all</button></p>}
 
       <section className="as-how" aria-label="How auto-send works">
         <div><b>Every weekday morning</b><span>Between 9:00 and 11:30am Eastern, from your own Gmail, a few minutes apart.</span></div>
@@ -166,16 +194,6 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
         </section>
       )}
 
-      {going.length + later.length > 0 && (
-        <details className="as-details">
-          <summary>See the mix of industries, roles and company sizes</summary>
-          <div className="as-mix-grid">
-            {mix("industry", "Industry")}
-            {mix("role", "Who it goes to")}
-            {mix("size", "Company size")}
-          </div>
-        </details>
-      )}
     </div>
   );
 }
