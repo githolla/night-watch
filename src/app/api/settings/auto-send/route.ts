@@ -4,7 +4,6 @@ import { localParts } from "@/lib/local-time";
 import { nightlyListConfig } from "@/lib/nightly-list-builder";
 import { isSendDay, MORNING } from "@/lib/morning-send-rules";
 import { dailyCap, sendDayStart } from "@/lib/send-guards";
-import { loadSendPlan } from "@/lib/send-plan-loader";
 import { admin } from "@/lib/supabase/admin";
 import { z } from "zod";
 
@@ -44,20 +43,6 @@ async function seatState(seat: "josh" | "suuchi") {
   };
 }
 
-/** How many go out in the next window, for the Reach-out list bar; null when the queue cannot be read. */
-async function nextSend(seat: "josh" | "suuchi") {
-  try {
-    const plan = await loadSendPlan(admin(), seat);
-    return { going: plan.going, dayLabel: plan.dayLabel, windowLabel: plan.windowLabel };
-  } catch {
-    return null;
-  }
-}
-const withNextSend = async (seat: "josh" | "suuchi") => {
-  const [state, next] = await Promise.all([seatState(seat), nextSend(seat)]);
-  return { ...state, nextSend: next };
-};
-
 /** The night's spend across both seats, shown once: the budget is shared, so a member sees the full total too. */
 async function nightState() {
   const { data } = await admin().from("reachout_lists").select("cost_usd").eq("list_date", localParts().date);
@@ -69,7 +54,7 @@ export async function GET() {
   try {
     const user = await requireUser();
     const seats = user.role === "admin" ? ["josh", "suuchi"] as const : [user.owner];
-    const [states, night] = await Promise.all([Promise.all(seats.map(withNextSend)), nightState()]);
+    const [states, night] = await Promise.all([Promise.all(seats.map(seatState)), nightState()]);
     return Response.json({ seats: states, night });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Could not load auto-send" }, { status: 400 });
@@ -95,7 +80,7 @@ export async function POST(request: Request) {
     if (body.skipToday !== undefined) patch.auto_send_skip_on = body.skipToday ? localParts().date : null;
     const { error } = await admin().from("sender_profiles").upsert(patch, { onConflict: "owner" });
     if (error) throw new Error(error.message);
-    return Response.json({ seat: await withNextSend(seat) });
+    return Response.json({ seat: await seatState(seat) });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Could not change auto-send" }, { status: 400 });
   }

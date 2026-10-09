@@ -18,6 +18,11 @@ export function DraftSetup({ owner, unsent, samples, listHref }: { owner: string
   const [greeting, setGreeting] = useState("Hi {first},");
   const [subject, setSubject] = useState("");
   const [busy, setBusy] = useState<"" | "greeting" | "subject" | "check" | "tidy">("");
+  // Fixing one flagged email right in the list: the open one, its text and saved version, and what happened.
+  const [fixing, setFixing] = useState<{ id: string; subject: string; body: string; updatedAt: string } | null>(null);
+  const [fixBusy, setFixBusy] = useState(false);
+  const [fixNote, setFixNote] = useState<{ id: string; text: string; ok: boolean; conflict?: boolean } | null>(null);
+  const [fixed, setFixed] = useState<string[]>([]);
   const [done, setDone] = useState<{ greeting?: string; subject?: string; check?: string }>({});
   const [audit, setAudit] = useState<Audit | null>(null);
 
@@ -52,7 +57,7 @@ export function DraftSetup({ owner, unsent, samples, listHref }: { owner: string
   }
 
   async function check() {
-    setBusy("check"); setAudit(null); setDone((d) => ({ ...d, check: undefined }));
+    setBusy("check"); setAudit(null); setFixed([]); setFixing(null); setFixNote(null); setDone((d) => ({ ...d, check: undefined }));
     try {
       const totals: Audit = { checked: 0, clean: 0, problems: [] };
       for (let offset = 0, i = 0; i < 100; i++) {
@@ -66,6 +71,58 @@ export function DraftSetup({ owner, unsent, samples, listHref }: { owner: string
       setAudit(totals);
     } catch (error) { setDone((d) => ({ ...d, check: error instanceof Error ? error.message : "Could not check your emails." })); }
     finally { setBusy(""); }
+  }
+
+  async function openFix(problem: Problem) {
+    setFixNote(null);
+    setFixBusy(true);
+    try {
+      const response = await fetch(`/api/cards/${problem.id}`, { cache: "no-store" });
+      const json = await response.json().catch(() => ({})) as { email_subject?: string | null; email_body?: string | null; updated_at?: string; error?: string };
+      if (!response.ok || !json.updated_at) { setFixNote({ id: problem.id, text: json.error ?? "Could not open this email.", ok: false }); return; }
+      setFixing({ id: problem.id, subject: json.email_subject ?? "", body: json.email_body ?? "", updatedAt: json.updated_at });
+    } catch { setFixNote({ id: problem.id, text: "Could not open this email: the connection dropped.", ok: false }); }
+    finally { setFixBusy(false); }
+  }
+
+  /** Save through the desk's own route (with its version check), then check just this email again. */
+  async function saveFix() {
+    if (!fixing) return;
+    if (!fixing.subject.trim() || !fixing.body.trim()) { setFixNote({ id: fixing.id, text: "An email needs a subject and a message.", ok: false }); return; }
+    setFixBusy(true);
+    try {
+      const response = await fetch(`/api/cards/${fixing.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ email_subject: fixing.subject, email_body: fixing.body, expected_updated_at: fixing.updatedAt }) });
+      const json = await response.json().catch(() => ({})) as { updated_at?: string; email_subject?: string; email_body?: string; error?: string };
+      if (!response.ok) {
+        setFixNote({ id: fixing.id, text: response.status === 409 ? "Not saved: this email was changed somewhere else (or sent) since you opened it. Your text is still here." : json.error ?? "Not saved. Try again.", ok: false, conflict: response.status === 409 });
+        return;
+      }
+      const saved = { ...fixing, subject: json.email_subject ?? fixing.subject, body: json.email_body ?? fixing.body, updatedAt: json.updated_at ?? fixing.updatedAt };
+      const recheck = await fetch("/api/admin/audit-drafts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, listOnly: true, ids: [saved.id] }) });
+      const result = await recheck.json().catch(() => ({})) as { problems?: Problem[] };
+      const still = recheck.ok ? result.problems?.find((problem) => problem.id === saved.id) : undefined;
+      if (recheck.ok && !still) {
+        setFixed((current) => [...current, saved.id]);
+        setFixing(null);
+        setFixNote({ id: saved.id, text: "Saved. This email looks good now.", ok: true });
+        return;
+      }
+      setFixing(saved);
+      if (still) setAudit((current) => current && { ...current, problems: current.problems.map((problem) => problem.id === saved.id ? still : problem) });
+      setFixNote({ id: saved.id, text: still ? `Saved, but it still needs a look: ${still.faults.map((fault) => fault.says).join("; ")}` : "Saved.", ok: !still });
+    } catch { setFixNote({ id: fixing.id, text: "Not saved: the connection dropped. Your text is still here.", ok: false }); }
+    finally { setFixBusy(false); }
+  }
+
+  async function loadSavedFix() {
+    if (!fixing) return;
+    const id = fixing.id;
+    const response = await fetch(`/api/cards/${id}`, { cache: "no-store" });
+    const json = await response.json().catch(() => ({})) as { email_subject?: string | null; email_body?: string | null; updated_at?: string; status?: string };
+    if (!response.ok || !json.updated_at) { setFixNote({ id, text: "Could not load the saved version.", ok: false, conflict: true }); return; }
+    if (json.status && !["new", "edited", "approved"].includes(json.status)) { setFixing(null); setFixed((current) => [...current, id]); setFixNote({ id, text: "That email has already been sent.", ok: true }); return; }
+    setFixing({ id, subject: json.email_subject ?? "", body: json.email_body ?? "", updatedAt: json.updated_at });
+    setFixNote({ id, text: "Showing the saved version. Edit it and save again if you like.", ok: true });
   }
 
   async function tidy() {
@@ -138,8 +195,33 @@ export function DraftSetup({ owner, unsent, samples, listHref }: { owner: string
           {audit && (audit.problems.length === 0
             ? <p className="setup-good" role="status">All {audit.checked} emails look good.</p>
             : <div className="setup-problems" role="status">
-                <p><b>{audit.problems.length} of {audit.checked} emails need a look.</b> Open each one on the Reach-out list, or let Night Watch tidy the simple ones.</p>
-                <ul>{audit.problems.slice(0, 30).map((problem) => <li key={problem.id}><b>{problem.who}</b>, {problem.company}: {problem.faults.map((fault) => fault.says).join("; ")}</li>)}</ul>
+                <p><b>{audit.problems.length - fixed.length} of {audit.checked} emails need a look.</b> Press <b>Fix</b> to change one right here, or let Night Watch tidy the simple ones.</p>
+                <ul className="setup-fix-list">{audit.problems.map((problem) => {
+                  const done = fixed.includes(problem.id);
+                  const open = fixing?.id === problem.id;
+                  const note = fixNote?.id === problem.id ? fixNote : null;
+                  return (
+                    <li key={problem.id} className={`setup-fix ${done ? "is-fixed" : ""} ${open ? "is-open" : ""}`}>
+                      <div className="setup-fix-row">
+                        <span><b>{problem.who}</b>, {problem.company}{done ? "" : <>: <span className="setup-fault">{problem.faults.map((fault) => fault.says).join("; ")}</span></>}</span>
+                        {done ? <span className="setup-fixed">Fixed</span> : !open && <button type="button" className="btn" disabled={fixBusy} onClick={() => void openFix(problem)}>Fix</button>}
+                      </div>
+                      {open && fixing && (
+                        <div className="setup-fix-editor">
+                          <label><span>Subject</span><input value={fixing.subject} maxLength={120} aria-label="Fix subject" onChange={(event) => setFixing({ ...fixing, subject: event.target.value })} /></label>
+                          <label><span>Message</span><textarea rows={9} maxLength={1000} value={fixing.body} aria-label="Fix message" onChange={(event) => setFixing({ ...fixing, body: event.target.value })} /></label>
+                          <div className="setup-actions">
+                            <button type="button" className="btn primary" disabled={fixBusy} onClick={() => void saveFix()}>{fixBusy ? "Saving…" : "Save and check again"}</button>
+                            <button type="button" className="btn ghost" disabled={fixBusy} onClick={() => { setFixing(null); setFixNote(null); }}>Cancel</button>
+                            <Link className="review-open" href={`${listHref}&card=${problem.id}`}>Open on the Reach-out list &rarr;</Link>
+                            {note?.conflict && <button type="button" className="btn" onClick={() => void loadSavedFix()}>Load the saved version</button>}
+                          </div>
+                        </div>
+                      )}
+                      {note && <p className={`setup-fix-note ${note.ok ? "is-ok" : "is-bad"}`} role="status">{note.text}</p>}
+                    </li>
+                  );
+                })}</ul>
                 <button type="button" className="btn" disabled={!!busy} onClick={tidy}>{busy === "tidy" ? "Tidying…" : "Tidy the simple ones for me"}</button>
               </div>)}
         </div>

@@ -32,6 +32,8 @@ export async function POST(request: Request) {
     // Sent emails are a record of what went out, not a draft to be corrected — but they are still worth
     // counting, because a fault in one is a fault a prospect has already read.
     const scope = body?.scope === "all" ? "all" : "unsent";
+    // Re-check just the emails someone has fixed, without draining every page again.
+    const ids = Array.isArray(body?.ids) ? (body.ids as unknown[]).filter((id): id is string => typeof id === "string").slice(0, 50) : null;
     const db = admin();
 
     let query = db.from("cards")
@@ -41,6 +43,7 @@ export async function POST(request: Request) {
       .order("id", { ascending: true })
       .range(offset, offset + PAGE - 1);
     if (scope === "unsent") query = query.in("status", ["new", "approved", "edited"]);
+    if (ids) query = query.in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
 
     const { data, count, error } = await query;
     // Never report a failed read as a clean audit.

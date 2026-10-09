@@ -30,7 +30,7 @@ export default async function AutoSendPage({ searchParams }: { searchParams: Pro
         <header className="drafts-head">
           <div>
             <h1>{yours ? "Your emails" : `${name}'s emails`}</h1>
-            <p>Exactly what the morning auto-send will send from {yours ? "your" : `${name}'s`} Gmail next, in order.</p>
+            <p>Turn auto-send on or off here, and see exactly what it sends from {yours ? "your" : `${name}'s`} Gmail next, in order.</p>
           </div>
           {isAdmin && (
             <nav className="drafts-seats" aria-label="Whose emails">
@@ -40,7 +40,7 @@ export default async function AutoSendPage({ searchParams }: { searchParams: Pro
         </header>
         <DraftsTabs owner={owner} active="auto" />
         {view
-          ? <AutoSendView key={owner} plan={view.plan} emails={view.emails} listHref={listHref} />
+          ? <AutoSendView key={owner} owner={owner} plan={view.plan} emails={view.emails} control={view.control} canChange={isAdmin || owner === user.owner} listHref={listHref} />
           : <p className="as-empty">The auto-send queue could not be read just now. Reload the page to try again.</p>}
       </div>
     </main>

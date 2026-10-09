@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { AutoSendEmail, AutoSendSummary } from "@/lib/autosend-view";
+import type { AutoSendControl, AutoSendEmail, AutoSendSummary } from "@/lib/autosend-view";
+import type { Owner } from "@/lib/types";
 import { tally } from "@/lib/send-plan";
 
 type Kind = "industry" | "role" | "size" | "address";
@@ -14,8 +15,10 @@ const valueOf = (email: AutoSendEmail, kind: Kind) => (kind === "address" ? addr
  * What the morning auto-send sends next, laid out from its own queue: how many and when, who they go to, and
  * the order. Keep for me takes one off; it uses the card's auto_send_hold, the same switch as the Reach-out list.
  */
-export function AutoSendView({ plan, emails, listHref }: { plan: AutoSendSummary; emails: AutoSendEmail[]; listHref: string }) {
+export function AutoSendView({ owner, plan, emails, control, canChange, listHref }: { owner: Owner; plan: AutoSendSummary; emails: AutoSendEmail[]; control: AutoSendControl; canChange: boolean; listHref: string }) {
   const router = useRouter();
+  const [confirming, setConfirming] = useState(false);
+  const [switching, setSwitching] = useState(false);
   const [filter, setFilter] = useState<{ kind: Kind; label: string } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ text: string; ok: boolean } | null>(null);
@@ -26,6 +29,51 @@ export function AutoSendView({ plan, emails, listHref }: { plan: AutoSendSummary
   const group = (name: AutoSendEmail["group"]) => emails.filter((email) => email.group === name && matches(email));
   const kept = emails.filter((email) => email.group === "kept").length;
   const on = !plan.blocker;
+  const paused = control.autoSend && control.paused;
+
+  /** The same route and rules as Settings: a member changes only their own seat, and on needs a postal address. */
+  async function change(body: { autoSend?: boolean; paused?: boolean; skipToday?: boolean }, done: string) {
+    setSwitching(true);
+    setNotice(null);
+    try {
+      const response = await fetch("/api/settings/auto-send", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, ...body }) });
+      const json = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) { setNotice({ text: json.error ?? "Could not change auto-send. Try again.", ok: false }); return; }
+      setConfirming(false);
+      setNotice({ text: done, ok: true });
+      router.refresh();
+    } catch { setNotice({ text: "Not changed: the connection dropped. Try again.", ok: false }); }
+    finally { setSwitching(false); }
+  }
+
+  const controls = !canChange ? null : confirming ? (
+    <div className="as-confirm" role="group" aria-label="Turn on auto-send">
+      <h3>Turn on auto-send?</h3>
+      <ul>
+        {plan.going > 0
+          ? <li><b>{plan.going} {plan.going === 1 ? "email goes" : "emails go"} out {plan.dayLabel}</b>, {plan.windowLabel} Eastern, a few minutes apart, from your Gmail. They are listed below, in order.</li>
+          : <li>Nothing is waiting right now. New emails go out each weekday morning, {plan.windowLabel} Eastern, as lists arrive.</li>}
+        <li>Then every weekday morning, up to {plan.dailyCap} a day. Anything over that waits for the next day.</li>
+        <li>Unconfirmed addresses go too, so a few may bounce. Auto-send pauses itself if bounces pile up.</li>
+        <li>Use <b>Keep for me</b> on any email you want to send yourself. You can turn it off here at any time.</li>
+      </ul>
+      <div className="as-controls">
+        <button type="button" className="btn primary" disabled={switching} onClick={() => void change({ autoSend: true }, "Auto-send is on.")}>{switching ? "Turning on…" : "Yes, turn it on"}</button>
+        <button type="button" className="btn ghost" disabled={switching} onClick={() => setConfirming(false)}>Cancel</button>
+      </div>
+    </div>
+  ) : (
+    <div className="as-controls">
+      {paused
+        ? <button type="button" className="btn primary" disabled={switching} onClick={() => void change({ paused: false }, "Auto-send is running again.")}>Resume auto-send</button>
+        : control.autoSend
+          ? <button type="button" role="switch" aria-checked="true" className="as-switch is-on" disabled={switching} onClick={() => void change({ autoSend: false }, "Auto-send is off. Nothing goes out unless you send it.")}><span className="as-knob" />On</button>
+          : <button type="button" role="switch" aria-checked="false" className="as-switch" disabled={switching || !control.postalAddressSet} onClick={() => { setNotice(null); setConfirming(true); }}><span className="as-knob" />Off</button>}
+      {on && plan.when === "today" && plan.going > 0 && <button type="button" className="btn ghost" disabled={switching} onClick={() => void change({ skipToday: true }, "Skipped today. Nothing goes out on its own until the next send day.")}>Skip today</button>}
+      {control.autoSend && control.skippedToday && <button type="button" className="btn ghost" disabled={switching} onClick={() => void change({ skipToday: false }, "Today is back on.")}>Undo skip today</button>}
+      {!control.autoSend && !control.postalAddressSet && <span className="as-control-note">Add your business postal address in <Link href="/settings">Settings</Link> first. US law requires it.</span>}
+    </div>
+  );
 
   async function keep(email: AutoSendEmail, hold: boolean) {
     setBusy(email.id);
@@ -90,10 +138,10 @@ export function AutoSendView({ plan, emails, listHref }: { plan: AutoSendSummary
     <div className="autosend-page">
       <section className={`as-hero ${on ? "is-on" : "is-off"}`} aria-label="What goes out next">
         <div className="as-hero-main">
-          <span className={`as-status ${on ? "is-on" : ""}`}>{on ? "Auto-send is on" : plan.blocker}</span>
+          <span className={`as-status ${on ? "is-on" : ""}`}>{on ? (control.skippedToday ? "Auto-send is on · skipped today" : "Auto-send is on") : paused ? `Paused${control.pausedReason ? `: ${control.pausedReason.replace(/\.\s*$/, "")}` : ""}` : plan.blocker}</span>
           <p className="as-big"><b>{plan.going}</b> {plan.going === 1 ? "email" : "emails"} {on ? "go out" : "would go out"} {plan.dayLabel}</p>
-          <p className="as-when">{plan.windowLabel} Eastern, a few minutes apart, from your own Gmail.</p>
-          {!on && <p className="as-off">Nothing goes out on its own until auto-send is on. <Link href={listHref}>Turn it on from the Reach-out list &rarr;</Link></p>}
+          <p className="as-when">{plan.windowLabel} Eastern, a few minutes apart, from your own Gmail.{!on && " Nothing goes out on its own while auto-send is off."}</p>
+          {controls}
         </div>
         <dl className="as-stats">
           <div><dt>Sent today</dt><dd>{plan.sentToday} <small>of {plan.dailyCap} a day</small></dd></div>

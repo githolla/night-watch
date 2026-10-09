@@ -1,6 +1,5 @@
 "use client";
 import { leftoverSourceNames, replaceOpening, retargetCopy } from "@/lib/bulk-copy";
-import { autoSendLine, sentTodayLine, type AutoSendSeat } from "@/lib/auto-send-line";
 import { bulkSendable, sendableAddress } from "@/lib/bulk-sendable";
 import { acknowledgedDraftFields, DRAFT_TEXT_FIELDS, meetingTimesBody, resolveSaveConflict } from "@/lib/draft-save-state";
 import { batchOwner, type ListSequence } from "@/lib/focus-data";
@@ -974,57 +973,6 @@ export function Desk({
   const [bulkSending, setBulkSending] = useState(false);
   const [bulkProgress, setBulkProgress] = useState<{ total: number; sent: number; failed: Array<{ name: string; error: string }>; current: string } | null>(null);
   const bulkStop = useRef(false);
-  const [autoSeats, setAutoSeats] = useState<Array<AutoSendSeat & { owner: string }>>([]);
-  // Re-read after every send so the counter and the auto-send line stay current.
-  const sentOnDesk = cards.filter(c => c.status === "sent").length;
-  useEffect(() => {
-    if (demo) return;
-    let live = true;
-    fetch("/api/settings/auto-send").then(response => response.ok ? response.json() : null).then((json: { seats?: Array<AutoSendSeat & { owner: string }> } | null) => { if (live && json?.seats) setAutoSeats(json.seats); }).catch(() => {});
-    return () => { live = false; };
-  }, [sentOnDesk, demo]);
-  // Her own switch: turning auto-send on or off (or resuming after a pause) from the desk, without Settings.
-  async function setAutoSend(owner: string, change: { autoSend?: boolean; paused?: boolean }, waiting: number) {
-    if (change.autoSend === true && !window.confirm(`Turn on auto-send?\n\nEvery weekday between 9:00 and 11:30am Eastern, your unsent drafts (${waiting} now) go out on their own, spaced apart, up to your daily limit. Unconfirmed addresses go too, so a few may bounce; auto-send pauses itself if bounces pile up.\n\nYou can turn it off here at any time.`)) return;
-    const response = await fetch("/api/settings/auto-send", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, ...change }) });
-    const json = await response.json().catch(() => ({})) as { seat?: AutoSendSeat & { owner: string }; error?: string };
-    if (!response.ok || !json.seat) { setNotice(json.error ?? "Could not change auto-send. Try again in Settings."); return; }
-    const seat = json.seat;
-    setAutoSeats(current => current.map(item => item.owner === owner ? seat : item));
-    setNotice(seat.autoSend && !seat.paused ? "Auto-send is on. Your drafts go out each weekday morning between 9:00 and 11:30am." : "Auto-send is off. Nothing goes out unless you send it.");
-  }
-  async function skipAutoSendToday(owner: string) {
-    const response = await fetch("/api/settings/auto-send", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ owner, skipToday: true }) });
-    const json = await response.json().catch(() => ({})) as { seat?: AutoSendSeat & { owner: string }; error?: string };
-    if (!response.ok || !json.seat) { setNotice(json.error ?? "Could not skip today's auto-send. Try again in Settings."); return; }
-    const seat = json.seat;
-    setAutoSeats(current => current.map(item => item.owner === owner ? seat : item));
-    setNotice("Auto-send is skipped for today. Nothing goes out automatically until the next send day.");
-  }
-  // The seat whose list is open (or, with none open, every seat the viewer may see): always on screen, above the list.
-  const waitingFor = (owner: string) => cards.filter(c => c.assigned_to === owner && ["new","edited","approved"].includes(c.status) && c.email_subject?.trim() && c.email_body?.trim() && sendableAddress(c.people as unknown as Parameters<typeof sendableAddress>[0])).length;
-  const barSeats = autoSeats.filter(seat => !listOwner || seat.owner === listOwner);
-  const autoSendBar = barSeats.length > 0 && !demo ? (
-    <div className="autosend-bar" aria-label="Auto-send">
-      {barSeats.map(seat => {
-        const waiting = waitingFor(seat.owner);
-        const line = autoSendLine(seat, waiting);
-        const on = seat.autoSend && !seat.paused;
-        return (
-          <div className="autosend-seat" key={seat.owner}>
-            {barSeats.length > 1 && <b className="autosend-who">{context?.seatNames?.[seat.owner] ?? (seat.owner === "josh" ? "Josh" : "Suuchi")}</b>}
-            {seat.autoSend && seat.paused
-              ? <button type="button" className="autosend-switch is-paused" onClick={() => void setAutoSend(seat.owner, { paused: false }, waiting)}><span className="autosend-knob" />Paused · Resume</button>
-              : <button type="button" role="switch" aria-checked={on} className={`autosend-switch ${on ? "is-on" : ""}`} onClick={() => void setAutoSend(seat.owner, { autoSend: !seat.autoSend }, waiting)}><span className="autosend-knob" />Auto-send {on ? "On" : "Off"}</button>}
-            <span className="autosend-text">{line.text}</span>
-            {line.canSkip && <button type="button" className="btn ghost autosend-skip" onClick={() => void skipAutoSendToday(seat.owner)}>Skip today</button>}
-            {seat.nextSend && <Link className="autosend-next" href={`/drafts/auto-send?owner=${seat.owner}`}>{on ? <>{seat.nextSend.going} go {seat.nextSend.dayLabel} {seat.nextSend.windowLabel} · see what&rsquo;s going &rarr;</> : <>See what it would send &rarr;</>}</Link>}
-            <span className="autosend-count">{sentTodayLine(seat)}</span>
-          </div>
-        );
-      })}
-    </div>
-  ) : null;
   const readyToSend = (owner: string | null) => cards.filter(c => ["new","edited","approved"].includes(c.status) && batchOwner(c.accounts.domain ?? "") === owner && c.email_subject?.trim() && c.email_body?.trim() && c.people.email);
   async function sendAllReady() {
     if (!focusCard || bulkSending || sending || sendInFlight.current) return;
@@ -1434,7 +1382,6 @@ export function Desk({
             <div className="workspace-progress"><h1>Reach-out list</h1>{batchSequence && progress && <span>{batchSequence === 1 ? `${progress.completed} of ${progress.total} completed` : batchSequence === 3 ? `Today's list · ${cards.length} companies` : 'Next 25'}</span>}</div>
             <div className="deskwork-head-actions">{tools}<a className="deskwork-overview" href={overviewHref}>Overview &rarr;</a></div>
           </header>
-          {autoSendBar}
 
           <div className="deskwork-grid">
             {/* LEFT — companies */}

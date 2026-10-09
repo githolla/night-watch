@@ -1,6 +1,7 @@
 import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
 import { LIST_DRAFT_HASH } from "./draft-scope.ts";
 import { allFocus } from "./focus-data.ts";
+import { localParts } from "./local-time.ts";
 import { loadSendPlan } from "./send-plan-loader.ts";
 import { industryOf, roleOf, sizeOf, type SendPlan } from "./send-plan.ts";
 import { admin } from "./supabase/admin.ts";
@@ -15,11 +16,19 @@ export type AutoSendEmail = {
   position: number; time: string | null; reason: string | null;
 };
 export type AutoSendSummary = Omit<SendPlan, "slots">;
+/** The seat's switch, as stored: what the on/off control on the page shows. */
+export type AutoSendControl = { autoSend: boolean; paused: boolean; pausedReason: string | null; postalAddressSet: boolean; skippedToday: boolean };
 
 /** The morning auto-send's next run for one seat, with the people and companies behind each queued email. */
-export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSummary; emails: AutoSendEmail[] }> {
+export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSummary; emails: AutoSendEmail[]; control: AutoSendControl }> {
   const db = admin();
-  const { slots, ...plan } = await loadSendPlan(db, owner);
+  const [{ slots, ...plan }, { data: profile }] = await Promise.all([loadSendPlan(db, owner), db.from("sender_profiles").select("*").eq("owner", owner).maybeSingle()]);
+  const control: AutoSendControl = {
+    autoSend: Boolean(profile?.auto_send), paused: Boolean(profile?.auto_send_paused),
+    pausedReason: (profile?.auto_send_paused_reason as string | null | undefined) ?? null,
+    postalAddressSet: Boolean(((profile?.postal_address as string | null | undefined) ?? "").trim()),
+    skippedToday: ((profile?.auto_send_skip_on as string | null | undefined) ?? null) === localParts().date,
+  };
   const queued = Object.keys(slots);
   const select = "id,email_subject,auto_send_hold,accounts(name,domain,vertical),people(full_name,title,email,email_status,email_check)";
   const [{ data: inQueue }, { data: kept }] = await Promise.all([
@@ -48,5 +57,5 @@ export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSu
     .filter((row) => !seen.has(row.id) && Boolean(seen.add(row.id)))
     .map(toEmail)
     .sort((a, b) => (a.position || 1e6) - (b.position || 1e6) || a.company.localeCompare(b.company));
-  return { plan, emails };
+  return { plan, emails, control };
 }
