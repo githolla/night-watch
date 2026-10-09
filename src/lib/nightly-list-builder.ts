@@ -665,9 +665,12 @@ async function applyEmailEvidence(db: Db, domain: string, buyerName: string, evi
   if (!address.endsWith(`@${domain}`)) return out("unconfirmed", `the address is not at ${domain}`);
   const { data: account } = await db.from("accounts").select("id").eq("domain", domain).maybeSingle();
   if (!account) return out("unconfirmed", "the company was not saved");
-  const query = db.from("people").select("id,email_check,do_not_contact").eq("account_id", account.id);
+  const query = db.from("people").select("id,email,email_status,email_check,do_not_contact").eq("account_id", account.id);
   const { data: person } = await (deps.personId ? query.eq("id", deps.personId) : query.ilike("full_name", buyerName)).maybeSingle();
   if (!person || person.do_not_contact) return out("unconfirmed", "the buyer was not found or is do-not-contact");
+  // An address that already bounced is never trusted again, whatever a page or a format says.
+  const bouncedBefore = (person.email ?? "").toLowerCase() === address && (person.email_status === "invalid" || (person.email_check as { level?: string } | null)?.level === "undeliverable");
+  if (bouncedBefore) return out("unconfirmed", `${address} already bounced; find a different address`);
   const now = new Date().toISOString();
   if (evidence.kind === "published") {
     if (!(await pageHas(evidence.sourceUrl, address, deps.fetcher, deps.lookup))) return out("unconfirmed", `${address} is not on ${evidence.sourceUrl}`);
@@ -683,7 +686,9 @@ async function applyEmailEvidence(db: Db, domain: string, buyerName: string, evi
   const expected = format ? buildEmail(buyerName, format.key, domain) : null;
   if (!format || expected !== address) return out("unconfirmed", `the colleagues' addresses do not produce ${address}${expected ? ` (they give ${expected})` : ""}`);
   if ((await (deps.mailHost ?? domainAcceptsMail)(domain)) === false) return out("unconfirmed", `${domain} does not accept email`);
-  await db.from("people").update({ email: address, email_source: "pattern", email_check: { email: address, source: "research", likely: true, format: format.key, proof: proven.map((item) => item.email), checkedAt: now } }).eq("id", person.id);
+  // A corrected address starts clean: the "invalid" left by the old guess's bounce belongs to that guess.
+  const changed = (person.email ?? "").toLowerCase() !== address;
+  await db.from("people").update({ email: address, email_source: "pattern", ...(changed || person.email_status === "invalid" ? { email_status: "unverified" } : {}), email_check: { email: address, source: "research", likely: true, format: format.key, proof: proven.map((item) => item.email), checkedAt: now } }).eq("id", person.id);
   return out("likely", `matches the ${format.key} format of ${proven.map((item) => item.email).join(", ")}`);
 }
 

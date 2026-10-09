@@ -37,6 +37,7 @@ type Module = {
   nightlyListConfig: () => { budgetUsd: number; maxCostPerCompanyUsd: number; research: number; size: number };
   importResearchedList: (db: unknown, input: { listDate: string; owner: string; companies: Row[] }, overrides?: Row) => Promise<{ status: string; listed: Array<{ domain: string; fit: number }>; reserved: string[]; skipped: Array<{ domain: string; reason: string }>; addresses: Array<{ domain: string; address: string; outcome: string; reason: string }> }>;
   screenDomains: (db: unknown, domains: string[]) => Promise<Array<{ domain: string; usable: boolean; reason: string | null }>>;
+  importAddressEvidence: (db: unknown, items: Row[], overrides?: Row) => Promise<Array<{ domain: string; address: string; outcome: string; reason: string }>>;
 };
 
 const calls = { research: [] as ResearchCall[], source: [] as string[], prepare: [] as string[] };
@@ -429,6 +430,27 @@ test("researched addresses are checked against their pages: published on the pag
   assert.equal(person("p0").email, "pat.lee@pub.test");
   assert.equal((person("p2").email_check as Row).likely, true);
   assert.equal(person("p1").email_status, "none", "unconfirmed evidence changes nothing");
+});
+
+test("a bounced guess can be corrected by research, but the bounced address itself is never trusted again", async () => {
+  const pages: Record<string, string> = { "https://fix.test/a": "<p>sam@fix.test</p>", "https://fix.test/b": "<p>kim@fix.test</p>", "https://fix.test/team": "<p>pat.lee@fix.test</p>" };
+  const fetcher = async (url: string) => new Response(pages[url] ?? "not here", { status: pages[url] ? 200 : 404, headers: { "content-type": "text/html" } });
+  const bounced = { email: "pat.lee@fix.test", level: "undeliverable", reason: "pat.lee@fix.test bounced.", source: "history" };
+  const seed = () => queryDb({ accounts: [{ id: "a1", domain: "fix.test", status: "active" }], people: [{ id: "p1", account_id: "a1", full_name: "Pat Lee", email: "pat.lee@fix.test", email_status: "invalid", email_check: bounced, do_not_contact: false }] });
+  const deps = { fetcher, lookup: async () => ["93.184.216.34"], mailHost: async () => true };
+  // The colleagues show first-name addresses, so the right one is pat@fix.test.
+  const fixed = seed();
+  const [corrected] = await builder.importAddressEvidence(fixed.db, [{ personId: "p1", domain: "fix.test", name: "Pat Lee", emailEvidence: { kind: "format", address: "pat@fix.test", examples: [{ name: "Sam Reyes", email: "sam@fix.test", sourceUrl: "https://fix.test/a" }, { name: "Kim Bell", email: "kim@fix.test", sourceUrl: "https://fix.test/b" }] } }], deps);
+  assert.equal(corrected.outcome, "likely");
+  const person = fixed.tables.people[0];
+  assert.equal(person.email, "pat@fix.test");
+  assert.equal(person.email_status, "unverified", "the bounce belonged to the old guess");
+  // A page that still lists the bounced address does not bring it back.
+  const stale = seed();
+  const [refused] = await builder.importAddressEvidence(stale.db, [{ personId: "p1", domain: "fix.test", name: "Pat Lee", emailEvidence: { kind: "published", address: "pat.lee@fix.test", sourceUrl: "https://fix.test/team" } }], deps);
+  assert.equal(refused.outcome, "unconfirmed");
+  assert.match(refused.reason, /already bounced/);
+  assert.equal(stale.tables.people[0].email_status, "invalid");
 });
 
 test("an import where every company fails leaves no empty failed list to announce", async () => {
