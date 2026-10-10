@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { deliveryReservationId } from './delivery-state.ts';
 import type { Owner } from './types';
 export const REPLY_MODEL='reply-event-v1';
-type State={phase:number;leaseUntil:number;error?:string;classification?:string;booked?:boolean;bookingError?:string};
+type State={phase:number;leaseUntil:number;error?:string;classification?:string;booked?:boolean;bookingError?:string;snippet?:string;threadId?:string;repliedAt?:string};
 /** Durable per-message checkpoints; retries resume failed work without excluding the thread. */
 export async function processReplyEvent(db:SupabaseClient,input:{owner:Owner;cardId:string;personId:string;messageId:string;alreadyHandled?:boolean}, actions:Array<(state:State,id:string)=>Promise<Partial<State>|void>>){
  const id=deliveryReservationId(`reply:${input.owner}:${input.messageId}`,input.cardId);

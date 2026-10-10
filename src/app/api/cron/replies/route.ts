@@ -6,7 +6,7 @@ import { classifyReply } from "@/lib/agents";
 import { thread } from "@/lib/gmail";
 import { createInvite, matchProposedSlot, type Slot } from "@/lib/calendar";
 import { sendReplySlack } from "@/lib/slack";
-import { sendReplyAlert } from "@/lib/seat-notices";
+import { replySnippet, sendReplyAlert } from "@/lib/seat-notices";
 import { admin } from "@/lib/supabase/admin";
 import { daysAgoIso } from "@/lib/time";
 import type { Owner } from "@/lib/types";
@@ -78,7 +78,8 @@ export async function GET(request:Request){
         if(!message.id)throw new Error('Gmail reply is missing its message ID.');
         const body=messageText(message.payload),replyAt=new Date(Number(message.internalDate)).toISOString();
         const completed=await processReplyEvent(db,{owner:touch.sent_by,cardId:touch.card_id,personId:touch.person_id,messageId:message.id,alreadyHandled:Boolean(touch.reply_at&&Date.parse(touch.reply_at)>=Number(message.internalDate))},[
-          async()=>({classification:await classifyReply(body)}),
+          // The first lines are kept with the reply's record, so the Replies page can show what they wrote.
+          async()=>({classification:await classifyReply(body),snippet:replySnippet(body),threadId:touch.gmail_thread_id,repliedAt:replyAt}),
           async(state)=>{
             // Replaying effects is safe; never demote a meeting or later pipeline stage.
             const card=await db.from('cards').update({status:state.classification==='positive'||state.classification==='referral'?'positive':'replied'}).eq('id',touch.card_id).in('status',['new','edited','approved','sent','positive','replied']);

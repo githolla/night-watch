@@ -88,13 +88,17 @@ export async function runSeatNotices(db: Db, now: Date = new Date(), deps: Deps 
   return out;
 }
 
+/** The reply's own words, without the quoted thread or signature dashes underneath, kept short. */
+export function replySnippet(body: string): string {
+  return (body.split(/\n\s*(?:On .{5,160} wrote:|-{2,}\s*Original Message|From: |Sent from my )/)[0] ?? "").replace(/\s+/g, " ").trim().slice(0, 600);
+}
+
 /** A reply landed: tell the seat in their inbox. Never throws; a missed alert must not stall reply processing. */
 export async function sendReplyAlert(db: Db, input: { owner: Owner; cardId: string; name: string; title: string | null; company: string; classification: string; body: string }, send: typeof sendEmail = sendEmail) {
   if (["ooo", "none"].includes(input.classification)) return false;
   try {
     const base = configuredBaseUrl();
-    // The reply's own words, without the quoted thread underneath.
-    const snippet = input.body.split(/\n\s*(?:On .{5,120} wrote:|-{2,}\s*Original Message|From: )/)[0] ?? "";
+    const snippet = replySnippet(input.body);
     await sendToSelf(db, input.owner, replyNotice({ name: input.name, title: input.title, company: input.company, classification: input.classification, snippet, briefLink: `${base}/brief/${input.cardId}`, historyLink: `${base}/activity` }), send);
     return true;
   } catch { return false; }

@@ -33,7 +33,7 @@ function currentStage(card: PipelineCard): StageKey {
   return "contacted";
 }
 const NEXT: Partial<Record<StageKey, { stage: string; label: string }>> = {
-  contacted: { stage: "replied", label: "Mark replied" },
+  contacted: { stage: "replied", label: "They replied (not by email)" },
   replied: { stage: "meeting", label: "Booked discovery" },
   meeting: { stage: "qualified", label: "Mark qualified" },
   qualified: { stage: "opportunity", label: "Create opportunity" },
