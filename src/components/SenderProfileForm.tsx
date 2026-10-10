@@ -19,7 +19,8 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
   const [signature, setSignature] = useState(initial.signature);
   const [cc, setCc] = useState(initial.cc.join(", "));
   const [greeting, setGreeting] = useState(initial.greeting);
-  const [signoff, setSignoff] = useState(initial.signoff);
+  // No longer shown (reach-out emails do not use it); kept so saving leaves the stored value as it is.
+  const [signoff] = useState(initial.signoff);
   const [intro, setIntro] = useState(initial.intro);
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [error, setError] = useState("");
@@ -114,7 +115,6 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
       </div>
       <div className="sender-profile-grid">
         <label><span>Greeting &mdash; how your drafts open</span><input value={greeting} onChange={(event) => setGreeting(event.target.value)} placeholder="Hi {first}," maxLength={160} /></label>
-        <label><span>Legacy sign-off (not used in reach-out emails)</span><input value={signoff} onChange={(event) => setSignoff(event.target.value)} placeholder="Thank you," maxLength={160} /></label>
       </div>
       <label className="sender-profile-full"><span>Introduction &mdash; the first line of the message</span><input value={intro} onChange={(event) => setIntro(event.target.value)} placeholder="I am {name}, {title} at Nine-67." maxLength={300} /></label>
       {!fromName.trim() && <p className="sender-profile-warn">Set a sender name above, or your drafts cannot introduce you &mdash; they open &ldquo;I am with Nine-67.&rdquo; instead, which is why the sender appears in some emails and not others.</p>}

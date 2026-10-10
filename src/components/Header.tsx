@@ -8,6 +8,7 @@ import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
 const primary = [
+  { href: "/", label: "Home", hint: "Your day: replies, what goes out, what needs you" },
   { href: "/outreach", label: "Reach-out list", hint: "The selected companies and their custom emails" },
   { href: "/drafts", label: "Drafts", hint: "Set up, check and fix your email drafts" },
   { href: "/auto-send", label: "Auto-send", hint: "Emails sent for you each weekday morning" },
@@ -37,7 +38,7 @@ const more = moreGroups.flatMap((group) => group.items);
 
 export function Header({showTour=true}:{showTour?:boolean}) {
   const pathname = usePathname();
-  const active = (href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/outreach" && pathname === "/") || (href === "/outreach" && pathname.startsWith("/accounts"));
+  const active = (href: string) => href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`) || (href === "/outreach" && pathname.startsWith("/accounts"));
   const [moreOpen, setMoreOpen] = useState(false);
   const [counts, setCounts] = useState<{ today: number; companies: number; followups: number } | null>(null);
   const [me, setMe] = useState<{ name: string; email: string; role: string; canAct?: boolean; actingError?: boolean; actor?: { name: string; email: string } } | null>(null);
@@ -80,7 +81,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
     <>
     <header className="appbar" aria-label="Navigation">
       <div className="appbar-left">
-        <Link href="/outreach" className="appbar-brand" title="Night Watch">
+        <Link href="/" className="appbar-brand" title="Night Watch">
           <span className="brand-moon" aria-hidden />
           <strong>nightwatch<i>.</i></strong>
         </Link>

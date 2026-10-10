@@ -4,10 +4,11 @@ import type { ListSequence } from "@/lib/focus-data";
 const batchParam = (sequence: ListSequence) => sequence === 3 ? 'today' : String(sequence);
 const batchLabel = (sequence: ListSequence, todayCount: number) => sequence === 3 ? `Today's ${todayCount}` : sequence === 1 ? 'First 25' : 'Next 25';
 
-export function ReachoutListNavigation({ owner, batch, todayCount = 0 }: { owner: 'josh' | 'suuchi'; batch: ListSequence; todayCount?: number }) {
+export function ReachoutListNavigation({ owner, batch, todayCount = 0, showOwners = true }: { owner: 'josh' | 'suuchi'; batch: ListSequence; todayCount?: number; showOwners?: boolean }) {
   const sequences: ListSequence[] = todayCount > 0 ? [3, 1, 2] : [1, 2];
   return <div className="reachout-navigation">
-    <div className="reachout-navigation-group">
+    {/* Only an admin switches between seats; a member just has her own list. */}
+    {showOwners && <div className="reachout-navigation-group">
       <span className="reachout-navigation-label">List owner</span>
       <nav aria-label="Reach-out lists" className="reachout-segments">
         {(['josh', 'suuchi'] as const).map(id => <a key={id}
@@ -17,7 +18,7 @@ export function ReachoutListNavigation({ owner, batch, todayCount = 0 }: { owner
           {id === 'josh' ? 'Josh' : 'Suuchi'}
         </a>)}
       </nav>
-    </div>
+    </div>}
     <div className="reachout-navigation-group">
       <span className="reachout-navigation-label">Companies</span>
       <nav aria-label="Company batches" className="reachout-segments">

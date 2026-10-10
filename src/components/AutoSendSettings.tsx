@@ -12,7 +12,6 @@ type Seat = {
   owner: "josh" | "suuchi"; autoSend: boolean; paused: boolean; pausedReason: string | null; postalAddressSet: boolean; migrated: boolean;
   safetyMigrated?: boolean; skippedToday?: boolean; dailyCap?: number; daysConnected?: number | null; today: Today | null;
 };
-type Night = { costUsd: number; budgetUsd: number };
 
 const name = (owner: Seat["owner"]) => (owner === "josh" ? "Josh" : "Suuchi");
 const time = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : null);
@@ -30,12 +29,11 @@ function buildLine(today: Today) {
 /** Morning auto-send controls: on/off, pause, skip today, and what tonight's build produced. */
 export function AutoSendSettings() {
   const [seats, setSeats] = useState<Seat[] | null>(null);
-  const [night, setNight] = useState<Night | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
 
   useEffect(() => {
-    fetch("/api/settings/auto-send", { cache: "no-store" }).then((r) => r.json()).then((data) => { if (data.error) setError(data.error); else { setSeats(data.seats); setNight(data.night ?? null); } }).catch(() => setError("Could not load auto-send."));
+    fetch("/api/settings/auto-send", { cache: "no-store" }).then((r) => r.json()).then((data) => { if (data.error) setError(data.error); else setSeats(data.seats); }).catch(() => setError("Could not load auto-send."));
   }, []);
 
   async function change(owner: Seat["owner"], patch: { autoSend?: boolean; paused?: boolean; skipToday?: boolean }) {
@@ -52,10 +50,9 @@ export function AutoSendSettings() {
   return (
     <section className="feature-center" style={{ marginBottom: 18 }}>
       <h2>Morning list and auto-send</h2>
-      <p className="notice">A fresh list of companies is built for each of you overnight, Monday to Friday. Slack announces it at 7:00. With auto-send on, confirmed addresses go out between 9:00 and 11:30 (Eastern), spaced apart: today&apos;s list first, then confirmed drafts left from earlier lists, up to the daily cap. Unconfirmed addresses stay on the list for you to send. On Today&apos;s list, &quot;Keep for me&quot; takes one company off auto-send without dismissing it. Auto-send pauses itself after 2 bounces in 48 hours, or when more than 5% of at least 10 first emails bounce. Pause also stops automatic follow-ups; Skip today only skips this morning&apos;s first emails.</p>
+      <p className="notice">A fresh list of companies is built for each of you every weeknight. Turn auto-send on or off, see exactly who it emails and send now from the <a href="/auto-send">Auto-send</a> tab.</p>
       {error && <p className="notice error">{error}</p>}
       {!seats && !error && <p>Loading…</p>}
-      {night && <p style={{ margin: "8px 0" }}><strong>Tonight:</strong> ${night.costUsd.toFixed(2)} of ${night.budgetUsd.toFixed(0)} research budget, shared by both lists.</p>}
       {seats?.map((seat) => (
         <div key={seat.owner} className="conn-row" style={{ padding: "10px 0" }}>
           <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>

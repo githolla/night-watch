@@ -54,6 +54,17 @@ export function cleanWorkflow(text: string | null | undefined): string | null {
   return value || null;
 }
 
+/**
+ * A research trigger without its "Proposed area to explore" tail. Null when all that is left is the
+ * company, the person and the revenue, which the page already shows at the top.
+ */
+export function cleanTrigger(fact: string | null | undefined): string | null {
+  const text = (fact ?? "").replace(/\s*Proposed (?:area to explore|workflow):.*$/i, "").trim();
+  if (!text) return null;
+  if (/^[^:]{2,120}:\s*[^.]{2,160}\.(?:\s*Reported \d{4} revenue: \$[\d.,]+M\.)?$/.test(text)) return null;
+  return text;
+}
+
 export function buildCallBrief(input: BriefInput): CallBrief {
   const company = input.account.name;
   const research = input.research ?? null;
@@ -65,8 +76,10 @@ export function buildCallBrief(input: BriefInput): CallBrief {
 
   // Why them: the fit evidence with its sources, then the trigger, then whatever the card says.
   const why: BriefSource[] = (research?.reasons ?? []).slice(0, 4).map((reason) => ({ text: reason.text, url: reason.url }));
-  if (!why.length && research?.trigger?.fact) why.push({ text: research.trigger.fact.replace(/\s*Proposed area to explore:.*$/i, ""), url: research.trigger.sourceUrl ?? null });
-  if (!why.length && input.whyNow.trim()) why.push({ text: input.whyNow.trim(), url: null });
+  const trigger = cleanTrigger(research?.trigger?.fact);
+  if (!why.length && trigger) why.push({ text: trigger, url: research?.trigger?.sourceUrl ?? null });
+  const whyNow = cleanTrigger(input.whyNow);
+  if (!why.length && whyNow) why.push({ text: whyNow, url: null });
 
   const first = input.person.full_name.split(/\s+/)[0] || input.person.full_name;
   // Quoted, because the idea is sometimes a noun ("progress claims") and sometimes a verb ("turn field progress into…").

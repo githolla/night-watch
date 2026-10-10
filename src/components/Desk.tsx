@@ -1,4 +1,6 @@
 "use client";
+import { AddressFix } from "@/components/AddressFix";
+import { cleanTrigger, cleanWorkflow } from "@/lib/call-brief";
 import { leftoverSourceNames, replaceOpening, retargetCopy } from "@/lib/bulk-copy";
 import { bulkSendable, sendableAddress } from "@/lib/bulk-sendable";
 import { acknowledgedDraftFields, DRAFT_TEXT_FIELDS, meetingTimesBody, resolveSaveConflict } from "@/lib/draft-save-state";
@@ -759,7 +761,7 @@ export function Desk({
     if (!focusCard) return null;
     const fit = (focusedAccount(focusCard.accounts.domain) as { aiFit?: AiFit } | undefined)?.aiFit;
     const reasons = fit && !fit.disqualified ? fit.reasons.slice(0, 2).map((reason) => reason.text) : [];
-    return reasons.length ? reasons.join(" · ") : research?.trigger.fact ?? null;
+    return reasons.length ? reasons.join(" · ") : cleanTrigger(research?.trigger.fact);
   })();
   const addressConfirmed = (person: { email?: string | null }) => bulkSendable(person as unknown as Parameters<typeof bulkSendable>[0]);
   const brief = accountBrief(focusCard?.accounts.domain);
@@ -1434,13 +1436,13 @@ export function Desk({
                   })()}
                   <span className="overview-kick">{research ? "Buyer research" : "Signal context"}</span>
                   {research ? <>
-                    <p className="deskwork-opening-lead">{research.trigger.fact}</p>
-                    <p className="deskwork-opening-need"><b>Potential relevance:</b> {research.hypothesis}</p>
+                    {cleanTrigger(research.trigger.fact) && <p className="deskwork-opening-lead">{cleanTrigger(research.trigger.fact)}</p>}
+                    {cleanWorkflow(research.hypothesis) && <p className="deskwork-opening-need"><b>The idea we pitched:</b> {cleanWorkflow(research.hypothesis)}</p>}
                     {!focusedAccount(focusCard.accounts.domain) && <p><b>{research.disposition === "hold" ? "Hold outreach" : "Fit assessment"}:</b> {research.fit}</p>}
                     <div className="reachout-sources"><a href={research.trigger.sourceUrl} target="_blank" rel="noreferrer">{sourceDomain(research.trigger.sourceUrl)} ↗</a>{research.buyer.sourceUrl !== research.trigger.sourceUrl && <a href={research.buyer.sourceUrl} target="_blank" rel="noreferrer">Leadership source ↗</a>}<small>{dateLabel(research.trigger.date) ? `Published ${dateLabel(research.trigger.date)} · ` : "Publication date not confirmed · "}Researched {dateLabel(research.researchDate)}</small></div>
                   </> : <>
                     <p className="deskwork-opening-lead">{sanitizeCopy(focusCard.signals.type === "job_cluster" || focusCard.signals.type === "job_post" ? focusCard.signals.summary : focusCard.why_now || nextLine(focusCard))}</p>
-                    <p className="deskwork-opening-need">This signal needs buyer-level qualification. Hiring does not establish budget, an outsourcing need or a reason to replace the role.</p>
+                    <p className="deskwork-opening-need">Hiring alone does not show budget or need. Ask about it on the call.</p>
                   </>}
                   {focusCard.accounts.domain && <Link href={`/accounts/${focusCard.accounts.domain}`} className="focus-link">View signal &amp; company details &#8599;</Link>}
                 </div>
@@ -1526,7 +1528,7 @@ export function Desk({
                     return (
                       <div className="deskwork-edit deskwork-compose">
                         {whyText && <p className="composer-why"><b>Why this company:</b> {whyText}</p>}
-                        <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b>{contact.email && <em className={`address-badge ${addressConfirmed(contact) ? "is-confirmed" : "is-unconfirmed"}`} title={addressConfirmed(contact) ? "Confirmed: included in Send all ready and auto-send" : "Unconfirmed: send this one by hand"}>{addressConfirmed(contact) ? "Confirmed" : "Unconfirmed"}</em>}</div>
+                        <div className="compose-to"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b>{contact.email && <em className={`address-badge ${addressConfirmed(contact) ? "is-confirmed" : "is-unconfirmed"}`} title={addressConfirmed(contact) ? "Confirmed: found on a page, proven by the company's format, or entered by you" : "Unconfirmed: a guess that has not been proven yet. Use Change address if you know the right one."}>{addressConfirmed(contact) ? "Confirmed" : "Unconfirmed"}</em>}{"id" in contact && typeof contact.id === "string" && senderIsViewer && !demo && <AddressFix key={`${contact.id}-${contact.email ?? ""}`} personId={contact.id} current={contact.email ?? null} label={contact.email ? "Change address" : "Add address"} />}</div>
                         <div className={`reachout-address-status ${contact.email_status === "verified" ? "verified" : ""}`}>
                           {contact.email_status === "verified" ? "Verified email" : contact.email ? ((focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred") ? "Address inferred · unverified" : "Saved address · unverified") : "Email not found. This draft is ready to edit; add a confirmed address before sending."}
                           {contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.email === contact.email && focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailSourceUrl && <a href={focusedContact(focusCard.accounts.domain ?? "", contact.full_name)!.emailSourceUrl!} target="_blank" rel="noreferrer">{focusedContact(focusCard.accounts.domain ?? "", contact.full_name)?.emailStatus === "inferred" ? "Research source ↗" : "Address source ↗"}</a>}
@@ -1577,7 +1579,7 @@ export function Desk({
                     <div className="deskwork-doc">
                       <div className="deskwork-doc-head">
                         {whyText && <p className="composer-why"><b>Why this company:</b> {whyText}</p>}
-                        <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b>{contact.email && <em className={`address-badge ${addressConfirmed(contact) ? "is-confirmed" : "is-unconfirmed"}`} title={addressConfirmed(contact) ? "Confirmed: included in Send all ready and auto-send" : "Unconfirmed: send this one by hand"}>{addressConfirmed(contact) ? "Confirmed" : "Unconfirmed"}</em>}</div>
+                        <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b>{contact.email && <em className={`address-badge ${addressConfirmed(contact) ? "is-confirmed" : "is-unconfirmed"}`} title={addressConfirmed(contact) ? "Confirmed: found on a page, proven by the company's format, or entered by you" : "Unconfirmed: a guess that has not been proven yet. Use Change address if you know the right one."}>{addressConfirmed(contact) ? "Confirmed" : "Unconfirmed"}</em>}</div>
                         <div className="mail-row"><span>Subject · {focusCard.email_subject?.length ?? 0}/120</span><b>{subjectView("email", focusCard.email_subject || subjectGuess(focusCard, "email"))}</b></div>
                       </div>
                       {sentAlready && <div className="deskwork-sent-note">This email has been sent{focusCard.people.full_name ? ` to ${contact.full_name}` : ""}. It is kept here as a record &mdash; the follow-ups below are what happens next.</div>}

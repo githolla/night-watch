@@ -36,3 +36,10 @@ test("cleanWorkflow keeps the idea and drops the caveat", () => {
   assert.equal(cleanWorkflow("Proposed workflow: branch service follow-up. This is an outreach idea, not a confirmed internal problem."), "branch service follow-up");
   assert.equal(cleanWorkflow(null), null);
 });
+
+test("cleanTrigger drops the research tail, and anything that only repeats the header", async () => {
+  const { cleanTrigger } = await import("./call-brief.ts");
+  assert.equal(cleanTrigger("Mainscape: Mark Forsythe, CEO. Proposed area to explore: branch service follow-up."), null);
+  assert.equal(cleanTrigger("Nationwide Construction Group: Scott Keller, Chief Operating Officer. Reported 2025 revenue: $82M."), null);
+  assert.equal(cleanTrigger("Opened a third branch in Tampa in August 2026."), "Opened a third branch in Tampa in August 2026.");
+});
