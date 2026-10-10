@@ -39,7 +39,8 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     db.from("reachout_lists").select("list_date,rows").eq("owner", owner).eq("status", "ready").gte("list_date", since(4).slice(0, 10))
       .order("list_date", { ascending: false }).limit(1).maybeSingle().then((r) => r.data),
     loadAutoSendView(owner).catch(() => null),
-    loadSentView(owner, 7, now).catch(() => null),
+    // Two weeks, so this week can be shown against the week before.
+    loadSentView(owner, 14, now).catch(() => null),
   ]);
 
   type ReplyRow = { card_id: string; reply_at: string; reply_classification: string; cards: { status: string; accounts: { name: string | null } | null } | null; people: { full_name: string | null; title: string | null } | null };

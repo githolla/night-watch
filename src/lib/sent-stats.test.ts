@@ -25,7 +25,7 @@ test("counts what went out in the period, with replies, interest, bounces and fo
   assert.equal(stats.replyRate, 33);
   assert.deepEqual(stats.recent.map((row) => [row.id, row.outcome, row.followup]), [["c1", "out of office", false], ["b1", "bounced", false], ["a2", "interested", true]]);
   assert.equal(stats.daily.length, 7);
-  assert.deepEqual(stats.daily.at(-1), { date: "2026-10-09", label: "Today", sent: 1, replies: 0 });
+  assert.deepEqual(stats.daily.at(-1), { date: "2026-10-09", label: "Today", sent: 1, replies: 0, interested: 0, bounced: 0 });
   assert.deepEqual(stats.mix.industry, [{ label: "Pest control", count: 1 }, { label: "Roofing", count: 1 }]);
 });
 
@@ -53,4 +53,12 @@ test("first emails are split by version, so the test shows which one gets replie
     { label: "Concrete Idea", sent: 1, replies: 0, interested: 0, bounced: 1, replyRate: 0 },
     { label: "Not recorded", sent: 1, replies: 0, interested: 0, bounced: 0, replyRate: 0 },
   ]);
+});
+
+test("this week against the week before", async () => {
+  const { weekOverWeek } = await import("./sent-stats.ts");
+  const day = (sent: number, replies = 0) => ({ date: "", label: "", sent, replies, interested: 0, bounced: 0 });
+  const result = weekOverWeek([...Array(7).fill(day(1)), ...Array(7).fill(day(2, 1))]);
+  assert.deepEqual(result.sent, { now: 14, before: 7 });
+  assert.deepEqual(result.replies, { now: 7, before: 0 });
 });

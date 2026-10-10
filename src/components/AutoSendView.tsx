@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import type { ReviewSender } from "@/components/DraftReview";
-import type { AutoSendControl, AutoSendEmail, AutoSendSummary } from "@/lib/autosend-view";
+import type { AutoSendControl, AutoSendEmail, AutoSendSummary, MailboxHealth } from "@/lib/autosend-view";
 import { outreachBody, outreachEmailHtml } from "@/lib/outreach-ending";
 import { tally } from "@/lib/send-plan";
 import type { Owner } from "@/lib/types";
@@ -20,7 +20,7 @@ const OUT_OF_RANGE = "Over $100M";
  * what order, and what it will not send. The order comes from the morning run's own queue, and Keep for me
  * is the card's auto_send_hold, the same switch as the Reach-out list.
  */
-export function AutoSendView({ owner, plan, emails, control, canChange, listHref, sender, optOut }: { owner: Owner; plan: AutoSendSummary; emails: AutoSendEmail[]; control: AutoSendControl; canChange: boolean; listHref: string; sender: ReviewSender; optOut: string }) {
+export function AutoSendView({ owner, plan, emails, control, health, canChange, listHref, sender, optOut }: { owner: Owner; plan: AutoSendSummary; emails: AutoSendEmail[]; control: AutoSendControl; health: MailboxHealth; canChange: boolean; listHref: string; sender: ReviewSender; optOut: string }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -279,6 +279,17 @@ export function AutoSendView({ owner, plan, emails, control, canChange, listHref
         {switchArea}
         {sendNowArea}
         <p className="as-today">Sent today: <b>{plan.sentToday} of {plan.dailyCap}</b> · <Link href={`/drafts/sent?owner=${owner}&days=1`}>See what was sent &rarr;</Link></p>
+        {(() => {
+          // Where the mailbox stands against the bounce brake, before it trips.
+          const rate = health.sent ? Math.round((health.bounced / health.sent) * 100) : 0;
+          const level = health.bouncedRecently >= health.recentLimit || (health.sent >= 10 && health.bounced / health.sent > health.rateLimit) ? "is-bad" : health.bouncedRecently > 0 || rate >= 3 ? "is-warn" : "is-good";
+          return (
+            <p className={`as-health ${level}`}>
+              <b>Mailbox health:</b> {health.bounced} of {health.sent} emails bounced this week ({rate}%){health.bouncedRecently ? `, ${health.bouncedRecently} in the last 48 hours` : ""}.{" "}
+              {level === "is-bad" ? "Sending pauses itself until the bad addresses are fixed." : `Auto-send pauses itself at ${health.recentLimit} bounces in 48 hours or over ${Math.round(health.rateLimit * 100)}% in a week.`}
+            </p>
+          );
+        })()}
       </section>
 
       {notice && <p className={`as-notice ${notice.ok ? "is-ok" : "is-bad"}`} role="status">{notice.text}</p>}

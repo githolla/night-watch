@@ -1,8 +1,8 @@
 export const tourSteps = [
  {path:'/settings',target:'.settings-navlist',title:'Start with your sender settings',body:'Choose Email accounts. Connect your Gmail, check your name and greeting, and upload your HTML signature. These settings belong to your signed-in account.'},
- {path:'/outreach',target:'.reachout-navigation',title:'Choose a reach-out list',body:'Choose Josh or Suuchi, then First 25 or Next 25. Each batch stays separate. You can view and work ahead on either batch. Drafts and signatures follow the list owner; prospect emails must be sent from that owner’s account.'},
+ {path:'/outreach',target:'.reachout-navigation',title:'Choose a list',body:'The newest list holds the latest companies; First 25 and Next 25 are the earlier lists. Your drafts and sends stay with each list.'},
  {path:'/outreach',target:'.deskwork-list',title:'Find your next company',body:'Select a company to see its research and contact. Use search to narrow the list or change the revenue sort. A saved or inferred email address is not a verified mailbox.'},
- {path:'/outreach',target:'.deskwork-opening',title:'Read the research first',body:'Check the source and proposed workflow. Research explains why a company may be relevant; it does not confirm that it has a problem or wants to buy.'},
+ {path:'/outreach',target:'.deskwork-opening',title:'Read why this company',body:'The reasons the company is on the list, with their sources, and the idea we pitched. Ask about the idea on a call; the research does not confirm they have the problem.'},
  {path:'/outreach',target:'.email-versions',title:'Compare three saved versions',body:'Direct Offer starts a conversation, Concrete Idea suggests a starting point, and Delivery Experience explains how Nine-67 works. Selecting a card previews it. Use this version or Edit this version makes it your saved draft.'},
  {path:'/outreach',target:'.composer-toolbar',title:'Edit, then preview',body:'Edit changes the subject and message. Preview shows the message and saved signature. More contains Copy, meeting times and other secondary actions. The From label shows whose draft you are viewing.'},
  {path:'/outreach',target:'.focus-subject-row',title:'Apply a subject to the list',body:'In Edit mode, write your subject and choose Apply to all. It changes only unsent drafts in the selected list, including existing edits and approved drafts. Sent messages stay unchanged.'},
@@ -13,4 +13,14 @@ export const tourSteps = [
  {path:'/people',target:'main',title:'Review contacts',body:'People is the contact directory. Check roles, company, address status and LinkedIn details. An inferred address is a candidate, not proof that the mailbox exists.'},
  {path:'/activity',target:'main',title:'Check sent history',body:'History records outreach and replies. Use it to see what was sent and avoid duplicate outreach. Copying a draft alone does not record a send.'},
  {path:'/stats',target:'#saved-versions',title:'Learn from results',body:'Compare recorded sends and replies by saved version. Self-tests are excluded from outreach results. Open signals are incomplete and do not establish that a person read the email. Reopen this tour anytime from the compass icon in the top bar.'},
+
+ {path:'/',target:'.side-nav',title:'Everything is in the sidebar',body:'Home, your Reach-out list, Drafts, Auto-send, Replies and History are at the top. Fold the sidebar to icons with the button at the top when you want more room.'},
+ {path:'/',target:'.home-replies',title:'Replies come first',body:'Everyone who wrote back and is waiting on you, interested ones first. Open the call brief before you answer.'},
+ {path:'/',target:'.home-auto',title:'What goes out today',body:'How many emails auto-send sends and when. Open it to turn it on or off, skip a day or send now.'},
+ {path:'/',target:'.home-needs',title:'What needs you',body:'Bounced emails to fix and addresses that are not confirmed yet. Fix address takes the right one and sends the email again.'},
+ {path:'/',target:'.home-week',title:'How your week is going',body:'Sent, replies, interested and bounces against last week, and a chart of the last two weeks.'},
+ {path:'/drafts',target:'.setup-card',title:'Change every email at once',body:'Set the greeting and subject for all your emails, see how every email looks, and let the check fix the simple things.'},
+ {path:'/auto-send',target:'.as-status-card',title:'Auto-send in one place',body:'Turn it on or off, skip today or send now. Mailbox health shows bounces against the limit where sending pauses itself.'},
+ {path:'/auto-send',target:'.as-queue',title:'Who gets emailed, in order',body:'Click anyone to read their email as it will be sent, change it, change the address, or keep it to send yourself.'},
+ {path:'/replies',target:'.replies',title:'Answer replies',body:'What they wrote, how it reads and the next step. Reply in Gmail, open the call brief, or mark a meeting booked.'},
 ] as const;

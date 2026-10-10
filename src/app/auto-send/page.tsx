@@ -39,7 +39,7 @@ export default async function AutoSendPage({ searchParams }: { searchParams: Pro
           )}
         </header>
         {view
-          ? <AutoSendView key={owner} owner={owner} plan={view.plan} emails={view.emails} control={view.control} canChange={isAdmin || owner === user.owner} listHref={`/outreach?list=${owner}`} sender={{ fromName: profile.fromName, signature: profile.signature, postalAddress: profile.postalAddress }} optOut={optOutLine()} />
+          ? <AutoSendView key={owner} owner={owner} plan={view.plan} emails={view.emails} control={view.control} health={view.health} canChange={isAdmin || owner === user.owner} listHref={`/outreach?list=${owner}`} sender={{ fromName: profile.fromName, signature: profile.signature, postalAddress: profile.postalAddress }} optOut={optOutLine()} />
           : <p className="as-empty">Auto-send could not be read just now. Reload the page to try again.</p>}
       </div>
     </main>

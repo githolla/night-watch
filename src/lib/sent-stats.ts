@@ -20,7 +20,7 @@ export type SentStats = {
   replies: number; interested: number; bounced: number;
   replyRate: number; bounceRate: number;
   /** One bar per day of the period (at most the last 14), oldest first. */
-  daily: Array<{ date: string; label: string; sent: number; replies: number }>;
+  daily: Array<{ date: string; label: string; sent: number; replies: number; interested: number; bounced: number }>;
   mix: { industry: Array<{ label: string; count: number }>; role: Array<{ label: string; count: number }>; size: Array<{ label: string; count: number }> };
   /** First emails by version: the test of which version gets replies. Most sent first. */
   versions: Array<{ label: string; sent: number; replies: number; interested: number; bounced: number; replyRate: number }>;
@@ -67,6 +67,8 @@ export function sentStats(touches: SentTouch[], days: number, today: string, day
       date, label: date === today ? "Today" : new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" }),
       sent: rows.filter((row) => dayOf(row.sentAt) === date).length,
       replies: rows.filter((row) => dayOf(row.sentAt) === date && (row.outcome === "replied" || row.outcome === "interested")).length,
+      interested: rows.filter((row) => dayOf(row.sentAt) === date && row.outcome === "interested").length,
+      bounced: rows.filter((row) => dayOf(row.sentAt) === date && row.outcome === "bounced").length,
     })),
     // Who the first emails went to; a follow-up is the same person again.
     mix: { industry: tallyOf(firsts.map((row) => row.industry)), role: tallyOf(firsts.map((row) => row.role)), size: tallyOf(firsts.map((row) => row.size)) },
@@ -77,6 +79,14 @@ export function sentStats(touches: SentTouch[], days: number, today: string, day
     }).sort((a, b) => b.sent - a.sent || a.label.localeCompare(b.label)),
     recent: rows.slice(0, 100),
   };
+}
+
+/** This week against the week before, from a 14-day view: each number and its change. */
+export function weekOverWeek(daily: SentStats["daily"]) {
+  const sum = (days: SentStats["daily"], key: "sent" | "replies" | "interested" | "bounced") => days.reduce((total, day) => total + day[key], 0);
+  const [before, now] = [daily.slice(0, Math.max(0, daily.length - 7)), daily.slice(-7)];
+  const pair = (key: "sent" | "replies" | "interested" | "bounced") => ({ now: sum(now, key), before: sum(before, key) });
+  return { sent: pair("sent"), replies: pair("replies"), interested: pair("interested"), bounced: pair("bounced") };
 }
 
 export function shiftDate(date: string, deltaDays: number): string {

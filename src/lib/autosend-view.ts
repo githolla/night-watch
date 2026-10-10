@@ -3,6 +3,7 @@ import { isCuratedDomain } from "./curated-worklist.ts";
 import { LIST_DRAFT_HASH } from "./draft-scope.ts";
 import { allFocus } from "./focus-data.ts";
 import { localParts } from "./local-time.ts";
+import { MORNING } from "./morning-send-rules.ts";
 import { loadSendPlan } from "./send-plan-loader.ts";
 import { industryOf, roleOf, sizeOf, type SendPlan } from "./send-plan.ts";
 import { admin } from "./supabase/admin.ts";
@@ -21,12 +22,20 @@ export type AutoSendEmail = {
   position: number; time: string | null; reason: string | null;
 };
 export type AutoSendSummary = Omit<SendPlan, "slots">;
+/** How the mailbox is doing against the bounce brake: this week, and the last 48 hours. */
+export type MailboxHealth = { sent: number; bounced: number; bouncedRecently: number; rateLimit: number; recentLimit: number };
 /** The seat's switch, as stored: what the on/off control on the page shows. */
 export type AutoSendControl = { autoSend: boolean; paused: boolean; pausedReason: string | null; postalAddressSet: boolean; skippedToday: boolean };
 
 /** The morning auto-send's next run for one seat, with the people and companies behind each queued email. */
-export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSummary; emails: AutoSendEmail[]; control: AutoSendControl }> {
+export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSummary; emails: AutoSendEmail[]; control: AutoSendControl; health: MailboxHealth }> {
   const db = admin();
+  const ago = (hours: number) => new Date(Date.now() - hours * 3_600_000).toISOString();
+  const healthRead = Promise.all([
+    db.from("touches").select("id", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").not("gmail_thread_id", "is", null).gte("sent_at", ago(MORNING.bounceWindowDays * 24)),
+    db.from("touches").select("id", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").not("bounced_at", "is", null).gte("sent_at", ago(MORNING.bounceWindowDays * 24)),
+    db.from("touches").select("id", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").not("bounced_at", "is", null).gte("bounced_at", ago(MORNING.recentBounceHours)),
+  ]);
   const [{ slots, ...plan }, { data: profile }] = await Promise.all([loadSendPlan(db, owner), db.from("sender_profiles").select("*").eq("owner", owner).maybeSingle()]);
   const control: AutoSendControl = {
     autoSend: Boolean(profile?.auto_send), paused: Boolean(profile?.auto_send_paused),
@@ -63,5 +72,7 @@ export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSu
     .filter((row) => !seen.has(row.id) && Boolean(seen.add(row.id)))
     .map(toEmail)
     .sort((a, b) => (a.position || 1e6) - (b.position || 1e6) || a.company.localeCompare(b.company));
-  return { plan, emails, control };
+  const [{ count: sent }, { count: bounced }, { count: recent }] = await healthRead;
+  const health: MailboxHealth = { sent: sent ?? 0, bounced: bounced ?? 0, bouncedRecently: recent ?? 0, rateLimit: MORNING.bounceRate, recentLimit: MORNING.recentBounceLimit };
+  return { plan, emails, control, health };
 }

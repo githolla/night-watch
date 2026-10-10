@@ -2911,3 +2911,16 @@ body:has(.side-nav.is-folded){padding-left:var(--side-folded)}
   .appbar-menu,.appbar-brand-mobile{display:inline-flex}
 }
 @media print{.side-nav,.side-scrim{display:none}body:has(.side-nav){padding-left:0}}
+.home-trend{font-style:normal;font:600 11.5px/1.4 var(--sans);color:var(--muted)}
+.home-trend.is-up{color:#2d715c}.home-trend.is-down{color:#9a3b2b}
+.home-chart{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.home-chart-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:13px;color:var(--ink-soft)}
+.home-chart-head b{color:var(--ink);font-size:14px}
+.home-chart-head i{display:inline-block;width:10px;height:10px;margin:0 4px 0 10px;border-radius:2px;vertical-align:-1px}
+.home-chart-bars{height:130px}
+.home-chart-bars .sent-col small{font-size:10px}
+.as-health{margin:8px 0 0;padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.5}
+.as-health.is-good{background:#f3faf6;color:#2d715c}
+.as-health.is-warn{background:#fdf8ee;color:#775a2d}
+.as-health.is-bad{background:#fbf0ed;color:#7c2f22}
+@media(max-width:600px){.home-chart-bars .sent-col:not(:last-child):not(:nth-child(7n+1)) small{visibility:hidden}}
