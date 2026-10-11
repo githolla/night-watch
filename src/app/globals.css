@@ -2665,3 +2665,9 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 /* Sidebar icons: Phosphor, regular, duotone on the page you are on. */
 .side-link svg{flex:none;opacity:.85}
 .side-link.is-active svg{opacity:1;color:var(--accent-strong)}
+/* The Sandler rule of the day under the briefing. */
+.ov-quote{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:16px 0 0;padding:12px 18px;border-left:3px solid var(--accent);border-radius:0 12px 12px 0;background:rgba(255,255,255,.6);max-width:880px}
+.ov-quote blockquote{margin:0;font-size:17px;font-weight:500;font-style:italic;letter-spacing:-.01em;color:var(--ink)}
+.ov-quote blockquote::before{content:"\201C"}
+.ov-quote blockquote::after{content:"\201D"}
+.ov-quote figcaption{font-size:13px;color:var(--muted)}

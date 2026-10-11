@@ -43,7 +43,7 @@ type Todo = { key: string; title: string; why: string; mins: number; href?: stri
  * Overview, read in the morning and shown to anyone new: what happened overnight, how Night Watch works with
  * live numbers at each step, and the short list of what she needs to do, in order, with how long it takes.
  */
-export function HomeView({ data, owner, hello, today, aside }: { data: HomeData; owner: Owner; hello: string; today: string; aside?: ReactNode }) {
+export function HomeView({ data, owner, hello, today, quote, aside }: { data: HomeData; owner: Owner; hello: string; today: string; quote: string; aside?: ReactNode }) {
   const q = `owner=${owner}`;
   const auto = data.autoSend;
   const d = data.drafts;
@@ -124,6 +124,10 @@ export function HomeView({ data, owner, hello, today, aside }: { data: HomeData;
         <p className="ov-hi">{hello}, {data.first}.</p>
         <h1>Here&rsquo;s your {today}.</h1>
         <p className="ov-story">{briefing.join(" ")}</p>
+        <figure className="ov-quote">
+          <blockquote>{quote}</blockquote>
+          <figcaption>David Sandler, Sandler rule of the day</figcaption>
+        </figure>
       </section>
 
       {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
