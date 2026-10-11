@@ -23,7 +23,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ o
   const data = await loadHome(owner);
   return (
     <main className="workspace-page drafts-page home-page">
-      <HomeView data={data} owner={owner} hello={greeting()} aside={isAdmin ? (
+      <HomeView data={data} owner={owner} hello={greeting()} today={new Date().toLocaleDateString("en-US", { weekday: "long", timeZone: "America/New_York" })} aside={isAdmin ? (
         <nav className="drafts-seats" aria-label="Whose day">
           {SEATS.map((seat) => <Link key={seat.owner} href={`/?owner=${seat.owner}`} className={owner === seat.owner ? "is-active" : ""}>{seat.name}</Link>)}
         </nav>

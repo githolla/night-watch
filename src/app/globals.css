@@ -2435,42 +2435,19 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-bell:hover{background:var(--soft);color:var(--ink)}
 .ov-bell.has-dot::after{content:"";position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 2px var(--paper-bright)}
 .ov-hi{margin:0 0 6px;font:500 15px/1.3 var(--sans);color:var(--muted)}
-.ov-head h1{margin:0;font-size:clamp(30px,3.2vw,44px);font-weight:600;line-height:1.08;letter-spacing:-.04em;color:var(--ink)}
 .ov-sub{margin:8px 0 0;font-size:17px;letter-spacing:-.01em;color:var(--ink-soft)}
 .ov-dot{display:inline-flex;align-items:center;gap:8px;font:500 13.5px/1.3 var(--sans);color:var(--ink-soft);white-space:nowrap}
 .ov-dot::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#b9b0a4}
 .ov-dot.is-ok::before{background:var(--ok)}
 .ov-dot.is-warn::before{background:#d39a3d}
 .ov-dot.is-bad::before{background:var(--failed)}
-.ov-nextaction{border-radius:var(--ov-radius);background:#fff;box-shadow:var(--ov-shadow),inset 4px 0 0 var(--accent);overflow:hidden}
-.ov-eyebrow{display:block;margin-bottom:10px;font:600 12.5px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--accent-strong)}
-.ov-nextaction h2{margin:0 0 8px;font-size:clamp(22px,2vw,28px);font-weight:600;letter-spacing:-.03em;color:var(--ink)}
-.ov-nextaction p{margin:0;font-size:16px;color:var(--ink-soft)}
-.ov-sendline{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding:14px 28px 14px 32px;border-top:1px solid var(--line);background:#fcfbf8;font-size:14px;color:var(--ink-soft)}
-.ov-sendline .ov-dot{color:var(--ink);font-size:14px}
 .ov-pair{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:stretch}
 .ov-panel{display:flex;flex-direction:column;padding:22px 24px}
 .ov-panel-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;margin-bottom:12px}
 .ov-panel-head h2{margin:0;font-size:21px;font-weight:600;letter-spacing:-.03em;color:var(--ink)}
 .ov-panel-head p{margin:5px 0 0;font-size:14.5px;color:var(--muted)}
 .ov-panel-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;margin-top:auto;padding-top:14px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
-.ov-rows{list-style:none;margin:0 0 4px;padding:0}
-.ov-glyph{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:rgba(40,36,31,.05);color:var(--ink-soft)}
-.ov-glyph.is-ok{background:var(--ok-soft);color:var(--ok)}
-.ov-glyph.is-warn{background:var(--accent-soft);color:var(--accent)}
-.ov-glyph.is-bad{background:var(--failed-soft);color:var(--failed)}
-.ov-glyph.is-brand{background:#0a66c2;color:#fff}
-.ov-row-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.ov-row-text b{font-size:15.5px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
-.ov-row-text small{font-size:13.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ov-act .btn{padding:6px 12px;border-radius:10px;font-size:13px}
 .ov-empty{display:flex;align-items:center;gap:10px;margin:8px 0 12px;font-size:15px;color:var(--ink-soft)}
-.ov-lists-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
-.ov-find{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--muted)}
-.ov-find input,.ov-find select{border:0;background:transparent;font:400 14px/1 var(--sans);color:var(--ink);outline:none}
-.ov-find input{width:180px}
-.ov-find.is-select select{font-weight:500;cursor:pointer}
-.ov-find:focus-within{box-shadow:inset 0 0 0 1.5px var(--ink)}
 .ov-table{display:flex;flex-direction:column;margin:0 -8px}
 .ov-tr{display:grid;grid-template-columns:minmax(150px,1.3fr) 90px minmax(220px,2fr) minmax(150px,1.2fr) 110px minmax(130px,.9fr);align-items:center;gap:14px;padding:13px 8px;border-top:1px solid var(--line);font-size:14.5px}
 .ov-tr.is-head{padding-top:10px;padding-bottom:10px;border-top:0;font:500 13px/1.2 var(--sans);color:var(--muted)}
@@ -2495,7 +2472,7 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-footnote{margin:8px 0 0;font-size:13px;color:var(--muted)}
 @media(max-width:1180px){.ov-pair{grid-template-columns:minmax(0,1fr)}.ov-tr{grid-template-columns:minmax(150px,1fr) 70px minmax(200px,1.6fr) 100px minmax(120px,.8fr)}.ov-tr>:nth-child(4){display:none}}
 @media(max-width:860px){.ov-top{display:none}.ov-head{margin-top:18px}.ov-tr.is-head{display:none}.ov-tr{grid-template-columns:minmax(0,1fr) auto;gap:6px 14px}.ov-tr>:nth-child(2){display:none}.ov-tr>:nth-child(3){grid-column:1/-1;grid-row:2}.ov-tr>:nth-child(4){display:none}.ov-tr>:nth-child(6){grid-column:1/-1}.ov-results-row{grid-template-columns:repeat(2,minmax(0,1fr))}.ov-find input{width:100%}}
-@media(max-width:560px){.ov-nextaction-main{padding:20px}.ov-sendline{padding:14px 20px}.ov-panel{padding:20px 18px}.ov-row-text{flex-basis:calc(100% - 54px)}}
+@media(max-width:560px){.ov-panel{padding:20px 18px}}
 /* Company logos, with initials as the fallback. */
 .co-logo{flex:none;display:inline-grid;place-items:center;overflow:hidden;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
 .co-logo img{width:auto;height:auto;max-width:72%;max-height:72%;object-fit:contain}
@@ -2508,35 +2485,11 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .people-company{display:inline-flex;align-items:center;gap:8px}
 .co-logo.avatar{padding:0}
 /* Overview, link-first: words and arrows instead of filled buttons; rows, figures and numbers all go somewhere. */
-.ov-head{margin-top:8px}
 .ov-go{display:inline-flex;align-items:center;gap:6px;font:500 15px/1.2 var(--sans);letter-spacing:-.01em;color:var(--accent-strong);text-decoration:none;white-space:nowrap;transition:color .2s ease}
 .ov-go svg{flex:none;transition:transform .25s cubic-bezier(.2,.7,.2,1)}
 .ov-go:hover{color:var(--ink)}
-.ov-go:hover svg,.ov-nextaction-main:hover .ov-go svg{transform:translateX(4px)}
+.ov-go:hover svg{transform:translateX(4px)}
 .ov-go.is-big{gap:10px;font-size:19px;font-weight:600;letter-spacing:-.02em}
-.ov-figures{display:flex;flex-wrap:wrap;align-items:center;gap:8px 0;margin:18px 0 0;font-size:15px;color:var(--ink-soft)}
-.ov-figures>a:not(.ov-go){display:inline-flex;align-items:baseline;gap:5px;padding:2px 18px;border-left:1px solid var(--line-strong);color:var(--ink-soft);text-decoration:none;transition:color .2s ease}
-.ov-figures>a:not(.ov-go):first-child{padding-left:0;border-left:0}
-.ov-figures>a:not(.ov-go):hover{color:var(--ink)}
-.ov-figures>a:not(.ov-go):hover b{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px}
-.ov-figures b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
-.ov-figures .ov-go{margin-left:auto}
-.ov-nextaction-main{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px 32px;padding:26px 30px 24px 34px;color:inherit;text-decoration:none;transition:background .2s ease}
-.ov-nextaction-main:hover{background:#fdfcf9}
-.ov-nextaction h2{transition:color .2s ease}
-.ov-nextaction-main:hover h2{color:var(--accent-strong)}
-.ov-nextaction small{display:block;margin-top:10px;font-size:13.5px;color:var(--muted)}
-.ov-sendnote{flex:1;min-width:200px;text-align:right;font-size:13px;color:var(--muted)}
-.ov-sendline>span:not(.ov-dot):not(.ov-sendnote){padding-left:22px;border-left:1px solid var(--line-strong)}
-.ov-rows li+li{border-top:1px solid var(--line)}
-.ov-row{display:flex;align-items:center;gap:14px;padding:13px 10px;margin:0 -10px;border-radius:12px;color:inherit;text-decoration:none}
-.ov-row.is-link{transition:background .15s ease}
-.ov-row.is-link:hover{background:#faf8f4}
-.ov-row-text b{transition:color .15s ease}
-.ov-row.is-link:hover .ov-row-text b{color:var(--accent-strong)}
-.ov-chev{flex:none;color:#c6beb2;transition:transform .2s ease,color .2s ease}
-.ov-row.is-link:hover .ov-chev{color:var(--ink);transform:translateX(3px)}
-.ov-act{flex:none}
 .ov-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}
 .ov-tabs button{position:relative;padding:8px 12px 11px;border:0;background:none;font:500 14.5px/1 var(--sans);color:var(--ink-soft);cursor:pointer}
 .ov-tabs button span{margin-left:4px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -2559,8 +2512,8 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-result b{font:600 36px/1.05 var(--sans);letter-spacing:-.045em;color:var(--ink);font-variant-numeric:tabular-nums;transition:color .15s ease}
 .ov-result span{font-size:14.5px;color:var(--ink-soft)}
 .ov-result:hover b{color:var(--accent-strong)}
-@media(max-width:860px){.ov-sendnote{text-align:left;flex-basis:100%}.ov-sendline>span:not(.ov-dot):not(.ov-sendnote){padding-left:0;border-left:0}.ov-figures .ov-go{margin-left:0;width:100%}.ov-result{border-left:0}.ov-results-row{margin:0}}
-@media(max-width:560px){.ov-figures>a:not(.ov-go){padding:2px 12px}.ov-nextaction-main{padding:20px}.ov-go.is-big{font-size:17px}.ov-result b{font-size:30px}}
+@media(max-width:860px){.ov-result{border-left:0}.ov-results-row{margin:0}}
+@media(max-width:560px){.ov-result b{font-size:30px}}
 /* All companies: the fit breakdown, insight cards whose bars are links, then the table. */
 .ac-page{--ac-a1:#2f6f5e;--ac-a2:#79b7a3;--ac-b:#d9a54a;--ac-c:#b07d4f;--ac-removed:#d3cbbf;display:flex;flex-direction:column;gap:20px}
 .ac-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
@@ -2633,3 +2586,62 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ac-table .toolbar{margin:0}
 @media(max-width:1280px){.ac-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ac-fit-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.ac-grid{grid-template-columns:minmax(0,1fr)}.ac-fit-list{grid-template-columns:repeat(2,minmax(0,1fr))}.ac-card{padding:18px}.ac-table-head{padding:16px}}
+/* Overview as a morning briefing: what happened, how it works with live numbers, and what to do. */
+.ov-brief{margin-top:8px}
+.ov-brief h1{margin:0 0 12px;font-size:clamp(32px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.04em;color:var(--ink)}
+.ov-story{max-width:880px;margin:0;font-size:clamp(16px,1.35vw,18.5px);line-height:1.55;letter-spacing:-.01em;color:var(--ink-soft)}
+.ov-flow{padding:22px 24px 24px;border-radius:var(--ov-radius);background:#fff;box-shadow:var(--ov-shadow)}
+.ov-flow-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-bottom:16px}
+.ov-flow-head h2{margin:0;font-size:21px;font-weight:600;letter-spacing:-.03em}
+.ov-flow-head p{margin:0;font-size:14.5px;color:var(--muted)}
+.ov-steps{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin:0;padding:0;counter-reset:step}
+.ov-steps li{position:relative;min-width:0}
+.ov-steps li+li::before{content:"";position:absolute;left:-7px;top:50%;width:14px;height:14px;margin-top:-7px;border-top:1.5px solid #cfc7bb;border-right:1.5px solid #cfc7bb;transform:rotate(45deg) scale(.6);z-index:1}
+.ov-steps a{display:flex;flex-direction:column;gap:6px;height:100%;margin:0 6px;padding:16px;border-radius:16px;background:var(--canvas);color:inherit;text-decoration:none;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .2s ease,background .2s ease,transform .2s ease}
+.ov-steps li:first-child a{margin-left:0}
+.ov-steps li:last-child a{margin-right:0}
+.ov-steps a:hover{background:#fff;box-shadow:inset 0 0 0 1px var(--line-strong),0 6px 18px rgba(30,26,22,.06);transform:translateY(-1px)}
+.ov-steps li.is-needs a{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.ov-step-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ov-step-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#fff;color:var(--ink-soft);box-shadow:inset 0 0 0 1px var(--line)}
+.ov-steps li.is-you .ov-step-icon{background:var(--ink);color:#fff;box-shadow:none}
+.ov-step-who{font:500 12.5px/1 var(--sans);color:var(--muted)}
+.ov-steps li.is-you .ov-step-who{color:var(--ink)}
+.ov-step-title{margin-top:6px;font-size:15px;font-weight:600;letter-spacing:-.015em;color:var(--ink)}
+.ov-step-value{font-size:13.5px;color:var(--ink-soft)}
+.ov-step-value b{margin-right:2px;font:600 26px/1.1 var(--sans);letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums}
+.ov-steps small{font-size:12.5px;color:var(--muted)}
+.ov-steps li.is-needs small{color:var(--accent-strong);font-weight:600}
+.ov-todos{list-style:none;margin:0;padding:0}
+.ov-todos li+li{border-top:1px solid var(--line)}
+.ov-todo-row{display:flex;align-items:center;gap:14px;padding:14px 10px;margin:0 -10px;border-radius:12px;color:inherit;text-decoration:none}
+.ov-todo-row.is-link{transition:background .15s ease}
+.ov-todo-row.is-link:hover{background:#faf8f4}
+.ov-num{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font:600 13px/1 var(--sans)}
+.ov-num.is-optional{background:rgba(40,36,31,.07);color:var(--muted)}
+.ov-todo-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.ov-todo-text b{font-size:15.5px;font-weight:600;letter-spacing:-.01em;color:var(--ink);transition:color .15s ease}
+.ov-todo-text small{font-size:13.5px;color:var(--muted)}
+.ov-todo-row.is-link:hover .ov-todo-text b{color:var(--accent-strong)}
+.ov-mins{flex:none;font:500 13px/1 var(--sans);color:var(--muted);font-variant-numeric:tabular-nums}
+.ov-chev{flex:none;color:#c6beb2;transition:transform .2s ease,color .2s ease}
+.ov-todo-row.is-link:hover .ov-chev{color:var(--ink);transform:translateX(3px)}
+.ov-act{flex:none}
+.ov-next-big{margin:4px 0 2px;font-size:16px;color:var(--ink-soft)}
+.ov-next-big b{font:600 40px/1.05 var(--sans);letter-spacing:-.045em;color:var(--ink)}
+.ov-next-when{margin:0 0 14px;font-size:15px;color:var(--ink-soft)}
+.ov-next-facts{margin:0 0 6px}
+.ov-next-facts>div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.ov-next-facts dt{color:var(--muted)}
+.ov-next-facts dd{margin:0;font-weight:500;color:var(--ink)}
+.ov-pair{grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr)}
+@media(max-width:1000px){.ov-pair{grid-template-columns:minmax(0,1fr)}}
+.ov-todo{display:flex;flex-direction:column}
+.ov-done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:24px 12px;text-align:center}
+.ov-done span{display:grid;place-items:center;width:52px;height:52px;margin-bottom:6px;border-radius:50%;background:var(--ok-soft);color:var(--ok)}
+.ov-done b{font-size:18px;font-weight:600;letter-spacing:-.02em}
+.ov-done small{max-width:340px;font-size:14px;color:var(--muted)}
+
+.ov-lists .ov-panel-head{align-items:flex-end}
+@media(max-width:1180px){.ov-steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.ov-steps li::before{display:none}.ov-steps li:nth-child(3n+1) a{margin-left:0}.ov-steps li:nth-child(3n) a{margin-right:0}}
+@media(max-width:700px){.ov-steps{grid-template-columns:minmax(0,1fr)}.ov-steps a{margin:0!important}.ov-flow{padding:18px}.ov-todo-row{flex-wrap:wrap}.ov-todo-text{flex-basis:calc(100% - 42px)}.ov-mins{margin-left:42px}.ov-todo-row .ov-act{margin-left:42px}}

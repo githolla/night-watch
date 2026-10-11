@@ -13,7 +13,7 @@ type NavItem = { href: string; label: string; hint: string; icon: LucideIcon; ad
 const navGroups: Array<{ title: string | null; label?: string; items: NavItem[] }> = [
   { title: null, label: "Workspace", items: [
     { href: "/", label: "Overview", hint: "Your next action, what needs you and how it is going", icon: House },
-    { href: "/outreach", label: "Company lists", hint: "Each night's companies and their custom emails", icon: ListChecks },
+    { href: "/outreach", label: "Companies to email", hint: "The companies picked each night, with their custom emails", icon: ListChecks },
     { href: "/targets", label: "Discover companies", hint: "Search, add or remove companies", icon: Search },
   ] },
   { title: null, label: "Outreach", items: [

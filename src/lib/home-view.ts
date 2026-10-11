@@ -23,6 +23,8 @@ export type HomeData = {
   first: string;
   /** Replies that still need a response, strongest first. */
   replies: ReplyItem[];
+  /** Replies that came in over the last day, for the morning briefing. */
+  newReplies: number;
   followupsDue: number;
   linkedin: number;
   autoSend: { plan: AutoSendSummary; control: AutoSendControl } | null;
@@ -110,6 +112,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
   return {
     first: ((profile?.from_name as string | undefined) ?? "").trim().split(/\s+/)[0] || (owner === "josh" ? "Josh" : "Suuchi"),
     replies: waiting,
+    newReplies: waiting.filter((item) => Date.parse(item.repliedAt) >= now.getTime() - DAY_MS).length,
     followupsDue: followups ? [...followups.values()].flat().filter((step) => step.needsYou).length : 0,
     linkedin,
     autoSend: autoSend ? { plan: autoSend.plan, control: autoSend.control } : null,
