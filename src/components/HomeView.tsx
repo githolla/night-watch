@@ -36,7 +36,22 @@ function Progress({ list }: { list: ListSummary }) {
 type Lane = { key: string; who: "Night Watch" | "You"; title: string; value: number; unit: string; sub: string; href: string; needs: boolean };
 /** A step is one card, or two lanes side by side when email and LinkedIn go different ways. */
 type Step = Lane & { lanes?: Lane[] };
-type Todo = { key: string; title: string; why: string; href?: string; action?: ReactNode; optional?: boolean };
+type Todo = { key: string; title: string; why: string; href?: string; action?: ReactNode; done?: boolean };
+
+/** One to-do: a number, a check when done, or a dot; the next step gets the Start button. */
+function TodoRow({ todo, mark, primary }: { todo: Todo; mark: string; primary: boolean }) {
+  const body = <>
+    <span className={`ov-num ${mark === "done" ? "is-done" : mark === "dot" ? "is-dot" : ""}`} aria-hidden="true">{mark === "done" ? <Check size={13} weight="bold" /> : mark === "dot" ? null : mark}</span>
+    <span className="ov-row-text"><b>{todo.title}</b><small>{todo.why}</small></span>
+  </>;
+  return (
+    <li className={`${primary ? "is-first" : ""} ${todo.done ? "is-done" : ""}`}>
+      {todo.href && !todo.action
+        ? <Link className="ov-row is-link" href={todo.href}>{body}{primary ? <span className="ov-start">Start<ArrowRight size={14} weight="bold" aria-hidden="true" /></span> : <CaretRight className="ov-chev" size={16} aria-hidden="true" />}</Link>
+        : <div className="ov-row">{body}{todo.action && <span className="ov-act">{todo.action}</span>}</div>}
+    </li>
+  );
+}
 
 /**
  * Overview, read in the morning and shown to anyone new: what happened overnight, how Night Watch works with
@@ -94,17 +109,35 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
     { key: "reply", who: "You", title: "Replies and meetings", value: data.replies.length, unit: data.replies.length === 1 ? "reply waiting" : "replies waiting", sub: count(data.meetings, "meeting booked", "meetings booked"), href: `/replies?${q}`, needs: data.replies.length > 0 },
   ];
 
-  const todos: Todo[] = [
-    ...(interested.length ? [{ key: "interested", title: interested.length === 1 ? `Reply to ${interested[0].name}${interested[0].company ? ` at ${interested[0].company}` : ""}` : `Reply to ${interested.length} interested people`, why: "They said yes. Answer while it's fresh; the call brief has what you need.", href: `/replies?${q}` }] : []),
-    ...(other ? [{ key: "other", title: `Read ${count(other, "other reply", "other replies")}`, why: "A question or an objection. Decide the next step.", href: `/replies?${q}` }] : []),
-    ...data.bounces.slice(0, 3).map((bounce) => ({ key: `b-${bounce.personId}`, title: `${bounce.name} bounced`, why: `${bounce.company}${bounce.email ? `: ${bounce.email} didn't arrive` : ""}. A corrected address reopens it.`, action: <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /> })),
-    ...(data.followupsDue ? [{ key: "followups", title: `Send ${count(data.followupsDue, "follow-up", "follow-ups")}`, why: "They came due and couldn't go out by themselves.", href: `/followups?view=needs&${q}` }] : []),
-    ...(d.nextUnapproved ? [{ key: "review", title: `Review the ${count(d.nextUnapproved, "email", "emails")} sending ${day === "Today" ? "today" : day}`, why: "Read each one; approve it, fix it or hold it back.", href: `/drafts?${q}&tab=review` }] : []),
-    ...(data.linkedin ? [{ key: "linkedin", title: `Send ${count(data.linkedin, "LinkedIn message", "LinkedIn messages")}`, why: "Copy each one, open the profile, send it there, mark it sent.", href: `/linkedin?${q}` }] : []),
-    ...(!on && !paused && d.ready ? [{ key: "auto", title: "Turn on auto-send", why: `${count(d.ready, "approved email is", "approved emails are")} waiting and nothing goes out while it's off.`, href: `/auto-send?${q}` }] : []),
-    ...(!d.nextUnapproved && d.review ? [{ key: "ahead", title: `Get ahead: review ${count(d.review, "draft", "drafts")}`, why: "Nothing is due today. Reading ahead keeps the next windows full.", href: `/drafts?${q}&tab=review`, optional: true }] : []),
+  // The morning routine, always in this order: check the setup, review the emails, then sending.
+  const t = data.templates;
+  const setupWhy = [
+    t?.greeting ? `Emails open with \u201c${t.greeting.replace(/\n[\s\S]*/, "")}\u201d` : "Check how every email opens",
+    t?.subject ? `subject \u201c${t.subject}\u201d` : t?.subjectExample ? `each has its own subject, like \u201c${t.subjectExample}\u201d` : "",
+  ].filter(Boolean).join(" · ");
+  const steps3: Todo[] = [
+    { key: "setup", title: "Check the subject, opening and preview", why: `${setupWhy}. See how every email will look before it goes.`, href: `/drafts?${q}#setup`, done: d.total === 0 },
+    d.review
+      ? { key: "review", title: `Review ${count(d.review, "email", "emails")}`, why: d.nextUnapproved ? `${d.nextUnapproved} of them send ${day === "Today" ? "today" : day}. Approve each one, fix it or hold it back.` : "Approve each one, fix it or hold it back.", href: `/drafts?${q}&tab=review` }
+      : d.ready
+      ? { key: "review", title: "Every email is reviewed", why: `${count(d.ready, "approved email is", "approved emails are")} ready to send.`, href: `/drafts?${q}&tab=approved`, done: true }
+      : { key: "review", title: "Nothing to review yet", why: d.missing ? `${count(d.missing, "draft is", "drafts are")} waiting on an email address. Night Watch keeps looking.` : "New drafts arrive with each weeknight's list.", href: `/drafts?${q}`, done: true },
+    paused
+      ? { key: "auto", title: "Resume auto-send", why: auto?.control.pausedReason ? `Paused: ${auto.control.pausedReason.replace(/\.\s*$/, "")}.` : "It paused itself. Check why, then resume.", href: `/auto-send?${q}` }
+      : on && auto
+      ? { key: "auto", title: "Auto-send is on", why: auto.plan.going ? `Next, ${count(auto.plan.going, "email goes", "emails go")} out ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel} ET. Follow-ups go 3 and 10 business days later, and stop when someone replies.` : `Nothing is queued for ${day === "Today" ? "today" : day} yet. Approved emails go out each weekday morning.`, href: `/auto-send?${q}`, done: true }
+      : { key: "auto", title: "Turn on auto-send", why: d.ready ? `${count(d.ready, "approved email is", "approved emails are")} waiting. Nothing goes out while it's off.` : "Once it's on, approved emails go out each weekday morning.", href: `/auto-send?${q}` },
   ];
-  const needed = todos.filter((todo) => !todo.optional);
+  // Anything else waiting on her, shown only when it exists.
+  const extras: Todo[] = [
+    ...(interested.length ? [{ key: "interested", title: interested.length === 1 ? `Reply to ${interested[0].name}${interested[0].company ? ` at ${interested[0].company}` : ""}` : `Reply to ${interested.length} interested people`, why: "They said yes. Answer while it's fresh.", href: `/replies?${q}` }] : []),
+    ...(other ? [{ key: "other", title: `Read ${count(other, "other reply", "other replies")}`, why: "A question or an objection. Decide the next step.", href: `/replies?${q}` }] : []),
+    ...data.bounces.slice(0, 3).map((bounce) => ({ key: `b-${bounce.personId}`, title: `${bounce.name} bounced`, why: `${bounce.company}${bounce.email ? `: ${bounce.email} didn't arrive` : ""}.`, action: <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /> })),
+    ...(data.followupsDue ? [{ key: "followups", title: `Send ${count(data.followupsDue, "follow-up", "follow-ups")}`, why: "They came due and couldn't go out by themselves.", href: `/followups?view=needs&${q}` }] : []),
+    ...(data.linkedin ? [{ key: "linkedin", title: `Send ${count(data.linkedin, "LinkedIn message", "LinkedIn messages")}`, why: "Copy each one, open the profile, send it there, mark it sent.", href: `/linkedin?${q}` }] : []),
+  ];
+  const needed = [...steps3.filter((step) => !step.done), ...extras];
+  const firstOpen = steps3.find((step) => !step.done)?.key ?? extras[0]?.key;
 
   const results = [
     { label: "Positive replies", value: sum(days, "interested"), href: `/replies?${q}` },
@@ -138,27 +171,16 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
 
       <div className="ov-main">
         <section className="ov-card home-needs ov-todo" aria-label="What you need to do">
-          <header className="ov-card-head"><h2>What you need to do</h2>{needed.length > 0 && <span className="ov-meta">In this order</span>}</header>
-          {needed.length === 0 && <p className="ov-calm"><Check size={16} weight="bold" aria-hidden="true" />Nothing needs you. {on && auto ? `Next send ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel}.` : "New work shows up here."}</p>}
-          {todos.length > 0 && (
-            <ol className="ov-todos">
-              {todos.map((todo, index) => {
-                const primary = index === 0 && !todo.optional;
-                const body = <>
-                  <span className={`ov-num ${todo.optional ? "is-optional" : ""}`} aria-hidden="true">{todo.optional ? "+" : index + 1}</span>
-                  <span className="ov-row-text"><b>{todo.title}</b><small>{todo.why}</small></span>
-                  {todo.optional && <span className="ov-mins">Optional</span>}
-                </>;
-                return (
-                  <li key={todo.key} className={primary ? "is-first" : ""}>
-                    {todo.href && !todo.action
-                      ? <Link className="ov-row is-link" href={todo.href}>{body}{primary ? <span className="ov-start">Start<ArrowRight size={14} weight="bold" aria-hidden="true" /></span> : <CaretRight className="ov-chev" size={16} aria-hidden="true" />}</Link>
-                      : <div className="ov-row">{body}{todo.action && <span className="ov-act">{todo.action}</span>}</div>}
-                  </li>
-                );
-              })}
-            </ol>
-          )}
+          <header className="ov-card-head"><h2>What you need to do</h2><span className="ov-meta">Each morning, in this order</span></header>
+          <ol className="ov-todos">
+            {steps3.map((todo, index) => <TodoRow key={todo.key} todo={todo} mark={todo.done ? "done" : String(index + 1)} primary={todo.key === firstOpen} />)}
+          </ol>
+          {extras.length > 0 && <>
+            <h3 className="ov-subhead">Also waiting</h3>
+            <ul className="ov-todos">
+              {extras.map((todo) => <TodoRow key={todo.key} todo={todo} mark="dot" primary={todo.key === firstOpen} />)}
+            </ul>
+          </>}
         </section>
 
         <section className="ov-card ov-working" aria-label="Night Watch is working">

@@ -2,6 +2,8 @@ import { loadAutoSendView, type AutoSendControl, type AutoSendSummary } from "./
 import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
 import { summarizeList, type ListCard, type ListSummary } from "./company-lists.ts";
 import { LIST_DRAFT_HASH } from "./draft-scope.ts";
+import { draftTemplates } from "./draft-summary.ts";
+import type { CurrentTemplates } from "./draft-templates.ts";
 import { dailySeries, type SeriesDay } from "./home-stats.ts";
 import { linkedinTaskCount, loadLinkedInDone } from "./linkedin-tasks.ts";
 import { localParts } from "./local-time.ts";
@@ -34,6 +36,8 @@ export type HomeData = {
   autoSend: { plan: AutoSendSummary; control: AutoSendControl } | null;
   bounces: HomeBounce[];
   drafts: HomeDrafts;
+  /** The opening and subject most unsent drafts share, for the first to-do step. */
+  templates: CurrentTemplates | null;
   /** Recent nightly lists, newest first, each summed into progress and results. */
   lists: ListSummary[];
   /** When the newest list finished, and whether tonight's is being built now. */
@@ -71,7 +75,7 @@ async function summarizeLists(owner: Owner, records: ListRecord[]): Promise<{ re
 export async function loadHome(owner: Owner, now: Date = new Date()): Promise<HomeData> {
   const db = admin();
   const since = (days: number) => new Date(now.getTime() - days * DAY_MS).toISOString();
-  const [profile, connection, replies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin, linkedinDone] = await Promise.all([
+  const [profile, connection, replies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin, linkedinDone, templates] = await Promise.all([
     db.from("sender_profiles").select("from_name").eq("owner", owner).maybeSingle().then((r) => r.data),
     db.from("gmail_connections").select("email").eq("owner", owner).maybeSingle().then((r) => r.data),
     // The same 21 days and "needs a response" rule as the Replies badge in the sidebar.
@@ -90,6 +94,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     pendingFollowups(db, { owner, now: now.getTime() }).catch(() => null),
     linkedinTaskCount(owner, now).catch(() => 0),
     loadLinkedInDone(owner, now, 7).then((done) => done.length).catch(() => 0),
+    draftTemplates(owner).catch(() => null),
   ]);
 
   const strong = (item: ReplyItem) => Number(POSITIVE.includes(item.classification));
@@ -127,6 +132,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     autoSend: autoSend ? { plan: autoSend.plan, control: autoSend.control } : null,
     bounces: toFix,
     drafts,
+    templates,
     lists: lists.summaries,
     lastListAt: lists.records.find((list) => list.status === "ready")?.updated_at ?? null,
     building: lists.records.some((list) => list.status === "building"),

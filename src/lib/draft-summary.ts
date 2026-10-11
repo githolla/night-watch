@@ -1,5 +1,7 @@
 import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
 import { LIST_DRAFT_HASH } from "./draft-scope.ts";
+import { currentTemplates, type CurrentTemplates } from "./draft-templates.ts";
+import { speakableCompany } from "./list-templates.ts";
 import { isLikelyPersonName } from "./pipeline.ts";
 import { sendDayStart } from "./send-guards.ts";
 import { admin } from "./supabase/admin.ts";
@@ -23,3 +25,12 @@ export async function seatSummary(owner: Owner) {
   return { unsent: people.length, confirmed, unconfirmed: sendable - confirmed, noAddress: people.length - sendable, sentToday: sentToday ?? 0 };
 }
 
+/** The greeting and subject most of a seat's unsent drafts share, as the Drafts page and Overview show them. */
+export async function draftTemplates(owner: Owner): Promise<CurrentTemplates> {
+  const { data } = await admin().from("cards").select("email_subject,email_body,accounts(name),people(full_name),signals!inner(hash)").eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).limit(500);
+  return currentTemplates(((data ?? []) as unknown as Array<{ email_subject: string | null; email_body: string | null; accounts: { name: string | null } | null; people: { full_name: string | null } | null }>).map((row) => ({
+    body: row.email_body, subject: row.email_subject,
+    first: (row.people?.full_name ?? "").trim().split(/\s+/)[0] ?? "",
+    company: row.accounts?.name ? speakableCompany(row.accounts.name) : "",
+  })));
+}
