@@ -13,15 +13,16 @@ const PERIODS = [1, 7, 30];
 
 /** What one seat sent recently and how it is doing: replies, interest, bounces, who it went to. */
 export default async function RecentlySentPage({ searchParams }: { searchParams: Promise<{ owner?: string; days?: string }> }) {
+  // The nightly lists load alongside sign-in instead of one round trip after it.
+  const nightlyLoad = loadNightlyLists(admin()).catch(() => undefined);
   const user = await requireUser();
+  await nightlyLoad;
   const isAdmin = user.role === "admin";
   const params = await searchParams;
   const owner: Owner = isAdmin && (params.owner === "josh" || params.owner === "suuchi") ? params.owner : user.owner;
   const days = PERIODS.includes(Number(params.days)) ? Number(params.days) : 7;
   const name = seatName(owner);
   const yours = !isAdmin || owner === user.owner;
-  // Sector and size come from the list rows, which live in the database.
-  await loadNightlyLists(admin()).catch(() => undefined);
   const stats = await loadSentView(owner, days).catch(() => null);
 
   return (

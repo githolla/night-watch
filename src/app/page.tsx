@@ -16,12 +16,13 @@ const SEATS: Array<{ owner: Owner; name: string }> = [{ owner: "josh", name: "Jo
 /** Home: the day at a glance. The Reach-out list stays one click away. */
 export default async function Home({ searchParams }: { searchParams: Promise<{ owner?: string }> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // The nightly lists load alongside sign-in instead of one round trip after it.
+  const nightlyLoad = loadNightlyLists(admin()).catch(() => undefined);
   const user = await requireUser();
+  await nightlyLoad;
   const isAdmin = user.role === "admin";
   const params = await searchParams;
   const owner: Owner = isAdmin && (params.owner === "josh" || params.owner === "suuchi") ? params.owner : user.owner;
-  // Sector names in the newest list and the queue come from the list rows.
-  await loadNightlyLists(admin()).catch(() => undefined);
   const data = await loadHome(owner);
   return (
     <main className="workspace-page drafts-page home-page">

@@ -41,14 +41,15 @@ async function draftTemplates(owner: Owner): Promise<CurrentTemplates> {
 /** Setting up all of one seat's drafts at once, in plain steps; the technical tools stay folded under Advanced. */
 export default async function Drafts({ searchParams }: { searchParams: Promise<{ owner?: string; tab?: string }> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
+  // The nightly lists load alongside sign-in instead of one round trip after it.
+  const nightlyLoad = loadNightlyLists(admin()).catch(() => undefined);
   const user = await requireUser();
+  await nightlyLoad;
   const isAdmin = user.role === "admin";
   const params = await searchParams;
   // Always one seat: a member's own, or the one an admin picks (their own by default).
   const owner: Owner = isAdmin && (params.owner === "josh" || params.owner === "suuchi") ? params.owner : user.owner;
   const name = seatName(owner);
-  // Nightly list rows carry each company's fit reasons; load them before the review list reads them.
-  await loadNightlyLists(admin()).catch(() => undefined);
   const [summary, samples, workspace, profile, templates] = await Promise.all([seatSummary(owner), sampleDrafts(owner), loadDraftWorkspace(owner), senderProfile(admin(), owner), draftTemplates(owner)]);
   const listHref = `/outreach?list=${owner}`;
   const yours = !isAdmin || owner === user.owner;

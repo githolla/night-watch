@@ -47,6 +47,26 @@ export type HomeData = {
 
 type Person = { email: string | null; email_status: string | null; email_check: unknown; do_not_contact?: boolean | null };
 
+type ListRecord = { list_date: string; status: string; updated_at: string; rows: Array<{ domain: string; sector?: string; company?: string }> | null };
+
+/** Each recent list summed into progress and results, from its companies' cards and positive replies. */
+async function summarizeLists(owner: Owner, records: ListRecord[]): Promise<{ records: ListRecord[]; summaries: ListSummary[] }> {
+  const domains = [...new Set(records.flatMap((list) => (list.rows ?? []).map((row) => row.domain)))];
+  if (!domains.length) return { records, summaries: [] };
+  const db = admin();
+  const [{ data: cards }, { data: replied }] = await Promise.all([
+    db.from("cards").select("id,status,auto_send_hold,accounts!inner(domain),people(email,email_status,email_check,do_not_contact)").eq("assigned_to", owner).in("accounts.domain", domains).limit(3000),
+    db.from("touches").select("card_id").eq("sent_by", owner).in("reply_classification", POSITIVE).limit(2000),
+  ]);
+  const positive = new Set(((replied ?? []) as Array<{ card_id: string }>).map((row) => row.card_id));
+  type CardRow = { id: string; status: string; auto_send_hold: boolean | null; accounts: { domain: string }; people: Person | null };
+  const listCards: ListCard[] = ((cards ?? []) as unknown as CardRow[]).map((card) => ({
+    domain: card.accounts.domain, status: card.status, held: Boolean(card.auto_send_hold),
+    sendable: Boolean(card.people && !card.people.do_not_contact && sendableAddress(card.people)), positiveReply: positive.has(card.id),
+  }));
+  return { records, summaries: records.map((list) => summarizeList({ date: list.list_date, building: list.status === "building", rows: (list.rows ?? []).map((row) => ({ domain: row.domain, sector: industryOf(row.sector, row.company) })) }, listCards)) };
+}
+
 /** Everything Overview shows for one seat, from the same sources as the pages it links to. Each part fails on its own. */
 export async function loadHome(owner: Owner, now: Date = new Date()): Promise<HomeData> {
   const db = admin();
@@ -59,8 +79,9 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     db.from("touches").select("card_id,person_id,bounced_at,cards(status,accounts(name)),people(full_name,email,email_status)")
       .eq("sent_by", owner).eq("channel", "email").not("bounced_at", "is", null).gte("bounced_at", since(30))
       .order("bounced_at", { ascending: false }).limit(100).then((r) => r.data ?? []),
+    // The lists and their companies chain together, so they run alongside everything else instead of after it.
     db.from("reachout_lists").select("list_date,status,rows,updated_at").eq("owner", owner).in("status", ["ready", "building"]).gte("list_date", since(30).slice(0, 10))
-      .order("list_date", { ascending: false }).limit(8).then((r) => r.data ?? []),
+      .order("list_date", { ascending: false }).limit(8).then((r) => summarizeLists(owner, (r.data ?? []) as unknown as ListRecord[])),
     loadAutoSendView(owner).catch(() => null),
     loadSentTouches(owner, 90, now).catch(() => null),
     db.from("cards").select("id", { count: "exact", head: true }).eq("assigned_to", owner).eq("status", "meeting").then((r) => r.count ?? 0),
@@ -96,24 +117,6 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     else drafts.review++;
   }
 
-  type ListRecord = { list_date: string; status: string; updated_at: string; rows: Array<{ domain: string; sector?: string; company?: string }> | null };
-  const records = lists as unknown as ListRecord[];
-  const domains = [...new Set(records.flatMap((list) => (list.rows ?? []).map((row) => row.domain)))];
-  let summaries: ListSummary[] = [];
-  if (domains.length) {
-    const [{ data: cards }, { data: replied }] = await Promise.all([
-      db.from("cards").select("id,status,auto_send_hold,accounts!inner(domain),people(email,email_status,email_check,do_not_contact)").eq("assigned_to", owner).in("accounts.domain", domains).limit(3000),
-      db.from("touches").select("card_id").eq("sent_by", owner).in("reply_classification", POSITIVE).limit(2000),
-    ]);
-    const positive = new Set(((replied ?? []) as Array<{ card_id: string }>).map((row) => row.card_id));
-    type CardRow = { id: string; status: string; auto_send_hold: boolean | null; accounts: { domain: string }; people: Person | null };
-    const listCards: ListCard[] = ((cards ?? []) as unknown as CardRow[]).map((card) => ({
-      domain: card.accounts.domain, status: card.status, held: Boolean(card.auto_send_hold),
-      sendable: Boolean(card.people && !card.people.do_not_contact && sendableAddress(card.people)), positiveReply: positive.has(card.id),
-    }));
-    summaries = records.map((list) => summarizeList({ date: list.list_date, building: list.status === "building", rows: (list.rows ?? []).map((row) => ({ domain: row.domain, sector: industryOf(row.sector, row.company) })) }, listCards));
-  }
-
   return {
     first: ((profile?.from_name as string | undefined) ?? "").trim().split(/\s+/)[0] || (owner === "josh" ? "Josh" : "Suuchi"),
     replies: waiting,
@@ -124,9 +127,9 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     autoSend: autoSend ? { plan: autoSend.plan, control: autoSend.control } : null,
     bounces: toFix,
     drafts,
-    lists: summaries,
-    lastListAt: records.find((list) => list.status === "ready")?.updated_at ?? null,
-    building: records.some((list) => list.status === "building"),
+    lists: lists.summaries,
+    lastListAt: lists.records.find((list) => list.status === "ready")?.updated_at ?? null,
+    building: lists.records.some((list) => list.status === "building"),
     gmailConnected: Boolean((connection?.email as string | undefined)?.trim()),
     series: sent ? dailySeries(sent.touches, 90, sent.today, sent.dayOf) : [],
     meetings,

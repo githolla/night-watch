@@ -13,14 +13,15 @@ export const dynamic = "force-dynamic";
 
 /** The morning auto-send for one seat: the switch, what happens next, and who gets emailed, in order. */
 export default async function AutoSendPage({ searchParams }: { searchParams: Promise<{ owner?: string }> }) {
+  // The nightly lists load alongside sign-in instead of one round trip after it.
+  const nightlyLoad = loadNightlyLists(admin()).catch(() => undefined);
   const user = await requireUser();
+  await nightlyLoad;
   const isAdmin = user.role === "admin";
   const params = await searchParams;
   const owner: Owner = isAdmin && (params.owner === "josh" || params.owner === "suuchi") ? params.owner : user.owner;
   const name = seatName(owner);
   const yours = !isAdmin || owner === user.owner;
-  // Sector and size come from the list rows, which live in the database.
-  await loadNightlyLists(admin()).catch(() => undefined);
   const [view, profile] = await Promise.all([loadAutoSendView(owner).catch(() => null), senderProfile(admin(), owner)]);
 
   return (
