@@ -2,8 +2,9 @@ import { loadAutoSendView, type AutoSendControl, type AutoSendSummary } from "./
 import { bulkSendable } from "./bulk-sendable.ts";
 import { localParts } from "./local-time.ts";
 import { industryOf, tally } from "./send-plan.ts";
-import { loadSentView } from "./sent-view.ts";
-import type { SentStats } from "./sent-stats.ts";
+import { breakdown, dailySeries, funnel, recentActivity, type ActivityEvent, type Breakdown, type Funnel, type SeriesDay } from "./home-stats.ts";
+import { loadSentTouches } from "./sent-view.ts";
+import { sentStats, shiftDate, type SentStats } from "./sent-stats.ts";
 import { admin } from "./supabase/admin.ts";
 import type { Owner } from "./types.ts";
 
@@ -13,6 +14,8 @@ const REAL_REPLY = ["positive", "referral", "neutral", "objection", "negative"];
 export type HomeReply = { cardId: string; name: string; title: string; company: string; classification: string; repliedAt: string };
 export type HomeBounce = { personId: string; cardId: string; name: string; company: string; email: string | null; bouncedAt: string };
 export type HomeList = { date: string; companies: number; sectors: Array<{ label: string; count: number }>; confirmed: number };
+export type HomeMeeting = { cardId: string; name: string; title: string; company: string; since: string };
+export type HomeLead = { id: string; name: string; title: string; company: string; industry: string; size: string; confirmed: boolean; time: string | null; group: "going" | "later" };
 export type HomeData = {
   first: string;
   replies: HomeReply[];
@@ -21,13 +24,23 @@ export type HomeData = {
   list: HomeList | null;
   week: SentStats | null;
   gmailConnected: boolean;
+  /** 90 days, one entry per day, for the chart's ranges. */
+  series: SeriesDay[];
+  /** First emails in the last 90 days, by industry, role and size, with reply rates. */
+  mix: { industry: Breakdown[]; role: Breakdown[]; size: Breakdown[] };
+  funnel: Funnel | null;
+  activity: ActivityEvent[];
+  meetings: HomeMeeting[];
+  /** The next people auto-send emails, in order, and what the whole queue is made of. */
+  upNext: HomeLead[];
+  queue: { industry: Array<{ label: string; count: number }>; role: Array<{ label: string; count: number }>; size: Array<{ label: string; count: number }>; confirmed: number; total: number };
 };
 
 /** Everything Home shows for one seat, from the same sources as the pages it links to. Each part fails on its own. */
 export async function loadHome(owner: Owner, now: Date = new Date()): Promise<HomeData> {
   const db = admin();
   const since = (days: number) => new Date(now.getTime() - days * DAY_MS).toISOString();
-  const [profile, connection, replies, bounces, list, autoSend, week] = await Promise.all([
+  const [profile, connection, replies, bounces, list, autoSend, sent, meetingRows] = await Promise.all([
     db.from("sender_profiles").select("from_name").eq("owner", owner).maybeSingle().then((r) => r.data),
     db.from("gmail_connections").select("email").eq("owner", owner).maybeSingle().then((r) => r.data),
     db.from("touches").select("card_id,reply_at,reply_classification,cards(status,accounts(name)),people(full_name,title)")
@@ -39,8 +52,10 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     db.from("reachout_lists").select("list_date,rows").eq("owner", owner).eq("status", "ready").gte("list_date", since(4).slice(0, 10))
       .order("list_date", { ascending: false }).limit(1).maybeSingle().then((r) => r.data),
     loadAutoSendView(owner).catch(() => null),
-    // Two weeks, so this week can be shown against the week before.
-    loadSentView(owner, 14, now).catch(() => null),
+    // 90 days for the chart; the week view is the last 14 of them, so this week shows against the week before.
+    loadSentTouches(owner, 90, now).catch(() => null),
+    db.from("cards").select("id,updated_at,people(full_name,title),accounts(name)").eq("assigned_to", owner).eq("status", "meeting")
+      .order("updated_at", { ascending: false }).limit(50).then((r) => r.data ?? []),
   ]);
 
   type ReplyRow = { card_id: string; reply_at: string; reply_classification: string; cards: { status: string; accounts: { name: string | null } | null } | null; people: { full_name: string | null; title: string | null } | null };
@@ -66,6 +81,12 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     latest = { date: (list as { list_date: string }).list_date, companies: rows.length, sectors: tally(rows.map((row) => industryOf(row.sector, row.company))), confirmed: confirmed.size };
   }
 
+  const week = sent ? sentStats(sent.touches, 14, sent.today, sent.dayOf) : null;
+  const since90 = sent ? shiftDate(sent.today, -89) : "";
+  type MeetingRow = { id: string; updated_at: string; people: { full_name: string | null; title: string | null } | null; accounts: { name: string | null } | null };
+  const meetings = (meetingRows as unknown as MeetingRow[]).map((row) => ({ cardId: row.id, name: row.people?.full_name ?? "", title: row.people?.title ?? "", company: row.accounts?.name ?? "", since: row.updated_at }));
+  const queued = (autoSend?.emails ?? []).filter((email): email is typeof email & { group: "going" | "later" } => email.group === "going" || email.group === "later");
+
   return {
     first: ((profile?.from_name as string | undefined) ?? "").trim().split(/\s+/)[0] || (owner === "josh" ? "Josh" : "Suuchi"),
     replies: waiting,
@@ -74,6 +95,15 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     list: latest,
     week,
     gmailConnected: Boolean((connection?.email as string | undefined)?.trim()),
+    series: sent ? dailySeries(sent.touches, 90, sent.today, sent.dayOf) : [],
+    mix: sent
+      ? { industry: breakdown(sent.touches, "industry", since90, sent.dayOf), role: breakdown(sent.touches, "role", since90, sent.dayOf), size: breakdown(sent.touches, "size", since90, sent.dayOf) }
+      : { industry: [], role: [], size: [] },
+    funnel: sent ? funnel(sent.touches, since90, sent.dayOf, meetings.length) : null,
+    activity: sent ? recentActivity(sent.touches.filter((touch) => touch.sentAt >= `${since90}T00:00:00Z`), 12) : [],
+    meetings: meetings.slice(0, 6),
+    upNext: queued.slice(0, 8).map((email) => ({ id: email.id, name: email.name, title: email.title, company: email.company, industry: email.industry, size: email.size, confirmed: email.confirmed, time: email.time, group: email.group })),
+    queue: { industry: tally(queued.map((email) => email.industry)), role: tally(queued.map((email) => email.role)), size: tally(queued.map((email) => email.size)), confirmed: queued.filter((email) => email.confirmed).length, total: queued.length },
   };
 }
 

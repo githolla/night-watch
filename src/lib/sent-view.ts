@@ -10,6 +10,12 @@ const DAY_MS = 86_400_000;
 
 /** One seat's sent emails for the period, read from the touches every send records. */
 export async function loadSentView(owner: Owner, days: number, now: Date = new Date()): Promise<SentStats> {
+  const { touches, today, dayOf } = await loadSentTouches(owner, days, now);
+  return sentStats(touches, days, today, dayOf);
+}
+
+/** The touches behind the sent stats, with the day function in the send time zone, for views that chart them. */
+export async function loadSentTouches(owner: Owner, days: number, now: Date = new Date()): Promise<{ touches: SentTouch[]; today: string; dayOf: (iso: string) => string }> {
   // Reach back past the period so a card's earlier email marks a later one as a follow-up.
   const since = new Date(now.getTime() - (days + 60) * DAY_MS).toISOString();
   const { data, error } = await admin().from("touches")
@@ -29,5 +35,5 @@ export async function loadSentView(owner: Owner, days: number, now: Date = new D
       version: versionMeta(row.message_variants?.dimensions)?.label ?? null,
     };
   });
-  return sentStats(touches, days, localParts(now).date, (iso) => localParts(new Date(iso)).date);
+  return { touches, today: localParts(now).date, dayOf: (iso) => localParts(new Date(iso)).date };
 }

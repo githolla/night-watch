@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Building2, BriefcaseBusiness, History, House, LifeBuoy, ListChecks, LogOut, Menu, MessageSquareReply, MessageSquareText, PanelLeftClose, PanelLeftOpen, PenLine, PlayCircle, Repeat, Send, Settings, TrendingUp, Trophy, UserRoundCog, Users, type LucideIcon } from "lucide-react";
+import { Building2, BriefcaseBusiness, ChevronDown, History, House, LifeBuoy, ListChecks, LogOut, Menu, MessageSquareReply, MessageSquareText, PanelLeftClose, PanelLeftOpen, PenLine, PlayCircle, Repeat, Send, Settings, TrendingUp, Trophy, UserRoundCog, Users, type LucideIcon } from "lucide-react";
 import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
@@ -47,6 +47,15 @@ function writeFold(folded: boolean) {
   try { window.localStorage.setItem(FOLD_KEY, folded ? "1" : "0"); } catch { /* storage blocked: the choice lasts this page only */ }
   window.dispatchEvent(new Event(FOLD_EVENT));
 }
+/** Which titled groups she opened; a group holding the page she is on always shows. */
+const GROUPS_KEY = "nw-sidebar-groups";
+function readGroups(): string {
+  try { return window.localStorage.getItem(GROUPS_KEY) ?? ""; } catch { return ""; }
+}
+function writeGroups(open: string[]) {
+  try { window.localStorage.setItem(GROUPS_KEY, open.join("|")); } catch { /* storage blocked: lasts this page only */ }
+  window.dispatchEvent(new Event(FOLD_EVENT));
+}
 function subscribeFold(onChange: () => void) {
   window.addEventListener(FOLD_EVENT, onChange);
   window.addEventListener("storage", onChange);
@@ -61,6 +70,8 @@ export function Header({showTour=true}:{showTour?:boolean}) {
   const foldChoice = useSyncExternalStore(subscribeFold, readFold, () => null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const folded = foldChoice ?? FOLD_BY_DEFAULT.some((pattern) => pattern.test(pathname));
+  const openGroups = useSyncExternalStore(subscribeFold, readGroups, () => "").split("|").filter(Boolean);
+  const toggleGroup = (title: string) => writeGroups(openGroups.includes(title) ? openGroups.filter((name) => name !== title) : [...openGroups, title]);
   const toggleFold = () => writeFold(!folded);
   const [me, setMe] = useState<{ name: string; email: string; role: string; canAct?: boolean; actingError?: boolean; actor?: { name: string; email: string } } | null>(null);
   const [switching, setSwitching] = useState(false);
@@ -127,7 +138,22 @@ export function Header({showTour=true}:{showTour?:boolean}) {
       <nav className="side-groups">
         {navGroups.map((group) => {
           const items = group.items.filter((item) => !item.adminOnly || me?.role === "admin");
-          return <div className="side-group" key={group.title ?? "main"}>{group.title && <span className="side-title side-label">{group.title}</span>}{items.map(link)}</div>;
+          if (!group.title) return <div className="side-group" key="main">{items.map(link)}</div>;
+          const title = group.title;
+          const here = items.some(isActive);
+          const open = folded || here || openGroups.includes(title);
+          const waiting = items.reduce((total, item) => total + (countFor(item.href) ?? 0), 0);
+          const id = `side-group-${title.replace(/\W+/g, "-").toLowerCase()}`;
+          return (
+            <div className={`side-group is-collapsible ${open ? "is-open" : ""}`} key={title}>
+              <button type="button" className="side-group-toggle side-label" aria-expanded={open} aria-controls={id} disabled={here} onClick={() => toggleGroup(title)} title={here ? "The page you are on is in this group" : open ? `Hide ${title}` : `Show ${title}`}>
+                <span>{title}</span>
+                {!open && waiting > 0 && <b className="side-count">{waiting}</b>}
+                <ChevronDown size={15} strokeWidth={2} aria-hidden="true" />
+              </button>
+              {open && <div id={id} className="side-group-items">{items.map(link)}</div>}
+            </div>
+          );
         })}
       </nav>
       <div className="side-bottom">
