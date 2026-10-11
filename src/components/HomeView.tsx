@@ -154,12 +154,13 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
           <h2>How Night Watch works</h2>
           <p>Overnight it finds companies, researches them and writes an email and a LinkedIn message for each. You review. Emails send and follow up by themselves; LinkedIn messages you send by hand in a minute each. Replies come back to you.</p>
         </div>
+        <p className="ov-flow-legend" aria-hidden="true"><span><i className="is-nw" />Night Watch does it</span><span><i className="is-you" />You do it</span></p>
         <ol className="ov-stepper">
           {steps.map((step, index) => {
             const needs = step.lanes ? step.lanes.some((lane) => lane.needs) : step.needs;
             const owner = (who: Lane["who"]) => <span className={`ov-owner ${who === "You" ? "is-you" : ""}`}>{who === "You" ? <User size={13} weight="bold" aria-hidden="true" /> : <Moon size={13} weight="fill" aria-hidden="true" />}{who}</span>;
             return (
-              <li key={step.key} className={`${needs ? "is-needs" : ""} ${step.lanes ? "is-split" : ""}`}>
+              <li key={step.key} className={`is-${step.lanes ? "mixed" : step.who === "You" ? "you" : "nw"} ${needs ? "is-needs" : ""} ${step.lanes ? "is-split" : ""}`}>
                 <span className="ov-node" aria-hidden="true"><span>{index + 1}</span></span>
                 {step.lanes ? (
                   <div className="ov-stage">

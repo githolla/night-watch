@@ -2691,3 +2691,24 @@ a.ov-stage:hover .ov-step-title{color:var(--accent-strong)}
 .ov-lane small{font-size:12px;color:var(--muted)}
 @media(max-width:1180px){.ov-stepper{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:18px}.ov-stepper>li:nth-child(3)::after{display:none}}
 @media(max-width:700px){.ov-stepper{grid-template-columns:minmax(0,1fr);row-gap:0}.ov-stepper>li{display:grid;grid-template-columns:32px minmax(0,1fr);column-gap:12px}.ov-stepper>li::after{top:34px;bottom:-2px;left:15px;right:auto;width:2px;height:auto;display:block}.ov-stepper>li:last-child::after{display:none}.ov-stepper>li:nth-child(3)::after{display:block}.ov-node{margin:0}.ov-stage{margin:0 0 12px}}
+/* Each stage its own card, coloured by who does it: Night Watch cool grey, you warm amber, mixed in between. */
+.ov-stepper{--nw-bg:#f3f4f6;--nw-line:#e2e4e9;--nw-ink:#5b6472;--you-bg:#fdf6ea;--you-line:#f0dfbf}
+.ov-stepper .ov-stage{margin:0;padding:16px;border-radius:16px;background:var(--nw-bg);box-shadow:inset 0 0 0 1px var(--nw-line)}
+.ov-stepper>li.is-nw .ov-stage-icon{background:#fff;color:var(--nw-ink);box-shadow:inset 0 0 0 1px var(--nw-line)}
+.ov-stepper>li.is-nw .ov-node{box-shadow:inset 0 0 0 1.5px #c3c8d1;color:var(--nw-ink)}
+.ov-stepper>li.is-you .ov-stage{background:var(--you-bg);box-shadow:inset 0 0 0 1px var(--you-line),inset 0 3px 0 var(--accent)}
+.ov-stepper>li.is-you .ov-stage-icon{background:#fff;color:var(--accent-strong);box-shadow:inset 0 0 0 1px var(--you-line)}
+.ov-stepper>li.is-you .ov-node{box-shadow:inset 0 0 0 1.5px var(--accent);color:var(--accent-strong)}
+.ov-stepper>li.is-mixed .ov-stage{background:linear-gradient(180deg,var(--nw-bg),var(--you-bg));box-shadow:inset 0 0 0 1px var(--nw-line)}
+.ov-stepper>li.is-mixed .ov-stage-icon{background:#fff;color:var(--ink-soft);box-shadow:inset 0 0 0 1px var(--nw-line)}
+.ov-stepper>li.is-needs .ov-stage{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent),inset 0 3px 0 var(--accent)}
+.ov-stepper>li.is-needs .ov-node{background:var(--accent);box-shadow:0 0 0 5px var(--accent-soft);color:#fff}
+a.ov-stage:hover{filter:brightness(.985);box-shadow:inset 0 0 0 1px var(--line-strong),0 6px 16px rgba(30,26,22,.06)}
+.ov-stepper>li.is-you a.ov-stage:hover{box-shadow:inset 0 0 0 1px var(--you-line),inset 0 3px 0 var(--accent),0 6px 16px rgba(30,26,22,.06)}
+.ov-stepper>li.is-nw .ov-owner svg{color:var(--nw-ink)}
+.ov-stepper>li.is-nw .ov-owner{color:var(--nw-ink)}
+.ov-flow-legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 14px;font-size:13px;color:var(--muted)}
+.ov-flow-legend span{display:inline-flex;align-items:center;gap:7px}
+.ov-flow-legend i{width:12px;height:12px;border-radius:4px}
+.ov-flow-legend .is-nw{background:#f3f4f6;box-shadow:inset 0 0 0 1px #e2e4e9}
+.ov-flow-legend .is-you{background:#fdf6ea;box-shadow:inset 0 0 0 1px #f0dfbf,inset 0 2px 0 var(--accent)}
