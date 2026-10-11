@@ -82,5 +82,5 @@
 @media(max-width:900px){.as2-top{grid-template-columns:minmax(0,1fr)}.as2-counts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:860px){.as2 .as-list .as-row{grid-template-columns:1fr}.as2 .as-action{justify-content:flex-start}.as2 .as-email{padding:4px 12px 16px}}
 @media(max-width:560px){.as2 .as2-card,.as2 .as-status-card{padding:20px 18px}.as2-big b{font-size:34px}.as2-count b{font-size:26px}}
-.as2 .as2-co{display:flex;align-items:center;gap:10px;text-align:left}
-.as2 .as2-co>span{display:flex;flex-direction:column;min-width:0}
+.as2 .as2-co{display:flex;align-items:center;gap:10px;min-width:0}
+.as2 .as2-co>.as-company{flex:1;min-width:0;text-align:left}

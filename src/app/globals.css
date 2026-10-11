@@ -2533,6 +2533,9 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 /* Company logos, with initials as the fallback. */
 .co-logo{flex:none;display:inline-grid;place-items:center;overflow:hidden;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
 .co-logo img{width:auto;height:auto;max-width:72%;max-height:72%;object-fit:contain}
+.co-logo.is-link{cursor:pointer;text-decoration:none;transition:transform .15s ease,box-shadow .15s ease}
+.co-logo.is-link:hover{transform:translateY(-1px);box-shadow:0 0 0 2px var(--accent-soft),inset 0 0 0 1px var(--line-strong)}
+.co-logo.is-link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .co-logo.is-initials{background:linear-gradient(145deg,#ece6dc,#ddd4c6);box-shadow:none;color:var(--ink-soft);font-weight:600;letter-spacing:.02em}
 .pipe-card-co{display:flex;align-items:center;gap:8px;min-width:0}
 .pipe-card-co strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

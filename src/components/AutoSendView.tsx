@@ -220,7 +220,7 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
         <div className={`as-row is-${email.group}`}>
           <span className="as-time">{lead}</span>
           <button type="button" className="as-who as-open" aria-expanded={open} onClick={() => toggle(email)}><b>{email.name}</b><small>{email.title || email.role}</small></button>
-          <button type="button" className="as-company as-open as2-co" aria-expanded={open} onClick={() => toggle(email)}><CompanyLogo domain={email.domain} name={email.company} size={30} /><span><b>{email.company}</b><small>{options.note ?? `${email.industry} · ${email.size}`}</small></span></button>
+          <span className="as2-co"><CompanyLogo domain={email.domain} name={email.company} size={30} /><button type="button" className="as-company as-open" aria-expanded={open} onClick={() => toggle(email)}><b>{email.company}</b><small>{options.note ?? `${email.industry} · ${email.size}`}</small></button></span>
           <span className="as2-flags">
             <span className={`as2-dot ${email.confirmed ? "is-ok" : "is-warn"}`}>{email.confirmed ? "Verified" : email.email ? "Unconfirmed" : "No address"}</span>
             {email.status === "approved" && <span className="as2-dot is-ok">Approved</span>}

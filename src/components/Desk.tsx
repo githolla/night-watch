@@ -1342,7 +1342,7 @@ export function Desk({
                 {filtered.map((item) => (
                   <button type="button" key={item.id} className="signal-card" onClick={() => pick(item.id)}>
                     <div className="signal-card-head">
-                      <CompanyLogo domain={item.accounts.domain} name={item.accounts.name} size={34} className="avatar" />
+                      <CompanyLogo domain={item.accounts.domain} name={item.accounts.name} size={34} className="avatar" nested />
                       <div className="signal-card-id"><strong>{item.accounts.name}</strong><small>{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small></div>
                       {item.score >= PRIORITY_THRESHOLD ? <em className="chip chip-fit">High fit</em> : item.isNew ? <em className="chip chip-new">New</em> : item.carriedOver ? <em className="chip carried">Carried over</em> : null}
                     </div>
@@ -1369,7 +1369,7 @@ export function Desk({
                   <div className="analyst-watch-head"><span>On your watchlist</span><Link href="/outreach">View all &#8599;</Link></div>
                   {watchlist.map((company) => (
                     <Link key={company.domain || company.name} href={company.domain ? `/accounts/${company.domain}` : "/outreach"} className="analyst-watch-row">
-                      <CompanyLogo domain={company.domain} name={company.name} size={32} className="avatar" />
+                      <CompanyLogo domain={company.domain} name={company.name} size={32} className="avatar" nested />
                       <strong>{company.name}</strong>
                       <small>{company.count} {company.count === 1 ? "signal" : "signals"}</small>
                     </Link>
@@ -1395,7 +1395,7 @@ export function Desk({
               <div className="deskwork-list-scroll">
                 {listed.map((item) => (
                   <button type="button" key={item.id} className={`deskwork-row ${focusCard && item.id === focusCard.id ? "is-active" : ""}`} onClick={() => pick(item.id)}>
-                    <CompanyLogo domain={item.accounts.domain} name={item.accounts.name} size={32} className="avatar sm" />
+                    <CompanyLogo domain={item.accounts.domain} name={item.accounts.name} size={32} className="avatar sm" nested />
                     <span className="deskwork-row-id">
                       <strong>{item.accounts.name}</strong>
                       {/* Who, not just where. Several people at one company each have their own card now, so

@@ -190,7 +190,7 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
                 const action = nextHref(list);
                 return (
                   <div key={list.date} className="ov-tr" role="row">
-                    <span role="cell" className="ov-td-name"><span className="ov-logos" aria-hidden="true">{list.logos.map((domain) => <CompanyLogo key={domain} domain={domain} name={domain} size={26} />)}</span><span><b>{listName(list.date)}</b><small>{list.sectors.join(" · ") || "Mixed sectors"}</small></span></span>
+                    <span role="cell" className="ov-td-name"><span className="ov-logos">{list.logos.map((domain) => <CompanyLogo key={domain} domain={domain} name={domain} size={26} />)}</span><span><b>{listName(list.date)}</b><small>{list.sectors.join(" · ") || "Mixed sectors"}</small></span></span>
                     <span role="cell" className="ov-td-num">{list.companies}</span>
                     <span role="cell"><Progress list={list} /></span>
                     <span role="cell" className="ov-td-results">{count(list.positive, "positive reply", "positive replies")} · {count(list.meetings, "meeting", "meetings")}</span>
