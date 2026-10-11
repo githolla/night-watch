@@ -2645,3 +2645,19 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-lists .ov-panel-head{align-items:flex-end}
 @media(max-width:1180px){.ov-steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.ov-steps li::before{display:none}.ov-steps li:nth-child(3n+1) a{margin-left:0}.ov-steps li:nth-child(3n) a{margin-right:0}}
 @media(max-width:700px){.ov-steps{grid-template-columns:minmax(0,1fr)}.ov-steps a{margin:0!important}.ov-flow{padding:18px}.ov-todo-row{flex-wrap:wrap}.ov-todo-text{flex-basis:calc(100% - 42px)}.ov-mins{margin-left:42px}.ov-todo-row .ov-act{margin-left:42px}}
+/* Step 4 splits: email goes by itself, LinkedIn by hand. */
+.ov-steps li.is-split{display:flex;flex-direction:column;gap:6px;margin:0 6px;padding:12px;border-radius:16px;background:var(--canvas)}
+.ov-split-head .ov-step-title{margin:0 0 2px 2px;font-size:14px}
+.ov-steps .ov-lane{margin:0;padding:10px 12px;gap:3px;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.ov-steps .ov-lane:hover{transform:none}
+.ov-steps .ov-lane.is-needs{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.ov-lane-top{display:flex;align-items:center;gap:8px}
+.ov-lane-top b{font-size:13px;font-weight:600;letter-spacing:-.01em}
+.ov-step-icon.is-sm{width:26px;height:26px;border-radius:8px}
+.ov-lane.is-you .ov-step-icon{background:var(--ink);color:#fff;box-shadow:none}
+.ov-lane .ov-step-value b{font-size:20px}
+.ov-lane small{font-size:12px;color:var(--muted)}
+.ov-lane.is-needs small{color:var(--accent-strong);font-weight:600}
+.ov-steps{grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.25fr) minmax(0,1fr)}
+@media(max-width:1180px){.ov-steps{grid-template-columns:repeat(3,minmax(0,1fr))}.ov-steps li.is-split{margin:0}}
+@media(max-width:700px){.ov-steps{grid-template-columns:minmax(0,1fr)}}

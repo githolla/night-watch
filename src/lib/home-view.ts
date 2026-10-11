@@ -3,7 +3,7 @@ import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
 import { summarizeList, type ListCard, type ListSummary } from "./company-lists.ts";
 import { LIST_DRAFT_HASH } from "./draft-scope.ts";
 import { dailySeries, type SeriesDay } from "./home-stats.ts";
-import { linkedinTaskCount } from "./linkedin-tasks.ts";
+import { linkedinTaskCount, loadLinkedInDone } from "./linkedin-tasks.ts";
 import { localParts } from "./local-time.ts";
 import { pendingFollowups } from "./next-followups.ts";
 import { isLikelyPersonName } from "./pipeline.ts";
@@ -18,7 +18,9 @@ const POSITIVE = ["positive", "referral"];
 
 export type HomeBounce = { personId: string; cardId: string; name: string; company: string; email: string | null; bouncedAt: string };
 /** The seat's unsent list emails by what each needs, and how the next send window stands. */
-export type HomeDrafts = { total: number; ready: number; review: number; held: number; missing: number; checking: number; next: number; nextUnapproved: number };
+export type HomeDrafts = { total: number; ready: number; review: number; held: number; missing: number; checking: number; next: number; nextUnapproved: number;
+  /** Unsent drafts that also have a LinkedIn message written, for sending by hand. */
+  linkedinWritten: number };
 export type HomeData = {
   first: string;
   /** Replies that still need a response, strongest first. */
@@ -26,7 +28,9 @@ export type HomeData = {
   /** Replies that came in over the last day, for the morning briefing. */
   newReplies: number;
   followupsDue: number;
+  /** LinkedIn messages ready to send by hand now, and how many went out in the last 7 days. */
   linkedin: number;
+  linkedinSent: number;
   autoSend: { plan: AutoSendSummary; control: AutoSendControl } | null;
   bounces: HomeBounce[];
   drafts: HomeDrafts;
@@ -47,7 +51,7 @@ type Person = { email: string | null; email_status: string | null; email_check: 
 export async function loadHome(owner: Owner, now: Date = new Date()): Promise<HomeData> {
   const db = admin();
   const since = (days: number) => new Date(now.getTime() - days * DAY_MS).toISOString();
-  const [profile, connection, replies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin] = await Promise.all([
+  const [profile, connection, replies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin, linkedinDone] = await Promise.all([
     db.from("sender_profiles").select("from_name").eq("owner", owner).maybeSingle().then((r) => r.data),
     db.from("gmail_connections").select("email").eq("owner", owner).maybeSingle().then((r) => r.data),
     // The same 21 days and "needs a response" rule as the Replies badge in the sidebar.
@@ -60,10 +64,11 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     loadAutoSendView(owner).catch(() => null),
     loadSentTouches(owner, 90, now).catch(() => null),
     db.from("cards").select("id", { count: "exact", head: true }).eq("assigned_to", owner).eq("status", "meeting").then((r) => r.count ?? 0),
-    db.from("cards").select("id,person_id,status,auto_send_hold,people(full_name,email,email_status,email_check,do_not_contact),signals!inner(hash)")
+    db.from("cards").select("id,person_id,status,auto_send_hold,linkedin_message,people(full_name,email,email_status,email_check,do_not_contact),signals!inner(hash)")
       .eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).limit(500).then((r) => r.data ?? []),
     pendingFollowups(db, { owner, now: now.getTime() }).catch(() => null),
     linkedinTaskCount(owner, now).catch(() => 0),
+    loadLinkedInDone(owner, now, 7).then((done) => done.length).catch(() => 0),
   ]);
 
   const strong = (item: ReplyItem) => Number(POSITIVE.includes(item.classification));
@@ -77,11 +82,11 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     .map((row) => ({ personId: row.person_id, cardId: row.card_id, name: row.people?.full_name ?? "", company: row.cards?.accounts?.name ?? "", email: row.people?.email ?? null, bouncedAt: row.bounced_at }));
 
   // The same people Drafts counts: real names, not opted out, once each.
-  type DraftRow = { id: string; person_id: string; status: string; auto_send_hold: boolean | null; people: (Person & { full_name: string }) | null };
+  type DraftRow = { id: string; person_id: string; status: string; auto_send_hold: boolean | null; linkedin_message: string | null; people: (Person & { full_name: string }) | null };
   const seenDraft = new Set<string>();
   const people = (unsent as unknown as DraftRow[]).filter((row) => row.people && !row.people.do_not_contact && isLikelyPersonName(row.people.full_name) && !seenDraft.has(row.person_id) && Boolean(seenDraft.add(row.person_id)));
   const going = (autoSend?.emails ?? []).filter((email) => email.group === "going");
-  const drafts: HomeDrafts = { total: people.length, ready: 0, review: 0, held: 0, missing: 0, checking: 0, next: going.length, nextUnapproved: going.filter((email) => email.status !== "approved").length };
+  const drafts: HomeDrafts = { total: people.length, ready: 0, review: 0, held: 0, missing: 0, checking: 0, next: going.length, nextUnapproved: going.filter((email) => email.status !== "approved").length, linkedinWritten: people.filter((row) => Boolean(row.linkedin_message?.trim())).length };
   for (const row of people) {
     const person = row.people!;
     if (!sendableAddress(person)) { drafts.missing++; continue; }
@@ -115,6 +120,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     newReplies: waiting.filter((item) => Date.parse(item.repliedAt) >= now.getTime() - DAY_MS).length,
     followupsDue: followups ? [...followups.values()].flat().filter((step) => step.needsYou).length : 0,
     linkedin,
+    linkedinSent: linkedinDone,
     autoSend: autoSend ? { plan: autoSend.plan, control: autoSend.control } : null,
     bounces: toFix,
     drafts,

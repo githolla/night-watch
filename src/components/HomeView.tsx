@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Bell, Building2, Check, ChevronRight, MailCheck, MessagesSquare, PenLine, Search, Send } from "lucide-react";
+import { ArrowRight, Bell, Building2, Check, ChevronRight, Linkedin, MailCheck, MessagesSquare, PenLine, Search, Send } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import { CompanyLogo } from "@/components/CompanyLogo";
@@ -34,7 +34,9 @@ function Progress({ list }: { list: ListSummary }) {
   );
 }
 
-type Step = { key: string; icon: ReactNode; who: "Night Watch" | "You"; title: string; value: number; unit: string; sub: string; href: string; needs: boolean };
+type Lane = { key: string; icon: ReactNode; who: "Night Watch" | "You"; title: string; value: number; unit: string; sub: string; href: string; needs: boolean };
+/** A step is one card, or two lanes side by side when email and LinkedIn go different ways. */
+type Step = Lane & { lanes?: Lane[] };
 type Todo = { key: string; title: string; why: string; mins: number; href?: string; action?: ReactNode; optional?: boolean };
 
 /**
@@ -70,15 +72,19 @@ export function HomeView({ data, owner, hello, today, aside }: { data: HomeData;
   const briefing = [
     data.building ? "Night Watch is building tonight's list right now." : latest ? `Your ${listName(latest.date)} has ${count(latest.companies, "company", "companies")}: ${latest.progress.ready + latest.progress.review ? `${count(latest.progress.ready + latest.progress.review, "email is", "emails are")} ready for you` : "no emails are ready yet"}${latest.progress.missing ? `, and Night Watch is still finding addresses for ${latest.progress.missing}` : ""}.` : "No new list in the last few days.",
     yesterday ? `${count(yesterday, "email", "emails")} went out yesterday.` : "",
+    data.linkedin ? `${count(data.linkedin, "LinkedIn message is", "LinkedIn messages are")} ready for you to send by hand.` : "",
     data.newReplies ? `${count(data.newReplies, "new reply", "new replies")} came in${interested.length ? `, ${interested.length} interested` : ""}.` : "No new replies since yesterday.",
     on && auto ? `Auto-send sends ${count(auto.plan.going, "email", "emails")} ${day === "Today" ? "today" : `on ${day}`}, ${auto.plan.windowLabel} ET.` : "Auto-send is off, so nothing goes out until you turn it on.",
   ].filter(Boolean);
 
   const steps: Step[] = [
     { key: "find", icon: <Search size={18} strokeWidth={2} />, who: "Night Watch", title: "Finds companies", value: companies, unit: companies === 1 ? "company on the list" : "companies on the list", sub: latest ? `Newest: ${listName(latest.date)}` : "A new list each weeknight", href: `/outreach?list=${owner}`, needs: false },
-    { key: "write", icon: <PenLine size={18} strokeWidth={2} />, who: "Night Watch", title: "Researches and writes", value: d.total, unit: d.total === 1 ? "email written" : "emails written", sub: d.missing ? `${d.missing} still finding an address` : "Every one has an address", href: `/drafts?${q}`, needs: false },
+    { key: "write", icon: <PenLine size={18} strokeWidth={2} />, who: "Night Watch", title: "Researches and writes", value: d.total, unit: d.total === 1 ? "email written" : "emails written", sub: `${count(d.linkedinWritten, "LinkedIn message", "LinkedIn messages")} too${d.missing ? ` · ${d.missing} finding an address` : ""}`, href: `/drafts?${q}`, needs: false },
     { key: "review", icon: <MailCheck size={18} strokeWidth={2} />, who: "You", title: "Review and approve", value: d.review, unit: "to review", sub: `${d.ready} approved so far`, href: `/drafts?${q}&tab=review`, needs: d.nextUnapproved > 0 },
-    { key: "send", icon: <Send size={18} strokeWidth={2} />, who: on ? "Night Watch" : "You", title: "Sends and follows up", value: auto?.plan.going ?? 0, unit: day ? `sending ${day === "Today" ? "today" : day}` : "sending next", sub: on ? `${auto?.plan.sentToday ?? 0} of ${auto?.plan.dailyCap ?? 0} sent today` : "Auto-send is off", href: `/auto-send?${q}`, needs: !on && d.ready > 0 },
+    { key: "send", icon: <Send size={18} strokeWidth={2} />, who: on ? "Night Watch" : "You", title: "Sends and follows up", value: 0, unit: "", sub: "", href: `/auto-send?${q}`, needs: false, lanes: [
+      { key: "email", icon: <Send size={16} strokeWidth={2} />, who: on ? "Night Watch" : "You", title: on ? "Email: sent for you" : "Email: auto-send off", value: auto?.plan.going ?? 0, unit: day ? `sending ${day === "Today" ? "today" : day}` : "sending next", sub: on ? `${auto?.plan.sentToday ?? 0} of ${auto?.plan.dailyCap ?? 0} sent today, follow-ups automatic` : "Turn it on to send approved emails", href: `/auto-send?${q}`, needs: !on && d.ready > 0 },
+      { key: "linkedin", icon: <Linkedin size={16} strokeWidth={2} />, who: "You", title: "LinkedIn: you send by hand", value: data.linkedin, unit: "ready to send", sub: `Copy, open profile, mark sent · ${data.linkedinSent} sent this week`, href: `/linkedin?${q}`, needs: data.linkedin > 0 },
+    ] },
     { key: "reply", icon: <MessagesSquare size={18} strokeWidth={2} />, who: "You", title: "Replies and meetings", value: data.replies.length, unit: data.replies.length === 1 ? "reply waiting" : "replies waiting", sub: count(data.meetings, "meeting booked", "meetings booked"), href: `/replies?${q}`, needs: data.replies.length > 0 },
   ];
 
@@ -125,10 +131,21 @@ export function HomeView({ data, owner, hello, today, aside }: { data: HomeData;
       <section className="home-auto ov-flow" aria-label="How Night Watch works">
         <div className="ov-flow-head">
           <h2>How Night Watch works</h2>
-          <p>It finds companies, researches them and writes the emails overnight. You review, then it sends and follows up. Replies come back to you.</p>
+          <p>Overnight it finds companies, researches them and writes an email and a LinkedIn message for each. You review. Emails send and follow up by themselves; LinkedIn messages you send by hand in a minute each. Replies come back to you.</p>
         </div>
         <ol className="ov-steps">
-          {steps.map((step, index) => (
+          {steps.map((step, index) => step.lanes ? (
+            <li key={step.key} className="is-split">
+              <span className="ov-split-head"><b className="ov-step-title">{index + 1} · {step.title}</b></span>
+              {step.lanes.map((lane) => (
+                <Link key={lane.key} href={lane.href} className={`ov-lane ${lane.who === "You" ? "is-you" : ""} ${lane.needs ? "is-needs" : ""}`}>
+                  <span className="ov-lane-top"><span className="ov-step-icon is-sm" aria-hidden="true">{lane.icon}</span><b>{lane.title}</b></span>
+                  <span className="ov-step-value"><b>{lane.value.toLocaleString()}</b> {lane.unit}</span>
+                  <small>{lane.needs ? "Needs you" : lane.sub}</small>
+                </Link>
+              ))}
+            </li>
+          ) : (
             <li key={step.key} className={`${step.who === "You" ? "is-you" : ""} ${step.needs ? "is-needs" : ""}`}>
               <Link href={step.href}>
                 <span className="ov-step-top">
@@ -149,7 +166,7 @@ export function HomeView({ data, owner, hello, today, aside }: { data: HomeData;
           <div className="ov-panel-head">
             <div><h2>What you need to do</h2><p>{needed.length ? `${count(needed.length, "thing", "things")}, about ${minutes(Math.max(total, 1))}, in this order.` : "Nothing is due this morning."}</p></div>
           </div>
-          {needed.length === 0 && <div className="ov-done"><span aria-hidden="true"><Check size={26} strokeWidth={2.4} /></span><b>You&rsquo;re all caught up</b><small>Night Watch keeps finding companies and writing emails. New work shows up here.</small></div>}
+          {needed.length === 0 && <div className="ov-done"><span aria-hidden="true"><Check size={26} strokeWidth={2.4} /></span><b>You&rsquo;re all caught up</b><small>Night Watch keeps finding companies and writing emails and LinkedIn messages. New work shows up here.</small></div>}
           {todos.length > 0 && (
             <ol className="ov-todos">
               {todos.map((todo, index) => {
