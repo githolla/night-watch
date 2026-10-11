@@ -15,7 +15,6 @@ const RANGES: Range[] = [7, 14, 30, 90];
 const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 const sum = (days: SeriesDay[], key: "sent" | "interested" | "bounced") => days.reduce((total, day) => total + day[key], 0);
 const listName = (date: string) => `${new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })} list`;
-const minutes = (n: number) => n < 60 ? `${n} min` : `${Math.floor(n / 60)} h ${n % 60 ? `${n % 60} min` : ""}`.trim();
 
 /** The one link style on Overview: words in the accent colour with an arrow that moves on hover. */
 const Go = ({ href, children }: { href: string; children: ReactNode }) => (
@@ -37,7 +36,7 @@ function Progress({ list }: { list: ListSummary }) {
 type Lane = { key: string; who: "Night Watch" | "You"; title: string; value: number; unit: string; sub: string; href: string; needs: boolean };
 /** A step is one card, or two lanes side by side when email and LinkedIn go different ways. */
 type Step = Lane & { lanes?: Lane[] };
-type Todo = { key: string; title: string; why: string; mins: number; href?: string; action?: ReactNode; optional?: boolean };
+type Todo = { key: string; title: string; why: string; href?: string; action?: ReactNode; optional?: boolean };
 
 /**
  * Overview, read in the morning and shown to anyone new: what happened overnight, how Night Watch works with
@@ -96,17 +95,16 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
   ];
 
   const todos: Todo[] = [
-    ...(interested.length ? [{ key: "interested", title: interested.length === 1 ? `Reply to ${interested[0].name}${interested[0].company ? ` at ${interested[0].company}` : ""}` : `Reply to ${interested.length} interested people`, why: "They said yes. Answer while it's fresh; the call brief has what you need.", mins: interested.length * 5, href: `/replies?${q}` }] : []),
-    ...(other ? [{ key: "other", title: `Read ${count(other, "other reply", "other replies")}`, why: "A question or an objection. Decide the next step.", mins: other * 2, href: `/replies?${q}` }] : []),
-    ...data.bounces.slice(0, 3).map((bounce) => ({ key: `b-${bounce.personId}`, title: `${bounce.name} bounced`, why: `${bounce.company}${bounce.email ? `: ${bounce.email} didn't arrive` : ""}. A corrected address reopens it.`, mins: 1, action: <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /> })),
-    ...(data.followupsDue ? [{ key: "followups", title: `Send ${count(data.followupsDue, "follow-up", "follow-ups")}`, why: "They came due and couldn't go out by themselves.", mins: data.followupsDue * 2, href: `/followups?view=needs&${q}` }] : []),
-    ...(d.nextUnapproved ? [{ key: "review", title: `Review the ${count(d.nextUnapproved, "email", "emails")} sending ${day === "Today" ? "today" : day}`, why: "Read each one; approve it, fix it or hold it back.", mins: Math.max(2, Math.round(d.nextUnapproved * 0.75)), href: `/drafts?${q}&tab=review` }] : []),
-    ...(data.linkedin ? [{ key: "linkedin", title: `Send ${count(data.linkedin, "LinkedIn message", "LinkedIn messages")}`, why: "Copy each one, open the profile, send it there, mark it sent.", mins: data.linkedin * 2, href: `/linkedin?${q}` }] : []),
-    ...(!on && !paused && d.ready ? [{ key: "auto", title: "Turn on auto-send", why: `${count(d.ready, "approved email is", "approved emails are")} waiting and nothing goes out while it's off.`, mins: 1, href: `/auto-send?${q}` }] : []),
-    ...(!d.nextUnapproved && d.review ? [{ key: "ahead", title: `Get ahead: review ${count(d.review, "draft", "drafts")}`, why: "Nothing is due today. Reading ahead keeps the next windows full.", mins: Math.round(d.review * 0.75), href: `/drafts?${q}&tab=review`, optional: true }] : []),
+    ...(interested.length ? [{ key: "interested", title: interested.length === 1 ? `Reply to ${interested[0].name}${interested[0].company ? ` at ${interested[0].company}` : ""}` : `Reply to ${interested.length} interested people`, why: "They said yes. Answer while it's fresh; the call brief has what you need.", href: `/replies?${q}` }] : []),
+    ...(other ? [{ key: "other", title: `Read ${count(other, "other reply", "other replies")}`, why: "A question or an objection. Decide the next step.", href: `/replies?${q}` }] : []),
+    ...data.bounces.slice(0, 3).map((bounce) => ({ key: `b-${bounce.personId}`, title: `${bounce.name} bounced`, why: `${bounce.company}${bounce.email ? `: ${bounce.email} didn't arrive` : ""}. A corrected address reopens it.`, action: <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /> })),
+    ...(data.followupsDue ? [{ key: "followups", title: `Send ${count(data.followupsDue, "follow-up", "follow-ups")}`, why: "They came due and couldn't go out by themselves.", href: `/followups?view=needs&${q}` }] : []),
+    ...(d.nextUnapproved ? [{ key: "review", title: `Review the ${count(d.nextUnapproved, "email", "emails")} sending ${day === "Today" ? "today" : day}`, why: "Read each one; approve it, fix it or hold it back.", href: `/drafts?${q}&tab=review` }] : []),
+    ...(data.linkedin ? [{ key: "linkedin", title: `Send ${count(data.linkedin, "LinkedIn message", "LinkedIn messages")}`, why: "Copy each one, open the profile, send it there, mark it sent.", href: `/linkedin?${q}` }] : []),
+    ...(!on && !paused && d.ready ? [{ key: "auto", title: "Turn on auto-send", why: `${count(d.ready, "approved email is", "approved emails are")} waiting and nothing goes out while it's off.`, href: `/auto-send?${q}` }] : []),
+    ...(!d.nextUnapproved && d.review ? [{ key: "ahead", title: `Get ahead: review ${count(d.review, "draft", "drafts")}`, why: "Nothing is due today. Reading ahead keeps the next windows full.", href: `/drafts?${q}&tab=review`, optional: true }] : []),
   ];
   const needed = todos.filter((todo) => !todo.optional);
-  const total = needed.reduce((sum, todo) => sum + todo.mins, 0);
 
   const results = [
     { label: "Positive replies", value: sum(days, "interested"), href: `/replies?${q}` },
@@ -131,9 +129,9 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
         <div>
           <span className="ov-dateline">{today} <i aria-hidden="true">·</i> Daily briefing</span>
           <h1>{hello}, {data.first}.</h1>
-          <p className="ov-summary">{needed.length ? <><b>{count(needed.length, "thing needs", "things need")} you</b>, about {minutes(Math.max(total, 1))}.</> : <>Nothing needs you right now.</>} <span>Night Watch handles the rest.</span></p>
+          <p className="ov-summary">{needed.length ? <><b>{count(needed.length, "thing needs", "things need")} you</b> today.</> : <>Nothing needs you right now.</>}</p>
         </div>
-        <p className="ov-quote"><span>&ldquo;{quote}&rdquo;</span> <i>David Sandler</i></p>
+        <p className="ov-quote"><i>Today&rsquo;s thought</i><span>{quote}</span></p>
       </section>
 
       {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
@@ -149,7 +147,7 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
                 const body = <>
                   <span className={`ov-num ${todo.optional ? "is-optional" : ""}`} aria-hidden="true">{todo.optional ? "+" : index + 1}</span>
                   <span className="ov-row-text"><b>{todo.title}</b><small>{todo.why}</small></span>
-                  <span className="ov-mins">{todo.optional ? "Optional" : `~${minutes(todo.mins)}`}</span>
+                  {todo.optional && <span className="ov-mins">Optional</span>}
                 </>;
                 return (
                   <li key={todo.key} className={primary ? "is-first" : ""}>
