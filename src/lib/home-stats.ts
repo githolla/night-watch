@@ -55,6 +55,8 @@ export function funnel(touches: SentTouch[], since: string, dayOf: (iso: string)
 /** One person in Next up. Queued drafts carry their place in the send queue; the rest say why they are waiting. */
 export type NextUpLead = {
   id: string; name: string; title: string; company: string; subject: string;
+  /** The email itself, to read in place, and its version, so an edited draft counts as unreviewed again. */
+  body: string; updatedAt: string;
   industry: string; role: string; size: string; confirmed: boolean;
   group: "going" | "later" | "held" | "kept" | "waiting";
   position: number; time: string | null; reason: string | null;
@@ -66,4 +68,29 @@ export function nextUp(drafts: NextUpLead[], queued: NextUpLead[]): NextUpLead[]
   for (const lead of queued) byId.set(lead.id, lead);
   const rank = (lead: NextUpLead) => lead.group === "going" || lead.group === "later" ? 0 : lead.group === "waiting" ? 2 : 1;
   return [...byId.values()].sort((a, b) => rank(a) - rank(b) || (a.position || 1e6) - (b.position || 1e6) || a.company.localeCompare(b.company));
+}
+
+export type DraftGroupKey = "next" | "later" | "checking" | "missing" | "held";
+export type DraftGroup = { key: DraftGroupKey; leads: NextUpLead[] };
+
+/** Which pile a draft belongs to, by what is true about it now. */
+export function draftGroup(lead: NextUpLead): DraftGroupKey {
+  if (lead.group === "going") return "next";
+  if (lead.group === "later" || (lead.group === "waiting" && lead.reason === "Not in a window yet")) return "later";
+  if ((lead.group === "waiting" && lead.reason === "No email address yet") || (lead.group === "held" && /email address/i.test(lead.reason ?? ""))) return "missing";
+  if (lead.group === "waiting") return "checking";
+  return "held";
+}
+
+/** Next up broken into piles, in the order to review them; empty piles are left out. Order inside a pile is kept. */
+export function draftGroups(leads: NextUpLead[]): DraftGroup[] {
+  const order: DraftGroupKey[] = ["next", "later", "checking", "missing", "held"];
+  return order.map((key) => ({ key, leads: leads.filter((lead) => draftGroup(lead) === key) })).filter((group) => group.leads.length > 0);
+}
+
+/** Splits a pile into batches of `size`, so a long list reads as a few short ones. */
+export function batches<T>(items: T[], size = 10): T[][] {
+  const out: T[][] = [];
+  for (let start = 0; start < items.length; start += size) out.push(items.slice(start, start + size));
+  return out;
 }

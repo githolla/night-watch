@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { dailySeries, funnel, nextUp, type NextUpLead } from "./home-stats.ts";
+import { batches, dailySeries, draftGroups, funnel, nextUp, type NextUpLead } from "./home-stats.ts";
 import type { SentTouch } from "./sent-stats.ts";
 
 const touch = (id: string, cardId: string, sentAt: string, extra: Partial<SentTouch> = {}): SentTouch => ({
@@ -35,10 +35,24 @@ test("the funnel counts each person once, at the furthest step", () => {
 
 test("Next up lists every draft once, the send queue in order first", () => {
   const lead = (id: string, company: string, extra: Partial<NextUpLead> = {}): NextUpLead => ({
-    id, name: `Person ${id}`, title: "CEO", company, subject: "Hi", industry: "Construction", role: "Owner or CEO", size: "$10M to $50M", confirmed: false,
+    id, name: `Person ${id}`, title: "CEO", company, subject: "Hi", body: "Hello", updatedAt: "2026-10-01T00:00:00Z", industry: "Construction", role: "Owner or CEO", size: "$10M to $50M", confirmed: false,
     group: "waiting", position: 0, time: null, reason: "Address not confirmed", ...extra,
   });
   const drafts = [lead("a", "Zeta"), lead("b", "Alpha"), lead("c", "Beta"), lead("d", "Gamma")];
   const queued = [lead("c", "Beta", { group: "later", position: 2 }), lead("d", "Gamma", { group: "going", position: 1, time: "9:05am" }), lead("e", "Kept Co", { group: "kept" })];
   assert.deepEqual(nextUp(drafts, queued).map((item) => `${item.id}:${item.group}`), ["d:going", "c:later", "e:kept", "b:waiting", "a:waiting"]);
+});
+
+test("drafts break into piles in review order, and piles into batches of ten", () => {
+  const lead = (id: string, extra: Partial<NextUpLead>): NextUpLead => ({
+    id, name: id, title: "", company: id, subject: "", body: "", updatedAt: "", industry: "Other", role: "", size: "", confirmed: true,
+    group: "waiting", position: 0, time: null, reason: null, ...extra,
+  });
+  const leads = [
+    lead("a", { group: "going", position: 1 }), lead("b", { group: "later", position: 41 }), lead("c", { reason: "Not in a window yet" }),
+    lead("d", { reason: "Address not confirmed", confirmed: false }), lead("e", { reason: "No email address yet" }),
+    lead("f", { group: "held", reason: "no usable email address" }), lead("g", { group: "held", reason: "Sent to this company this week" }), lead("h", { group: "kept" }),
+  ];
+  assert.deepEqual(draftGroups(leads).map((group) => `${group.key}:${group.leads.map((item) => item.id).join("")}`), ["next:a", "later:bc", "checking:d", "missing:ef", "held:gh"]);
+  assert.deepEqual(batches(Array.from({ length: 23 }, (_, index) => index)).map((batch) => batch.length), [10, 10, 3]);
 });

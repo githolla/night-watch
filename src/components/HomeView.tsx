@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { Bell, CalendarDays, Check, ChevronRight, CircleAlert, Search } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import { FollowupQueue } from "@/components/FollowupQueue";
 import { setCardStatus } from "@/lib/card-status";
 import type { HomeData } from "@/lib/home-view";
 import { replyLabel } from "@/lib/reply-labels";
 import type { ReplyItem } from "@/lib/replies-view";
-import type { NextUpLead, SeriesDay } from "@/lib/home-stats";
+import { batches, draftGroups, type DraftGroupKey, type NextUpLead, type SeriesDay } from "@/lib/home-stats";
 import type { Owner } from "@/lib/types";
 
 type Metric = "sent" | "replies" | "interested" | "bounced";
@@ -95,39 +95,120 @@ const where = (lead: NextUpLead) =>
   : lead.group === "kept" ? { tone: "muted", text: "Kept for you" }
   : { tone: lead.reason === "Not in a window yet" ? "muted" : "warn", text: lead.reason ?? "Not queued" };
 
-/** The send queue, master and detail: pick anyone to see who they are, where they sit and open their draft. */
-function NextUp({ queue, owner }: { queue: NextUpLead[]; owner: Owner }) {
+const PILES: Record<DraftGroupKey, { label: string; note: string | null }> = {
+  next: { label: "Sends next", note: null },
+  later: { label: "Later windows", note: null },
+  checking: { label: "Checking address", note: "Nothing to do here: these send once their address is confirmed. Night Watch checks again every 20 minutes." },
+  missing: { label: "No address yet", note: "Nothing to do here until an address turns up. Night Watch keeps looking." },
+  held: { label: "Held or kept", note: "These won't send until what holds them changes. Open one to see why." },
+};
+
+// Reviewed drafts, kept in this browser as "id@version" so an edited draft counts as unreviewed again.
+const REVIEWED_EVENT = "nw-reviewed";
+const reviewedKey = (owner: Owner) => `nw-reviewed-${owner}`;
+const readReviewed = (owner: Owner) => { try { return window.localStorage.getItem(reviewedKey(owner)) ?? ""; } catch { return ""; } };
+function writeReviewed(owner: Owner, marks: Set<string>, live: Set<string>) {
+  // Only marks for drafts still waiting, so the list does not grow forever.
+  try { window.localStorage.setItem(reviewedKey(owner), [...marks].filter((mark) => live.has(mark)).join("|")); } catch { /* storage blocked: lasts this page only */ }
+  window.dispatchEvent(new Event(REVIEWED_EVENT));
+}
+function subscribeReviewed(onChange: () => void) {
+  window.addEventListener(REVIEWED_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => { window.removeEventListener(REVIEWED_EVENT, onChange); window.removeEventListener("storage", onChange); };
+}
+const mark = (lead: NextUpLead) => `${lead.id}@${lead.updatedAt}`;
+
+/** The drafts in piles and batches of ten: read each email in place, tick it off, and move to the next one. */
+function DraftsReview({ queue, owner, sendWindow, cap }: { queue: NextUpLead[]; owner: Owner; sendWindow: string | null; cap: number }) {
+  const groups = useMemo(() => draftGroups(queue), [queue]);
+  const live = useMemo(() => new Set(queue.map(mark)), [queue]);
+  const saved = useSyncExternalStore(subscribeReviewed, () => readReviewed(owner), () => "");
+  const reviewed = useMemo(() => new Set(saved.split("|").filter((item) => live.has(item))), [saved, live]);
+  const [pile, setPile] = useState<DraftGroupKey | null>(null);
+  const [part, setPart] = useState(0);
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("all");
   const [picked, setPicked] = useState<string | null>(null);
-  const sectors = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const lead of queue) counts.set(lead.industry, (counts.get(lead.industry) ?? 0) + 1);
-    return [...counts.entries()].filter(([label]) => label !== "Other").sort((a, b) => b[1] - a[1]).slice(0, 4);
-  }, [queue]);
-  const needle = query.trim().toLowerCase();
-  const shown = queue.filter((lead) => (sector === "all" || lead.industry === sector) && (!needle || `${lead.name} ${lead.company} ${lead.title}`.toLowerCase().includes(needle)));
-  const lead = shown.find((item) => item.id === picked) ?? shown[0];
 
-  if (!queue.length) return <p className="ov-step-empty">No drafts waiting. New companies and drafts arrive with each weeknight&rsquo;s list. <More href="/targets">Find companies</More></p>;
+  if (!groups.length) return <p className="ov-step-empty">No drafts waiting. New companies and drafts arrive with each weeknight&rsquo;s list. <More href="/targets">Find companies</More></p>;
+
+  const group = groups.find((item) => item.key === pile) ?? groups.find((item) => item.leads.some((lead) => !reviewed.has(mark(lead)))) ?? groups[0];
+  const sectors = [...new Set(group.leads.map((lead) => lead.industry))].sort();
+  const needle = query.trim().toLowerCase();
+  const shown = group.leads.filter((lead) => (sector === "all" || lead.industry === sector) && (!needle || `${lead.name} ${lead.company} ${lead.title}`.toLowerCase().includes(needle)));
+  const parts = batches(shown);
+  const at = Math.min(part, Math.max(0, parts.length - 1));
+  const batch = parts[at] ?? [];
+  const lead = batch.find((item) => item.id === picked) ?? batch.find((item) => !reviewed.has(mark(item))) ?? batch[0];
+  const doneInPile = group.leads.filter((item) => reviewed.has(mark(item))).length;
+  const sub = (key: DraftGroupKey) => key === "next" ? (sendWindow ?? "Next window") : key === "later" ? `Up to ${cap} a send day` : key === "checking" ? "Sends once confirmed" : key === "missing" ? "Still looking" : "Won't send yet";
+
+  const choosePile = (key: DraftGroupKey) => { setPile(key); setPart(0); setPicked(null); setSector("all"); setQuery(""); };
+  const looksGood = () => {
+    if (!lead) return;
+    const next = new Set(reviewed).add(mark(lead));
+    writeReviewed(owner, next, live);
+    const ahead = [...batch.slice(batch.indexOf(lead) + 1), ...batch.slice(0, batch.indexOf(lead))].find((item) => !next.has(mark(item)));
+    if (ahead) { setPicked(ahead.id); return; }
+    const later = parts.findIndex((items, index) => index > at && items.some((item) => !next.has(mark(item))));
+    if (later >= 0) { setPart(later); setPicked(null); }
+  };
+  const undo = () => { if (!lead) return; const next = new Set(reviewed); next.delete(mark(lead)); writeReviewed(owner, next, live); };
 
   return (
-    <div className="ov-next">
-      <div className="ov-next-tools">
-        <div className="ov-seg" role="tablist" aria-label="Sector">
-          <button type="button" role="tab" aria-selected={sector === "all"} className={sector === "all" ? "is-on" : ""} onClick={() => setSector("all")}>All <span>{queue.length}</span></button>
-          {sectors.map(([label, n]) => <button key={label} type="button" role="tab" aria-selected={sector === label} className={sector === label ? "is-on" : ""} onClick={() => setSector(label)}>{label} <span>{n}</span></button>)}
-        </div>
-        <label className="ov-search"><Search size={15} strokeWidth={2} aria-hidden="true" /><span className="sr-only">Find a person or company</span><input type="search" placeholder="Search" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
+    <div className="ov-review">
+      <div className="ov-piles" role="tablist" aria-label="Piles">
+        {groups.map((item) => {
+          const done = item.leads.filter((one) => reviewed.has(mark(one))).length;
+          return (
+            <button key={item.key} type="button" role="tab" aria-selected={item.key === group.key} className={`ov-pile ${item.key === group.key ? "is-on" : ""}`} onClick={() => choosePile(item.key)}>
+              <span className="ov-pile-top"><b>{item.leads.length}</b>{done > 0 && <small>{done === item.leads.length ? <Check size={13} strokeWidth={2.6} aria-label="All reviewed" /> : `${done} done`}</small>}</span>
+              <span className="ov-pile-label">{PILES[item.key].label}</span>
+              <small>{sub(item.key)}</small>
+            </button>
+          );
+        })}
       </div>
+
+      {PILES[group.key].note && <p className="ov-step-hint">{PILES[group.key].note}</p>}
+
+      <div className="ov-review-bar">
+        <div className="ov-progress" aria-label={`${doneInPile} of ${group.leads.length} reviewed`}>
+          <span className="ov-progress-text"><b>{doneInPile}</b> of {group.leads.length} reviewed</span>
+          <span className="ov-progress-track"><span style={{ width: `${pct(doneInPile, group.leads.length)}%` }} /></span>
+        </div>
+        <div className="ov-review-tools">
+          {sectors.length > 1 && (
+            <label className="ov-search is-select"><span className="sr-only">Sector</span>
+              <select value={sector} onChange={(event) => { setSector(event.target.value); setPart(0); setPicked(null); }}>
+                <option value="all">All sectors</option>
+                {sectors.map((label) => <option key={label} value={label}>{label}</option>)}
+              </select>
+            </label>
+          )}
+          <label className="ov-search"><Search size={15} strokeWidth={2} aria-hidden="true" /><span className="sr-only">Find a person or company</span><input type="search" placeholder="Search" value={query} onChange={(event) => { setQuery(event.target.value); setPart(0); setPicked(null); }} /></label>
+        </div>
+      </div>
+
+      {parts.length > 1 && (
+        <div className="ov-batches" role="tablist" aria-label="Batches of ten">
+          {parts.map((items, index) => {
+            const all = items.every((item) => reviewed.has(mark(item)));
+            return <button key={index} type="button" role="tab" aria-selected={index === at} className={`${index === at ? "is-on" : ""} ${all ? "is-done" : ""}`} onClick={() => { setPart(index); setPicked(null); }}>{all && <Check size={13} strokeWidth={2.6} aria-hidden="true" />}{index * 10 + 1}&ndash;{index * 10 + items.length}</button>;
+          })}
+        </div>
+      )}
+
       <div className="ov-next-body">
-        <ul className="ov-queue" aria-label="People ready to email">
-          {shown.map((item) => {
+        <ul className="ov-queue" aria-label="This batch">
+          {batch.map((item) => {
+            const done = reviewed.has(mark(item));
             const state = where(item);
             return (
               <li key={item.id}>
-                <button type="button" className={item.id === lead?.id ? "is-on" : ""} aria-pressed={item.id === lead?.id} onClick={() => setPicked(item.id)}>
-                  <span className="ov-avatar" aria-hidden="true">{initials(item.name)}</span>
+                <button type="button" className={`${item.id === lead?.id ? "is-on" : ""} ${done ? "is-done" : ""}`} aria-pressed={item.id === lead?.id} onClick={() => setPicked(item.id)}>
+                  <span className={`ov-avatar ${done ? "is-done" : ""}`} aria-hidden="true">{done ? <Check size={16} strokeWidth={2.6} /> : initials(item.name)}</span>
                   <span className="ov-queue-who"><b>{item.name}</b><small>{item.company}</small></span>
                   <span className={`ov-dot is-only is-${state.tone}`} title={state.text}><span className="sr-only">{state.text}</span></span>
                   <ChevronRight className="ov-queue-go" size={16} strokeWidth={2} aria-hidden="true" />
@@ -135,25 +216,31 @@ function NextUp({ queue, owner }: { queue: NextUpLead[]; owner: Owner }) {
               </li>
             );
           })}
-          {!shown.length && <li className="ov-queue-none">Nobody matches. <button type="button" onClick={() => { setQuery(""); setSector("all"); }}>Show everyone</button></li>}
+          {!batch.length && <li className="ov-queue-none">Nobody matches. <button type="button" onClick={() => { setQuery(""); setSector("all"); }}>Show everyone</button></li>}
         </ul>
         {lead && (
           <article className="ov-detail" aria-live="polite">
-            <span className={`ov-dot is-${where(lead).tone}`}>{lead.position ? `Number ${lead.position} · ` : ""}{where(lead).text}</span>
             <div className="ov-detail-who">
               <span className="ov-avatar is-big" aria-hidden="true">{initials(lead.name)}</span>
-              <div><h3>{lead.name}</h3><p>{[lead.title, lead.company].filter(Boolean).join(" at ")}</p></div>
+              <div>
+                <h3>{lead.name}</h3>
+                <p>{[lead.title, lead.company].filter(Boolean).join(" at ")}</p>
+              </div>
             </div>
-            <dl className="ov-detail-facts">
-              <div><dt>Sector</dt><dd>{lead.industry}</dd></div>
-              <div><dt>Role</dt><dd>{lead.role}</dd></div>
-              <div><dt>Size</dt><dd>{lead.size}</dd></div>
-              <div><dt>Address</dt><dd className={lead.confirmed ? "is-ok" : "is-warn"}>{lead.confirmed ? <><Check size={14} strokeWidth={2.4} aria-hidden="true" />Verified</> : <><CircleAlert size={14} strokeWidth={2.2} aria-hidden="true" />Not confirmed</>}</dd></div>
-            </dl>
-            {lead.subject && <p className="ov-detail-subject"><span>Subject</span>{lead.subject}</p>}
+            <p className="ov-detail-meta">
+              <span className={`ov-dot is-${where(lead).tone}`}>{where(lead).text}</span>
+              <span>{lead.industry}</span><span>{lead.size}</span>
+              <span className={lead.confirmed ? "is-ok" : "is-warn"}>{lead.confirmed ? <><Check size={14} strokeWidth={2.4} aria-hidden="true" />Verified address</> : <><CircleAlert size={14} strokeWidth={2.2} aria-hidden="true" />Address not confirmed</>}</span>
+            </p>
+            <div className="ov-mail">
+              <p className="ov-mail-subject">{lead.subject || "(no subject)"}</p>
+              <div className="ov-mail-body">{lead.body || "This draft has no text yet."}</div>
+            </div>
             <div className="ov-detail-actions">
-              <Link className="ov-btn is-primary" href={`/outreach?list=${owner}&card=${lead.id}`}>Open draft</Link>
-              <More href={`/auto-send?owner=${owner}`}>Where it sits</More>
+              {reviewed.has(mark(lead))
+                ? <><span className="ov-dot is-ok">Reviewed</span><button type="button" className="ov-btn is-quiet" onClick={undo}>Undo</button></>
+                : <button type="button" className="ov-btn is-primary" onClick={looksGood}><Check size={16} strokeWidth={2.4} aria-hidden="true" />Looks good, next</button>}
+              <Link className="ov-btn" href={`/outreach?list=${owner}&card=${lead.id}`}>Edit draft</Link>
             </div>
           </article>
         )}
@@ -205,14 +292,15 @@ function ReplyCard({ item, nextStep, canAct, onDone }: { item: ReplyItem; nextSt
 }
 
 /** The morning in order: answer replies, send the follow-ups that wait on you, fix bounced addresses, then review drafts. */
-function YourDay({ data, owner, nextStep, canAct, canSend }: { data: HomeData; owner: Owner; nextStep: Record<string, string>; canAct: boolean; canSend: boolean }) {
+function YourDay({ data, owner, nextStep, canAct, canSend, sendWindow }: { data: HomeData; owner: Owner; nextStep: Record<string, string>; canAct: boolean; canSend: boolean; sendWindow: string | null }) {
   const [replies, setReplies] = useState(data.replies);
   const [settled, setSettled] = useState(0);
+  const sendingNext = data.queue.filter((lead) => lead.group === "going").length;
   const steps: Array<{ key: Step; label: string; count: number; done: string; todo: string }> = [
     { key: "replies", label: "Replies", count: replies.length, done: settled ? `${settled} settled` : "None waiting", todo: `${replies.length} to answer` },
     { key: "followups", label: "Follow-ups", count: data.followups.length, done: "None due", todo: `${data.followups.length} to send` },
     { key: "fix", label: "Addresses", count: data.bounces.length, done: "None bounced", todo: `${data.bounces.length} to fix` },
-    { key: "drafts", label: "Drafts", count: data.queue.length, done: "None waiting", todo: `${data.queue.length} to review` },
+    { key: "drafts", label: "Drafts", count: data.queue.length, done: "None waiting", todo: sendingNext ? `${sendingNext} send next` : `${data.queue.length} waiting` },
   ];
   const first = steps.find((step) => step.count > 0 && step.key !== "drafts")?.key ?? "drafts";
   const [open, setOpen] = useState<Step>(first);
@@ -259,7 +347,7 @@ function YourDay({ data, owner, nextStep, canAct, canSend }: { data: HomeData; o
             ))}</ul>
           : <p className="ov-step-empty">No bounced addresses in the last 30 days.</p>)}
 
-        {open === "drafts" && <NextUp queue={data.queue} owner={owner} />}
+        {open === "drafts" && <DraftsReview queue={data.queue} owner={owner} sendWindow={sendWindow} cap={data.autoSend?.plan.dailyCap ?? 40} />}
       </div>
     </section>
   );
@@ -288,11 +376,12 @@ export function HomeView({ data, owner, hello, aside, nextStep, canAct, canSend 
     weekSent >= 5 && weekBounceRate >= 5 && { text: `${weekBounceRate}% of this week's emails bounced. Fix the addresses under Your day before sending more.`, href: `/drafts/sent?${q}&days=7`, action: "See them" },
   ].filter((item): item is { text: string; href: string; action: string } => Boolean(item));
 
+  const sendingNext = data.queue.filter((lead) => lead.group === "going").length;
   const todo = [
     data.replies.length && count(data.replies.length, "reply", "replies") + " to answer",
     data.followups.length && count(data.followups.length, "follow-up", "follow-ups") + " to send",
     data.bounces.length && count(data.bounces.length, "address", "addresses") + " to fix",
-    data.queue.length && count(data.queue.length, "draft", "drafts") + " to review",
+    data.queue.length && (sendingNext ? `${count(sendingNext, "draft", "drafts")} sending next to review` : count(data.queue.length, "draft", "drafts") + " waiting"),
   ].filter((part): part is string => Boolean(part));
   const summary = todo.length ? `Today: ${todo.length > 1 ? `${todo.slice(0, -1).join(", ")} and ${todo.at(-1)}` : todo[0]}.` : "You are all caught up.";
 
@@ -338,7 +427,7 @@ export function HomeView({ data, owner, hello, aside, nextStep, canAct, canSend 
 
       {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
 
-      <YourDay data={data} owner={owner} nextStep={nextStep} canAct={canAct} canSend={canSend} />
+      <YourDay data={data} owner={owner} nextStep={nextStep} canAct={canAct} canSend={canSend} sendWindow={sendWindow} />
 
       <h2 className="ov-section">How it&rsquo;s going</h2>
       <section className="ov-kpis" aria-label="Headline numbers">
