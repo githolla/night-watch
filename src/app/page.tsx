@@ -22,15 +22,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ o
   await loadNightlyLists(admin()).catch(() => undefined);
   const data = await loadHome(owner);
   return (
-    <main className="workspace-page drafts-page">
-      <div className="feature-center drafts-shell">
-        {isAdmin && (
-          <nav className="drafts-seats home-seats" aria-label="Whose day">
-            {SEATS.map((seat) => <Link key={seat.owner} href={`/?owner=${seat.owner}`} className={owner === seat.owner ? "is-active" : ""}>{seat.name}</Link>)}
-          </nav>
-        )}
-        <HomeView data={data} owner={owner} hello={greeting()} />
-      </div>
+    <main className="workspace-page drafts-page home-page">
+      <HomeView data={data} owner={owner} hello={greeting()} aside={isAdmin ? (
+        <nav className="drafts-seats" aria-label="Whose day">
+          {SEATS.map((seat) => <Link key={seat.owner} href={`/?owner=${seat.owner}`} className={owner === seat.owner ? "is-active" : ""}>{seat.name}</Link>)}
+        </nav>
+      ) : undefined} />
     </main>
   );
 }

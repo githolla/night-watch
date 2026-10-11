@@ -14,7 +14,7 @@ export const tourSteps = [
  {path:'/activity',target:'main',title:'Check sent history',body:'History records outreach and replies. Use it to see what was sent and avoid duplicate outreach. Copying a draft alone does not record a send.'},
  {path:'/stats',target:'#saved-versions',title:'Learn from results',body:'Compare recorded sends and replies by saved version. Self-tests are excluded from outreach results. Open signals are incomplete and do not establish that a person read the email. Reopen this tour anytime from the compass icon in the top bar.'},
 
- {path:'/',target:'.side-nav',title:'Everything is in the sidebar',body:'Home, your Reach-out list, Drafts, Auto-send, Replies and History are at the top. Fold the sidebar to icons with the button at the top when you want more room.'},
+ {path:'/',target:'.side-nav',title:'Everything is in the sidebar',body:'Home, your Reach-out list, Drafts, Auto-send, Replies and History are at the top. Tour, Feedback, your account and Sign out are at the bottom. Fold the sidebar to icons with the button at the top when you want more room.'},
  {path:'/',target:'.home-replies',title:'Replies come first',body:'Everyone who wrote back and is waiting on you, interested ones first. Open the call brief before you answer.'},
  {path:'/',target:'.home-auto',title:'What goes out today',body:'How many emails auto-send sends and when. Open it to turn it on or off, skip a day or send now.'},
  {path:'/',target:'.home-needs',title:'What needs you',body:'Bounced emails to fix and addresses that are not confirmed yet. Fix address takes the right one and sends the email again.'},

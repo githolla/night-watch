@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Building2, BriefcaseBusiness, History, House, LifeBuoy, ListChecks, Lock, Menu, MessageSquareReply, MessageSquareText, PanelLeftClose, PanelLeftOpen, PenLine, PlayCircle, Repeat, Send, Settings, TrendingUp, Trophy, Users, type LucideIcon } from "lucide-react";
+import { Building2, BriefcaseBusiness, History, House, LifeBuoy, ListChecks, LogOut, Menu, MessageSquareReply, MessageSquareText, PanelLeftClose, PanelLeftOpen, PenLine, PlayCircle, Repeat, Send, Settings, TrendingUp, Trophy, UserRoundCog, Users, type LucideIcon } from "lucide-react";
 import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
@@ -130,20 +130,23 @@ export function Header({showTour=true}:{showTour?:boolean}) {
           return <div className="side-group" key={group.title ?? "main"}>{group.title && <span className="side-title side-label">{group.title}</span>}{items.map(link)}</div>;
         })}
       </nav>
-      <div className="side-bottom">{bottomItems.filter((item) => !item.adminOnly || me?.role === "admin").map(link)}</div>
+      <div className="side-bottom">
+        {bottomItems.filter((item) => !item.adminOnly || me?.role === "admin").map(link)}
+        {showTour && <Walkthrough userKey={me?.email} inSidebar />}
+        <FeedbackWidget inSidebar />
+        {me?.canAct && !me.actor && !me.actingError && <button type="button" className="side-link side-action" disabled={switching} onClick={() => switchAccount(false)} title="Act as Suuchi"><UserRoundCog size={18} strokeWidth={1.8} aria-hidden="true" /><span className="side-label">Act as Suuchi</span></button>}
+        <div className="side-account" title={me?.email ?? "Signed in"}>
+          <span className="ws-badge" aria-hidden="true">{meInitials}</span>
+          <span className="side-account-who side-label"><b>{me?.name ?? ""}</b><small>{me?.email ?? ""}</small></span>
+          <form action="/api/auth/logout" method="post"><button className="side-signout" type="submit" title="Sign out" aria-label="Sign out"><LogOut size={16} strokeWidth={1.8} /></button></form>
+        </div>
+      </div>
     </aside>
     {mobileOpen && <button type="button" className="side-scrim" aria-label="Close the menu" onClick={() => setMobileOpen(false)} />}
-    <header className="appbar" aria-label="Account">
+    <header className="appbar" aria-label="Menu">
       <div className="appbar-left">
         <button type="button" className="appbar-menu" onClick={() => setMobileOpen(true)} aria-label="Open the menu"><Menu size={20} strokeWidth={1.8} /></button>
         <Link href="/" className="appbar-brand appbar-brand-mobile" title="Night Watch"><span className="brand-moon" aria-hidden /><strong>nightwatch<i>.</i></strong></Link>
-      </div>
-      <div className="appbar-right">
-        {me?.canAct && !me.actor && !me.actingError && <button className="btn" disabled={switching} onClick={() => switchAccount(false)}>Act as Suuchi</button>}
-        {showTour && <Walkthrough userKey={me?.email} />}
-        <span className="appbar-ws">{me?.name ?? ""}</span>
-        <span className="ws-badge" title={me?.email ?? "Signed in"} aria-hidden={!meInitials}>{meInitials}</span>
-        <form action="/api/auth/logout" method="post"><button className="appbar-lock" type="submit" title="Sign out" aria-label="Sign out"><Lock size={16} strokeWidth={1.8} /><span className="appbar-lock-text">Sign out</span></button></form>
       </div>
     </header>
     {(me?.actor || me?.actingError) && <div role="status" className="act-as-bar">
@@ -151,7 +154,6 @@ export function Header({showTour=true}:{showTour?:boolean}) {
       <button className="btn" disabled={switching} onClick={() => switchAccount(true)}>Exit admin mode</button>
     </div>}
     {switchError && <div role="alert" className="act-as-error">{switchError}</div>}
-    <FeedbackWidget />
     </>
   );
 }

@@ -14,7 +14,7 @@ const CATEGORIES = [
 
 /** A floating "Feedback" button on every page. Captures the page, the signed-in user (server-side) and a
  *  timestamp automatically, so testers only type what they noticed. */
-export function FeedbackWidget() {
+export function FeedbackWidget({ inSidebar = false }: { inSidebar?: boolean }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<string>("bug");
@@ -38,11 +38,11 @@ export function FeedbackWidget() {
 
   return (
     <>
-      <button type="button" className="fb-fab" onClick={() => setOpen((v) => !v)} aria-label="Give feedback" title="Give feedback">
-        <MessageSquarePlus size={18} strokeWidth={1.9} /><span>Feedback</span>
-      </button>
+      {inSidebar
+        ? <button type="button" className="side-link side-action" onClick={() => setOpen((v) => !v)} aria-label="Give feedback" title="Give feedback" aria-expanded={open}><MessageSquarePlus size={18} strokeWidth={1.8} aria-hidden="true" /><span className="side-label">Feedback</span></button>
+        : <button type="button" className="fb-fab" onClick={() => setOpen((v) => !v)} aria-label="Give feedback" title="Give feedback"><MessageSquarePlus size={18} strokeWidth={1.9} /><span>Feedback</span></button>}
       {open && (
-        <div className="fb-panel" role="dialog" aria-label="Feedback">
+        <div className={`fb-panel ${inSidebar ? "is-side" : ""}`} role="dialog" aria-label="Feedback">
           <div className="fb-panel-head"><strong>Share feedback</strong><button type="button" onClick={() => setOpen(false)} aria-label="Close"><X size={16} /></button></div>
           <p className="fb-panel-sub">On <code>{pathname || "/"}</code>, we log who and when automatically.</p>
           {state === "done" ? (

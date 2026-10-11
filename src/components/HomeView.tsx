@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import type { HomeData } from "@/lib/home-view";
 import { replyLabel } from "@/lib/reply-labels";
@@ -9,7 +10,7 @@ const day = (iso: string) => new Date(iso).toLocaleDateString("en-US", { weekday
 const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 /** Home: what needs her today, in the order it matters, each item one click from where it is handled. */
-export function HomeView({ data, owner, hello }: { data: HomeData; owner: Owner; hello: string }) {
+export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner: Owner; hello: string; aside?: ReactNode }) {
   const q = `owner=${owner}`;
   const auto = data.autoSend;
   const wow = data.week ? weekOverWeek(data.week.daily) : null;
@@ -34,9 +35,12 @@ export function HomeView({ data, owner, hello }: { data: HomeData; owner: Owner;
 
   return (
     <div className="home">
-      <header className="home-head">
-        <h1>{hello}, {data.first}.</h1>
-        <p>Here is your day in Night Watch.</p>
+      <header className="home-head page-top">
+        <div>
+          <h1>{hello}, {data.first}.</h1>
+          <p>Here is your day in Night Watch.</p>
+        </div>
+        {aside}
       </header>
 
       {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
