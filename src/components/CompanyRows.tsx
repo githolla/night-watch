@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { CompanyLogo } from "@/components/CompanyLogo";
 import { useState } from "react";
+import { fitLabel } from "@/lib/company-insights";
 import { STAGE_LABEL, type OutreachStage } from "@/lib/outreach";
 
 export type CompanyRow = {
@@ -45,7 +46,7 @@ export function CompanyRows({ rows }: { rows: CompanyRow[] }) {
       <thead><tr><th>Company</th><th>Found</th><th>Status</th><th className="col-num">Score</th><th>Changed</th><th>Reach-out list</th></tr></thead>
       <tbody>
         {rows.map((row) => <tr key={row.domain} className={row.tier === "removed" ? "is-closed" : ""} onClick={() => router.push(`/accounts/${row.domain}`)}>
-          <td><div className="cell-company"><CompanyLogo domain={row.domain} name={row.name} size={32} className="avatar" /><div><strong>{row.name}</strong><small>{row.industry}{row.hq ? ` · ${row.hq}` : ""} · {row.tier === "removed" ? "removed" : row.tier}{row.manual ? " · by hand" : ""}</small></div></div></td>
+          <td><div className="cell-company"><CompanyLogo domain={row.domain} name={row.name} size={32} className="avatar" /><div><strong>{row.name}</strong><small>{row.industry}{row.hq ? ` · ${row.hq}` : ""} · {fitLabel(row.tier)}{row.manual ? " · by hand" : ""}</small></div></div></td>
           <td className="cell-why"><span>{row.tier === "removed" && row.dropReason ? row.dropReason : row.scanned ? ([row.roles ? `${row.roles} target ${row.roles === 1 ? "role" : "roles"}` : null, row.posts ? `${row.posts} AI ${row.posts === 1 ? "post" : "posts"}` : null, row.contacts ? `${row.contacts} ${row.contacts === 1 ? "person" : "people"}${row.verified ? ` (${row.verified} verified)` : ""}` : null].filter(Boolean).join(" · ") || "Scanned, nothing found yet") : row.outreach ? "Not scanned yet" : "Held: swept only when asked"}</span>{row.drafts > 0 && <em className="pill pill-ink"><i />Draft ready</em>}</td>
           <td>{row.outreach ? <><span className={`pill pill-${row.stage === "untouched" ? "muted" : ["replied", "meeting", "won"].includes(row.stage) ? "ok" : row.stage === "contacted" ? "accent" : ["lost", "hold"].includes(row.stage) ? "muted" : "info"}`}><i />{STAGE_LABEL[row.stage]}</span>{row.owner && <small className="cell-sub">{row.owner}</small>}</> : <span className="pill pill-muted"><i />{row.tier === "removed" ? "Removed" : "Held"}</span>}</td>
           <td className="col-num"><b className={`score ${row.intel >= 60 ? "is-hot" : row.intel >= 30 ? "is-warm" : ""}`}>{row.intel}</b></td>
