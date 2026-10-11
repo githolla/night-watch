@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Ban, Bell, Building2, CalendarDays, CircleCheck, Clock3, FileText, Inbox, Mail, Reply, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import { Bell, CalendarDays, Check, ChevronRight, CircleAlert, FileText, Inbox, Search } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import type { HomeData } from "@/lib/home-view";
-import type { SeriesDay } from "@/lib/home-stats";
+import type { NextUpLead, SeriesDay } from "@/lib/home-stats";
 import type { Owner } from "@/lib/types";
 
 type Metric = "sent" | "replies" | "interested" | "bounced";
@@ -76,17 +76,103 @@ function ActivityChart({ days, metric }: { days: SeriesDay[]; metric: Metric }) 
 function Panel({ className, title, sub, link, side, children }: { className: string; title: string; sub?: string; link?: { href: string; label: string }; side?: ReactNode; children: ReactNode }) {
   return (
     <section className={`home-card ov-panel ${className}`} aria-label={title}>
-      <div className="ov-panel-head"><div><h2>{title}</h2>{sub && <p>{sub}</p>}</div>{side}{link && <Link href={link.href}>{link.label} &rarr;</Link>}</div>
+      <div className="ov-panel-head"><div><h2>{title}</h2>{sub && <p>{sub}</p>}</div>{side}{link && <More href={link.href}>{link.label}</More>}</div>
       {children}
     </section>
   );
 }
 
-type Priority = { key: string; icon: LucideIcon; tone: "bad" | "warn" | "ok" | "muted"; title: ReactNode; sub: ReactNode; status?: string; action: ReactNode };
+const More = ({ href, children }: { href: string; children: ReactNode }) => <Link className="ov-more" href={href}>{children}<ChevronRight size={15} strokeWidth={2.2} aria-hidden="true" /></Link>;
+const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "?";
+const where = (lead: NextUpLead) =>
+  lead.group === "going" ? { tone: "ok", text: lead.time ? `About ${lead.time}` : "Next window" }
+  : lead.group === "later" ? { tone: "muted", text: "A later window" }
+  : lead.group === "held" ? { tone: "warn", text: lead.reason ?? "Held back" }
+  : lead.group === "kept" ? { tone: "muted", text: "Kept for you" }
+  : { tone: lead.reason === "Not in a window yet" ? "muted" : "warn", text: lead.reason ?? "Not queued" };
 
-const Go = ({ href, children }: { href: string; children: ReactNode }) => <Link className="ov-go" href={href}>{children}<ArrowRight size={16} strokeWidth={2} aria-hidden="true" /></Link>;
+/** The send queue, master and detail: pick anyone to see who they are, where they sit and open their draft. */
+function NextUp({ queue, owner, sendWindow }: { queue: NextUpLead[]; owner: Owner; sendWindow: string | null }) {
+  const [query, setQuery] = useState("");
+  const [sector, setSector] = useState("all");
+  const [picked, setPicked] = useState<string | null>(null);
+  const sectors = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const lead of queue) counts.set(lead.industry, (counts.get(lead.industry) ?? 0) + 1);
+    return [...counts.entries()].filter(([label]) => label !== "Other").sort((a, b) => b[1] - a[1]).slice(0, 4);
+  }, [queue]);
+  const needle = query.trim().toLowerCase();
+  const shown = queue.filter((lead) => (sector === "all" || lead.industry === sector) && (!needle || `${lead.name} ${lead.company} ${lead.title}`.toLowerCase().includes(needle)));
+  const lead = shown.find((item) => item.id === picked) ?? shown[0];
+  const going = queue.filter((item) => item.group === "going").length;
 
-/** Overview: the next move, what needs you today, and how sending is going, each one click from where it is handled. */
+  if (!queue.length) {
+    return (
+      <section className="home-card ov-panel ov-next is-empty" aria-label="Next up">
+        <div className="ov-panel-head"><div><h2>Next up</h2><p>No drafts waiting.</p></div></div>
+        <p className="ov-next-empty">New companies and drafts arrive with each weeknight&rsquo;s list. <More href="/targets">Find companies</More></p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="home-card ov-panel ov-next" aria-label="Next up">
+      <div className="ov-panel-head">
+        <div><h2>Next up</h2><p>{count(queue.length, "person", "people")} ready{going ? ` · ${going} in the next window` : ""}{sendWindow ? ` · ${sendWindow}` : ""}</p></div>
+        <More href={`/drafts?owner=${owner}`}>All drafts</More>
+      </div>
+      <div className="ov-next-tools">
+        <div className="ov-seg" role="tablist" aria-label="Sector">
+          <button type="button" role="tab" aria-selected={sector === "all"} className={sector === "all" ? "is-on" : ""} onClick={() => setSector("all")}>All <span>{queue.length}</span></button>
+          {sectors.map(([label, n]) => <button key={label} type="button" role="tab" aria-selected={sector === label} className={sector === label ? "is-on" : ""} onClick={() => setSector(label)}>{label} <span>{n}</span></button>)}
+        </div>
+        <label className="ov-search"><Search size={15} strokeWidth={2} aria-hidden="true" /><span className="sr-only">Find a person or company</span><input type="search" placeholder="Search" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
+      </div>
+      <div className="ov-next-body">
+        <ul className="ov-queue" aria-label="People ready to email">
+          {shown.map((item) => {
+            const state = where(item);
+            return (
+              <li key={item.id}>
+                <button type="button" className={item.id === lead?.id ? "is-on" : ""} aria-pressed={item.id === lead?.id} onClick={() => setPicked(item.id)}>
+                  <span className="ov-avatar" aria-hidden="true">{initials(item.name)}</span>
+                  <span className="ov-queue-who"><b>{item.name}</b><small>{item.company}</small></span>
+                  <span className={`ov-dot is-only is-${state.tone}`} title={state.text}><span className="sr-only">{state.text}</span></span>
+                  <ChevronRight className="ov-queue-go" size={16} strokeWidth={2} aria-hidden="true" />
+                </button>
+              </li>
+            );
+          })}
+          {!shown.length && <li className="ov-queue-none">Nobody matches. <button type="button" onClick={() => { setQuery(""); setSector("all"); }}>Show everyone</button></li>}
+        </ul>
+        {lead && (
+          <article className="ov-detail" aria-live="polite">
+            <span className={`ov-dot is-${where(lead).tone}`}>{lead.position ? `Number ${lead.position} · ` : ""}{where(lead).text}</span>
+            <div className="ov-detail-who">
+              <span className="ov-avatar is-big" aria-hidden="true">{initials(lead.name)}</span>
+              <div><h3>{lead.name}</h3><p>{[lead.title, lead.company].filter(Boolean).join(" at ")}</p></div>
+            </div>
+            <dl className="ov-detail-facts">
+              <div><dt>Sector</dt><dd>{lead.industry}</dd></div>
+              <div><dt>Role</dt><dd>{lead.role}</dd></div>
+              <div><dt>Size</dt><dd>{lead.size}</dd></div>
+              <div><dt>Address</dt><dd className={lead.confirmed ? "is-ok" : "is-warn"}>{lead.confirmed ? <><Check size={14} strokeWidth={2.4} aria-hidden="true" />Verified</> : <><CircleAlert size={14} strokeWidth={2.2} aria-hidden="true" />Not confirmed</>}</dd></div>
+            </dl>
+            {lead.subject && <p className="ov-detail-subject"><span>Subject</span>{lead.subject}</p>}
+            <div className="ov-detail-actions">
+              <Link className="ov-btn is-primary" href={`/outreach?list=${owner}&card=${lead.id}`}>Open draft</Link>
+              <More href={`/auto-send?owner=${owner}`}>Where it sits</More>
+            </div>
+          </article>
+        )}
+      </div>
+    </section>
+  );
+}
+
+type Priority = { key: string; icon: ReactNode; tone: "bad" | "warn" | "ok" | "muted"; title: ReactNode; sub: ReactNode; action: ReactNode };
+
+/** Overview: who goes out next, what needs you today, and how sending is going, each one click from where it is handled. */
 export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner: Owner; hello: string; aside?: ReactNode }) {
   const q = `owner=${owner}`;
   const auto = data.autoSend;
@@ -102,29 +188,27 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
 
   const on = Boolean(auto && !auto.plan.blocker);
   const autoState = auto?.control.paused ? "Auto-send paused" : on ? (auto?.control.skippedToday ? "Skipped today" : "Auto-send on") : "Auto-send off";
+  const sendWindow = auto ? `${auto.plan.dayLabel.charAt(0).toUpperCase() + auto.plan.dayLabel.slice(1)}, ${auto.plan.windowLabel} ET` : null;
   const warnings = [
     !data.gmailConnected && { text: "Gmail is not connected, so nothing can be sent.", href: "/settings", action: "Connect Gmail" },
     auto?.control.paused && { text: `Auto-send is paused${auto.control.pausedReason ? `: ${auto.control.pausedReason.replace(/\.\s*$/, "")}` : ""}.`, href: `/auto-send?${q}`, action: "Review and resume" },
-    weekSent >= 5 && weekBounceRate >= 5 && { text: `${weekBounceRate}% of this week's emails bounced. Fix the addresses under Today's priorities before sending more.`, href: `/drafts/sent?${q}&days=7`, action: "See them" },
+    weekSent >= 5 && weekBounceRate >= 5 && { text: `${weekBounceRate}% of this week's emails bounced. Fix the addresses under Today before sending more.`, href: `/drafts/sent?${q}&days=7`, action: "See them" },
   ].filter((item): item is { text: string; href: string; action: string } => Boolean(item));
-
-  const leads = data.list?.leads ?? [];
   const unconfirmed = auto?.unconfirmedQueued ?? 0;
 
-  const kpis: Array<{ icon: LucideIcon; tone: string; label: string; value: string; sub: string }> = [
-    { icon: Mail, tone: "ok", label: "Emails sent", value: String(totals.sent), sub: count(totals.sent - firsts, "follow-up", "follow-ups") },
-    { icon: Reply, tone: "ok", label: "Reply rate", value: `${pct(totals.replies, totals.sent)}%`, sub: count(totals.replies, "reply", "replies") },
-    { icon: Users, tone: "ok", label: "Interested", value: String(totals.interested), sub: "positive or a referral" },
-    { icon: CalendarDays, tone: "ok", label: "Meetings booked", value: String(data.funnel?.meetings ?? 0), sub: "on the calendar now" },
-    { icon: Ban, tone: "warn", label: "Bounce rate", value: `${pct(totals.bounced, totals.sent)}%`, sub: count(totals.bounced, "bounce", "bounces") },
+  const kpis = [
+    { label: "Emails sent", value: String(totals.sent), sub: count(totals.sent - firsts, "follow-up", "follow-ups") },
+    { label: "Reply rate", value: `${pct(totals.replies, totals.sent)}%`, sub: count(totals.replies, "reply", "replies") },
+    { label: "Interested", value: String(totals.interested), sub: "positive or a referral" },
+    { label: "Meetings booked", value: String(data.funnel?.meetings ?? 0), sub: "on the calendar now" },
+    { label: "Bounce rate", value: `${pct(totals.bounced, totals.sent)}%`, sub: count(totals.bounced, "bounce", "bounces") },
   ];
 
   const priorities: Priority[] = [
-    ...data.bounces.slice(0, 3).map((bounce) => ({ key: `b-${bounce.personId}`, icon: TriangleAlert, tone: "bad" as const, title: <>{bounce.name} bounced</>, sub: <>{bounce.company}{bounce.email ? ` · ${bounce.email}` : ""}</>, status: "Bounced", action: <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /> })),
-    ...(data.replies.length ? [{ key: "replies", icon: Inbox, tone: "ok" as const, title: <>{count(data.replies.length, "reply", "replies")} waiting</>, sub: <>Answer from your Gmail thread.</>, action: <Go href={`/replies?${q}`}>Open</Go> }] : []),
-    { key: "drafts", icon: FileText, tone: data.drafts ? "ok" : "muted", title: <>{data.drafts ? `${count(data.drafts, "draft", "drafts")} ready` : "No drafts waiting"}</>, sub: <>{data.drafts ? "Review your personalized emails." : "New ones arrive with each weeknight's list."}</>, action: <Go href={`/drafts?${q}`}>Review</Go> },
-    ...(unconfirmed ? [{ key: "unconfirmed", icon: TriangleAlert, tone: "warn" as const, title: <>{count(unconfirmed, "contact", "contacts")} to verify</>, sub: <>Verify contacts before sending.</>, action: <Go href={`/auto-send?${q}`}>Verify</Go> }] : []),
-    { key: "auto", icon: Clock3, tone: auto?.control.paused ? "bad" : on ? "ok" : "muted", title: <>{autoState}</>, sub: <>{on ? `${count(auto?.plan.going ?? 0, "email", "emails")} in the next window.` : "Set a schedule to start sending."}</>, action: <Go href={`/auto-send?${q}`}>Manage</Go> },
+    ...data.bounces.slice(0, 3).map((bounce) => ({ key: `b-${bounce.personId}`, icon: <CircleAlert size={18} strokeWidth={2} />, tone: "bad" as const, title: <>{bounce.name} bounced</>, sub: <>{bounce.company}{bounce.email ? ` · ${bounce.email}` : ""}</>, action: <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /> })),
+    ...(data.replies.length ? [{ key: "replies", icon: <Inbox size={18} strokeWidth={2} />, tone: "ok" as const, title: <>{count(data.replies.length, "reply", "replies")} waiting</>, sub: <>Answer from your Gmail thread.</>, action: <More href={`/replies?${q}`}>Open</More> }] : []),
+    { key: "drafts", icon: <FileText size={18} strokeWidth={2} />, tone: data.drafts ? "ok" : "muted", title: <>{data.drafts ? `${count(data.drafts, "draft", "drafts")} ready` : "No drafts waiting"}</>, sub: <>{data.drafts ? "Read any before they go." : "New ones arrive each weeknight."}</>, action: <More href={`/drafts?${q}`}>Review</More> },
+    ...(unconfirmed ? [{ key: "unconfirmed", icon: <CircleAlert size={18} strokeWidth={2} />, tone: "warn" as const, title: <>{count(unconfirmed, "address", "addresses")} to verify</>, sub: <>Checked again every 20 minutes.</>, action: <More href={`/auto-send?${q}`}>Verify</More> }] : []),
   ];
 
   const funnelSteps = data.funnel ? [
@@ -146,64 +230,53 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
       </header>
 
       <div className="ov-hello">
-        <p>{hello}, {data.first}.</p>
-        <h1>Turn prospects into conversations.</h1>
+        <div>
+          <p>{hello}, {data.first}.</p>
+          <h1>Turn prospects into conversations.</h1>
+        </div>
+        <div className="ov-hello-actions">
+          {data.drafts > 0 && <Link className="ov-btn is-primary" href={`/drafts?${q}`}>Review outreach</Link>}
+          <Link className={`ov-btn ${data.drafts > 0 ? "" : "is-primary"}`} href="/targets">Find companies</Link>
+        </div>
       </div>
 
       {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
 
       <div className="ov-grid is-hero">
-        <section className={`ov-hero ${leads.length ? "has-leads" : ""}`} aria-label="Your next move">
-          <div className="ov-hero-copy">
-            <span className="ov-eyebrow">Your next move</span>
-            {data.drafts
-              ? <h2>{count(data.drafts, "lead", "leads")} ready.<br />Make your next introduction.</h2>
-              : <h2>You are all caught up.<br />Find your next companies.</h2>}
-            <p>{data.drafts ? "Verified contacts. Personalized drafts. Ready for your review." : "New companies and drafts arrive with each weeknight's list."}</p>
-            <div className="ov-hero-actions">
-              {data.drafts ? <Link className="ov-hero-primary" href={`/drafts?${q}`}>Review outreach<ArrowRight size={17} strokeWidth={2} aria-hidden="true" /></Link> : null}
-              <Link className={data.drafts ? "ov-hero-ghost" : "ov-hero-primary"} href="/targets">Find companies<ArrowRight size={17} strokeWidth={2} aria-hidden="true" /></Link>
-            </div>
-          </div>
-          {leads.length > 0 && (
-            <ul className="ov-leads" aria-label="Ready leads">
-              {leads.map((lead) => (
-                <li key={lead.company}>
-                  <span className="ov-lead-icon" aria-hidden="true"><Building2 size={20} strokeWidth={1.7} /></span>
-                  <span className="ov-lead-text">
-                    <b>{lead.company}</b>
-                    <small className={lead.confirmed ? "is-ok" : ""}>{lead.confirmed ? <CircleCheck size={14} strokeWidth={2} aria-hidden="true" /> : <Clock3 size={14} strokeWidth={2} aria-hidden="true" />}<span>{lead.sector === "Other" ? "" : `${lead.sector} · `}{lead.confirmed ? "Verified contact" : "Checking address"}</span></small>
-                  </span>
-                  <span className="ov-pill">Draft ready</span>
+        <NextUp queue={data.queue} owner={owner} sendWindow={sendWindow} />
+
+        <section className="home-card ov-panel ov-today" aria-label="Today">
+          <div className="home-needs">
+            <div className="ov-panel-head"><div><h2>Today</h2></div></div>
+            <ul className="ov-prio">
+              {priorities.map((row) => (
+                <li key={row.key}>
+                  <span className={`ov-glyph is-${row.tone}`} aria-hidden="true">{row.icon}</span>
+                  <span className="ov-prio-text"><b>{row.title}</b><small>{row.sub}</small></span>
+                  <span className="ov-act">{row.action}</span>
                 </li>
               ))}
             </ul>
-          )}
+          </div>
+          <div className="home-auto ov-today-block">
+            <span className="ov-label">Next sending window</span>
+            <b className="ov-today-big">{sendWindow ?? "Not known just now"}</b>
+            <div className="ov-today-row"><span className={`ov-dot is-${auto?.control.paused ? "bad" : on ? "ok" : "warn"}`}>{autoState}{on && auto ? ` · ${count(auto.plan.going, "email", "emails")} going` : ""}</span><More href={`/auto-send?${q}`}>Manage</More></div>
+          </div>
+          <div className="home-inbox ov-today-block">
+            <span className="ov-label">Inbox</span>
+            <b className="ov-today-big">{data.replies.length ? `${count(data.replies.length, "reply", "replies")} waiting` : "No replies waiting"}</b>
+            <div className="ov-today-row"><span className="ov-quiet">{reply ? `Newest: ${reply.name}${reply.company ? `, ${reply.company}` : ""}` : "New replies appear here."}</span><More href={`/replies?${q}`}>View inbox</More></div>
+          </div>
         </section>
-
-        <Panel className="home-needs ov-priorities" title="Today's priorities">
-          <ul className="ov-prio">
-            {priorities.map((row) => (
-              <li key={row.key}>
-                <span className={`ov-icon is-${row.tone}`} aria-hidden="true"><row.icon size={19} strokeWidth={1.8} /></span>
-                <span className="ov-prio-text"><b>{row.title}</b><small>{row.sub}</small></span>
-                {row.status && <span className={`ov-status is-${row.tone}`}>{row.status}</span>}
-                <span className="ov-act">{row.action}</span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
       </div>
 
       <section className="ov-kpis" aria-label="Headline numbers">
         {kpis.map((kpi) => (
           <div key={kpi.label} className="ov-kpi">
-            <span className={`ov-icon is-${kpi.tone}`} aria-hidden="true"><kpi.icon size={19} strokeWidth={1.8} /></span>
-            <span className="ov-kpi-text">
-              <span className="ov-kpi-label">{kpi.label}</span>
-              <span className="ov-kpi-value"><b>{kpi.value}</b></span>
-              <small>{kpi.sub}</small>
-            </span>
+            <span className="ov-kpi-label">{kpi.label}</span>
+            <span className="ov-kpi-value"><b>{kpi.value}</b></span>
+            <small>{kpi.sub}</small>
           </div>
         ))}
       </section>
@@ -211,20 +284,20 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
       <div className="ov-grid is-main">
         <Panel className="home-week ov-activity" title="Outreach activity" side={
           <label className="ov-range">
-            <CalendarDays size={17} strokeWidth={1.8} aria-hidden="true" />
+            <CalendarDays size={16} strokeWidth={1.9} aria-hidden="true" />
             <span className="sr-only">Period</span>
             <select value={range} onChange={(event) => setRange(Number(event.target.value) as Range)}>
               {RANGES.map((value) => <option key={value} value={value}>Last {value} days</option>)}
             </select>
           </label>
         }>
-          <div className="ov-tabs" role="tablist" aria-label="Show on the chart">
+          <div className="ov-seg is-small" role="tablist" aria-label="Show on the chart">
             {METRICS.map((item) => <button key={item.key} type="button" role="tab" aria-selected={metric === item.key} className={metric === item.key ? "is-on" : ""} onClick={() => setMetric(item.key)}>{item.label}</button>)}
           </div>
           {data.series.length ? <ActivityChart days={current} metric={metric} /> : <p className="home-empty">Sent emails show here once the first ones go out.</p>}
         </Panel>
 
-        <Panel className="ov-pipeline" title="Conversation pipeline" sub="First-touch contacts · Last 90 days" link={{ href: "/pipeline", label: "Open" }}>
+        <Panel className="ov-pipeline" title="Conversation pipeline" sub="First-touch contacts · last 90 days" link={{ href: "/pipeline", label: "Open" }}>
           <ol className="hv-steps">
             {funnelSteps.map((step) => (
               <li key={step.label}>
@@ -233,29 +306,6 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
               </li>
             ))}
           </ol>
-        </Panel>
-      </div>
-
-      <div className="ov-grid is-even">
-        <Panel className="home-inbox ov-strip" title="Inbox">
-          <div className="ov-strip-row">
-            <span className="ov-icon is-big is-muted" aria-hidden="true"><Mail size={22} strokeWidth={1.7} /></span>
-            <span className="ov-prio-text">
-              <b>{data.replies.length ? `${count(data.replies.length, "reply", "replies")} waiting` : "No replies waiting"}</b>
-              <small>{reply ? `Newest: ${reply.name}${reply.company ? `, ${reply.company}` : ""}` : "New replies will appear here."}</small>
-            </span>
-            <span className="ov-act"><Go href={`/replies?${q}`}>View inbox</Go></span>
-          </div>
-        </Panel>
-
-        <Panel className={`home-auto ov-strip ${on ? "is-on" : ""}`} title="Next sending window" side={<span className={`ov-badge ${on ? "is-ok" : "is-warn"}`}><Clock3 size={14} strokeWidth={2} aria-hidden="true" />{autoState}</span>}>
-          <div className="ov-strip-row">
-            <span className="ov-icon is-big is-ok" aria-hidden="true"><CalendarDays size={22} strokeWidth={1.7} /></span>
-            {auto
-              ? <span className="ov-prio-text"><b>{auto.plan.dayLabel.charAt(0).toUpperCase() + auto.plan.dayLabel.slice(1)} · {auto.plan.windowLabel} ET</b><small>{on ? `${count(auto.plan.going, "email", "emails")} going out · ${auto.plan.sentToday} of ${auto.plan.dailyCap} sent today` : `${count(data.drafts, "email", "emails")} ready`}</small></span>
-              : <span className="ov-prio-text"><b>Not known just now</b><small>Auto-send could not be read.</small></span>}
-            <span className="ov-act"><Go href={`/auto-send?${q}`}>Manage</Go></span>
-          </div>
         </Panel>
       </div>
     </div>

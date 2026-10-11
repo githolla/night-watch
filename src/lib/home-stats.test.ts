@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { dailySeries, funnel } from "./home-stats.ts";
+import { dailySeries, funnel, nextUp, type NextUpLead } from "./home-stats.ts";
 import type { SentTouch } from "./sent-stats.ts";
 
 const touch = (id: string, cardId: string, sentAt: string, extra: Partial<SentTouch> = {}): SentTouch => ({
@@ -31,4 +31,14 @@ test("the daily series has every day, counts follow-ups apart from first emails,
 test("the funnel counts each person once, at the furthest step", () => {
   assert.deepEqual(funnel(touches, "2026-10-01", dayOf, 1), { emailed: 4, replied: 2, interested: 1, meetings: 1 });
   assert.deepEqual(funnel(touches, "2026-10-07", dayOf, 0), { emailed: 2, replied: 0, interested: 0, meetings: 0 });
+});
+
+test("Next up lists every draft once, the send queue in order first", () => {
+  const lead = (id: string, company: string, extra: Partial<NextUpLead> = {}): NextUpLead => ({
+    id, name: `Person ${id}`, title: "CEO", company, subject: "Hi", industry: "Construction", role: "Owner or CEO", size: "$10M to $50M", confirmed: false,
+    group: "waiting", position: 0, time: null, reason: "Address not confirmed", ...extra,
+  });
+  const drafts = [lead("a", "Zeta"), lead("b", "Alpha"), lead("c", "Beta"), lead("d", "Gamma")];
+  const queued = [lead("c", "Beta", { group: "later", position: 2 }), lead("d", "Gamma", { group: "going", position: 1, time: "9:05am" }), lead("e", "Kept Co", { group: "kept" })];
+  assert.deepEqual(nextUp(drafts, queued).map((item) => `${item.id}:${item.group}`), ["d:going", "c:later", "e:kept", "b:waiting", "a:waiting"]);
 });

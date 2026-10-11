@@ -51,3 +51,19 @@ export function funnel(touches: SentTouch[], since: string, dayOf: (iso: string)
   const outcomes = [...cards.values()];
   return { emailed: outcomes.length, replied: outcomes.filter(replied).length, interested: outcomes.filter((outcome) => outcome === "interested").length, meetings };
 }
+
+/** One person in Next up. Queued drafts carry their place in the send queue; the rest say why they are waiting. */
+export type NextUpLead = {
+  id: string; name: string; title: string; company: string; subject: string;
+  industry: string; role: string; size: string; confirmed: boolean;
+  group: "going" | "later" | "held" | "kept" | "waiting";
+  position: number; time: string | null; reason: string | null;
+};
+
+/** Every unsent draft once: the send queue in order first, then held and kept ones, then the rest by company. */
+export function nextUp(drafts: NextUpLead[], queued: NextUpLead[]): NextUpLead[] {
+  const byId = new Map(drafts.map((lead) => [lead.id, lead]));
+  for (const lead of queued) byId.set(lead.id, lead);
+  const rank = (lead: NextUpLead) => lead.group === "going" || lead.group === "later" ? 0 : lead.group === "waiting" ? 2 : 1;
+  return [...byId.values()].sort((a, b) => rank(a) - rank(b) || (a.position || 1e6) - (b.position || 1e6) || a.company.localeCompare(b.company));
+}
