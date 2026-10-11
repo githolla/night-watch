@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { BriefcaseBusiness, ChartNoAxesColumn, ChevronDown, History, House, LifeBuoy, ListChecks, LogOut, Menu, MessageSquareReply, MessageSquareText, PanelLeftClose, PanelLeftOpen, PenLine, PlayCircle, Repeat, Search, Send, Settings, TrendingUp, UserRoundCog, Users, type LucideIcon } from "lucide-react";
+import { BriefcaseBusiness, ChartNoAxesColumn, ChevronDown, History, House, LifeBuoy, Linkedin, ListChecks, LogOut, Menu, MessageSquareReply, MessageSquareText, PanelLeftClose, PanelLeftOpen, PenLine, PlayCircle, Repeat, Search, Send, Settings, TrendingUp, UserRoundCog, Users, type LucideIcon } from "lucide-react";
 import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
@@ -12,20 +12,23 @@ import { FeedbackWidget } from "./FeedbackWidget";
 type NavItem = { href: string; label: string; hint: string; icon: LucideIcon; adminOnly?: boolean };
 const navGroups: Array<{ title: string | null; label?: string; items: NavItem[] }> = [
   { title: null, label: "Workspace", items: [
-    { href: "/", label: "Overview", hint: "Your day: replies, what goes out, how it is going", icon: House },
+    { href: "/", label: "Overview", hint: "Your next action, what needs you and how it is going", icon: House },
+    { href: "/outreach", label: "Company lists", hint: "Each night's companies and their custom emails", icon: ListChecks },
     { href: "/targets", label: "Discover companies", hint: "Search, add or remove companies", icon: Search },
-    { href: "/outreach", label: "Reach-out list", hint: "The selected companies and their custom emails", icon: ListChecks },
-    { href: "/drafts", label: "Drafts", hint: "Set up, check and fix your email drafts", icon: PenLine },
-    { href: "/auto-send", label: "Auto-send", hint: "Emails sent for you each weekday morning", icon: Send },
-    { href: "/replies", label: "Replies", hint: "Everyone who wrote back, and what to do next", icon: MessageSquareReply },
   ] },
-  { title: null, label: "Performance", items: [
-    { href: "/stats", label: "Analytics", hint: "Replies, meetings and what's working", icon: ChartNoAxesColumn },
+  { title: null, label: "Outreach", items: [
+    { href: "/drafts", label: "Drafts", hint: "Review, edit and approve your emails", icon: PenLine },
+    { href: "/auto-send", label: "Auto-send", hint: "What sends next, when, and what is blocked", icon: Send },
     { href: "/activity", label: "Send history", hint: "Everything sent, and every reply", icon: History },
-    { href: "/pipeline", label: "Pipeline", hint: "Conversations turning into deals", icon: TrendingUp },
+  ] },
+  { title: null, items: [
+    { href: "/replies", label: "Replies", hint: "Everyone who wrote back, and what to do next", icon: MessageSquareReply },
+    { href: "/linkedin", label: "LinkedIn tasks", hint: "Messages to send by hand on LinkedIn", icon: Linkedin },
+    { href: "/stats", label: "Results", hint: "Replies, meetings and what's working", icon: ChartNoAxesColumn },
   ] },
   { title: "More", items: [
     { href: "/followups", label: "Follow-ups", hint: "What goes out after each first email", icon: Repeat },
+    { href: "/pipeline", label: "Pipeline", hint: "Conversations turning into deals", icon: TrendingUp },
     { href: "/people", label: "People", hint: "Every contact on file", icon: Users },
     { href: "/roles", label: "Jobs they're hiring for", hint: "Open roles at the companies on file", icon: BriefcaseBusiness },
     { href: "/posts", label: "Employee posts", hint: "What their people are posting", icon: MessageSquareText },
@@ -65,7 +68,7 @@ function subscribeFold(onChange: () => void) {
 export function Header({showTour=true}:{showTour?:boolean}) {
   const pathname = usePathname();
   const active = (href: string) => href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`) || (href === "/outreach" && pathname.startsWith("/accounts"));
-  const [counts, setCounts] = useState<{ today: number; companies: number; followups: number; replies?: number; drafts?: number } | null>(null);
+  const [counts, setCounts] = useState<{ today: number; companies: number; followups: number; replies?: number; drafts?: number; linkedin?: number } | null>(null);
   // Folded: no saved choice means "the page's default"; a choice she made is remembered on this browser.
   const foldChoice = useSyncExternalStore(subscribeFold, readFold, () => null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -109,7 +112,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
   const meInitials = me?.name ? me.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") : "";
 
 
-  const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/drafts" ? counts?.drafts : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : undefined;
+  const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/drafts" ? counts?.drafts : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : href === "/linkedin" ? counts?.linkedin : undefined;
   // A member's Results are her own sent stats; the full analytics page is for the admin.
   const hrefFor = (item: NavItem) => item.href === "/stats" && me && me.role !== "admin" ? "/drafts/sent?days=30" : item.href;
   const isActive = (item: NavItem) => active(item.href);

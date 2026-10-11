@@ -59,7 +59,7 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
   return (
     <main className="workspace-page drafts-page dw-page">
       <div className="feature-center drafts-shell">
-        <PageHead title="Review your drafts" seats={isAdmin ? { current: owner, href: (seat) => `/drafts?owner=${seat}`, label: "Whose drafts" } : undefined}>
+        <PageHead title={yours ? "Review your drafts" : `Review ${name}'s drafts`} seats={isAdmin ? { current: owner, href: (seat) => `/drafts?owner=${seat}`, label: "Whose drafts" } : undefined}>
           Approve relevant messages and keep control of what gets sent. {yours ? "Your" : `${name}'s`} {summary.unsent} unsent email{summary.unsent === 1 ? "" : "s"}, {summary.sentToday} sent today.
         </PageHead>
         <DraftsTabs owner={owner} active="edit" />

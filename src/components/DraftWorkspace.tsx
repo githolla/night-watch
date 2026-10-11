@@ -34,7 +34,7 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
   drafts: WorkspaceDraft[]; plan: WorkspacePlan | null; owner: string; sender: ReviewSender; optOut: string; listHref: string; canAct: boolean;
 }) {
   const [drafts, setDrafts] = useState(initial);
-  const [tab, setTab] = useState<Tab>(initial.some((draft) => tabOf(draft) === "review") || !initial.length ? "review" : "approved");
+  const [tab, setTab] = useState<Tab>(TABS.map(([key]) => key).find((key) => initial.some((draft) => tabOf(draft) === key)) ?? "review");
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("all");
   const [page, setPage] = useState(0);

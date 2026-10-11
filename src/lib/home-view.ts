@@ -1,51 +1,51 @@
 import { loadAutoSendView, type AutoSendControl, type AutoSendSummary } from "./autosend-view.ts";
 import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
+import { summarizeList, type ListCard, type ListSummary } from "./company-lists.ts";
 import { LIST_DRAFT_HASH } from "./draft-scope.ts";
-import { allFocus } from "./focus-data.ts";
-import { isLikelyPersonName } from "./pipeline.ts";
+import { dailySeries, type SeriesDay } from "./home-stats.ts";
+import { linkedinTaskCount } from "./linkedin-tasks.ts";
 import { localParts } from "./local-time.ts";
-import { industryOf, roleOf, sizeOf, tally } from "./send-plan.ts";
-import { dailySeries, funnel, nextUp, type Funnel, type NextUpLead, type SeriesDay } from "./home-stats.ts";
-import { loadSentTouches } from "./sent-view.ts";
-import { refreshLegacyFollowup } from "./followups.ts";
-import { pendingFollowups, type NextFollowup } from "./next-followups.ts";
+import { pendingFollowups } from "./next-followups.ts";
+import { isLikelyPersonName } from "./pipeline.ts";
 import { loadReplies, type ReplyItem } from "./replies-view.ts";
-import type { QueueItem } from "../components/FollowupQueue.tsx";
-import { seatSummary } from "./draft-summary.ts";
-import { shiftDate } from "./sent-stats.ts";
+import { industryOf } from "./send-plan.ts";
+import { loadSentTouches } from "./sent-view.ts";
 import { admin } from "./supabase/admin.ts";
 import type { Owner } from "./types.ts";
 
 const DAY_MS = 86_400_000;
+const POSITIVE = ["positive", "referral"];
 
-/** A follow-up for the inline queue; who may send it is added on the page, from the viewer. */
-export type HomeFollowup = Omit<QueueItem, "canAct" | "canSend">;
 export type HomeBounce = { personId: string; cardId: string; name: string; company: string; email: string | null; bouncedAt: string };
-export type HomeList = { date: string; companies: number; sectors: Array<{ label: string; count: number }>; confirmed: number };
+/** The seat's unsent list emails by what each needs, and how the next send window stands. */
+export type HomeDrafts = { total: number; ready: number; review: number; held: number; missing: number; checking: number; next: number; nextUnapproved: number };
 export type HomeData = {
   first: string;
-  /** Replies that still need a response, strongest first, with what they wrote and the Gmail thread. */
+  /** Replies that still need a response, strongest first. */
   replies: ReplyItem[];
-  /** Follow-ups waiting on a person now. */
-  followups: HomeFollowup[];
-  autoSend: { plan: AutoSendSummary; control: AutoSendControl; unconfirmedQueued: number } | null;
-  /** Every unsent draft for Next up: the auto-send queue in order, then the ones still waiting. */
-  queue: NextUpLead[];
+  followupsDue: number;
+  linkedin: number;
+  autoSend: { plan: AutoSendSummary; control: AutoSendControl } | null;
   bounces: HomeBounce[];
-  list: HomeList | null;
+  drafts: HomeDrafts;
+  /** Recent nightly lists, newest first, each summed into progress and results. */
+  lists: ListSummary[];
+  /** When the newest list finished, and whether tonight's is being built now. */
+  lastListAt: string | null;
+  building: boolean;
   gmailConnected: boolean;
-  /** Unsent list emails waiting in Drafts, the same count Drafts shows. */
-  drafts: number;
-  /** 90 days, one entry per day, for the chart's ranges. */
+  /** 90 days, one entry per day, for the results ranges. */
   series: SeriesDay[];
-  funnel: Funnel | null;
+  meetings: number;
 };
 
-/** Everything Home shows for one seat, from the same sources as the pages it links to. Each part fails on its own. */
+type Person = { email: string | null; email_status: string | null; email_check: unknown; do_not_contact?: boolean | null };
+
+/** Everything Overview shows for one seat, from the same sources as the pages it links to. Each part fails on its own. */
 export async function loadHome(owner: Owner, now: Date = new Date()): Promise<HomeData> {
   const db = admin();
   const since = (days: number) => new Date(now.getTime() - days * DAY_MS).toISOString();
-  const [profile, connection, replies, bounces, list, autoSend, sent, meetings, drafts, unsent, followups] = await Promise.all([
+  const [profile, connection, replies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin] = await Promise.all([
     db.from("sender_profiles").select("from_name").eq("owner", owner).maybeSingle().then((r) => r.data),
     db.from("gmail_connections").select("email").eq("owner", owner).maybeSingle().then((r) => r.data),
     // The same 21 days and "needs a response" rule as the Replies badge in the sidebar.
@@ -53,27 +53,19 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     db.from("touches").select("card_id,person_id,bounced_at,cards(status,accounts(name)),people(full_name,email,email_status)")
       .eq("sent_by", owner).eq("channel", "email").not("bounced_at", "is", null).gte("bounced_at", since(30))
       .order("bounced_at", { ascending: false }).limit(100).then((r) => r.data ?? []),
-    db.from("reachout_lists").select("list_date,rows").eq("owner", owner).eq("status", "ready").gte("list_date", since(4).slice(0, 10))
-      .order("list_date", { ascending: false }).limit(1).maybeSingle().then((r) => r.data),
+    db.from("reachout_lists").select("list_date,status,rows,updated_at").eq("owner", owner).in("status", ["ready", "building"]).gte("list_date", since(30).slice(0, 10))
+      .order("list_date", { ascending: false }).limit(8).then((r) => r.data ?? []),
     loadAutoSendView(owner).catch(() => null),
-    // 90 days for the chart; the week view is the last 14 of them, so this week shows against the week before.
     loadSentTouches(owner, 90, now).catch(() => null),
     db.from("cards").select("id", { count: "exact", head: true }).eq("assigned_to", owner).eq("status", "meeting").then((r) => r.count ?? 0),
-    seatSummary(owner).then((summary) => summary.unsent).catch(() => 0),
-    db.from("cards").select("id,person_id,status,email_subject,email_body,updated_at,accounts(name,domain,vertical),people(full_name,title,email,email_status,email_check,do_not_contact),signals!inner(hash)")
+    db.from("cards").select("id,person_id,status,auto_send_hold,people(full_name,email,email_status,email_check,do_not_contact),signals!inner(hash)")
       .eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).limit(500).then((r) => r.data ?? []),
-    pendingFollowups(db, { owner, now: now.getTime() }).catch(() => new Map<string, NextFollowup[]>()),
+    pendingFollowups(db, { owner, now: now.getTime() }).catch(() => null),
+    linkedinTaskCount(owner, now).catch(() => 0),
   ]);
 
-  const strong = (item: ReplyItem) => Number(["positive", "referral"].includes(item.classification));
+  const strong = (item: ReplyItem) => Number(POSITIVE.includes(item.classification));
   const waiting = [...replies].sort((a, b) => strong(b) - strong(a) || b.repliedAt.localeCompare(a.repliedAt));
-
-  // Follow-ups that came due and could not go out by themselves, with the text refreshed as the Follow-ups page shows it.
-  const dueFollowups: HomeFollowup[] = [...followups.values()].flat().filter((step) => step.needsYou).map((step) => ({
-    stepId: step.stepId, step: step.step, scheduledAt: step.scheduledAt, channel: step.channel, subject: step.subject, auto: step.auto, needsYou: true,
-    body: refreshLegacyFollowup(step.body, { firstName: step.person.split(/\s+/)[0] || "there", company: step.company || "your team", baseSubject: step.subject ?? "", step: step.step, channel: step.channel === "email" ? "email" : "linkedin_message" }),
-    person: step.person || "Unknown contact", title: "", company: step.company, status: "ready", sentAt: null,
-  })).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
 
   type BounceRow = { card_id: string; person_id: string; bounced_at: string; cards: { status: string; accounts: { name: string | null } | null } | null; people: { full_name: string | null; email: string | null; email_status: string | null } | null };
   const seenBounce = new Set<string>();
@@ -82,47 +74,53 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     .filter((row) => row.cards?.status === "sent" && row.people?.email_status === "invalid" && !seenBounce.has(row.person_id) && Boolean(seenBounce.add(row.person_id)))
     .map((row) => ({ personId: row.person_id, cardId: row.card_id, name: row.people?.full_name ?? "", company: row.cards?.accounts?.name ?? "", email: row.people?.email ?? null, bouncedAt: row.bounced_at }));
 
-  let latest: HomeList | null = null;
-  const rows = ((list as { rows?: Array<{ domain: string; sector?: string; company?: string }> } | null)?.rows ?? []);
-  if (list && rows.length) {
-    const { data: people } = await db.from("cards").select("people(email,email_status,email_check),accounts!inner(domain)").eq("assigned_to", owner).in("accounts.domain", rows.map((row) => row.domain));
-    const confirmed = new Set(((people ?? []) as unknown as Array<{ people: { email: string | null; email_status: string | null; email_check: unknown } | null; accounts: { domain: string } }>).filter((row) => row.people && bulkSendable(row.people)).map((row) => row.accounts.domain));
-    latest = { date: (list as { list_date: string }).list_date, companies: rows.length, sectors: tally(rows.map((row) => industryOf(row.sector, row.company))), confirmed: confirmed.size };
+  // The same people Drafts counts: real names, not opted out, once each.
+  type DraftRow = { id: string; person_id: string; status: string; auto_send_hold: boolean | null; people: (Person & { full_name: string }) | null };
+  const seenDraft = new Set<string>();
+  const people = (unsent as unknown as DraftRow[]).filter((row) => row.people && !row.people.do_not_contact && isLikelyPersonName(row.people.full_name) && !seenDraft.has(row.person_id) && Boolean(seenDraft.add(row.person_id)));
+  const going = (autoSend?.emails ?? []).filter((email) => email.group === "going");
+  const drafts: HomeDrafts = { total: people.length, ready: 0, review: 0, held: 0, missing: 0, checking: 0, next: going.length, nextUnapproved: going.filter((email) => email.status !== "approved").length };
+  for (const row of people) {
+    const person = row.people!;
+    if (!sendableAddress(person)) { drafts.missing++; continue; }
+    if (!bulkSendable(person)) drafts.checking++;
+    if (row.auto_send_hold) drafts.held++;
+    else if (row.status === "approved") drafts.ready++;
+    else drafts.review++;
   }
 
-  type DraftRow = { id: string; person_id: string; status: string; email_subject: string | null; email_body: string | null; updated_at: string; accounts: { name: string | null; domain: string | null; vertical: string | null } | null; people: { full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
-  const focus = new Map(allFocus().map((row) => [row.domain.toLowerCase(), row]));
-  const seenDraft = new Set<string>();
-  // The same people Drafts counts: real names, not opted out, once each.
-  const waitingDrafts: NextUpLead[] = (unsent as unknown as DraftRow[])
-    .filter((row) => row.people && !row.people.do_not_contact && isLikelyPersonName(row.people.full_name) && !seenDraft.has(row.person_id) && Boolean(seenDraft.add(row.person_id)))
-    .map((row) => {
-      const person = row.people!;
-      const listRow = row.accounts?.domain ? focus.get(row.accounts.domain.toLowerCase()) : undefined;
-      const confirmed = bulkSendable(person) && sendableAddress(person);
-      return {
-        id: row.id, name: person.full_name, title: person.title ?? "", company: row.accounts?.name ?? row.accounts?.domain ?? "", subject: row.email_subject ?? "", body: row.email_body ?? "", updatedAt: row.updated_at, status: row.status,
-        industry: industryOf(listRow?.sector ?? row.accounts?.vertical, row.accounts?.name), role: roleOf(person.title), size: sizeOf(listRow?.revenue), confirmed,
-        group: "waiting" as const, position: 0, time: null,
-        reason: !sendableAddress(person) ? "No email address yet" : confirmed ? "Not in a window yet" : "Address not confirmed",
-      };
-    });
-  const queued: NextUpLead[] = (autoSend?.emails ?? []).map(({ id, name, title, company, subject, body, updatedAt, industry, role, size, confirmed, group, position, time, reason }) => ({ id, name, title, company, subject, body, updatedAt, status: "new", industry, role, size, confirmed, group, position, time, reason }));
-
-  const since90 = sent ? shiftDate(sent.today, -89) : "";
+  type ListRecord = { list_date: string; status: string; updated_at: string; rows: Array<{ domain: string; sector?: string; company?: string }> | null };
+  const records = lists as unknown as ListRecord[];
+  const domains = [...new Set(records.flatMap((list) => (list.rows ?? []).map((row) => row.domain)))];
+  let summaries: ListSummary[] = [];
+  if (domains.length) {
+    const [{ data: cards }, { data: replied }] = await Promise.all([
+      db.from("cards").select("id,status,auto_send_hold,accounts!inner(domain),people(email,email_status,email_check,do_not_contact)").eq("assigned_to", owner).in("accounts.domain", domains).limit(3000),
+      db.from("touches").select("card_id").eq("sent_by", owner).in("reply_classification", POSITIVE).limit(2000),
+    ]);
+    const positive = new Set(((replied ?? []) as Array<{ card_id: string }>).map((row) => row.card_id));
+    type CardRow = { id: string; status: string; auto_send_hold: boolean | null; accounts: { domain: string }; people: Person | null };
+    const listCards: ListCard[] = ((cards ?? []) as unknown as CardRow[]).map((card) => ({
+      domain: card.accounts.domain, status: card.status, held: Boolean(card.auto_send_hold),
+      sendable: Boolean(card.people && !card.people.do_not_contact && sendableAddress(card.people)), positiveReply: positive.has(card.id),
+    }));
+    summaries = records.map((list) => summarizeList({ date: list.list_date, building: list.status === "building", rows: (list.rows ?? []).map((row) => ({ domain: row.domain, sector: industryOf(row.sector, row.company) })) }, listCards));
+  }
 
   return {
     first: ((profile?.from_name as string | undefined) ?? "").trim().split(/\s+/)[0] || (owner === "josh" ? "Josh" : "Suuchi"),
     replies: waiting,
-    followups: dueFollowups,
-    autoSend: autoSend ? { plan: autoSend.plan, control: autoSend.control, unconfirmedQueued: autoSend.emails.filter((email) => (email.group === "going" || email.group === "later") && !email.confirmed).length } : null,
-    queue: nextUp(waitingDrafts, queued),
+    followupsDue: followups ? [...followups.values()].flat().filter((step) => step.needsYou).length : 0,
+    linkedin,
+    autoSend: autoSend ? { plan: autoSend.plan, control: autoSend.control } : null,
     bounces: toFix,
-    list: latest,
-    gmailConnected: Boolean((connection?.email as string | undefined)?.trim()),
     drafts,
+    lists: summaries,
+    lastListAt: records.find((list) => list.status === "ready")?.updated_at ?? null,
+    building: records.some((list) => list.status === "building"),
+    gmailConnected: Boolean((connection?.email as string | undefined)?.trim()),
     series: sent ? dailySeries(sent.touches, 90, sent.today, sent.dayOf) : [],
-    funnel: sent ? funnel(sent.touches, since90, sent.dayOf, meetings) : null,
+    meetings,
   };
 }
 

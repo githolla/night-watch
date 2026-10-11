@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { ReviewSender } from "@/components/DraftReview";
+import type { ReviewSender } from "@/components/DraftWorkspace";
 import type { CurrentTemplates } from "@/lib/draft-templates";
 import { outreachEmailHtml } from "@/lib/outreach-ending";
 

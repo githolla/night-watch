@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
-import type { ReviewSender } from "@/components/DraftReview";
+import type { ReviewSender } from "@/components/DraftWorkspace";
 import { blockedGroups, type BlockKind } from "@/lib/autosend-blocked";
 import type { AutoSendControl, AutoSendEmail, AutoSendSummary, MailboxHealth } from "@/lib/autosend-view";
 import { outreachBody, outreachEmailHtml } from "@/lib/outreach-ending";
