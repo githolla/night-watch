@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ReplyItem } from "@/lib/replies-view";
 import { replyLabel } from "@/lib/reply-labels";
+import { setCardStatus } from "@/lib/card-status";
 
 type Group = ReplyItem["group"];
 const TABS: Array<[Group, string]> = [["needs", "Needs a response"], ["booked", "Booked"], ["closed", "Closed"]];
@@ -21,14 +22,10 @@ export function RepliesView({ items, nextStep, canChange }: { items: ReplyItem[]
   async function move(item: ReplyItem, status: "meeting" | "archived" | "replied", done: string) {
     setBusy(item.cardId);
     setNote(null);
-    try {
-      const response = await fetch(`/api/cards/${item.cardId}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ status }) });
-      const json = await response.json().catch(() => ({})) as { error?: string };
-      if (!response.ok) { setNote({ id: item.cardId, text: json.error ?? "Not saved. Try again.", ok: false }); return; }
-      setNote({ id: item.cardId, text: done, ok: true });
-      router.refresh();
-    } catch { setNote({ id: item.cardId, text: "Not saved: the connection dropped.", ok: false }); }
-    finally { setBusy(null); }
+    const result = await setCardStatus(item.cardId, status);
+    setBusy(null);
+    setNote({ id: item.cardId, text: result.ok ? done : result.error, ok: result.ok });
+    if (result.ok) router.refresh();
   }
 
   return (

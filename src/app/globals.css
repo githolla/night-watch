@@ -2430,9 +2430,6 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-bell:hover{background:var(--soft);color:var(--ink)}
 .ov-bell.has-dot::after{content:"";position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 2px var(--paper-bright)}
 .ov-hello{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px 24px;margin:10px 0 6px}
-.ov-hello p{margin:0 0 6px;font:500 17px/1.3 var(--sans);color:var(--muted);letter-spacing:-.01em}
-.ov-hello h1{margin:0;font-size:clamp(32px,3.6vw,52px);font-weight:600;line-height:1.04;letter-spacing:-.04em;color:var(--ink)}
-.ov-hello-actions{display:flex;flex-wrap:wrap;gap:10px}
 .ov-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 22px;border-radius:999px;background:rgba(40,36,31,.06);color:var(--ink);font:500 15px/1 var(--sans);letter-spacing:-.01em;text-decoration:none;transition:background .2s ease,transform .2s ease}
 .ov-btn:hover{background:rgba(40,36,31,.1)}
 .ov-btn:active{transform:scale(.98)}
@@ -2443,7 +2440,6 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-more svg{transition:transform .2s ease}
 .ov-more:hover svg{transform:translateX(2px)}
 .ov-grid{display:grid;gap:22px;align-items:stretch}
-.ov-grid.is-hero{grid-template-columns:minmax(0,2.15fr) minmax(320px,1fr)}
 .ov-grid.is-main{grid-template-columns:minmax(0,1.85fr) minmax(300px,1fr)}
 .ov-panel{padding:26px 28px}
 .ov-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px}
@@ -2504,9 +2500,6 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-detail-subject{margin:0;padding-top:16px;border-top:1px solid var(--line);font-size:15px;line-height:1.45;color:var(--ink)}
 .ov-detail-subject span{display:block;margin-bottom:4px;font:500 12.5px/1.3 var(--sans);color:var(--muted)}
 .ov-detail-actions{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:auto}
-.ov-next-empty{margin:0;font-size:15px;color:var(--ink-soft)}
-/* Today: priorities, then the sending window and the inbox. */
-.ov-today{display:flex;flex-direction:column;gap:0}
 .ov-prio{list-style:none;margin:0;padding:0}
 .ov-prio li{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
 .ov-prio li:first-child{border-top:0;padding-top:0}
@@ -2519,9 +2512,6 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-prio-text small{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ov-act{flex:none}
 .ov-act .btn{padding:6px 12px;border-radius:999px;font-size:13px}
-.ov-today-block{display:flex;flex-direction:column;gap:6px;margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
-.ov-today-big{font-size:19px;font-weight:600;letter-spacing:-.025em;color:var(--ink)}
-.ov-today-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
 /* Numbers: one quiet strip, large figures. */
 .ov-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-radius:var(--ov-radius);background:#fff;box-shadow:var(--ov-shadow);overflow:hidden}
 .ov-kpi{display:flex;flex-direction:column;gap:4px;padding:24px 28px;border-left:1px solid var(--line)}
@@ -2536,7 +2526,50 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-pipeline .hv-step-top b{font-weight:600;letter-spacing:-.03em}
 .ov-pipeline .hv-step-bar{height:6px}
 .ov-pipeline .hv-step-bar span{background:var(--ok)}
-@media(max-width:1300px){.ov-grid.is-hero,.ov-grid.is-main{grid-template-columns:minmax(0,1fr)}.ov-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.ov-kpi:nth-child(4){border-left:0}.ov-kpi:nth-child(n+4){border-top:1px solid var(--line)}}
+@media(max-width:1300px){.ov-grid.is-main{grid-template-columns:minmax(0,1fr)}.ov-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.ov-kpi:nth-child(4){border-left:0}.ov-kpi:nth-child(n+4){border-top:1px solid var(--line)}}
 @media(max-width:900px){.ov-next-body{grid-template-columns:minmax(0,1fr)}.ov-detail{order:-1}.ov-queue{max-height:360px}}
-@media(max-width:760px){.ov-top{display:none}.ov-hello{margin-top:18px}.ov-panel{padding:22px 18px}.ov-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ov-kpi{padding:18px 20px;border-left:0;border-top:1px solid var(--line)}.ov-kpi:nth-child(-n+2){border-top:0}.ov-kpi:nth-child(even){border-left:1px solid var(--line)}.ov-kpi:last-child{grid-column:1/-1;border-left:0}.ov-kpi-value b{font-size:32px}.ov-activity .hv-chart{height:220px}.ov-crumbs{display:none}.ov-hello-actions{width:100%}.ov-hello-actions .ov-btn{flex:1}}
-@media(max-width:560px){.ov-next-tools .ov-seg{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.ov-search{flex:1}.ov-search input{width:100%}.ov-detail{padding:18px}.ov-prio li{flex-wrap:wrap}.ov-prio-text{flex-basis:calc(100% - 48px)}.ov-prio-text small{white-space:normal}.ov-prio .ov-act{margin-left:48px}.ov-today-row{flex-wrap:wrap}}
+@media(max-width:760px){.ov-top{display:none}.ov-hello{margin-top:18px}.ov-panel{padding:22px 18px}.ov-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ov-kpi{padding:18px 20px;border-left:0;border-top:1px solid var(--line)}.ov-kpi:nth-child(-n+2){border-top:0}.ov-kpi:nth-child(even){border-left:1px solid var(--line)}.ov-kpi:last-child{grid-column:1/-1;border-left:0}.ov-kpi-value b{font-size:32px}.ov-activity .hv-chart{height:220px}.ov-crumbs{display:none}}
+@media(max-width:560px){.ov-next-tools .ov-seg{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.ov-search{flex:1}.ov-search input{width:100%}.ov-detail{padding:18px}.ov-prio li{flex-wrap:wrap}.ov-prio-text{flex-basis:calc(100% - 48px)}.ov-prio-text small{white-space:normal}.ov-prio .ov-act{margin-left:48px}}
+/* Overview as a workspace: the greeting says what is left, one status line, Your day as steps. */
+.ov-hello h1{margin:0 0 8px;font-size:clamp(30px,3.4vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.04em;color:var(--ink)}
+.ov-hello p{margin:0;font:400 clamp(16px,1.4vw,19px)/1.4 var(--sans);letter-spacing:-.015em;color:var(--ink-soft)}
+.ov-status{display:flex;flex-wrap:wrap;align-items:center;gap:8px 26px;padding:14px 22px;border-radius:16px;background:rgba(255,255,255,.7);box-shadow:inset 0 0 0 1px var(--line);font-size:14px;color:var(--muted)}
+.ov-status b{font-weight:500;color:var(--ink)}
+.ov-status .ov-dot{color:var(--ink);font-size:14px}
+.ov-status .ov-more{margin-left:auto}
+.ov-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:5px;border-radius:18px;background:rgba(40,36,31,.05)}
+.ov-step{display:flex;align-items:center;gap:12px;min-width:0;padding:12px 14px;border:0;border-radius:14px;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:background .2s ease,box-shadow .2s ease}
+.ov-step:hover{background:rgba(255,255,255,.55)}
+.ov-step.is-on{background:#fff;box-shadow:0 1px 3px rgba(30,26,22,.1),0 4px 14px rgba(30,26,22,.05)}
+.ov-step-num{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font:600 13px/1 var(--sans)}
+.ov-step.is-clear .ov-step-num{background:var(--ok-soft);color:var(--ok)}
+.ov-step-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ov-step-text b{font-size:15px;font-weight:500;letter-spacing:-.015em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ov-step-text small{font-size:13px;color:var(--muted)}
+.ov-step:not(.is-clear) .ov-step-text small{color:var(--ink-soft)}
+.ov-step-body{margin-top:22px;min-height:120px}
+.ov-step-empty{margin:0;padding:30px 0;font-size:15.5px;color:var(--ink-soft);text-align:center}
+.ov-step-empty .ov-more{margin-left:6px}
+.ov-step-hint{margin:0 0 12px;font-size:14px;color:var(--muted)}
+.ov-replies{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px}
+.ov-reply{display:flex;flex-direction:column;gap:14px;padding:20px 22px;border-radius:18px;background:var(--canvas)}
+.ov-reply-head{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:4px 12px}
+.ov-reply-head .ov-dot{grid-column:3;grid-row:1}
+.ov-reply-when{grid-column:3;grid-row:2;justify-self:end;font-size:12.5px;color:var(--muted)}
+.ov-reply-head .ov-queue-who{grid-row:1/3}
+.ov-reply-head .ov-avatar{grid-row:1/3}
+.ov-reply-text{margin:0;font-size:16px;line-height:1.5;letter-spacing:-.01em;color:var(--ink)}
+.ov-reply-text.is-missing{color:var(--muted);font-size:14.5px}
+.ov-reply-next{margin:0;font-size:14px;line-height:1.45;color:var(--ink-soft)}
+.ov-reply-next span{display:block;margin-bottom:2px;font:500 12.5px/1.3 var(--sans);color:var(--muted)}
+.ov-reply-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.ov-reply-actions .ov-btn{min-height:36px;padding:0 16px;font-size:14px}
+.ov-btn.is-quiet{background:none;box-shadow:inset 0 0 0 1px var(--line-strong);border:0;cursor:pointer;font-family:var(--sans)}
+.ov-btn.is-quiet:hover{background:rgba(40,36,31,.05)}
+.ov-btn:disabled{opacity:.5;pointer-events:none}
+button.ov-btn{border:0;cursor:pointer;font-family:var(--sans)}
+.ov-error{margin:0;font-size:13.5px;color:var(--failed)}
+.ov-section{margin:18px 0 -4px;font-size:22px;font-weight:600;letter-spacing:-.03em;color:var(--ink)}
+.ov-day .fq-list{margin:0}
+@media(max-width:1000px){.ov-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.ov-status{gap:6px 16px;padding:12px 16px}.ov-status .ov-more{margin-left:0}.ov-replies{grid-template-columns:minmax(0,1fr)}.ov-reply{padding:18px}.ov-step{padding:10px}.ov-step-num{width:24px;height:24px}}

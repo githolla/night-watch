@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, CalendarDays, Check, ChevronRight, CircleAlert, FileText, Inbox, Search } from "lucide-react";
+import { Bell, CalendarDays, Check, ChevronRight, CircleAlert, Search } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
+import { FollowupQueue } from "@/components/FollowupQueue";
+import { setCardStatus } from "@/lib/card-status";
 import type { HomeData } from "@/lib/home-view";
+import { replyLabel } from "@/lib/reply-labels";
+import type { ReplyItem } from "@/lib/replies-view";
 import type { NextUpLead, SeriesDay } from "@/lib/home-stats";
 import type { Owner } from "@/lib/types";
 
@@ -92,7 +96,7 @@ const where = (lead: NextUpLead) =>
   : { tone: lead.reason === "Not in a window yet" ? "muted" : "warn", text: lead.reason ?? "Not queued" };
 
 /** The send queue, master and detail: pick anyone to see who they are, where they sit and open their draft. */
-function NextUp({ queue, owner, sendWindow }: { queue: NextUpLead[]; owner: Owner; sendWindow: string | null }) {
+function NextUp({ queue, owner }: { queue: NextUpLead[]; owner: Owner }) {
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("all");
   const [picked, setPicked] = useState<string | null>(null);
@@ -104,23 +108,11 @@ function NextUp({ queue, owner, sendWindow }: { queue: NextUpLead[]; owner: Owne
   const needle = query.trim().toLowerCase();
   const shown = queue.filter((lead) => (sector === "all" || lead.industry === sector) && (!needle || `${lead.name} ${lead.company} ${lead.title}`.toLowerCase().includes(needle)));
   const lead = shown.find((item) => item.id === picked) ?? shown[0];
-  const going = queue.filter((item) => item.group === "going").length;
 
-  if (!queue.length) {
-    return (
-      <section className="home-card ov-panel ov-next is-empty" aria-label="Next up">
-        <div className="ov-panel-head"><div><h2>Next up</h2><p>No drafts waiting.</p></div></div>
-        <p className="ov-next-empty">New companies and drafts arrive with each weeknight&rsquo;s list. <More href="/targets">Find companies</More></p>
-      </section>
-    );
-  }
+  if (!queue.length) return <p className="ov-step-empty">No drafts waiting. New companies and drafts arrive with each weeknight&rsquo;s list. <More href="/targets">Find companies</More></p>;
 
   return (
-    <section className="home-card ov-panel ov-next" aria-label="Next up">
-      <div className="ov-panel-head">
-        <div><h2>Next up</h2><p>{count(queue.length, "person", "people")} ready{going ? ` · ${going} in the next window` : ""}{sendWindow ? ` · ${sendWindow}` : ""}</p></div>
-        <More href={`/drafts?owner=${owner}`}>All drafts</More>
-      </div>
+    <div className="ov-next">
       <div className="ov-next-tools">
         <div className="ov-seg" role="tablist" aria-label="Sector">
           <button type="button" role="tab" aria-selected={sector === "all"} className={sector === "all" ? "is-on" : ""} onClick={() => setSector("all")}>All <span>{queue.length}</span></button>
@@ -166,14 +158,115 @@ function NextUp({ queue, owner, sendWindow }: { queue: NextUpLead[]; owner: Owne
           </article>
         )}
       </div>
+    </div>
+  );
+}
+
+type Step = "replies" | "followups" | "fix" | "drafts";
+
+const replyTone = (classification: string) => ["positive", "referral"].includes(classification) ? "ok" : classification === "objection" ? "warn" : "muted";
+const ago = (iso: string) => {
+  const hours = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 3_600_000));
+  return hours < 1 ? "Just now" : hours < 24 ? `${hours}h ago` : `${Math.round(hours / 24)}d ago`;
+};
+
+/** One reply, ready to act on: what they wrote, the next step and the buttons that settle it. */
+function ReplyCard({ item, nextStep, canAct, onDone }: { item: ReplyItem; nextStep: string; canAct: boolean; onDone: (cardId: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function move(status: "meeting" | "archived") {
+    setBusy(true);
+    setError(null);
+    const result = await setCardStatus(item.cardId, status);
+    setBusy(false);
+    if (result.ok) onDone(item.cardId); else setError(result.error);
+  }
+  return (
+    <li className="ov-reply">
+      <div className="ov-reply-head">
+        <span className="ov-avatar" aria-hidden="true">{initials(item.name)}</span>
+        <span className="ov-queue-who"><b>{item.name}</b><small>{[item.title, item.company].filter(Boolean).join(" · ")}</small></span>
+        <span className={`ov-dot is-${replyTone(item.classification)}`}>{replyLabel(item.classification)}</span>
+        <span className="ov-reply-when">{ago(item.repliedAt)}</span>
+      </div>
+      {item.snippet ? <blockquote className="ov-reply-text">{item.snippet}</blockquote> : <p className="ov-reply-text is-missing">Open the thread in Gmail to read their reply.</p>}
+      <p className="ov-reply-next"><span>Next step</span>{nextStep}</p>
+      <div className="ov-reply-actions">
+        {item.gmailUrl && <a className="ov-btn is-primary" href={item.gmailUrl} target="_blank" rel="noreferrer">Reply in Gmail</a>}
+        <Link className="ov-btn" href={`/brief/${item.cardId}`}>Call brief</Link>
+        {canAct && <>
+          <button type="button" className="ov-btn is-quiet" disabled={busy} onClick={() => void move("meeting")}>Meeting booked</button>
+          <button type="button" className="ov-btn is-quiet" disabled={busy} onClick={() => void move("archived")}>Close</button>
+        </>}
+      </div>
+      {error && <p className="ov-error" role="alert">{error}</p>}
+    </li>
+  );
+}
+
+/** The morning in order: answer replies, send the follow-ups that wait on you, fix bounced addresses, then review drafts. */
+function YourDay({ data, owner, nextStep, canAct, canSend }: { data: HomeData; owner: Owner; nextStep: Record<string, string>; canAct: boolean; canSend: boolean }) {
+  const [replies, setReplies] = useState(data.replies);
+  const [settled, setSettled] = useState(0);
+  const steps: Array<{ key: Step; label: string; count: number; done: string; todo: string }> = [
+    { key: "replies", label: "Replies", count: replies.length, done: settled ? `${settled} settled` : "None waiting", todo: `${replies.length} to answer` },
+    { key: "followups", label: "Follow-ups", count: data.followups.length, done: "None due", todo: `${data.followups.length} to send` },
+    { key: "fix", label: "Addresses", count: data.bounces.length, done: "None bounced", todo: `${data.bounces.length} to fix` },
+    { key: "drafts", label: "Drafts", count: data.queue.length, done: "None waiting", todo: `${data.queue.length} to review` },
+  ];
+  const first = steps.find((step) => step.count > 0 && step.key !== "drafts")?.key ?? "drafts";
+  const [open, setOpen] = useState<Step>(first);
+  const q = `owner=${owner}`;
+  // A settled reply leaves the list; when the last one goes, move on to the next step with work in it.
+  const settle = (cardId: string) => {
+    const left = replies.filter((row) => row.cardId !== cardId);
+    setReplies(left);
+    setSettled((n) => n + 1);
+    if (!left.length) setOpen(steps.find((step) => step.key !== "replies" && step.count > 0)?.key ?? "drafts");
+  };
+
+  return (
+    <section className="home-card ov-panel ov-day home-needs" aria-label="Your day">
+      <div className="ov-panel-head"><div><h2>Your day</h2><p>Work down the steps. Each one opens right here.</p></div></div>
+      <div className="ov-steps" role="tablist" aria-label="Steps">
+        {steps.map((step, index) => {
+          const clear = step.count === 0;
+          return (
+            <button key={step.key} type="button" role="tab" data-step={step.key} aria-selected={open === step.key} className={`ov-step ${open === step.key ? "is-on" : ""} ${clear ? "is-clear" : ""}`} onClick={() => setOpen(step.key)}>
+              <span className="ov-step-num" aria-hidden="true">{clear ? <Check size={14} strokeWidth={2.6} /> : index + 1}</span>
+              <span className="ov-step-text"><b>{step.label}</b><small>{clear ? step.done : step.todo}</small></span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="ov-step-body" role="tabpanel">
+        {open === "replies" && (replies.length
+          ? <ul className="ov-replies">{replies.map((item) => <ReplyCard key={item.cardId} item={item} canAct={canAct} nextStep={nextStep[item.classification] ?? "Read it and reply from your Gmail thread."} onDone={settle} />)}</ul>
+          : <p className="ov-step-empty">No replies need a response. New ones land here and in your inbox. <More href={`/replies?${q}`}>All replies</More></p>)}
+
+        {open === "followups" && (data.followups.length
+          ? <><p className="ov-step-hint">These came due but couldn&rsquo;t go out by themselves, usually because the address isn&rsquo;t confirmed. Open one to send, change or skip it.</p><FollowupQueue items={data.followups.map((item) => ({ ...item, canAct, canSend }))} sent={false} /></>
+          : <p className="ov-step-empty">Nothing due. Follow-ups go out by themselves 3 and 10 business days after each first email. <More href={`/followups?view=upcoming&${q}`}>Coming up</More></p>)}
+
+        {open === "fix" && (data.bounces.length
+          ? <ul className="ov-prio">{data.bounces.map((bounce) => (
+              <li key={bounce.personId}>
+                <span className="ov-glyph is-bad" aria-hidden="true"><CircleAlert size={18} strokeWidth={2} /></span>
+                <span className="ov-prio-text"><b>{bounce.name} bounced</b><small>{bounce.company}{bounce.email ? ` · ${bounce.email}` : ""}</small></span>
+                <span className="ov-act"><AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /></span>
+              </li>
+            ))}</ul>
+          : <p className="ov-step-empty">No bounced addresses in the last 30 days.</p>)}
+
+        {open === "drafts" && <NextUp queue={data.queue} owner={owner} />}
+      </div>
     </section>
   );
 }
 
-type Priority = { key: string; icon: ReactNode; tone: "bad" | "warn" | "ok" | "muted"; title: ReactNode; sub: ReactNode; action: ReactNode };
-
-/** Overview: who goes out next, what needs you today, and how sending is going, each one click from where it is handled. */
-export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner: Owner; hello: string; aside?: ReactNode }) {
+/** Overview: the day's work in order, the sending status in one line, then how it is going. */
+export function HomeView({ data, owner, hello, aside, nextStep, canAct, canSend }: { data: HomeData; owner: Owner; hello: string; aside?: ReactNode; nextStep: Record<string, string>; canAct: boolean; canSend: boolean }) {
   const q = `owner=${owner}`;
   const auto = data.autoSend;
   const [range, setRange] = useState<Range>(14);
@@ -187,14 +280,21 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
   const weekBounceRate = pct(sum(last7, "bounced"), weekSent);
 
   const on = Boolean(auto && !auto.plan.blocker);
-  const autoState = auto?.control.paused ? "Auto-send paused" : on ? (auto?.control.skippedToday ? "Skipped today" : "Auto-send on") : "Auto-send off";
+  const autoState = auto?.control.paused ? "Auto-send paused" : on ? (auto?.control.skippedToday ? "Auto-send skipped today" : "Auto-send on") : "Auto-send off";
   const sendWindow = auto ? `${auto.plan.dayLabel.charAt(0).toUpperCase() + auto.plan.dayLabel.slice(1)}, ${auto.plan.windowLabel} ET` : null;
   const warnings = [
     !data.gmailConnected && { text: "Gmail is not connected, so nothing can be sent.", href: "/settings", action: "Connect Gmail" },
     auto?.control.paused && { text: `Auto-send is paused${auto.control.pausedReason ? `: ${auto.control.pausedReason.replace(/\.\s*$/, "")}` : ""}.`, href: `/auto-send?${q}`, action: "Review and resume" },
-    weekSent >= 5 && weekBounceRate >= 5 && { text: `${weekBounceRate}% of this week's emails bounced. Fix the addresses under Today before sending more.`, href: `/drafts/sent?${q}&days=7`, action: "See them" },
+    weekSent >= 5 && weekBounceRate >= 5 && { text: `${weekBounceRate}% of this week's emails bounced. Fix the addresses under Your day before sending more.`, href: `/drafts/sent?${q}&days=7`, action: "See them" },
   ].filter((item): item is { text: string; href: string; action: string } => Boolean(item));
-  const unconfirmed = auto?.unconfirmedQueued ?? 0;
+
+  const todo = [
+    data.replies.length && count(data.replies.length, "reply", "replies") + " to answer",
+    data.followups.length && count(data.followups.length, "follow-up", "follow-ups") + " to send",
+    data.bounces.length && count(data.bounces.length, "address", "addresses") + " to fix",
+    data.queue.length && count(data.queue.length, "draft", "drafts") + " to review",
+  ].filter((part): part is string => Boolean(part));
+  const summary = todo.length ? `Today: ${todo.length > 1 ? `${todo.slice(0, -1).join(", ")} and ${todo.at(-1)}` : todo[0]}.` : "You are all caught up.";
 
   const kpis = [
     { label: "Emails sent", value: String(totals.sent), sub: count(totals.sent - firsts, "follow-up", "follow-ups") },
@@ -203,21 +303,12 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
     { label: "Meetings booked", value: String(data.funnel?.meetings ?? 0), sub: "on the calendar now" },
     { label: "Bounce rate", value: `${pct(totals.bounced, totals.sent)}%`, sub: count(totals.bounced, "bounce", "bounces") },
   ];
-
-  const priorities: Priority[] = [
-    ...data.bounces.slice(0, 3).map((bounce) => ({ key: `b-${bounce.personId}`, icon: <CircleAlert size={18} strokeWidth={2} />, tone: "bad" as const, title: <>{bounce.name} bounced</>, sub: <>{bounce.company}{bounce.email ? ` · ${bounce.email}` : ""}</>, action: <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /> })),
-    ...(data.replies.length ? [{ key: "replies", icon: <Inbox size={18} strokeWidth={2} />, tone: "ok" as const, title: <>{count(data.replies.length, "reply", "replies")} waiting</>, sub: <>Answer from your Gmail thread.</>, action: <More href={`/replies?${q}`}>Open</More> }] : []),
-    { key: "drafts", icon: <FileText size={18} strokeWidth={2} />, tone: data.drafts ? "ok" : "muted", title: <>{data.drafts ? `${count(data.drafts, "draft", "drafts")} ready` : "No drafts waiting"}</>, sub: <>{data.drafts ? "Read any before they go." : "New ones arrive each weeknight."}</>, action: <More href={`/drafts?${q}`}>Review</More> },
-    ...(unconfirmed ? [{ key: "unconfirmed", icon: <CircleAlert size={18} strokeWidth={2} />, tone: "warn" as const, title: <>{count(unconfirmed, "address", "addresses")} to verify</>, sub: <>Checked again every 20 minutes.</>, action: <More href={`/auto-send?${q}`}>Verify</More> }] : []),
-  ];
-
   const funnelSteps = data.funnel ? [
     { label: "Emailed", value: data.funnel.emailed },
     { label: "Replied", value: data.funnel.replied },
     { label: "Interested", value: data.funnel.interested },
     { label: "Meeting booked", value: data.funnel.meetings },
   ] : [];
-  const reply = data.replies[0];
 
   return (
     <div className="home ov">
@@ -231,46 +322,25 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
 
       <div className="ov-hello">
         <div>
-          <p>{hello}, {data.first}.</p>
-          <h1>Turn prospects into conversations.</h1>
+          <h1>{hello}, {data.first}.</h1>
+          <p>{summary}</p>
         </div>
-        <div className="ov-hello-actions">
-          {data.drafts > 0 && <Link className="ov-btn is-primary" href={`/drafts?${q}`}>Review outreach</Link>}
-          <Link className={`ov-btn ${data.drafts > 0 ? "" : "is-primary"}`} href="/targets">Find companies</Link>
-        </div>
+        <Link className="ov-btn" href="/targets">Find companies</Link>
+      </div>
+
+      <div className="home-auto ov-status" aria-label="Sending">
+        <span className={`ov-dot is-${auto?.control.paused ? "bad" : on ? "ok" : "warn"}`}>{autoState}</span>
+        {sendWindow && <span>Next window <b>{sendWindow}</b></span>}
+        {auto && <span><b>{auto.plan.sentToday}</b> of {auto.plan.dailyCap} sent today</span>}
+        {on && auto && <span><b>{auto.plan.going}</b> going next</span>}
+        <More href={`/auto-send?${q}`}>Manage</More>
       </div>
 
       {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
 
-      <div className="ov-grid is-hero">
-        <NextUp queue={data.queue} owner={owner} sendWindow={sendWindow} />
+      <YourDay data={data} owner={owner} nextStep={nextStep} canAct={canAct} canSend={canSend} />
 
-        <section className="home-card ov-panel ov-today" aria-label="Today">
-          <div className="home-needs">
-            <div className="ov-panel-head"><div><h2>Today</h2></div></div>
-            <ul className="ov-prio">
-              {priorities.map((row) => (
-                <li key={row.key}>
-                  <span className={`ov-glyph is-${row.tone}`} aria-hidden="true">{row.icon}</span>
-                  <span className="ov-prio-text"><b>{row.title}</b><small>{row.sub}</small></span>
-                  <span className="ov-act">{row.action}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="home-auto ov-today-block">
-            <span className="ov-label">Next sending window</span>
-            <b className="ov-today-big">{sendWindow ?? "Not known just now"}</b>
-            <div className="ov-today-row"><span className={`ov-dot is-${auto?.control.paused ? "bad" : on ? "ok" : "warn"}`}>{autoState}{on && auto ? ` · ${count(auto.plan.going, "email", "emails")} going` : ""}</span><More href={`/auto-send?${q}`}>Manage</More></div>
-          </div>
-          <div className="home-inbox ov-today-block">
-            <span className="ov-label">Inbox</span>
-            <b className="ov-today-big">{data.replies.length ? `${count(data.replies.length, "reply", "replies")} waiting` : "No replies waiting"}</b>
-            <div className="ov-today-row"><span className="ov-quiet">{reply ? `Newest: ${reply.name}${reply.company ? `, ${reply.company}` : ""}` : "New replies appear here."}</span><More href={`/replies?${q}`}>View inbox</More></div>
-          </div>
-        </section>
-      </div>
-
+      <h2 className="ov-section">How it&rsquo;s going</h2>
       <section className="ov-kpis" aria-label="Headline numbers">
         {kpis.map((kpi) => (
           <div key={kpi.label} className="ov-kpi">
