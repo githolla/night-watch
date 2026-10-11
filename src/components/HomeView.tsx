@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Bell, CalendarDays } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import type { HomeData } from "@/lib/home-view";
@@ -33,19 +34,6 @@ function ago(iso: string, now: number): string {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.round(hours / 24);
   return days === 1 ? "yesterday" : days < 7 ? `${days}d ago` : new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" });
-}
-
-/** A small line of one number across the range, for a headline tile. */
-function Sparkline({ values, tone }: { values: number[]; tone: string }) {
-  if (values.length < 2) return null;
-  const top = Math.max(1, ...values);
-  const points = values.map((value, index) => `${(index / (values.length - 1)) * 100},${30 - (value / top) * 26}`).join(" ");
-  return (
-    <svg className={`hv-spark is-${tone}`} viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
-      <polygon points={`0,32 ${points} 100,32`} />
-      <polyline points={points} />
-    </svg>
-  );
 }
 
 /** Change against the period before, when there is one to compare. */
@@ -109,16 +97,18 @@ function ActivityChart({ days, metric }: { days: SeriesDay[]; metric: Metric }) 
   );
 }
 
-function Card({ className, title, count: badge, link, children }: { className: string; title: string; count?: number; link?: { href: string; label: string }; children: ReactNode }) {
+function Panel({ className, title, sub, link, children }: { className: string; title: string; sub?: string; link?: { href: string; label: string }; children: ReactNode }) {
   return (
-    <section className={`home-card ${className}`} aria-label={title}>
-      <div className="home-card-head"><h2>{title}{badge !== undefined && <span>{badge}</span>}</h2>{link && <Link href={link.href}>{link.label} &rarr;</Link>}</div>
+    <section className={`home-card ov-panel ${className}`} aria-label={title}>
+      <div className="ov-panel-head"><div><h2>{title}</h2>{sub && <p>{sub}</p>}</div>{link && <Link href={link.href}>{link.label} &rarr;</Link>}</div>
       {children}
     </section>
   );
 }
 
-/** Home: the day at a glance, how sending is going, and the people behind it, each one click from where it is handled. */
+type Action = { key: string; item: ReactNode; status: string; tone: "bad" | "warn" | "ok" | "muted"; action: ReactNode };
+
+/** Overview: the day at a glance, how sending is going, and the people behind it, each one click from where it is handled. */
 export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner: Owner; hello: string; aside?: ReactNode }) {
   const q = `owner=${owner}`;
   const auto = data.autoSend;
@@ -133,31 +123,43 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
   const comparable = previous.length === range;
   const totals = { sent: sum(current, "sent"), replies: sum(current, "replies"), interested: sum(current, "interested"), bounced: sum(current, "bounced") };
   const before = { sent: sum(previous, "sent"), replies: sum(previous, "replies"), interested: sum(previous, "interested"), bounced: sum(previous, "bounced") };
+  const firsts = current.reduce((total, day) => total + day.firsts, 0);
   const replyRate = pct(totals.replies, totals.sent);
   const bounceRate = pct(totals.bounced, totals.sent);
-  const weekBounceRate = data.week ? pct(data.week.daily.slice(-7).reduce((total, day) => total + day.bounced, 0), data.week.daily.slice(-7).reduce((total, day) => total + day.sent, 0)) : 0;
-  const weekSent = data.week ? data.week.daily.slice(-7).reduce((total, day) => total + day.sent, 0) : 0;
+  const last7 = data.series.slice(-7);
+  const weekSent = sum(last7, "sent");
+  const weekBounceRate = pct(sum(last7, "bounced"), weekSent);
 
   const on = Boolean(auto && !auto.plan.blocker);
-  const needs = data.bounces.length + (auto?.unconfirmedQueued ? 1 : 0);
+  const cap = auto?.plan.dailyCap ?? 0;
+  const sentToday = auto?.plan.sentToday ?? 0;
   const warnings = [
     !data.gmailConnected && { text: "Gmail is not connected, so nothing can be sent.", href: "/settings", action: "Connect Gmail" },
     auto?.control.paused && { text: `Auto-send is paused${auto.control.pausedReason ? `: ${auto.control.pausedReason.replace(/\.\s*$/, "")}` : ""}.`, href: `/auto-send?${q}`, action: "Review and resume" },
     weekSent >= 5 && weekBounceRate >= 5 && { text: `${weekBounceRate}% of this week's emails bounced. Fix the addresses below before sending more.`, href: `/drafts/sent?${q}&days=7`, action: "See them" },
   ].filter((item): item is { text: string; href: string; action: string } => Boolean(item));
 
-  const summary = [
-    data.replies.length ? count(data.replies.length, "reply waiting", "replies waiting") : "no replies waiting",
-    auto ? `${count(auto.plan.going, "email", "emails")} ${on ? "going out" : "ready for"} ${auto.plan.dayLabel}` : null,
-    needs ? `${count(needs, "thing needs", "things need")} you` : null,
-  ].filter(Boolean).join(" · ");
+  const banner = data.replies.length
+    ? { text: `${count(data.replies.length, "reply is", "replies are")} waiting for you`, sub: "Answer from your Gmail thread; the call brief has what you need.", href: `/replies?${q}`, action: "Open replies" }
+    : data.drafts
+    ? { text: `${count(data.drafts, "draft", "drafts")} ready for review`, sub: on ? "Auto-send sends them each weekday morning; read any first." : "Read them, fix any, then send or turn on auto-send.", href: `/drafts?${q}`, action: "Review drafts" }
+    : { text: "You are all caught up", sub: "New companies arrive with each weeknight's list.", href: "/targets", action: "Discover companies" };
 
-  const kpis: Array<{ key: Metric | "rate" | "meetings"; label: string; value: string; sub: string; spark: number[]; tone: string; delta: ReactNode; metric?: Metric }> = [
-    { key: "sent", metric: "sent", label: "Emails sent", value: String(totals.sent), sub: `${sum(current, "sent") - current.reduce((total, day) => total + day.firsts, 0)} were follow-ups`, spark: current.map((day) => day.sent), tone: "sent", delta: <Delta now={totals.sent} before={before.sent} show={comparable} /> },
-    { key: "rate", metric: "replies", label: "Reply rate", value: `${replyRate}%`, sub: count(totals.replies, "reply", "replies"), spark: current.map((day) => day.replies), tone: "reply", delta: <Delta now={replyRate} before={pct(before.replies, before.sent)} show={comparable && before.sent > 0} /> },
-    { key: "interested", metric: "interested", label: "Interested", value: String(totals.interested), sub: "positive or a referral", spark: current.map((day) => day.interested), tone: "good", delta: <Delta now={totals.interested} before={before.interested} show={comparable} /> },
-    { key: "meetings", label: "Meetings booked", value: String(data.funnel?.meetings ?? 0), sub: "on the calendar now", spark: [], tone: "good", delta: <em className="hv-delta">&nbsp;</em> },
-    { key: "bounced", metric: "bounced", label: "Bounce rate", value: `${bounceRate}%`, sub: count(totals.bounced, "bounce", "bounces"), spark: current.map((day) => day.bounced), tone: bounceRate >= 5 ? "bad" : "muted", delta: <Delta now={totals.bounced} before={before.bounced} goodWhenDown show={comparable} /> },
+  const kpis: Array<{ label: string; value: string; sub: string; delta: ReactNode; metric?: Metric }> = [
+    { metric: "sent", label: "Emails sent", value: String(totals.sent), sub: count(totals.sent - firsts, "follow-up", "follow-ups"), delta: <Delta now={totals.sent} before={before.sent} show={comparable} /> },
+    { metric: "replies", label: "Reply rate", value: `${replyRate}%`, sub: count(totals.replies, "reply", "replies"), delta: <Delta now={replyRate} before={pct(before.replies, before.sent)} show={comparable && before.sent > 0} /> },
+    { metric: "interested", label: "Interested", value: String(totals.interested), sub: "positive or a referral", delta: <Delta now={totals.interested} before={before.interested} show={comparable} /> },
+    { label: "Meetings booked", value: String(data.funnel?.meetings ?? 0), sub: "on the calendar now", delta: null },
+    { metric: "bounced", label: "Bounce rate", value: `${bounceRate}%`, sub: count(totals.bounced, "bounce", "bounces"), delta: <Delta now={totals.bounced} before={before.bounced} goodWhenDown show={comparable} /> },
+  ];
+
+  const actions: Action[] = [
+    ...data.bounces.slice(0, 4).map((bounce) => ({ key: `b-${bounce.personId}`, item: <><b>{bounce.name}</b> bounced<small>{bounce.company} · {bounce.email}</small></>, status: "Bounced", tone: "bad" as const, action: <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /> })),
+    ...(data.replies.length ? [{ key: "replies", item: <>{count(data.replies.length, "reply", "replies")} waiting</>, status: "Needs you", tone: "warn" as const, action: <Link href={`/replies?${q}`}>Open replies &rarr;</Link> }] : []),
+    ...(auto?.unconfirmedQueued ? [{ key: "unconfirmed", item: <>{count(auto.unconfirmedQueued, "unconfirmed address", "unconfirmed addresses")}<small>Night Watch keeps looking every 20 minutes</small></>, status: "Needs checking", tone: "warn" as const, action: <Link href={`/auto-send?${q}`}>Review &rarr;</Link> }] : []),
+    { key: "drafts", item: <>{count(data.drafts, "outreach draft", "outreach drafts")}</>, status: data.drafts ? "Ready" : "None waiting", tone: data.drafts ? "ok" : "muted", action: <Link href={`/drafts?${q}`}>Open drafts &rarr;</Link> },
+    { key: "auto", item: <>Auto-send</>, status: auto?.control.paused ? "Paused" : on ? (auto?.control.skippedToday ? "Skipped today" : "On") : "Off", tone: auto?.control.paused ? "bad" : on ? "ok" : "muted", action: <Link href={`/auto-send?${q}`}>Configure &rarr;</Link> },
+    ...(data.list ? [{ key: "list", item: <>Newest list: {count(data.list.companies, "company", "companies")}<small>{dayLabel(data.list.date)}</small></>, status: `${data.list.confirmed} of ${data.list.companies} confirmed`, tone: "muted" as const, action: <Link href={`/outreach?list=${owner}`}>Open list &rarr;</Link> }] : []),
   ];
 
   const mixRows = mixView === "results" ? data.mix[mixKey] : data.queue[mixKey].map((row) => ({ label: row.label, sent: row.count, replies: 0, interested: 0, rate: 0 }));
@@ -167,72 +169,117 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
     { label: "Emailed", value: data.funnel.emailed },
     { label: "Replied", value: data.funnel.replied },
     { label: "Interested", value: data.funnel.interested },
-    { label: "Meeting", value: data.funnel.meetings },
+    { label: "Meeting booked", value: data.funnel.meetings },
   ] : [];
-  const cap = auto?.plan.dailyCap ?? 0;
-  const sentToday = auto?.plan.sentToday ?? 0;
 
   return (
-    <div className="home">
-      <header className="home-head page-top">
-        <div>
-          <h1>{hello}, {data.first}.</h1>
-          <p>Here is your day in Night Watch: {summary}.</p>
-        </div>
-        <div className="home-head-side">
+    <div className="home ov">
+      <header className="ov-top page-top">
+        <nav className="ov-crumbs" aria-label="Where you are"><span>Workspace</span><span aria-hidden="true">/</span><b>Overview</b></nav>
+        <div className="ov-top-side">
           {aside}
+          <Link className={`ov-bell ${data.replies.length ? "has-dot" : ""}`} href={`/replies?${q}`} title={data.replies.length ? `${count(data.replies.length, "reply", "replies")} waiting` : "No replies waiting"} aria-label={data.replies.length ? `${count(data.replies.length, "reply", "replies")} waiting` : "Replies"}><Bell size={19} strokeWidth={1.8} /></Link>
         </div>
       </header>
 
-      {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
-
-      <div className="hv-kpis" role="group" aria-label="Headline numbers">
-        {kpis.map((kpi) => (
-          <button key={kpi.key} type="button" className={`hv-kpi ${kpi.metric && kpi.metric === metric ? "is-on" : ""}`} disabled={!kpi.metric} aria-pressed={kpi.metric ? kpi.metric === metric : undefined} onClick={() => kpi.metric && setMetric(kpi.metric)} title={kpi.metric ? `Show ${kpi.label.toLowerCase()} on the chart` : undefined}>
-            <span className="hv-kpi-label">{kpi.label}</span>
-            <span className="hv-kpi-value"><b>{kpi.value}</b>{kpi.delta}</span>
-            <small>{kpi.sub}</small>
-            <Sparkline values={kpi.spark} tone={kpi.tone} />
-          </button>
-        ))}
+      <div className="ov-title">
+        <div>
+          <h1>Overview</h1>
+          <p>{hello}, {data.first}. Here&rsquo;s your outreach at a glance.</p>
+        </div>
+        <label className="ov-range">
+          <CalendarDays size={17} strokeWidth={1.8} aria-hidden="true" />
+          <span className="sr-only">Period</span>
+          <select value={range} onChange={(event) => setRange(Number(event.target.value) as Range)}>
+            {RANGES.map((value) => <option key={value} value={value}>Last {value} days</option>)}
+          </select>
+        </label>
       </div>
 
-      <div className="hv-main">
-        <section className="home-card home-week hv-activity" aria-label="Your week">
-          <div className="home-card-head">
-            <h2>Your week{range !== 7 ? <small> and the last {range} days</small> : null}</h2>
-            <div className="hv-ranges" role="tablist" aria-label="Range">
-              {RANGES.map((value) => <button key={value} type="button" role="tab" aria-selected={range === value} className={range === value ? "is-on" : ""} onClick={() => setRange(value)}>{value}d</button>)}
-            </div>
-          </div>
-          <div className="hv-legend" role="group" aria-label="Show on the chart">
-            {METRICS.map((item) => <button key={item.key} type="button" aria-pressed={metric === item.key} className={`is-${item.key} ${metric === item.key ? "is-on" : ""}`} onClick={() => setMetric(item.key)}><i />{item.label}</button>)}
-            <Link href={`/drafts/sent?${q}&days=${Math.min(range, 30)}`}>What was sent &rarr;</Link>
+      {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
+
+      <section className="ov-banner" aria-label="Next step">
+        <div><h2>{banner.text}</h2><p>{banner.sub}</p></div>
+        <Link className="btn primary" href={banner.href}>{banner.action}</Link>
+      </section>
+
+      <section className="ov-kpis" aria-label="Headline numbers">
+        {kpis.map((kpi) => (
+          <button key={kpi.label} type="button" className={`ov-kpi ${kpi.metric && kpi.metric === metric ? "is-on" : ""}`} disabled={!kpi.metric} aria-pressed={kpi.metric ? kpi.metric === metric : undefined} onClick={() => kpi.metric && setMetric(kpi.metric)} title={kpi.metric ? `Show ${kpi.label.toLowerCase()} on the chart` : undefined}>
+            <span className="ov-kpi-label">{kpi.label}</span>
+            <span className="ov-kpi-value"><b>{kpi.value}</b>{kpi.delta}</span>
+            <small>{kpi.sub}</small>
+          </button>
+        ))}
+      </section>
+
+      <div className="ov-grid is-main">
+        <Panel className="home-week ov-activity" title="Outreach activity" link={{ href: `/drafts/sent?${q}&days=${Math.min(range, 30)}`, label: "What was sent" }}>
+          <div className="ov-tabs" role="tablist" aria-label="Show on the chart">
+            {METRICS.map((item) => <button key={item.key} type="button" role="tab" aria-selected={metric === item.key} className={metric === item.key ? "is-on" : ""} onClick={() => setMetric(item.key)}>{item.label}</button>)}
           </div>
           {data.series.length ? <ActivityChart days={current} metric={metric} /> : <p className="home-empty">Sent emails show here once the first ones go out.</p>}
-        </section>
+        </Panel>
 
-        <section className="home-card hv-funnel" aria-label="From first email to meeting">
-          <div className="home-card-head"><h2>From email to meeting</h2><Link href="/pipeline">Pipeline &rarr;</Link></div>
-          <p className="home-sub">Everyone you first emailed in the last 90 days.</p>
+        <Panel className="ov-pipeline" title="Pipeline" sub="First emails · last 90 days" link={{ href: "/pipeline", label: "Open" }}>
           <ol className="hv-steps">
-            {funnelSteps.map((stepItem, index) => {
-              const width = pct(stepItem.value, Math.max(1, funnelSteps[0].value));
-              const rate = index ? pct(stepItem.value, funnelSteps[index - 1].value) : null;
+            {funnelSteps.map((step, index) => {
+              const rate = index ? pct(step.value, funnelSteps[index - 1].value) : null;
               return (
-                <li key={stepItem.label}>
-                  <div className="hv-step-top"><span>{stepItem.label}</span><b>{stepItem.value}</b></div>
-                  <div className="hv-step-bar"><span style={{ width: `${Math.max(width, stepItem.value ? 3 : 0)}%` }} /></div>
-                  {rate !== null && rate <= 100 && <small>{rate}% of the step before</small>}
+                <li key={step.label}>
+                  <div className="hv-step-top"><span>{step.label}</span><b>{step.value}</b></div>
+                  <div className="hv-step-bar"><span style={{ width: `${Math.max(pct(step.value, Math.max(1, funnelSteps[0].value)), step.value ? 3 : 0)}%` }} /></div>
+                  {rate !== null && rate <= 100 && step.value > 0 && <small>{rate}% of the step before</small>}
                 </li>
               );
             })}
           </ol>
-        </section>
+        </Panel>
       </div>
 
-      <div className="hv-row">
-        <Card className="home-replies" title="Replies waiting" count={data.replies.length} link={{ href: `/replies?${q}`, label: "All replies" }}>
+      <div className="ov-grid is-actions">
+        <Panel className="home-needs ov-actions" title="Action items">
+          <div className="ov-table-head" aria-hidden="true"><span>Item</span><span>Status</span><span>Action</span></div>
+          <ul className="ov-table">
+            {actions.map((row) => (
+              <li key={row.key}>
+                <span className="ov-item">{row.item}</span>
+                <span className={`ov-status is-${row.tone}`}>{row.status}</span>
+                <span className="ov-act">{row.action}</span>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+
+        <Panel className={`home-auto ov-sending ${on ? "is-on" : ""}`} title="Sending & replies" link={{ href: `/auto-send?${q}`, label: "Auto-send" }}>
+          {!auto
+            ? <p className="home-empty">Auto-send could not be read just now.</p>
+            : <dl className="ov-facts">
+                <div><dt>Next window</dt><dd>{auto.plan.dayLabel}, {auto.plan.windowLabel} ET</dd></div>
+                <div><dt>Going out then</dt><dd>{on ? count(auto.plan.going, "email", "emails") : `${count(auto.plan.going, "email", "emails")} if turned on`}{auto.plan.later ? <small> · {auto.plan.later} after that</small> : null}</dd></div>
+                <div><dt>Sent today</dt><dd><span className="ov-meter"><span style={{ width: `${pct(sentToday, Math.max(1, cap))}%` }} /></span>{sentToday} of {cap}</dd></div>
+                <div><dt>Replies waiting</dt><dd>{data.replies.length}</dd></div>
+                {data.queue.total > 0 && <div><dt>Confirmed addresses</dt><dd>{data.queue.confirmed} of {data.queue.total} waiting</dd></div>}
+              </dl>}
+          {data.upNext.length > 0 && (
+            <>
+              <h3 className="ov-subhead">Up next</h3>
+              <ol className="hv-next">
+                {data.upNext.slice(0, 4).map((lead) => (
+                  <li key={lead.id}>
+                    <time>{lead.group === "going" && lead.time ? lead.time : "Later"}</time>
+                    <span className="hv-lead-who"><b>{lead.name}</b><small>{lead.title ? `${lead.title}, ` : ""}{lead.company}</small><small className="hv-tags"><span>{lead.industry}</span><span>{lead.size}</span></small></span>
+                    <span className={`hv-addr ${lead.confirmed ? "is-ok" : ""}`} title={lead.confirmed ? "Address confirmed" : "Address not confirmed yet"}>{lead.confirmed ? "Confirmed" : "Unconfirmed"}</span>
+                  </li>
+                ))}
+              </ol>
+            </>
+          )}
+        </Panel>
+      </div>
+
+      <div className="ov-grid is-even">
+        <Panel className="home-replies" title="Replies" sub={data.replies.length ? count(data.replies.length, "person is waiting on you", "people are waiting on you") : undefined} link={{ href: `/replies?${q}`, label: "All replies" }}>
           {data.replies.length === 0
             ? <p className="home-empty">No replies waiting. When someone writes back, they show up here and in your inbox.</p>
             : <ul className="hv-leads">{data.replies.slice(0, 5).map((reply) => (
@@ -249,84 +296,22 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
               <ul>{data.meetings.slice(0, 3).map((meeting) => <li key={meeting.cardId}><span className="hv-avatar is-meeting" aria-hidden="true">{initials(meeting.name)}</span><span className="hv-lead-who"><b>{meeting.name}</b><small>{meeting.company}</small></span><Link href={`/brief/${meeting.cardId}`}>Brief</Link></li>)}</ul>
             </div>
           )}
-        </Card>
+        </Panel>
 
-        <Card className={`home-auto ${on ? "is-on" : ""}`} title="Auto-send" link={{ href: `/auto-send?${q}`, label: "Open" }}>
-          {!auto
-            ? <p className="home-empty">Auto-send could not be read just now.</p>
-            : <>
-                <div className="hv-auto-top">
-                  <div className="hv-ring" style={{ ["--fill" as string]: `${pct(sentToday, Math.max(1, cap))}%` }} role="img" aria-label={`Sent today: ${sentToday} of ${cap}`}><b>{sentToday}</b><small>of {cap} today</small></div>
-                  <div>
-                    <p className="home-big"><b>{auto.plan.going}</b> {auto.plan.going === 1 ? "email" : "emails"} {on ? "go out" : "would go out"} {auto.plan.dayLabel}</p>
-                    <p className="home-sub">{on ? (auto.control.skippedToday ? "On, but skipped today." : `On · ${auto.plan.windowLabel} Eastern`) : auto.plan.blocker}{auto.plan.later ? ` · ${auto.plan.later} more after that` : ""}</p>
-                    {data.queue.total > 0 && <p className="home-sub">{data.queue.confirmed} of {data.queue.total} waiting have a confirmed address</p>}
-                  </div>
-                </div>
-                {data.upNext.length > 0 && (
-                  <ol className="hv-next">
-                    {data.upNext.slice(0, 5).map((lead) => (
-                      <li key={lead.id}>
-                        <time>{lead.group === "going" && lead.time ? lead.time : "Later"}</time>
-                        <span className="hv-lead-who"><b>{lead.name}</b><small>{lead.title ? `${lead.title}, ` : ""}{lead.company}</small><small className="hv-tags"><span>{lead.industry}</span><span>{lead.size}</span></small></span>
-                        <span className={`hv-addr ${lead.confirmed ? "is-ok" : ""}`} title={lead.confirmed ? "Address confirmed" : "Address not confirmed yet"}>{lead.confirmed ? "Confirmed" : "Unconfirmed"}</span>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </>}
-        </Card>
-
-        <div className="hv-stack">
-          <Card className="home-needs" title="Needs you" count={needs}>
-            {needs === 0
-              ? <p className="home-empty">Nothing needs you right now.</p>
-              : <ul className="home-list">
-                  {data.bounces.slice(0, 4).map((bounce) => (
-                    <li key={bounce.personId}>
-                      <span className="home-read is-bounced">Bounced</span>
-                      <span className="home-who"><b>{bounce.name}</b><small>{bounce.company} · {bounce.email}</small></span>
-                      <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" />
-                    </li>
-                  ))}
-                  {Boolean(auto?.unconfirmedQueued) && (
-                    <li>
-                      <span className="home-read is-unconfirmed">Check</span>
-                      <span className="home-who"><b>{count(auto!.unconfirmedQueued, "waiting email has", "waiting emails have")} an unconfirmed address</b><small>Night Watch looks for the right ones every 20 minutes. Fix any you know.</small></span>
-                      <Link className="btn" href={`/auto-send?${q}`}>Review</Link>
-                    </li>
-                  )}
-                </ul>}
-          </Card>
-          <Card className="home-newlist" title="Newest list" link={{ href: `/outreach?list=${owner}`, label: "Reach-out list" }}>
-            {!data.list
-              ? <p className="home-empty">No new list in the last few days. A fresh one is built each weeknight.</p>
-              : <>
-                  <p className="home-big"><b>{data.list.companies}</b> companies · {dayLabel(data.list.date)}</p>
-                  <div className="hv-confirm"><span style={{ width: `${pct(data.list.confirmed, data.list.companies)}%` }} /></div>
-                  <p className="home-sub">{data.list.confirmed} of {data.list.companies} addresses confirmed</p>
-                  <p className="home-tags">{data.list.sectors.slice(0, 5).map((sector) => <span key={sector.label}>{sector.label} {sector.count}</span>)}</p>
-                </>}
-          </Card>
-        </div>
-      </div>
-
-      <div className="hv-row is-two">
-        <section className="home-card hv-mix" aria-label="Who you reach and who replies">
-          <div className="home-card-head">
-            <h2>{mixView === "results" ? "Who replies" : "Who is next"}</h2>
-            <div className="hv-ranges" role="tablist" aria-label="View">
-              <button type="button" role="tab" aria-selected={mixView === "results"} className={mixView === "results" ? "is-on" : ""} onClick={() => setMixView("results")}>Last 90 days</button>
-              <button type="button" role="tab" aria-selected={mixView === "queue"} className={mixView === "queue" ? "is-on" : ""} onClick={() => setMixView("queue")}>Waiting to send</button>
+        <Panel className="hv-mix" title={mixView === "results" ? "Who replies" : "Who is next"} sub={mixView === "results" ? "First emails · last 90 days" : "Emails waiting to send"}>
+          <div className="ov-mix-controls">
+            <div className="ov-tabs" role="tablist" aria-label="Group by">
+              {MIX.map(([key, label]) => <button key={key} type="button" role="tab" aria-selected={mixKey === key} className={mixKey === key ? "is-on" : ""} onClick={() => setMixKey(key)}>{label}</button>)}
             </div>
-          </div>
-          <div className="hv-legend" role="group" aria-label="Group by">
-            {MIX.map(([key, label]) => <button key={key} type="button" aria-pressed={mixKey === key} className={mixKey === key ? "is-on" : ""} onClick={() => setMixKey(key)}>{label}</button>)}
+            <div className="hv-ranges" role="tablist" aria-label="View">
+              <button type="button" role="tab" aria-selected={mixView === "results"} className={mixView === "results" ? "is-on" : ""} onClick={() => setMixView("results")}>Results</button>
+              <button type="button" role="tab" aria-selected={mixView === "queue"} className={mixView === "queue" ? "is-on" : ""} onClick={() => setMixView("queue")}>Waiting</button>
+            </div>
           </div>
           {mixRows.length === 0
             ? <p className="home-empty">{mixView === "results" ? "Once first emails go out, this shows who they went to and who wrote back." : "Nothing is waiting to send."}</p>
             : <ul className="hv-bars">
-                {mixRows.slice(0, 7).map((row) => (
+                {mixRows.slice(0, 6).map((row) => (
                   <li key={row.label} title={mixView === "results" ? `${row.label}: ${row.sent} emailed, ${row.replies} replied (${row.rate}%), ${row.interested} interested` : `${row.label}: ${row.sent} waiting`}>
                     <span className="hv-bar-label">{row.label}</span>
                     <span className="hv-bar-track"><span className="is-sent" style={{ width: `${(row.sent / mixTop) * 100}%` }} />{mixView === "results" && <span className="is-replies" style={{ width: `${(row.replies / mixTop) * 100}%` }} />}</span>
@@ -335,22 +320,34 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
                 ))}
               </ul>}
           {mixView === "results" && bestRate && bestRate.rate > 0 && <p className="hv-insight">Best so far: <b>{bestRate.label}</b> replies {bestRate.rate}% of the time ({bestRate.replies} of {bestRate.sent}).</p>}
-        </section>
+        </Panel>
+      </div>
 
-        <section className="home-card hv-feed" aria-label="Recent activity">
-          <div className="home-card-head"><h2>Recent activity</h2><Link href="/activity">History &rarr;</Link></div>
+      <div className="ov-grid is-even">
+        <Panel className="hv-feed" title="Recent activity" link={{ href: "/activity", label: "Send history" }}>
           {data.activity.length === 0
             ? <p className="home-empty">Sends, replies and bounces show here as they happen.</p>
             : <ol className="hv-events">
-                {data.activity.slice(0, 9).map((event, index) => (
+                {data.activity.slice(0, 8).map((event, index) => (
                   <li key={`${event.cardId}-${event.kind}-${index}`} className={`is-${EVENT[event.kind].tone}`}>
                     <i aria-hidden="true" />
-                    <span><b>{EVENT[event.kind].label === "Emailed" && event.followup ? "Follow-up to" : EVENT[event.kind].label}</b> {event.kind === "sent" ? "" : "· "}{event.name}<small>{event.company}</small></span>
+                    <span><b>{event.kind === "sent" && event.followup ? "Follow-up to" : EVENT[event.kind].label}</b> {event.kind === "sent" ? "" : "· "}{event.name}<small>{event.company}</small></span>
                     <time>{ago(event.at, now)}</time>
                   </li>
                 ))}
               </ol>}
-        </section>
+        </Panel>
+
+        <Panel className="home-newlist" title="Newest list" link={{ href: `/outreach?list=${owner}`, label: "Reach-out list" }}>
+          {!data.list
+            ? <p className="home-empty">No new list in the last few days. A fresh one is built each weeknight.</p>
+            : <>
+                <p className="home-big"><b>{data.list.companies}</b> companies · {dayLabel(data.list.date)}</p>
+                <div className="hv-confirm"><span style={{ width: `${pct(data.list.confirmed, data.list.companies)}%` }} /></div>
+                <p className="home-sub">{data.list.confirmed} of {data.list.companies} addresses confirmed</p>
+                <p className="home-tags">{data.list.sectors.slice(0, 6).map((sector) => <span key={sector.label}>{sector.label} {sector.count}</span>)}</p>
+              </>}
+        </Panel>
       </div>
     </div>
   );

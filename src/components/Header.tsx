@@ -3,30 +3,30 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Building2, BriefcaseBusiness, ChevronDown, History, House, LifeBuoy, ListChecks, LogOut, Menu, MessageSquareReply, MessageSquareText, PanelLeftClose, PanelLeftOpen, PenLine, PlayCircle, Repeat, Send, Settings, TrendingUp, Trophy, UserRoundCog, Users, type LucideIcon } from "lucide-react";
+import { BriefcaseBusiness, ChartNoAxesColumn, ChevronDown, History, House, LifeBuoy, ListChecks, LogOut, Menu, MessageSquareReply, MessageSquareText, PanelLeftClose, PanelLeftOpen, PenLine, PlayCircle, Repeat, Search, Send, Settings, TrendingUp, UserRoundCog, Users, type LucideIcon } from "lucide-react";
 import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
 // The sidebar: the daily pages first, then how it is going, then finding companies. Plain names, an icon and
 // one short line each. System pages are admin only.
 type NavItem = { href: string; label: string; hint: string; icon: LucideIcon; adminOnly?: boolean };
-const navGroups: Array<{ title: string | null; items: NavItem[] }> = [
-  { title: null, items: [
-    { href: "/", label: "Home", hint: "Your day: replies, what goes out, what needs you", icon: House },
+const navGroups: Array<{ title: string | null; label?: string; items: NavItem[] }> = [
+  { title: null, label: "Workspace", items: [
+    { href: "/", label: "Overview", hint: "Your day: replies, what goes out, how it is going", icon: House },
+    { href: "/targets", label: "Discover companies", hint: "Search, add or remove companies", icon: Search },
     { href: "/outreach", label: "Reach-out list", hint: "The selected companies and their custom emails", icon: ListChecks },
     { href: "/drafts", label: "Drafts", hint: "Set up, check and fix your email drafts", icon: PenLine },
     { href: "/auto-send", label: "Auto-send", hint: "Emails sent for you each weekday morning", icon: Send },
     { href: "/replies", label: "Replies", hint: "Everyone who wrote back, and what to do next", icon: MessageSquareReply },
-    { href: "/activity", label: "History", hint: "Everything sent, and every reply", icon: History },
   ] },
-  { title: "How it's going", items: [
-    { href: "/stats", label: "Results", hint: "Replies, meetings and what's working", icon: Trophy },
+  { title: null, label: "Performance", items: [
+    { href: "/stats", label: "Analytics", hint: "Replies, meetings and what's working", icon: ChartNoAxesColumn },
+    { href: "/activity", label: "Send history", hint: "Everything sent, and every reply", icon: History },
     { href: "/pipeline", label: "Pipeline", hint: "Conversations turning into deals", icon: TrendingUp },
+  ] },
+  { title: "More", items: [
     { href: "/followups", label: "Follow-ups", hint: "What goes out after each first email", icon: Repeat },
     { href: "/people", label: "People", hint: "Every contact on file", icon: Users },
-  ] },
-  { title: "Find companies", items: [
-    { href: "/targets", label: "All companies", hint: "Search, add or remove companies", icon: Building2 },
     { href: "/roles", label: "Jobs they're hiring for", hint: "Open roles at the companies on file", icon: BriefcaseBusiness },
     { href: "/posts", label: "Employee posts", hint: "What their people are posting", icon: MessageSquareText },
   ] },
@@ -65,7 +65,7 @@ function subscribeFold(onChange: () => void) {
 export function Header({showTour=true}:{showTour?:boolean}) {
   const pathname = usePathname();
   const active = (href: string) => href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`) || (href === "/outreach" && pathname.startsWith("/accounts"));
-  const [counts, setCounts] = useState<{ today: number; companies: number; followups: number; replies?: number } | null>(null);
+  const [counts, setCounts] = useState<{ today: number; companies: number; followups: number; replies?: number; drafts?: number } | null>(null);
   // Folded: no saved choice means "the page's default"; a choice she made is remembered on this browser.
   const foldChoice = useSyncExternalStore(subscribeFold, readFold, () => null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -109,7 +109,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
   const meInitials = me?.name ? me.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") : "";
 
 
-  const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : undefined;
+  const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/drafts" ? counts?.drafts : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : undefined;
   // A member's Results are her own sent stats; the full analytics page is for the admin.
   const hrefFor = (item: NavItem) => item.href === "/stats" && me && me.role !== "admin" ? "/drafts/sent?days=30" : item.href;
   const isActive = (item: NavItem) => active(item.href);
@@ -138,7 +138,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
       <nav className="side-groups">
         {navGroups.map((group) => {
           const items = group.items.filter((item) => !item.adminOnly || me?.role === "admin");
-          if (!group.title) return <div className="side-group" key="main">{items.map(link)}</div>;
+          if (!group.title) return <div className="side-group" key={group.label}>{group.label && <span className="side-title side-label">{group.label}</span>}{items.map(link)}</div>;
           const title = group.title;
           const here = items.some(isActive);
           const open = folded || here || openGroups.includes(title);

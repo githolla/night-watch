@@ -14,7 +14,7 @@ import { RewriteDrafts } from "@/components/RewriteDrafts";
 import { speakableCompany } from "@/lib/list-templates";
 import { requireUser } from "@/lib/auth";
 import { bulkSendable, sendableAddress } from "@/lib/bulk-sendable";
-import { sendDayStart } from "@/lib/send-guards";
+import { seatSummary } from "@/lib/draft-summary";
 import { admin } from "@/lib/supabase/admin";
 import { LIST_DRAFT_HASH } from "@/lib/draft-scope";
 import { isLikelyPersonName } from "@/lib/pipeline";
@@ -22,23 +22,6 @@ import type { Owner } from "@/lib/types";
 import { PageHead, seatName } from "@/components/PageHead";
 
 export const dynamic = "force-dynamic";
-
-type Person = { full_name: string; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null;
-
-async function seatSummary(owner: Owner) {
-  const db = admin();
-  const [{ data }, { count: sentToday }] = await Promise.all([
-    db.from("cards").select("id,person_id,people(full_name,email,email_status,email_check,do_not_contact),signals!inner(hash)").eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).limit(2000),
-    db.from("touches").select("id", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").not("gmail_thread_id", "is", null).gte("sent_at", sendDayStart().toISOString()),
-  ]);
-  const seen = new Set<string>();
-  const people = ((data ?? []) as unknown as Array<{ person_id: string; people: Person }>)
-    .filter((row) => row.people && !row.people.do_not_contact && isLikelyPersonName(row.people.full_name) && !seen.has(row.person_id) && Boolean(seen.add(row.person_id)))
-    .map((row) => row.people as NonNullable<Person>);
-  const confirmed = people.filter((person) => bulkSendable(person)).length;
-  const sendable = people.filter((person) => sendableAddress(person)).length;
-  return { unsent: people.length, confirmed, unconfirmed: sendable - confirmed, noAddress: people.length - sendable, sentToday: sentToday ?? 0 };
-}
 
 /** Two real drafts, so every change can be shown on actual names before it is applied. */
 async function sampleDrafts(owner: Owner): Promise<DraftSample[]> {

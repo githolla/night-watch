@@ -4,6 +4,7 @@ import { localParts } from "./local-time.ts";
 import { industryOf, tally } from "./send-plan.ts";
 import { breakdown, dailySeries, funnel, recentActivity, type ActivityEvent, type Breakdown, type Funnel, type SeriesDay } from "./home-stats.ts";
 import { loadSentTouches } from "./sent-view.ts";
+import { seatSummary } from "./draft-summary.ts";
 import { sentStats, shiftDate, type SentStats } from "./sent-stats.ts";
 import { admin } from "./supabase/admin.ts";
 import type { Owner } from "./types.ts";
@@ -24,6 +25,8 @@ export type HomeData = {
   list: HomeList | null;
   week: SentStats | null;
   gmailConnected: boolean;
+  /** Unsent list emails waiting in Drafts, the same count Drafts shows. */
+  drafts: number;
   /** 90 days, one entry per day, for the chart's ranges. */
   series: SeriesDay[];
   /** First emails in the last 90 days, by industry, role and size, with reply rates. */
@@ -40,7 +43,7 @@ export type HomeData = {
 export async function loadHome(owner: Owner, now: Date = new Date()): Promise<HomeData> {
   const db = admin();
   const since = (days: number) => new Date(now.getTime() - days * DAY_MS).toISOString();
-  const [profile, connection, replies, bounces, list, autoSend, sent, meetingRows] = await Promise.all([
+  const [profile, connection, replies, bounces, list, autoSend, sent, meetingRows, drafts] = await Promise.all([
     db.from("sender_profiles").select("from_name").eq("owner", owner).maybeSingle().then((r) => r.data),
     db.from("gmail_connections").select("email").eq("owner", owner).maybeSingle().then((r) => r.data),
     db.from("touches").select("card_id,reply_at,reply_classification,cards(status,accounts(name)),people(full_name,title)")
@@ -56,6 +59,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     loadSentTouches(owner, 90, now).catch(() => null),
     db.from("cards").select("id,updated_at,people(full_name,title),accounts(name)").eq("assigned_to", owner).eq("status", "meeting")
       .order("updated_at", { ascending: false }).limit(50).then((r) => r.data ?? []),
+    seatSummary(owner).then((summary) => summary.unsent).catch(() => 0),
   ]);
 
   type ReplyRow = { card_id: string; reply_at: string; reply_classification: string; cards: { status: string; accounts: { name: string | null } | null } | null; people: { full_name: string | null; title: string | null } | null };
@@ -95,6 +99,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     list: latest,
     week,
     gmailConnected: Boolean((connection?.email as string | undefined)?.trim()),
+    drafts,
     series: sent ? dailySeries(sent.touches, 90, sent.today, sent.dayOf) : [],
     mix: sent
       ? { industry: breakdown(sent.touches, "industry", since90, sent.dayOf), role: breakdown(sent.touches, "role", since90, sent.dayOf), size: breakdown(sent.touches, "size", since90, sent.dayOf) }
