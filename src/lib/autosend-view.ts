@@ -11,7 +11,7 @@ import type { Owner } from "./types.ts";
 
 /** One email in the auto-send view: who, what kind of company, and where it sits in the queue. */
 export type AutoSendEmail = {
-  id: string; name: string; title: string; company: string; subject: string;
+  id: string; name: string; title: string; company: string; domain: string; subject: string;
   /** The card's status: "approved" is reviewed on the Drafts page. Approval does not decide what sends. */
   status: string;
   /** The saved draft and its version, so it can be read and edited on the page with the desk's version check. */
@@ -59,7 +59,7 @@ export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSu
     const held = slot?.label.startsWith("Held: ");
     const group: AutoSendEmail["group"] = row.auto_send_hold ? "kept" : !slot || held ? "held" : slot.position <= plan.going ? "going" : "later";
     return {
-      id: row.id, status: row.status, name: row.people?.full_name ?? "", title: row.people?.title ?? "", company: row.accounts?.name ?? row.accounts?.domain ?? "",
+      id: row.id, status: row.status, name: row.people?.full_name ?? "", title: row.people?.title ?? "", company: row.accounts?.name ?? row.accounts?.domain ?? "", domain: row.accounts?.domain ?? "",
       subject: row.email_subject ?? "", body: row.email_body ?? "", updatedAt: row.updated_at, email: row.people?.email ?? null, personId: row.people?.id ?? null,
       curated: isCuratedDomain(row.accounts?.domain),
       industry: industryOf(listRow?.sector ?? row.accounts?.vertical, row.accounts?.name), role: roleOf(row.people?.title), size: sizeOf(listRow?.revenue),

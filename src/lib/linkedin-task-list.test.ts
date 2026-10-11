@@ -6,11 +6,11 @@ const now = Date.parse("2026-10-11T15:00:00Z");
 const person = (name: string, extra: Partial<NonNullable<FirstMessageRow["people"]>> = {}) => ({ full_name: name, title: "CEO", linkedin_url: `linkedin.com/in/${name.toLowerCase()}`, do_not_contact: false, ...extra });
 const card = (id: string, extra: Partial<FirstMessageRow> = {}): FirstMessageRow => ({
   id, person_id: `p-${id}`, updated_at: "2026-10-09T12:00:00Z", channel: "linkedin_first", status: "new",
-  linkedin_subject: null, linkedin_message: `Hi from ${id}`, people: person(id), accounts: { name: `Co ${id}` }, ...extra,
+  linkedin_subject: null, linkedin_message: `Hi from ${id}`, people: person(id), accounts: { name: `Co ${id}`, domain: `co-${id}.com` }, ...extra,
 });
 const step = (id: string, cardId: string, extra: Partial<FollowupStepRow> = {}): FollowupStepRow => ({
   id, step_number: 1, channel: "linkedin_message", status: "pending", scheduled_at: "2026-10-10T14:00:00Z", sent_at: null, error: null, subject: null, body: `Following up ${id}`,
-  cadences: { card_id: cardId, person_id: `p-${cardId}`, owner: "suuchi", status: "active", people: person(cardId), cards: { accounts: { name: `Co ${cardId}` } } },
+  cadences: { card_id: cardId, person_id: `p-${cardId}`, owner: "suuchi", status: "active", people: person(cardId), cards: { accounts: { name: `Co ${cardId}`, domain: `co-${cardId}.com` } } },
   ...extra,
 });
 

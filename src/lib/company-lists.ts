@@ -4,6 +4,8 @@ export type ListCard = { domain: string; status: string; held: boolean; sendable
 export type ListRow = { domain: string; sector: string };
 export type ListSummary = {
   date: string; building: boolean; companies: number; sectors: string[];
+  /** A few of its companies, for their logos. */
+  logos: string[];
   progress: Record<"sent" | "ready" | "review" | "missing", number>;
   positive: number; meetings: number;
   status: "Preparing" | "Active" | "Done";
@@ -37,7 +39,7 @@ export function summarizeList(list: { date: string; building: boolean; rows: Lis
   for (const row of list.rows) if (row.sector && row.sector !== "Other") tally.set(row.sector, (tally.get(row.sector) ?? 0) + 1);
   const open = progress.ready + progress.review + progress.missing;
   return {
-    date: list.date, building: list.building, companies: domains.length,
+    date: list.date, building: list.building, companies: domains.length, logos: domains.slice(0, 4),
     sectors: [...tally.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([sector]) => sector),
     progress, positive: count("positive", "meeting"), meetings: count("meeting"),
     status: list.building ? "Preparing" : open ? "Active" : "Done",

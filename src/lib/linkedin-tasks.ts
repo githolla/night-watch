@@ -8,9 +8,9 @@ const DAY_MS = 86_400_000;
 export async function loadLinkedInTasks(owner: Owner, now: Date = new Date()): Promise<LinkedInTask[]> {
   const db = admin();
   const [{ data: cards, error: cardError }, { data: steps, error: stepError }] = await Promise.all([
-    db.from("cards").select("id,person_id,updated_at,channel,status,linkedin_subject,linkedin_message,people(full_name,title,linkedin_url,do_not_contact),accounts(name)")
+    db.from("cards").select("id,person_id,updated_at,channel,status,linkedin_subject,linkedin_message,people(full_name,title,linkedin_url,do_not_contact),accounts(name,domain)")
       .eq("assigned_to", owner).in("channel", LINKEDIN_FIRST).in("status", OPEN_DRAFT).not("linkedin_message", "is", null).limit(500),
-    db.from("cadence_steps").select("id,step_number,channel,status,scheduled_at,sent_at,error,subject,body,cadences!inner(card_id,person_id,owner,status,people(full_name,title,linkedin_url,do_not_contact),cards(accounts(name)))")
+    db.from("cadence_steps").select("id,step_number,channel,status,scheduled_at,sent_at,error,subject,body,cadences!inner(card_id,person_id,owner,status,people(full_name,title,linkedin_url,do_not_contact),cards(accounts(name,domain)))")
       .in("channel", LINKEDIN_TOUCHES).in("status", ["pending", "ready", "failed"]).eq("cadences.status", "active").eq("cadences.owner", owner)
       .lte("scheduled_at", now.toISOString()).order("scheduled_at", { ascending: true }).limit(500),
   ]);

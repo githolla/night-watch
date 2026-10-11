@@ -8,7 +8,7 @@ export type LinkedInTask = {
   stepId: string | null;
   step: number | null;
   personId: string | null;
-  name: string; title: string; company: string;
+  name: string; title: string; company: string; domain: string;
   profileUrl: string | null;
   subject: string | null;
   message: string;
@@ -23,7 +23,7 @@ export type FirstMessageRow = {
   id: string; person_id: string; updated_at: string; channel: string; status: string;
   linkedin_subject: string | null; linkedin_message: string | null;
   people: { full_name: string | null; title: string | null; linkedin_url: string | null; do_not_contact: boolean | null } | null;
-  accounts: { name: string | null } | null;
+  accounts: { name: string | null; domain: string | null } | null;
 };
 
 export type FollowupStepRow = {
@@ -32,7 +32,7 @@ export type FollowupStepRow = {
   cadences: {
     card_id: string; person_id: string; owner: string; status: string;
     people: { full_name: string | null; title: string | null; linkedin_url: string | null; do_not_contact: boolean | null } | null;
-    cards: { accounts: { name: string | null } | null } | null;
+    cards: { accounts: { name: string | null; domain: string | null } | null } | null;
   } | null;
 };
 
@@ -59,7 +59,7 @@ export function buildLinkedInTasks(cards: FirstMessageRow[], touchedCardIds: Set
       const cadence = row.cadences!;
       return {
         key: `step:${row.id}`, kind: "followup" as const, cardId: cadence.card_id, stepId: row.id, step: row.step_number, personId: cadence.person_id,
-        name: cadence.people?.full_name ?? "Unknown contact", title: cadence.people?.title ?? "", company: cadence.cards?.accounts?.name ?? "",
+        name: cadence.people?.full_name ?? "Unknown contact", title: cadence.people?.title ?? "", company: cadence.cards?.accounts?.name ?? "", domain: cadence.cards?.accounts?.domain ?? "",
         profileUrl: profile(cadence.people?.linkedin_url), subject: row.subject, message: row.body!.trim(), dueAt: row.scheduled_at,
       };
     })
@@ -70,7 +70,7 @@ export function buildLinkedInTasks(cards: FirstMessageRow[], touchedCardIds: Set
       && !touchedCardIds.has(row.id) && !withFollowup.has(row.id))
     .map((row) => ({
       key: `card:${row.id}`, kind: "first" as const, cardId: row.id, stepId: null, step: null, personId: row.person_id,
-      name: row.people?.full_name ?? "Unknown contact", title: row.people?.title ?? "", company: row.accounts?.name ?? "",
+      name: row.people?.full_name ?? "Unknown contact", title: row.people?.title ?? "", company: row.accounts?.name ?? "", domain: row.accounts?.domain ?? "",
       profileUrl: profile(row.people?.linkedin_url), subject: row.linkedin_subject?.trim() || null, message: row.linkedin_message!.trim(), dueAt: row.updated_at,
     }))
     .sort((a, b) => a.dueAt.localeCompare(b.dueAt));

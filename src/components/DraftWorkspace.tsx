@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Check, ChevronLeft, ChevronRight, CircleAlert, Search, Sparkles, TextQuote, Type } from "lucide-react";
 import { useMemo, useState } from "react";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { InlineConfirm } from "@/components/InlineConfirm";
 import type { WorkspaceDraft, WorkspacePlan } from "@/lib/draft-workspace";
 import { outreachBody, outreachEmailHtml } from "@/lib/outreach-ending";
@@ -264,6 +265,7 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
                 {pageDrafts.map((draft) => (
                   <li key={draft.id} className={`review-item ${current?.id === draft.id ? "is-open" : ""} ${selected.has(draft.id) ? "is-picked" : ""} ${draft.status === "approved" ? "is-reviewed" : ""}`}>
                     {canAct && <input type="checkbox" className="dw-check" checked={selected.has(draft.id)} onChange={() => toggle(draft.id)} aria-label={`Select ${draft.company}`} />}
+                    <CompanyLogo domain={draft.domain} name={draft.company} size={34} />
                     <button type="button" className="review-row" aria-expanded={current?.id === draft.id} onClick={() => open(draft)}>
                       <span className="review-who"><b>{draft.company}</b><small>{draft.name}{draft.title ? ` · ${draft.title}` : ""}</small></span>
                       <span className={`dw-addr ${draft.confirmed ? "is-ok" : draft.sendable ? "is-warn" : "is-bad"}`}>{draft.confirmed ? <Check size={14} strokeWidth={2.6} aria-hidden="true" /> : <CircleAlert size={14} strokeWidth={2.2} aria-hidden="true" />}{draft.confirmed ? "Email verified" : draft.sendable ? "Needs verification" : "No address"}</span>
@@ -286,7 +288,8 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
             {current && editing && (
               <article className="dw-editor review-editor" aria-label={`Email to ${current.name}`}>
                 <header className="dw-editor-head">
-                  <div><h2>{current.company}</h2><p className="review-to">To {current.name}{current.title ? ` · ${current.title}` : ""}{current.email ? ` · ${current.email}` : " · no address on file"}</p></div>
+                  <CompanyLogo domain={current.domain} name={current.company} size={48} className="is-lg" />
+                  <div className="dw-editor-title"><h2>{current.company}</h2><p className="review-to">To {current.name}{current.title ? ` · ${current.title}` : ""}{current.email ? ` · ${current.email}` : " · no address on file"}</p></div>
                   <span className={`dw-state ${dirty ? "is-dirty" : ""}`}>{dirty ? "Unsaved changes" : current.status === "approved" ? "Approved" : "Saved"}</span>
                 </header>
                 {current.linkedin && (

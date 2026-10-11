@@ -2347,7 +2347,7 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .dw-queue-head h2{width:100%;margin:0;font-size:20px;font-weight:600;letter-spacing:-.025em}
 .dw-select{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-soft);cursor:pointer}
 .dw-select input,.dw-check{width:17px;height:17px;margin:0;accent-color:var(--ink);cursor:pointer;flex:none}
-.dw .dw-list .review-item{display:flex;align-items:center;gap:4px;padding:0 6px 0 10px;border-bottom:1px solid var(--line);border-radius:0;background:none}
+.dw .dw-list .review-item{display:flex;align-items:center;gap:10px;padding:0 6px 0 10px;border-bottom:1px solid var(--line);border-radius:0;background:none}
 .dw .dw-list .review-item:last-child{border-bottom:0}
 .dw .dw-list .review-item.is-open{border-radius:12px;background:var(--accent-soft);border-bottom-color:transparent;box-shadow:inset 3px 0 0 var(--accent)}
 .dw .dw-list .review-item.is-picked:not(.is-open){background:rgba(40,36,31,.04)}
@@ -2364,7 +2364,9 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .dw-pages button.is-on{background:var(--accent-soft);color:var(--accent-strong)}
 .dw-pages button:disabled{opacity:.35;pointer-events:none}
 .dw .dw-editor.review-editor{display:flex;flex-direction:column;gap:14px;padding:24px 26px}
-.dw-editor-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.dw-editor-head{display:flex;align-items:center;gap:14px}
+.dw-editor-title{flex:1;min-width:0}
+.co-logo.is-lg{border-radius:12px}
 .dw-editor-head h2{margin:0 0 4px;font-size:26px;font-weight:600;letter-spacing:-.03em}
 .dw-editor-head .review-to{margin:0;font-size:14px;color:var(--ink-soft)}
 .dw-state{flex:none;display:inline-flex;align-items:center;gap:7px;font:500 13px/1.2 var(--sans);color:var(--ok)}
@@ -2501,7 +2503,12 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-tr{display:grid;grid-template-columns:minmax(150px,1.3fr) 90px minmax(220px,2fr) minmax(150px,1.2fr) 110px minmax(130px,.9fr);align-items:center;gap:14px;padding:13px 8px;border-top:1px solid var(--line);font-size:14.5px}
 .ov-tr.is-head{padding-top:10px;padding-bottom:10px;border-top:0;font:500 13px/1.2 var(--sans);color:var(--muted)}
 .ov-tr:not(.is-head):hover{background:#fcfbf8}
-.ov-td-name{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ov-td-name{display:flex;align-items:center;gap:12px;min-width:0}
+.ov-td-name>span:last-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ov-logos{flex:none;display:flex}
+.ov-logos .co-logo{border-radius:50%;box-shadow:0 0 0 2px #fff,inset 0 0 0 1px var(--line)}
+.ov-logos .co-logo+.co-logo{margin-left:-8px}
+.ov-logos:empty{display:none}
 .ov-td-name b{font-weight:600;color:var(--ink)}
 .ov-td-name small{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ov-td-num{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -2523,3 +2530,7 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 @media(max-width:1180px){.ov-pair{grid-template-columns:minmax(0,1fr)}.ov-tr{grid-template-columns:minmax(150px,1fr) 70px minmax(200px,1.6fr) 100px minmax(120px,.8fr)}.ov-tr>:nth-child(4){display:none}}
 @media(max-width:860px){.ov-top{display:none}.ov-head{margin-top:18px}.ov-sendnote{margin-left:0;width:100%}.ov-sendline>span:not(.ov-dot):not(.ov-sendnote){padding-left:0;border-left:0}.ov-tr.is-head{display:none}.ov-tr{grid-template-columns:minmax(0,1fr) auto;gap:6px 14px}.ov-tr>:nth-child(2){display:none}.ov-tr>:nth-child(3){grid-column:1/-1;grid-row:2}.ov-tr>:nth-child(4){display:none}.ov-tr>:nth-child(6){grid-column:1/-1}.ov-results-row{grid-template-columns:repeat(2,minmax(0,1fr))}.ov-result{padding:12px 0;border-left:0}.ov-find input{width:100%}}
 @media(max-width:560px){.ov-figures li{padding:0 12px}.ov-nextaction-main{padding:20px}.ov-start{width:100%;justify-content:center}.ov-sendline{padding:14px 20px}.ov-panel{padding:20px 18px}.ov-rows li{flex-wrap:wrap}.ov-row-text{flex-basis:calc(100% - 54px)}.ov-rows .ov-act{margin-left:54px}.ov-result b{font-size:30px}}
+/* Company logos, with initials as the fallback. */
+.co-logo{flex:none;display:inline-grid;place-items:center;overflow:hidden;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.co-logo img{width:auto;height:auto;max-width:72%;max-height:72%;object-fit:contain}
+.co-logo.is-initials{background:linear-gradient(145deg,#ece6dc,#ddd4c6);box-shadow:none;color:var(--ink-soft);font-weight:600;letter-spacing:.02em}

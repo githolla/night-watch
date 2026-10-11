@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { ReplyItem } from "@/lib/replies-view";
 import { replyLabel } from "@/lib/reply-labels";
 import { setCardStatus } from "@/lib/card-status";
+import { CompanyLogo } from "@/components/CompanyLogo";
 
 type Group = ReplyItem["group"];
 const TABS: Array<[Group, string]> = [["needs", "Needs a response"], ["booked", "Booked"], ["closed", "Closed"]];
@@ -38,6 +39,7 @@ export function RepliesView({ items, nextStep, canChange }: { items: ReplyItem[]
         : <ol className="replies-list">{shown.map((item) => (
             <li key={item.cardId} className="reply-card">
               <div className="reply-top">
+                <CompanyLogo domain={item.domain} name={item.company || item.name} size={40} />
                 <span className={`home-read is-${item.classification}`}>{replyLabel(item.classification)}</span>
                 <span className="home-who"><b>{item.name}</b><small>{item.title ? `${item.title} · ` : ""}{item.company} · {day(item.repliedAt)}</small></span>
               </div>

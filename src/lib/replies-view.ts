@@ -5,7 +5,7 @@ const DAY_MS = 86_400_000;
 const REAL_REPLY = ["positive", "referral", "neutral", "objection", "negative"];
 
 export type ReplyItem = {
-  cardId: string; name: string; title: string; company: string;
+  cardId: string; name: string; title: string; company: string; domain: string;
   classification: string; repliedAt: string; snippet: string | null;
   /** Opens the thread in the seat's Gmail. */
   gmailUrl: string | null;
@@ -26,7 +26,7 @@ export async function loadReplies(owner: Owner, now: Date = new Date(), days = 6
   const db = admin();
   const since = new Date(now.getTime() - days * DAY_MS).toISOString();
   const [{ data: touches }, { data: events }, { data: connection }] = await Promise.all([
-    db.from("touches").select("card_id,reply_at,reply_classification,gmail_thread_id,cards(status,accounts(name)),people(full_name,title)")
+    db.from("touches").select("card_id,reply_at,reply_classification,gmail_thread_id,cards(status,accounts(name,domain)),people(full_name,title)")
       .eq("sent_by", owner).eq("channel", "email").not("reply_at", "is", null).in("reply_classification", REAL_REPLY).gte("reply_at", since)
       .order("reply_at", { ascending: false }).limit(300),
     db.from("message_experiments").select("card_id,context,created_at").eq("owner", owner).eq("goal", "Inbound reply processing").gte("created_at", since).order("created_at", { ascending: false }).limit(500),
@@ -38,13 +38,13 @@ export async function loadReplies(owner: Owner, now: Date = new Date(), days = 6
     try { const state = JSON.parse(event.context ?? "{}") as { snippet?: string }; if (state.snippet) snippets.set(event.card_id, state.snippet); } catch { /* an older record without one */ }
   }
   const gmail = (connection?.email as string | undefined)?.trim() || null;
-  type Row = { card_id: string; reply_at: string; reply_classification: string; gmail_thread_id: string | null; cards: { status: string; accounts: { name: string | null } | null } | null; people: { full_name: string | null; title: string | null } | null };
+  type Row = { card_id: string; reply_at: string; reply_classification: string; gmail_thread_id: string | null; cards: { status: string; accounts: { name: string | null; domain: string | null } | null } | null; people: { full_name: string | null; title: string | null } | null };
   const seen = new Set<string>();
   const items = ((touches ?? []) as unknown as Row[]).filter((row) => !seen.has(row.card_id) && Boolean(seen.add(row.card_id))).map((row): ReplyItem => {
     const status = row.cards?.status ?? "";
     const group: ReplyItem["group"] = ["meeting", "qualified", "opportunity"].includes(status) ? "booked" : ["archived", "dismissed"].includes(status) || row.reply_classification === "negative" ? "closed" : "needs";
     return {
-      cardId: row.card_id, name: row.people?.full_name ?? "", title: row.people?.title ?? "", company: row.cards?.accounts?.name ?? "",
+      cardId: row.card_id, name: row.people?.full_name ?? "", title: row.people?.title ?? "", company: row.cards?.accounts?.name ?? "", domain: row.cards?.accounts?.domain ?? "",
       classification: row.reply_classification, repliedAt: row.reply_at, snippet: snippets.get(row.card_id) ?? null,
       gmailUrl: row.gmail_thread_id ? `https://mail.google.com/mail/${gmail ? `?authuser=${encodeURIComponent(gmail)}` : ""}#all/${row.gmail_thread_id}` : null,
       group,

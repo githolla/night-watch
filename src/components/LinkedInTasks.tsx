@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Copy, ExternalLink } from "lucide-react";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { LinkedInDone, LinkedInTask } from "@/lib/linkedin-task-list";
@@ -8,7 +9,6 @@ import type { LinkedInDone, LinkedInTask } from "@/lib/linkedin-task-list";
 type Tab = "todo" | "done";
 
 const day = (iso: string) => new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "America/New_York" });
-const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "?";
 const what = (task: LinkedInTask) => task.kind === "first" ? "First message" : `Follow-up ${task.step ?? ""}`.trim();
 
 /** Records the send through the route that already handles it: the follow-up step, or a manual touch on the card. */
@@ -50,7 +50,7 @@ function TaskCard({ task, canSend, onSent }: { task: LinkedInTask; canSend: bool
   return (
     <li className="li-task">
       <div className="li-task-head">
-        <span className="li-avatar" aria-hidden="true">{initials(task.name)}</span>
+        <CompanyLogo domain={task.domain} name={task.company || task.name} size={44} />
         <span className="li-who"><b>{task.name}</b><small>{[task.title, task.company].filter(Boolean).join(" · ")}</small></span>
         <span className={`li-dot ${task.kind === "followup" ? "is-due" : ""}`}>{what(task)}{task.kind === "followup" ? ` · due ${day(task.dueAt)}` : ""}</span>
       </div>
