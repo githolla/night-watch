@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Bell, Buildings, CaretRight, ChatsCircle, Check, LinkedinLogo, MagnifyingGlass, PaperPlaneTilt, PencilSimpleLine, SealCheck } from "@phosphor-icons/react";
+import { ArrowRight, Bell, Buildings, CalendarDots, CaretRight, ChatsCircle, Check, LinkedinLogo, MagnifyingGlass, PaperPlaneTilt, PencilSimpleLine, SealCheck } from "@phosphor-icons/react";
 import { useMemo, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import { CompanyLogo } from "@/components/CompanyLogo";
@@ -69,13 +69,22 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
   ].filter((item): item is { text: string; href: string; action: string } => Boolean(item));
 
   // Overnight, in plain sentences: the list, what went out, who wrote back, what goes next.
-  const briefing = [
-    data.building ? "Night Watch is building tonight's list right now." : latest ? `Your ${listName(latest.date)} has ${count(latest.companies, "company", "companies")}: ${latest.progress.ready + latest.progress.review ? `${count(latest.progress.ready + latest.progress.review, "email is", "emails are")} ready for you` : "no emails are ready yet"}${latest.progress.missing ? `, and Night Watch is still finding addresses for ${latest.progress.missing}` : ""}.` : "No new list in the last few days.",
-    yesterday ? `${count(yesterday, "email", "emails")} went out yesterday.` : "",
-    data.linkedin ? `${count(data.linkedin, "LinkedIn message is", "LinkedIn messages are")} ready for you to send by hand.` : "",
-    data.newReplies ? `${count(data.newReplies, "new reply", "new replies")} came in${interested.length ? `, ${interested.length} interested` : ""}.` : "No new replies since yesterday.",
-    on && auto ? `Auto-send sends ${count(auto.plan.going, "email", "emails")} ${day === "Today" ? "today" : `on ${day}`}, ${auto.plan.windowLabel} ET.` : "Auto-send is off, so nothing goes out until you turn it on.",
-  ].filter(Boolean);
+  // Overnight, as a few facts she can click: the list, what went out, who wrote back, what goes next.
+  const facts: Array<{ key: string; icon: ReactNode; text: string; href: string; tone?: "ok" | "warn" }> = [
+    data.building
+      ? { key: "list", icon: <Buildings size={17} weight="duotone" />, text: "Tonight's list is being built", href: `/outreach?list=${owner}` }
+      : latest
+      ? { key: "list", icon: <Buildings size={17} weight="duotone" />, text: `${listName(latest.date)}: ${count(latest.companies, "company", "companies")}, ${count(latest.progress.ready + latest.progress.review, "email", "emails")} ready`, href: `/outreach?list=${owner}` }
+      : { key: "list", icon: <Buildings size={17} weight="duotone" />, text: "No new list in the last few days", href: "/targets" },
+    { key: "sent", icon: <PaperPlaneTilt size={17} weight="duotone" />, text: yesterday ? `${count(yesterday, "email", "emails")} sent yesterday` : "Nothing sent yesterday", href: `/drafts/sent?${q}&days=7` },
+    data.newReplies
+      ? { key: "replies", icon: <ChatsCircle size={17} weight="duotone" />, text: `${count(data.newReplies, "new reply", "new replies")}${interested.length ? `, ${interested.length} interested` : ""}`, href: `/replies?${q}`, tone: "ok" as const }
+      : { key: "replies", icon: <ChatsCircle size={17} weight="duotone" />, text: "No new replies", href: `/replies?${q}` },
+    ...(data.linkedin ? [{ key: "linkedin", icon: <LinkedinLogo size={17} weight="fill" />, text: `${count(data.linkedin, "LinkedIn message", "LinkedIn messages")} to send`, href: `/linkedin?${q}`, tone: "warn" as const }] : []),
+    on && auto
+      ? { key: "next", icon: <CalendarDots size={17} weight="duotone" />, text: `${count(auto.plan.going, "email", "emails")} sending ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel}`, href: `/auto-send?${q}` }
+      : { key: "next", icon: <CalendarDots size={17} weight="duotone" />, text: "Auto-send is off", href: `/auto-send?${q}`, tone: "warn" as const },
+  ];
 
   const steps: Step[] = [
     { key: "find", icon: <MagnifyingGlass size={20} weight="duotone" />, who: "Night Watch", title: "Finds companies", value: companies, unit: companies === 1 ? "company on the list" : "companies on the list", sub: latest ? `Newest: ${listName(latest.date)}` : "A new list each weeknight", href: `/outreach?list=${owner}`, needs: false },
@@ -121,12 +130,20 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
       </header>
 
       <section className="ov-brief" aria-label="This morning">
-        <p className="ov-hi">{hello}, {data.first}.</p>
-        <h1>Here&rsquo;s your {today}.</h1>
-        <p className="ov-story">{briefing.join(" ")}</p>
+        <div className="ov-brief-main">
+          <span className="ov-dateline">{today} <i aria-hidden="true">·</i> Morning briefing</span>
+          <h1>{hello}, {data.first}.</h1>
+          <p className="ov-lede">Here&rsquo;s what happened overnight and what&rsquo;s next.</p>
+          <ul className="ov-facts" aria-label="Overnight">
+            {facts.map((fact) => (
+              <li key={fact.key}><Link href={fact.href} className={fact.tone ? `is-${fact.tone}` : ""}><span aria-hidden="true">{fact.icon}</span>{fact.text}</Link></li>
+            ))}
+          </ul>
+        </div>
         <figure className="ov-quote">
+          <span className="ov-quote-label">Sandler rule of the day</span>
           <blockquote>{quote}</blockquote>
-          <figcaption>David Sandler, Sandler rule of the day</figcaption>
+          <figcaption>David Sandler</figcaption>
         </figure>
       </section>
 

@@ -2434,7 +2434,6 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-bell{position:relative;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;color:var(--ink-soft)}
 .ov-bell:hover{background:var(--soft);color:var(--ink)}
 .ov-bell.has-dot::after{content:"";position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 2px var(--paper-bright)}
-.ov-hi{margin:0 0 6px;font:500 15px/1.3 var(--sans);color:var(--muted)}
 .ov-sub{margin:8px 0 0;font-size:17px;letter-spacing:-.01em;color:var(--ink-soft)}
 .ov-dot{display:inline-flex;align-items:center;gap:8px;font:500 13.5px/1.3 var(--sans);color:var(--ink-soft);white-space:nowrap}
 .ov-dot::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#b9b0a4}
@@ -2587,9 +2586,6 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 @media(max-width:1280px){.ac-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ac-fit-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.ac-grid{grid-template-columns:minmax(0,1fr)}.ac-fit-list{grid-template-columns:repeat(2,minmax(0,1fr))}.ac-card{padding:18px}.ac-table-head{padding:16px}}
 /* Overview as a morning briefing: what happened, how it works with live numbers, and what to do. */
-.ov-brief{margin-top:8px}
-.ov-brief h1{margin:0 0 12px;font-size:clamp(32px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.04em;color:var(--ink)}
-.ov-story{max-width:880px;margin:0;font-size:clamp(16px,1.35vw,18.5px);line-height:1.55;letter-spacing:-.01em;color:var(--ink-soft)}
 .ov-flow{padding:22px 24px 24px;border-radius:var(--ov-radius);background:#fff;box-shadow:var(--ov-shadow)}
 .ov-flow-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-bottom:16px}
 .ov-flow-head h2{margin:0;font-size:21px;font-weight:600;letter-spacing:-.03em}
@@ -2665,9 +2661,27 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 /* Sidebar icons: Phosphor, regular, duotone on the page you are on. */
 .side-link svg{flex:none;opacity:.85}
 .side-link.is-active svg{opacity:1;color:var(--accent-strong)}
-/* The Sandler rule of the day under the briefing. */
-.ov-quote{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:16px 0 0;padding:12px 18px;border-left:3px solid var(--accent);border-radius:0 12px 12px 0;background:rgba(255,255,255,.6);max-width:880px}
-.ov-quote blockquote{margin:0;font-size:17px;font-weight:500;font-style:italic;letter-spacing:-.01em;color:var(--ink)}
+/* Overview header: one calm card with the date, the greeting, overnight facts as links and the rule of the day. */
+.ov-brief{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,320px);gap:28px;margin-top:6px;padding:28px 30px;border-radius:var(--ov-radius);background:linear-gradient(135deg,#fff 0%,#fff 55%,#fbf6ec 100%);box-shadow:var(--ov-shadow)}
+.ov-brief-main{min-width:0}
+.ov-dateline{display:flex;align-items:center;gap:8px;font:600 12.5px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--accent-strong)}
+.ov-dateline i{font-style:normal;color:#d6c3a2}
+.ov-brief h1{margin:12px 0 6px;font-size:clamp(28px,2.7vw,38px);font-weight:600;line-height:1.1;letter-spacing:-.035em;color:var(--ink)}
+.ov-lede{margin:0 0 18px;font-size:16px;color:var(--ink-soft)}
+.ov-facts{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0}
+.ov-facts a{display:inline-flex;align-items:center;gap:8px;padding:8px 12px 8px 10px;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 14px/1.2 var(--sans);color:var(--ink);text-decoration:none;transition:box-shadow .15s ease,transform .15s ease}
+.ov-facts a span{display:grid;place-items:center;color:var(--ink-soft)}
+.ov-facts a:hover{box-shadow:inset 0 0 0 1px var(--line-strong),0 4px 12px rgba(30,26,22,.06);transform:translateY(-1px)}
+.ov-facts a.is-ok span{color:var(--ok)}
+.ov-facts a.is-warn{background:var(--accent-soft);box-shadow:inset 0 0 0 1px rgba(154,106,39,.2)}
+.ov-facts a.is-warn span{color:var(--accent-strong)}
+.ov-facts a[href*="/linkedin"] span{color:#0a66c2}
+.ov-quote{display:flex;flex-direction:column;justify-content:center;gap:10px;margin:0;padding-left:28px;border-left:1px solid var(--line)}
+.ov-quote-label{font:600 11.5px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ov-quote blockquote{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:19px;font-style:italic;line-height:1.4;color:var(--ink)}
 .ov-quote blockquote::before{content:"\201C"}
 .ov-quote blockquote::after{content:"\201D"}
 .ov-quote figcaption{font-size:13px;color:var(--muted)}
+.ov-quote figcaption::before{content:"";display:inline-block;width:16px;height:1px;margin:0 8px 4px 0;background:var(--line-strong);vertical-align:middle}
+@media(max-width:1000px){.ov-brief{grid-template-columns:minmax(0,1fr);gap:20px}.ov-quote{padding:18px 0 0;border-left:0;border-top:1px solid var(--line)}}
+@media(max-width:560px){.ov-brief{padding:22px 18px}.ov-facts a{font-size:13.5px}}
