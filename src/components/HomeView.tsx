@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Bell, Buildings, CalendarDots, CaretRight, ChatsCircle, Check, LinkedinLogo, Moon, User, MagnifyingGlass, PaperPlaneTilt, PencilSimpleLine, SealCheck } from "@phosphor-icons/react";
+import { ArrowRight, Bell, Buildings, CaretRight, Check } from "@phosphor-icons/react";
 import { useMemo, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import { CompanyLogo } from "@/components/CompanyLogo";
@@ -34,7 +34,7 @@ function Progress({ list }: { list: ListSummary }) {
   );
 }
 
-type Lane = { key: string; icon: ReactNode; who: "Night Watch" | "You"; title: string; value: number; unit: string; sub: string; href: string; needs: boolean };
+type Lane = { key: string; who: "Night Watch" | "You"; title: string; value: number; unit: string; sub: string; href: string; needs: boolean };
 /** A step is one card, or two lanes side by side when email and LinkedIn go different ways. */
 type Step = Lane & { lanes?: Lane[] };
 type Todo = { key: string; title: string; why: string; mins: number; href?: string; action?: ReactNode; optional?: boolean };
@@ -54,7 +54,6 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
   const on = Boolean(auto && !auto.plan.blocker);
   const paused = Boolean(auto?.control.paused);
   const day = auto ? auto.plan.dayLabel.charAt(0).toUpperCase() + auto.plan.dayLabel.slice(1) : "";
-  const sendWindow = auto ? `${day}, ${auto.plan.windowLabel} ET` : null;
   const interested = data.replies.filter((item) => ["positive", "referral"].includes(item.classification));
   const other = data.replies.length - interested.length;
   const current = data.lists.filter((list) => list.status !== "Done");
@@ -68,33 +67,32 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
     paused && { text: `Auto-send is paused${auto?.control.pausedReason ? `: ${auto.control.pausedReason.replace(/\.\s*$/, "")}` : ""}.`, href: `/auto-send?${q}`, action: "Review and resume" },
   ].filter((item): item is { text: string; href: string; action: string } => Boolean(item));
 
-  // Overnight, in plain sentences: the list, what went out, who wrote back, what goes next.
-  // Overnight, as a few facts she can click: the list, what went out, who wrote back, what goes next.
-  const facts: Array<{ key: string; icon: ReactNode; text: string; href: string; tone?: "ok" | "warn" }> = [
+  // What Night Watch is doing by itself, one row each, with a status word. This is the only place these facts live.
+  type Work = { key: string; title: string; meta: string; status: string; tone: "ok" | "run" | "warn" | "bad" | "idle"; href: string };
+  const working: Work[] = [
     data.building
-      ? { key: "list", icon: <Buildings size={17} weight="duotone" />, text: "Tonight's list is being built", href: `/outreach?list=${owner}` }
+      ? { key: "list", title: "Building tonight's list", meta: "Researching companies and writing drafts", status: "Running", tone: "run", href: `/outreach?list=${owner}` }
       : latest
-      ? { key: "list", icon: <Buildings size={17} weight="duotone" />, text: `${listName(latest.date)}: ${count(latest.companies, "company", "companies")}, ${count(latest.progress.ready + latest.progress.review, "email", "emails")} ready`, href: `/outreach?list=${owner}` }
-      : { key: "list", icon: <Buildings size={17} weight="duotone" />, text: "No new list in the last few days", href: "/targets" },
-    { key: "sent", icon: <PaperPlaneTilt size={17} weight="duotone" />, text: yesterday ? `${count(yesterday, "email", "emails")} sent yesterday` : "Nothing sent yesterday", href: `/drafts/sent?${q}&days=7` },
-    data.newReplies
-      ? { key: "replies", icon: <ChatsCircle size={17} weight="duotone" />, text: `${count(data.newReplies, "new reply", "new replies")}${interested.length ? `, ${interested.length} interested` : ""}`, href: `/replies?${q}`, tone: "ok" as const }
-      : { key: "replies", icon: <ChatsCircle size={17} weight="duotone" />, text: "No new replies", href: `/replies?${q}` },
-    ...(data.linkedin ? [{ key: "linkedin", icon: <LinkedinLogo size={17} weight="fill" />, text: `${count(data.linkedin, "LinkedIn message", "LinkedIn messages")} to send`, href: `/linkedin?${q}`, tone: "warn" as const }] : []),
-    on && auto
-      ? { key: "next", icon: <CalendarDots size={17} weight="duotone" />, text: `${count(auto.plan.going, "email", "emails")} sending ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel}`, href: `/auto-send?${q}` }
-      : { key: "next", icon: <CalendarDots size={17} weight="duotone" />, text: "Auto-send is off", href: `/auto-send?${q}`, tone: "warn" as const },
+      ? { key: "list", title: `${listName(latest.date)}: ${count(latest.companies, "company", "companies")}`, meta: `${count(latest.progress.ready + latest.progress.review, "email", "emails")} ready${latest.progress.missing ? `, ${latest.progress.missing} finding an address` : ""}`, status: "Ready", tone: "ok", href: `/outreach?list=${owner}` }
+      : { key: "list", title: "No new list yet", meta: "A new list arrives each weeknight", status: "Waiting", tone: "idle", href: "/targets" },
+    paused
+      ? { key: "send", title: "Sending is paused", meta: auto?.control.pausedReason ?? "Review and resume on Auto-send", status: "Paused", tone: "bad", href: `/auto-send?${q}` }
+      : on && auto
+      ? { key: "send", title: auto.plan.going ? `${count(auto.plan.going, "email", "emails")} ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel}` : `Nothing to send ${day === "Today" ? "today" : day}`, meta: `${auto.plan.sentToday} of ${auto.plan.dailyCap} sent today · ${yesterday} yesterday`, status: "Auto-send on", tone: "ok", href: `/auto-send?${q}` }
+      : { key: "send", title: "Auto-send is off", meta: `${count(d.ready, "approved email", "approved emails")} waiting · ${yesterday} sent yesterday`, status: "Auto-send off", tone: "warn", href: `/auto-send?${q}` },
+    ...(d.missing || d.checking ? [{ key: "addresses", title: "Finding email addresses", meta: [d.missing && `${d.missing} missing`, d.checking && `${d.checking} being confirmed`].filter(Boolean).join(", "), status: "Running", tone: "run" as const, href: `/drafts?${q}` }] : []),
+    { key: "followups", title: data.followupsDue ? `${count(data.followupsDue, "follow-up needs", "follow-ups need")} you` : "Follow-ups on schedule", meta: "3 and 10 business days after each first email", status: data.followupsDue ? "Waiting on you" : "Running", tone: data.followupsDue ? "warn" : "run", href: `/followups?view=${data.followupsDue ? "needs" : "upcoming"}&${q}` },
   ];
 
   const steps: Step[] = [
-    { key: "find", icon: <MagnifyingGlass size={20} weight="duotone" />, who: "Night Watch", title: "Finds companies", value: companies, unit: companies === 1 ? "company on the list" : "companies on the list", sub: latest ? `Newest: ${listName(latest.date)}` : "A new list each weeknight", href: `/outreach?list=${owner}`, needs: false },
-    { key: "write", icon: <PencilSimpleLine size={20} weight="duotone" />, who: "Night Watch", title: "Researches and writes", value: d.total, unit: d.total === 1 ? "email written" : "emails written", sub: `${count(d.linkedinWritten, "LinkedIn message", "LinkedIn messages")} too${d.missing ? ` · ${d.missing} finding an address` : ""}`, href: `/drafts?${q}`, needs: false },
-    { key: "review", icon: <SealCheck size={20} weight="duotone" />, who: "You", title: "Review and approve", value: d.review, unit: "to review", sub: `${d.ready} approved so far`, href: `/drafts?${q}&tab=review`, needs: d.nextUnapproved > 0 },
-    { key: "send", icon: <PaperPlaneTilt size={20} weight="duotone" />, who: on ? "Night Watch" : "You", title: "Sends and follows up", value: 0, unit: "", sub: "", href: `/auto-send?${q}`, needs: false, lanes: [
-      { key: "email", icon: <PaperPlaneTilt size={17} weight="duotone" />, who: on ? "Night Watch" : "You", title: on ? "Email" : "Email (auto-send off)", value: auto?.plan.going ?? 0, unit: day ? `sending ${day === "Today" ? "today" : day}` : "sending next", sub: on ? `${auto?.plan.sentToday ?? 0} of ${auto?.plan.dailyCap ?? 0} sent today, follow-ups automatic` : "Turn it on to send approved emails", href: `/auto-send?${q}`, needs: !on && d.ready > 0 },
-      { key: "linkedin", icon: <LinkedinLogo size={18} weight="fill" />, who: "You", title: "LinkedIn, by hand", value: data.linkedin, unit: "ready to send", sub: `Copy, open profile, mark sent · ${data.linkedinSent} sent this week`, href: `/linkedin?${q}`, needs: data.linkedin > 0 },
+    { key: "find", who: "Night Watch", title: "Finds companies", value: companies, unit: companies === 1 ? "company on the list" : "companies on the list", sub: latest ? `Newest: ${listName(latest.date)}` : "A new list each weeknight", href: `/outreach?list=${owner}`, needs: false },
+    { key: "write", who: "Night Watch", title: "Researches and writes", value: d.total, unit: d.total === 1 ? "email written" : "emails written", sub: `${count(d.linkedinWritten, "LinkedIn message", "LinkedIn messages")} too${d.missing ? ` · ${d.missing} finding an address` : ""}`, href: `/drafts?${q}`, needs: false },
+    { key: "review", who: "You", title: "Review and approve", value: d.review, unit: "to review", sub: `${d.ready} approved so far`, href: `/drafts?${q}&tab=review`, needs: d.nextUnapproved > 0 },
+    { key: "send", who: on ? "Night Watch" : "You", title: "Sends and follows up", value: 0, unit: "", sub: "", href: `/auto-send?${q}`, needs: false, lanes: [
+      { key: "email", who: on ? "Night Watch" : "You", title: on ? "Email" : "Email (auto-send off)", value: auto?.plan.going ?? 0, unit: day ? `sending ${day === "Today" ? "today" : day}` : "sending next", sub: on ? `${auto?.plan.sentToday ?? 0} of ${auto?.plan.dailyCap ?? 0} sent today, follow-ups automatic` : "Turn it on to send approved emails", href: `/auto-send?${q}`, needs: !on && d.ready > 0 },
+      { key: "linkedin", who: "You", title: "LinkedIn, by hand", value: data.linkedin, unit: "ready to send", sub: `Copy, open profile, mark sent · ${data.linkedinSent} sent this week`, href: `/linkedin?${q}`, needs: data.linkedin > 0 },
     ] },
-    { key: "reply", icon: <ChatsCircle size={20} weight="duotone" />, who: "You", title: "Replies and meetings", value: data.replies.length, unit: data.replies.length === 1 ? "reply waiting" : "replies waiting", sub: count(data.meetings, "meeting booked", "meetings booked"), href: `/replies?${q}`, needs: data.replies.length > 0 },
+    { key: "reply", who: "You", title: "Replies and meetings", value: data.replies.length, unit: data.replies.length === 1 ? "reply waiting" : "replies waiting", sub: count(data.meetings, "meeting booked", "meetings booked"), href: `/replies?${q}`, needs: data.replies.length > 0 },
   ];
 
   const todos: Todo[] = [
@@ -129,57 +127,83 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
         </div>
       </header>
 
-      <section className="ov-brief" aria-label="This morning">
-        <div className="ov-brief-main">
+      <section className="ov-brief" aria-label="Today">
+        <div>
           <span className="ov-dateline">{today} <i aria-hidden="true">·</i> Daily briefing</span>
           <h1>{hello}, {data.first}.</h1>
-          <p className="ov-lede">Here&rsquo;s what happened overnight and what&rsquo;s next.</p>
-          <ul className="ov-facts" aria-label="Overnight">
-            {facts.map((fact) => (
-              <li key={fact.key}><Link href={fact.href} className={fact.tone ? `is-${fact.tone}` : ""}><span className="ov-fact-icon" aria-hidden="true">{fact.icon}</span><span className="ov-fact-text">{fact.text}</span><ArrowRight className="ov-fact-go" size={15} aria-hidden="true" /></Link></li>
-            ))}
-          </ul>
+          <p className="ov-summary">{needed.length ? <><b>{count(needed.length, "thing needs", "things need")} you</b>, about {minutes(Math.max(total, 1))}.</> : <>Nothing needs you right now.</>} <span>Night Watch handles the rest.</span></p>
         </div>
-        <figure className="ov-quote">
-          <span className="ov-quote-label">Sandler rule of the day</span>
-          <blockquote>{quote}</blockquote>
-          <figcaption>David Sandler</figcaption>
-        </figure>
+        <p className="ov-quote"><span>&ldquo;{quote}&rdquo;</span> <i>David Sandler</i></p>
       </section>
 
       {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
 
-      <section className="home-auto ov-flow" aria-label="How Night Watch works">
-        <div className="ov-flow-head">
+      <div className="ov-main">
+        <section className="ov-card home-needs ov-todo" aria-label="What you need to do">
+          <header className="ov-card-head"><h2>What you need to do</h2>{needed.length > 0 && <span className="ov-meta">In this order</span>}</header>
+          {needed.length === 0 && <p className="ov-calm"><Check size={16} weight="bold" aria-hidden="true" />Nothing needs you. {on && auto ? `Next send ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel}.` : "New work shows up here."}</p>}
+          {todos.length > 0 && (
+            <ol className="ov-todos">
+              {todos.map((todo, index) => {
+                const primary = index === 0 && !todo.optional;
+                const body = <>
+                  <span className={`ov-num ${todo.optional ? "is-optional" : ""}`} aria-hidden="true">{todo.optional ? "+" : index + 1}</span>
+                  <span className="ov-row-text"><b>{todo.title}</b><small>{todo.why}</small></span>
+                  <span className="ov-mins">{todo.optional ? "Optional" : `~${minutes(todo.mins)}`}</span>
+                </>;
+                return (
+                  <li key={todo.key} className={primary ? "is-first" : ""}>
+                    {todo.href && !todo.action
+                      ? <Link className="ov-row is-link" href={todo.href}>{body}{primary ? <span className="ov-start">Start<ArrowRight size={14} weight="bold" aria-hidden="true" /></span> : <CaretRight className="ov-chev" size={16} aria-hidden="true" />}</Link>
+                      : <div className="ov-row">{body}{todo.action && <span className="ov-act">{todo.action}</span>}</div>}
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </section>
+
+        <section className="ov-card ov-working" aria-label="Night Watch is working">
+          <header className="ov-card-head"><h2>Night Watch is working</h2></header>
+          <ul className="ov-work">
+            {working.map((item) => (
+              <li key={item.key}><Link className="ov-row is-link" href={item.href}>
+                <span className="ov-row-text"><b>{item.title}</b><small>{item.meta}</small></span>
+                <span className={`ov-status is-${item.tone}`}>{item.status}</span>
+              </Link></li>
+            ))}
+          </ul>
+          <footer className="ov-card-foot"><Go href={`/auto-send?${q}`}>Manage sending</Go></footer>
+        </section>
+      </div>
+
+      <section className="ov-card home-auto ov-flow" aria-label="How Night Watch works">
+        <header className="ov-card-head">
           <h2>How Night Watch works</h2>
-          <p>Overnight it finds companies, researches them and writes an email and a LinkedIn message for each. You review. Emails send and follow up by themselves; LinkedIn messages you send by hand in a minute each. Replies come back to you.</p>
-        </div>
-        <p className="ov-flow-legend" aria-hidden="true"><span><i className="is-nw" />Night Watch does it</span><span><i className="is-you" />You do it</span></p>
+          <span className="ov-meta">Overnight it finds companies and writes an email and a LinkedIn message for each. You review. Email sends itself; LinkedIn you send by hand.</span>
+        </header>
         <ol className="ov-stepper">
           {steps.map((step, index) => {
             const needs = step.lanes ? step.lanes.some((lane) => lane.needs) : step.needs;
-            const owner = (who: Lane["who"]) => <span className={`ov-owner ${who === "You" ? "is-you" : ""}`}>{who === "You" ? <User size={13} weight="bold" aria-hidden="true" /> : <Moon size={13} weight="fill" aria-hidden="true" />}{who}</span>;
+            const value = (lane: Lane) => <span className={`ov-step-value ${lane.value ? "" : "is-zero"}`}><b>{lane.value.toLocaleString()}</b> {lane.unit}</span>;
             return (
-              <li key={step.key} className={`is-${step.lanes ? "mixed" : step.who === "You" ? "you" : "nw"} ${needs ? "is-needs" : ""} ${step.lanes ? "is-split" : ""}`}>
-                <span className="ov-node" aria-hidden="true"><span>{index + 1}</span></span>
+              <li key={step.key} className={`${needs ? "is-needs" : ""} ${step.lanes ? "is-split" : ""}`}>
+                <span className="ov-node" aria-hidden="true">{index + 1}</span>
                 {step.lanes ? (
                   <div className="ov-stage">
-                    <span className="ov-stage-icon" aria-hidden="true">{step.icon}</span>
                     <b className="ov-step-title">{step.title}</b>
                     {step.lanes.map((lane) => (
                       <Link key={lane.key} href={lane.href} className={`ov-lane ${lane.needs ? "is-needs" : ""}`}>
-                        <span className="ov-lane-top"><span className="ov-lane-icon" aria-hidden="true">{lane.icon}</span><span className="ov-lane-name">{lane.title}</span>{owner(lane.who)}</span>
-                        <span className="ov-step-value"><b>{lane.value.toLocaleString()}</b> {lane.unit}</span>
-                        <small>{lane.needs ? "Needs you" : lane.sub}</small>
+                        <span className="ov-lane-name">{lane.title} <i>{lane.who}</i></span>
+                        {value(lane)}
                       </Link>
                     ))}
                   </div>
                 ) : (
                   <Link className="ov-stage" href={step.href}>
-                    <span className="ov-stage-icon" aria-hidden="true">{step.icon}</span>
                     <b className="ov-step-title">{step.title}</b>
-                    {owner(step.who)}
-                    <span className="ov-step-value"><b>{step.value.toLocaleString()}</b> {step.unit}</span>
+                    <span className="ov-owner">{step.who}</span>
+                    {value(step)}
                     <small>{step.needs ? "Needs you" : step.sub}</small>
                   </Link>
                 )}
@@ -189,47 +213,8 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
         </ol>
       </section>
 
-      <div className="ov-pair">
-        <section className="home-card ov-panel home-needs ov-todo" aria-label="This morning">
-          <div className="ov-panel-head">
-            <div><h2>What you need to do</h2><p>{needed.length ? `${count(needed.length, "thing", "things")}, about ${minutes(Math.max(total, 1))}, in this order.` : "Nothing is due this morning."}</p></div>
-          </div>
-          {needed.length === 0 && <div className="ov-done"><span aria-hidden="true"><Check size={26} /></span><b>You&rsquo;re all caught up</b><small>Night Watch keeps finding companies and writing emails and LinkedIn messages. New work shows up here.</small></div>}
-          {todos.length > 0 && (
-            <ol className="ov-todos">
-              {todos.map((todo, index) => {
-                const body = <>
-                  <span className={`ov-num ${todo.optional ? "is-optional" : ""}`} aria-hidden="true">{todo.optional ? <Check size={14} /> : index + 1}</span>
-                  <span className="ov-todo-text"><b>{todo.title}</b><small>{todo.why}</small></span>
-                  <span className="ov-mins">{todo.optional ? "optional" : `~${minutes(todo.mins)}`}</span>
-                </>;
-                return (
-                  <li key={todo.key}>
-                    {todo.href && !todo.action
-                      ? <Link className="ov-todo-row is-link" href={todo.href}>{body}<CaretRight className="ov-chev" size={18} aria-hidden="true" /></Link>
-                      : <div className="ov-todo-row">{body}{todo.action && <span className="ov-act">{todo.action}</span>}</div>}
-                  </li>
-                );
-              })}
-            </ol>
-          )}
-        </section>
-
-        <section className="home-card ov-panel ov-next" aria-label="Sending next">
-          <div className="ov-panel-head"><h2>Sending next</h2><span className={`ov-dot is-${paused ? "bad" : on ? "ok" : "warn"}`}>{paused ? "Paused" : on ? "Auto-send on" : "Auto-send off"}</span></div>
-          <p className="ov-next-big">{on && auto ? <><b>{auto.plan.going}</b> {auto.plan.going === 1 ? "email" : "emails"}</> : <b>Nothing</b>}</p>
-          <p className="ov-next-when">{on && sendWindow ? sendWindow : "Turn on auto-send to send approved emails each weekday morning."}</p>
-          <dl className="ov-next-facts">
-            <div><dt>Sent today</dt><dd>{auto ? `${auto.plan.sentToday} of ${auto.plan.dailyCap}` : "Not known"}</dd></div>
-            <div><dt>Approved and waiting</dt><dd>{d.ready}</dd></div>
-            <div><dt>Follow-ups</dt><dd>{data.followupsDue ? `${data.followupsDue} need you` : "On schedule"}</dd></div>
-          </dl>
-          <div className="ov-panel-foot"><span>{on ? "Approval doesn't hold an email back; use Hold." : "Nothing sends while it's off."}</span><Go href={`/auto-send?${q}`}>Manage sending</Go></div>
-        </section>
-      </div>
-
-      <section id="lists" className="home-card ov-panel ov-lists" aria-label="Companies to email">
-        <div className="ov-panel-head">
+      <section id="lists" className="ov-card ov-lists" aria-label="Companies to email">
+        <div className="ov-card-head">
           <div><h2>Companies to email</h2><p>The companies Night Watch picks each night, how far outreach got and the next useful step.</p></div>
           <div className="ov-tabs" role="tablist" aria-label="Lists">
             <button type="button" role="tab" aria-selected={shelf === "current"} className={shelf === "current" ? "is-on" : ""} onClick={() => setShelf("current")}>Current <span>{current.length}</span></button>
@@ -255,11 +240,11 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
               })}
             </div>
           : <p className="ov-empty"><Buildings size={18} aria-hidden="true" />{shelf === "current" ? "No current lists. A new one arrives each weeknight." : "No finished lists in the last 30 days."}</p>}
-        <div className="ov-panel-foot"><span>Each company counts once, at its furthest step.</span><Go href={`/outreach?list=${owner}`}>Open all companies</Go></div>
+        <div className="ov-card-foot"><span>Each company counts once, at its furthest step.</span><Go href={`/outreach?list=${owner}`}>Open all companies</Go></div>
       </section>
 
-      <section className="home-card ov-panel home-week ov-results" aria-label="Results">
-        <div className="ov-panel-head">
+      <section className="ov-card home-week ov-results" aria-label="Results">
+        <div className="ov-card-head">
           <h2>Is it working?</h2>
           <div className="ov-results-tools">
             <label className="ov-period"><span className="sr-only">Period</span>
@@ -269,7 +254,7 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
           </div>
         </div>
         <div className="ov-results-row">
-          {results.map((item) => <Link key={item.label} className="ov-result" href={item.href}><b>{item.value}</b><span>{item.label}</span></Link>)}
+          {results.map((item) => <Link key={item.label} className={`ov-result ${item.value ? "" : "is-zero"}`} href={item.href}><span>{item.label}</span><b>{item.value}</b><small>{item.label === "Meetings booked" ? "On the calendar now" : `Last ${range} days`}</small></Link>)}
         </div>
         <p className="ov-footnote">Email outcomes. Meetings are what&rsquo;s on the calendar now. LinkedIn sends count once you mark them sent.</p>
       </section>
