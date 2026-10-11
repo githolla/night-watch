@@ -14,7 +14,8 @@ const REAL_REPLY = ["positive", "referral", "neutral", "objection", "negative"];
 
 export type HomeReply = { cardId: string; name: string; title: string; company: string; classification: string; repliedAt: string };
 export type HomeBounce = { personId: string; cardId: string; name: string; company: string; email: string | null; bouncedAt: string };
-export type HomeList = { date: string; companies: number; sectors: Array<{ label: string; count: number }>; confirmed: number };
+export type HomeLead = { company: string; sector: string; confirmed: boolean };
+export type HomeList = { date: string; companies: number; sectors: Array<{ label: string; count: number }>; confirmed: number; leads: HomeLead[] };
 export type HomeData = {
   first: string;
   replies: HomeReply[];
@@ -69,9 +70,16 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
   let latest: HomeList | null = null;
   const rows = ((list as { rows?: Array<{ domain: string; sector?: string; company?: string }> } | null)?.rows ?? []);
   if (list && rows.length) {
-    const { data: people } = await db.from("cards").select("people(email,email_status,email_check),accounts!inner(domain)").eq("assigned_to", owner).in("accounts.domain", rows.map((row) => row.domain));
-    const confirmed = new Set(((people ?? []) as unknown as Array<{ people: { email: string | null; email_status: string | null; email_check: unknown } | null; accounts: { domain: string } }>).filter((row) => row.people && bulkSendable(row.people)).map((row) => row.accounts.domain));
-    latest = { date: (list as { list_date: string }).list_date, companies: rows.length, sectors: tally(rows.map((row) => industryOf(row.sector, row.company))), confirmed: confirmed.size };
+    const { data: people } = await db.from("cards").select("status,people(email,email_status,email_check),accounts!inner(domain)").eq("assigned_to", owner).in("accounts.domain", rows.map((row) => row.domain));
+    type ListCard = { status: string; people: { email: string | null; email_status: string | null; email_check: unknown } | null; accounts: { domain: string } };
+    const cards = (people ?? []) as unknown as ListCard[];
+    const confirmed = new Set(cards.filter((row) => row.people && bulkSendable(row.people)).map((row) => row.accounts.domain));
+    // Still a draft: not sent, booked or set aside.
+    const unsent = new Set(cards.filter((row) => ["new", "edited", "approved"].includes(row.status)).map((row) => row.accounts.domain));
+    const leads = rows.filter((row) => unsent.has(row.domain))
+      .map((row) => ({ company: row.company?.trim() || row.domain, sector: industryOf(row.sector, row.company), confirmed: confirmed.has(row.domain) }))
+      .sort((a, b) => Number(b.confirmed) - Number(a.confirmed)).slice(0, 3);
+    latest = { date: (list as { list_date: string }).list_date, companies: rows.length, sectors: tally(rows.map((row) => industryOf(row.sector, row.company))), confirmed: confirmed.size, leads };
   }
 
   const since90 = sent ? shiftDate(sent.today, -89) : "";
