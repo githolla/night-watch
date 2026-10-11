@@ -101,9 +101,9 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
     ...(interested.length ? [{ key: "interested", title: interested.length === 1 ? `Reply to ${interested[0].name}${interested[0].company ? ` at ${interested[0].company}` : ""}` : `Reply to ${interested.length} interested people`, why: "They said yes. Answer while it's fresh; the call brief has what you need.", mins: interested.length * 5, href: `/replies?${q}` }] : []),
     ...(other ? [{ key: "other", title: `Read ${count(other, "other reply", "other replies")}`, why: "A question or an objection. Decide the next step.", mins: other * 2, href: `/replies?${q}` }] : []),
     ...data.bounces.slice(0, 3).map((bounce) => ({ key: `b-${bounce.personId}`, title: `${bounce.name} bounced`, why: `${bounce.company}${bounce.email ? `: ${bounce.email} didn't arrive` : ""}. A corrected address reopens it.`, mins: 1, action: <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /> })),
-    ...(data.followupsDue ? [{ key: "followups", title: `PaperPlaneTilt ${count(data.followupsDue, "follow-up", "follow-ups")}`, why: "They came due and couldn't go out by themselves.", mins: data.followupsDue * 2, href: `/followups?view=needs&${q}` }] : []),
+    ...(data.followupsDue ? [{ key: "followups", title: `Send ${count(data.followupsDue, "follow-up", "follow-ups")}`, why: "They came due and couldn't go out by themselves.", mins: data.followupsDue * 2, href: `/followups?view=needs&${q}` }] : []),
     ...(d.nextUnapproved ? [{ key: "review", title: `Review the ${count(d.nextUnapproved, "email", "emails")} sending ${day === "Today" ? "today" : day}`, why: "Read each one; approve it, fix it or hold it back.", mins: Math.max(2, Math.round(d.nextUnapproved * 0.75)), href: `/drafts?${q}&tab=review` }] : []),
-    ...(data.linkedin ? [{ key: "linkedin", title: `PaperPlaneTilt ${count(data.linkedin, "LinkedIn message", "LinkedIn messages")}`, why: "Copy each one, open the profile, send it there, mark it sent.", mins: data.linkedin * 2, href: `/linkedin?${q}` }] : []),
+    ...(data.linkedin ? [{ key: "linkedin", title: `Send ${count(data.linkedin, "LinkedIn message", "LinkedIn messages")}`, why: "Copy each one, open the profile, send it there, mark it sent.", mins: data.linkedin * 2, href: `/linkedin?${q}` }] : []),
     ...(!on && !paused && d.ready ? [{ key: "auto", title: "Turn on auto-send", why: `${count(d.ready, "approved email is", "approved emails are")} waiting and nothing goes out while it's off.`, mins: 1, href: `/auto-send?${q}` }] : []),
     ...(!d.nextUnapproved && d.review ? [{ key: "ahead", title: `Get ahead: review ${count(d.review, "draft", "drafts")}`, why: "Nothing is due today. Reading ahead keeps the next windows full.", mins: Math.round(d.review * 0.75), href: `/drafts?${q}&tab=review`, optional: true }] : []),
   ];
@@ -131,7 +131,7 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
 
       <section className="ov-brief" aria-label="This morning">
         <div className="ov-brief-main">
-          <span className="ov-dateline">{today} <i aria-hidden="true">·</i> Morning briefing</span>
+          <span className="ov-dateline">{today} <i aria-hidden="true">·</i> Daily briefing</span>
           <h1>{hello}, {data.first}.</h1>
           <p className="ov-lede">Here&rsquo;s what happened overnight and what&rsquo;s next.</p>
           <ul className="ov-facts" aria-label="Overnight">
