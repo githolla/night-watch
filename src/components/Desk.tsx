@@ -1,5 +1,6 @@
 "use client";
 import { AddressFix } from "@/components/AddressFix";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { cleanTrigger, cleanWorkflow } from "@/lib/call-brief";
 import { leftoverSourceNames, replaceOpening, retargetCopy } from "@/lib/bulk-copy";
 import { bulkSendable, sendableAddress } from "@/lib/bulk-sendable";
@@ -1341,7 +1342,7 @@ export function Desk({
                 {filtered.map((item) => (
                   <button type="button" key={item.id} className="signal-card" onClick={() => pick(item.id)}>
                     <div className="signal-card-head">
-                      <span className="avatar">{initials(item.accounts.name)}</span>
+                      <CompanyLogo domain={item.accounts.domain} name={item.accounts.name} size={34} className="avatar" />
                       <div className="signal-card-id"><strong>{item.accounts.name}</strong><small>{item.people.full_name}{item.people.title ? ` · ${item.people.title}` : ""}</small></div>
                       {item.score >= PRIORITY_THRESHOLD ? <em className="chip chip-fit">High fit</em> : item.isNew ? <em className="chip chip-new">New</em> : item.carriedOver ? <em className="chip carried">Carried over</em> : null}
                     </div>
@@ -1368,7 +1369,7 @@ export function Desk({
                   <div className="analyst-watch-head"><span>On your watchlist</span><Link href="/outreach">View all &#8599;</Link></div>
                   {watchlist.map((company) => (
                     <Link key={company.domain || company.name} href={company.domain ? `/accounts/${company.domain}` : "/outreach"} className="analyst-watch-row">
-                      <span className="avatar">{initials(company.name)}</span>
+                      <CompanyLogo domain={company.domain} name={company.name} size={32} className="avatar" />
                       <strong>{company.name}</strong>
                       <small>{company.count} {company.count === 1 ? "signal" : "signals"}</small>
                     </Link>
@@ -1394,7 +1395,7 @@ export function Desk({
               <div className="deskwork-list-scroll">
                 {listed.map((item) => (
                   <button type="button" key={item.id} className={`deskwork-row ${focusCard && item.id === focusCard.id ? "is-active" : ""}`} onClick={() => pick(item.id)}>
-                    <span className="avatar sm">{initials(item.accounts.name)}</span>
+                    <CompanyLogo domain={item.accounts.domain} name={item.accounts.name} size={32} className="avatar sm" />
                     <span className="deskwork-row-id">
                       <strong>{item.accounts.name}</strong>
                       {/* Who, not just where. Several people at one company each have their own card now, so
@@ -1422,7 +1423,7 @@ export function Desk({
               {/* MIDDLE: company, opening, people */}
               <section className="deskwork-mid">
                 <header className="deskwork-co">
-                  <span className="avatar">{initials(focusCard.accounts.name)}</span>
+                  <CompanyLogo domain={focusCard.accounts.domain} name={focusCard.accounts.name} size={48} className="avatar" />
                   <div className="deskwork-co-name"><h2>{focusCard.accounts.name}{focusCard.isNew ? <em className="new-label">New</em> : focusCard.carriedOver ? <em className="chip carried">{carriedLabel(focusCard.created_at)}</em> : null}</h2><p>{research ? `Market signal · ${dateLabel(research?.trigger.date) ? `Published ${dateLabel(research?.trigger.date)}` : "date not confirmed"}` : `${signalLabel(focusCard)}${signalWhen(focusCard) ? ` · ${signalWhen(focusCard)}` : ""}`}</p></div>
                   <Link href={listHref} className="focus-link">All {curatedDomains().length} companies</Link>
                 </header>

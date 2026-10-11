@@ -2534,3 +2534,7 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .co-logo{flex:none;display:inline-grid;place-items:center;overflow:hidden;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
 .co-logo img{width:auto;height:auto;max-width:72%;max-height:72%;object-fit:contain}
 .co-logo.is-initials{background:linear-gradient(145deg,#ece6dc,#ddd4c6);box-shadow:none;color:var(--ink-soft);font-weight:600;letter-spacing:.02em}
+.pipe-card-co{display:flex;align-items:center;gap:8px;min-width:0}
+.pipe-card-co strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.people-company{display:inline-flex;align-items:center;gap:8px}
+.co-logo.avatar{padding:0}

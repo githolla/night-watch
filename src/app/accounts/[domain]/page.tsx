@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { notFound, redirect } from "next/navigation";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { CopyButton } from "@/components/CopyButton";
@@ -122,7 +123,6 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
   const lastSent = touches.filter((touch) => touch.sent_at).sort((a, b) => Date.parse(b.sent_at!) - Date.parse(a.sent_at!))[0];
   const lastReply = touches.filter((touch) => touch.reply_at).sort((a, b) => Date.parse(b.reply_at!) - Date.parse(a.reply_at!))[0];
   const stageTone = ["replied", "meeting", "won"].includes(stage) ? "ok" : stage === "contacted" ? "accent" : ["lost", "hold", "untouched"].includes(stage) ? "muted" : "info";
-  const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("");
   const whyLines = analysis?.brief.whyNow ? [analysis.brief.whyNow, analysis.brief.angle ? `The angle: ${analysis.brief.angle}` : ""].filter(Boolean) : brief.why;
   const listRow = live ? [{ id: live.id, domain, name, industry: target?.vertical ?? "", subSegment: target?.subSegment ?? "", hq: [target?.hqCity, target?.hqState].filter(Boolean).join(", "), tier: tier ?? "", outreach, manual: live.outreach_manual !== null && live.outreach_manual !== undefined, intel: score, roles: targetPostings.length, posts: posts.length, contacts: people.length, verified: people.filter((person) => person.email_status === "verified").length, stage, owner: live.outreach_owner ?? "", lastChange: live.last_change_at ?? null, scanned: Boolean(live.careers_status || live.last_scouted_at), drafts: openCards.length, dropReason: target?.dropReason ?? "" }] : [];
 
@@ -139,7 +139,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
 
       <header className="card record-head">
         <div className="record-id">
-          <span className="avatar avatar-lg">{initials}</span>
+          <CompanyLogo domain={domain} name={name} size={48} className="avatar avatar-lg" />
           <div>
             <span className="overview-kick">{outreach ? "Reach-out company" : "Company"}</span>
             <h1>{name} {tier ? <span className={`tier-chip tier-${tier}`}>Tier {tier}</span> : <span className="pill pill-muted"><i />Not on file</span>}{!outreach ? <span className="pill pill-muted"><i />held</span> : null}</h1>

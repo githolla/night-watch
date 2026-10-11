@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { useMemo, useState } from "react";
 import { InlineConfirm } from "@/components/InlineConfirm";
 import { PageHead } from "@/components/PageHead";
@@ -108,7 +109,7 @@ export function PipelineBoard({ cards }: { cards: PipelineCard[] }) {
               const next = NEXT[stage.key];
               return (
                 <div key={card.id} className="pipe-card">
-                  <div className="pipe-card-id"><strong>{card.company}</strong><small>{card.person}{card.title ? ` · ${card.title}` : ""}</small></div>
+                  <div className="pipe-card-id"><span className="pipe-card-co"><CompanyLogo domain={card.domain} name={card.company} size={24} /><strong>{card.company}</strong></span><small>{card.person}{card.title ? ` · ${card.title}` : ""}</small></div>
                   {card.valueUsd ? <div className="pipe-card-val">${card.valueUsd.toLocaleString()}</div> : null}
                   <div className="pipe-card-actions">
                     <Link href={`/brief/${card.id}`} className="pipe-link">Call brief</Link>

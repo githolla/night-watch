@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { useEffect, useMemo, useState } from "react";
 
 export type PersonRow = {
@@ -136,7 +137,7 @@ export function PeopleBoard({ rows, initial, verified, withLinkedIn }: { rows: P
               <tr key={row.id}>
                 <td><div className="cell-lead"><span className="avatar sm">{initials(row.name)}</span><strong>{row.name}</strong>{row.draftCardId && <Link href={`/desk?card=${row.draftCardId}`} className="pill pill-ink people-draft" onClick={(event) => event.stopPropagation()}><i />Draft {row.draftScore || ""}</Link>}</div></td>
                 <td className="cell-clamp">{row.title || "None"}</td>
-                <td><Link href={`/accounts/${row.domain}`} className="people-company">{row.company}</Link>{row.touchCount > 0 && <small className={`people-contacted ${row.replied ? "is-replied" : ""}`}>{row.replied ? "Replied" : `Contacted ${ago(row.lastContactAt, now)}`}</small>}</td>
+                <td><Link href={`/accounts/${row.domain}`} className="people-company"><CompanyLogo domain={row.domain} name={row.company} size={22} />{row.company}</Link>{row.touchCount > 0 && <small className={`people-contacted ${row.replied ? "is-replied" : ""}`}>{row.replied ? "Replied" : `Contacted ${ago(row.lastContactAt, now)}`}</small>}</td>
                 <td>{row.level && row.level !== "unknown" ? <span className={`pill pill-${row.level === "owner" ? "accent" : "muted"}`}>{LEVEL_LABEL[row.level] ?? row.level}</span> : <span className="cell-sub">None</span>}</td>
                 <td>{row.email
                   ? <button type="button" className={`people-email pill pill-${emailTone(row)}`} title={`${row.email} · click to copy`} onClick={() => copyEmail(row.email!)}>{copied === row.email ? "Copied ✓" : row.email}</button>
