@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { Bell, CalendarDays, Check, ChevronRight, CircleAlert, Search } from "lucide-react";
-import { useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import { FollowupQueue } from "@/components/FollowupQueue";
+import { InlineConfirm } from "@/components/InlineConfirm";
 import { setCardStatus } from "@/lib/card-status";
 import type { HomeData } from "@/lib/home-view";
 import { replyLabel } from "@/lib/reply-labels";
@@ -103,67 +105,138 @@ const PILES: Record<DraftGroupKey, { label: string; note: string | null }> = {
   held: { label: "Held or kept", note: "These won't send until what holds them changes. Open one to see why." },
 };
 
-// Reviewed drafts, kept in this browser as "id@version" so an edited draft counts as unreviewed again.
-const REVIEWED_EVENT = "nw-reviewed";
-const reviewedKey = (owner: Owner) => `nw-reviewed-${owner}`;
-const readReviewed = (owner: Owner) => { try { return window.localStorage.getItem(reviewedKey(owner)) ?? ""; } catch { return ""; } };
-function writeReviewed(owner: Owner, marks: Set<string>, live: Set<string>) {
-  // Only marks for drafts still waiting, so the list does not grow forever.
-  try { window.localStorage.setItem(reviewedKey(owner), [...marks].filter((mark) => live.has(mark)).join("|")); } catch { /* storage blocked: lasts this page only */ }
-  window.dispatchEvent(new Event(REVIEWED_EVENT));
-}
-function subscribeReviewed(onChange: () => void) {
-  window.addEventListener(REVIEWED_EVENT, onChange);
-  window.addEventListener("storage", onChange);
-  return () => { window.removeEventListener(REVIEWED_EVENT, onChange); window.removeEventListener("storage", onChange); };
-}
-const mark = (lead: NextUpLead) => `${lead.id}@${lead.updatedAt}`;
+type Patch = { auto_send_hold?: boolean; status?: string; email_subject?: string; email_body?: string };
+const isReviewed = (lead: NextUpLead) => lead.status === "approved";
+const typing = (target: EventTarget | null) => target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
 
-/** The drafts in piles and batches of ten: read each email in place, tick it off, and move to the next one. */
-function DraftsReview({ queue, owner, sendWindow, cap }: { queue: NextUpLead[]; owner: Owner; sendWindow: string | null; cap: number }) {
-  const groups = useMemo(() => draftGroups(queue), [queue]);
-  const live = useMemo(() => new Set(queue.map(mark)), [queue]);
-  const saved = useSyncExternalStore(subscribeReviewed, () => readReviewed(owner), () => "");
-  const reviewed = useMemo(() => new Set(saved.split("|").filter((item) => live.has(item))), [saved, live]);
+/**
+ * The drafts in piles and batches of ten. Read each email in place, fix it, tick it off, keep it back from
+ * auto-send or drop it; select several to do any of that at once. Reviewed is the card's "approved" status,
+ * the same mark the Drafts page sets, so it follows the seat to any browser.
+ */
+function DraftsReview({ queue, owner, sendWindow, cap, canAct }: { queue: NextUpLead[]; owner: Owner; sendWindow: string | null; cap: number; canAct: boolean }) {
+  const router = useRouter();
+  const [leads, setLeads] = useState(queue);
+  // A refresh (after holding or releasing) brings a recounted queue; take it over the local copy.
+  const [source, setSource] = useState(queue);
+  if (source !== queue) { setSource(queue); setLeads(queue); }
+  const groups = useMemo(() => draftGroups(leads), [leads]);
   const [pile, setPile] = useState<DraftGroupKey | null>(null);
   const [part, setPart] = useState(0);
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("all");
   const [picked, setPicked] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [editing, setEditing] = useState<{ id: string; subject: string; body: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<{ text: string; ok: boolean } | null>(null);
+  const [confirmDrop, setConfirmDrop] = useState<string[] | null>(null);
 
-  if (!groups.length) return <p className="ov-step-empty">No drafts waiting. New companies and drafts arrive with each weeknight&rsquo;s list. <More href="/targets">Find companies</More></p>;
-
-  const group = groups.find((item) => item.key === pile) ?? groups.find((item) => item.leads.some((lead) => !reviewed.has(mark(lead)))) ?? groups[0];
-  const sectors = [...new Set(group.leads.map((lead) => lead.industry))].sort();
+  const group = groups.find((item) => item.key === pile) ?? groups.find((item) => item.leads.some((lead) => !isReviewed(lead))) ?? groups[0];
+  const pileLeads = group?.leads ?? [];
+  const sectors = [...new Set(pileLeads.map((lead) => lead.industry))].sort();
   const needle = query.trim().toLowerCase();
-  const shown = group.leads.filter((lead) => (sector === "all" || lead.industry === sector) && (!needle || `${lead.name} ${lead.company} ${lead.title}`.toLowerCase().includes(needle)));
+  const shown = pileLeads.filter((lead) => (sector === "all" || lead.industry === sector) && (!needle || `${lead.name} ${lead.company} ${lead.title}`.toLowerCase().includes(needle)));
   const parts = batches(shown);
   const at = Math.min(part, Math.max(0, parts.length - 1));
   const batch = parts[at] ?? [];
-  const lead = batch.find((item) => item.id === picked) ?? batch.find((item) => !reviewed.has(mark(item))) ?? batch[0];
-  const doneInPile = group.leads.filter((item) => reviewed.has(mark(item))).length;
-  const sub = (key: DraftGroupKey) => key === "next" ? (sendWindow ?? "Next window") : key === "later" ? `Up to ${cap} a send day` : key === "checking" ? "Sends once confirmed" : key === "missing" ? "Still looking" : "Won't send yet";
+  const lead = batch.find((item) => item.id === picked) ?? batch.find((item) => !isReviewed(item)) ?? batch[0];
+  const doneInPile = pileLeads.filter(isReviewed).length;
+  const chosen = leads.filter((item) => selected.has(item.id));
 
-  const choosePile = (key: DraftGroupKey) => { setPile(key); setPart(0); setPicked(null); setSector("all"); setQuery(""); };
-  const looksGood = () => {
-    if (!lead) return;
-    const next = new Set(reviewed).add(mark(lead));
-    writeReviewed(owner, next, live);
-    const ahead = [...batch.slice(batch.indexOf(lead) + 1), ...batch.slice(0, batch.indexOf(lead))].find((item) => !next.has(mark(item)));
+  /** One PATCH through the same route and version check as the Drafts page; the local copy follows the saved one. */
+  async function patch(target: NextUpLead, change: Patch): Promise<boolean> {
+    const versioned = change.status !== undefined || change.email_body !== undefined || change.email_subject !== undefined;
+    const response = await fetch(`/api/cards/${target.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...change, ...(versioned ? { expected_updated_at: target.updatedAt } : {}) }) }).catch(() => null);
+    const json = await response?.json().catch(() => ({})) as { updated_at?: string; status?: string; email_subject?: string; email_body?: string; error?: string } | undefined;
+    if (!response?.ok) {
+      setNote({ text: response?.status === 409 ? `${target.name}: changed somewhere else or already sent. Reload to see the latest.` : `${target.name}: ${json?.error ?? "not saved, the connection dropped."}`, ok: false });
+      return false;
+    }
+    setLeads((current) => current
+      .filter((item) => !(item.id === target.id && change.status === "dismissed"))
+      .map((item) => item.id !== target.id ? item : {
+        ...item, status: json?.status ?? item.status, updatedAt: json?.updated_at ?? item.updatedAt, subject: json?.email_subject ?? item.subject, body: json?.email_body ?? item.body,
+        ...(change.auto_send_hold === true ? { group: "kept" as const, position: 0, time: null } : {}),
+        ...(change.auto_send_hold === false ? { group: "waiting" as const, reason: "Not in a window yet", position: 0, time: null } : {}),
+      }));
+    return true;
+  }
+
+  /** Runs one change over several drafts, one at a time, and says how it went. */
+  async function run(targets: NextUpLead[], change: Patch, done: string) {
+    setBusy(true);
+    setNote(null);
+    let ok = 0;
+    for (const target of targets) if (await patch(target, change)) ok++;
+    setBusy(false);
+    setSelected(new Set());
+    if (ok) setNote((current) => current && !current.ok && ok < targets.length ? current : { text: `${ok === 1 && targets.length === 1 ? targets[0].name : count(ok, "draft", "drafts")}: ${done}`, ok: true });
+    // Holding or releasing changes the send queue, which only the server can recount.
+    if (change.auto_send_hold !== undefined && ok) router.refresh();
+  }
+
+  function nextAfter(current: NextUpLead, done: (item: NextUpLead) => boolean) {
+    const ahead = [...batch.slice(batch.indexOf(current) + 1), ...batch.slice(0, batch.indexOf(current))].find((item) => !done(item));
     if (ahead) { setPicked(ahead.id); return; }
-    const later = parts.findIndex((items, index) => index > at && items.some((item) => !next.has(mark(item))));
+    const later = parts.findIndex((items, index) => index > at && items.some((item) => !done(item)));
     if (later >= 0) { setPart(later); setPicked(null); }
+  }
+
+  async function looksGood(target: NextUpLead) {
+    if (!canAct || isReviewed(target)) { nextAfter(target, isReviewed); return; }
+    setBusy(true);
+    const ok = await patch(target, { status: "approved" });
+    setBusy(false);
+    if (ok) nextAfter(target, (item) => item.id === target.id || isReviewed(item));
+  }
+
+  async function saveEdit(approve: boolean) {
+    if (!editing || !lead) return;
+    if (!editing.subject.trim() || !editing.body.trim()) { setNote({ text: "An email needs a subject and a message.", ok: false }); return; }
+    setBusy(true);
+    const ok = await patch(lead, { email_subject: editing.subject, email_body: editing.body, ...(approve ? { status: "approved" } : {}) });
+    setBusy(false);
+    if (!ok) return;
+    setEditing(null);
+    setNote({ text: approve ? "Saved and reviewed." : "Saved.", ok: true });
+    if (approve) nextAfter(lead, (item) => item.id === lead.id || isReviewed(item));
+  }
+
+  const move = (step: number) => {
+    if (!lead || !batch.length) return;
+    const index = batch.indexOf(lead) + step;
+    if (index >= 0 && index < batch.length) { setPicked(batch[index].id); setEditing(null); }
   };
-  const undo = () => { if (!lead) return; const next = new Set(reviewed); next.delete(mark(lead)); writeReviewed(owner, next, live); };
+  const toggle = (id: string) => setSelected((current) => { const next = new Set(current); if (next.has(id)) next.delete(id); else next.add(id); return next; });
+
+  function onKey(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (typing(event.target) || event.metaKey || event.ctrlKey || event.altKey || !lead) return;
+    const key = event.key.toLowerCase();
+    const act: Record<string, () => void> = {
+      j: () => move(1), arrowdown: () => move(1), k: () => move(-1), arrowup: () => move(-1),
+      a: () => void looksGood(lead), x: () => toggle(lead.id),
+      e: () => canAct && setEditing({ id: lead.id, subject: lead.subject, body: lead.body }),
+      h: () => canAct && void run([lead], { auto_send_hold: lead.group !== "kept" }, lead.group === "kept" ? "back in the queue." : "kept for you."),
+    };
+    if (act[key]) { event.preventDefault(); act[key](); }
+  }
+
+  if (!groups.length || !group) return <p className="ov-step-empty">No drafts waiting. New companies and drafts arrive with each weeknight&rsquo;s list. <More href="/targets">Find companies</More></p>;
+
+  const sub = (key: DraftGroupKey) => key === "next" ? (sendWindow ?? "Next window") : key === "later" ? `Up to ${cap} a send day` : key === "checking" ? "Sends once confirmed" : key === "missing" ? "Still looking" : "Won't send yet";
+  const choosePile = (key: DraftGroupKey) => { setPile(key); setPart(0); setPicked(null); setSector("all"); setQuery(""); setSelected(new Set()); setEditing(null); };
+  const allInBatch = batch.length > 0 && batch.every((item) => selected.has(item.id));
+  const kept = lead?.group === "kept";
 
   return (
-    <div className="ov-review">
+    <div className="ov-review" onKeyDown={onKey}>
       <div className="ov-piles" role="tablist" aria-label="Piles">
         {groups.map((item) => {
-          const done = item.leads.filter((one) => reviewed.has(mark(one))).length;
+          const done = item.leads.filter(isReviewed).length;
           return (
             <button key={item.key} type="button" role="tab" aria-selected={item.key === group.key} className={`ov-pile ${item.key === group.key ? "is-on" : ""}`} onClick={() => choosePile(item.key)}>
-              <span className="ov-pile-top"><b>{item.leads.length}</b>{done > 0 && <small>{done === item.leads.length ? <Check size={13} strokeWidth={2.6} aria-label="All reviewed" /> : `${done} done`}</small>}</span>
+              <span className="ov-pile-top"><b>{item.leads.length}</b>{done > 0 && <small>{done === item.leads.length ? <Check size={13} strokeWidth={2.6} aria-label="All reviewed" /> : `${done} reviewed`}</small>}</span>
               <span className="ov-pile-label">{PILES[item.key].label}</span>
               <small>{sub(item.key)}</small>
             </button>
@@ -174,9 +247,9 @@ function DraftsReview({ queue, owner, sendWindow, cap }: { queue: NextUpLead[]; 
       {PILES[group.key].note && <p className="ov-step-hint">{PILES[group.key].note}</p>}
 
       <div className="ov-review-bar">
-        <div className="ov-progress" aria-label={`${doneInPile} of ${group.leads.length} reviewed`}>
-          <span className="ov-progress-text"><b>{doneInPile}</b> of {group.leads.length} reviewed</span>
-          <span className="ov-progress-track"><span style={{ width: `${pct(doneInPile, group.leads.length)}%` }} /></span>
+        <div className="ov-progress" aria-label={`${doneInPile} of ${pileLeads.length} reviewed`}>
+          <span className="ov-progress-text"><b>{doneInPile}</b> of {pileLeads.length} reviewed</span>
+          <span className="ov-progress-track"><span style={{ width: `${pct(doneInPile, pileLeads.length)}%` }} /></span>
         </div>
         <div className="ov-review-tools">
           {sectors.length > 1 && (
@@ -194,30 +267,56 @@ function DraftsReview({ queue, owner, sendWindow, cap }: { queue: NextUpLead[]; 
       {parts.length > 1 && (
         <div className="ov-batches" role="tablist" aria-label="Batches of ten">
           {parts.map((items, index) => {
-            const all = items.every((item) => reviewed.has(mark(item)));
-            return <button key={index} type="button" role="tab" aria-selected={index === at} className={`${index === at ? "is-on" : ""} ${all ? "is-done" : ""}`} onClick={() => { setPart(index); setPicked(null); }}>{all && <Check size={13} strokeWidth={2.6} aria-hidden="true" />}{index * 10 + 1}&ndash;{index * 10 + items.length}</button>;
+            const all = items.every(isReviewed);
+            return <button key={index} type="button" role="tab" aria-selected={index === at} className={`${index === at ? "is-on" : ""} ${all ? "is-done" : ""}`} onClick={() => { setPart(index); setPicked(null); setEditing(null); }}>{all && <Check size={13} strokeWidth={2.6} aria-hidden="true" />}{index * 10 + 1}&ndash;{index * 10 + items.length}</button>;
           })}
         </div>
       )}
 
+      {canAct && (chosen.length > 0
+        ? <div className="ov-bulk" role="toolbar" aria-label="Selected drafts">
+            <b>{count(chosen.length, "draft", "drafts")} selected</b>
+            <button type="button" className="ov-btn is-primary" disabled={busy} onClick={() => void run(chosen.filter((item) => !isReviewed(item)), { status: "approved" }, "marked reviewed.")}>Mark reviewed</button>
+            <button type="button" className="ov-btn" disabled={busy} onClick={() => void run(chosen, { auto_send_hold: true }, "kept for you, auto-send skips them.")}>Keep for me</button>
+            <button type="button" className="ov-btn is-quiet" disabled={busy} onClick={() => setConfirmDrop(chosen.map((item) => item.id))}>Not a fit</button>
+            <button type="button" className="ov-link" onClick={() => setSelected(new Set())}>Clear</button>
+          </div>
+        : <p className="ov-keys">Tick people to act on several at once. Keys: <kbd>J</kbd> <kbd>K</kbd> move, <kbd>A</kbd> looks good, <kbd>E</kbd> edit, <kbd>H</kbd> keep for me, <kbd>X</kbd> select.</p>)}
+
+      {confirmDrop && (
+        <InlineConfirm title={`Drop ${count(confirmDrop.length, "draft", "drafts")}?`} yes="Not a fit" busy={busy}
+          onCancel={() => setConfirmDrop(null)}
+          onYes={() => { const targets = leads.filter((item) => confirmDrop.includes(item.id)); setConfirmDrop(null); void run(targets, { status: "dismissed" }, "dropped as not a fit."); }}>
+          They leave the list and won&rsquo;t be sent. Nothing already sent changes.
+        </InlineConfirm>
+      )}
+
+      {note && <p className={`ov-note ${note.ok ? "is-ok" : "is-bad"}`} role="status">{note.text}</p>}
+
       <div className="ov-next-body">
-        <ul className="ov-queue" aria-label="This batch">
-          {batch.map((item) => {
-            const done = reviewed.has(mark(item));
-            const state = where(item);
-            return (
-              <li key={item.id}>
-                <button type="button" className={`${item.id === lead?.id ? "is-on" : ""} ${done ? "is-done" : ""}`} aria-pressed={item.id === lead?.id} onClick={() => setPicked(item.id)}>
-                  <span className={`ov-avatar ${done ? "is-done" : ""}`} aria-hidden="true">{done ? <Check size={16} strokeWidth={2.6} /> : initials(item.name)}</span>
-                  <span className="ov-queue-who"><b>{item.name}</b><small>{item.company}</small></span>
-                  <span className={`ov-dot is-only is-${state.tone}`} title={state.text}><span className="sr-only">{state.text}</span></span>
-                  <ChevronRight className="ov-queue-go" size={16} strokeWidth={2} aria-hidden="true" />
-                </button>
-              </li>
-            );
-          })}
-          {!batch.length && <li className="ov-queue-none">Nobody matches. <button type="button" onClick={() => { setQuery(""); setSector("all"); }}>Show everyone</button></li>}
-        </ul>
+        <div className="ov-queue-wrap">
+          {canAct && batch.length > 0 && (
+            <label className="ov-select-all"><input type="checkbox" checked={allInBatch} onChange={() => setSelected((current) => { const next = new Set(current); for (const item of batch) { if (allInBatch) next.delete(item.id); else next.add(item.id); } return next; })} />Select these {batch.length}</label>
+          )}
+          <ul className="ov-queue" aria-label="This batch">
+            {batch.map((item) => {
+              const done = isReviewed(item);
+              const state = where(item);
+              return (
+                <li key={item.id} className={selected.has(item.id) ? "is-picked" : ""}>
+                  {canAct && <input type="checkbox" className="ov-check" checked={selected.has(item.id)} onChange={() => toggle(item.id)} aria-label={`Select ${item.name}`} />}
+                  <button type="button" className={`${item.id === lead?.id ? "is-on" : ""} ${done ? "is-done" : ""}`} aria-pressed={item.id === lead?.id} onClick={() => { setPicked(item.id); setEditing(null); }}>
+                    <span className={`ov-avatar ${done ? "is-done" : ""}`} aria-hidden="true">{done ? <Check size={16} strokeWidth={2.6} /> : initials(item.name)}</span>
+                    <span className="ov-queue-who"><b>{item.name}</b><small>{item.company}</small></span>
+                    <span className={`ov-dot is-only is-${state.tone}`} title={state.text}><span className="sr-only">{state.text}</span></span>
+                    <ChevronRight className="ov-queue-go" size={16} strokeWidth={2} aria-hidden="true" />
+                  </button>
+                </li>
+              );
+            })}
+            {!batch.length && <li className="ov-queue-none">Nobody matches. <button type="button" onClick={() => { setQuery(""); setSector("all"); }}>Show everyone</button></li>}
+          </ul>
+        </div>
         {lead && (
           <article className="ov-detail" aria-live="polite">
             <div className="ov-detail-who">
@@ -232,15 +331,31 @@ function DraftsReview({ queue, owner, sendWindow, cap }: { queue: NextUpLead[]; 
               <span>{lead.industry}</span><span>{lead.size}</span>
               <span className={lead.confirmed ? "is-ok" : "is-warn"}>{lead.confirmed ? <><Check size={14} strokeWidth={2.4} aria-hidden="true" />Verified address</> : <><CircleAlert size={14} strokeWidth={2.2} aria-hidden="true" />Address not confirmed</>}</span>
             </p>
-            <div className="ov-mail">
-              <p className="ov-mail-subject">{lead.subject || "(no subject)"}</p>
-              <div className="ov-mail-body">{lead.body || "This draft has no text yet."}</div>
-            </div>
+            {editing?.id === lead.id
+              ? <div className="ov-mail is-editing">
+                  <label><span className="sr-only">Subject</span><input className="ov-mail-subject-input" value={editing.subject} onChange={(event) => setEditing({ ...editing, subject: event.target.value })} maxLength={120} /></label>
+                  <label><span className="sr-only">Message</span><textarea className="ov-mail-body-input" value={editing.body} onChange={(event) => setEditing({ ...editing, body: event.target.value })} maxLength={1000} rows={12} autoFocus /></label>
+                </div>
+              : <div className="ov-mail">
+                  <p className="ov-mail-subject">{lead.subject || "(no subject)"}</p>
+                  <div className="ov-mail-body">{lead.body || "This draft has no text yet."}</div>
+                </div>}
             <div className="ov-detail-actions">
-              {reviewed.has(mark(lead))
-                ? <><span className="ov-dot is-ok">Reviewed</span><button type="button" className="ov-btn is-quiet" onClick={undo}>Undo</button></>
-                : <button type="button" className="ov-btn is-primary" onClick={looksGood}><Check size={16} strokeWidth={2.4} aria-hidden="true" />Looks good, next</button>}
-              <Link className="ov-btn" href={`/outreach?list=${owner}&card=${lead.id}`}>Edit draft</Link>
+              {editing?.id === lead.id
+                ? <>
+                    <button type="button" className="ov-btn is-primary" disabled={busy} onClick={() => void saveEdit(true)}><Check size={16} strokeWidth={2.4} aria-hidden="true" />Save, looks good</button>
+                    <button type="button" className="ov-btn" disabled={busy} onClick={() => void saveEdit(false)}>Save</button>
+                    <button type="button" className="ov-link" onClick={() => setEditing(null)}>Cancel</button>
+                  </>
+                : <>
+                    {isReviewed(lead)
+                      ? <><span className="ov-dot is-ok">Reviewed</span>{canAct && <button type="button" className="ov-link" disabled={busy} onClick={() => void run([lead], { status: "edited" }, "back to not reviewed.")}>Undo</button>}</>
+                      : <button type="button" className="ov-btn is-primary" disabled={busy || !canAct} onClick={() => void looksGood(lead)}><Check size={16} strokeWidth={2.4} aria-hidden="true" />Looks good, next</button>}
+                    {canAct && <button type="button" className="ov-btn" disabled={busy} onClick={() => setEditing({ id: lead.id, subject: lead.subject, body: lead.body })}>Edit</button>}
+                    {canAct && <button type="button" className="ov-btn is-quiet" disabled={busy} onClick={() => void run([lead], { auto_send_hold: !kept }, kept ? "back in the queue." : "kept for you, auto-send skips it.")}>{kept ? "Back to the queue" : "Keep for me"}</button>}
+                    {canAct && <button type="button" className="ov-link is-bad" disabled={busy} onClick={() => setConfirmDrop([lead.id])}>Not a fit</button>}
+                    <Link className="ov-link" href={`/outreach?list=${owner}&card=${lead.id}`}>Full editor</Link>
+                  </>}
             </div>
           </article>
         )}
@@ -347,7 +462,7 @@ function YourDay({ data, owner, nextStep, canAct, canSend, sendWindow }: { data:
             ))}</ul>
           : <p className="ov-step-empty">No bounced addresses in the last 30 days.</p>)}
 
-        {open === "drafts" && <DraftsReview queue={data.queue} owner={owner} sendWindow={sendWindow} cap={data.autoSend?.plan.dailyCap ?? 40} />}
+        {open === "drafts" && <DraftsReview queue={data.queue} owner={owner} sendWindow={sendWindow} cap={data.autoSend?.plan.dailyCap ?? 40} canAct={canAct} />}
       </div>
     </section>
   );

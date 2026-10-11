@@ -57,6 +57,8 @@ export type NextUpLead = {
   id: string; name: string; title: string; company: string; subject: string;
   /** The email itself, to read in place, and its version, so an edited draft counts as unreviewed again. */
   body: string; updatedAt: string;
+  /** The card's status: "approved" is reviewed, as on the Drafts page. */
+  status: string;
   industry: string; role: string; size: string; confirmed: boolean;
   group: "going" | "later" | "held" | "kept" | "waiting";
   position: number; time: string | null; reason: string | null;
@@ -65,7 +67,8 @@ export type NextUpLead = {
 /** Every unsent draft once: the send queue in order first, then held and kept ones, then the rest by company. */
 export function nextUp(drafts: NextUpLead[], queued: NextUpLead[]): NextUpLead[] {
   const byId = new Map(drafts.map((lead) => [lead.id, lead]));
-  for (const lead of queued) byId.set(lead.id, lead);
+  // The queue knows where each one sits; the draft row knows its status.
+  for (const lead of queued) byId.set(lead.id, { ...lead, status: byId.get(lead.id)?.status ?? lead.status });
   const rank = (lead: NextUpLead) => lead.group === "going" || lead.group === "later" ? 0 : lead.group === "waiting" ? 2 : 1;
   return [...byId.values()].sort((a, b) => rank(a) - rank(b) || (a.position || 1e6) - (b.position || 1e6) || a.company.localeCompare(b.company));
 }

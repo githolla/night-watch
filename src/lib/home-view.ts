@@ -60,7 +60,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     loadSentTouches(owner, 90, now).catch(() => null),
     db.from("cards").select("id", { count: "exact", head: true }).eq("assigned_to", owner).eq("status", "meeting").then((r) => r.count ?? 0),
     seatSummary(owner).then((summary) => summary.unsent).catch(() => 0),
-    db.from("cards").select("id,person_id,email_subject,email_body,updated_at,accounts(name,domain,vertical),people(full_name,title,email,email_status,email_check,do_not_contact),signals!inner(hash)")
+    db.from("cards").select("id,person_id,status,email_subject,email_body,updated_at,accounts(name,domain,vertical),people(full_name,title,email,email_status,email_check,do_not_contact),signals!inner(hash)")
       .eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).limit(500).then((r) => r.data ?? []),
     pendingFollowups(db, { owner, now: now.getTime() }).catch(() => new Map<string, NextFollowup[]>()),
   ]);
@@ -90,7 +90,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     latest = { date: (list as { list_date: string }).list_date, companies: rows.length, sectors: tally(rows.map((row) => industryOf(row.sector, row.company))), confirmed: confirmed.size };
   }
 
-  type DraftRow = { id: string; person_id: string; email_subject: string | null; email_body: string | null; updated_at: string; accounts: { name: string | null; domain: string | null; vertical: string | null } | null; people: { full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
+  type DraftRow = { id: string; person_id: string; status: string; email_subject: string | null; email_body: string | null; updated_at: string; accounts: { name: string | null; domain: string | null; vertical: string | null } | null; people: { full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
   const focus = new Map(allFocus().map((row) => [row.domain.toLowerCase(), row]));
   const seenDraft = new Set<string>();
   // The same people Drafts counts: real names, not opted out, once each.
@@ -101,13 +101,13 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
       const listRow = row.accounts?.domain ? focus.get(row.accounts.domain.toLowerCase()) : undefined;
       const confirmed = bulkSendable(person) && sendableAddress(person);
       return {
-        id: row.id, name: person.full_name, title: person.title ?? "", company: row.accounts?.name ?? row.accounts?.domain ?? "", subject: row.email_subject ?? "", body: row.email_body ?? "", updatedAt: row.updated_at,
+        id: row.id, name: person.full_name, title: person.title ?? "", company: row.accounts?.name ?? row.accounts?.domain ?? "", subject: row.email_subject ?? "", body: row.email_body ?? "", updatedAt: row.updated_at, status: row.status,
         industry: industryOf(listRow?.sector ?? row.accounts?.vertical, row.accounts?.name), role: roleOf(person.title), size: sizeOf(listRow?.revenue), confirmed,
         group: "waiting" as const, position: 0, time: null,
         reason: !sendableAddress(person) ? "No email address yet" : confirmed ? "Not in a window yet" : "Address not confirmed",
       };
     });
-  const queued: NextUpLead[] = (autoSend?.emails ?? []).map(({ id, name, title, company, subject, body, updatedAt, industry, role, size, confirmed, group, position, time, reason }) => ({ id, name, title, company, subject, body, updatedAt, industry, role, size, confirmed, group, position, time, reason }));
+  const queued: NextUpLead[] = (autoSend?.emails ?? []).map(({ id, name, title, company, subject, body, updatedAt, industry, role, size, confirmed, group, position, time, reason }) => ({ id, name, title, company, subject, body, updatedAt, status: "new", industry, role, size, confirmed, group, position, time, reason }));
 
   const since90 = sent ? shiftDate(sent.today, -89) : "";
 
