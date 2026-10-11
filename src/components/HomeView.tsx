@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Bell, Buildings, CalendarDots, CaretRight, ChatsCircle, Check, LinkedinLogo, MagnifyingGlass, PaperPlaneTilt, PencilSimpleLine, SealCheck } from "@phosphor-icons/react";
+import { ArrowRight, Bell, Buildings, CalendarDots, CaretRight, ChatsCircle, Check, LinkedinLogo, Moon, User, MagnifyingGlass, PaperPlaneTilt, PencilSimpleLine, SealCheck } from "@phosphor-icons/react";
 import { useMemo, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import { CompanyLogo } from "@/components/CompanyLogo";
@@ -91,8 +91,8 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
     { key: "write", icon: <PencilSimpleLine size={20} weight="duotone" />, who: "Night Watch", title: "Researches and writes", value: d.total, unit: d.total === 1 ? "email written" : "emails written", sub: `${count(d.linkedinWritten, "LinkedIn message", "LinkedIn messages")} too${d.missing ? ` · ${d.missing} finding an address` : ""}`, href: `/drafts?${q}`, needs: false },
     { key: "review", icon: <SealCheck size={20} weight="duotone" />, who: "You", title: "Review and approve", value: d.review, unit: "to review", sub: `${d.ready} approved so far`, href: `/drafts?${q}&tab=review`, needs: d.nextUnapproved > 0 },
     { key: "send", icon: <PaperPlaneTilt size={20} weight="duotone" />, who: on ? "Night Watch" : "You", title: "Sends and follows up", value: 0, unit: "", sub: "", href: `/auto-send?${q}`, needs: false, lanes: [
-      { key: "email", icon: <PaperPlaneTilt size={17} weight="duotone" />, who: on ? "Night Watch" : "You", title: on ? "Email: sent for you" : "Email: auto-send off", value: auto?.plan.going ?? 0, unit: day ? `sending ${day === "Today" ? "today" : day}` : "sending next", sub: on ? `${auto?.plan.sentToday ?? 0} of ${auto?.plan.dailyCap ?? 0} sent today, follow-ups automatic` : "Turn it on to send approved emails", href: `/auto-send?${q}`, needs: !on && d.ready > 0 },
-      { key: "linkedin", icon: <LinkedinLogo size={18} weight="fill" />, who: "You", title: "LinkedIn: you send by hand", value: data.linkedin, unit: "ready to send", sub: `Copy, open profile, mark sent · ${data.linkedinSent} sent this week`, href: `/linkedin?${q}`, needs: data.linkedin > 0 },
+      { key: "email", icon: <PaperPlaneTilt size={17} weight="duotone" />, who: on ? "Night Watch" : "You", title: on ? "Email" : "Email (auto-send off)", value: auto?.plan.going ?? 0, unit: day ? `sending ${day === "Today" ? "today" : day}` : "sending next", sub: on ? `${auto?.plan.sentToday ?? 0} of ${auto?.plan.dailyCap ?? 0} sent today, follow-ups automatic` : "Turn it on to send approved emails", href: `/auto-send?${q}`, needs: !on && d.ready > 0 },
+      { key: "linkedin", icon: <LinkedinLogo size={18} weight="fill" />, who: "You", title: "LinkedIn, by hand", value: data.linkedin, unit: "ready to send", sub: `Copy, open profile, mark sent · ${data.linkedinSent} sent this week`, href: `/linkedin?${q}`, needs: data.linkedin > 0 },
     ] },
     { key: "reply", icon: <ChatsCircle size={20} weight="duotone" />, who: "You", title: "Replies and meetings", value: data.replies.length, unit: data.replies.length === 1 ? "reply waiting" : "replies waiting", sub: count(data.meetings, "meeting booked", "meetings booked"), href: `/replies?${q}`, needs: data.replies.length > 0 },
   ];
@@ -136,7 +136,7 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
           <p className="ov-lede">Here&rsquo;s what happened overnight and what&rsquo;s next.</p>
           <ul className="ov-facts" aria-label="Overnight">
             {facts.map((fact) => (
-              <li key={fact.key}><Link href={fact.href} className={fact.tone ? `is-${fact.tone}` : ""}><span aria-hidden="true">{fact.icon}</span>{fact.text}</Link></li>
+              <li key={fact.key}><Link href={fact.href} className={fact.tone ? `is-${fact.tone}` : ""}><span className="ov-fact-icon" aria-hidden="true">{fact.icon}</span><span className="ov-fact-text">{fact.text}</span><ArrowRight className="ov-fact-go" size={15} aria-hidden="true" /></Link></li>
             ))}
           </ul>
         </div>
@@ -154,31 +154,37 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
           <h2>How Night Watch works</h2>
           <p>Overnight it finds companies, researches them and writes an email and a LinkedIn message for each. You review. Emails send and follow up by themselves; LinkedIn messages you send by hand in a minute each. Replies come back to you.</p>
         </div>
-        <ol className="ov-steps">
-          {steps.map((step, index) => step.lanes ? (
-            <li key={step.key} className="is-split">
-              <span className="ov-split-head"><b className="ov-step-title">{index + 1} · {step.title}</b></span>
-              {step.lanes.map((lane) => (
-                <Link key={lane.key} href={lane.href} className={`ov-lane ${lane.who === "You" ? "is-you" : ""} ${lane.needs ? "is-needs" : ""}`}>
-                  <span className="ov-lane-top"><span className="ov-step-icon is-sm" aria-hidden="true">{lane.icon}</span><b>{lane.title}</b></span>
-                  <span className="ov-step-value"><b>{lane.value.toLocaleString()}</b> {lane.unit}</span>
-                  <small>{lane.needs ? "Needs you" : lane.sub}</small>
-                </Link>
-              ))}
-            </li>
-          ) : (
-            <li key={step.key} className={`${step.who === "You" ? "is-you" : ""} ${step.needs ? "is-needs" : ""}`}>
-              <Link href={step.href}>
-                <span className="ov-step-top">
-                  <span className="ov-step-icon" aria-hidden="true">{step.icon}</span>
-                  <span className="ov-step-who">{index + 1} · {step.who}</span>
-                </span>
-                <b className="ov-step-title">{step.title}</b>
-                <span className="ov-step-value"><b>{step.value.toLocaleString()}</b> {step.unit}</span>
-                <small>{step.needs ? "Needs you" : step.sub}</small>
-              </Link>
-            </li>
-          ))}
+        <ol className="ov-stepper">
+          {steps.map((step, index) => {
+            const needs = step.lanes ? step.lanes.some((lane) => lane.needs) : step.needs;
+            const owner = (who: Lane["who"]) => <span className={`ov-owner ${who === "You" ? "is-you" : ""}`}>{who === "You" ? <User size={13} weight="bold" aria-hidden="true" /> : <Moon size={13} weight="fill" aria-hidden="true" />}{who}</span>;
+            return (
+              <li key={step.key} className={`${needs ? "is-needs" : ""} ${step.lanes ? "is-split" : ""}`}>
+                <span className="ov-node" aria-hidden="true"><span>{index + 1}</span></span>
+                {step.lanes ? (
+                  <div className="ov-stage">
+                    <span className="ov-stage-icon" aria-hidden="true">{step.icon}</span>
+                    <b className="ov-step-title">{step.title}</b>
+                    {step.lanes.map((lane) => (
+                      <Link key={lane.key} href={lane.href} className={`ov-lane ${lane.needs ? "is-needs" : ""}`}>
+                        <span className="ov-lane-top"><span className="ov-lane-icon" aria-hidden="true">{lane.icon}</span><span className="ov-lane-name">{lane.title}</span>{owner(lane.who)}</span>
+                        <span className="ov-step-value"><b>{lane.value.toLocaleString()}</b> {lane.unit}</span>
+                        <small>{lane.needs ? "Needs you" : lane.sub}</small>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <Link className="ov-stage" href={step.href}>
+                    <span className="ov-stage-icon" aria-hidden="true">{step.icon}</span>
+                    <b className="ov-step-title">{step.title}</b>
+                    {owner(step.who)}
+                    <span className="ov-step-value"><b>{step.value.toLocaleString()}</b> {step.unit}</span>
+                    <small>{step.needs ? "Needs you" : step.sub}</small>
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ol>
       </section>
 

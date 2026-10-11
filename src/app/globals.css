@@ -2590,24 +2590,6 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-flow-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-bottom:16px}
 .ov-flow-head h2{margin:0;font-size:21px;font-weight:600;letter-spacing:-.03em}
 .ov-flow-head p{margin:0;font-size:14.5px;color:var(--muted)}
-.ov-steps{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin:0;padding:0;counter-reset:step}
-.ov-steps li{position:relative;min-width:0}
-.ov-steps li+li::before{content:"";position:absolute;left:-7px;top:50%;width:14px;height:14px;margin-top:-7px;border-top:1.5px solid #cfc7bb;border-right:1.5px solid #cfc7bb;transform:rotate(45deg) scale(.6);z-index:1}
-.ov-steps a{display:flex;flex-direction:column;gap:6px;height:100%;margin:0 6px;padding:16px;border-radius:16px;background:var(--canvas);color:inherit;text-decoration:none;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .2s ease,background .2s ease,transform .2s ease}
-.ov-steps li:first-child a{margin-left:0}
-.ov-steps li:last-child a{margin-right:0}
-.ov-steps a:hover{background:#fff;box-shadow:inset 0 0 0 1px var(--line-strong),0 6px 18px rgba(30,26,22,.06);transform:translateY(-1px)}
-.ov-steps li.is-needs a{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
-.ov-step-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.ov-step-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#fff;color:var(--ink-soft);box-shadow:inset 0 0 0 1px var(--line),0 1px 2px rgba(30,26,22,.04)}
-.ov-steps li.is-you .ov-step-icon{background:var(--accent-soft);color:var(--accent-strong);box-shadow:inset 0 0 0 1px rgba(154,106,39,.18)}
-.ov-step-who{font:500 12.5px/1 var(--sans);color:var(--muted)}
-.ov-steps li.is-you .ov-step-who{color:var(--ink)}
-.ov-step-title{margin-top:6px;font-size:15px;font-weight:600;letter-spacing:-.015em;color:var(--ink)}
-.ov-step-value{font-size:13.5px;color:var(--ink-soft)}
-.ov-step-value b{margin-right:2px;font:600 26px/1.1 var(--sans);letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums}
-.ov-steps small{font-size:12.5px;color:var(--muted)}
-.ov-steps li.is-needs small{color:var(--accent-strong);font-weight:600}
 .ov-todos{list-style:none;margin:0;padding:0}
 .ov-todos li+li{border-top:1px solid var(--line)}
 .ov-todo-row{display:flex;align-items:center;gap:14px;padding:14px 10px;margin:0 -10px;border-radius:12px;color:inherit;text-decoration:none}
@@ -2639,25 +2621,7 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-done small{max-width:340px;font-size:14px;color:var(--muted)}
 
 .ov-lists .ov-panel-head{align-items:flex-end}
-@media(max-width:1180px){.ov-steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.ov-steps li::before{display:none}.ov-steps li:nth-child(3n+1) a{margin-left:0}.ov-steps li:nth-child(3n) a{margin-right:0}}
-@media(max-width:700px){.ov-steps{grid-template-columns:minmax(0,1fr)}.ov-steps a{margin:0!important}.ov-flow{padding:18px}.ov-todo-row{flex-wrap:wrap}.ov-todo-text{flex-basis:calc(100% - 42px)}.ov-mins{margin-left:42px}.ov-todo-row .ov-act{margin-left:42px}}
-/* Step 4 splits: email goes by itself, LinkedIn by hand. */
-.ov-steps li.is-split{display:flex;flex-direction:column;gap:6px;margin:0 6px;padding:12px;border-radius:16px;background:var(--canvas)}
-.ov-split-head .ov-step-title{margin:0 0 2px 2px;font-size:14px}
-.ov-steps .ov-lane{margin:0;padding:10px 12px;gap:3px;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
-.ov-steps .ov-lane:hover{transform:none}
-.ov-steps .ov-lane.is-needs{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
-.ov-lane-top{display:flex;align-items:center;gap:8px}
-.ov-lane-top b{font-size:13px;font-weight:600;letter-spacing:-.01em}
-.ov-step-icon.is-sm{width:30px;height:30px;border-radius:9px}
-.ov-lane.is-you .ov-step-icon{background:var(--accent-soft);color:var(--accent-strong);box-shadow:inset 0 0 0 1px rgba(154,106,39,.18)}
-.ov-lane[href*="/linkedin"] .ov-step-icon{background:#e8f1fb;color:#0a66c2;box-shadow:inset 0 0 0 1px rgba(10,102,194,.15)}
-.ov-lane .ov-step-value b{font-size:20px}
-.ov-lane small{font-size:12px;color:var(--muted)}
-.ov-lane.is-needs small{color:var(--accent-strong);font-weight:600}
-.ov-steps{grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.25fr) minmax(0,1fr)}
-@media(max-width:1180px){.ov-steps{grid-template-columns:repeat(3,minmax(0,1fr))}.ov-steps li.is-split{margin:0}}
-@media(max-width:700px){.ov-steps{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){.ov-flow{padding:18px}.ov-todo-row{flex-wrap:wrap}.ov-todo-text{flex-basis:calc(100% - 42px)}.ov-mins{margin-left:42px}.ov-todo-row .ov-act{margin-left:42px}}
 /* Sidebar icons: Phosphor, regular, duotone on the page you are on. */
 .side-link svg{flex:none;opacity:.85}
 .side-link.is-active svg{opacity:1;color:var(--accent-strong)}
@@ -2668,14 +2632,6 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-dateline i{font-style:normal;color:#d6c3a2}
 .ov-brief h1{margin:12px 0 6px;font-size:clamp(28px,2.7vw,38px);font-weight:600;line-height:1.1;letter-spacing:-.035em;color:var(--ink)}
 .ov-lede{margin:0 0 18px;font-size:16px;color:var(--ink-soft)}
-.ov-facts{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0}
-.ov-facts a{display:inline-flex;align-items:center;gap:8px;padding:8px 12px 8px 10px;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:500 14px/1.2 var(--sans);color:var(--ink);text-decoration:none;transition:box-shadow .15s ease,transform .15s ease}
-.ov-facts a span{display:grid;place-items:center;color:var(--ink-soft)}
-.ov-facts a:hover{box-shadow:inset 0 0 0 1px var(--line-strong),0 4px 12px rgba(30,26,22,.06);transform:translateY(-1px)}
-.ov-facts a.is-ok span{color:var(--ok)}
-.ov-facts a.is-warn{background:var(--accent-soft);box-shadow:inset 0 0 0 1px rgba(154,106,39,.2)}
-.ov-facts a.is-warn span{color:var(--accent-strong)}
-.ov-facts a[href*="/linkedin"] span{color:#0a66c2}
 .ov-quote{display:flex;flex-direction:column;justify-content:center;gap:10px;margin:0;padding-left:28px;border-left:1px solid var(--line)}
 .ov-quote-label{font:600 11.5px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .ov-quote blockquote{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:19px;font-style:italic;line-height:1.4;color:var(--ink)}
@@ -2684,4 +2640,54 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-quote figcaption{font-size:13px;color:var(--muted)}
 .ov-quote figcaption::before{content:"";display:inline-block;width:16px;height:1px;margin:0 8px 4px 0;background:var(--line-strong);vertical-align:middle}
 @media(max-width:1000px){.ov-brief{grid-template-columns:minmax(0,1fr);gap:20px}.ov-quote{padding:18px 0 0;border-left:0;border-top:1px solid var(--line)}}
-@media(max-width:560px){.ov-brief{padding:22px 18px}.ov-facts a{font-size:13.5px}}
+@media(max-width:560px){.ov-brief{padding:22px 18px}}
+/* Overnight facts as plain links: icon, words, an arrow that appears on hover. No boxes. */
+.ov-facts{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px;margin:0;padding:0;border-top:1px solid var(--line)}
+.ov-facts li{border-bottom:1px solid var(--line)}
+.ov-facts a{display:flex;align-items:center;gap:10px;padding:11px 0;font:500 15px/1.35 var(--sans);letter-spacing:-.01em;color:var(--ink);text-decoration:none}
+.ov-fact-icon{flex:none;display:grid;place-items:center;color:var(--muted);transition:color .2s ease}
+.ov-fact-text{min-width:0;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:4px;transition:color .2s ease,text-decoration-color .2s ease}
+.ov-fact-go{flex:none;margin-left:auto;color:var(--accent-strong);opacity:0;transform:translateX(-4px);transition:opacity .2s ease,transform .2s ease}
+.ov-facts a:hover .ov-fact-text{color:var(--accent-strong);text-decoration-color:currentColor}
+.ov-facts a:hover .ov-fact-icon{color:var(--accent-strong)}
+.ov-facts a:hover .ov-fact-go,.ov-facts a:focus-visible .ov-fact-go{opacity:1;transform:none}
+.ov-facts a.is-ok .ov-fact-icon{color:var(--ok)}
+.ov-facts a.is-warn .ov-fact-icon,.ov-facts a.is-warn .ov-fact-text{color:var(--accent-strong)}
+.ov-facts a[href*="/linkedin"] .ov-fact-icon{color:#0a66c2}
+@media(max-width:700px){.ov-facts{grid-template-columns:minmax(0,1fr)}.ov-fact-go{opacity:.6;transform:none}}
+/* How Night Watch works: a connected stepper. Numbered nodes on one rail, then each stage with who does it. */
+.ov-stepper{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.3fr) minmax(0,1fr);gap:0 14px;margin:6px 0 0;padding:0}
+.ov-stepper>li{position:relative;display:flex;flex-direction:column;min-width:0}
+.ov-stepper>li::after{content:"";position:absolute;top:15px;left:34px;right:-14px;height:2px;background:linear-gradient(90deg,#e4ddd2,#e4ddd2)}
+.ov-stepper>li:last-child::after{display:none}
+.ov-node{position:relative;z-index:1;display:grid;place-items:center;width:32px;height:32px;margin-bottom:14px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px #d9d0c3;font:600 13.5px/1 var(--sans);color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.ov-stepper>li.is-needs .ov-node{background:var(--accent);box-shadow:0 0 0 5px var(--accent-soft);color:#fff}
+.ov-stage{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px;margin:0 -2px;border-radius:14px;color:inherit;text-decoration:none;transition:background .2s ease}
+a.ov-stage:hover{background:#faf8f4}
+.ov-stepper>li.is-needs .ov-stage{background:var(--accent-soft)}
+.ov-stage-icon{display:grid;place-items:center;width:36px;height:36px;margin-bottom:2px;border-radius:11px;background:var(--canvas);color:var(--ink-soft)}
+.ov-stepper>li.is-needs .ov-stage-icon{background:#fff;color:var(--accent-strong)}
+.ov-step-title{font-size:15.5px;font-weight:600;letter-spacing:-.015em;color:var(--ink)}
+a.ov-stage:hover .ov-step-title{color:var(--accent-strong)}
+.ov-owner{display:inline-flex;align-items:center;gap:5px;font:500 12.5px/1 var(--sans);color:var(--muted)}
+.ov-owner svg{color:#a39885}
+.ov-owner.is-you{color:var(--ink)}
+.ov-owner.is-you svg{color:var(--accent-strong)}
+.ov-step-value{margin-top:4px;font-size:13.5px;color:var(--ink-soft)}
+.ov-step-value b{margin-right:3px;font:600 28px/1.05 var(--sans);letter-spacing:-.045em;color:var(--ink);font-variant-numeric:tabular-nums}
+.ov-stage small{font-size:12.5px;line-height:1.4;color:var(--muted)}
+.ov-stepper>li.is-needs .ov-stage>small,.ov-lane.is-needs small{color:var(--accent-strong);font-weight:600}
+.ov-stepper>li.is-split .ov-stage{gap:8px}
+.ov-lane{display:flex;flex-direction:column;gap:2px;width:100%;padding:10px 12px;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);color:inherit;text-decoration:none;transition:box-shadow .2s ease}
+.ov-lane:hover{box-shadow:inset 0 0 0 1px var(--line-strong),0 4px 12px rgba(30,26,22,.05)}
+.ov-lane.is-needs{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.ov-lane-top{display:flex;align-items:center;gap:7px}
+.ov-lane-icon{display:grid;place-items:center;color:var(--ink-soft)}
+.ov-lane[href*="/linkedin"] .ov-lane-icon{color:#0a66c2}
+.ov-lane-name{font-size:13.5px;font-weight:600;color:var(--ink)}
+.ov-lane-top .ov-owner{margin-left:auto}
+.ov-lane .ov-step-value{margin-top:2px}
+.ov-lane .ov-step-value b{font-size:20px}
+.ov-lane small{font-size:12px;color:var(--muted)}
+@media(max-width:1180px){.ov-stepper{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:18px}.ov-stepper>li:nth-child(3)::after{display:none}}
+@media(max-width:700px){.ov-stepper{grid-template-columns:minmax(0,1fr);row-gap:0}.ov-stepper>li{display:grid;grid-template-columns:32px minmax(0,1fr);column-gap:12px}.ov-stepper>li::after{top:34px;bottom:-2px;left:15px;right:auto;width:2px;height:auto;display:block}.ov-stepper>li:last-child::after{display:none}.ov-stepper>li:nth-child(3)::after{display:block}.ov-node{margin:0}.ov-stage{margin:0 0 12px}}
