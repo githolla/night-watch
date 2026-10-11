@@ -15,7 +15,6 @@ export const tourSteps = [
  {path:'/stats',target:'#saved-versions',title:'Learn from results',body:'Compare recorded sends and replies by saved version. Self-tests are excluded from outreach results. Open signals are incomplete and do not establish that a person read the email. Reopen this tour anytime from the compass icon in the top bar.'},
 
  {path:'/',target:'.side-nav',title:'Everything is in the sidebar',body:'Your daily pages are under Workspace: Overview, Discover companies, Reach-out list, Drafts, Auto-send and Replies. Analytics, Send history and Pipeline are under Performance; More holds the rest. Tour, Feedback, your account and Sign out are at the bottom.'},
- {path:'/',target:'.home-replies',title:'Replies',body:'Everyone who wrote back and is waiting on you, interested ones first. Open the call brief before you answer.'},
  {path:'/',target:'.home-auto',title:'Sending and replies',body:'The next send window, how many emails go out, what was sent today and who is next. Open Auto-send to turn it on or off, skip a day or send now.'},
  {path:'/',target:'.home-needs',title:'Action items',body:'Everything waiting on you in one list: bounces to fix, replies, unconfirmed addresses, drafts and auto-send. Each row has its button.'},
  {path:'/',target:'.home-week',title:'Outreach activity',body:'Emails sent each day, with replies, interest or bounces. Pick the period at the top right, switch with the tabs, and point at a day for its numbers.'},

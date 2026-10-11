@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { breakdown, dailySeries, funnel, recentActivity } from "./home-stats.ts";
+import { dailySeries, funnel } from "./home-stats.ts";
 import type { SentTouch } from "./sent-stats.ts";
 
 const touch = (id: string, cardId: string, sentAt: string, extra: Partial<SentTouch> = {}): SentTouch => ({
@@ -26,19 +26,6 @@ test("the daily series has every day, counts follow-ups apart from first emails,
   const oct8 = days.find((day) => day.date === "2026-10-08");
   assert.deepEqual({ sent: oct8?.sent, replies: oct8?.replies, bounced: oct8?.bounced }, { sent: 2, replies: 0, bounced: 1 });
   assert.equal(days.find((day) => day.date === "2026-10-01")?.interested, 1);
-});
-
-test("the breakdown counts only first emails since the date, with a reply rate per group", () => {
-  const rows = breakdown(touches, "industry", "2026-10-01", dayOf);
-  assert.deepEqual(rows.map((row) => [row.label, row.sent, row.replies, row.rate]), [["Construction", 2, 1, 50], ["Pest control", 2, 1, 50]]);
-  assert.deepEqual(breakdown(touches, "industry", "2026-10-07", dayOf).map((row) => [row.label, row.sent]), [["Construction", 1], ["Pest control", 1]]);
-});
-
-test("recent activity puts replies and bounces among the sends, newest first", () => {
-  const events = recentActivity(touches, 4);
-  assert.deepEqual(events.map((event) => event.kind), ["sent", "bounced", "sent", "replied"]);
-  assert.equal(recentActivity(touches, 20).filter((event) => event.kind === "interested").length, 1);
-  assert.equal(recentActivity(touches, 20).find((event) => event.at === "2026-10-06T14:00:00Z")?.followup, true);
 });
 
 test("the funnel counts each person once, at the furthest step", () => {
