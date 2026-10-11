@@ -181,8 +181,6 @@ export function HomeView({ data, owner, hello, aside }: { data: HomeData; owner:
         </div>
         <div className="home-head-side">
           {aside}
-          <Link className="btn" href={`/outreach?list=${owner}`}>Reach-out list</Link>
-          <Link className="btn primary" href={`/replies?${q}`}>Replies{data.replies.length ? ` (${data.replies.length})` : ""}</Link>
         </div>
       </header>
 
