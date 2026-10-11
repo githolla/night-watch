@@ -20,7 +20,7 @@ export function CadencePlanner({ cardId, demo, channel, personName, company, ema
     if (active) return;
     if (demo) {
       setActive(true);
-      onActivated(`${mode === "automatic" ? "Smart cadence activated" : "Cadence saved"} in demo mode — no messages will leave the app.`);
+      onActivated(`${mode === "automatic" ? "Smart cadence activated" : "Cadence saved"} in demo mode, no messages will leave the app.`);
       return;
     }
     setBusy(true);
@@ -107,8 +107,8 @@ export function CadencePlanner({ cardId, demo, channel, personName, company, ema
 
 function buildCadence({ channel, personName, company, subject, body, linkedinNote }: { channel: string; personName: string; company: string; subject: string; body: string; linkedinNote: string }): CadenceStep[] {
   const firstName = personName.split(" ")[0];
-  const followup = `${firstName} — sharing this once more in case the timing is useful. I can send the one-page operating pattern I mentioned; no meeting needed.`;
-  const close = `${firstName} — I’ll close the loop here. If this becomes a priority at ${company}, I’m happy to share the framework.`;
+  const followup = `${firstName}, sharing this once more in case the timing is useful. I can send the one-page operating pattern I mentioned; no meeting needed.`;
+  const close = `${firstName}. I’ll close the loop here. If this becomes a priority at ${company}, I’m happy to share the framework.`;
   if (channel === "email_first") return [{ day: 0, channel: "email", title: "Send the evidence-led email", detail: subject || "Open with the observed change", subject, body }, { day: 3, channel: "linkedin_request", title: "View profile and connect", detail: "Use the signal as context; do not repeat the email.", body: linkedinNote }, { day: 5, channel: "email", title: "Useful follow-up", detail: "Offer the asset without asking for a meeting.", subject: `Re: ${subject}`, body: followup }, { day: 10, channel: "email", title: "Close the loop", detail: "A short, respectful final note.", subject: `Re: ${subject}`, body: close }];
   if (channel === "intro") return [{ day: 0, channel: "intro_ask", title: "Request the warm introduction", detail: "Give the connector a one-sentence reason and an easy out." }, { day: 3, channel: "linkedin_message", title: "Send a direct note", detail: "Only if the introduction has not moved.", body: linkedinNote }, { day: 7, channel: "email", title: "Share the useful framework", detail: "Continue only after a warm response.", subject, body }];
   if (channel === "linkedin_only") return [{ day: 0, channel: "linkedin_comment", title: "Engage with the source", detail: "Add a specific observation; no pitch." }, { day: 1, channel: "linkedin_request", title: "Send the connection note", detail: linkedinNote }, { day: 5, channel: "linkedin_message", title: "Follow up after acceptance", detail: "Ask one informed question from the decision brief." }];

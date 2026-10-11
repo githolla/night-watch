@@ -92,7 +92,7 @@ export function MessageComposer(props: Props) {
 
       <button type="button" className="simulation-launch" onClick={() => setLabOpen(true)}>
         <span className="simulation-icon"><FlaskConical /></span>
-        <span><small>MESSAGE LAB · PRE-SEND TEST</small><strong>Compare this draft against a challenger</strong></span>
+        <span><small>Message lab · pre-send test</small><strong>Compare this draft against a challenger</strong></span>
         <span className="simulation-proof">4 perspectives<br />5 scoring lenses</span>
         <b>Run A/B simulation →</b>
       </button>
@@ -114,8 +114,8 @@ export function MessageComposer(props: Props) {
 
       {view === "email" ? (
         <div className="email-compose" role="tabpanel">
-          {!props.emailVerified && <div className="manual-mode-strip is-attention"><span>UNVERIFIED ADDRESS</span><p>{props.email ? "This address has not been verified, so it may bounce. You can still send it — check the address first, or start on LinkedIn instead." : "No email address is on file. Start on LinkedIn."}</p></div>}
-          {props.emailVerified && !props.gmailConnected && <div className="manual-mode-strip"><span>MANUAL MODE</span><p>No Gmail connection required. Copy the draft, send it yourself, then record the touch.</p></div>}
+          {!props.emailVerified && <div className="manual-mode-strip is-attention"><span>Unverified address</span><p>{props.email ? "This address has not been verified, so it may bounce. You can still send it, check the address first, or start on LinkedIn instead." : "No email address is on file. Start on LinkedIn."}</p></div>}
+          {props.emailVerified && !props.gmailConnected && <div className="manual-mode-strip"><span>Manual mode</span><p>No Gmail connection required. Copy the draft, send it yourself, then record the touch.</p></div>}
           <div className="compose-recipient">
             <div className="recipient-avatar">{initials(props.personName)}</div>
             <div><span>To</span><strong>{props.personName}</strong><small>{props.email ?? "No email available"}</small></div>
@@ -130,7 +130,7 @@ export function MessageComposer(props: Props) {
           <div className="social-compose-head">
             <div className="linkedin-mini">in</div>
             <div><strong>{props.personName}</strong><span>{props.title} at {props.company}</span></div>
-            <span>{view === "comment" ? "PUBLIC REPLY" : view === "message" ? "DIRECT MESSAGE" : "CONNECTION REQUEST"}</span>
+            <span>{view === "comment" ? "Public reply" : view === "message" ? "Direct message" : "Connection request"}</span>
           </div>
           <textarea
             className="compose-body"
@@ -149,7 +149,7 @@ export function MessageComposer(props: Props) {
       <footer className="composer-actions">
         <button type="button" className="save-draft" disabled={props.busy} onClick={props.onSave}>Save draft</button>
         {view === "email" ? (
-          // Sending is gated on HAVING an address, not on it being verified — the desk allows a manual send
+          // Sending is gated on HAVING an address, not on it being verified: the desk allows a manual send
           // to an unverified address behind a warning (the send route stopped requiring verification), and
           // this panel was still hiding the Send button entirely, so the dossier had no way to send at all.
           props.gmailConnected && props.email ? <div className="manual-send-actions">

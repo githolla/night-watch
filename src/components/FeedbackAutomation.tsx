@@ -40,7 +40,7 @@ export function FeedbackAutomation() {
       const res = await fetch("/api/admin/feedback-digest", { method: "POST" });
       const json = await res.json();
       if (!res.ok || json.error) { setMessage(json.error ?? "Could not run the digest."); return; }
-      setMessage(json.posted ? `Posted a digest of ${json.count} new item${json.count === 1 ? "" : "s"} — the fix agent picks it up at its next run (or on the schedule).` : (json.reason ?? "Nothing new to send."));
+      setMessage(json.posted ? `Posted a digest of ${json.count} new item${json.count === 1 ? "" : "s"}, the fix agent picks it up at its next run (or on the schedule).` : (json.reason ?? "Nothing new to send."));
       await load();
     } catch { setMessage("Could not run the digest."); }
     finally { setRunning(false); }
@@ -52,7 +52,7 @@ export function FeedbackAutomation() {
       <PanelGuide
         what={<>Collects the feedback testers send from inside the app and posts it to GitHub each night as a single list, so the coding agent can pick the fixes up.</>}
         when={<>Leave it running. Open it when you want to see what testers have reported lately and whether anything has been done about it.</>}
-        watch={<>It reads what people typed into the Feedback button &mdash; it doesn&rsquo;t watch anyone&rsquo;s screen. The digest posts once a night, so something reported this morning appears tomorrow unless you post it now.</>}
+        watch={<>It reads what people typed into the Feedback button: it doesn&rsquo;t watch anyone&rsquo;s screen. The digest posts once a night, so something reported this morning appears tomorrow unless you post it now.</>}
       />
       <header className="conn-head" style={{ alignItems: "center" }}>
         <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: 0, padding: 0, textAlign: "left", cursor: "pointer", color: "inherit", flex: 1, minWidth: 0 }}>
@@ -66,7 +66,7 @@ export function FeedbackAutomation() {
       </header>
       {!open ? null : <>
       {message && <p className="notice" role="status">{message}</p>}
-      {!configured && <p className="conn-note">Not configured yet — set <code>FEEDBACK_GH_TOKEN</code> (a GitHub token with Issues: read &amp; write) in the environment and redeploy.</p>}
+      {!configured && <p className="conn-note">Not configured yet, set <code>FEEDBACK_GH_TOKEN</code> (a GitHub token with Issues: read &amp; write) in the environment and redeploy.</p>}
 
       <div className="fb-auto-list">
         {loading && <p className="conn-note">Loading…</p>}
@@ -83,7 +83,7 @@ export function FeedbackAutomation() {
               {issue.lastComment
                 ? <p className="fb-auto-summary">{issue.lastComment.length > 700 ? issue.lastComment.slice(0, 700) + "…" : issue.lastComment}</p>
                 : fixed
-                  ? <p className="fb-auto-summary is-quiet">Closed — see the issue on GitHub for details.</p>
+                  ? <p className="fb-auto-summary is-quiet">Closed, see the issue on GitHub for details.</p>
                   : <p className="fb-auto-summary is-quiet">Waiting for the fix agent’s next run.</p>}
               <a href={issue.url} target="_blank" rel="noreferrer" className="focus-link">View on GitHub &#8599;</a>
             </div>

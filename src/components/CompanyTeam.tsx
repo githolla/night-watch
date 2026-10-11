@@ -61,7 +61,7 @@ export function CompanyTeam({ domain, company, activeId, onSelect, compact, logg
           onKeyDown={onSelect ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(person); } } : undefined}>
           <span className="avatar">{(loggedIds?.has(person.id) || person.sentAt) ? "✓" : initials(person.full_name)}</span>
           <div className="focus-team-id"><strong>{person.full_name}{(loggedIds?.has(person.id) || person.sentAt)
-            ? <Link className="focus-team-flag is-sent" href={`/activity?person=${person.id}&name=${encodeURIComponent(person.full_name)}`} onClick={(event) => event.stopPropagation()} title={person.sentAt ? `Emailed ${new Date(person.sentAt).toLocaleDateString()} — open in History` : "Already written to — open in History"}>sent &#8599;</Link>
+            ? <Link className="focus-team-flag is-sent" href={`/activity?person=${person.id}&name=${encodeURIComponent(person.full_name)}`} onClick={(event) => event.stopPropagation()} title={person.sentAt ? `Emailed ${new Date(person.sentAt).toLocaleDateString()}, open in History` : "Already written to, open in History"}>sent &#8599;</Link>
             : busyId === person.id ? <em className="focus-team-flag">opening…</em>
             : activeId === person.id ? <em className="focus-team-flag">writing to</em> : null}</strong><small>{person.title || "title unknown"}</small></div>
           <div className="focus-team-contact">

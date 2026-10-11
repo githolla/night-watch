@@ -15,7 +15,7 @@ const LABEL: Record<string, string> = {
 
 const money = (value: number) => `$${value.toFixed(2)}`;
 
-/** What the app has spent, and — just as important — whether it is seeing all of it. */
+/** What the app has spent, and: just as important: whether it is seeing all of it. */
 export function SpendPanel() {
   const [spend, setSpend] = useState<Spend | null>(null);
   const [error, setError] = useState("");
@@ -49,7 +49,7 @@ export function SpendPanel() {
           Only the research pipeline is being counted. Regenerating drafts, Refine and the Message Lab all
           call the model and are <strong>not recorded yet</strong>, so your real bill is higher than the
           figure above. Apply <code>supabase/migrations/0024_api_spend.sql</code> in the Supabase SQL editor to
-          start counting them &mdash; no deploy needed.
+          start counting them: no deploy needed.
         </p>
       )}
 

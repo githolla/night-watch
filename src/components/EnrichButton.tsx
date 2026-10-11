@@ -20,7 +20,7 @@ export function EnrichButton({ accountId }: { accountId: string }) {
       const response = await fetch(`/api/accounts/${accountId}/enrich`, { method: "POST" });
       const json = (await response.json().catch(() => ({}))) as Result;
       if (!response.ok) throw new Error(json.error ?? `Request failed (${response.status})`);
-      setMessage(`Checked ${json.checked} — ${json.emails} verified ${json.emails === 1 ? "email" : "emails"} and ${json.linkedins} LinkedIn ${json.linkedins === 1 ? "URL" : "URLs"} added${json.cleared ? `, ${json.cleared} guesses cleared` : ""}.`);
+      setMessage(`Checked ${json.checked}, ${json.emails} verified ${json.emails === 1 ? "email" : "emails"} and ${json.linkedins} LinkedIn ${json.linkedins === 1 ? "URL" : "URLs"} added${json.cleared ? `, ${json.cleared} guesses cleared` : ""}.`);
       router.refresh();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Enrichment failed");

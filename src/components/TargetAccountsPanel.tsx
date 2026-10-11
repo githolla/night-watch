@@ -30,9 +30,9 @@ export function TargetAccountsPanel({ initialCount, targetTotal }: { initialCoun
       <p>Your complete $50M+ target list, with the reach-out cut applied: Tier A is contacted, Tiers B and C are held and watched, and removed companies are paused. Syncing writes the tiers to the database; a company put on or taken off the list by hand keeps that decision.</p>
     </div>
     <div className="target-control-status">
-      <span>ACTIVE ACCOUNTS</span>
+      <span>Active accounts</span>
       <strong>{count}</strong>
-      <small>{count === targetTotal ? "READY FOR NIGHT WATCH" : "SYNC REQUIRED"}</small>
+      <small>{count === targetTotal ? "Ready for Night Watch" : "Sync required"}</small>
     </div>
     <button className="btn primary" type="button" onClick={syncTargets} disabled={state === "loading"}>
       {state === "loading" ? "Syncing…" : count === targetTotal ? "Refresh target list" : `Load ${targetTotal.toLocaleString()} companies`}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { InlineConfirm } from "./InlineConfirm";
 
 /** canAct: may edit, skip or stop (the sender or an admin). canSend: may send it now (only the sender's own seat). */
 export type FollowupView = { stepId: string; step: number; scheduledAt: string; channel: string; subject: string | null; body: string; auto: boolean; needsYou: boolean; canAct: boolean; canSend: boolean };
@@ -23,6 +24,7 @@ export function FollowupPanel({ followup, onChange, inThread = false }: { follow
   const [body, setBody] = useState(followup.body);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<{ text: string; ok: boolean } | null>(null);
+  const [asking, setAsking] = useState<"skip" | "stop" | "send" | null>(null);
   const isEmail = followup.channel === "email";
 
   async function patch(change: Record<string, unknown>) {
@@ -35,7 +37,7 @@ export function FollowupPanel({ followup, onChange, inThread = false }: { follow
     setBusy(true); setNote(null);
     try { await work(); }
     catch (error) { setNote({ text: error instanceof Error ? error.message : `Could not ${label}.`, ok: false }); }
-    finally { setBusy(false); }
+    finally { setBusy(false); setAsking(null); }
   }
 
   const save = () => run("save", async () => {
@@ -45,22 +47,19 @@ export function FollowupPanel({ followup, onChange, inThread = false }: { follow
     setNote({ text: "Saved. This is the version that will go out.", ok: true });
   });
   const skip = () => run("skip", async () => {
-    if (!window.confirm("Skip this follow-up? Any later ones still go.")) return;
     await patch({ action: "skipped" });
     onChange(null);
   });
   const stop = () => run("stop", async () => {
-    if (!window.confirm("Stop all remaining follow-ups to this person?")) return;
     await patch({ action: "stop" });
     onChange(null);
   });
   const sendNow = () => run("send", async () => {
-    if (!window.confirm("Send this follow-up now?")) return;
     const response = await fetch(`/api/cadence-steps/${followup.stepId}/send-now`, { method: "POST" });
     const json = await response.json().catch(() => ({})) as { error?: string; stopped?: boolean; warning?: string };
     if (!response.ok) throw new Error(json.error ?? "Could not send. Check Gmail Sent before trying again.");
-    onChange(null);
-    window.alert(json.stopped ? "They already replied, so their follow-ups have been stopped." : json.warning ?? "Sent.");
+    setNote({ text: json.stopped ? "They already replied, so their follow-ups have been stopped." : json.warning ?? "Sent.", ok: true });
+    window.setTimeout(() => onChange(null), 1800);
   });
 
   return (
@@ -83,11 +82,14 @@ export function FollowupPanel({ followup, onChange, inThread = false }: { follow
             <button type="button" className="btn primary" disabled={busy || !body.trim()} onClick={() => void save()}>{busy ? "Saving…" : "Save"}</button>
             <button type="button" className="btn ghost" disabled={busy} onClick={() => { setEditing(false); setSubject(followup.subject ?? ""); setBody(followup.body); }}>Cancel</button>
           </> : <>
-            {followup.needsYou && isEmail && followup.canSend && <button type="button" className="btn primary" disabled={busy} onClick={() => void sendNow()}>Send now</button>}
+            {followup.needsYou && isEmail && followup.canSend && <button type="button" className="btn primary" disabled={busy} onClick={() => setAsking("send")}>Send now</button>}
             <button type="button" className="btn" disabled={busy} onClick={() => setEditing(true)}>Edit</button>
-            <button type="button" className="btn" disabled={busy} onClick={() => void skip()}>Skip this one</button>
-            {!inThread && <button type="button" className="btn ghost" disabled={busy} onClick={() => void stop()}>Stop all follow-ups</button>}
+            <button type="button" className="btn" disabled={busy} onClick={() => setAsking("skip")}>Skip this one</button>
+            {!inThread && <button type="button" className="btn ghost" disabled={busy} onClick={() => setAsking("stop")}>Stop all follow-ups</button>}
           </>}
+          {asking === "send" && <InlineConfirm title="Send this follow-up now?" yes={busy ? "Sending…" : "Yes, send it"} busy={busy} onYes={() => void sendNow()} onCancel={() => setAsking(null)}>It goes from your Gmail as a reply in the same thread.</InlineConfirm>}
+          {asking === "skip" && <InlineConfirm title="Skip this follow-up?" yes="Yes, skip it" busy={busy} onYes={() => void skip()} onCancel={() => setAsking(null)}>Any later follow-ups still go.</InlineConfirm>}
+          {asking === "stop" && <InlineConfirm title="Stop all follow-ups to this person?" yes="Yes, stop them" busy={busy} onYes={() => void stop()} onCancel={() => setAsking(null)}>Nothing more goes to them unless you write yourself.</InlineConfirm>}
           {note && <span className={`followup-note ${note.ok ? "is-ok" : "is-bad"}`} role="status">{note.text}</span>}
         </div>
       ) : <p className="followup-note">Only the person who sent this email, or an admin, can change its follow-ups.</p>}
@@ -99,9 +101,9 @@ export function FollowupPanel({ followup, onChange, inThread = false }: { follow
 export function FollowupThread({ followups, onChange }: { followups: FollowupView[]; onChange: (next: FollowupView[]) => void }) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  const [asking, setAsking] = useState(false);
   const canAct = followups.some((followup) => followup.canAct);
   async function stopAll() {
-    if (!window.confirm("Stop all remaining follow-ups to this person?")) return;
     setBusy(true); setNote(null);
     try {
       const response = await fetch(`/api/cadence-steps/${followups[0].stepId}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "stop" }) });
@@ -109,14 +111,15 @@ export function FollowupThread({ followups, onChange }: { followups: FollowupVie
       if (!response.ok) throw new Error(json.error ?? "Could not stop the follow-ups.");
       onChange([]);
     } catch (error) { setNote(error instanceof Error ? error.message : "Could not stop the follow-ups."); }
-    finally { setBusy(false); }
+    finally { setBusy(false); setAsking(false); }
   }
   return (
     <div className="followup-thread">
       {followups.map((followup) => (
         <FollowupPanel key={followup.stepId} inThread followup={followup} onChange={(next) => onChange(next ? followups.map((item) => item.stepId === followup.stepId ? next : item) : followups.filter((item) => item.stepId !== followup.stepId))} />
       ))}
-      {canAct && <div className="followup-thread-foot"><button type="button" className="btn ghost" disabled={busy} onClick={() => void stopAll()}>Stop all follow-ups</button><small>They also stop by themselves as soon as {followups.length > 1 ? "this person replies" : "they reply"}.</small>{note && <span className="followup-note is-bad">{note}</span>}</div>}
+      {canAct && <div className="followup-thread-foot"><button type="button" className="btn ghost" disabled={busy} onClick={() => setAsking(true)}>Stop all follow-ups</button><small>They also stop by themselves as soon as {followups.length > 1 ? "this person replies" : "they reply"}.</small>{note && <span className="followup-note is-bad">{note}</span>}</div>}
+      {asking && <InlineConfirm title="Stop all follow-ups to this person?" yes="Yes, stop them" busy={busy} onYes={() => void stopAll()} onCancel={() => setAsking(false)}>Nothing more goes to them unless you write yourself.</InlineConfirm>}
     </div>
   );
 }

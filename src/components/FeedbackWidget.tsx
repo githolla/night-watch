@@ -44,9 +44,9 @@ export function FeedbackWidget() {
       {open && (
         <div className="fb-panel" role="dialog" aria-label="Feedback">
           <div className="fb-panel-head"><strong>Share feedback</strong><button type="button" onClick={() => setOpen(false)} aria-label="Close"><X size={16} /></button></div>
-          <p className="fb-panel-sub">On <code>{pathname || "/"}</code> — we log who and when automatically.</p>
+          <p className="fb-panel-sub">On <code>{pathname || "/"}</code>, we log who and when automatically.</p>
           {state === "done" ? (
-            <p className="fb-thanks">Thanks — logged. 🙏</p>
+            <p className="fb-thanks">Thanks, we have it.</p>
           ) : (
             <form onSubmit={submit}>
               <div className="fb-cats">

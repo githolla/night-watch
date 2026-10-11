@@ -233,7 +233,7 @@ export function RunLog({ rows, onRetry, kind = "research" }: { rows: RunAccountR
               <td>
                 <span className={`status-chip ${row.status}`}>{STATUS_LABEL[row.status]}</span>
               </td>
-              <td className="run-log-time">{row.durationMs !== null ? formatDuration(row.durationMs) : row.status === "running" ? "…" : "—"}</td>
+              <td className="run-log-time">{row.durationMs !== null ? formatDuration(row.durationMs) : row.status === "running" ? "…" : "None"}</td>
               <td className="run-log-outcome">
                 {row.status === "error" ? (
                   <details>
@@ -262,7 +262,7 @@ export function RunLog({ rows, onRetry, kind = "research" }: { rows: RunAccountR
                 ) : row.status === "running" ? (
                   <span>{kind === "sweep" ? "Reading the careers page…" : "Searching the public web…"}</span>
                 ) : (
-                  <span>—</span>
+                  <span>-</span>
                 )}
               </td>
             </tr>

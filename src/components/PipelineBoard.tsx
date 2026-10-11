@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { InlineConfirm } from "@/components/InlineConfirm";
+import { PageHead } from "@/components/PageHead";
 
 export type PipelineCard = {
   id: string;
@@ -16,11 +18,11 @@ export type PipelineCard = {
 };
 
 const STAGES = [
-  { key: "contacted", label: "Contacted", blurb: "outreach sent" },
+  { key: "contacted", label: "Emailed", blurb: "first email sent" },
   { key: "replied", label: "Replied", blurb: "wrote back" },
-  { key: "meeting", label: "Discovery", blurb: "meeting booked" },
-  { key: "qualified", label: "Qualified", blurb: "real fit" },
-  { key: "opportunity", label: "Opportunity", blurb: "scoped deal" },
+  { key: "meeting", label: "Meeting", blurb: "first call booked" },
+  { key: "qualified", label: "Good fit", blurb: "a real need" },
+  { key: "opportunity", label: "Deal", blurb: "scoped work" },
 ] as const;
 type StageKey = (typeof STAGES)[number]["key"];
 
@@ -34,15 +36,17 @@ function currentStage(card: PipelineCard): StageKey {
 }
 const NEXT: Partial<Record<StageKey, { stage: string; label: string }>> = {
   contacted: { stage: "replied", label: "They replied (not by email)" },
-  replied: { stage: "meeting", label: "Booked discovery" },
-  meeting: { stage: "qualified", label: "Mark qualified" },
-  qualified: { stage: "opportunity", label: "Create opportunity" },
+  replied: { stage: "meeting", label: "Meeting booked" },
+  meeting: { stage: "qualified", label: "Good fit" },
+  qualified: { stage: "opportunity", label: "Make it a deal" },
 };
 
 export function PipelineBoard({ cards }: { cards: PipelineCard[] }) {
   const [list, setList] = useState(cards);
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [asking, setAsking] = useState<{ card: PipelineCard; kind: "opportunity" | "lost" } | null>(null);
+  const [value, setValue] = useState("");
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -56,13 +60,10 @@ export function PipelineBoard({ cards }: { cards: PipelineCard[] }) {
     return map;
   }, [list]);
 
-  async function advance(card: PipelineCard, stage: string, label: string) {
-    setBusy(card.id); setNotice(null);
-    let valueUsd: number | undefined;
-    if (stage === "opportunity") {
-      const raw = prompt("Rough opportunity value (USD, optional):", "");
-      if (raw && /^\d+$/.test(raw.replace(/[,$\s]/g, ""))) valueUsd = Number(raw.replace(/[,$\s]/g, ""));
-    }
+  async function advance(card: PipelineCard, stage: string, label: string, raw = "") {
+    setBusy(card.id); setNotice(null); setAsking(null);
+    const digits = raw.replace(/[,$\s]/g, "");
+    const valueUsd = /^\d+$/.test(digits) ? Number(digits) : undefined;
     try {
       const res = await fetch(`/api/cards/${card.id}/stage`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ stage, valueUsd }) });
       const json = await res.json();
@@ -73,25 +74,24 @@ export function PipelineBoard({ cards }: { cards: PipelineCard[] }) {
     finally { setBusy(null); }
   }
   async function markLost(card: PipelineCard) {
-    if (!confirm(`Mark ${card.company} as lost / not now?`)) return;
-    setBusy(card.id);
+    setBusy(card.id); setAsking(null);
     try {
       const res = await fetch(`/api/cards/${card.id}/stage`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ stage: "lost" }) });
-      if (res.ok) setList((cur) => cur.filter((c) => c.id !== card.id));
-    } finally { setBusy(null); }
+      if (res.ok) { setList((cur) => cur.filter((c) => c.id !== card.id)); setNotice(`${card.company}: marked not now.`); }
+      else setNotice("Could not update the stage. Try again.");
+    } catch { setNotice("Could not update the stage. Try again."); }
+    finally { setBusy(null); }
   }
-  const rate = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` : "—");
+  const rate = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` : "");
 
   return <>
-    <header className="page-head briefing-head">
-      <div><span className="overview-kick">Conversion</span><h1>What happens after outreach</h1><p>Every contacted prospect, tracked from reply through discovery, qualification and opportunity. {oppValue > 0 ? `$${oppValue.toLocaleString()} in open opportunities.` : ""}</p></div>
-    </header>
+    <PageHead title="Pipeline">Everyone you have emailed, from first reply to a real deal. {oppValue > 0 ? `$${oppValue.toLocaleString()} in open deals.` : ""}</PageHead>
 
     <section className="funnel">
       {STAGES.map((stage, i) => (
         <div key={stage.key} className="funnel-step">
           <div className="funnel-bar"><strong>{counts[stage.key]}</strong><span>{stage.label}</span><small>{stage.blurb}</small></div>
-          {i > 0 && <em className="funnel-rate">{rate(counts[stage.key], counts[STAGES[i - 1].key])}</em>}
+          {i > 0 && rate(counts[stage.key], counts[STAGES[i - 1].key]) && <em className="funnel-rate">{rate(counts[stage.key], counts[STAGES[i - 1].key])}</em>}
         </div>
       ))}
     </section>
@@ -103,7 +103,7 @@ export function PipelineBoard({ cards }: { cards: PipelineCard[] }) {
         <section key={stage.key} className="pipe-col">
           <h2 className="pipe-col-head">{stage.label}<b>{byStage[stage.key].length}</b></h2>
           <div className="pipe-col-list">
-            {byStage[stage.key].length === 0 && <p className="pipe-empty">—</p>}
+            {byStage[stage.key].length === 0 && <p className="pipe-empty">No one here yet</p>}
             {byStage[stage.key].map((card) => {
               const next = NEXT[stage.key];
               return (
@@ -112,10 +112,14 @@ export function PipelineBoard({ cards }: { cards: PipelineCard[] }) {
                   {card.valueUsd ? <div className="pipe-card-val">${card.valueUsd.toLocaleString()}</div> : null}
                   <div className="pipe-card-actions">
                     <Link href={`/brief/${card.id}`} className="pipe-link">Call brief</Link>
-                    <Link href={`/desk?card=${card.id}`} className="pipe-link">Open</Link>
-                    {next && <button type="button" disabled={busy === card.id} onClick={() => advance(card, next.stage, next.label)}>{next.label} →</button>}
-                    <button type="button" className="pipe-lost" disabled={busy === card.id} onClick={() => markLost(card)}>Lost</button>
+                    <Link href={`/accounts/${encodeURIComponent(card.domain)}`} className="pipe-link">Company</Link>
+                    {next && <button type="button" disabled={busy === card.id} onClick={() => { if (next.stage === "opportunity") { setValue(""); setAsking({ card, kind: "opportunity" }); } else void advance(card, next.stage, next.label); }}>{next.label} →</button>}
+                    <button type="button" className="pipe-lost" disabled={busy === card.id} onClick={() => setAsking({ card, kind: "lost" })}>Not now</button>
                   </div>
+                  {asking?.card.id === card.id && asking.kind === "lost" && <InlineConfirm title={`Mark ${card.company} as not now?`} yes="Yes, not now" busy={busy === card.id} onYes={() => void markLost(card)} onCancel={() => setAsking(null)}>It leaves the pipeline. Their history stays on file.</InlineConfirm>}
+                  {asking?.card.id === card.id && asking.kind === "opportunity" && next && <InlineConfirm title="Make this a deal?" yes="Make it a deal" busy={busy === card.id} onYes={() => void advance(card, next.stage, next.label, value)} onCancel={() => setAsking(null)}>
+                    <label className="inline-confirm-field"><span>Rough value in dollars (optional)</span><input inputMode="numeric" value={value} onChange={(event) => setValue(event.target.value)} placeholder="25,000" /></label>
+                  </InlineConfirm>}
                 </div>
               );
             })}

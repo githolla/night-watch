@@ -12,5 +12,5 @@ export function SystemClock(){
   const time=now?.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false})??"--:--";
   const seconds=now?.getSeconds().toString().padStart(2,"0")??"--";
   const zone=now?Intl.DateTimeFormat().resolvedOptions().timeZone.replace("_"," ").toUpperCase():"LOCAL SYSTEM";
-  return <div className="system-clock" aria-label="Local operating time"><span className="clock-orbit"/><div><strong>{time}</strong><sup>{seconds}</sup><small>LOCAL OPERATING TIME<br/>{zone}</small></div></div>
+  return <div className="system-clock" aria-label="Local operating time"><span className="clock-orbit"/><div><strong>{time}</strong><sup>{seconds}</sup><small>Local operating time<br/>{zone}</small></div></div>
 }

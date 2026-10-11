@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { fetchAll } from "@/lib/supabase/fetch-all";
 import { redirect } from "next/navigation";
+import { PageHead } from "@/components/PageHead";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,7 @@ function peopleInitials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
 }
 
-/** Every person the sweep or a signal has put on file — one instant-search directory. */
+/** Every person the sweep or a signal has put on file: one instant-search directory. */
 export default async function PeoplePage({ searchParams }: { searchParams: Promise<Params> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   // Check the schema while sign-in is checked, instead of one round trip after it.
@@ -97,12 +98,10 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
 
   return <div className="shell">
     <main className="targets-page">
-      <header className="page-head briefing-head">
-        <div><span className="overview-kick">People on file</span><h1>People</h1><p>Buyers and signal owners, enriched with email and LinkedIn where available · {rows.length.toLocaleString()} on file · {(verified ?? 0).toLocaleString()} verified · {(withLinkedIn ?? 0).toLocaleString()} on LinkedIn.</p></div>
-      </header>
+      <PageHead title="People">Everyone on file at the companies you reach out to: {rows.length.toLocaleString()} people, {(verified ?? 0).toLocaleString()} with a confirmed email, {(withLinkedIn ?? 0).toLocaleString()} on LinkedIn.</PageHead>
 
       {nextCards && nextCards.length > 0 && <section className="reach-next">
-        <header><span className="eyebrow">Reach out next</span><Link href="/desk">Work the desk →</Link></header>
+        <header><span className="eyebrow">Reach out next</span><Link href="/outreach">Open the Reach-out list →</Link></header>
         <div className="reach-next-row">
           {nextCards.map((cardRow) => {
             const person = cardRow.people as unknown as { full_name: string; title: string } | null;

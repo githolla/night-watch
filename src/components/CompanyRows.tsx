@@ -10,7 +10,7 @@ export type CompanyRow = {
 };
 
 function ago(value: string | null) {
-  if (!value) return "—";
+  if (!value) return "None";
   const days = Math.floor((Date.now() - Date.parse(value)) / 86_400_000);
   return days <= 0 ? "today" : days === 1 ? "1d ago" : days < 30 ? `${days}d ago` : `${Math.round(days / 30)}mo ago`;
 }

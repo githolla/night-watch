@@ -69,7 +69,7 @@ export default async function Settings() {
   const sendingReady = mailboxConnected && identitySet;
 
   // Compact sections. Counts live inside each page, not in the nav; a chip appears only where it carries
-  // information. Target accounts and Draft tools have moved to the pages where that work happens — the
+  // information. Target accounts and Draft tools have moved to the pages where that work happens: the
   // entries here are signposts to them, kept while people learn the new places.
   const tabs = [
     {
@@ -92,7 +92,7 @@ export default async function Settings() {
       blurb: "Add a company, adjust one that is already on the file, or take one off outreach.",
       content: <>
         <div className="settings-moved">
-          <p>Also on <strong>All companies</strong>, next to the searchable table &mdash; that is usually the quicker place to decide, because you can see the company first.</p>
+          <p>Also on <strong>All companies</strong>, next to the searchable table: that is usually the quicker place to decide, because you can see the company first.</p>
           <Link className="btn" href="/targets">Open All companies</Link>
         </div>
         <div className="feature-center"><AddCompany /></div>
@@ -128,7 +128,7 @@ export default async function Settings() {
     }] : []),
     {
       id: "system", label: "Integrations & automation", icon: <Plug />,
-      blurb: "Slack, the nightly run and the target list. Mostly read-only \u2014 for checking the machinery is running.",
+      blurb: "Slack, the nightly run and the target list. Mostly read-only, for checking the machinery is running.",
       content: <>
         <div className="feature-center" style={{ marginBottom: 18 }}><SpendPanel /></div>
         <FeatureControlCenter targetCount={accountCount ?? 0} targetTotal={activeTargetAccounts.length} slackConnected={slackConnected} slackChannelId={process.env.SLACK_CHANNEL_ID ?? ""} gmailConnections={connections ?? []} cardsToday={cardsToday ?? 0} experiments={experiments ?? 0} outcomes={outcomes ?? 0} />

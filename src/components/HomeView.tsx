@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { AddressFix } from "@/components/AddressFix";
 import type { HomeData } from "@/lib/home-view";
+import { replyLabel } from "@/lib/reply-labels";
 import { weekOverWeek } from "@/lib/sent-stats";
 import type { Owner } from "@/lib/types";
 
-const READS: Record<string, string> = { positive: "Interested", referral: "Referral", neutral: "Replied", objection: "Pushback", negative: "Not interested" };
 const day = (iso: string) => new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "America/New_York" });
 const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
@@ -43,12 +43,12 @@ export function HomeView({ data, owner, hello }: { data: HomeData; owner: Owner;
 
       <div className="home-grid">
         <section className="home-card home-replies" aria-label="Replies waiting">
-          <div className="home-card-head"><h2>Replies waiting <span>{data.replies.length}</span></h2><Link href={`/activity`}>History &rarr;</Link></div>
+          <div className="home-card-head"><h2>Replies waiting <span>{data.replies.length}</span></h2><Link href={`/replies?${q}`}>All replies &rarr;</Link></div>
           {data.replies.length === 0
             ? <p className="home-empty">No replies waiting. When someone writes back, they show up here and in your inbox.</p>
             : <ul className="home-list">{data.replies.slice(0, 6).map((reply) => (
                 <li key={reply.cardId}>
-                  <span className={`home-read is-${reply.classification}`}>{READS[reply.classification] ?? "Replied"}</span>
+                  <span className={`home-read is-${reply.classification}`}>{replyLabel(reply.classification)}</span>
                   <span className="home-who"><b>{reply.name}</b><small>{reply.title ? `${reply.title} · ` : ""}{reply.company} · {day(reply.repliedAt)}</small></span>
                   <Link className="btn" href={`/brief/${reply.cardId}`}>Call brief</Link>
                 </li>

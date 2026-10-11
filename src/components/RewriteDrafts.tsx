@@ -15,8 +15,8 @@ type Preview = { total: number; scanned: number; wouldChange: number; exact: boo
  * which made them look like variations on a theme when in fact one is free and reversible, one rewrites the
  * opening line, and one spends money and discards your hand edits.
  *
- * Each is now its own card, saying up front how many drafts it would touch and — for the two deterministic
- * ones — letting you see the exact before and after on real drafts before anything is written.
+ * Each is now its own card, saying up front how many drafts it would touch and: for the two deterministic
+ * ones: letting you see the exact before and after on real drafts before anything is written.
  */
 export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) {
   // Whose drafts every tool below touches; the server limits a member to their own seat whatever is sent.
@@ -57,7 +57,7 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
   }
 
   // Repair drafts already saved with a repeated opener / stray link / the old "teardown" CTA. Deterministic
-  // and free — no model calls — unlike "Regenerate drafts with AI".
+  // and free: no model calls: unlike "Regenerate drafts with AI".
   async function cleanUp() {
     if (running) return;
     if (!confirm("Clean up every un-sent draft? Removes repeated lines, links in the body, and the old “teardown” line. No AI, nothing is reworded.")) return;
@@ -73,8 +73,8 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
         if (json.done) break;
       }
       setPreview(null);
-      setMsg(`Done — checked ${offset} drafts and fixed ${fixed}. Drafts that were already clean were left untouched${blanked ? `; ${blanked} skipped to avoid emptying them` : ""}. Reload the desk to see them.`);
-    } catch { setMsg("Clean-up failed — try again."); }
+      setMsg(`Done, checked ${offset} drafts and fixed ${fixed}. Drafts that were already clean were left untouched${blanked ? `; ${blanked} skipped to avoid emptying them` : ""}. Reload the desk to see them.`);
+    } catch { setMsg("Clean-up failed, try again."); }
     finally { setRunning(""); }
   }
 
@@ -87,7 +87,7 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
       if (!res.ok) { setMsg(json.error ?? "Something went wrong."); return; }
       total += json[key] ?? 0;
       setMsg(`${label} ${total} so far${json.remaining ? ` · ${json.remaining} to go…` : ""}`);
-      if (!json.remaining) { setPreview(null); setMsg(`Done — ${label.toLowerCase()} ${total} draft${total === 1 ? "" : "s"}. Reload the desk to see them.`); return; }
+      if (!json.remaining) { setPreview(null); setMsg(`Done, ${label.toLowerCase()} ${total} draft${total === 1 ? "" : "s"}. Reload the desk to see them.`); return; }
     }
   }
 
@@ -95,7 +95,7 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
     if (running) return;
     if (!confirm("Regenerate every un-sent email draft with AI, using the latest founder-voice rules? This replaces anything you edited by hand, and uses AI credits. Each draft stays editable before you send.")) return;
     setRunning("rewrite"); setMsg("Regenerating drafts…");
-    try { await drain("/api/admin/rewrite-drafts", {}, "Regenerated", "rewritten"); } catch { setMsg("Regenerate failed — try again."); }
+    try { await drain("/api/admin/rewrite-drafts", {}, "Regenerated", "rewritten"); } catch { setMsg("Regenerate failed, try again."); }
     finally { setRunning(""); }
   }
 
@@ -104,7 +104,7 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
     if (!greeting.trim()) { setMsg("Type a greeting first."); return; }
     if (!confirm(`Set the greeting on every un-sent email to “${greeting.trim()}” (with {first} replaced by each contact's first name)?`)) return;
     setRunning("greeting"); setMsg("Updating greeting…");
-    try { await drain("/api/admin/apply-greeting", { greeting }, "Updated", "applied"); } catch { setMsg("Update failed — try again."); }
+    try { await drain("/api/admin/apply-greeting", { greeting }, "Updated", "applied"); } catch { setMsg("Update failed, try again."); }
     finally { setRunning(""); }
   }
 
@@ -127,9 +127,9 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
         if (json.done) { done = true; break; }
       }
       // Never report an exhausted loop as a finished run.
-      if (!done) { setMsg(`Stopped after ${offset} companies with ${written} drafts written — there are more to do. Press it again to carry on.`); return; }
-      setMsg(`Done — ${written} contact${written === 1 ? "" : "s"} now have their own draft${failed ? `; ${failed} compan${failed === 1 ? "y" : "ies"} were skipped after a database error` : ""}. Reload the desk and switch the list to “All active” to see them.`);
-    } catch { setMsg("Could not write the drafts — try again."); }
+      if (!done) { setMsg(`Stopped after ${offset} companies with ${written} drafts written, there are more to do. Press it again to carry on.`); return; }
+      setMsg(`Done, ${written} contact${written === 1 ? "" : "s"} now have their own draft${failed ? `; ${failed} compan${failed === 1 ? "y" : "ies"} were skipped after a database error` : ""}. Reload the desk and switch the list to “All active” to see them.`);
+    } catch { setMsg("Could not write the drafts, try again."); }
     finally { setRunning(""); }
   }
 
@@ -152,16 +152,16 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
         if (json.done) { done = true; break; }
       }
       // Never report an exhausted loop as a finished run.
-      if (!done) { setMsg(`Stopped with ${written} rewritten — there are more to do. Press it again to carry on.`); return; }
-      setMsg(`Done — ${written} draft${written === 1 ? "" : "s"} rewritten${failed ? `; ${failed} could not be saved` : ""}. Reload the desk to read them.`);
-    } catch { setMsg("Could not rewrite the drafts — try again."); }
+      if (!done) { setMsg(`Stopped with ${written} rewritten, there are more to do. Press it again to carry on.`); return; }
+      setMsg(`Done, ${written} draft${written === 1 ? "" : "s"} rewritten${failed ? `; ${failed} could not be saved` : ""}. Reload the desk to read them.`);
+    } catch { setMsg("Could not rewrite the drafts, try again."); }
     finally { setRunning(""); }
   }
 
   // Take everything off the contact list that is not a person, and show what went.
   async function checkContacts() {
     if (running) return;
-    if (!confirm("Check every contact on file and take off the ones that are not people — slogans, page titles and functional mailboxes? They stop being offered and stop being enriched. Nothing is deleted.")) return;
+    if (!confirm("Check every contact on file and take off the ones that are not people, slogans, page titles and functional mailboxes? They stop being offered and stop being enriched. Nothing is deleted.")) return;
     setRunning("people"); setMsg("Checking the contact list…"); setPurged(null);
     try {
       const res = await fetch("/api/admin/purge-people", { method: "POST" });
@@ -170,7 +170,7 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
       const names = (json.names ?? []) as string[];
       setPurged(names);
       setMsg(json.removed ? `Took ${json.removed} off the list.` : "Every contact on file looks like a person.");
-    } catch { setMsg("Could not check the contact list — try again."); }
+    } catch { setMsg("Could not check the contact list, try again."); }
     finally { setRunning(""); }
   }
 
@@ -195,12 +195,12 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
         if (json.done) { done = true; break; }
       }
       // Never report a partial pass as a finished audit.
-      if (!done) { setMsg(`Stopped after ${totals.checked} drafts — there are more. Press it again to carry on.`); return; }
+      if (!done) { setMsg(`Stopped after ${totals.checked} drafts, there are more. Press it again to carry on.`); return; }
       setAudit(totals);
       setMsg(totals.checked === totals.clean
         ? `Read all ${totals.checked} un-sent drafts. Every one passed.`
         : `Read ${totals.checked} un-sent drafts: ${totals.clean} clean, ${totals.checked - totals.clean} with something wrong, ${totals.unsendable} that could not be sent as they stand.`);
-    } catch { setMsg("Could not read the drafts — try again."); }
+    } catch { setMsg("Could not read the drafts, try again."); }
     finally { setRunning(""); }
   }
 
@@ -210,7 +210,7 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
     <div className="draft-tools">
       <h2 className="draft-group-title" id="setup">Set up</h2>
       <p className="draft-group-lead">How every unsent email starts, and who gets one.</p>
-      {/* 2 — rewrites one line across the list. */}
+      {/* 2: rewrites one line across the list. */}
       <section className="draft-tool">
         <header>
           <div><h3>Update greeting</h3><p>Replaces the opening line of every un-sent email. Write <code>{"{first}"}</code> where the first name goes, so <em>Hi {"{first}"},</em> reaches Robert as <em>Hi Robert,</em>. The rest of each email is untouched.</p></div>
@@ -229,7 +229,7 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
         {preview?.tool === "greeting" && shown && <PreviewBlock data={shown} />}
       </section>
 
-      {/* 0 — writes the list you actually work. */}
+      {/* 0: writes the list you actually work. */}
       <section className="draft-tool">
         <header>
           <div><h3>Write a draft for every contact</h3><p>Everyone worth emailing at every company gets their own draft, aimed at what their role owns: a CFO is asked about cost, an engineering lead about what gets built, a CEO about headcount. Same evidence, different email.</p></div>
@@ -241,7 +241,7 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
           <select value={perCompany} onChange={(event) => setPerCompany(Number(event.target.value))}>
             {[2, 3, 4, 5, 6, 8, 10].map((count) => <option key={count} value={count}>{count}</option>)}
           </select>
-          <small>Most senior first, verified addresses ahead of guessed ones &mdash; a company can carry forty contacts and you don&rsquo;t want all of them on the desk.</small>
+          <small>Most senior first, verified addresses ahead of guessed ones: a company can carry forty contacts and you don&rsquo;t want all of them on the desk.</small>
         </label>
         <div className="draft-tool-actions">
           <button type="button" className="btn primary" disabled={!!running} onClick={draftContacts}>{running === "contacts" ? "Writing…" : "Write the drafts"}</button>
@@ -250,13 +250,13 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
 
       <h2 className="draft-group-title" id="check">Check and fix</h2>
       <p className="draft-group-lead">Steps 1 and 2 already run on their own every night. Press them here when you don&rsquo;t want to wait. All free, no AI.</p>
-      {/* 0a — nothing else matters if the list is not people. */}
+      {/* 0a: nothing else matters if the list is not people. */}
       <section className="draft-tool">
         <header>
           <div><h3><em className="draft-step">Step 1</em>Check the contact list</h3><p>Websites put their own sales copy in the same place as their people, so phrases get filed as contacts: &ldquo;Discover Untapped Performance&rdquo;, titled &ldquo;Your Industry Partner&rdquo;. Three capitalised words look exactly like a name. This finds them and takes them off.</p></div>
           <span className="panel-cost is-free">Free</span>
         </header>
-        <p className="panel-watch">Also catches page titles scraped as people (&ldquo;Modern Slavery Statement&rdquo;) and functional mailboxes (recruiting@, service@). They are marked do-not-contact, never deleted &mdash; and every name is listed below so you can see exactly what went. This already runs with every refresh; press it to do it now.</p>
+        <p className="panel-watch">Also catches page titles scraped as people (&ldquo;Modern Slavery Statement&rdquo;) and functional mailboxes (recruiting@, service@). They are marked do-not-contact, never deleted: and every name is listed below so you can see exactly what went. This already runs with every refresh; press it to do it now.</p>
         <div className="draft-tool-actions">
           <button type="button" className="btn" disabled={!!running} onClick={checkContacts}>{running === "people" ? "Checking…" : "Check the contact list"}</button>
         </div>
@@ -267,25 +267,25 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
         )}
       </section>
 
-      {/* 0b — makes the list read as one voice. */}
+      {/* 0b: makes the list read as one voice. */}
       <section className="draft-tool">
         <header>
-          <div><h3><em className="draft-step">Step 2</em>Make every draft read the same way</h3><p>The contact a company arrived with kept whatever was written for them at the time, while their colleagues got the per-person writer &mdash; so working down the list you met one email with the greeting doubled into the first line, the next with no subject, the next written properly. This puts all of them through the same writer.</p></div>
+          <div><h3><em className="draft-step">Step 2</em>Make every draft read the same way</h3><p>The contact a company arrived with kept whatever was written for them at the time, while their colleagues got the per-person writer: so working down the list you met one email with the greeting doubled into the first line, the next with no subject, the next written properly. This puts all of them through the same writer.</p></div>
           <span className="panel-cost is-free">Free</span>
         </header>
-        <p className="panel-watch">Each contact is written to about what their role owns, from their company&rsquo;s own signal, with no AI call. <strong>It replaces drafts you have edited by hand.</strong> Emails already sent are never touched. A refresh already rewrites any draft that <em>could not be sent</em> &mdash; a placeholder subject, the wrong name in the greeting; this one rewrites every un-sent draft, whether it was broken or not.</p>
+        <p className="panel-watch">Each contact is written to about what their role owns, from their company&rsquo;s own signal, with no AI call. <strong>It replaces drafts you have edited by hand.</strong> Emails already sent are never touched. A refresh already rewrites any draft that <em>could not be sent</em>: a placeholder subject, the wrong name in the greeting; this one rewrites every un-sent draft, whether it was broken or not.</p>
         <div className="draft-tool-actions">
           <button type="button" className="btn" disabled={!!running} onClick={redraftAll}>{running === "redraft" ? "Rewriting…" : "Rewrite every un-sent draft"}</button>
         </div>
       </section>
 
-      {/* 0 — read before you write: what is actually wrong, by name. */}
+      {/* 0: read before you write: what is actually wrong, by name. */}
       <section className="draft-tool">
         <header>
           <div><h3><em className="draft-step">Step 3</em>Audit every draft</h3><p>Reads every un-sent email on file and checks it against every rule at once: greets the right person, names the company, has a real subject, no placeholder left in, no link in the body, no role list read as a job title, within the length the send route accepts, and addressed to someone who is actually a person.</p></div>
           <span className="panel-cost is-free">Free</span>
         </header>
-        <p className="panel-watch">Read-only &mdash; nothing is written, nothing is sent, no AI is called. It names each failing draft and says why &mdash; up to 200 of them &mdash; and counts every rule across the whole list, so it can be checked rather than taken on trust.</p>
+        <p className="panel-watch">Read-only: nothing is written, nothing is sent, no AI is called. It names each failing draft and says why: up to 200 of them: and counts every rule across the whole list, so it can be checked rather than taken on trust.</p>
         <div className="draft-tool-actions">
           <button type="button" className="btn primary" disabled={!!running} onClick={auditDrafts}>{running === "audit" ? "Reading…" : "Audit every draft"}</button>
         </div>
@@ -307,7 +307,7 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
         )}
       </section>
 
-      {/* 1 — the safe one, first on purpose. */}
+      {/* 1: the safe one, first on purpose. */}
       <section className="draft-tool">
         <header>
           <div><h3>Clean up drafts</h3><p>Removes an opening line that saved twice, a stray link in the body, and the old &ldquo;teardown&rdquo; sentence. Nothing is reworded.</p></div>
@@ -322,13 +322,13 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
 
       <h2 className="draft-group-title" id="ai">Rewrite with AI</h2>
       <p className="draft-group-lead">Only when the drafts read generically. It costs AI credits and replaces hand edits.</p>
-      {/* 3 — the expensive, destructive one, last and clearly marked. */}
+      {/* 3: the expensive, destructive one, last and clearly marked. */}
       <section className="draft-tool">
         <header>
           <div><h3>Regenerate drafts with AI</h3><p>Writes every un-sent email again from scratch with the current rules: plain language, specific to that company, no buzzwords. Use it when the drafts read generically.</p></div>
           <span className="panel-cost is-paid">Uses AI credits</span>
         </header>
-        <p className="panel-watch">This replaces what is there, so anything you edited by hand is lost, and it calls the model once per draft. There is no preview — the wording only exists once it has been written.</p>
+        <p className="panel-watch">This replaces what is there, so anything you edited by hand is lost, and it calls the model once per draft. There is no preview, the wording only exists once it has been written.</p>
         <div className="draft-tool-actions">
           <button type="button" className="btn" disabled={!!running} onClick={rewrite}>{running === "rewrite" ? "Regenerating…" : "Regenerate drafts with AI"}</button>
         </div>
@@ -342,13 +342,13 @@ export function RewriteDrafts({ owner = null }: { owner?: string | null } = {}) 
 /** How many drafts change, and the exact before/after on real ones. */
 function PreviewBlock({ data }: { data: Preview }) {
   if (!data.wouldChange) {
-    return <p className="draft-preview-empty">Nothing to change — all {data.total} un-sent draft{data.total === 1 ? "" : "s"} are already like this.</p>;
+    return <p className="draft-preview-empty">Nothing to change, all {data.total} un-sent draft{data.total === 1 ? "" : "s"} are already like this.</p>;
   }
   return (
     <div className="draft-preview">
       <p className="draft-preview-count">
         <strong>{data.wouldChange}</strong> of {data.exact ? data.total : `the first ${data.scanned} checked`} un-sent draft{data.wouldChange === 1 ? "" : "s"} would change
-        {!data.exact && <> &mdash; the remaining {data.total - data.scanned} are checked when it runs</>}.
+        {!data.exact && <>: the remaining {data.total - data.scanned} are checked when it runs</>}.
       </p>
       {data.samples.map((sample, index) => (
         <details key={index} className="draft-preview-item">

@@ -38,7 +38,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
 
   // True when the signature field holds real HTML (a pasted/uploaded signature) vs plain text.
   const isHtmlSig = /<[a-z][a-z0-9-]*(\s[^>]*)?\/?>/i.test(signature.trim());
-  // Same sanitizer the server applies on save and on render — one definition, so the preview can't show
+  // Same sanitizer the server applies on save and on render: one definition, so the preview can't show
   // something safer than what is stored. The previous hand-rolled version missed `<img src=x/onerror=…>`.
   const previewHtml = sanitizeSignatureHtml(signature);
   const postalPreview = postalAddress.trim().replace(/\s*\n\s*/g, ", ");
@@ -51,7 +51,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
     setUploadErr("");
     const file = event.target.files?.[0];
     if (!file) return;
-    if (file.size > 20000) { setUploadErr("That file is over 20KB — use a hosted image URL in the signature rather than an embedded one."); return; }
+    if (file.size > 20000) { setUploadErr("That file is over 20KB, use a hosted image URL in the signature rather than an embedded one."); return; }
     setUploading(true);
     try { setSignature((await file.text()).trim()); } catch { setUploadErr("Couldn't read that file."); } finally { setUploading(false); }
     event.target.value = "";
@@ -103,7 +103,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
       <PanelGuide
         what="Sets how your emails look to the person receiving them: the name and title on the From line, anyone CC'd, and the signature at the bottom."
         when={<>Before your first send, and whenever your title or signature changes. Press <strong>Save and send test to myself</strong> after making changes to see a real one land in your own inbox.</>}
-        watch={<>This is how the email <em>reads</em>, not where it sends from &mdash; the mailbox is whichever Google account is connected above. Paste your own HTML signature to use it as-is; leave it empty and the built-in Nine&#8209;67 block is used instead.</>}
+        watch={<>This is how the email <em>reads</em>, not where it sends from: the mailbox is whichever Google account is connected above. Paste your own HTML signature to use it as-is; leave it empty and the built-in Nine&#8209;67 block is used instead.</>}
       />
       <fieldset disabled={state === "saving" || testing || uploading} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
       <div className="sender-profile-grid">
@@ -114,15 +114,15 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
         <label><span>Business postal address</span><input value={postalAddress} onChange={(event) => setPostalAddress(event.target.value)} placeholder="123 Main St, Suite 400, Pittsburgh, PA 15222" maxLength={240} /><small>Printed in small type under every email. Required by US law for commercial email, and the morning auto-send stays off until it is set.</small></label>
       </div>
       <div className="sender-profile-grid">
-        <label><span>Greeting &mdash; how your drafts open</span><input value={greeting} onChange={(event) => setGreeting(event.target.value)} placeholder="Hi {first}," maxLength={160} /></label>
+        <label><span>Greeting: how your drafts open</span><input value={greeting} onChange={(event) => setGreeting(event.target.value)} placeholder="Hi {first}," maxLength={160} /></label>
       </div>
-      <label className="sender-profile-full"><span>Introduction &mdash; the first line of the message</span><input value={intro} onChange={(event) => setIntro(event.target.value)} placeholder="I am {name}, {title} at Nine-67." maxLength={300} /></label>
-      {!fromName.trim() && <p className="sender-profile-warn">Set a sender name above, or your drafts cannot introduce you &mdash; they open &ldquo;I am with Nine-67.&rdquo; instead, which is why the sender appears in some emails and not others.</p>}
-      <p className="sender-profile-note">Yours alone &mdash; the drafts written for your worklist open and close the way you do, and another seat&rsquo;s open the way they do. Write <code>{"{first}"}</code> where the contact&rsquo;s first name goes and <code>{"{name}"}</code> for their full name: <em>Hi {"{first}"},</em> reaches Ara as <em>Hi Ara,</em>. Leave any of them blank for <em>Hi {"{first}"},</em>, <em>Thank you,</em> and <em>I am {"{name}"}, {"{title}"} at Nine-67.</em> In the introduction, <code>{"{name}"}</code> and <code>{"{title}"}</code> are your own.</p>
+      <label className="sender-profile-full"><span>Introduction: the first line of the message</span><input value={intro} onChange={(event) => setIntro(event.target.value)} placeholder="I am {name}, {title} at Nine-67." maxLength={300} /></label>
+      {!fromName.trim() && <p className="sender-profile-warn">Set a sender name above, or your drafts cannot introduce you: they open &ldquo;I am with Nine-67.&rdquo; instead, which is why the sender appears in some emails and not others.</p>}
+      <p className="sender-profile-note">Yours alone: the drafts written for your worklist open and close the way you do, and another seat&rsquo;s open the way they do. Write <code>{"{first}"}</code> where the contact&rsquo;s first name goes and <code>{"{name}"}</code> for their full name: <em>Hi {"{first}"},</em> reaches Ara as <em>Hi Ara,</em>. Leave any of them blank for <em>Hi {"{first}"},</em>, <em>Thank you,</em> and <em>I am {"{name}"}, {"{title}"} at Nine-67.</em> In the introduction, <code>{"{name}"}</code> and <code>{"{title}"}</code> are your own.</p>
 
-      <label className="sender-profile-full"><span>CC (comma-separated — the team gets a copy of every send)</span><input value={cc} onChange={(event) => setCc(event.target.value)} placeholder="josh@nine-67.com, diego@nine-67.com" /></label>
+      <label className="sender-profile-full"><span>CC (comma-separated, the team gets a copy of every send)</span><input value={cc} onChange={(event) => setCc(event.target.value)} placeholder="josh@nine-67.com, diego@nine-67.com" /></label>
       <label className="sender-profile-full">
-        <span>Your signature — paste your own HTML signature to use it as-is (it overrides the built-in block), or plain text as a fallback</span>
+        <span>Your signature, paste your own HTML signature to use it as-is (it overrides the built-in block), or plain text as a fallback</span>
         <textarea value={signature} onChange={(event) => setSignature(event.target.value)} rows={isHtmlSig ? 8 : 3} placeholder={"Paste an HTML signature, or plain text like:\nJosh Lee\nFDE, COO, Nine-67\nnine-67.com"} maxLength={20000} style={isHtmlSig ? { fontFamily: "var(--mono, monospace)", fontSize: 12 } : undefined} />
       </label>
       <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", margin: "-4px 0 4px" }}>
@@ -134,7 +134,7 @@ export function SenderProfileForm({ initial, senderEmail }: { initial: Profile; 
         <span className="sender-profile-lead" style={{ margin: 0 }}>{isHtmlSig ? "Using your uploaded HTML signature." : "Using the built-in Nine-67 block below."}</span>
         {uploadErr && <span className="sender-profile-err">{uploadErr}</span>}
       </div>
-      {usesStylesheet && <p className="panel-watch">This signature sets its font and colour in a <code>&lt;style&gt;</code> block, which is removed for safety &mdash; so it will render in the wrong font. Re-export it with <strong>inline styles</strong> (<code>style=&quot;font-family:…;color:…&quot;</code> on each element), which most email clients produce by default and which is kept exactly as pasted.</p>}
+      {usesStylesheet && <p className="panel-watch">This signature sets its font and colour in a <code>&lt;style&gt;</code> block, which is removed for safety: so it will render in the wrong font. Re-export it with <strong>inline styles</strong> (<code>style=&quot;font-family:…;color:…&quot;</code> on each element), which most email clients produce by default and which is kept exactly as pasted.</p>}
       <p className="sender-profile-preview"><span>From line</span><code>{preview}</code></p>
       {isHtmlSig
         ? <div className="sig-preview" aria-label="Signature preview"><div dangerouslySetInnerHTML={{ __html: previewHtml }} />{postalPreview && <div className="sig-postal">{postalPreview}</div>}</div>

@@ -9,6 +9,7 @@ import { admin } from "@/lib/supabase/admin";
 import { fetchAll } from "@/lib/supabase/fetch-all";
 import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
+import { PageHead } from "@/components/PageHead";
 
 export const dynamic = "force-dynamic";
 
@@ -74,12 +75,10 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
 
   return <div className="shell">
     <main className="targets-page">
-      <header className="page-head briefing-head">
-        <div><span className="overview-kick">Open roles</span><h1>Job signals</h1><p>Jobs at the target companies that Nine-67 could build a system for instead of the hire · {(familyRows?.length ?? 0).toLocaleString()} open in target families.</p></div>
-      </header>
+      <PageHead title="Jobs they're hiring for">Open roles at the companies on file that Nine-67 could build a system for instead of a hire: {(familyRows?.length ?? 0).toLocaleString()} open right now.</PageHead>
 
       <nav className="family-strip" aria-label="Job families">
-        <Link href={href({ family: "", page: "1" })} className={!family ? "active" : ""}><strong>{(familyRows?.length ?? 0).toLocaleString()}</strong><span>ALL FAMILIES</span></Link>
+        <Link href={href({ family: "", page: "1" })} className={!family ? "active" : ""}><strong>{(familyRows?.length ?? 0).toLocaleString()}</strong><span>All families</span></Link>
         {(Object.keys(FAMILY_LABEL) as JobFamily[]).map((key) => (
           <Link key={key} href={href({ family: key, page: "1" })} className={family === key ? "active" : ""}><strong>{(byFamily.get(key) ?? 0).toLocaleString()}</strong><span>{FAMILY_LABEL[key].toUpperCase()}</span></Link>
         ))}
@@ -104,8 +103,8 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
               <td>{account.name}</td>
               <td className="cell-clamp">{row.title}</td>
               <td className="cell-sub">{row.family ? FAMILY_LABEL[row.family as JobFamily] : "Other"}</td>
-              <td className="cell-sub">{row.location || "—"}</td>
-              <td className="col-num">{row.salary_max ? `$${Number(row.salary_max).toLocaleString()}` : "—"}</td>
+              <td className="cell-sub">{row.location || "None"}</td>
+              <td className="col-num">{row.salary_max ? `$${Number(row.salary_max).toLocaleString()}` : "None"}</td>
               <td className="cell-time">{posted}<br /><small>{days === 0 ? "today" : `${days}d ago`}</small></td>
               <td><a href={row.url} target="_blank" rel="noreferrer">Open ↗</a></td>
             </RowLink>;

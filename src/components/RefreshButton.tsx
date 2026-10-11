@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-/** Runs the recompute now — re-scores the open cards and clears anything off-list, stale, or below the bar. */
+/** Runs the recompute now: re-scores the open cards and clears anything off-list, stale, or below the bar. */
 export function RefreshButton() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);

@@ -86,7 +86,7 @@ export function MessageLab(props: Props) {
       <section className="message-lab" role="dialog" aria-modal="true" aria-labelledby="message-lab-title">
         <header className="lab-head">
           <div className="lab-mark"><FlaskConical /></div>
-          <div><span className="eyebrow">Nine—67 / Message Lab</span><h2 id="message-lab-title">Simulate before you send</h2><p>Compare two approaches against a briefed buyer panel. Directional guidance—not a promise of response.</p></div>
+          <div><span className="eyebrow">Nine-67 / Message Lab</span><h2 id="message-lab-title">Simulate before you send</h2><p>Compare two approaches against a briefed buyer panel. Directional guidance, not a promise of response.</p></div>
           <button type="button" className="lab-close" onClick={props.onClose} aria-label="Close message lab"><X /></button>
         </header>
 
@@ -127,7 +127,7 @@ export function MessageLab(props: Props) {
 
 function VariantEditor({ variant, result, kicker, onChange, email }: { variant: MessageVariant; result: SimulationResult | null; kicker: string; onChange: (value: MessageVariant) => void; email: boolean }) {
   const scored = result?.variants.find((item) => item.label === variant.label);
-  return <article className={`variant-card ${result?.winner === variant.label ? "winner" : ""}`}><header><span><b>{variant.label}</b>{kicker}</span>{scored && <strong>{scored.score}<small>/100</small></strong>}</header>{email && <label><span>Subject</span><input value={variant.subject} onChange={(event) => onChange({ ...variant, subject: event.target.value })} maxLength={120} /></label>}<textarea value={variant.body} onChange={(event) => onChange({ ...variant, body: event.target.value })} rows={8} maxLength={1000} />{scored ? <footer><p>{scored.summary}</p><span>{result?.winner === variant.label ? "PREDICTED WINNER" : "ALTERNATE"}</span></footer> : <footer><span>{variant.body.split(/\s+/).filter(Boolean).length} WORDS</span><span>EDITABLE</span></footer>}</article>;
+  return <article className={`variant-card ${result?.winner === variant.label ? "winner" : ""}`}><header><span><b>{variant.label}</b>{kicker}</span>{scored && <strong>{scored.score}<small>/100</small></strong>}</header>{email && <label><span>Subject</span><input value={variant.subject} onChange={(event) => onChange({ ...variant, subject: event.target.value })} maxLength={120} /></label>}<textarea value={variant.body} onChange={(event) => onChange({ ...variant, body: event.target.value })} rows={8} maxLength={1000} />{scored ? <footer><p>{scored.summary}</p><span>{result?.winner === variant.label ? "Predicted winner" : "ALTERNATE"}</span></footer> : <footer><span>{variant.body.split(/\s+/).filter(Boolean).length} WORDS</span><span>Editable</span></footer>}</article>;
 }
 
 function ScoreBar({ label, value }: { label: string; value: number }) {

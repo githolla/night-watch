@@ -8,7 +8,7 @@ import { PanelGuide } from "./PanelGuide";
  * Check the first email and all three follow-ups end to end, against your own inbox.
  *
  * The alternative was repointing a real contact's address in SQL, editing scheduled_at by hand, and
- * calling the cron with its secret — three chances to leave a live prospect mis-addressed.
+ * calling the cron with its secret: three chances to leave a live prospect mis-addressed.
  */
 export function TestSequence({ senderEmail }: { senderEmail: string | null }) {
   const [busy, setBusy] = useState<"" | "create" | "clean">("");
@@ -24,7 +24,7 @@ export function TestSequence({ senderEmail }: { senderEmail: string | null }) {
       const json = await response.json();
       if (!response.ok) { setMsg(json.error ?? "Could not set up the test."); return; }
       setCardId(json.cardId);
-      setMsg(`Ready — a test prospect addressed to ${json.to} is on the Worklist.`);
+      setMsg(`Ready, a test prospect addressed to ${json.to} is on the Worklist.`);
     } catch { setMsg("Could not set up the test."); }
     finally { setBusy(""); }
   }

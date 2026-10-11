@@ -39,9 +39,9 @@ export function Users() {
       setForm({ name: "", email: "", owner: "josh", role: "member", password: "" });
       if (json.inviteUrl) {
         try { await navigator.clipboard.writeText(json.inviteUrl); } catch { /* ignore */ }
-        setMessage(`Invite created and copied to your clipboard — send it to them: ${json.inviteUrl}`);
+        setMessage(`Invite created and copied to your clipboard, send it to them: ${json.inviteUrl}`);
       } else {
-        setMessage("Added with a temp password — share it so they can sign in.");
+        setMessage("Added with a temp password, share it so they can sign in.");
       }
       await load();
     } finally { setBusy(false); }
@@ -57,7 +57,7 @@ export function Users() {
     try {
       const res = await fetch(`/api/admin/users/${row.id}/invite-email`, { method: "POST" });
       const json = await res.json();
-      setMessage(res.ok ? `Invite emailed to ${row.email} — sent from ${json.sentFrom}.` : (json.error ?? "Could not send the invite email."));
+      setMessage(res.ok ? `Invite emailed to ${row.email}, sent from ${json.sentFrom}.` : (json.error ?? "Could not send the invite email."));
     } finally { setSending(null); }
   }
   async function changeSeat(row: Row, owner: string) {
@@ -80,7 +80,7 @@ export function Users() {
       <PanelGuide
         what="Creates a sign-in for someone else on the team, and assigns them a sending seat."
         when={<>Someone new needs to work the desk. Give them their own sign-on rather than sharing yours, so History records who actually sent what.</>}
-        watch={<>Their <strong>seat</strong> decides which connected mailbox their emails leave from &mdash; so after you invite them, they need to connect their own Google account under <strong>Sending &amp; identity</strong>, or their sends will have nowhere to go.</>}
+        watch={<>Their <strong>seat</strong> decides which connected mailbox their emails leave from: so after you invite them, they need to connect their own Google account under <strong>Sending &amp; identity</strong>, or their sends will have nowhere to go.</>}
       />
       <header className="conn-head"><div><h2>Team members</h2><p>Each teammate signs in with their own email and password. Their <strong>seat</strong> decides which connected Google account their outreach sends from.</p></div></header>
 
@@ -96,12 +96,12 @@ export function Users() {
         </div>
         <button className="btn primary" disabled={busy}>{busy ? "Adding…" : "Add teammate"}</button>
       </form>
-      <p className="conn-note">Leave the password blank to generate an <strong>invite link</strong> (copied to your clipboard). Then hit <strong>Email invite</strong> on their row to send it straight from a connected Google seat — or paste the link into your own email. They set their password from the link, then connect their Google account.</p>
+      <p className="conn-note">Leave the password blank to generate an <strong>invite link</strong> (copied to your clipboard). Then hit <strong>Email invite</strong> on their row to send it straight from a connected Google seat, or paste the link into your own email. They set their password from the link, then connect their Google account.</p>
       {message && <p className="notice" role="status">{message}</p>}
 
       <div className="users-list">
         {loading && <p className="conn-note">Loading team…</p>}
-        {!loading && rows.length === 0 && <p className="conn-note">No sign-ons yet. Add your teammates above — you&rsquo;re currently in as the workspace admin.</p>}
+        {!loading && rows.length === 0 && <p className="conn-note">No sign-ons yet. Add your teammates above, you&rsquo;re currently in as the workspace admin.</p>}
         {rows.map((row) => (
           <div key={row.id} className="conn-row is-on">
             <div className="conn-who"><span className="conn-dot is-on" /><div><strong>{row.name} {row.role === "admin" && <em className="conn-chip is-on">Admin</em>}</strong><small>{row.email}{row.last_login_at ? ` · last in ${new Date(row.last_login_at).toLocaleDateString()}` : " · never signed in"}</small></div></div>

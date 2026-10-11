@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { daysAgoIso } from "@/lib/time";
 import { redirect } from "next/navigation";
+import { PageHead } from "@/components/PageHead";
 
 export const dynamic = "force-dynamic";
 
@@ -48,9 +49,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
 
   return <div className="shell">
     <main className="targets-page">
-      <header className="page-head briefing-head">
-        <div><span className="overview-kick">Public posts</span><h1>Employee posts</h1><p>People at the target companies posting publicly about AI in their own work · {total.toLocaleString()} on file.</p></div>
-      </header>
+      <PageHead title="Employee posts">People at the companies on file posting publicly about AI in their own work: {total.toLocaleString()} posts.</PageHead>
 
       <FilterForm action="/posts">
         <label><span>Search</span><input name="q" defaultValue={query} placeholder="Author, company, topic, or words in the post" /></label>
@@ -64,7 +63,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
           {(data ?? []).map((post) => {
             const account = post.accounts as unknown as { name: string; domain: string };
             return <RowLink as="tr" key={post.id} href={`/accounts/${account.domain}`}>
-              <td><div className="cell-lead"><strong>{post.author_name}</strong><small>{post.author_title || "—"}</small></div></td>
+              <td><div className="cell-lead"><strong>{post.author_name}</strong><small>{post.author_title || "None"}</small></div></td>
               <td>{account.name}</td>
               <td className="cell-clamp">{post.excerpt}</td>
               <td className="cell-sub">{post.platform || "post"}{post.topic ? ` · ${post.topic}` : ""}</td>

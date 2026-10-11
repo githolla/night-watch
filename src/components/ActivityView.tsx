@@ -47,7 +47,7 @@ const FILTERS: Array<{ key: Filter; label: string }> = [
   { key: "linkedin", label: "LinkedIn" },
   { key: "sent", label: "Sent" },
   { key: "replied", label: "Replied" },
-  { key: "cadence", label: "In cadence" },
+  { key: "cadence", label: "Follow-ups running" },
 ];
 function matchFilter(event: ActivityEvent, filter: Filter): boolean {
   switch (filter) {
@@ -66,7 +66,7 @@ const timeOf = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { ho
 const fullWhen = (iso: string) => new Date(iso).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
 const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
 
-/** History of every outreach touch — a month calendar of what was done, and the day-by-day record beneath it. */
+/** History of every outreach touch: a month calendar of what was done, and the day-by-day record beneath it. */
 export function ActivityView({ events: initialEvents, who, note, canDelete }: { events: ActivityEvent[]; who?: { name: string } | null; note?: string | null; canDelete?: boolean }) {
   const [events, setEvents] = useState(initialEvents);
   const [detail, setDetail] = useState<ActivityEvent | null>(null);
@@ -93,7 +93,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
       const res = await fetch("/api/admin/sent-sync", { method: "POST" });
       const json = await res.json();
       if (!res.ok) { setSyncMsg(json.error ?? "Sync failed."); return; }
-      setSyncMsg(json.logged > 0 ? `Added ${json.logged} email${json.logged === 1 ? "" : "s"} from Gmail — reloading…` : "No new Gmail sends to add (scanned recent Sent).");
+      setSyncMsg(json.logged > 0 ? `Added ${json.logged} email${json.logged === 1 ? "" : "s"} from Gmail, reloading…` : "No new Gmail sends to add (scanned recent Sent).");
       if (json.logged > 0) setTimeout(() => location.reload(), 900);
     } catch { setSyncMsg("Sync failed."); }
     finally { setSyncing(false); }
@@ -166,8 +166,8 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
       <div className="activity">
         <header className="activity-head">
           <div>
-            <span className="overview-kick">Outreach history</span>
-            <h1>{who ? `Everything sent to ${who.name}.` : "What was sent, day by day."}</h1>
+            <h1>{who ? `Everything sent to ${who.name}` : "History"}</h1>
+            {!who && <p>Everything that went out, day by day, and every reply.</p>}
             {who && <Link href="/activity" className="activity-back">← All activity</Link>}
           </div>
           <div className="activity-totals">

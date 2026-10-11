@@ -19,10 +19,10 @@ import { admin } from "@/lib/supabase/admin";
 import { LIST_DRAFT_HASH } from "@/lib/draft-scope";
 import { isLikelyPersonName } from "@/lib/pipeline";
 import type { Owner } from "@/lib/types";
+import { PageHead, seatName } from "@/components/PageHead";
 
 export const dynamic = "force-dynamic";
 
-const SEATS: Array<{ owner: Owner; name: string }> = [{ owner: "josh", name: "Josh" }, { owner: "suuchi", name: "Suuchi" }];
 type Person = { full_name: string; email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null;
 
 async function seatSummary(owner: Owner) {
@@ -89,7 +89,7 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
   const params = await searchParams;
   // Always one seat: a member's own, or the one an admin picks (their own by default).
   const owner: Owner = isAdmin && (params.owner === "josh" || params.owner === "suuchi") ? params.owner : user.owner;
-  const name = SEATS.find((seat) => seat.owner === owner)?.name ?? "";
+  const name = seatName(owner);
   // Nightly list rows carry each company's fit reasons; load them before the review list reads them.
   await loadNightlyLists(admin()).catch(() => undefined);
   const [summary, samples, review, profile, templates] = await Promise.all([seatSummary(owner), sampleDrafts(owner), reviewDrafts(owner), senderProfile(admin(), owner), draftTemplates(owner)]);
@@ -99,17 +99,9 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
   return (
     <main className="workspace-page drafts-page">
       <div className="feature-center drafts-shell">
-        <header className="drafts-head">
-          <div>
-            <h1>{yours ? "Your emails" : `${name}'s emails`}</h1>
-            <p>Change all {yours ? "your" : `${name}'s`} unsent emails at once, then read through them and fix any one right here.</p>
-          </div>
-          {isAdmin && (
-            <nav className="drafts-seats" aria-label="Whose emails">
-              {SEATS.map((seat) => <Link key={seat.owner} href={`/drafts?owner=${seat.owner}`} className={owner === seat.owner ? "is-active" : ""}>{seat.name}</Link>)}
-            </nav>
-          )}
-        </header>
+        <PageHead title={yours ? "Your emails" : `${name}'s emails`} seats={isAdmin ? { current: owner, href: (seat) => `/drafts?owner=${seat}`, label: "Whose emails" } : undefined}>
+          Change all {yours ? "your" : `${name}'s`} unsent emails at once, then read through them and fix any one right here.
+        </PageHead>
         <DraftsTabs owner={owner} active="edit" />
 
         <section className="drafts-status" aria-label="Where things stand">

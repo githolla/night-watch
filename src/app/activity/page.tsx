@@ -71,7 +71,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
   const note = error
     ? `Couldn't load history: ${error.message}`
     : (totalTouches ?? 0) === 0
-      ? "Nothing recorded yet. History fills when you send, explicitly mark a message sent, or a cadence sends. Copying does not count as sending. (Enrolling with “Automate” only shows here once its emails actually send — which needs Gmail connected.)"
+      ? "Nothing recorded yet. History fills when you send, explicitly mark a message sent, or a cadence sends. Copying does not count as sending. (Enrolling with “Automate” only shows here once its emails actually send, which needs Gmail connected.)"
       : null;
 
   const rows = (data ?? []) as unknown as TouchRow[];

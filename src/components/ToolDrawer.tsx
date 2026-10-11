@@ -8,7 +8,7 @@ import { useEffect, useState, type ReactNode } from "react";
  *
  * Adding a company and fixing drafts are everyday work actions, so they now live on the pages where that
  * work happens rather than in Settings. A drawer keeps them there without pushing the table or the worklist
- * — the reason you came to the page — below the fold.
+ *: the reason you came to the page: below the fold.
  */
 export function ToolDrawer({ label, title, children }: { label: string; title: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);

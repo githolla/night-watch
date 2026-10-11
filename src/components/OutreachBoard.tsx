@@ -39,7 +39,7 @@ function time(value: string | null) {
   return value ? Date.parse(value) : 0;
 }
 function ago(value: string | null, now: number) {
-  if (!value) return "—";
+  if (!value) return "None";
   const days = Math.floor((now - Date.parse(value)) / 86_400_000);
   return days <= 0 ? "today" : days === 1 ? "1d ago" : days < 30 ? `${days}d ago` : days < 365 ? `${Math.round(days / 30)}mo ago` : `${Math.round(days / 365)}y ago`;
 }

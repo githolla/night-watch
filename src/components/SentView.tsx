@@ -116,12 +116,12 @@ export function SentView({ owner, stats, listHref, updatedAt }: { owner: string;
       {stats.versions.length > 0 && (
         <section className="sent-versions" aria-label="Which version gets replies">
           <div className="as-queue-head"><h2>Which version gets replies</h2><p>First emails only. New list emails rotate between versions, so this fills in as you send.</p></div>
-          <table className="sent-version-table">
+          <div className="table-wrap"><table className="sent-version-table">
             <thead><tr><th>Version</th><th>Sent</th><th>Replies</th><th>Reply rate</th><th>Interested</th><th>Bounced</th></tr></thead>
             <tbody>{stats.versions.map((version) => (
               <tr key={version.label}><td>{version.label}</td><td>{version.sent}</td><td>{version.replies}</td><td>{version.replyRate}%</td><td>{version.interested}</td><td>{version.bounced}</td></tr>
             ))}</tbody>
-          </table>
+          </table></div>
           {Math.min(...stats.versions.filter((version) => version.label !== "Not recorded").map((version) => version.sent), Infinity) < 50 && <p className="sent-version-note">Too early to call: each version needs about 50 first emails before the difference means much. Try Last 30 days for more.</p>}
         </section>
       )}

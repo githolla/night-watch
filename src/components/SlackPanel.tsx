@@ -17,7 +17,7 @@ export function SlackPanel({ connected, channelId, embedded = false }: { connect
       return;
     }
     setState("success");
-    setMessage(kind === "reply" ? "Sample reply posted — check the channel for the reply card." : "Test brief delivered. Check the configured Slack channel.");
+    setMessage(kind === "reply" ? "Sample reply posted, check the channel for the reply card." : "Test brief delivered. Check the configured Slack channel.");
   }
 
   return <section className="panel slack-panel">
@@ -33,7 +33,7 @@ export function SlackPanel({ connected, channelId, embedded = false }: { connect
       <span>Morning brief</span><span>Approve / snooze / dismiss</span><span>Manual send tracking</span><span>Outcome capture</span><span>/night-watch</span>
     </div>
     {connected ? <>
-      <div className="integration-route"><span>CHANNEL</span><strong>{channelId}</strong><span>DELIVERY</span><strong>12:00 UTC</strong></div>
+      <div className="integration-route"><span>Channel</span><strong>{channelId}</strong><span>Delivery</span><strong>12:00 UTC</strong></div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <button className="btn primary" type="button" onClick={() => sendTest()} disabled={state === "sending"}>{state === "sending" ? "Sending…" : "Send test brief"}</button>
         <button className="btn" type="button" onClick={() => sendTest("reply")} disabled={state === "sending"} title="Posts a sample inbound-reply card to the channel, exactly as a real reply would appear.">Send sample reply</button>

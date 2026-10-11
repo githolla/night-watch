@@ -11,7 +11,7 @@ import type { ReactNode } from "react";
 export function PanelGuide({ what, when, watch }: {
   /** One sentence: what pressing the thing actually does. */
   what: ReactNode;
-  /** When a person would want it — the situation, not the mechanism. */
+  /** When a person would want it: the situation, not the mechanism. */
   when: ReactNode;
   /** The cost, the catch, or what can't be undone. Always visible. */
   watch?: ReactNode;

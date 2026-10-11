@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ReplyItem } from "@/lib/replies-view";
+import { replyLabel } from "@/lib/reply-labels";
 
 type Group = ReplyItem["group"];
-const READS: Record<string, string> = { positive: "Interested", referral: "Referral", neutral: "Question", objection: "Pushback", negative: "Not interested" };
 const TABS: Array<[Group, string]> = [["needs", "Needs a response"], ["booked", "Booked"], ["closed", "Closed"]];
 const day = (iso: string) => new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" });
 
@@ -41,7 +41,7 @@ export function RepliesView({ items, nextStep, canChange }: { items: ReplyItem[]
         : <ol className="replies-list">{shown.map((item) => (
             <li key={item.cardId} className="reply-card">
               <div className="reply-top">
-                <span className={`home-read is-${item.classification}`}>{READS[item.classification] ?? "Replied"}</span>
+                <span className={`home-read is-${item.classification}`}>{replyLabel(item.classification)}</span>
                 <span className="home-who"><b>{item.name}</b><small>{item.title ? `${item.title} · ` : ""}{item.company} · {day(item.repliedAt)}</small></span>
               </div>
               {item.snippet ? <blockquote className="reply-text">{item.snippet}</blockquote> : <p className="reply-text is-missing">Open the thread in Gmail to read their reply.</p>}

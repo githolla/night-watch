@@ -9,6 +9,7 @@ import { followupState } from "@/lib/next-followups";
 import { pendingMigrations } from "@/lib/schema-check";
 import { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
+import { PageHead, seatName } from "@/components/PageHead";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,6 @@ type StepRow = {
   } | null;
 };
 type View = "needs" | "upcoming" | "sent";
-const SEATS: Array<{ owner: Owner; name: string }> = [{ owner: "josh", name: "Josh" }, { owner: "suuchi", name: "Suuchi" }];
 
 /**
  * Every scheduled follow-up for one seat, in plain words. Most go out by themselves; this is where to see what
@@ -68,22 +68,14 @@ export default async function Followups({ searchParams }: { searchParams: Promis
   const shown = view === "needs" ? needs : view === "upcoming" ? upcoming : sent;
   const href = (next: View) => `/followups?view=${next}${isAdmin ? `&owner=${owner}` : ""}`;
   const yours = !isAdmin || owner === user.owner;
-  const name = SEATS.find((seat) => seat.owner === owner)?.name ?? "";
+  const name = seatName(owner);
 
   return (
     <main className="workspace-page drafts-page">
       <div className="feature-center drafts-shell">
-        <header className="drafts-head">
-          <div>
-            <h1>{yours ? "Your follow-ups" : `${name}'s follow-ups`}</h1>
-            <p>After each first email, two short follow-ups go out as replies in the same thread: 3 and 10 business days later. They stop as soon as someone replies. Most send by themselves; the ones that can&rsquo;t wait here for you.</p>
-          </div>
-          {isAdmin && (
-            <nav className="drafts-seats" aria-label="Whose follow-ups">
-              {SEATS.map((seat) => <Link key={seat.owner} href={`/followups?view=${view}&owner=${seat.owner}`} className={owner === seat.owner ? "is-active" : ""}>{seat.name}</Link>)}
-            </nav>
-          )}
-        </header>
+        <PageHead title={yours ? "Your follow-ups" : `${name}'s follow-ups`} seats={isAdmin ? { current: owner, href: (seat) => `/followups?view=${view}&owner=${seat}`, label: "Whose follow-ups" } : undefined}>
+          After each first email, two short follow-ups go out as replies in the same thread: 3 and 10 business days later. They stop as soon as someone replies. Most send by themselves; the ones that can&rsquo;t wait here for you.
+        </PageHead>
         <section className="draft-review">
           <div className="review-head">
             <div className="review-filters" role="tablist" aria-label="Show">

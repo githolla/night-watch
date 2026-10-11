@@ -27,7 +27,7 @@ const navGroups: Array<{ title: string | null; items: NavItem[] }> = [
   ] },
   { title: "Find companies", items: [
     { href: "/targets", label: "All companies", hint: "Search, add or remove companies", icon: Building2 },
-    { href: "/roles", label: "Hiring signals", hint: "Jobs companies are hiring for", icon: BriefcaseBusiness },
+    { href: "/roles", label: "Jobs they're hiring for", hint: "Open roles at the companies on file", icon: BriefcaseBusiness },
     { href: "/posts", label: "Employee posts", hint: "What their people are posting", icon: MessageSquareText },
   ] },
 ];
@@ -84,11 +84,18 @@ export function Header({showTour=true}:{showTour?:boolean}) {
     return () => { live = false; };
   }, [pathname]);
   useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setMobileOpen(false); };
+    window.addEventListener("keydown", onKey);
+    document.querySelector<HTMLElement>(".side-nav .side-link")?.focus();
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
+  useEffect(() => {
     let live = true;
     fetch("/api/me", { cache: "no-store" }).then((response) => response.ok ? response.json() : null).then((data) => { if (live && data && !data.error) setMe(data); }).catch(() => {});
     return () => { live = false; };
   }, []);
-  const meInitials = me?.name ? me.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") : "JL";
+  const meInitials = me?.name ? me.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") : "";
 
 
   const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : undefined;
@@ -134,16 +141,16 @@ export function Header({showTour=true}:{showTour?:boolean}) {
       <div className="appbar-right">
         {me?.canAct && !me.actor && !me.actingError && <button className="btn" disabled={switching} onClick={() => switchAccount(false)}>Act as Suuchi</button>}
         {showTour && <Walkthrough userKey={me?.email} />}
-        <span className="appbar-ws">{me?.name ?? "Nine-67 workspace"}</span>
-        <span className="ws-badge" title={me?.email ?? "Signed in"}>{meInitials}</span>
-        <form action="/api/auth/logout" method="post"><button className="appbar-lock" type="submit" title="Lock"><Lock size={16} strokeWidth={1.8} /></button></form>
+        <span className="appbar-ws">{me?.name ?? ""}</span>
+        <span className="ws-badge" title={me?.email ?? "Signed in"} aria-hidden={!meInitials}>{meInitials}</span>
+        <form action="/api/auth/logout" method="post"><button className="appbar-lock" type="submit" title="Sign out" aria-label="Sign out"><Lock size={16} strokeWidth={1.8} /><span className="appbar-lock-text">Sign out</span></button></form>
       </div>
     </header>
-    {(me?.actor || me?.actingError) && <div role="status" style={{ padding: "12px 24px", background: "#fff1cf", borderBottom: "1px solid #d6ad56", display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
-      <div style={{ flex: 1 }}><strong>{me.actingError ? "Admin mode expired. Exit to continue." : `Acting as ${me.name}`}</strong>{me.actor && <div>Admin: {me.actor.name}. Sends use this account’s Gmail; test emails go to its inbox. Mode lasts one hour.</div>}</div>
+    {(me?.actor || me?.actingError) && <div role="status" className="act-as-bar">
+      <div><strong>{me.actingError ? "Admin mode expired. Exit to continue." : `Acting as ${me.name}`}</strong>{me.actor && <div>Admin: {me.actor.name}. Sends use this account’s Gmail; test emails go to its inbox. Mode lasts one hour.</div>}</div>
       <button className="btn" disabled={switching} onClick={() => switchAccount(true)}>Exit admin mode</button>
     </div>}
-    {switchError && <div role="alert" style={{ padding: "12px 24px", color: "#9c3027" }}>{switchError}</div>}
+    {switchError && <div role="alert" className="act-as-error">{switchError}</div>}
     <FeedbackWidget />
     </>
   );

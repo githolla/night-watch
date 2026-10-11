@@ -86,7 +86,7 @@ export type DeskContext = {
   seatNames?: Record<string, string>;
   targetTotal: number;
   activeAccounts: number;
-  /** Companies on the reach-out list — the desk's own scope, matching the Companies nav count. */
+  /** Companies on the reach-out list: the desk's own scope, matching the Companies nav count. */
   listedCompanies: number;
   /** Totals on file (not 24h deltas), so the overview does not overstate a baseline pass as overnight activity. */
   totalRoles: number;
@@ -157,7 +157,7 @@ function describeRun(run: RunSummary | null) {
     case "failed": {
       const codes = new Set(run.rows.filter((row) => row.status === "error").map((row) => row.errorCode ?? "unknown"));
       const sameness = codes.size === 1 ? "all with the same error" : `with ${codes.size} different errors`;
-      return { outcome, title: `${when} could not check any companies. ${attempted} attempted, ${counts.error} failed — ${sameness}.`, detail: "This is a software failure, not a market finding. The error is printed in full below; fix the cause, then retry the same companies." };
+      return { outcome, title: `${when} could not check any companies. ${attempted} attempted, ${counts.error} failed, ${sameness}.`, detail: "This is a software failure, not a market finding. The error is printed in full below; fix the cause, then retry the same companies." };
     }
     case "partial":
       return { outcome, title: `${checked} of ${attempted} companies checked. ${counts.error} failed.`, detail: `${plural(counts.ok, "company", "companies")} had a public signal saved and ${counts.noSignal} had no qualifying source. The failed rows carry their error and a retry.` };
@@ -281,7 +281,7 @@ export function Desk({
         // the operator can then neither save nor send until they reload.
         if (change.updated_at) serverVersions.current.set(card.id, change.updated_at);
         // Never replace a local edit or a card sent while background repair was running. Compare against
-        // the status the pass actually read, not a hardcoded "new" — an edited draft it legitimately
+        // the status the pass actually read, not a hardcoded "new": an edited draft it legitimately
         // rewrote used to be treated as a local edit.
         if (!preservesCurrentDraft(card, { status: change.beforeStatus ?? card.status, email_subject: change.beforeSubject, email_body: change.beforeBody })) return card;
         return personalizeCard({ ...card, updated_at:change.updated_at??card.updated_at, email_subject: change.subject, email_body: change.body }, senderName, senderGreeting);
@@ -302,7 +302,7 @@ export function Desk({
   const changeSort = (value: ReachoutSort) => {
     setListSort(value);
   };
-  // Start on a tight worklist — the top prospects only — and let the chips widen it when it is cleared.
+  // Start on a tight worklist: the top prospects only: and let the chips widen it when it is cleared.
   const [kind, setKind] = useState<"top" | "all" | "job" | "social">(initialCards.length > SHORTLIST ? "top" : "all");
   // Drafts prepared after the page loaded arrive on the next server render (BatchPreparation refreshes the
   // route). Add any card not already on the desk; cards already here keep their local state, so an edit in
@@ -336,7 +336,7 @@ export function Desk({
   const [logged, setLogged] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
   // The left list can show just today's worklist, or every active (un-worked) prospect so older
-  // companies are never "lost" — the one-at-a-time flow still works from whichever pool is showing.
+  // companies are never "lost": the one-at-a-time flow still works from whichever pool is showing.
   const listScope = "all" as const;
   const [busy, setBusy] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
@@ -397,7 +397,7 @@ export function Desk({
   });
   const active = selected ? cards.find((item) => item.id === selected) : undefined;
   // Land on the picked card even if it isn't in the current pool (e.g. picked from the "All"/Overview list
-  // while the scope is "today"), rather than silently showing focusPool[0] — a different company.
+  // while the scope is "today"), rather than silently showing focusPool[0]: a different company.
   const focusCard = focusPool.find((item) => item.id === focusId) ?? cards.find((item) => item.id === focusId) ?? focusPool[0] ?? todo[0];
   const card = active ?? focusCard ?? cards[0];
   const hasSourceResults = (context?.recentSignals.length ?? 0) > 0;
@@ -416,13 +416,13 @@ export function Desk({
   const coveragePercent = context && context.activeAccounts ? Math.round((coverage!.researched / context.activeAccounts) * 1000) / 10 : 0;
 
   // Every write names the card it is for. `card` (active ?? focusCard) and `focusCard` are NOT always the
-  // same prospect — picking one from the list moves focusId while `selected` stays put — so a write that
+  // same prospect: picking one from the list moves focusId while `selected` stays put: so a write that
   // assumed `card` saved the focused draft onto a different company's card and destroyed what was there.
   async function patchOn(cardId: string, values: Record<string, unknown>) {
     if (sendInFlight.current) { setNotice("Wait for the send result before changing this draft."); return false; }
     if (demo) {
       setCards((current) => current.map((item) => item.id === cardId ? { ...item, ...values } : item));
-      setNotice("Demo updated locally — nothing was saved or sent.");
+      setNotice("Demo updated locally, nothing was saved or sent.");
       return true;
     }
     const submitted = { ...(revisions.current[cardId] ?? {}) };
@@ -437,8 +437,8 @@ export function Desk({
         });
         let response = await write(serverVersions.current.get(cardId));
         let json = await response.json();
-        // The row moved between loading it and saving. Background work — the nightly rescore, the draft
-        // repair pass that runs on every page load, worklist stamping — writes to cards while somebody is
+        // The row moved between loading it and saving. Background work: the nightly rescore, the draft
+        // repair pass that runs on every page load, worklist stamping: writes to cards while somebody is
         // typing, and every write bumps the version this save is guarded on. Left alone, that save fails
         // until the page is reloaded, which also blocks sending, since the composer refuses to send with an
         // unsaved field. Read the stored copy and, if the draft can still be written to, save again over it
@@ -500,14 +500,14 @@ export function Desk({
     if (sendInFlight.current || sending || !onCard || !who) return; // re-entry guard, since the button is no longer disabled by `busy`
     if (demo) {
       setCards((current) => current.map((item) => item.id === onCard.id ? { ...item, status: "sent" } : item));
-      setNotice("Demo send simulated — no email left the app.");
+      setNotice("Demo send simulated, no email left the app.");
       return;
     }
-    // Warn before sending to an address we haven't verified — it's more likely to bounce, which hurts the
+    // Warn before sending to an address we haven't verified: it's more likely to bounce, which hurts the
     // sending domain. The person can still choose to send.
     const unverified = who.email_status !== "verified";
     const prompt = unverified
-      ? `⚠️ ${who.email} is NOT a verified address — it may bounce and hurt your sending reputation. Send anyway to ${who.full_name}?`
+      ? `${who.email} has not been confirmed yet, so it may bounce, and bounces hurt how your emails land. Send to ${who.full_name} anyway?`
       : `Send this email to ${who.full_name} at ${who.email}?`;
     if (!confirm(prompt)) return;
     const submittedRevision = JSON.stringify(revisions.current[onCard.id] ?? {});
@@ -543,14 +543,14 @@ export function Desk({
    *
    * Every contact at a company used to share one card and one draft: picking a colleague showed the first
    * contact's note with the greeting swapped, so eight people had one email between them, and any edit
-   * landed on somebody else's draft. Each person now gets their own card — their own pitch, written for
+   * landed on somebody else's draft. Each person now gets their own card: their own pitch, written for
    * what their role owns, and their own send, follow-ups and History with it.
    *
    * It costs nothing: the draft is composed from what is already on file, with no model call.
    */
   async function openContact(person: AltContact, from: Card) {
     if (person.id && from.people.id === person.id) { setAlt(null); setCameFrom(null); return; }
-    // Their card may already be loaded — switch straight to it rather than asking the server.
+    // Their card may already be loaded: switch straight to it rather than asking the server.
     const loaded = cards.find((item) => item.people.id === person.id && (from.signal_id ? item.signal_id === from.signal_id : item.signals.source_url === from.signals.source_url));
     if (loaded) { setAlt(null); setCameFrom({ cardId: from.id, name: from.people.full_name, company: from.accounts.name }); setFocusId(loaded.id); setNotice(`Writing to ${person.full_name}.`); return; }
     if (demo) { setAlt({ cardId: from.id, person }); setNotice(`Writing to ${person.full_name}.`); return; }
@@ -559,7 +559,7 @@ export function Desk({
     const response = await fetch(`/api/cards/${from.id}/draft-for`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ personId: person.id }) });
     const json = await response.json().catch(() => ({}));
     setOpeningContact(null);
-    // Not a person at all — a slogan off the company's website that was filed as a contact. Say so and
+    // Not a person at all: a slogan off the company's website that was filed as a contact. Say so and
     // leave the panel where it is; falling back would put a draft on screen addressed to "Hi Discover,".
     // The server has already taken it off the list, so reload the team so it disappears.
     if (json?.notAPerson) { setNotice(json.error as string); setTeamStamp((n) => n + 1); return; }
@@ -572,7 +572,7 @@ export function Desk({
     setAlt(null);
     setCameFrom({ cardId: from.id, name: from.people.full_name, company: from.accounts.name });
     setFocusId(fresh.id);
-    setNotice(json.existing ? `Writing to ${person.full_name} — this is their own draft.` : `Wrote ${person.full_name} their own email, aimed at what their role owns.`);
+    setNotice(json.existing ? `Writing to ${person.full_name}, this is their own draft.` : `Wrote ${person.full_name} their own email, aimed at what their role owns.`);
     } catch { setNotice("Could not open the contact. Check your connection and try again."); } finally { setOpeningContact(null); }
   }
 
@@ -580,14 +580,14 @@ export function Desk({
     const label = view === "email" ? "Email" : view === "comment" ? "LinkedIn reply" : view === "message" ? "LinkedIn message" : "LinkedIn request";
     // Log against the card whose draft is actually on screen (the focus card) and the contact selected on
     // THAT card. Using `card` (active ?? focusCard) could point at a different, browse-selected card than the
-    // draft panel shows, while `altContact` is keyed to focusCard — that mismatch is how Copy logged touches
+    // draft panel shows, while `altContact` is keyed to focusCard: that mismatch is how Copy logged touches
     // against a colleague instead of the person picked. A caller rendering its own card (the dossier
     // composer) names both the card and the contact so it can't inherit the focus card's either.
     const onCard = onCardOverride ?? focusCard ?? card;
     const who = target ?? (focusCard ? contact : card.people);
     const personId = who && "id" in who ? who.id : undefined;
-    // Never let the server silently fall back to the card's default person — that mislogs the wrong contact.
-    if (!onCard || !personId) { setNotice("Couldn't tell which contact to log this against — pick the person again, then retry."); return; }
+    // Never let the server silently fall back to the card's default person: that mislogs the wrong contact.
+    if (!onCard || !personId) { setNotice("Couldn't tell which contact to log this against, pick the person again, then retry."); return; }
     // Explicit send confirmation only; copying is not recorded as a send.
     if (demo) { setNotice(`${label} to ${who?.full_name ?? "contact"} recorded in demo mode.`); return; }
     setBusy(true);
@@ -599,7 +599,7 @@ export function Desk({
     if (!response.ok) { if (isMissing(result.error)) dropStaleCard(); else setNotice(result.error ?? "Unable to record outreach."); return; }
     // Keep the company on the desk (don't mark the card sent) so its other contacts can still be logged.
     if (personId) setLogged((current) => new Set(current).add(personId));
-    setNotice(`Logged ${label.toLowerCase()} to ${who?.full_name ?? "the contact"} — it's in History now.`);
+    setNotice(`Logged ${label.toLowerCase()} to ${who?.full_name ?? "the contact"}, it's in History now.`);
     } catch { setNotice("Could not confirm the history update. Check History before retrying."); } finally { setBusy(false); }
   }
 
@@ -633,12 +633,12 @@ export function Desk({
   };
   /** Edit the dossier's card. */
   const edit = (key: string, value: string) => editOn(card.id, key, value);
-  /** Edit the prospect the one-at-a-time desk is showing — never whichever card happens to be `selected`. */
+  /** Edit the prospect the one-at-a-time desk is showing: never whichever card happens to be `selected`. */
   const editFocus = (key: string, value: string) => editOn(focusCard?.id ?? card.id, key, value);
   const choose = (id: string) => {
     setSelected(id);
     // Keep the focus card in step with the selected one. When these diverged, a touch recorded from the
-    // dossier was logged against the PREVIOUS prospect — wrong person, wrong card, wrong company.
+    // dossier was logged against the PREVIOUS prospect: wrong person, wrong card, wrong company.
     setFocusId(id);
     setNotice("");
     document.querySelector(".detail")?.scrollTo({ top: 0, behavior: "smooth" });
@@ -659,10 +659,10 @@ export function Desk({
     return focusPool[(from + 1) % focusPool.length]?.id;
   };
   // An action couldn't reach the prospect on the server. Non-destructive: never yank the card the user is
-  // looking at — just tell them to reload. (Removing it was confusing when it fired on a card that was fine.)
+  // looking at: just tell them to reload. (Removing it was confusing when it fired on a card that was fine.)
   const isMissing = (message?: string) => !!message && /card not found/i.test(message);
   const dropStaleCard = () => {
-    setNotice("Couldn't reach that prospect just now — reload the desk and try again.");
+    setNotice("Couldn't reach that prospect just now, reload the desk and try again.");
   };
   const move = (offset: number) => {
     if (active) {
@@ -704,7 +704,7 @@ export function Desk({
   const socialCount = cards.filter((item) => signalGroup(item) === "social").length;
   const nextLine = (item: Card) => item.signals.raw?.operating_need || item.why_now || item.signals.summary;
 
-  // The one draft to show first, picked by the card's chosen channel — email when it is verified, else the readiest LinkedIn surface.
+  // The one draft to show first, picked by the card's chosen channel: email when it is verified, else the readiest LinkedIn surface.
   const primaryDraft = (item: Card): { view: "email" | "comment" | "message" | "connection"; label: string; text: string } => {
     if (item.channel === "email_first" && item.people.email_status === "verified" && item.email_body) return { view: "email", label: "Email", text: item.email_body };
     if (item.linkedin_comment) return { view: "comment", label: "LinkedIn post reply", text: item.linkedin_comment };
@@ -715,7 +715,7 @@ export function Desk({
   };
   // A calm, plain-English read on the night for the top of the list. "New signals" is exactly the two
   // signal tiles (new roles + new AI posts) so the headline and the stat row always reconcile.
-  // Totals on file, not 24h deltas — a baseline pass should not read as overnight activity.
+  // Totals on file, not 24h deltas: a baseline pass should not read as overnight activity.
   const totalRoles = context?.totalRoles ?? 0;
   const totalPosts = context?.totalPosts ?? 0;
   const totalSignals = totalRoles + totalPosts;
@@ -732,7 +732,7 @@ export function Desk({
     acc[key].score = Math.max(acc[key].score, item.score);
     return acc;
   }, {})).sort((a, b) => b.score - a.score).slice(0, 4);
-  // The list searches the company, the person, their title and their address — "see companies but also
+  // The list searches the company, the person, their title and their address: "see companies but also
   // search for people". Every term must match somewhere, so "quantiphi cfo" narrows rather than widens.
   const listNeedle = query.trim().toLowerCase();
   const listed = listNeedle
@@ -742,7 +742,7 @@ export function Desk({
       })
     : focusPool;
   const draft = focusCard ? primaryDraft(focusCard) : null;
-  // The contact currently being written to — the card's person by default, or one picked from the team list.
+  // The contact currently being written to: the card's person by default, or one picked from the team list.
   const altContact = alt && focusCard && alt.cardId === focusCard.id ? alt.person : null;
   const contact = altContact ?? (focusCard ? focusCard.people : null);
   const recommendation = focusCard && contact ? researchRecommendation(focusCard.accounts.domain, contact.full_name) : null;
@@ -768,7 +768,7 @@ export function Desk({
   const matchesResearch = research ? hasResearchCopy(focusCard?.email_subject, focusCard?.email_body, research) : false;
   // "Already gone out" is a fact about a PERSON, not about the card. The card is marked sent the moment its
   // first email leaves, but a colleague who has not been written to still needs an editable draft and a Send
-  // button — otherwise picking them showed a read-only record of somebody else's email.
+  // button: otherwise picking them showed a read-only record of somebody else's email.
   const cardSent = Boolean(focusCard && ["sent", "replied", "positive", "meeting"].includes(focusCard.status));
   const cadenceForId = focusCard?.followups?.find((step) => step.forPersonId)?.forPersonId;
   const alreadyWritten = new Set<string>(logged);
@@ -811,7 +811,7 @@ export function Desk({
     finally { setSendingStep(""); }
   };
   // Send to whoever is selected. Picking a colleague used to downgrade this to "Open email", which handed
-  // the work back to the user's mail client for no reason the user could see — the send route simply had no
+  // the work back to the user's mail client for no reason the user could see: the send route simply had no
   // way to address anyone but the card's own contact. It does now, so there is one button and it sends.
   const sendEmail = () => {
     if (!contact?.email || !focusCard) return;
@@ -819,20 +819,20 @@ export function Desk({
   };
   // Hand the prospect to the automated cadence: Night Watch sends the email itself on day 0, 3 and 7 and stops
   // the moment they reply. Auto-send needs a verified address and a connected sender, so the engine's guards
-  // decide whether it fires now or waits — the API tells us which.
+  // decide whether it fires now or waits: the API tells us which.
   const startSequence = async () => {
     if (!senderIsViewer) { setNotice(`Sign in as ${senderName} to send from this list.`); return; }
     if (!focusCard) return;
     // Automation always enrols the card's PRIMARY contact (its email is what the engine sends to). If the
     // user has retargeted the draft to an alternate contact, automating here would silently send to the
-    // wrong person — steer them to Copy / Open email for the alternate instead.
+    // wrong person: steer them to Copy / Open email for the alternate instead.
     if (altContact) { setNotice(`“Automate” sends to ${focusCard.people.full_name} (the primary contact). To reach ${altContact.full_name}, use Copy or Open email and send it yourself.`); return; }
     // Guard against a second enrol (navigate away and back, then click again) creating a duplicate cadence.
     if (enrolledIds.has(focusCard.id)) { setNotice(`${focusCard.people.full_name} is already on the automated sequence.`); return; }
     const first = focusCard.people.full_name.split(/\s+/)[0] || "there";
     const subject = focusCard.email_subject || `Quick idea for ${focusCard.accounts.name}`;
     const body = focusCard.email_body || draftText;
-    if (!body) { setNotice("No email draft yet — open the studio to write one first."); return; }
+    if (!body) { setNotice("No email draft yet, open the studio to write one first."); return; }
     const steps = [
       { day: 0, channel: "email", title: "Intro email", detail: "The opening email from the draft", subject, body },
       { day: 3, channel: "email", title: "Follow-up", detail: "A short bump", subject: `Re: ${subject}`, body: `Hi ${first},\n\nFollowing up on the project I suggested for ${focusCard.accounts.name}. We'd build a first version with the people doing the work and test whether it saves them time. Is this worth exploring?` },
@@ -845,12 +845,12 @@ export function Desk({
       if (!response.ok) { if (isMissing(json.error)) dropStaleCard(); else setNotice(json.error ?? "Could not start the sequence."); return; }
       setEnrolledIds((current) => new Set(current).add(focusCard.id));
       setCards((current) => current.map((item) => item.id === focusCard.id ? { ...item, status: "approved" } : item));
-      setNotice(`Email sequence started for ${focusCard.people.full_name} — Night Watch sends on day 0, 3 and 7 and stops on a reply.`);
+      setNotice(`Email sequence started for ${focusCard.people.full_name}. Night Watch sends on day 0, 3 and 7 and stops on a reply.`);
       markWorking(true);
     } catch { setNotice("Could not start the sequence."); }
     finally { setEnrolling(false); }
   };
-  // LinkedIn has no send API, so open the person's LinkedIn and put the message on the clipboard — one paste, not a hunt.
+  // LinkedIn has no send API, so open the person's LinkedIn and put the message on the clipboard: one paste, not a hunt.
   const openLinkedIn = async () => {
     const text = adapt(linkedinDraft || draftText);
     let copied = false;
@@ -860,8 +860,8 @@ export function Desk({
     setNotice(copied ? "Message copied. Paste it in LinkedIn, then use Mark sent after sending." : "LinkedIn opened. Copy the message manually, then use Mark sent after sending.");
   };
   const copyText = async (text: string, label: string) => {
-    if (!text.trim()) { setNotice("Nothing to copy yet — write or refine a draft first."); return; }
-    try { await navigator.clipboard.writeText(text); setNotice(`${label} copied — paste it to send.`); }
+    if (!text.trim()) { setNotice("Nothing to copy yet, write or refine a draft first."); return; }
+    try { await navigator.clipboard.writeText(text); setNotice(`${label} copied, paste it to send.`); }
     catch { setNotice("Copy was blocked by the browser; select the text to copy it."); }
   };
   // Copy only. A subsequent Send or Mark sent is required for history and analytics.
@@ -870,7 +870,7 @@ export function Desk({
     await copyText(text, channel === "email" ? "Email" : "LinkedIn message");
     // Copy is not evidence of a send. Only Send or Mark sent records an outcome.
   };
-  // Mark a message sent when it went out elsewhere (e.g. an agent sent it) — logs the touch without opening/copying.
+  // Mark a message sent when it went out elsewhere (e.g. an agent sent it): logs the touch without opening/copying.
   const markSent = async (channel: "email" | "linkedin") => {
     const text = adapt(channel === "email" ? (focusCard?.email_body ?? emailDraft) : linkedinDraft);
     await recordTouch(channel === "email" ? "email" : "message", text);
@@ -878,9 +878,9 @@ export function Desk({
   // A subject is easy to wipe by accident (select-all, then a keystroke), and an email with no subject is
   // the one thing here that cannot be half-right. Remember what a card's subject was when the operator
   // started editing it, so it can be put straight back; if there is nothing to put back, the generated
-  // subject stands in — the same one the send route already falls back to.
+  // subject stands in: the same one the send route already falls back to.
   // State, not a ref: the restore point is read while rendering (to label the button and fill the
-  // placeholder), and a ref read during render is not reactive — the button would show a stale subject.
+  // placeholder), and a ref read during render is not reactive: the button would show a stale subject.
   const [subjectRestore, setSubjectRestore] = useState<Record<string, string>>({});
   const rememberSubject = (id: string, value: string) => {
     const trimmed = value.trim();
@@ -1022,7 +1022,7 @@ export function Desk({
     } finally { sendInFlight.current = false; setBulkSending(false); }
   }
   // "Propose times": pull open slots from the connected calendar and drop them into the email draft to edit.
-  // Strictly opt-in — nothing adds times on its own — and reversible, because it writes into the saved draft.
+  // Strictly opt-in: nothing adds times on its own: and reversible, because it writes into the saved draft.
   const [proposing, setProposing] = useState(false);
   const beforeTimes = useRef(new Map<string, string>());
   const timesInDraft = hasProposedTimes(focusCard?.email_body) || (focusCard?.email_body ?? "").includes("Available times:\n");
@@ -1050,7 +1050,7 @@ export function Desk({
       saveField("email_body", body);
       // Drop the composer's cached parse so the editor re-reads this new body; otherwise a blur would
       // reassemble from the stale pre-insert text and wipe the times just added.
-      setNotice("Added open times from your calendar — edit as you like, then send. Didn't mean to? Press “Remove times” to take them back out.");
+      setNotice("Added open times from your calendar, edit as you like, then send. Didn't mean to? Press “Remove times” to take them back out.");
     } catch { setNotice("Could not reach your calendar."); }
     finally { setProposing(false); }
   };
@@ -1077,7 +1077,7 @@ export function Desk({
   /**
    * Saving a draft field marks the card EDITED, not just changed.
    *
-   * Without that, "new" did not mean untouched — an operator could rewrite a whole email and the card still
+   * Without that, "new" did not mean untouched: an operator could rewrite a whole email and the card still
    * read as freshly generated. The nightly pass keeps untouched drafts current with the writer, so it needs
    * to be able to tell the two apart; otherwise it either leaves stale prose in place forever or overwrites
    * somebody's own words. Only a card still awaiting a decision is promoted: an approved or sent one keeps
@@ -1119,29 +1119,29 @@ export function Desk({
             {context && (
               <nav className="coverage-strip" aria-label="Research coverage">
                 <Link href="/targets?research=never" className="coverage-tile">
-                  <span>NEVER RESEARCHED</span>
+                  <span>Never researched</span>
                   <strong>{coverage!.neverResearched.toLocaleString()}</strong>
                   <small>{coverage!.researched.toLocaleString()} of {context.activeAccounts.toLocaleString()} researched · {coveragePercent}%</small>
                   <i className="coverage-bar"><b style={{ width: `${Math.min(100, coveragePercent)}%` }} /></i>
                 </Link>
                 <Link href="/targets?research=hiring" className="coverage-tile is-ok">
-                  <span>HIRING IN TARGET ROLES</span>
+                  <span>Hiring in target roles</span>
                   <strong>{coverage!.hiringCompanies.toLocaleString()}</strong>
                   <small>{coverage!.targetRolesOpen.toLocaleString()} open roles · {coverage!.careersChecked.toLocaleString()} careers pages read{coverage!.careersNotFound ? ` · ${coverage!.careersNotFound.toLocaleString()} not found` : ""}</small>
                   <i className="coverage-bar"><b style={{ width: `${context.activeAccounts ? Math.min(100, Math.round((coverage!.careersChecked / context.activeAccounts) * 100)) : 0}%` }} /></i>
                 </Link>
                 <Link href="/targets?research=signal" className="coverage-tile is-ok">
-                  <span>SIGNALS FOUND</span>
+                  <span>Signals found</span>
                   <strong>{coverage!.signalsFound.toLocaleString()}</strong>
                   <small>Companies with a saved source</small>
                 </Link>
                 <Link href="/outreach" className="coverage-tile is-ok">
-                  <span>DOSSIERS READY</span>
+                  <span>Dossiers ready</span>
                   <strong>{coverage!.dossiersReady.toLocaleString()}</strong>
                   <small>Open cards awaiting a decision</small>
                 </Link>
                 <a href="#run-log" className={`coverage-tile ${coverage!.failedLastRun > 0 ? "is-failed" : ""}`}>
-                  <span>FAILED LAST RUN</span>
+                  <span>Failed last run</span>
                   <strong>{coverage!.failedLastRun.toLocaleString()}</strong>
                   <small>{coverage!.failedLastRun > 0 ? "Errors printed in the run log" : "No errors in the last run"}</small>
                 </a>
@@ -1175,11 +1175,11 @@ export function Desk({
                 <div>
                   {context!.recentSignals.map((signal, index) => (
                     <a href={signal.sourceUrl} target="_blank" rel="noreferrer" key={`${signal.domain}-${signal.sourceUrl}`} className="unqualified-source-card">
-                      <div className="source-card-meta"><span>{String(index + 1).padStart(2, "0")} · {signal.isPost ? "PUBLIC POST" : signal.type.replaceAll("_", " ")}</span><time>{new Date(signal.publishedAt).toLocaleDateString()}</time></div>
+                      <div className="source-card-meta"><span>{String(index + 1).padStart(2, "0")} · {signal.isPost ? "Public post" : signal.type.replaceAll("_", " ")}</span><time>{new Date(signal.publishedAt).toLocaleDateString()}</time></div>
                       <h3>{signal.company}</h3>
                       <div className="source-card-author"><strong>{signal.authorName ?? "Publisher not named"}</strong><span>{signal.authorTitle ?? signal.domain}</span></div>
                       <blockquote>{signal.sourceText}</blockquote>
-                      <footer><span>Not messaged — person or priority still needs verification</span><b>Open actual source ↗</b></footer>
+                      <footer><span>Not messaged, person or priority still needs verification</span><b>Open actual source ↗</b></footer>
                     </a>
                   ))}
                 </div>
@@ -1190,10 +1190,10 @@ export function Desk({
           <div className="detail-inner">
             <button type="button" className="pipeline-back" onClick={() => setSelected(undefined)}>&larr; All prospects</button>
             <div className="desk-context-bar">
-              <div><span>DOSSIER</span><strong>{String(cardIndex + 1).padStart(2, "0")} / {String(cards.length).padStart(2, "0")}</strong></div>
-              <div><span>SIGNAL</span><strong>{card.signals.type?.replaceAll("_", " ") ?? "Market change"}</strong></div>
-              <div><span>OWNER</span><strong>{seatLabel(card.assigned_to)}</strong></div>
-              <div><span>STATUS</span><strong>{card.status}</strong></div>
+              <div><span>Dossier</span><strong>{String(cardIndex + 1).padStart(2, "0")} / {String(cards.length).padStart(2, "0")}</strong></div>
+              <div><span>Signal</span><strong>{card.signals.type?.replaceAll("_", " ") ?? "Market change"}</strong></div>
+              <div><span>Owner</span><strong>{seatLabel(card.assigned_to)}</strong></div>
+              <div><span>Status</span><strong>{card.status}</strong></div>
               <div className="desk-nav">
                 <Link href="/runs" className="desk-nav-runs">Runs</Link>
                 <button onClick={() => move(-1)} aria-label="Previous person">←</button>
@@ -1278,7 +1278,7 @@ export function Desk({
             </div>
 
             <details className="full-dossier">
-              <summary>Full dossier &mdash; why this person, the source, the score breakdown</summary>
+              <summary>Full dossier: why this person, the source, the score breakdown</summary>
               <div className="grid route-grid">
                 <div className="panel">
                   <h2>What it means for them</h2>
@@ -1321,7 +1321,7 @@ export function Desk({
               </section>
               <div className="overview-stats">
                 <Link className="desk-stat" href="/outreach"><span>Companies watched</span><strong>{companiesWatched.toLocaleString()}</strong><small>on the reach-out list</small></Link>
-                <Link className="desk-stat" href="/roles"><span>Job signals</span><strong>{totalRoles.toLocaleString()}</strong><small>roles Nine-67 could build</small></Link>
+                <Link className="desk-stat" href="/roles"><span>Jobs they&rsquo;re hiring for</span><strong>{totalRoles.toLocaleString()}</strong><small>roles Nine-67 could build</small></Link>
                 <Link className="desk-stat" href="/posts"><span>Employee AI posts</span><strong>{totalPosts.toLocaleString()}</strong><small>conversations to join</small></Link>
                 <div className="desk-stat is-priority"><span>High-fit{priorityCount ? <em className="pill pill-accent">Priority</em> : null}</span><strong>{priorityCount.toLocaleString()}</strong><small>ready for review</small></div>
               </div>
@@ -1386,7 +1386,7 @@ export function Desk({
           </header>
 
           <div className="deskwork-grid">
-            {/* LEFT — companies */}
+            {/* LEFT: companies */}
             <aside className="deskwork-list">
               <div className="deskwork-list-head"><span>{listNeedle ? <>Matches <b>{listed.length}</b></> : <>Companies <b>{new Set(focusPool.map(item => item.accounts.domain)).size}</b></>}</span></div>
               <label className="reachout-sort-label">Sort by<select aria-label="Sort companies" className="reachout-sort" value={listSort} onChange={event => changeSort(event.target.value as ReachoutSort)}>{batchSequence === 3 && <option value="list-order">List order (send order)</option>}<option value="revenue-desc">Revenue: highest first</option><option value="revenue-asc">Revenue: lowest first</option><option value="name">Company: A to Z</option><option value="verified">Verified email first</option></select></label>
@@ -1414,12 +1414,12 @@ export function Desk({
                   </button>
                 ))}
                 {!!focusPool.length && listNeedle && !listed.length && <p className="deskwork-empty">Nothing here matches &ldquo;{query.trim()}&rdquo;. Try a shorter word, or part of an email address.</p>}
-                {!focusPool.length && <p className="deskwork-empty">{listScope === "all" ? "No active prospects yet — new ones land here after the next scan." : "All caught up for today — switch to “All active” to work ahead, or new prospects land after the next scan."}</p>}
+                {!focusPool.length && <p className="deskwork-empty">{listScope === "all" ? "No active prospects yet, new ones land here after the next scan." : "All caught up for today, switch to “All active” to work ahead, or new prospects land after the next scan."}</p>}
               </div>
             </aside>
 
             {focusCard && draft && contact ? (<>
-              {/* MIDDLE — company, opening, people */}
+              {/* MIDDLE: company, opening, people */}
               <section className="deskwork-mid">
                 <header className="deskwork-co">
                   <span className="avatar">{initials(focusCard.accounts.name)}</span>
@@ -1450,7 +1450,7 @@ export function Desk({
                 {focusCard.accounts.domain && <CompanyTeam key={`${focusCard.accounts.domain}:${teamStamp}`} compact domain={focusCard.accounts.domain} company={focusCard.accounts.name} activeId={altContact?.id ?? focusCard.people.id} busyId={openingContact} loggedIds={logged} onSelect={(person) => void openContact(person, focusCard)} />}
               </section>
 
-              {/* RIGHT — draft with Email / LinkedIn tabs */}
+              {/* RIGHT: draft with Email / LinkedIn tabs */}
               <section className="deskwork-draft composer-v2">
                 <div className="deskwork-draft-top"><span className="overview-kick">{sentAlready ? "Sent email" : "Outreach draft"}</span><span className="deskwork-draft-topright">{focusCard.invite_link ? <a className="deskwork-booked" href={focusCard.invite_link.startsWith("http") ? focusCard.invite_link : undefined} target="_blank" rel="noreferrer">📅 Meeting booked</a> : null}<a className="deskwork-brief-link" href={`/brief/${focusCard.id}`} target="_blank" rel="noreferrer">Call brief ↗</a></span></div>
                 {!sentAlready && channelTab === "email" && !recommendation && <div className="notice" style={{ margin: "12px 16px" }}>
@@ -1582,8 +1582,8 @@ export function Desk({
                         <div className="mail-row"><span>To</span><b>{contact.email ?? `${contact.full_name} · no address on file`}</b>{contact.email && <em className={`address-badge ${addressConfirmed(contact) ? "is-confirmed" : "is-unconfirmed"}`} title={addressConfirmed(contact) ? "Confirmed: found on a page, proven by the company's format, or entered by you" : "Unconfirmed: a guess that has not been proven yet. Use Change address if you know the right one."}>{addressConfirmed(contact) ? "Confirmed" : "Unconfirmed"}</em>}</div>
                         <div className="mail-row"><span>Subject · {focusCard.email_subject?.length ?? 0}/120</span><b>{subjectView("email", focusCard.email_subject || subjectGuess(focusCard, "email"))}</b></div>
                       </div>
-                      {sentAlready && <div className="deskwork-sent-note">This email has been sent{focusCard.people.full_name ? ` to ${contact.full_name}` : ""}. It is kept here as a record &mdash; the follow-ups below are what happens next.</div>}
-                      {diffFor("email") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
+                      {sentAlready && <div className="deskwork-sent-note">This email has been sent{focusCard.people.full_name ? ` to ${contact.full_name}` : ""}. It is kept here as a record: the follow-ups below are what happens next.</div>}
+                      {diffFor("email") && <div className="diff-bar"><span>AI changes, <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("email", emailStyle(brief ? outreachBody(adapt(emailDraft)) : adapt(emailDraft)) || "No email draft yet. Choose a saved version or write your own.")}</div>
                       <div className="deskwork-doc-sig">{brief ? senderName.trim().split(/\s+/)[0] : senderName}</div>
                     {channelTab === "email" && senderFooterHtml && (sentAlready ? <div className="outreach-saved-footer" dangerouslySetInnerHTML={{ __html: senderFooterHtml }} /> : <div className="outreach-saved-footer" dangerouslySetInnerHTML={{__html:firstTouchFooterHtml(senderFooterHtml)}} />)}
@@ -1598,7 +1598,7 @@ export function Desk({
                   ) : (
                     <div className="deskwork-doc">
                       <div className="deskwork-doc-head"><div className="mail-row"><span>Subject · {focusCard.email_subject?.length ?? 0}/120</span><b>{subjectView("linkedin", focusCard.linkedin_subject || subjectGuess(focusCard, "linkedin"))}</b></div></div>
-                      {diffFor("linkedin") && <div className="diff-bar"><span>AI changes — <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
+                      {diffFor("linkedin") && <div className="diff-bar"><span>AI changes, <em className="diff-del">removed</em> · <em className="diff-add">added</em></span><button type="button" onClick={() => setLastRefine(null)}>Clear</button></div>}
                       <div className="deskwork-doc-body">{bodyView("linkedin", adapt(linkedinDraft) || "No LinkedIn message yet. Write your message here.")}</div>
                     </div>
                   )
@@ -1620,7 +1620,7 @@ export function Desk({
                   if (viewingSomeoneElse) {
                     return <details className="deskwork-followups deskwork-fu-folded">
                       <summary>Follow-up sequence for {forName} &middot; {seq.length} queued</summary>
-                      <div className="deskwork-fu-whose">These go to <strong>{forName}</strong>, the contact that email was sent to &mdash; not to {contact.full_name}. Nobody else at {focusCard.accounts.name} is on a sequence; send to {contact.full_name} and they get their own.</div>
+                      <div className="deskwork-fu-whose">These go to <strong>{forName}</strong>, the contact that email was sent to: not to {contact.full_name}. Nobody else at {focusCard.accounts.name} is on a sequence; send to {contact.full_name} and they get their own.</div>
                       {seq.map((step) => (
                         <div key={step.id} className={`deskwork-fu ${step.status === "sent" ? "is-done" : ""}`}>
                           <div className="deskwork-fu-top"><strong>Step {step.step} · {step.title}</strong><span>{followupWhen(step.scheduledAt, step.status)}</span></div>
@@ -1753,7 +1753,7 @@ function signalGroup(item: Card): "job" | "social" | "other" {
   return "other";
 }
 
-/** A short, human "how fresh" for the intent signal — the reason a reach-out is timely. */
+/** A short, human "how fresh" for the intent signal: the reason a reach-out is timely. */
 function signalWhen(item: Card) {
   const focused = focusedAccount(item.accounts.domain);
   if (focused) return dateLabel(focused.trigger.date) ? `published ${dateLabel(focused.trigger.date)}` : "date not confirmed";

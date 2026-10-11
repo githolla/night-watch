@@ -52,7 +52,7 @@ export function AddCompany() {
       setResults((current) => current.map((row) => row.id === company.id ? { ...row, ...json.account } : row));
       setEditing(null); setDraft(null);
       setMsg(`Updated ${json.account?.name ?? company.name}.`);
-    } catch { setMsg("Could not update the company — try again."); }
+    } catch { setMsg("Could not update the company, try again."); }
     finally { setBusy(false); }
   }
 
@@ -74,7 +74,7 @@ export function AddCompany() {
     return () => { live = false; clearTimeout(timer); };
   }, [search]);
 
-  // Take a company off the reach-out list for good — e.g. an AI-native product company, where the
+  // Take a company off the reach-out list for good: e.g. an AI-native product company, where the
   // "build this instead of hiring" pitch doesn't land.
   async function remove(company: Found) {
     if (busy) return;
@@ -89,7 +89,7 @@ export function AddCompany() {
       if (!res.ok) { setMsg(json.error ?? "Could not exclude the company."); return; }
       setMsg(`Excluded ${json.name ?? company.name} from outreach${json.dismissed ? ` and cleared ${json.dismissed} un-sent draft${json.dismissed === 1 ? "" : "s"}` : ""}.`);
       setResults((current) => current.filter((row) => row.id !== company.id));
-    } catch { setMsg("Could not exclude the company — try again."); }
+    } catch { setMsg("Could not exclude the company, try again."); }
     finally { setBusy(false); }
   }
 
@@ -107,7 +107,7 @@ export function AddCompany() {
       if (!res.ok) { setMsg(json.error ?? "Could not add the company."); return; }
       setMsg(`Added ${json.account?.name ?? name} (${json.account?.domain ?? domain}). It'll be researched on the next scan${json.account?.outreach ? " and drafted for outreach" : " (held until it earns a signal)"}.`);
       setName(""); setDomain(""); setVertical("");
-    } catch { setMsg("Could not add the company — try again."); }
+    } catch { setMsg("Could not add the company, try again."); }
     finally { setBusy(false); }
   }
 
@@ -116,11 +116,11 @@ export function AddCompany() {
       <div className="conn-head"><h2>Companies on the list</h2></div>
       <PanelGuide
         what="Adds a company to the reach-out list, or takes one off it."
-        when={<>You&rsquo;ve thought of a company the imported list doesn&rsquo;t have, or you&rsquo;ve hit one the pitch doesn&rsquo;t fit &mdash; an AI product company that already builds this kind of thing itself.</>}
+        when={<>You&rsquo;ve thought of a company the imported list doesn&rsquo;t have, or you&rsquo;ve hit one the pitch doesn&rsquo;t fit: an AI product company that already builds this kind of thing itself.</>}
         watch={<>Either way the decision sticks: the nightly import keeps hand-managed companies exactly as you left them. Taking a company off dismisses its un-sent drafts but <strong>keeps everything you already sent</strong> in History.</>}
       />
       <h3 className="panel-subhead">Add a company</h3>
-      <p className="conn-note">Put a company on the reach-out list by hand. It joins the target list as an active, hand-managed account — the nightly file sync won&apos;t remove it — and the next research run works it like any other target.</p>
+      <p className="conn-note">Put a company on the reach-out list by hand. It joins the target list as an active, hand-managed account, the nightly file sync won&apos;t remove it, and the next research run works it like any other target.</p>
       <form onSubmit={add} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Company name (e.g. Shaw Flooring)" style={{ flex: "1 1 240px", minWidth: 0, border: "1px solid var(--line-strong)", borderRadius: "var(--radius-sm)", background: "var(--paper-bright)", padding: "9px 11px", font: "500 14px/1 var(--sans)", color: "inherit" }} />
@@ -136,7 +136,7 @@ export function AddCompany() {
       </form>
       <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
         <h3 className="panel-subhead">Adjust or exclude a company</h3>
-        <p className="conn-note">Search by name, then <strong>Adjust</strong> to correct its name, industry or priority, or turn outreach on and off. <strong>Exclude</strong> takes it off outreach for good &mdash; use that for AI-native product companies, where the &ldquo;build this instead of hiring&rdquo; pitch doesn&apos;t fit. Excluding dismisses un-sent drafts; everything already sent stays in History, and the nightly sync won&apos;t put it back.</p>
+        <p className="conn-note">Search by name, then <strong>Adjust</strong> to correct its name, industry or priority, or turn outreach on and off. <strong>Exclude</strong> takes it off outreach for good: use that for AI-native product companies, where the &ldquo;build this instead of hiring&rdquo; pitch doesn&apos;t fit. Excluding dismisses un-sent drafts; everything already sent stays in History, and the nightly sync won&apos;t put it back.</p>
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search companies by name or domain (e.g. Motive)" style={{ width: "100%", border: "1px solid var(--line-strong)", borderRadius: "var(--radius-sm)", background: "var(--paper-bright)", padding: "9px 11px", font: "500 14px/1 var(--sans)", color: "inherit" }} />
         {search.trim().length >= 2 && (
           <div style={{ marginTop: 8, border: "1px solid var(--line)", borderRadius: "var(--radius-sm)", maxHeight: 260, overflowY: "auto" }}>

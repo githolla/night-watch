@@ -36,8 +36,8 @@ export function Connections({ connections, google, viewerOwner, isAdmin = false 
     <section className="conn-card">
       <PanelGuide
         what={<>Connects the Google account your emails are actually sent from. Night Watch signs in as that mailbox: outreach leaves from it, replies are read back from it to stop follow-ups the moment someone answers, and its calendar supplies the open slots behind &ldquo;Propose times&rdquo;.</>}
-        when={<>Once, at the start &mdash; nothing can send until this is done. Again if you switch mailbox, or if you connected before granting Calendar access and want &ldquo;Propose times&rdquo; to work.</>}
-        watch={<>A <strong>seat</strong> is a person who sends. Each one connects their own mailbox, so their emails go out as them, not as you. No password is ever stored &mdash; only an encrypted token Google issues, which you can revoke at any time.</>}
+        when={<>Once, at the start: nothing can send until this is done. Again if you switch mailbox, or if you connected before granting Calendar access and want &ldquo;Propose times&rdquo; to work.</>}
+        watch={<>A <strong>seat</strong> is a person who sends. Each one connects their own mailbox, so their emails go out as them, not as you. No password is ever stored: only an encrypted token Google issues, which you can revoke at any time.</>}
       />
       <header className="conn-head">
         <div><h2>Connected accounts</h2><p>Connect an account per seat. Outreach sends from that seat, replies land back here to drive the cadence, and its calendar powers &ldquo;Propose times&rdquo;.</p></div>
@@ -53,7 +53,7 @@ export function Connections({ connections, google, viewerOwner, isAdmin = false 
         <p className="google-setup-redirect">Authorized redirect URI to register in Google Cloud (must match exactly):<br /><code>{suggestedRedirect}</code></p>
         <p className="conn-note">On the OAuth consent screen, add scopes: Gmail send, Gmail readonly, and Calendar. External apps need Google&rsquo;s verification for these before non-test users can grant them.</p>
       </div>}
-      {flag === "unconfigured" && ready && <p className="notice" role="alert">Google credentials are set but the sign-in was rejected — check the redirect URI matches exactly and the scopes are approved.</p>}
+      {flag === "unconfigured" && ready && <p className="notice" role="alert">Google credentials are set but the sign-in was rejected, check the redirect URI matches exactly and the scopes are approved.</p>}
       {error && <p role="alert">{error}</p>}
       <div className="conn-list">
         {SEATS.map(({ owner, label }) => {
@@ -82,7 +82,7 @@ export function Connections({ connections, google, viewerOwner, isAdmin = false 
           );
         })}
       </div>
-      <p className="conn-note">OAuth only — an encrypted refresh token is stored per seat, never a password. Requires Google Cloud credentials (client ID/secret + redirect URI) on the server, with Gmail send/read and Calendar approved on the consent screen. Reconnect a seat after adding Calendar so &ldquo;Propose times&rdquo; can read its availability.</p>
+      <p className="conn-note">OAuth only, an encrypted refresh token is stored per seat, never a password. Requires Google Cloud credentials (client ID/secret + redirect URI) on the server, with Gmail send/read and Calendar approved on the consent screen. Reconnect a seat after adding Calendar so &ldquo;Propose times&rdquo; can read its availability.</p>
     </section>
   );
 }
