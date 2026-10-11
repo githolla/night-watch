@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Bell, Building2, Check, ChevronRight, Linkedin, MailCheck, MessagesSquare, PenLine, Search, Send } from "lucide-react";
+import { ArrowRight, Bell, Buildings, CaretRight, ChatsCircle, Check, LinkedinLogo, MagnifyingGlass, PaperPlaneTilt, PencilSimpleLine, SealCheck } from "@phosphor-icons/react";
 import { useMemo, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import { CompanyLogo } from "@/components/CompanyLogo";
@@ -19,7 +19,7 @@ const minutes = (n: number) => n < 60 ? `${n} min` : `${Math.floor(n / 60)} h ${
 
 /** The one link style on Overview: words in the accent colour with an arrow that moves on hover. */
 const Go = ({ href, children }: { href: string; children: ReactNode }) => (
-  <Link className="ov-go" href={href}>{children}<ArrowRight size={15} strokeWidth={2} aria-hidden="true" /></Link>
+  <Link className="ov-go" href={href}>{children}<ArrowRight size={15} aria-hidden="true" /></Link>
 );
 
 /** One list's progress as a single bar: sent, ready, in review and missing an email. */
@@ -78,23 +78,23 @@ export function HomeView({ data, owner, hello, today, aside }: { data: HomeData;
   ].filter(Boolean);
 
   const steps: Step[] = [
-    { key: "find", icon: <Search size={18} strokeWidth={2} />, who: "Night Watch", title: "Finds companies", value: companies, unit: companies === 1 ? "company on the list" : "companies on the list", sub: latest ? `Newest: ${listName(latest.date)}` : "A new list each weeknight", href: `/outreach?list=${owner}`, needs: false },
-    { key: "write", icon: <PenLine size={18} strokeWidth={2} />, who: "Night Watch", title: "Researches and writes", value: d.total, unit: d.total === 1 ? "email written" : "emails written", sub: `${count(d.linkedinWritten, "LinkedIn message", "LinkedIn messages")} too${d.missing ? ` · ${d.missing} finding an address` : ""}`, href: `/drafts?${q}`, needs: false },
-    { key: "review", icon: <MailCheck size={18} strokeWidth={2} />, who: "You", title: "Review and approve", value: d.review, unit: "to review", sub: `${d.ready} approved so far`, href: `/drafts?${q}&tab=review`, needs: d.nextUnapproved > 0 },
-    { key: "send", icon: <Send size={18} strokeWidth={2} />, who: on ? "Night Watch" : "You", title: "Sends and follows up", value: 0, unit: "", sub: "", href: `/auto-send?${q}`, needs: false, lanes: [
-      { key: "email", icon: <Send size={16} strokeWidth={2} />, who: on ? "Night Watch" : "You", title: on ? "Email: sent for you" : "Email: auto-send off", value: auto?.plan.going ?? 0, unit: day ? `sending ${day === "Today" ? "today" : day}` : "sending next", sub: on ? `${auto?.plan.sentToday ?? 0} of ${auto?.plan.dailyCap ?? 0} sent today, follow-ups automatic` : "Turn it on to send approved emails", href: `/auto-send?${q}`, needs: !on && d.ready > 0 },
-      { key: "linkedin", icon: <Linkedin size={16} strokeWidth={2} />, who: "You", title: "LinkedIn: you send by hand", value: data.linkedin, unit: "ready to send", sub: `Copy, open profile, mark sent · ${data.linkedinSent} sent this week`, href: `/linkedin?${q}`, needs: data.linkedin > 0 },
+    { key: "find", icon: <MagnifyingGlass size={20} weight="duotone" />, who: "Night Watch", title: "Finds companies", value: companies, unit: companies === 1 ? "company on the list" : "companies on the list", sub: latest ? `Newest: ${listName(latest.date)}` : "A new list each weeknight", href: `/outreach?list=${owner}`, needs: false },
+    { key: "write", icon: <PencilSimpleLine size={20} weight="duotone" />, who: "Night Watch", title: "Researches and writes", value: d.total, unit: d.total === 1 ? "email written" : "emails written", sub: `${count(d.linkedinWritten, "LinkedIn message", "LinkedIn messages")} too${d.missing ? ` · ${d.missing} finding an address` : ""}`, href: `/drafts?${q}`, needs: false },
+    { key: "review", icon: <SealCheck size={20} weight="duotone" />, who: "You", title: "Review and approve", value: d.review, unit: "to review", sub: `${d.ready} approved so far`, href: `/drafts?${q}&tab=review`, needs: d.nextUnapproved > 0 },
+    { key: "send", icon: <PaperPlaneTilt size={20} weight="duotone" />, who: on ? "Night Watch" : "You", title: "Sends and follows up", value: 0, unit: "", sub: "", href: `/auto-send?${q}`, needs: false, lanes: [
+      { key: "email", icon: <PaperPlaneTilt size={17} weight="duotone" />, who: on ? "Night Watch" : "You", title: on ? "Email: sent for you" : "Email: auto-send off", value: auto?.plan.going ?? 0, unit: day ? `sending ${day === "Today" ? "today" : day}` : "sending next", sub: on ? `${auto?.plan.sentToday ?? 0} of ${auto?.plan.dailyCap ?? 0} sent today, follow-ups automatic` : "Turn it on to send approved emails", href: `/auto-send?${q}`, needs: !on && d.ready > 0 },
+      { key: "linkedin", icon: <LinkedinLogo size={18} weight="fill" />, who: "You", title: "LinkedIn: you send by hand", value: data.linkedin, unit: "ready to send", sub: `Copy, open profile, mark sent · ${data.linkedinSent} sent this week`, href: `/linkedin?${q}`, needs: data.linkedin > 0 },
     ] },
-    { key: "reply", icon: <MessagesSquare size={18} strokeWidth={2} />, who: "You", title: "Replies and meetings", value: data.replies.length, unit: data.replies.length === 1 ? "reply waiting" : "replies waiting", sub: count(data.meetings, "meeting booked", "meetings booked"), href: `/replies?${q}`, needs: data.replies.length > 0 },
+    { key: "reply", icon: <ChatsCircle size={20} weight="duotone" />, who: "You", title: "Replies and meetings", value: data.replies.length, unit: data.replies.length === 1 ? "reply waiting" : "replies waiting", sub: count(data.meetings, "meeting booked", "meetings booked"), href: `/replies?${q}`, needs: data.replies.length > 0 },
   ];
 
   const todos: Todo[] = [
     ...(interested.length ? [{ key: "interested", title: interested.length === 1 ? `Reply to ${interested[0].name}${interested[0].company ? ` at ${interested[0].company}` : ""}` : `Reply to ${interested.length} interested people`, why: "They said yes. Answer while it's fresh; the call brief has what you need.", mins: interested.length * 5, href: `/replies?${q}` }] : []),
     ...(other ? [{ key: "other", title: `Read ${count(other, "other reply", "other replies")}`, why: "A question or an objection. Decide the next step.", mins: other * 2, href: `/replies?${q}` }] : []),
     ...data.bounces.slice(0, 3).map((bounce) => ({ key: `b-${bounce.personId}`, title: `${bounce.name} bounced`, why: `${bounce.company}${bounce.email ? `: ${bounce.email} didn't arrive` : ""}. A corrected address reopens it.`, mins: 1, action: <AddressFix personId={bounce.personId} current={bounce.email} label="Fix address" /> })),
-    ...(data.followupsDue ? [{ key: "followups", title: `Send ${count(data.followupsDue, "follow-up", "follow-ups")}`, why: "They came due and couldn't go out by themselves.", mins: data.followupsDue * 2, href: `/followups?view=needs&${q}` }] : []),
+    ...(data.followupsDue ? [{ key: "followups", title: `PaperPlaneTilt ${count(data.followupsDue, "follow-up", "follow-ups")}`, why: "They came due and couldn't go out by themselves.", mins: data.followupsDue * 2, href: `/followups?view=needs&${q}` }] : []),
     ...(d.nextUnapproved ? [{ key: "review", title: `Review the ${count(d.nextUnapproved, "email", "emails")} sending ${day === "Today" ? "today" : day}`, why: "Read each one; approve it, fix it or hold it back.", mins: Math.max(2, Math.round(d.nextUnapproved * 0.75)), href: `/drafts?${q}&tab=review` }] : []),
-    ...(data.linkedin ? [{ key: "linkedin", title: `Send ${count(data.linkedin, "LinkedIn message", "LinkedIn messages")}`, why: "Copy each one, open the profile, send it there, mark it sent.", mins: data.linkedin * 2, href: `/linkedin?${q}` }] : []),
+    ...(data.linkedin ? [{ key: "linkedin", title: `PaperPlaneTilt ${count(data.linkedin, "LinkedIn message", "LinkedIn messages")}`, why: "Copy each one, open the profile, send it there, mark it sent.", mins: data.linkedin * 2, href: `/linkedin?${q}` }] : []),
     ...(!on && !paused && d.ready ? [{ key: "auto", title: "Turn on auto-send", why: `${count(d.ready, "approved email is", "approved emails are")} waiting and nothing goes out while it's off.`, mins: 1, href: `/auto-send?${q}` }] : []),
     ...(!d.nextUnapproved && d.review ? [{ key: "ahead", title: `Get ahead: review ${count(d.review, "draft", "drafts")}`, why: "Nothing is due today. Reading ahead keeps the next windows full.", mins: Math.round(d.review * 0.75), href: `/drafts?${q}&tab=review`, optional: true }] : []),
   ];
@@ -116,7 +116,7 @@ export function HomeView({ data, owner, hello, today, aside }: { data: HomeData;
         <nav className="ov-crumbs" aria-label="Where you are"><span>Workspace</span><span aria-hidden="true">/</span><b>Overview</b></nav>
         <div className="ov-top-side">
           {aside}
-          <Link className={`ov-bell ${data.replies.length ? "has-dot" : ""}`} href={`/replies?${q}`} aria-label={data.replies.length ? `${count(data.replies.length, "reply", "replies")} waiting` : "Replies"} title={data.replies.length ? `${count(data.replies.length, "reply", "replies")} waiting` : "No replies waiting"}><Bell size={19} strokeWidth={1.8} /></Link>
+          <Link className={`ov-bell ${data.replies.length ? "has-dot" : ""}`} href={`/replies?${q}`} aria-label={data.replies.length ? `${count(data.replies.length, "reply", "replies")} waiting` : "Replies"} title={data.replies.length ? `${count(data.replies.length, "reply", "replies")} waiting` : "No replies waiting"}><Bell size={19} /></Link>
         </div>
       </header>
 
@@ -166,19 +166,19 @@ export function HomeView({ data, owner, hello, today, aside }: { data: HomeData;
           <div className="ov-panel-head">
             <div><h2>What you need to do</h2><p>{needed.length ? `${count(needed.length, "thing", "things")}, about ${minutes(Math.max(total, 1))}, in this order.` : "Nothing is due this morning."}</p></div>
           </div>
-          {needed.length === 0 && <div className="ov-done"><span aria-hidden="true"><Check size={26} strokeWidth={2.4} /></span><b>You&rsquo;re all caught up</b><small>Night Watch keeps finding companies and writing emails and LinkedIn messages. New work shows up here.</small></div>}
+          {needed.length === 0 && <div className="ov-done"><span aria-hidden="true"><Check size={26} /></span><b>You&rsquo;re all caught up</b><small>Night Watch keeps finding companies and writing emails and LinkedIn messages. New work shows up here.</small></div>}
           {todos.length > 0 && (
             <ol className="ov-todos">
               {todos.map((todo, index) => {
                 const body = <>
-                  <span className={`ov-num ${todo.optional ? "is-optional" : ""}`} aria-hidden="true">{todo.optional ? <Check size={14} strokeWidth={2.4} /> : index + 1}</span>
+                  <span className={`ov-num ${todo.optional ? "is-optional" : ""}`} aria-hidden="true">{todo.optional ? <Check size={14} /> : index + 1}</span>
                   <span className="ov-todo-text"><b>{todo.title}</b><small>{todo.why}</small></span>
                   <span className="ov-mins">{todo.optional ? "optional" : `~${minutes(todo.mins)}`}</span>
                 </>;
                 return (
                   <li key={todo.key}>
                     {todo.href && !todo.action
-                      ? <Link className="ov-todo-row is-link" href={todo.href}>{body}<ChevronRight className="ov-chev" size={18} strokeWidth={2} aria-hidden="true" /></Link>
+                      ? <Link className="ov-todo-row is-link" href={todo.href}>{body}<CaretRight className="ov-chev" size={18} aria-hidden="true" /></Link>
                       : <div className="ov-todo-row">{body}{todo.action && <span className="ov-act">{todo.action}</span>}</div>}
                   </li>
                 );
@@ -219,14 +219,14 @@ export function HomeView({ data, owner, hello, today, aside }: { data: HomeData;
                   <span role="cell"><Progress list={list} /></span>
                   <span role="cell" className="ov-td-results">{count(list.positive, "positive reply", "positive replies")} · {count(list.meetings, "meeting", "meetings")}</span>
                   <span role="cell"><span className={`ov-dot is-${list.status === "Active" ? "ok" : list.status === "Preparing" ? "warn" : "muted"}`}>{list.status}</span></span>
-                  <span role="cell" className="ov-td-next">{action ? <>{action.label}<ArrowRight size={15} strokeWidth={2} aria-hidden="true" /></> : <span className="ov-muted">Being prepared</span>}</span>
+                  <span role="cell" className="ov-td-next">{action ? <>{action.label}<ArrowRight size={15} aria-hidden="true" /></> : <span className="ov-muted">Being prepared</span>}</span>
                 </>;
                 return action
                   ? <Link key={list.date} className="ov-tr is-link" role="row" href={action.href}>{cells}</Link>
                   : <div key={list.date} className="ov-tr" role="row">{cells}</div>;
               })}
             </div>
-          : <p className="ov-empty"><Building2 size={18} strokeWidth={1.9} aria-hidden="true" />{shelf === "current" ? "No current lists. A new one arrives each weeknight." : "No finished lists in the last 30 days."}</p>}
+          : <p className="ov-empty"><Buildings size={18} aria-hidden="true" />{shelf === "current" ? "No current lists. A new one arrives each weeknight." : "No finished lists in the last 30 days."}</p>}
         <div className="ov-panel-foot"><span>Each company counts once, at its furthest step.</span><Go href={`/outreach?list=${owner}`}>Open all companies</Go></div>
       </section>
 

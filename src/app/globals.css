@@ -2603,8 +2603,8 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-steps a:hover{background:#fff;box-shadow:inset 0 0 0 1px var(--line-strong),0 6px 18px rgba(30,26,22,.06);transform:translateY(-1px)}
 .ov-steps li.is-needs a{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .ov-step-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.ov-step-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#fff;color:var(--ink-soft);box-shadow:inset 0 0 0 1px var(--line)}
-.ov-steps li.is-you .ov-step-icon{background:var(--ink);color:#fff;box-shadow:none}
+.ov-step-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#fff;color:var(--ink-soft);box-shadow:inset 0 0 0 1px var(--line),0 1px 2px rgba(30,26,22,.04)}
+.ov-steps li.is-you .ov-step-icon{background:var(--accent-soft);color:var(--accent-strong);box-shadow:inset 0 0 0 1px rgba(154,106,39,.18)}
 .ov-step-who{font:500 12.5px/1 var(--sans);color:var(--muted)}
 .ov-steps li.is-you .ov-step-who{color:var(--ink)}
 .ov-step-title{margin-top:6px;font-size:15px;font-weight:600;letter-spacing:-.015em;color:var(--ink)}
@@ -2653,11 +2653,15 @@ body:has(.side-nav.is-folded) .fb-panel.is-side{left:calc(var(--side-folded) + 1
 .ov-steps .ov-lane.is-needs{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .ov-lane-top{display:flex;align-items:center;gap:8px}
 .ov-lane-top b{font-size:13px;font-weight:600;letter-spacing:-.01em}
-.ov-step-icon.is-sm{width:26px;height:26px;border-radius:8px}
-.ov-lane.is-you .ov-step-icon{background:var(--ink);color:#fff;box-shadow:none}
+.ov-step-icon.is-sm{width:30px;height:30px;border-radius:9px}
+.ov-lane.is-you .ov-step-icon{background:var(--accent-soft);color:var(--accent-strong);box-shadow:inset 0 0 0 1px rgba(154,106,39,.18)}
+.ov-lane[href*="/linkedin"] .ov-step-icon{background:#e8f1fb;color:#0a66c2;box-shadow:inset 0 0 0 1px rgba(10,102,194,.15)}
 .ov-lane .ov-step-value b{font-size:20px}
 .ov-lane small{font-size:12px;color:var(--muted)}
 .ov-lane.is-needs small{color:var(--accent-strong);font-weight:600}
 .ov-steps{grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.25fr) minmax(0,1fr)}
 @media(max-width:1180px){.ov-steps{grid-template-columns:repeat(3,minmax(0,1fr))}.ov-steps li.is-split{margin:0}}
 @media(max-width:700px){.ov-steps{grid-template-columns:minmax(0,1fr)}}
+/* Sidebar icons: Phosphor, regular, duotone on the page you are on. */
+.side-link svg{flex:none;opacity:.85}
+.side-link.is-active svg{opacity:1;color:var(--accent-strong)}

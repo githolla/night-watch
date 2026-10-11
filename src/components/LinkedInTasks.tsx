@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, ExternalLink } from "lucide-react";
+import { ArrowSquareOut, Check, Copy } from "@phosphor-icons/react";
 import { CompanyLogo } from "@/components/CompanyLogo";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -59,19 +59,19 @@ function TaskCard({ task, canSend, onSent }: { task: LinkedInTask; canSend: bool
       <ol className="li-steps">
         <li>
           <button type="button" className={`li-btn ${copied ? "is-done" : ""}`} onClick={() => void copy()}>
-            {copied ? <Check size={16} strokeWidth={2.4} aria-hidden="true" /> : <Copy size={16} strokeWidth={2} aria-hidden="true" />}{copied ? "Copied" : "Copy message"}
+            {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}{copied ? "Copied" : "Copy message"}
           </button>
         </li>
         <li>
           {task.profileUrl
             ? <a className={`li-btn ${opened ? "is-done" : ""}`} href={task.profileUrl} target="_blank" rel="noreferrer" onClick={() => setOpened(true)}>
-                {opened ? <Check size={16} strokeWidth={2.4} aria-hidden="true" /> : <ExternalLink size={16} strokeWidth={2} aria-hidden="true" />}Open profile
+                {opened ? <Check size={16} aria-hidden="true" /> : <ArrowSquareOut size={16} aria-hidden="true" />}Open profile
               </a>
             : <span className="li-btn is-off" aria-disabled="true" title="No LinkedIn profile saved for this person">Open profile<small>No profile saved; search LinkedIn for {task.name}</small></span>}
         </li>
         <li>
           <button type="button" className="li-btn is-primary" disabled={busy || !canSend} onClick={() => void send()}>
-            <Check size={16} strokeWidth={2.4} aria-hidden="true" />{busy ? "Saving" : "Mark sent"}
+            <Check size={16} aria-hidden="true" />{busy ? "Saving" : "Mark sent"}
           </button>
         </li>
       </ol>
@@ -112,7 +112,7 @@ export function LinkedInTasks({ tasks: initial, done, canSend, seat }: { tasks: 
         ? <ol className="li-list is-done">{done.map((item) => (
             <li key={item.id} className="li-task is-done">
               <div className="li-task-head">
-                <span className="li-avatar is-done" aria-hidden="true"><Check size={16} strokeWidth={2.6} /></span>
+                <span className="li-avatar is-done" aria-hidden="true"><Check size={16} /></span>
                 <span className="li-who"><b>{item.name}</b><small>{item.company}</small></span>
                 <span className="li-dot is-sent">Sent {day(item.sentAt)}</span>
               </div>

@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import {usePathname} from 'next/navigation';
-import {Compass,X} from 'lucide-react';
+import {Compass,X} from '@phosphor-icons/react';
 import {createPortal} from 'react-dom';
 import {tourSteps} from '@/lib/tour-steps';
 export function Walkthrough({userKey,inSidebar=false}:{userKey?:string;inSidebar?:boolean}){
@@ -63,7 +63,7 @@ export function Walkthrough({userKey,inSidebar=false}:{userKey?:string;inSidebar
  const width=ready?Math.min(370,window.innerWidth-32):370;
  const left=rect?Math.max(16,Math.min(rect.left,window.innerWidth-width-16)):undefined;
  const top=rect?(rect.top+rect.height+310<window.innerHeight?rect.top+rect.height+14:Math.max(16,rect.top-310)):undefined;
- return <>{inSidebar?<button ref={trigger} type="button" className="side-link side-action appbar-tour-side" title="Tour and user guide" aria-label="Tour and user guide" onClick={()=>setMenu(true)}><Compass size={18} strokeWidth={1.8} aria-hidden="true"/><span className="side-label">Tour and help</span></button>:<button ref={trigger} type="button" className="appbar-tour" title="Tour and user guide" aria-label="Tour and user guide" onClick={()=>setMenu(true)}><Compass size={18}/><span>Tour</span></button>}
+ return <>{inSidebar?<button ref={trigger} type="button" className="side-link side-action appbar-tour-side" title="Tour and user guide" aria-label="Tour and user guide" onClick={()=>setMenu(true)}><Compass size={18} aria-hidden="true"/><span className="side-label">Tour and help</span></button>:<button ref={trigger} type="button" className="appbar-tour" title="Tour and user guide" aria-label="Tour and user guide" onClick={()=>setMenu(true)}><Compass size={18}/><span>Tour</span></button>}
  {ready&&(menu||step)&&createPortal(<div className="walkthrough-layer">
   <div className={`walkthrough-shield ${rect&&!menu?'has-spotlight':''}`} />
   {!menu&&rect&&<div className="walkthrough-spotlight" style={rect}/>}

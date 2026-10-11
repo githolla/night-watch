@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { MessageSquarePlus, X } from "lucide-react";
+import { ChatCircleDots, X } from "@phosphor-icons/react";
 
 const CATEGORIES = [
   { value: "bug", label: "Something's broken" },
@@ -39,8 +39,8 @@ export function FeedbackWidget({ inSidebar = false }: { inSidebar?: boolean }) {
   return (
     <>
       {inSidebar
-        ? <button type="button" className="side-link side-action" onClick={() => setOpen((v) => !v)} aria-label="Give feedback" title="Give feedback" aria-expanded={open}><MessageSquarePlus size={18} strokeWidth={1.8} aria-hidden="true" /><span className="side-label">Feedback</span></button>
-        : <button type="button" className="fb-fab" onClick={() => setOpen((v) => !v)} aria-label="Give feedback" title="Give feedback"><MessageSquarePlus size={18} strokeWidth={1.9} /><span>Feedback</span></button>}
+        ? <button type="button" className="side-link side-action" onClick={() => setOpen((v) => !v)} aria-label="Give feedback" title="Give feedback" aria-expanded={open}><ChatCircleDots size={18} aria-hidden="true" /><span className="side-label">Feedback</span></button>
+        : <button type="button" className="fb-fab" onClick={() => setOpen((v) => !v)} aria-label="Give feedback" title="Give feedback"><ChatCircleDots size={18} /><span>Feedback</span></button>}
       {open && (
         <div className={`fb-panel ${inSidebar ? "is-side" : ""}`} role="dialog" aria-label="Feedback">
           <div className="fb-panel-head"><strong>Share feedback</strong><button type="button" onClick={() => setOpen(false)} aria-label="Close"><X size={16} /></button></div>

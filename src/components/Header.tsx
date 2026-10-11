@@ -3,41 +3,41 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { BriefcaseBusiness, ChartNoAxesColumn, ChevronDown, History, House, LifeBuoy, Linkedin, ListChecks, LogOut, Menu, MessageSquareReply, MessageSquareText, PanelLeftClose, PanelLeftOpen, PenLine, PlayCircle, Repeat, Search, Send, Settings, TrendingUp, UserRoundCog, Users, type LucideIcon } from "lucide-react";
+import { ArrowsClockwise, Briefcase, CaretDown, ChartBar, ChatCircleText, ChatTeardropText, ClockCounterClockwise, GearSix, House, Lifebuoy, LinkedinLogo, List, ListChecks, MagnifyingGlass, PaperPlaneTilt, PencilSimpleLine, PlayCircle, SidebarSimple, SignOut, TrendUp, UserSwitch, Users, type Icon } from "@phosphor-icons/react";
 import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
 // The sidebar: the daily pages first, then how it is going, then finding companies. Plain names, an icon and
 // one short line each. System pages are admin only.
-type NavItem = { href: string; label: string; hint: string; icon: LucideIcon; adminOnly?: boolean };
+type NavItem = { href: string; label: string; hint: string; icon: Icon; adminOnly?: boolean };
 const navGroups: Array<{ title: string | null; label?: string; items: NavItem[] }> = [
   { title: null, label: "Workspace", items: [
     { href: "/", label: "Overview", hint: "Your next action, what needs you and how it is going", icon: House },
     { href: "/outreach", label: "Companies to email", hint: "The companies picked each night, with their custom emails", icon: ListChecks },
-    { href: "/targets", label: "Discover companies", hint: "Search, add or remove companies", icon: Search },
+    { href: "/targets", label: "Discover companies", hint: "Search, add or remove companies", icon: MagnifyingGlass },
   ] },
   { title: null, label: "Outreach", items: [
-    { href: "/drafts", label: "Drafts", hint: "Review, edit and approve your emails", icon: PenLine },
-    { href: "/auto-send", label: "Auto-send", hint: "What sends next, when, and what is blocked", icon: Send },
-    { href: "/activity", label: "Send history", hint: "Everything sent, and every reply", icon: History },
+    { href: "/drafts", label: "Drafts", hint: "Review, edit and approve your emails", icon: PencilSimpleLine },
+    { href: "/auto-send", label: "Auto-send", hint: "What sends next, when, and what is blocked", icon: PaperPlaneTilt },
+    { href: "/activity", label: "Send history", hint: "Everything sent, and every reply", icon: ClockCounterClockwise },
   ] },
   { title: null, items: [
-    { href: "/replies", label: "Replies", hint: "Everyone who wrote back, and what to do next", icon: MessageSquareReply },
-    { href: "/linkedin", label: "LinkedIn tasks", hint: "Messages to send by hand on LinkedIn", icon: Linkedin },
-    { href: "/stats", label: "Results", hint: "Replies, meetings and what's working", icon: ChartNoAxesColumn },
+    { href: "/replies", label: "Replies", hint: "Everyone who wrote back, and what to do next", icon: ChatCircleText },
+    { href: "/linkedin", label: "LinkedIn tasks", hint: "Messages to send by hand on LinkedIn", icon: LinkedinLogo },
+    { href: "/stats", label: "Results", hint: "Replies, meetings and what's working", icon: ChartBar },
   ] },
   { title: "More", items: [
-    { href: "/followups", label: "Follow-ups", hint: "What goes out after each first email", icon: Repeat },
-    { href: "/pipeline", label: "Pipeline", hint: "Conversations turning into deals", icon: TrendingUp },
+    { href: "/followups", label: "Follow-ups", hint: "What goes out after each first email", icon: ArrowsClockwise },
+    { href: "/pipeline", label: "Pipeline", hint: "Conversations turning into deals", icon: TrendUp },
     { href: "/people", label: "People", hint: "Every contact on file", icon: Users },
-    { href: "/roles", label: "Jobs they're hiring for", hint: "Open roles at the companies on file", icon: BriefcaseBusiness },
-    { href: "/posts", label: "Employee posts", hint: "What their people are posting", icon: MessageSquareText },
+    { href: "/roles", label: "Jobs they're hiring for", hint: "Open roles at the companies on file", icon: Briefcase },
+    { href: "/posts", label: "Employee posts", hint: "What their people are posting", icon: ChatTeardropText },
   ] },
 ];
 const bottomItems: NavItem[] = [
-  { href: "/settings", label: "Settings", hint: "Gmail, signature and your team", icon: Settings },
+  { href: "/settings", label: "Settings", hint: "Gmail, signature and your team", icon: GearSix },
   { href: "/runs", label: "Research runs", hint: "Nightly research and its cost", icon: PlayCircle, adminOnly: true },
-  { href: "/delivery-recovery", label: "Unsure sends", hint: "Check emails that may not have sent", icon: LifeBuoy, adminOnly: true },
+  { href: "/delivery-recovery", label: "Unsure sends", hint: "Check emails that may not have sent", icon: Lifebuoy, adminOnly: true },
 ];
 /** Wide pages start with the sidebar folded to icons; anywhere else it is open unless she folded it. */
 const FOLD_BY_DEFAULT = [/^\/outreach/, /^\/accounts\//];
@@ -121,7 +121,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
     const count = countFor(item.href);
     return (
       <Link key={item.href} href={hrefFor(item)} onClick={() => setMobileOpen(false)} title={folded ? `${item.label}: ${item.hint}` : item.hint} className={`side-link ${isActive(item) ? "is-active" : ""}`} aria-current={isActive(item) ? "page" : undefined}>
-        <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
+        <Icon size={20} weight={isActive(item) ? "duotone" : "regular"} aria-hidden="true" />
         <span className="side-label">{item.label}</span>
         {count ? <b className={`side-count ${item.href === "/replies" ? "is-alert" : ""}`}>{count}</b> : null}
       </Link>
@@ -136,7 +136,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
           <span className="brand-moon" aria-hidden />
           <strong className="side-label">nightwatch<i>.</i></strong>
         </Link>
-        <button type="button" className="side-fold" onClick={toggleFold} title={folded ? "Open the sidebar" : "Fold the sidebar to icons"} aria-label={folded ? "Open the sidebar" : "Fold the sidebar"}>{folded ? <PanelLeftOpen size={18} strokeWidth={1.8} /> : <PanelLeftClose size={18} strokeWidth={1.8} />}</button>
+        <button type="button" className="side-fold" onClick={toggleFold} title={folded ? "Open the sidebar" : "Fold the sidebar to icons"} aria-label={folded ? "Open the sidebar" : "Fold the sidebar"}>{folded ? <SidebarSimple size={18} /> : <SidebarSimple size={18} />}</button>
       </div>
       <nav className="side-groups">
         {navGroups.map((group) => {
@@ -152,7 +152,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
               <button type="button" className="side-group-toggle side-label" aria-expanded={open} aria-controls={id} disabled={here} onClick={() => toggleGroup(title)} title={here ? "The page you are on is in this group" : open ? `Hide ${title}` : `Show ${title}`}>
                 <span>{title}</span>
                 {!open && waiting > 0 && <b className="side-count">{waiting}</b>}
-                <ChevronDown size={15} strokeWidth={2} aria-hidden="true" />
+                <CaretDown size={15} aria-hidden="true" />
               </button>
               {open && <div id={id} className="side-group-items">{items.map(link)}</div>}
             </div>
@@ -163,18 +163,18 @@ export function Header({showTour=true}:{showTour?:boolean}) {
         {bottomItems.filter((item) => !item.adminOnly || me?.role === "admin").map(link)}
         {showTour && <Walkthrough userKey={me?.email} inSidebar />}
         <FeedbackWidget inSidebar />
-        {me?.canAct && !me.actor && !me.actingError && <button type="button" className="side-link side-action" disabled={switching} onClick={() => switchAccount(false)} title="Act as Suuchi"><UserRoundCog size={18} strokeWidth={1.8} aria-hidden="true" /><span className="side-label">Act as Suuchi</span></button>}
+        {me?.canAct && !me.actor && !me.actingError && <button type="button" className="side-link side-action" disabled={switching} onClick={() => switchAccount(false)} title="Act as Suuchi"><UserSwitch size={18} aria-hidden="true" /><span className="side-label">Act as Suuchi</span></button>}
         <div className="side-account" title={me?.email ?? "Signed in"}>
           <span className="ws-badge" aria-hidden="true">{meInitials}</span>
           <span className="side-account-who side-label"><b>{me?.name ?? ""}</b><small>{me?.email ?? ""}</small></span>
-          <form action="/api/auth/logout" method="post"><button className="side-signout" type="submit" title="Sign out" aria-label="Sign out"><LogOut size={16} strokeWidth={1.8} /></button></form>
+          <form action="/api/auth/logout" method="post"><button className="side-signout" type="submit" title="Sign out" aria-label="Sign out"><SignOut size={16} /></button></form>
         </div>
       </div>
     </aside>
     {mobileOpen && <button type="button" className="side-scrim" aria-label="Close the menu" onClick={() => setMobileOpen(false)} />}
     <header className="appbar" aria-label="Menu">
       <div className="appbar-left">
-        <button type="button" className="appbar-menu" onClick={() => setMobileOpen(true)} aria-label="Open the menu"><Menu size={20} strokeWidth={1.8} /></button>
+        <button type="button" className="appbar-menu" onClick={() => setMobileOpen(true)} aria-label="Open the menu"><List size={20} /></button>
         <Link href="/" className="appbar-brand appbar-brand-mobile" title="Night Watch"><span className="brand-moon" aria-hidden /><strong>nightwatch<i>.</i></strong></Link>
       </div>
     </header>

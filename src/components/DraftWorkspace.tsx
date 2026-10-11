@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Check, ChevronLeft, ChevronRight, CircleAlert, Search, Sparkles, TextQuote, Type } from "lucide-react";
+import { ArrowRight, CalendarDots, CaretLeft, CaretRight, Check, MagnifyingGlass, Sparkle, TextAlignLeft, TextT, WarningCircle, type Icon } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { CompanyLogo } from "@/components/CompanyLogo";
 import { InlineConfirm } from "@/components/InlineConfirm";
@@ -15,10 +15,10 @@ type Saved = { updated_at?: string; status?: string; email_subject?: string | nu
 
 const PAGE = 10;
 const TABS: Array<[Tab, string]> = [["review", "Needs review"], ["approved", "Approved"], ["held", "Held"], ["missing", "No address"]];
-const SUGGEST: Array<{ key: string; label: string; icon: typeof Type; instruction: string }> = [
-  { key: "shorten", label: "Shorten", icon: TextQuote, instruction: "Make it shorter and tighter. Keep the facts, the ask and the sign-off." },
-  { key: "opening", label: "Improve opening", icon: Sparkles, instruction: "Rewrite only the first paragraph after the greeting so it is specific to this company. Keep everything else." },
-  { key: "subject", label: "Suggest subject", icon: Type, instruction: "Suggest a better subject line, specific to this company, under 60 characters. Keep the body as it is." },
+const SUGGEST: Array<{ key: string; label: string; icon: Icon; instruction: string }> = [
+  { key: "shorten", label: "Shorten", icon: TextAlignLeft, instruction: "Make it shorter and tighter. Keep the facts, the ask and the sign-off." },
+  { key: "opening", label: "Improve opening", icon: Sparkle, instruction: "Rewrite only the first paragraph after the greeting so it is specific to this company. Keep everything else." },
+  { key: "subject", label: "Suggest subject", icon: TextT, instruction: "Suggest a better subject line, specific to this company, under 60 characters. Keep the body as it is." },
 ];
 const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const tabOf = (draft: WorkspaceDraft): Tab => !draft.sendable ? "missing" : draft.held ? "held" : draft.status === "approved" ? "approved" : "review";
@@ -201,12 +201,12 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
     <section className="dw" aria-label="Review emails" onKeyDown={onKey}>
       {plan && (
         <div className={`dw-banner ${nextUnapproved.length ? "is-todo" : ""}`}>
-          <CalendarDays size={22} strokeWidth={1.7} aria-hidden="true" />
+          <CalendarDots size={22} aria-hidden="true" />
           <div>
             <b>{nextUnapproved.length ? `${plural(nextUnapproved.length, "email", "emails")} sending ${day} ${nextUnapproved.length === 1 ? "is" : "are"} not approved yet` : next.length ? `All ${next.length} emails sending ${day} are approved` : `Nothing is set to send ${day}`}</b>
             <small>{plan.going} in the next window · {plan.windowLabel} ET · {plan.dailyCap}-email daily limit · {plan.autoSend ? "Auto-send on" : "Auto-send off"}</small>
           </div>
-          {nextUnapproved.length > 0 && <button type="button" className="dw-link" onClick={() => { chooseTab("review"); const target = nextUnapproved[0]; const list = drafts.filter((draft) => tabOf(draft) === "review"); setPage(Math.floor(list.findIndex((draft) => draft.id === target.id) / PAGE)); open(target); }}>Resume review <ArrowRight size={15} strokeWidth={2} aria-hidden="true" /></button>}
+          {nextUnapproved.length > 0 && <button type="button" className="dw-link" onClick={() => { chooseTab("review"); const target = nextUnapproved[0]; const list = drafts.filter((draft) => tabOf(draft) === "review"); setPage(Math.floor(list.findIndex((draft) => draft.id === target.id) / PAGE)); open(target); }}>Resume review <ArrowRight size={15} aria-hidden="true" /></button>}
         </div>
       )}
 
@@ -220,7 +220,7 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
               </select>
             </label>
           )}
-          <label className="dw-field is-search"><Search size={15} strokeWidth={2} aria-hidden="true" /><span className="sr-only">Search drafts</span><input type="search" placeholder="Search drafts" value={query} onChange={(event) => { setQuery(event.target.value); setPage(0); setCurrentId(null); }} /></label>
+          <label className="dw-field is-search"><MagnifyingGlass size={15} aria-hidden="true" /><span className="sr-only">MagnifyingGlass drafts</span><input type="search" placeholder="Search drafts" value={query} onChange={(event) => { setQuery(event.target.value); setPage(0); setCurrentId(null); }} /></label>
           <span className="review-progress" aria-label="Progress"><b>{reviewedCount}</b> of {sendable.length} reviewed</span>
         </div>
         <div className="dw-tabs review-filters" role="tablist" aria-label="Show">
@@ -271,7 +271,7 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
                     <CompanyLogo domain={draft.domain} name={draft.company} size={34} />
                     <button type="button" className="review-row" aria-expanded={current?.id === draft.id} onClick={() => open(draft)}>
                       <span className="review-who"><b>{draft.company}</b><small>{draft.name}{draft.title ? ` · ${draft.title}` : ""}</small></span>
-                      <span className={`dw-addr ${draft.confirmed ? "is-ok" : draft.sendable ? "is-warn" : "is-bad"}`}>{draft.confirmed ? <Check size={14} strokeWidth={2.6} aria-hidden="true" /> : <CircleAlert size={14} strokeWidth={2.2} aria-hidden="true" />}{draft.confirmed ? "Email verified" : draft.sendable ? "Needs verification" : "No address"}</span>
+                      <span className={`dw-addr ${draft.confirmed ? "is-ok" : draft.sendable ? "is-warn" : "is-bad"}`}>{draft.confirmed ? <Check size={14} aria-hidden="true" /> : <WarningCircle size={14} aria-hidden="true" />}{draft.confirmed ? "Email verified" : draft.sendable ? "Needs verification" : "No address"}</span>
                     </button>
                   </li>
                 ))}
@@ -279,11 +279,11 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
               {pages > 1 && (
                 <nav className="dw-pages" aria-label="Pages">
                   <span>{at * PAGE + 1}&ndash;{at * PAGE + pageDrafts.length} of {shown.length}</span>
-                  <button type="button" aria-label="Previous page" disabled={at === 0} onClick={() => { setPage(at - 1); setCurrentId(null); }}><ChevronLeft size={16} strokeWidth={2} /></button>
+                  <button type="button" aria-label="Previous page" disabled={at === 0} onClick={() => { setPage(at - 1); setCurrentId(null); }}><CaretLeft size={16} /></button>
                   {Array.from({ length: pages }, (_, index) => index).filter((index) => pages <= 7 || Math.abs(index - at) <= 2 || index === 0 || index === pages - 1).map((index) => (
                     <button key={index} type="button" aria-current={index === at ? "page" : undefined} className={index === at ? "is-on" : ""} onClick={() => { setPage(index); setCurrentId(null); }}>{index + 1}</button>
                   ))}
-                  <button type="button" aria-label="Next page" disabled={at >= pages - 1} onClick={() => { setPage(at + 1); setCurrentId(null); }}><ChevronRight size={16} strokeWidth={2} /></button>
+                  <button type="button" aria-label="Next page" disabled={at >= pages - 1} onClick={() => { setPage(at + 1); setCurrentId(null); }}><CaretRight size={16} /></button>
                 </nav>
               )}
             </aside>
@@ -308,7 +308,7 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
                       <div className="dw-row">
                         <button type="button" className="dw-btn is-ghost" onClick={() => { void navigator.clipboard?.writeText(current.linkedin ?? "").then(() => setCopied(true)); }}>{copied ? "Copied" : "Copy message"}</button>
                         {current.linkedinUrl && <a className="dw-btn is-ghost" href={current.linkedinUrl} target="_blank" rel="noreferrer">Open profile</a>}
-                        <Link className="dw-link" href={`/linkedin?owner=${owner}`}>LinkedIn tasks <ArrowRight size={15} strokeWidth={2} aria-hidden="true" /></Link>
+                        <Link className="dw-link" href={`/linkedin?owner=${owner}`}>LinkedIn tasks <ArrowRight size={15} aria-hidden="true" /></Link>
                       </div>
                     </div>
                   : <>
@@ -316,8 +316,8 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
                       <label className="dw-label"><span>Email body</span><textarea rows={13} maxLength={1000} value={editing.body} disabled={!canAct} onChange={(event) => setEdit({ ...editing, body: event.target.value })} /></label>
                       {canAct && (
                         <div className="dw-suggest">
-                          {SUGGEST.map((item) => <button key={item.key} type="button" className="dw-chip" disabled={busy !== null || dirty} title={dirty ? "Save your changes first" : undefined} onClick={() => void suggest(current, item.instruction, item.key)}><item.icon size={15} strokeWidth={1.9} aria-hidden="true" />{busy === item.key ? "Working…" : item.label}</button>)}
-                          <span className="dw-hint"><CircleAlert size={14} strokeWidth={2} aria-hidden="true" />Suggestions need your review</span>
+                          {SUGGEST.map((item) => <button key={item.key} type="button" className="dw-chip" disabled={busy !== null || dirty} title={dirty ? "Save your changes first" : undefined} onClick={() => void suggest(current, item.instruction, item.key)}><item.icon size={15} aria-hidden="true" />{busy === item.key ? "Working…" : item.label}</button>)}
+                          <span className="dw-hint"><WarningCircle size={14} aria-hidden="true" />Suggestions need your review</span>
                         </div>
                       )}
                       <button type="button" className="dw-link review-as-sent" aria-expanded={preview} onClick={() => setPreview(!preview)}>{preview ? "Hide the preview" : "See it exactly as it will be sent"}</button>
@@ -326,7 +326,7 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
                 <footer className="dw-actions review-actions">
                   {canAct && (current.status === "approved"
                     ? <button type="button" className="dw-btn is-primary" disabled={busy !== null} onClick={() => void run([current], { status: "edited" }, "moved back to Needs review.")}>Move back to review</button>
-                    : <button type="button" className="dw-btn is-primary" disabled={busy !== null || !current.sendable} onClick={() => void approve(current)}>{busy === "approve" ? "Saving…" : dirty ? "Save, approve & next" : "Approve & next"}<ArrowRight size={16} strokeWidth={2} aria-hidden="true" /></button>)}
+                    : <button type="button" className="dw-btn is-primary" disabled={busy !== null || !current.sendable} onClick={() => void approve(current)}>{busy === "approve" ? "Saving…" : dirty ? "Save, approve & next" : "Approve & next"}<ArrowRight size={16} aria-hidden="true" /></button>)}
                   {canAct && dirty && <button type="button" className="dw-btn" disabled={busy !== null} onClick={() => void save(current)}>Save</button>}
                   {canAct && <button type="button" className="dw-btn" disabled={busy !== null} onClick={() => void run([current], { auto_send_hold: !current.held }, current.held ? "released to auto-send." : "held. Auto-send skips it.")}>{current.held ? "Release" : "Hold"}</button>}
                   <button type="button" className="dw-btn" disabled={busy !== null} onClick={() => after(current, new Set())}>Skip</button>
@@ -351,7 +351,7 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
                   <h3>Potential opportunity</h3>
                   <p>{current.fit?.summary || current.trigger || "No research summary for this company yet."}</p>
                   {current.fit && current.fit.reasons.length > 0 && <ul className="dw-reasons">{current.fit.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>}
-                  {current.fit && current.fit.concerns.length > 0 && <p className="dw-concern"><CircleAlert size={14} strokeWidth={2} aria-hidden="true" />{current.fit.concerns.join(" ")}</p>}
+                  {current.fit && current.fit.concerns.length > 0 && <p className="dw-concern"><WarningCircle size={14} aria-hidden="true" />{current.fit.concerns.join(" ")}</p>}
                   <small className="dw-muted">From the research. Confirm in conversation.</small>
                 </section>
                 {current.sources.length > 0 && (
@@ -374,7 +374,7 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
                   </ul>
                 </section>
                 <div className="dw-research-foot">
-                  <Link className="dw-link" href={`/accounts/${encodeURIComponent(current.domain)}`}>View company <ArrowRight size={15} strokeWidth={2} aria-hidden="true" /></Link>
+                  <Link className="dw-link" href={`/accounts/${encodeURIComponent(current.domain)}`}>View company <ArrowRight size={15} aria-hidden="true" /></Link>
                   <Link className="dw-link" href={`${listHref}&card=${current.id}`}>Open on the Reach-out list</Link>
                 </div>
               </aside>
