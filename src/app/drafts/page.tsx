@@ -39,7 +39,7 @@ async function draftTemplates(owner: Owner): Promise<CurrentTemplates> {
 }
 
 /** Setting up all of one seat's drafts at once, in plain steps; the technical tools stay folded under Advanced. */
-export default async function Drafts({ searchParams }: { searchParams: Promise<{ owner?: string }> }) {
+export default async function Drafts({ searchParams }: { searchParams: Promise<{ owner?: string; tab?: string }> }) {
   if (!(process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL) || !(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY)) redirect("/setup");
   const user = await requireUser();
   const isAdmin = user.role === "admin";
@@ -64,7 +64,7 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
         </PageHead>
         <DraftsTabs owner={owner} active="edit" />
 
-        <div id="review" className="drafts-review-anchor"><DraftWorkspace key={owner} drafts={workspace.drafts} plan={workspace.plan} owner={owner} sender={sender} optOut={optOutLine()} listHref={listHref} canAct={isAdmin || owner === user.owner} /></div>
+        <div id="review" className="drafts-review-anchor"><DraftWorkspace key={owner} drafts={workspace.drafts} plan={workspace.plan} owner={owner} sender={sender} optOut={optOutLine()} listHref={listHref} canAct={isAdmin || owner === user.owner} startTab={params.tab} /></div>
 
         <section className="dw-bulk-edit" aria-label="Change all drafts at once">
           <h2 className="drafts-section-title">Change all drafts at once</h2>

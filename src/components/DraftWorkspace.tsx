@@ -31,11 +31,14 @@ const typing = (target: EventTarget | null) => target instanceof HTMLElement && 
  * research on the right. Approve uses the card's "approved" status; it does not send anything. Saves go through
  * the desk's route with its version check, so a change made elsewhere is reported, never overwritten.
  */
-export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, listHref, canAct }: {
+export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, listHref, canAct, startTab }: {
   drafts: WorkspaceDraft[]; plan: WorkspacePlan | null; owner: string; sender: ReviewSender; optOut: string; listHref: string; canAct: boolean;
+  /** A tab asked for in the link (Overview's "ready to send" opens Approved). */
+  startTab?: string;
 }) {
   const [drafts, setDrafts] = useState(initial);
-  const [tab, setTab] = useState<Tab>(TABS.map(([key]) => key).find((key) => initial.some((draft) => tabOf(draft) === key)) ?? "review");
+  const asked = TABS.find(([key]) => key === startTab)?.[0];
+  const [tab, setTab] = useState<Tab>(asked ?? TABS.map(([key]) => key).find((key) => initial.some((draft) => tabOf(draft) === key)) ?? "review");
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("all");
   const [page, setPage] = useState(0);
