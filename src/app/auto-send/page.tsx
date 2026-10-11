@@ -7,6 +7,7 @@ import { senderProfile } from "@/lib/sender";
 import { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
 import { PageHead, seatName } from "@/components/PageHead";
+import "./auto-send.css";
 
 export const dynamic = "force-dynamic";
 

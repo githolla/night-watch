@@ -12,6 +12,8 @@ import type { Owner } from "./types.ts";
 /** One email in the auto-send view: who, what kind of company, and where it sits in the queue. */
 export type AutoSendEmail = {
   id: string; name: string; title: string; company: string; subject: string;
+  /** The card's status: "approved" is reviewed on the Drafts page. Approval does not decide what sends. */
+  status: string;
   /** The saved draft and its version, so it can be read and edited on the page with the desk's version check. */
   body: string; updatedAt: string; email: string | null; personId: string | null;
   /** Curated companies send the short body and no opt-out line, exactly as card-send does. */
@@ -44,12 +46,12 @@ export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSu
     skippedToday: ((profile?.auto_send_skip_on as string | null | undefined) ?? null) === localParts().date,
   };
   const queued = Object.keys(slots);
-  const select = "id,email_subject,email_body,updated_at,auto_send_hold,accounts(name,domain,vertical),people(id,full_name,title,email,email_status,email_check)";
+  const select = "id,status,email_subject,email_body,updated_at,auto_send_hold,accounts(name,domain,vertical),people(id,full_name,title,email,email_status,email_check)";
   const [{ data: inQueue }, { data: kept }] = await Promise.all([
     queued.length ? db.from("cards").select(select).in("id", queued) : Promise.resolve({ data: [] }),
     db.from("cards").select(`${select},signals!inner(hash)`).eq("assigned_to", owner).eq("auto_send_hold", true).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).limit(200),
   ]);
-  type Row = { id: string; email_subject: string | null; email_body: string | null; updated_at: string; auto_send_hold: boolean | null; accounts: { name: string | null; domain: string | null; vertical: string | null } | null; people: { id: string; full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown } | null };
+  type Row = { id: string; status: string; email_subject: string | null; email_body: string | null; updated_at: string; auto_send_hold: boolean | null; accounts: { name: string | null; domain: string | null; vertical: string | null } | null; people: { id: string; full_name: string; title: string | null; email: string | null; email_status: string | null; email_check: unknown } | null };
   const listRows = new Map(allFocus().map((row) => [row.domain.toLowerCase(), row]));
   const toEmail = (row: Row): AutoSendEmail => {
     const listRow = row.accounts?.domain ? listRows.get(row.accounts.domain.toLowerCase()) : undefined;
@@ -57,7 +59,7 @@ export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSu
     const held = slot?.label.startsWith("Held: ");
     const group: AutoSendEmail["group"] = row.auto_send_hold ? "kept" : !slot || held ? "held" : slot.position <= plan.going ? "going" : "later";
     return {
-      id: row.id, name: row.people?.full_name ?? "", title: row.people?.title ?? "", company: row.accounts?.name ?? row.accounts?.domain ?? "",
+      id: row.id, status: row.status, name: row.people?.full_name ?? "", title: row.people?.title ?? "", company: row.accounts?.name ?? row.accounts?.domain ?? "",
       subject: row.email_subject ?? "", body: row.email_body ?? "", updatedAt: row.updated_at, email: row.people?.email ?? null, personId: row.people?.id ?? null,
       curated: isCuratedDomain(row.accounts?.domain),
       industry: industryOf(listRow?.sector ?? row.accounts?.vertical, row.accounts?.name), role: roleOf(row.people?.title), size: sizeOf(listRow?.revenue),

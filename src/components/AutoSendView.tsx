@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import type { ReviewSender } from "@/components/DraftReview";
+import { blockedGroups, type BlockKind } from "@/lib/autosend-blocked";
 import type { AutoSendControl, AutoSendEmail, AutoSendSummary, MailboxHealth } from "@/lib/autosend-view";
 import { outreachBody, outreachEmailHtml } from "@/lib/outreach-ending";
 import { tally } from "@/lib/send-plan";
@@ -16,9 +17,9 @@ const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g,
 const OUT_OF_RANGE = "Over $100M";
 
 /**
- * The morning auto-send in plain steps: is it on and what happens next, how it works, who gets emailed in
- * what order, and what it will not send. The order comes from the morning run's own queue, and Keep for me
- * is the card's auto_send_hold, the same switch as the Reach-out list.
+ * The morning auto-send at a glance: on or off, the next window, room left today, and what is eligible, later,
+ * blocked or kept, each with what to do about it. The order comes from the morning run's own queue, and Keep
+ * for me is the card's auto_send_hold, the same switch as the Reach-out list. Approval is shown, never used.
  */
 export function AutoSendView({ owner, plan, emails, control, health, canChange, listHref, sender, optOut }: { owner: Owner; plan: AutoSendSummary; emails: AutoSendEmail[]; control: AutoSendControl; health: MailboxHealth; canChange: boolean; listHref: string; sender: ReviewSender; optOut: string }) {
   const router = useRouter();
@@ -203,12 +204,13 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
     </div>
   );
 
+
   const keepButton = (email: AutoSendEmail) => canChange && (email.group === "kept"
     ? <button type="button" className="btn ghost" disabled={busy !== null} onClick={() => void keep(email, false)}>{busy === email.id ? "Saving…" : "Let auto-send it"}</button>
     : email.group !== "held" && <button type="button" className="btn ghost" disabled={busy !== null} onClick={() => void keep(email, true)}>{busy === email.id ? "Saving…" : "Keep for me"}</button>);
 
   const toggle = (email: AutoSendEmail) => { setOpenId(openId === email.id ? null : email.id); setEditing(null); setRowNote(null); };
-  const row = (email: AutoSendEmail, lead: string, note?: string) => {
+  const row = (email: AutoSendEmail, lead: string, options: { note?: string; fix?: ReactNode } = {}) => {
     const open = openId === email.id;
     const edit = editing?.id === email.id ? editing : null;
     const rowMessage = rowNote?.id === email.id ? rowNote : null;
@@ -217,12 +219,16 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
         <div className={`as-row is-${email.group}`}>
           <span className="as-time">{lead}</span>
           <button type="button" className="as-who as-open" aria-expanded={open} onClick={() => toggle(email)}><b>{email.name}</b><small>{email.title || email.role}</small></button>
-          <button type="button" className="as-company as-open" aria-expanded={open} onClick={() => toggle(email)}><b>{email.company}</b><small>{note ?? `${email.industry} · ${email.size}`}</small></button>
-          <span className="as-action"><button type="button" className="btn ghost" onClick={() => toggle(email)}>{open ? "Close" : "Read"}</button>{keepButton(email)}</span>
+          <button type="button" className="as-company as-open" aria-expanded={open} onClick={() => toggle(email)}><b>{email.company}</b><small>{options.note ?? `${email.industry} · ${email.size}`}</small></button>
+          <span className="as2-flags">
+            <span className={`as2-dot ${email.confirmed ? "is-ok" : "is-warn"}`}>{email.confirmed ? "Verified" : email.email ? "Unconfirmed" : "No address"}</span>
+            {email.status === "approved" && <span className="as2-dot is-ok">Approved</span>}
+          </span>
+          <span className="as-action">{options.fix}<button type="button" className="btn ghost" onClick={() => toggle(email)}>{open ? "Close" : "Read"}</button>{keepButton(email)}</span>
         </div>
         {open && (
           <div className="as-email">
-            <p className="as-email-to">To {email.name}{email.email ? ` · ${email.email}` : " · no address on file"} <span className={`address-badge ${email.confirmed ? "is-confirmed" : "is-unconfirmed"}`}>{email.confirmed ? "Confirmed" : "Unconfirmed"}</span>{canChange && email.personId && <AddressFix key={email.email ?? ""} personId={email.personId} current={email.email} />}</p>
+            <p className="as-email-to">To {email.name}{email.email ? ` · ${email.email}` : " · no address on file"} <span className={`address-badge ${email.confirmed ? "is-confirmed" : "is-unconfirmed"}`}>{email.confirmed ? "Confirmed" : "Unconfirmed"}</span>{canChange && email.personId && !options.fix && <AddressFix key={email.email ?? ""} personId={email.personId} current={email.email} />}</p>
             {edit ? (
               <div className="as-email-edit">
                 <label><span>Subject</span><input value={edit.subject} maxLength={120} aria-label="Edit subject" onChange={(event) => setEditing({ ...edit, subject: event.target.value })} /></label>
@@ -271,14 +277,44 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
     );
   };
 
+  const approvedGoing = allGoing.filter((email) => email.status === "approved").length;
+  const blocked = blockedGroups(held);
+  const used = plan.dailyCap ? Math.min(100, Math.round((plan.sentToday / plan.dailyCap) * 100)) : 0;
+  const state = paused ? "bad" : on ? "ok" : "warn";
+  const fixFor: Record<BlockKind, string> = {
+    address: "Add or fix the address and the email joins the queue. Night Watch also keeps looking for addresses every 20 minutes.",
+    identity: "Check the person on the Reach-out list. Once the right contact is confirmed, it can send.",
+    other: "Open each one on the Reach-out list to see what holds it.",
+  };
+  const blockFix = (kind: BlockKind, email: AutoSendEmail) => !canChange ? undefined
+    : kind === "address" && email.personId ? <AddressFix key={email.email ?? ""} personId={email.personId} current={email.email} label={email.email ? "Fix address" : "Add address"} />
+    : <Link className="btn ghost" href={`${listHref}&card=${email.id}`}>Open</Link>;
+
   return (
-    <div className="autosend-page">
-      <section className={`as-status-card ${on ? "is-on" : paused ? "is-paused" : "is-off"}`} aria-label="Auto-send status">
-        <p className="as-headline">{headline}</p>
-        <p className="as-next">{next}</p>
+    <div className="autosend-page as2">
+      <section className={`as-status-card as2-summary ${on ? "is-on" : paused ? "is-paused" : "is-off"}`} aria-label="Auto-send status">
+        <div className="as2-top">
+          <div className="as2-state">
+            <span className={`as2-dot is-${state} as2-state-dot`} aria-hidden="true" />
+            <div>
+              <p className="as-headline">{headline}</p>
+              <p className="as-next">{next}</p>
+            </div>
+          </div>
+          <div className="as2-capacity" aria-label="Room left today">
+            <span className="as2-label">Room left today</span>
+            <span className="as2-big"><b>{roomToday}</b><small>of {plan.dailyCap}</small></span>
+            <span className="as2-meter" aria-hidden="true"><span style={{ width: `${used}%` }} /></span>
+            <p className="as-today">Sent today: <b>{plan.sentToday} of {plan.dailyCap}</b> · <Link href={`/drafts/sent?owner=${owner}&days=1`}>See what was sent &rarr;</Link></p>
+          </div>
+        </div>
         {switchArea}
-        {sendNowArea}
-        <p className="as-today">Sent today: <b>{plan.sentToday} of {plan.dailyCap}</b> · <Link href={`/drafts/sent?owner=${owner}&days=1`}>See what was sent &rarr;</Link></p>
+        <div className="as2-counts">
+          <a href="#as-going" className="as2-count is-ok"><b>{plan.going}</b><span>Eligible</span><small>{plan.dayLabel}, {plan.windowLabel}</small></a>
+          <a href="#as-later" className="as2-count"><b>{plan.later}</b><span>Later</span><small>over the daily limit</small></a>
+          <a href="#as-blocked" className={`as2-count ${held.length ? "is-bad" : ""}`}><b>{held.length}</b><span>Blocked</span><small>{held.length ? "needs a fix" : "nothing blocked"}</small></a>
+          <a href="#as-kept" className="as2-count"><b>{kept.length}</b><span>Kept for you</span><small>you send these</small></a>
+        </div>
         {(() => {
           // Where the mailbox stands against the bounce brake, before it trips.
           const rate = health.sent ? Math.round((health.bounced / health.sent) * 100) : 0;
@@ -290,68 +326,72 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
             </p>
           );
         })()}
+        {sendNowArea}
       </section>
 
       {notice && <p className={`as-notice ${notice.ok ? "is-ok" : "is-bad"}`} role="status">{notice.text}</p>}
 
-      <section className="as-tiles" aria-label="At a glance">
-        <div className="as-tile is-main"><span>{on ? "Going out" : "Would go out"} {plan.dayLabel}</span><b>{plan.going}</b><small>{plan.windowLabel} Eastern</small></div>
-        <div className="as-tile"><span>Sent today</span><b>{plan.sentToday}</b><small>of {plan.dailyCap} a day</small></div>
-        <div className="as-tile"><span>After that</span><b>{plan.later}</b><small>over the daily limit</small></div>
-        <div className="as-tile"><span>Kept for you</span><b>{kept.length}</b><small>you send these yourself</small></div>
-        <div className={`as-tile ${held.length ? "is-warn" : ""}`}><span>Needs you</span><b>{held.length}</b><small>auto-send can&rsquo;t send these</small></div>
-      </section>
+      <p className="as2-approval">
+        <b>Approval and sending are separate.</b> {plan.going ? `${approvedGoing} of ${count(plan.going, "eligible email is", "eligible emails are")} approved on Drafts.` : "Approve drafts on Drafts as you read them."} Auto-send sends eligible emails whether or not they are approved; use Keep for me on any you want to hold. <Link href={`/drafts?owner=${owner}`}>Review drafts &rarr;</Link>
+      </p>
 
-      {mixFrom.length > 0 && (
-        <section className="as-mix" aria-label="Who gets them">
-          <div className="as-queue-head"><h2>Who gets them</h2><p>Click a bar to see just those emails below.</p></div>
-          <div className="as-mix-grid">
-            {mix("industry", "Industry")}
-            {mix("role", "Who it goes to")}
-            {mix("size", "Company size")}
-          </div>
-        </section>
-      )}
-
-      {canChange && outOfRange.length > 0 && (
-        <p className="as-range">
-          <span><b>{outOfRange.length} {outOfRange.length === 1 ? "company is" : "companies are"} over $100M</b>, outside your range.</span>
-          <button type="button" className="btn" disabled={busy !== null} onClick={() => void keepOutOfRange()}>{busy === "range" ? "Keeping…" : `Keep ${outOfRange.length === 1 ? "it" : "these"} for me`}</button>
-        </p>
-      )}
-
-      {filter && <p className="as-filter">Showing <b>{filter.label}</b> only. <button type="button" className="btn ghost" onClick={() => setFilter(null)}>Show all</button></p>}
-
-      <section className="as-how" aria-label="How auto-send works">
-        <div><b>Every weekday morning</b><span>Between 9:00 and 11:30am Eastern, from your own Gmail, a few minutes apart.</span></div>
-        <div><b>Up to {plan.dailyCap} a day</b><span>Anything over that goes out on the next send day. Follow-ups stop when someone replies.</span></div>
-        <div><b>You stay in control</b><span>Press <i>Keep for me</i> on any email to send it yourself, or skip a day. It pauses itself if emails bounce.</span></div>
-      </section>
-
-      <section className="as-queue" aria-label="Who gets emailed next">
-        <div className="as-queue-head"><h2>Who gets emailed {plan.dayLabel} <span>{going.length}</span></h2><p>{on ? "In this order." : "In this order, once auto-send is on."} Click anyone to read their email as it will be sent, or change it.</p></div>
+      <section id="as-going" className="as2-card as-queue" aria-label="Sending next window">
+        <div className="as-queue-head"><h2>Sending {plan.dayLabel} <span>{going.length}</span></h2><p>{plan.windowLabel} Eastern, {on ? "in this order" : "in this order once auto-send is on"}. Click anyone to read or change their email.</p></div>
+        {canChange && outOfRange.length > 0 && (
+          <p className="as-range">
+            <span><b>{outOfRange.length} {outOfRange.length === 1 ? "company is" : "companies are"} over $100M</b>, outside your range.</span>
+            <button type="button" className="btn" disabled={busy !== null} onClick={() => void keepOutOfRange()}>{busy === "range" ? "Keeping…" : `Keep ${outOfRange.length === 1 ? "it" : "these"} for me`}</button>
+          </p>
+        )}
+        {mixFrom.length > 0 && (
+          <details className="as2-more as-mix" open>
+            <summary>Who gets them{filter ? `: ${filter.label}` : ""}</summary>
+            <div className="as-mix-grid">
+              {mix("industry", "Industry")}
+              {mix("role", "Who it goes to")}
+              {mix("size", "Company size")}
+            </div>
+          </details>
+        )}
+        {filter && <p className="as-filter">Showing <b>{filter.label}</b> only. <button type="button" className="btn ghost" onClick={() => setFilter(null)}>Show all</button></p>}
         {going.length
           ? <ol className="as-list">{going.map((email) => row(email, email.time ?? `#${email.position}`))}</ol>
           : <p className="as-empty">Nobody is waiting for {plan.dayLabel}.</p>}
       </section>
 
-      {later.length > 0 && (
-        <section className="as-queue" aria-label="After that">
-          <div className="as-queue-head"><h2>After that <span>{later.length}</span></h2><p>Over the daily limit of {plan.dailyCap}, so these go out on the next send days, in this order.</p></div>
-          <ol className="as-list">{later.map((email) => row(email, `#${email.position}`))}</ol>
-        </section>
-      )}
+      <section id="as-blocked" className="as2-card as-queue" aria-label="Blocked">
+        <div className="as-queue-head"><h2>Blocked <span>{held.length}</span></h2><p>Auto-send can&rsquo;t send these yet. Each group says how to clear it.</p></div>
+        {blocked.length
+          ? blocked.map((group) => (
+              <div key={group.reason} className={`as2-block is-${group.kind}`}>
+                <div className="as2-block-head">
+                  <span className={`as2-dot ${group.kind === "address" ? "is-warn" : "is-bad"}`}><b>{group.reason}</b> · {count(group.emails.length, "email", "emails")}</span>
+                  <p>{fixFor[group.kind]}</p>
+                </div>
+                <ol className="as-list">{group.emails.map((email) => row(email, "Blocked", { fix: blockFix(group.kind, email) }))}</ol>
+              </div>
+            ))
+          : <p className="as-empty">Nothing is blocked.</p>}
+      </section>
 
-      {(kept.length > 0 || held.length > 0) && (
-        <section className="as-queue" aria-label="Not sending">
-          <div className="as-queue-head"><h2>Auto-send won&rsquo;t send these <span>{kept.length + held.length}</span></h2><p>Send them yourself from the Reach-out list.</p></div>
-          <ol className="as-list">
-            {kept.map((email) => row(email, "Kept for you"))}
-            {held.map((email) => row(email, "Needs you", email.reason ? `Why: ${email.reason}` : undefined))}
-          </ol>
-        </section>
-      )}
+      <details id="as-later" className="as2-card as2-fold">
+        <summary><span>Later windows <span className="as2-num">{later.length}</span></span><small>Over the daily limit of {plan.dailyCap}, so these go out on the next send days, in this order.</small></summary>
+        {later.length ? <ol className="as-list">{later.map((email) => row(email, `#${email.position}`))}</ol> : <p className="as-empty">Nothing waits past {plan.dayLabel}.</p>}
+      </details>
 
+      <details id="as-kept" className="as2-card as2-fold as-queue">
+        <summary><span>Kept for you <span className="as2-num">{kept.length}</span></span><small>Auto-send skips these. Send them yourself from the Reach-out list, or let auto-send have them back.</small></summary>
+        {kept.length ? <ol className="as-list">{kept.map((email) => row(email, "Kept for you"))}</ol> : <p className="as-empty">You haven&rsquo;t kept any back.</p>}
+      </details>
+
+      <details className="as2-card as2-fold">
+        <summary><span>How auto-send works</span></summary>
+        <div className="as-how">
+          <div><b>Every weekday morning</b><span>Between 9:00 and 11:30am Eastern, from your own Gmail, a few minutes apart.</span></div>
+          <div><b>Up to {plan.dailyCap} a day</b><span>Anything over that goes out on the next send day. Follow-ups stop when someone replies.</span></div>
+          <div><b>You stay in control</b><span>Press <i>Keep for me</i> on any email to send it yourself, or skip a day. It pauses itself if emails bounce.</span></div>
+        </div>
+      </details>
     </div>
   );
 }
