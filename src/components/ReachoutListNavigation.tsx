@@ -10,7 +10,7 @@ export function ReachoutListNavigation({ owner, batch, todayCount = 0, showOwner
     {/* Only an admin switches between seats; a member just has her own list. */}
     {showOwners && <div className="reachout-navigation-group">
       <span className="reachout-navigation-label">List owner</span>
-      <nav aria-label="Reach-out lists" className="reachout-segments">
+      <nav aria-label="Company lists" className="reachout-segments">
         {(['josh', 'suuchi'] as const).map(id => <a key={id}
           href={`/outreach?list=${id}&batch=${batchParam(batch)}`}
           aria-current={owner === id ? 'page' : undefined}>

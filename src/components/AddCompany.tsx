@@ -115,12 +115,12 @@ export function AddCompany() {
     <section className="conn-card">
       <div className="conn-head"><h2>Companies on the list</h2></div>
       <PanelGuide
-        what="Adds a company to the reach-out list, or takes one off it."
+        what="Adds a company to Companies to email, or takes one off it."
         when={<>You&rsquo;ve thought of a company the imported list doesn&rsquo;t have, or you&rsquo;ve hit one the pitch doesn&rsquo;t fit: an AI product company that already builds this kind of thing itself.</>}
         watch={<>Either way the decision sticks: the nightly import keeps hand-managed companies exactly as you left them. Taking a company off dismisses its un-sent drafts but <strong>keeps everything you already sent</strong> in History.</>}
       />
       <h3 className="panel-subhead">Add a company</h3>
-      <p className="conn-note">Put a company on the reach-out list by hand. It joins the target list as an active, hand-managed account, the nightly file sync won&apos;t remove it, and the next research run works it like any other target.</p>
+      <p className="conn-note">Put a company on Companies to email by hand. It joins the target list as an active, hand-managed account, the nightly file sync won&apos;t remove it, and the next research run works it like any other target.</p>
       <form onSubmit={add} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Company name (e.g. Shaw Flooring)" style={{ flex: "1 1 240px", minWidth: 0, border: "1px solid var(--line-strong)", borderRadius: "var(--radius-sm)", background: "var(--paper-bright)", padding: "9px 11px", font: "500 14px/1 var(--sans)", color: "inherit" }} />

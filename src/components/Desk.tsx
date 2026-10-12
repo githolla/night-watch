@@ -1321,7 +1321,7 @@ export function Desk({
                 <p className="night-hero-meta">Scans every night, on its own</p>
               </section>
               <div className="overview-stats">
-                <Link className="desk-stat" href="/outreach"><span>Companies watched</span><strong>{companiesWatched.toLocaleString()}</strong><small>on the reach-out list</small></Link>
+                <Link className="desk-stat" href="/outreach"><span>Companies watched</span><strong>{companiesWatched.toLocaleString()}</strong><small>on your lists</small></Link>
                 <Link className="desk-stat" href="/roles"><span>Jobs they&rsquo;re hiring for</span><strong>{totalRoles.toLocaleString()}</strong><small>roles Nine-67 could build</small></Link>
                 <Link className="desk-stat" href="/posts"><span>Employee AI posts</span><strong>{totalPosts.toLocaleString()}</strong><small>conversations to join</small></Link>
                 <div className="desk-stat is-priority"><span>High-fit{priorityCount ? <em className="pill pill-accent">Priority</em> : null}</span><strong>{priorityCount.toLocaleString()}</strong><small>ready for review</small></div>
@@ -1382,7 +1382,7 @@ export function Desk({
       ) : (
         <div className="deskwork">
           <header className="deskwork-head deskwork-head-compact">
-            <div className="workspace-progress"><h1>Reach-out list</h1>{batchSequence && progress && <span>{batchSequence === 1 ? `${progress.completed} of ${progress.total} completed` : batchSequence === 3 ? `Today's list · ${cards.length} companies` : 'Next 25'}</span>}</div>
+            <div className="workspace-progress"><h1>Companies to email</h1><small className="workspace-explain">Every company on your lists, at every step. Only approved emails with a confirmed address go out; <a href="/auto-send">see what sends today</a>.</small>{batchSequence && progress && <span>{batchSequence === 1 ? `${progress.completed} of ${progress.total} completed` : batchSequence === 3 ? `Today's list · ${cards.length} companies` : 'Next 25'}</span>}</div>
             <div className="deskwork-head-actions">{tools}<a className="deskwork-overview" href={overviewHref}>Overview &rarr;</a></div>
           </header>
 

@@ -246,7 +246,7 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
                 <div className="review-email" dangerouslySetInnerHTML={{ __html: emailHtml(email, email.body) }} />
                 <div className="as-controls">
                   {canChange && <button type="button" className="btn" disabled={busy !== null} onClick={() => { setEditing({ id: email.id, subject: email.subject, body: email.body, updatedAt: email.updatedAt }); setRowNote(null); }}>Edit</button>}
-                  <Link className="review-open" href={`${listHref}&card=${email.id}`}>Open on the Reach-out list &rarr;</Link>
+                  <Link className="review-open" href={`${listHref}&card=${email.id}`}>Open in Companies to email &rarr;</Link>
                 </div>
               </>
             )}
@@ -284,8 +284,8 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
   const state = paused ? "bad" : on ? "ok" : "warn";
   const fixFor: Record<BlockKind, string> = {
     address: "Add or fix the address and the email joins the queue. Night Watch also keeps looking for addresses every 20 minutes.",
-    identity: "Check the person on the Reach-out list. Once the right contact is confirmed, it can send.",
-    other: "Open each one on the Reach-out list to see what holds it.",
+    identity: "Check the person in Companies to email. Once the right contact is confirmed, it can send.",
+    other: "Open each one in Companies to email to see what holds it.",
   };
   const blockFix = (kind: BlockKind, email: AutoSendEmail) => !canChange ? undefined
     : kind === "address" && email.personId ? <AddressFix key={email.email ?? ""} personId={email.personId} current={email.email} label={email.email ? "Fix address" : "Add address"} />
@@ -381,7 +381,7 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
       </details>
 
       <details id="as-kept" className="as2-card as2-fold as-queue">
-        <summary><span>Kept for you <span className="as2-num">{kept.length}</span></span><small>Auto-send skips these. Send them yourself from the Reach-out list, or let auto-send have them back.</small></summary>
+        <summary><span>Kept for you <span className="as2-num">{kept.length}</span></span><small>Auto-send skips these. Send them yourself from Companies to email, or let auto-send have them back.</small></summary>
         {kept.length ? <ol className="as-list">{kept.map((email) => row(email, "Kept for you"))}</ol> : <p className="as-empty">You haven&rsquo;t kept any back.</p>}
       </details>
 

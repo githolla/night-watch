@@ -44,11 +44,11 @@ export default async function RunsPage() {
   return <div className="shell">
     <main className="targets-page">
       <section className="targets-head has-hero">
-        <div><span className="eyebrow">Runs</span><h1>Build the baseline once. Night Watch keeps it current.</h1><p>Every run below works the <Link href="/outreach">reach-out list</Link>: the {outreachAccounts.length} Tier A companies from the cut{holdCount ? `, while the ${holdCount.toLocaleString()} held companies are only swept for a promotion signal when you ask` : ""}. Two passes, in order. The extensive sweep reads every careers page, job board and sitemap, searches for AI posts by people at each company, and enriches contacts. The research pass then puts a model on every company, hiring companies first. After that the hourly sweep and the nightly research are the updates.</p></div>
+        <div><span className="eyebrow">Runs</span><h1>Build the baseline once. Night Watch keeps it current.</h1><p>Every run below works <Link href="/outreach">Companies to email</Link>: the {outreachAccounts.length} Tier A companies from the cut{holdCount ? `, while the ${holdCount.toLocaleString()} held companies are only swept for a promotion signal when you ask` : ""}. Two passes, in order. The extensive sweep reads every careers page, job board and sitemap, searches for AI posts by people at each company, and enriches contacts. The research pass then puts a model on every company, hiring companies first. After that the hourly sweep and the nightly research are the updates.</p></div>
         <div className="targets-head-count"><span>Baseline so far</span><strong>{(careersChecked ?? 0).toLocaleString()} / {listed.toLocaleString()}</strong><small>careers pages read · {(researched ?? 0).toLocaleString()} researched · {(openRoles ?? 0).toLocaleString()} target roles · {(posts ?? 0).toLocaleString()} posts · {(people ?? 0).toLocaleString()} people</small></div>
       </section>
 
-      {!synced && <p className="notice error">The target list is not fully synced ({total.toLocaleString()} of {activeTargetAccounts.length.toLocaleString()} active, {listed.toLocaleString()} of {outreachAccounts.length.toLocaleString()} on the reach-out list). <Link href="/targets">Sync it on the Accounts page</Link> before running the baseline.</p>}
+      {!synced && <p className="notice error">The target list is not fully synced ({total.toLocaleString()} of {activeTargetAccounts.length.toLocaleString()} active, {listed.toLocaleString()} of {outreachAccounts.length.toLocaleString()} companies to email). <Link href="/targets">Sync it on the Accounts page</Link> before running the baseline.</p>}
 
       <section className="run-kind">
         <header><span className="eyebrow">Step 1 · Extensive sweep</span><h2>Read everything, for every company</h2><p>Careers pages and job boards read directly; a job-board search and an AI-posts search per company on {populateSweep.model} with {populateSweep.searches} searches each; contacts for every company. Pauses at ${populateSweep.budgetUsd.toFixed(0)} per press and continues on the next. The button below is the baseline; the smaller one is what the hourly cron does.</p></header>
@@ -88,7 +88,7 @@ export default async function RunsPage() {
         <BackfillDraftsButton />
       </section>
 
-      <p className="coverage-note">Where the data lands: the <Link href="/outreach">Reach-out list</Link>, <Link href="/roles">Roles</Link>, <Link href="/posts">Posts</Link>, <Link href="/people">People</Link>, and <Link href="/targets">Accounts</Link> sorted by intelligence score. Dossiers appear on the <Link href="/desk">Desk</Link>.</p>
+      <p className="coverage-note">Where the data lands: <Link href="/outreach">Companies to email</Link>, <Link href="/roles">Roles</Link>, <Link href="/posts">Posts</Link>, <Link href="/people">People</Link>, and <Link href="/targets">Accounts</Link> sorted by intelligence score. Dossiers appear on the <Link href="/desk">Desk</Link>.</p>
     </main>
   </div>;
 }

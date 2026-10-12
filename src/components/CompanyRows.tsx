@@ -25,7 +25,7 @@ export function CompanyRows({ rows }: { rows: CompanyRow[] }) {
 
   async function toggle(row: CompanyRow, next: boolean) {
     if (!row.id) return;
-    if (!next && !window.confirm(`Take ${row.name} off the reach-out list? Open drafts are archived and no new ones are written until it is put back.`)) return;
+    if (!next && !window.confirm(`Take ${row.name} off Companies to email? Open drafts are archived and no new ones are written until it is put back.`)) return;
     setBusy(row.id);
     setError(null);
     try {
@@ -43,7 +43,7 @@ export function CompanyRows({ rows }: { rows: CompanyRow[] }) {
   return <div className="table-wrap">
     {error && <p className="notice error">{error}</p>}
     <table className="data-table">
-      <thead><tr><th>Company</th><th>Found</th><th>Status</th><th className="col-num">Score</th><th>Changed</th><th>Reach-out list</th></tr></thead>
+      <thead><tr><th>Company</th><th>Found</th><th>Status</th><th className="col-num">Score</th><th>Changed</th><th>To email</th></tr></thead>
       <tbody>
         {rows.map((row) => <tr key={row.domain} className={row.tier === "removed" ? "is-closed" : ""} onClick={() => router.push(`/accounts/${row.domain}`)}>
           <td><div className="cell-company"><CompanyLogo domain={row.domain} name={row.name} size={32} className="avatar" /><div><strong>{row.name}</strong><small>{row.industry}{row.hq ? ` · ${row.hq}` : ""} · {fitLabel(row.tier)}{row.manual ? " · by hand" : ""}</small></div></div></td>
@@ -52,7 +52,7 @@ export function CompanyRows({ rows }: { rows: CompanyRow[] }) {
           <td className="col-num"><b className={`score ${row.intel >= 60 ? "is-hot" : row.intel >= 30 ? "is-warm" : ""}`}>{row.intel}</b></td>
           <td className="cell-time">{ago(row.lastChange)}</td>
           <td onClick={(event) => event.stopPropagation()}>
-            {row.id ? <button type="button" className={`switch ${row.outreach ? "is-on" : ""}`} disabled={busy === row.id} onClick={() => toggle(row, !row.outreach)} title={row.outreach ? "On the reach-out list. Click to take it off." : "Held. Click to put it on the reach-out list."}><i /><span>{row.outreach ? "On the list" : "Off"}</span></button> : <small className="cell-sub">not synced</small>}
+            {row.id ? <button type="button" className={`switch ${row.outreach ? "is-on" : ""}`} disabled={busy === row.id} onClick={() => toggle(row, !row.outreach)} title={row.outreach ? "On Companies to email. Click to take it off." : "Held. Click to put it on the reach-out list."}><i /><span>{row.outreach ? "On the list" : "Off"}</span></button> : <small className="cell-sub">not synced</small>}
           </td>
         </tr>)}
         {rows.length === 0 && <tr><td colSpan={6} className="cell-empty">Nothing matches.</td></tr>}

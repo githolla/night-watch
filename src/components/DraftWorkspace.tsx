@@ -375,7 +375,7 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
                 </section>
                 <div className="dw-research-foot">
                   <Link className="dw-link" href={`/accounts/${encodeURIComponent(current.domain)}`}>View company <ArrowRight size={15} aria-hidden="true" /></Link>
-                  <Link className="dw-link" href={`${listHref}&card=${current.id}`}>Open on the Reach-out list</Link>
+                  <Link className="dw-link" href={`${listHref}&card=${current.id}`}>Open in Companies to email</Link>
                 </div>
               </aside>
             )}

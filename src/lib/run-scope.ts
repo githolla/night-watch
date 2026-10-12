@@ -6,7 +6,7 @@
 export type RunScope = "outreach" | "hold" | "all";
 
 export const SCOPE_LABEL: Record<RunScope, string> = {
-  outreach: "Reach-out list (Tier A)",
+  outreach: "Companies to email (Tier A)",
   hold: "Hold list (Tiers B and C)",
   all: "Every active company",
 };

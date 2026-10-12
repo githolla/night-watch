@@ -192,7 +192,7 @@ export function DraftSetup({ owner, unsent, samples, listHref, current, sender, 
             <div className="setup-actions">
               <button type="button" className="btn primary" disabled={fixBusy} onClick={() => void saveFix()}>{fixBusy ? "Saving…" : "Save and check again"}</button>
               <button type="button" className="btn ghost" disabled={fixBusy} onClick={() => { setFixing(null); setFixNote(null); }}>Cancel</button>
-              <Link className="review-open" href={`${listHref}&card=${problem.id}`}>Open on the Reach-out list &rarr;</Link>
+              <Link className="review-open" href={`${listHref}&card=${problem.id}`}>Open in Companies to email &rarr;</Link>
               {note?.conflict && <button type="button" className="btn" onClick={() => void loadSavedFix()}>Load the saved version</button>}
             </div>
           </div>
@@ -246,13 +246,13 @@ export function DraftSetup({ owner, unsent, samples, listHref, current, sender, 
         <div className="setup-step">3</div>
         <div className="setup-body">
           <h2>The message itself</h2>
-          <p>This is how every email looks. The start and the ending are the same on all of them; the middle is written for each company. To change the middle for everyone, open any email on the <Link href={listHref}>Reach-out list</Link>, write it the way you want, then press <b>Apply message to batch</b>.</p>
+          <p>This is how every email looks. The start and the ending are the same on all of them; the middle is written for each company. To change the middle for everyone, open any email in <Link href={listHref}>Companies to email</Link>, write it the way you want, then press <b>Apply message to batch</b>.</p>
           <div className="setup-preview" aria-label="How every email looks">
             <p className="setup-preview-meta"><span>From</span> {sender.fromName}</p>
             <p className="setup-preview-meta"><span>Subject</span> {subject.trim() && sample ? fill(subject, sample) : sample?.subject || "Each email's own subject"}</p>
             <div className="setup-preview-body" dangerouslySetInnerHTML={{ __html: previewHtml }} />
           </div>
-          <div className="setup-actions"><Link className="btn" href={listHref}>Open the Reach-out list</Link></div>
+          <div className="setup-actions"><Link className="btn" href={listHref}>Open Companies to email</Link></div>
         </div>
       </section>
 

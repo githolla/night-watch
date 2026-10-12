@@ -23,7 +23,7 @@ const PAGE_SIZE = 50;
 const SHOW: Record<string, string> = { "": "Everything", hiring: "Hiring target roles", posts: "Posting about AI", contacts: "Has people on file", changed: "Changed this week", drafted: "Draft ready", unscanned: "Not scanned yet", quiet: "Scanned, nothing found" };
 const TABS: Array<{ value: string; label: string; test: (row: CompanyRow) => boolean }> = [
   { value: "", label: "All companies", test: () => true },
-  { value: "list", label: "On the reach-out list", test: (row) => row.outreach },
+  { value: "list", label: "Companies to email", test: (row) => row.outreach },
   ...Object.entries(FIT).map(([tier, fit]) => ({ value: tier, label: fit.label, test: (row: CompanyRow) => row.tier === tier })),
 ];
 
@@ -128,7 +128,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
       <header className="ac-head">
         <div>
           <h1>All companies</h1>
-          <p><b>{all.length.toLocaleString()}</b> companies on file. <Link href={href({ tier: "list", page: undefined, stage: undefined })}><b>{counts.list.toLocaleString()}</b> are on the reach-out list</Link>, which Night Watch scans and writes to each night.</p>
+          <p><b>{all.length.toLocaleString()}</b> companies on file. <Link href={href({ tier: "list", page: undefined, stage: undefined })}><b>{counts.list.toLocaleString()}</b> are companies to email</Link>, which Night Watch scans and writes to each night.</p>
         </div>
         {me.role === "admin" && <ToolDrawer label="Add company" title="Target accounts">
           <AddCompany />
@@ -167,7 +167,7 @@ export default async function TargetsPage({ searchParams }: { searchParams: Prom
           <p className="ac-note">{signals.verified.toLocaleString()} companies have a verified email on file.</p>
         </section>
         <section className="ac-card" aria-label="Top industries">
-          <div className="ac-card-head"><h2>Top industries</h2><p><span className="ac-key is-list" /> on the reach-out list <span className="ac-key is-all" /> on file</p></div>
+          <div className="ac-card-head"><h2>Top industries</h2><p><span className="ac-key is-list" /> to email <span className="ac-key is-all" /> on file</p></div>
           <BarList items={topIndustries} selected={industry} link={(key) => href({ industry: key, page: undefined })} />
         </section>
         <section className="ac-card" aria-label="Where they are based">

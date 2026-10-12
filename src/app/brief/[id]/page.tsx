@@ -94,7 +94,7 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
           {person?.email && <a className="btn primary" href={`mailto:${person.email}`}>Email {person.email}</a>}
           {person?.linkedin_url && <a className="btn" href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a>}
           {account?.domain && <a className="btn" href={`https://${account.domain}`} target="_blank" rel="noreferrer">{account.domain} ↗</a>}
-          <Link className="btn ghost" href={listHref}>Open on the Reach-out list</Link>
+          <Link className="btn ghost" href={listHref}>Open in Companies to email</Link>
           {account?.domain && <Link className="btn ghost" href={`/accounts/${account.domain}`}>Company details</Link>}
         </nav>
 

@@ -39,8 +39,8 @@ export function OutreachForm({ accountId, tier, outreach, manual, stage, owner, 
     <div className="outreach-form-actions">
       <button className="btn primary" type="submit" disabled={state === "saving"}>{state === "saving" ? "Saving…" : "Save"}</button>
       {outreach
-        ? <button className="btn" type="button" disabled={state === "saving"} onClick={() => { if (window.confirm("Take this company off the reach-out list? Open dossiers for it are archived and no new ones are drafted until it is put back.")) void send({ outreach: false }); }}>{compact ? "Take off list" : "Take off the reach-out list"}</button>
-        : <button className="btn" type="button" disabled={state === "saving"} onClick={() => send({ outreach: true })}>{compact ? "Put on list" : "Put on the reach-out list"}</button>}
+        ? <button className="btn" type="button" disabled={state === "saving"} onClick={() => { if (window.confirm("Take this company off Companies to email? Open dossiers for it are archived and no new ones are drafted until it is put back.")) void send({ outreach: false }); }}>{compact ? "Take off list" : "Take off the reach-out list"}</button>
+        : <button className="btn" type="button" disabled={state === "saving"} onClick={() => send({ outreach: true })}>{compact ? "Put on list" : "Add to Companies to email"}</button>}
       {manual !== null && <button className="btn" type="button" disabled={state === "saving"} title={`The cut says ${tier ? TIER_LABEL[tier as TargetTier] ?? tier : "no tier"}`} onClick={() => send({ outreach: null })}>{compact ? "Follow tier" : `Follow the tier (${tierSaysOutreach ? "on the list" : "held"})`}</button>}
       {message && <span className={state === "error" ? "notice error" : "outreach-form-saved"}>{message}</span>}
     </div>

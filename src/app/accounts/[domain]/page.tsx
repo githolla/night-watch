@@ -129,7 +129,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
   return <div className="shell">
     <main className="targets-page account-page">
       <div className="company-topnav">
-        <p className="crumbs"><Link href="/outreach">Reach-out list</Link><span>/</span><span>{name}</span></p>
+        <p className="crumbs"><Link href="/outreach">Companies to email</Link><span>/</span><span>{name}</span></p>
         {sibIndex >= 0 && siblings.length > 1 && <div className="company-stepper">
           {prevSib ? <Link href={`/accounts/${prevSib.domain}`} className="btn ghost" title={prevSib.name}>← Prev</Link> : <span className="btn ghost is-disabled">← Prev</span>}
           <span className="company-stepper-count">{sibIndex + 1} of {siblings.length}</span>
@@ -163,7 +163,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
         {live && <div className="record-actions"><RecheckButton accountId={live.id} name={name} /></div>}
       </header>
 
-      {!live && <p className="notice error">This company is on the file but not in the database yet. Open the <Link href="/outreach">reach-out list</Link> once and it will be written.</p>}
+      {!live && <p className="notice error">This company is on the file but not in the database yet. Open <Link href="/outreach">Companies to email</Link> once and it will be written.</p>}
 
       {live && <div className="record-grid">
         <div className="record-main">
@@ -227,7 +227,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
             <OutreachForm accountId={live.id} tier={tier} outreach={outreach} manual={live.outreach_manual ?? null} stage={stage} owner={live.outreach_owner ?? ""} notes={live.outreach_notes ?? ""} owners={owners} />
           </section>
           <section className="card">
-            <div className="card-title pad-x"><h2>Reach-out list</h2></div>
+            <div className="card-title pad-x"><h2>Companies to email</h2></div>
             <CompanyRows rows={listRow} />
           </section>
           <section className="card pad">

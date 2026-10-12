@@ -19,7 +19,7 @@ export function TargetAccountsPanel({ initialCount, targetTotal }: { initialCoun
     }
     setCount(result.total);
     setState("success");
-    setMessage(`${result.total} companies are active; ${result.outreach} are on the reach-out list (Tier A) and ${result.removed} the cut removed are paused.`);
+    setMessage(`${result.total} companies are active; ${result.outreach} are companies to email (Tier A) and ${result.removed} the cut removed are paused.`);
     window.setTimeout(() => window.location.reload(), 1400);
   }
 

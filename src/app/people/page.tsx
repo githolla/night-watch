@@ -101,7 +101,7 @@ export default async function PeoplePage({ searchParams }: { searchParams: Promi
       <PageHead title="People">Everyone on file at the companies you reach out to: {rows.length.toLocaleString()} people, {(verified ?? 0).toLocaleString()} with a confirmed email, {(withLinkedIn ?? 0).toLocaleString()} on LinkedIn.</PageHead>
 
       {nextCards && nextCards.length > 0 && <section className="reach-next">
-        <header><span className="eyebrow">Reach out next</span><Link href="/outreach">Open the Reach-out list →</Link></header>
+        <header><span className="eyebrow">Reach out next</span><Link href="/outreach">Open Companies to email →</Link></header>
         <div className="reach-next-row">
           {nextCards.map((cardRow) => {
             const person = cardRow.people as unknown as { full_name: string; title: string } | null;

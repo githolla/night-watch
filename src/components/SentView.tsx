@@ -128,7 +128,7 @@ export function SentView({ owner, stats, listHref, updatedAt }: { owner: string;
       )}
 
       <section className="as-queue" aria-label="Sent emails">
-        <div className="as-queue-head"><h2>Sent emails <span>{rows.length}</span></h2><p>Newest first. Click a company to open it on the Reach-out list.</p></div>
+        <div className="as-queue-head"><h2>Sent emails <span>{rows.length}</span></h2><p>Newest first. Click a company to open it in Companies to email.</p></div>
         <div className="sent-shows" role="tablist" aria-label="Show">
           {shows.map(([key, label, count]) => <button key={key} type="button" role="tab" aria-selected={show === key} className={show === key ? "is-active" : ""} onClick={() => setShow(key)}>{label} ({count})</button>)}
           {filter && <button type="button" className="btn ghost" onClick={() => setFilter(null)}>Clear {filter.label}</button>}
