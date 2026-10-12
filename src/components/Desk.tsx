@@ -1382,7 +1382,7 @@ export function Desk({
       ) : (
         <div className="deskwork">
           <header className="deskwork-head deskwork-head-compact">
-            <div className="workspace-progress"><h1>Companies to email</h1><small className="workspace-explain">Every company on your lists, at every step. Only approved emails with a confirmed address go out; <a href="/auto-send">see what sends today</a>.</small>{batchSequence && progress && <span>{batchSequence === 1 ? `${progress.completed} of ${progress.total} completed` : batchSequence === 3 ? `Today's list · ${cards.length} companies` : 'Next 25'}</span>}</div>
+            <div className="workspace-progress"><h1>Companies to email</h1><small className="workspace-explain">Every company on your lists, at every step. Every draft goes out on its own each weekday morning, no approval needed; <a href="/auto-send">see what sends today</a>.</small>{batchSequence && progress && <span>{batchSequence === 1 ? `${progress.completed} of ${progress.total} completed` : batchSequence === 3 ? `Today's list · ${cards.length} companies` : 'Next 25'}</span>}</div>
             <div className="deskwork-head-actions">{tools}<a className="deskwork-overview" href={overviewHref}>Overview &rarr;</a></div>
           </header>
 

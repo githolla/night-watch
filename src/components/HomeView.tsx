@@ -125,7 +125,7 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
       ? { key: "send", title: "Sending is paused", meta: auto?.control.pausedReason ?? "Review and resume on Auto-send", status: "Paused", tone: "bad", href: `/auto-send?${q}` }
       : on && auto
       ? { key: "send", title: auto.plan.going ? `${count(auto.plan.going, "email", "emails")} ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel}` : `Nothing to send ${day === "Today" ? "today" : day}`, meta: `${auto.plan.sentToday} of ${auto.plan.dailyCap} sent today · ${yesterday} yesterday`, status: "Auto-send on", tone: "ok", href: `/auto-send?${q}` }
-      : { key: "send", title: "Auto-send is off", meta: `${count(d.ready, "approved email", "approved emails")} waiting · ${yesterday} sent yesterday`, status: "Auto-send off", tone: "warn", href: `/auto-send?${q}` },
+      : { key: "send", title: "Auto-send is off", meta: `${count(d.ready + d.review, "email", "emails")} waiting · ${yesterday} sent yesterday`, status: "Auto-send off", tone: "warn", href: `/auto-send?${q}` },
     ...(d.missing || d.checking ? [{ key: "addresses", title: "Finding email addresses", meta: [d.missing && `${d.missing} missing`, d.checking && `${d.checking} being confirmed`].filter(Boolean).join(", "), status: "Running", tone: "run" as const, href: `/drafts?${q}` }] : []),
     { key: "followups", title: data.followupsDue ? `${count(data.followupsDue, "follow-up needs", "follow-ups need")} you` : "Follow-ups on schedule", meta: "3 and 10 business days after each first email", status: data.followupsDue ? "Waiting on you" : "Running", tone: data.followupsDue ? "warn" : "run", href: `/followups?view=${data.followupsDue ? "needs" : "upcoming"}&${q}` },
   ];
@@ -133,9 +133,9 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
   const steps: Step[] = [
     { key: "find", who: "Night Watch", title: "Finds companies", value: companies, unit: companies === 1 ? "company on the list" : "companies on the list", sub: latest ? `Newest: ${listName(latest.date)}` : "A new list each weeknight", href: `/outreach?list=${owner}`, needs: false },
     { key: "write", who: "Night Watch", title: "Researches and writes", value: d.total, unit: d.total === 1 ? "email written" : "emails written", sub: `${count(d.linkedinWritten, "LinkedIn message", "LinkedIn messages")} too${d.missing ? ` · ${d.missing} finding an address` : ""}`, href: `/drafts?${q}`, needs: false },
-    { key: "review", who: "You", title: "Review and approve", value: d.review, unit: "to review", sub: `${d.ready} approved so far`, href: `/drafts?${q}&tab=review`, needs: d.nextUnapproved > 0 },
+    { key: "review", who: "You", title: on ? "Read if you like" : "Review and approve", value: d.review, unit: "not read yet", sub: on ? "They send either way" : `${d.ready} approved so far`, href: `/drafts?${q}&tab=review`, needs: !on && d.nextUnapproved > 0 },
     { key: "send", who: on ? "Night Watch" : "You", title: "Sends and follows up", value: 0, unit: "", sub: "", href: `/auto-send?${q}`, needs: false, lanes: [
-      { key: "email", who: on ? "Night Watch" : "You", title: on ? "Email" : "Email (auto-send off)", value: auto?.plan.going ?? 0, unit: day ? `sending ${day === "Today" ? "today" : day}` : "sending next", sub: on ? `${auto?.plan.sentToday ?? 0} of ${auto?.plan.dailyCap ?? 0} sent today, follow-ups automatic` : "Turn it on to send approved emails", href: `/auto-send?${q}`, needs: !on && d.ready > 0 },
+      { key: "email", who: on ? "Night Watch" : "You", title: on ? "Email" : "Email (auto-send off)", value: auto?.plan.going ?? 0, unit: day ? `sending ${day === "Today" ? "today" : day}` : "sending next", sub: on ? `${auto?.plan.sentToday ?? 0} of ${auto?.plan.dailyCap ?? 0} sent today, follow-ups automatic` : "Turn it on and every draft sends itself", href: `/auto-send?${q}`, needs: !on && d.ready > 0 },
       { key: "linkedin", who: "You", title: "LinkedIn, by hand", value: data.linkedin, unit: "ready to send", sub: `Copy, open profile, mark sent · ${data.linkedinSent} sent this week`, href: `/linkedin?${q}`, needs: data.linkedin > 0 },
     ] },
     { key: "reply", who: "You", title: "Replies and meetings", value: data.replies.length, unit: data.replies.length === 1 ? "reply waiting" : "replies waiting", sub: count(data.meetings, "meeting booked", "meetings booked"), href: `/replies?${q}`, needs: data.replies.length > 0 },
@@ -149,16 +149,18 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
   ].filter(Boolean).join(" · ");
   const steps3: Todo[] = [
     { key: "setup", title: "Check the subject, opening and preview", why: `${setupWhy}. See how every email will look before it goes.`, href: `/drafts?${q}#setup`, done: d.total === 0 },
-    d.review
+    d.review && on
+      ? { key: "review", title: `Read ${count(d.review, "email", "emails")} if you like`, why: `Optional. ${d.nextUnapproved ? `${d.nextUnapproved} of them send ${day === "Today" ? "today" : day}` : "They send"} without approval. Fix or hold back any you don't want to go.`, href: `/drafts?${q}&tab=review`, done: true }
+      : d.review
       ? { key: "review", title: `Review ${count(d.review, "email", "emails")}`, why: d.nextUnapproved ? `${d.nextUnapproved} of them send ${day === "Today" ? "today" : day}. Approve each one, fix it or hold it back.` : "Approve each one, fix it or hold it back.", href: `/drafts?${q}&tab=review` }
       : d.ready
-      ? { key: "review", title: "Every email is reviewed", why: `${count(d.ready, "approved email is", "approved emails are")} ready to send.`, href: `/drafts?${q}&tab=approved`, done: true }
+      ? { key: "review", title: "Every email is reviewed", why: `${count(d.ready, "email is", "emails are")} ready to send.`, href: `/drafts?${q}&tab=approved`, done: true }
       : { key: "review", title: "Nothing to review yet", why: d.missing ? `${count(d.missing, "draft is", "drafts are")} waiting on an email address. Night Watch keeps looking.` : "New drafts arrive with each weeknight's list.", href: `/drafts?${q}`, done: true },
     paused
       ? { key: "auto", title: "Resume auto-send", why: auto?.control.pausedReason ? `Paused: ${auto.control.pausedReason.replace(/\.\s*$/, "")}.` : "It is paused. Resume when you are ready.", href: `/auto-send?${q}` }
       : on && auto
-      ? { key: "auto", title: "Auto-send is on", why: auto.plan.going ? `Next, ${count(auto.plan.going, "email goes", "emails go")} out ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel} ET. Follow-ups go 3 and 10 business days later, and stop when someone replies.` : `Nothing is queued for ${day === "Today" ? "today" : day} yet. Approved emails go out each weekday morning.`, href: `/auto-send?${q}`, done: true }
-      : { key: "auto", title: "Turn on auto-send", why: d.ready ? `${count(d.ready, "approved email is", "approved emails are")} waiting. Nothing goes out while it's off.` : "Once it's on, approved emails go out each weekday morning.", href: `/auto-send?${q}` },
+      ? { key: "auto", title: "Auto-send is on", why: auto.plan.going ? `Next, ${count(auto.plan.going, "email goes", "emails go")} out ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel} ET. Follow-ups go 3 and 10 business days later, and stop when someone replies.` : `Nothing is queued for ${day === "Today" ? "today" : day} yet. Every draft goes out on its own each weekday morning, approved or not.`, href: `/auto-send?${q}`, done: true }
+      : { key: "auto", title: "Turn on auto-send", why: d.ready + d.review ? `${count(d.ready + d.review, "email is", "emails are")} waiting. Once it's on, every draft goes out on its own each weekday morning, no approval needed.` : "Once it's on, every draft goes out on its own each weekday morning, no approval needed.", href: `/auto-send?${q}` },
   ];
   // Anything else waiting on her, shown only when it exists.
   const extras: Todo[] = [
