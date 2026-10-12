@@ -17,7 +17,7 @@ export type LinkedInTask = {
 };
 
 /** A LinkedIn send already recorded, for Done recently. */
-export type LinkedInDone = { id: string; name: string; company: string; message: string; sentAt: string; channel: string };
+export type LinkedInDone = { id: string; name: string; company: string; domain?: string; message: string; sentAt: string; channel: string };
 
 export type FirstMessageRow = {
   id: string; person_id: string; updated_at: string; channel: string; status: string;

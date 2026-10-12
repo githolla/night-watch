@@ -2668,3 +2668,23 @@ a.ov-stage:hover{background:var(--soft)}
 .workspace-explain{flex-basis:100%;font-size:12px;color:var(--muted)}
 .workspace-explain a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .deskwork-head-compact .workspace-progress{flex-wrap:wrap;row-gap:2px}
+button.ov-result{font:inherit;text-align:left;background:none;border:0;cursor:pointer;box-shadow:inset 0 -2px 0 transparent}
+button.ov-result.is-active{background:var(--soft);box-shadow:inset 0 -2px 0 var(--accent)}
+button.ov-result:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ov-today-panel{margin-top:20px;border-top:1px solid var(--line);padding-top:12px}
+.ov-today-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;max-height:360px;overflow:auto}
+.ov-today-list li{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line);min-width:0}
+.ov-today-list li:last-child{border-bottom:0}
+.ov-today-list li.is-warn small{color:var(--accent-strong)}
+.ov-today-list li.is-good small{color:var(--ok)}
+.ov-today-who{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.ov-today-who b{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ov-today-who b a{color:inherit;text-decoration:none}
+.ov-today-who b a:hover{text-decoration:underline}
+.ov-today-who i{font-style:normal;font-weight:400;color:var(--muted)}
+.ov-today-who small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ov-today-side{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.ov-today-side time{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:64px;text-align:right}
+.ov-today-empty{margin:8px 0;color:var(--muted);font-size:13px}
+.ov-today-panel footer{padding-top:10px}
+@media (max-width:640px){.ov-today-list li{flex-wrap:wrap}.ov-today-side{width:100%;justify-content:flex-end}}

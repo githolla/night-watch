@@ -31,11 +31,11 @@ export async function linkedinTaskCount(owner: Owner, now: Date = new Date()): P
 
 /** LinkedIn sends recorded from this seat in the last `days` days, newest first. */
 export async function loadLinkedInDone(owner: Owner, now: Date = new Date(), days = 14): Promise<LinkedInDone[]> {
-  const { data } = await admin().from("touches").select("id,channel,body,sent_at,people(full_name),cards(accounts(name))")
+  const { data } = await admin().from("touches").select("id,channel,body,sent_at,people(full_name),cards(accounts(name,domain))")
     .eq("sent_by", owner).in("channel", LINKEDIN_TOUCHES).gte("sent_at", new Date(now.getTime() - days * DAY_MS).toISOString())
     .order("sent_at", { ascending: false }).limit(100);
-  type Row = { id: string; channel: string; body: string | null; sent_at: string; people: { full_name: string | null } | null; cards: { accounts: { name: string | null } | null } | null };
+  type Row = { id: string; channel: string; body: string | null; sent_at: string; people: { full_name: string | null } | null; cards: { accounts: { name: string | null; domain: string | null } | null } | null };
   return ((data ?? []) as unknown as Row[]).map((row) => ({
-    id: row.id, channel: row.channel, name: row.people?.full_name ?? "Unknown contact", company: row.cards?.accounts?.name ?? "", message: row.body ?? "", sentAt: row.sent_at,
+    id: row.id, channel: row.channel, name: row.people?.full_name ?? "Unknown contact", company: row.cards?.accounts?.name ?? "", domain: row.cards?.accounts?.domain ?? "", message: row.body ?? "", sentAt: row.sent_at,
   }));
 }

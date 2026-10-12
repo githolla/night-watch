@@ -6,6 +6,7 @@ import { draftTemplates } from "./draft-summary.ts";
 import type { CurrentTemplates } from "./draft-templates.ts";
 import { dailySeries, type SeriesDay } from "./home-stats.ts";
 import { linkedinTaskCount, loadLinkedInDone } from "./linkedin-tasks.ts";
+import { todayRows, type BounceRow, type HomeTodayRows } from "./home-today.ts";
 import { localParts } from "./local-time.ts";
 import { pendingFollowups } from "./next-followups.ts";
 import { isLikelyPersonName } from "./pipeline.ts";
@@ -24,7 +25,8 @@ export type HomeDrafts = { total: number; ready: number; review: number; held: n
   /** Unsent drafts that also have a LinkedIn message written, for sending by hand. */
   linkedinWritten: number };
 /** What happened today so far, in the send time zone. Emails come from the 90-day series. */
-export type HomeToday = { replies: number; interested: number; bounced: number; linkedin: number };
+export type HomeToday = { replies: number; interested: number; bounced: number; linkedin: number; rows: HomeTodayRows };
+export type { HomeTodayRow, HomeTodayRows } from "./home-today.ts";
 export type HomeData = {
   first: string;
   /** Replies that still need a response, strongest first. */
@@ -80,12 +82,12 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
   const since = (days: number) => new Date(now.getTime() - days * DAY_MS).toISOString();
   const local = localParts(now);
   const dayStart = new Date(now.getTime() - local.minutes * 60_000 - now.getUTCSeconds() * 1000 - now.getUTCMilliseconds()).toISOString();
-  const [profile, connection, replies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin, linkedinDone, templates, repliedToday, bouncedToday] = await Promise.all([
+  const [profile, connection, allReplies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin, linkedinDone, templates] = await Promise.all([
     db.from("sender_profiles").select("from_name").eq("owner", owner).maybeSingle().then((r) => r.data),
     db.from("gmail_connections").select("email").eq("owner", owner).maybeSingle().then((r) => r.data),
     // The same 21 days and "needs a response" rule as the Replies badge in the sidebar.
-    loadReplies(owner, now, 21).then((r) => r.items.filter((item) => item.group === "needs")).catch(() => []),
-    db.from("touches").select("card_id,person_id,bounced_at,cards(status,accounts(name)),people(full_name,email,email_status)")
+    loadReplies(owner, now, 21).then((r) => r.items).catch(() => []),
+    db.from("touches").select("id,card_id,person_id,sent_at,bounced_at,cards(status,accounts(name,domain)),people(full_name,email,email_status)")
       .eq("sent_by", owner).eq("channel", "email").not("bounced_at", "is", null).gte("bounced_at", since(30))
       .order("bounced_at", { ascending: false }).limit(100).then((r) => r.data ?? []),
     // The lists and their companies chain together, so they run alongside everything else instead of after it.
@@ -100,14 +102,12 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     linkedinTaskCount(owner, now).catch(() => 0),
     loadLinkedInDone(owner, now, 7).catch(() => []),
     draftTemplates(owner).catch(() => null),
-    db.from("touches").select("reply_classification").eq("sent_by", owner).gte("reply_at", dayStart).not("reply_classification", "in", "(none,ooo)").limit(500).then((r) => (r.data ?? []) as Array<{ reply_classification: string }>),
-    db.from("touches").select("id", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").gte("bounced_at", dayStart).then((r) => r.count ?? 0),
   ]);
+  const replies = allReplies.filter((item) => item.group === "needs");
 
   const strong = (item: ReplyItem) => Number(POSITIVE.includes(item.classification));
   const waiting = [...replies].sort((a, b) => strong(b) - strong(a) || b.repliedAt.localeCompare(a.repliedAt));
 
-  type BounceRow = { card_id: string; person_id: string; bounced_at: string; cards: { status: string; accounts: { name: string | null } | null } | null; people: { full_name: string | null; email: string | null; email_status: string | null } | null };
   const seenBounce = new Set<string>();
   const toFix = (bounces as unknown as BounceRow[])
     // Still bounced: the address was not fixed yet (a fixed one reopens the card and clears "invalid").
@@ -129,6 +129,8 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     else drafts.review++;
   }
 
+  const rows = todayRows({ owner, dayStart, bounces: bounces as unknown as BounceRow[], replies: allReplies, sent: sent?.touches ?? [], queue: going, linkedin: linkedinDone });
+
   return {
     first: ((profile?.from_name as string | undefined) ?? "").trim().split(/\s+/)[0] || (owner === "josh" ? "Josh" : "Suuchi"),
     replies: waiting,
@@ -147,10 +149,11 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     series: sent ? dailySeries(sent.touches, 90, sent.today, sent.dayOf) : [],
     meetings,
     today: {
-      replies: repliedToday.length,
-      interested: repliedToday.filter((row) => POSITIVE.includes(row.reply_classification)).length,
-      bounced: bouncedToday,
-      linkedin: linkedinDone.filter((done) => localParts(new Date(done.sentAt)).date === local.date).length,
+      replies: rows.replies.length,
+      interested: rows.replies.filter((row) => row.tone === "good").length,
+      bounced: rows.bounces.length,
+      linkedin: rows.linkedin.length,
+      rows,
     },
   };
 }

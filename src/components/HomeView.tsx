@@ -6,7 +6,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { AddressFix } from "@/components/AddressFix";
 import { CompanyLogo } from "@/components/CompanyLogo";
 import type { ListSummary } from "@/lib/company-lists";
-import type { HomeData } from "@/lib/home-view";
+import type { HomeData, HomeTodayRow, HomeTodayRows } from "@/lib/home-view";
 import type { SeriesDay } from "@/lib/home-stats";
 import type { Owner } from "@/lib/types";
 
@@ -53,6 +53,37 @@ function TodoRow({ todo, mark, primary }: { todo: Todo; mark: string; primary: b
   );
 }
 
+type TodayKey = keyof HomeTodayRows;
+type TodayStat = { key: TodayKey; label: string; value: number; sub: string; empty: string; all: { href: string; label: string } };
+const clock = (iso: string) => new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" });
+
+/** The rows behind one Today number: who, which company, what happened and when, with the fix or thread right there. */
+function TodayList({ stat, rows }: { stat: TodayStat; rows: HomeTodayRow[] }) {
+  return (
+    <div className="ov-today-panel" role="tabpanel" id={`today-${stat.key}`} aria-labelledby={`today-tab-${stat.key}`}>
+      {rows.length === 0 ? <p className="ov-today-empty">{stat.empty}</p> : (
+        <ul className="ov-today-list">
+          {rows.map((row) => (
+            <li key={row.id} className={`is-${row.tone}`}>
+              <CompanyLogo domain={row.domain} name={row.company} size={28} />
+              <span className="ov-today-who">
+                <b>{row.href ? <Link href={row.href}>{row.name || row.company}</Link> : row.name || row.company}{row.name && row.company && <i> · {row.company}</i>}</b>
+                <small>{row.note}</small>
+              </span>
+              <span className="ov-today-side">
+                {row.fix && <AddressFix personId={row.fix.personId} current={row.fix.email} label="Fix address" />}
+                {row.gmailUrl && <a className="ov-go" href={row.gmailUrl} target="_blank" rel="noreferrer">Reply in Gmail ↗</a>}
+                <time dateTime={row.at ?? undefined}>{row.at ? clock(row.at) : row.time ? `About ${row.time}` : ""}</time>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <footer><Go href={stat.all.href}>{stat.all.label}</Go></footer>
+    </div>
+  );
+}
+
 /**
  * Overview, read in the morning and shown to anyone new: what happened overnight, how Night Watch works with
  * live numbers at each step, and the short list of what she needs to do, in order, with how long it takes.
@@ -63,6 +94,7 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
   const d = data.drafts;
   const [range, setRange] = useState<Range>(30);
   const [shelf, setShelf] = useState<"current" | "archived">("current");
+  const [picked, setPicked] = useState<TodayKey | null>(null);
 
   const days = useMemo(() => data.series.slice(-range), [data.series, range]);
   const on = Boolean(auto && !auto.plan.blocker);
@@ -145,15 +177,18 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
     { label: "Emails sent", value: sum(days, "sent"), href: `/drafts/sent?${q}&days=${Math.min(range, 30)}` },
     { label: "Bounces", value: sum(days, "bounced"), href: `/drafts/sent?${q}&days=${Math.min(range, 30)}` },
   ];
-  const sentToday = data.series.at(-1) ?? { sent: 0, firsts: 0 };
   const isToday = day === "Today";
-  const todayStats = [
-    { label: "Emails sent", value: sentToday.sent, sub: sentToday.sent ? `${sentToday.firsts} first, ${sentToday.sent - sentToday.firsts} follow-up${sentToday.sent - sentToday.firsts === 1 ? "" : "s"}` : "None yet today", href: `/drafts/sent?${q}&days=1` },
-    { label: "Still to send", value: on && isToday ? auto?.plan.going ?? 0 : 0, sub: paused ? "Auto-send is paused" : !on ? "Auto-send is off" : isToday ? `${auto?.plan.windowLabel} ET` : `Next send ${day}`, href: `/auto-send?${q}` },
-    { label: "Replies in", value: data.today.replies, sub: data.today.interested ? `${data.today.interested} interested` : "Out-of-office not counted", href: `/replies?${q}` },
-    { label: "LinkedIn sent", value: data.today.linkedin, sub: data.linkedin ? `${data.linkedin} ready to send` : "Nothing waiting", href: `/linkedin?${q}` },
-    { label: "Bounces", value: data.today.bounced, sub: data.today.bounced ? "Fix the addresses below" : "All delivered", href: `/drafts/sent?${q}&days=1` },
+  const rows = data.today.rows;
+  const queueRows = on && isToday ? rows.queue : [];
+  const firstsToday = rows.sent.filter((row) => !row.followup).length;
+  const todayStats: TodayStat[] = [
+    { key: "sent", label: "Emails sent", value: rows.sent.length, sub: rows.sent.length ? `${firstsToday} first, ${count(rows.sent.length - firstsToday, "follow-up", "follow-ups")}` : "None yet today", empty: "Nothing has gone out yet today.", all: { href: `/drafts/sent?${q}&days=1`, label: "Open Send history" } },
+    { key: "queue", label: "Still to send", value: queueRows.length, sub: paused ? "Auto-send is paused" : !on ? "Auto-send is off" : isToday ? `${auto?.plan.windowLabel} ET` : `Next send ${day}`, empty: paused ? "Auto-send is paused, so nothing else goes out today." : !on ? "Auto-send is off, so nothing goes out on its own." : isToday ? "Everything planned for today has gone out." : `Nothing else today. The next send is ${day}.`, all: { href: `/auto-send?${q}`, label: "Open Auto-send" } },
+    { key: "replies", label: "Replies in", value: rows.replies.length, sub: data.today.interested ? `${data.today.interested} interested` : "Out-of-office not counted", empty: "No replies yet today. Out-of-office replies are not counted.", all: { href: `/replies?${q}`, label: "Open Replies" } },
+    { key: "linkedin", label: "LinkedIn sent", value: rows.linkedin.length, sub: data.linkedin ? `${data.linkedin} ready to send` : "Nothing waiting", empty: data.linkedin ? `Nothing sent yet today. ${count(data.linkedin, "message is", "messages are")} ready.` : "Nothing sent today.", all: { href: `/linkedin?${q}`, label: "Open LinkedIn" } },
+    { key: "bounces", label: "Bounces", value: rows.bounces.length, sub: rows.bounces.some((row) => row.fix) ? `${count(rows.bounces.filter((row) => row.fix).length, "address", "addresses")} to fix` : rows.bounces.length ? "All fixed" : "All delivered", empty: "Every email today arrived.", all: { href: `/drafts/sent?${q}&days=1`, label: "Open Send history" } },
   ];
+  const openStat = todayStats.find((stat) => stat.key === picked) ?? todayStats.find((stat) => stat.key === "bounces" && rows.bounces.some((row) => row.fix)) ?? todayStats.find((stat) => stat.key === "replies" && stat.value) ?? todayStats.find((stat) => stat.value) ?? todayStats[0];
   const shownLists = shelf === "current" ? current : archived;
   const nextHref = (list: ListSummary) => list.next === "wait" ? null : list.next === "review" ? { href: `/drafts?${q}&tab=review`, label: "Review drafts" } : list.next === "contacts" ? { href: `/outreach?list=${owner}`, label: "Find contacts" } : { href: "/stats", label: "See results" };
 
@@ -178,9 +213,19 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
 
       <section className="ov-card ov-today" aria-label="Today so far">
         <header className="ov-card-head"><h2>Today so far</h2><span className="ov-meta">Since midnight, Eastern</span></header>
-        <div className="ov-results-row ov-today-row">
-          {todayStats.map((item) => <Link key={item.label} className={`ov-result ${item.value ? "" : "is-zero"} ${item.label === "Bounces" && item.value ? "is-warn" : ""}`} href={item.href}><span>{item.label}</span><b>{item.value}</b><small>{item.sub}</small></Link>)}
+        <div className="ov-results-row ov-today-row" role="tablist" aria-label="What happened today">
+          {todayStats.map((item) => {
+            const active = item.key === openStat.key;
+            return (
+              <button key={item.key} type="button" role="tab" id={`today-tab-${item.key}`} aria-selected={active} aria-controls={`today-${item.key}`}
+                className={`ov-result ${active ? "is-active" : ""} ${item.value ? "" : "is-zero"} ${item.key === "bounces" && rows.bounces.some((row) => row.fix) ? "is-warn" : ""}`}
+                onClick={() => setPicked(item.key)}>
+                <span>{item.label}</span><b>{item.value}</b><small>{item.sub}</small>
+              </button>
+            );
+          })}
         </div>
+        <TodayList stat={openStat} rows={openStat.key === "queue" ? queueRows : rows[openStat.key]} />
       </section>
 
       {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
