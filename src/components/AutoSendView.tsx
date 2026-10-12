@@ -184,7 +184,7 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
           ? <li><b>{count(plan.going, "email goes", "emails go")} out {plan.dayLabel}</b>, {plan.windowLabel} Eastern, a few minutes apart, from your Gmail. You can see each one below.</li>
           : <li>Nothing is waiting right now. New emails go out each weekday morning as your lists arrive.</li>}
         <li>Then every weekday morning, up to {plan.dailyCap} a day.</li>
-        <li>A few unconfirmed addresses may bounce. If too many do, auto-send pauses itself.</li>
+        <li>A few unconfirmed addresses may bounce. If too many do, you get a warning and decide whether to pause.</li>
         <li>You can turn it off here at any time.</li>
       </ul>
       <div className="as-controls">
@@ -317,13 +317,13 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
           <a href="#as-kept" className="as2-count"><b>{kept.length}</b><span>Kept for you</span><small>you send these</small></a>
         </div>
         {(() => {
-          // Where the mailbox stands against the bounce brake, before it trips.
+          // Where the mailbox stands against the bounce warning line.
           const rate = health.sent ? Math.round((health.bounced / health.sent) * 100) : 0;
           const level = health.bouncedRecently >= health.recentLimit || (health.sent >= 10 && health.bounced / health.sent > health.rateLimit) ? "is-bad" : health.bouncedRecently > 0 || rate >= 3 ? "is-warn" : "is-good";
           return (
             <p className={`as-health ${level}`}>
               <b>Mailbox health:</b> {health.bounced} of {health.sent} emails bounced this week ({rate}%){health.bouncedRecently ? `, ${health.bouncedRecently} in the last 48 hours` : ""}.{" "}
-              {level === "is-bad" ? "Sending pauses itself until the bad addresses are fixed." : `Auto-send pauses itself at ${health.recentLimit} bounces in 48 hours or over ${Math.round(health.rateLimit * 100)}% in a week.`}
+              {level === "is-bad" ? "That is a lot. Auto-send keeps going: fix the bad addresses, or pause it if you want to stop." : `You get a warning at ${health.recentLimit} bounces in 48 hours or over ${Math.round(health.rateLimit * 100)}% in a week. It never pauses on its own.`}
             </p>
           );
         })()}
@@ -390,7 +390,7 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
         <div className="as-how">
           <div><b>Every weekday morning</b><span>Between 9:00 and 11:30am Eastern, from your own Gmail, a few minutes apart.</span></div>
           <div><b>Up to {plan.dailyCap} a day</b><span>Anything over that goes out on the next send day. Follow-ups stop when someone replies.</span></div>
-          <div><b>You stay in control</b><span>Press <i>Keep for me</i> on any email to send it yourself, or skip a day. It pauses itself if emails bounce.</span></div>
+          <div><b>You stay in control</b><span>Press <i>Keep for me</i> on any email to send it yourself, or skip a day. If emails bounce, you get a warning and decide whether to pause.</span></div>
         </div>
       </details>
     </div>

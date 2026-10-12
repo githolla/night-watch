@@ -988,7 +988,7 @@ export function Desk({
     const unconfirmed = verified.filter(c => !addressConfirmed(c.people)).length;
     const others = all.length - verified.length;
     if (!verified.length) { setNotice(others ? `None of the ${others} unsent drafts has a usable address: each is missing one or bounced before.` : "Nothing is left to send in this list."); return; }
-    if (!window.confirm(`Send ${verified.length} email${verified.length === 1 ? "" : "s"} now from ${senderName}?\n\nThey go out one at a time, about 10 seconds apart, exactly as written. Your daily sending limit still applies, and you can press Stop at any time. Keep this tab open until it finishes.${unconfirmed ? `\n\n${unconfirmed} of them ${unconfirmed === 1 ? "has an" : "have"} unconfirmed address${unconfirmed === 1 ? "" : "es"}, so a few may bounce. Auto-send pauses itself if bounces pile up.` : ""}${others ? `\n\n${others} draft${others === 1 ? " has" : "s have"} no usable address and will be skipped.` : ""}`)) return;
+    if (!window.confirm(`Send ${verified.length} email${verified.length === 1 ? "" : "s"} now from ${senderName}?\n\nThey go out one at a time, about 10 seconds apart, exactly as written. Your daily sending limit still applies, and you can press Stop at any time. Keep this tab open until it finishes.${unconfirmed ? `\n\n${unconfirmed} of them ${unconfirmed === 1 ? "has an" : "have"} unconfirmed address${unconfirmed === 1 ? "" : "es"}, so a few may bounce. You get a warning if bounces pile up.` : ""}${others ? `\n\n${others} draft${others === 1 ? " has" : "s have"} no usable address and will be skipped.` : ""}`)) return;
     bulkStop.current = false;
     sendInFlight.current = true;
     setBulkSending(true);

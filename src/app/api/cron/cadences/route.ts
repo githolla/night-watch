@@ -10,7 +10,7 @@ export async function GET(request:Request) {
   if(error)return Response.json({error:error.message},{status:500});
   let sent=0,ready=0,failed=0,stopped=0,held=0;
   const seen=new Set<string>();
-  // A paused seat (by hand or by the bounce brake), or one with no postal address, holds its automatic
+  // A paused seat (by hand), or one with no postal address, holds its automatic
   // follow-ups for a person. Looked up once per seat.
   const holds=new Map<string,Promise<string|null>>();
   const holdFor=(owner:string)=>{

@@ -49,7 +49,7 @@ type BouncedTouch = { card_id: string; person_id: string; gmail_thread_id: strin
 /**
  * A delivery failure is not a reply: remember the address is bad (so no path emails it again), stop the
  * sequence, and leave the card's status alone. Safe to repeat for the same bounce. The bounced_at stamp
- * feeds the morning auto-send's bounce brake.
+ * feeds the morning auto-send's bounce warning.
  */
 export async function markTouchBounced(db: SupabaseClient, touch: BouncedTouch, now = new Date()) {
   await db.from("touches").update({ bounced_at: now.toISOString() }).eq("gmail_thread_id", touch.gmail_thread_id).is("bounced_at", null);

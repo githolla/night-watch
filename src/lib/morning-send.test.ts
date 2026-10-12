@@ -146,9 +146,9 @@ test("with the nightly build switched off, an empty failed list posts nothing ei
   assert.equal(h.posts.length, 0);
 });
 
-test("yesterday's bounces pause this morning before anything sends, with names and a Settings link", async () => {
+test("bounces never pause auto-send: the 7:00 message warns with names and a Settings link, and sending goes on", async () => {
   const h = harness({
-    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("suuchi", { announced_at: at("07:00").toISOString() })],
+    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")] }), list("suuchi", { announced_at: at("07:00").toISOString() })],
     sender_profiles: [profile("josh"), profile("suuchi", { auto_send: false })],
     cards: [card("c1", "josh", "acme.test", "Acme")],
     touches: [
@@ -156,30 +156,28 @@ test("yesterday's bounces pause this morning before anything sends, with names a
       { id: "t2", sent_by: "josh", channel: "email", gmail_thread_id: "th2", sent_at: at("10:10", "2026-09-30").toISOString(), bounced_at: at("17:00", "2026-09-30").toISOString(), people: { email: "gone@eta.test" }, cards: { accounts: { name: "Eta" } } },
     ],
   });
-  const result = await h.run(at("09:00"));
-  assert.equal(result[0].action, "paused");
-  assert.equal(h.sends.length, 0);
-  assert.equal(h.tables.sender_profiles[0].auto_send_paused, true);
-  assert.match(String(h.tables.sender_profiles[0].auto_send_paused_reason), /automatic follow-ups are paused/);
+  await h.run(at("07:00"));
+  assert.match(h.posts[0], /Bounce warning for Josh: 2 first emails bounced/);
   assert.match(h.posts[0], /bad@zeta\.test \(Zeta\)/);
-  assert.match(h.posts[0], /https:\/\/app\.test\/settings/);
-  assert.doesNotMatch(h.posts[0], /delivery-recovery/);
+  assert.match(h.posts[0], /pause it yourself in Settings: https:\/\/app\.test\/settings/);
+  assert.equal((await h.run(at("09:00")))[0].action, "sent");
+  assert.equal(h.sends.length, 1);
+  assert.equal(h.tables.sender_profiles[0].auto_send_paused, false);
 });
 
-test("bounces from before the last resume do not pause again, and follow-ups on a thread are not first emails", async () => {
+test("bounces from before the last resume do not warn again, and follow-ups on a thread are not first emails", async () => {
   const bounced = (id: string, thread: string, sent: string) => ({ id, sent_by: "josh", channel: "email", gmail_thread_id: thread, sent_at: at(sent, "2026-09-30").toISOString(), bounced_at: at("18:00", "2026-09-30").toISOString() });
   const h = harness({
-    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("suuchi", { announced_at: at("07:00").toISOString() })],
-    sender_profiles: [profile("josh", { auto_send_resumed_at: at("08:00").toISOString() }), profile("suuchi", { auto_send: false })],
+    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")] }), list("suuchi", { announced_at: at("07:00").toISOString() })],
+    sender_profiles: [profile("josh", { auto_send_resumed_at: at("06:00").toISOString() }), profile("suuchi", { auto_send: false })],
     cards: [card("c1", "josh", "acme.test", "Acme")],
     touches: [bounced("t1", "th1", "10:00"), bounced("t2", "th2", "10:10")],
   });
-  assert.equal((await h.run(at("09:30")))[0].action, "sent");
-  assert.equal(h.sends.length, 1);
-  assert.equal(h.tables.reachout_lists[0].sent_count, 1);
+  await h.run(at("07:00"));
+  assert.doesNotMatch(h.posts[0], /Bounce warning/);
 
   const followups = harness({
-    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")], announced_at: at("07:00").toISOString() }), list("suuchi", { announced_at: at("07:00").toISOString() })],
+    reachout_lists: [list("josh", { rows: [listRow("acme.test", "Acme")] }), list("suuchi", { announced_at: at("07:00").toISOString() })],
     sender_profiles: [profile("josh"), profile("suuchi", { auto_send: false })],
     cards: [card("c1", "josh", "acme.test", "Acme")],
     touches: [
@@ -188,7 +186,8 @@ test("bounces from before the last resume do not pause again, and follow-ups on 
       { id: "f2", sent_by: "josh", channel: "email", gmail_thread_id: "th1", sent_at: at("10:00", "2026-09-30").toISOString(), bounced_at: at("18:00", "2026-09-30").toISOString() },
     ],
   });
-  assert.equal((await followups.run(at("09:30")))[0].action, "sent");
+  await followups.run(at("07:00"));
+  assert.doesNotMatch(followups.posts[0], /Bounce warning/);
 });
 
 test("identity holds and kept cards are not sent; the summary names each card left and why", async () => {

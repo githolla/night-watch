@@ -8,10 +8,10 @@ import { sendableAddress } from "./bulk-sendable.ts";
 import type { ListRow } from "./research-data/server.ts";
 import type { Owner } from "./types.ts";
 import {
-  announceText, autoSendBlocker, bounceBrake, bounceReason, identityHoldReason, isSendDay, listAlertText, MORNING, morningWindowProblems, paceForRun, pauseText, rowForecast, summaryText, type HeldCard,
+  announceText, autoSendBlocker, bounceReason, bounceWarning, bounceWarningText, identityHoldReason, isSendDay, listAlertText, MORNING, morningWindowProblems, paceForRun, rowForecast, summaryText, type HeldCard,
 } from "./morning-send-rules.ts";
 
-export { autoSendBlocker, bounceBrake, isSendDay, MORNING, paceForRun };
+export { autoSendBlocker, bounceWarning, isSendDay, MORNING, paceForRun };
 
 const seatName = (owner: Owner) => (owner === "josh" ? "Josh" : "Suuchi");
 const listLink = (owner: Owner) => `${configuredBaseUrl()}/outreach?list=${owner === "josh" ? "josh" : "suuchi"}&batch=today`;
@@ -103,7 +103,7 @@ type TouchRow = { gmail_thread_id: string; sent_at: string; bounced_at: string |
 /**
  * First emails (no earlier touch on the same thread) this seat sent in the last 7 days, or since it was
  * last resumed if later, and how many of them bounced, overall and in the last 48 hours. Null when the
- * history cannot be read, so the run sends nothing rather than sending blind.
+ * history cannot be read.
  */
 async function bounceCounts(db: Db, owner: Owner, now: Date, resumedAt: string | null): Promise<BounceCounts | null> {
   const weekAgo = now.getTime() - MORNING.bounceWindowDays * 86_400_000;
@@ -124,6 +124,13 @@ async function bounceCounts(db: Db, owner: Owner, now: Date, resumedAt: string |
   const recent = bounced.filter((touch) => Date.parse(touch.bounced_at!) >= recentSince);
   const addresses = [...recent, ...bounced.filter((touch) => !recent.includes(touch))].map((touch) => ({ email: touch.people?.email ?? "unknown address", company: touch.cards?.accounts?.name ?? touch.cards?.accounts?.domain ?? "" }));
   return { sent: firsts.length, bounced: bounced.length, bouncedRecently: recent.length, addresses };
+}
+
+/** The bounce heads-up to add to a morning message, or "" when bounces are under the warning line. Never pauses. */
+async function bounceNote(db: Db, owner: Owner, now: Date, resumedAt: string | null) {
+  const bounces = await bounceCounts(db, owner, now, resumedAt);
+  if (!bounces || !bounceWarning(bounces.sent, bounces.bounced, bounces.bouncedRecently)) return "";
+  return `\n${bounceWarningText({ seat: seatName(owner), reason: bounceReason(bounces.sent, bounces.bounced, bounces.bouncedRecently), bounced: bounces.addresses, settingsLink: settingsLink() })}`;
 }
 
 /** Atomic through the 0030 RPC; a read-and-add fallback before that migration is applied. */
@@ -231,7 +238,7 @@ export async function runMorningSend(db: Db, options: MorningOptions = {}): Prom
       const text = ready
         ? announceText({ seat: seatName(owner), rows: state.rows.map((row) => ({ company: row.company, ...rowForecast(row) })), blocker, size, link: listLink(owner) })
         : listAlertText({ seat: seatName(owner), status: missing ? "missing" : state.status === "building" ? "building" : "failed", rows: state.rows.length, size, errors: topErrors(state.errors), link: listLink(owner) });
-      await postClaimed(db, state.id, "announced_at", post, `${text}${warning}`);
+      await postClaimed(db, state.id, "announced_at", post, `${text}${warning}${await bounceNote(db, owner, now, seatState.resumedAt)}`);
     }
     if (!ready && !leftovers.length) { out.push(state ? { owner, action: "no list", reason: state.status } : { owner, action: "no list" }); continue; }
     if (blocker) { out.push({ owner, action: "skipped", reason: blocker }); continue; }
@@ -243,7 +250,7 @@ export async function runMorningSend(db: Db, options: MorningOptions = {}): Prom
           reason: addressProblem(card) ?? card.auto_send_hold_reason ?? "not reached before the send window closed",
         }));
         const { data: fresh } = await db.from("reachout_lists").select("sent_count").eq("id", state.id).maybeSingle();
-        await postClaimed(db, state.id, "summary_posted_at", post, summaryText({ seat: seatName(owner), sent: Number(fresh?.sent_count ?? state.sent_count), held, kept: kept.length, link: listLink(owner) }));
+        await postClaimed(db, state.id, "summary_posted_at", post, `${summaryText({ seat: seatName(owner), sent: Number(fresh?.sent_count ?? state.sent_count), held, kept: kept.length, link: listLink(owner) })}${await bounceNote(db, owner, now, seatState.resumedAt)}`);
       }
       out.push({ owner, action: "window closed" });
       continue;
@@ -252,17 +259,6 @@ export async function runMorningSend(db: Db, options: MorningOptions = {}): Prom
 
     // Today's list first, then confirmed drafts left from earlier lists.
     const queue = [...unsent, ...leftovers];
-    // Checked before every run's first send, so yesterday's bounces stop this morning before anything leaves.
-    const bounces = await bounceCounts(db, owner, now, seatState.resumedAt);
-    if (!bounces) { out.push({ owner, action: "held", reason: "could not read the bounce history" }); continue; }
-    if (bounceBrake(bounces.sent, bounces.bounced, bounces.bouncedRecently)) {
-      const reason = bounceReason(bounces.sent, bounces.bounced, bounces.bouncedRecently);
-      await db.from("sender_profiles").update({ auto_send_paused: true, auto_send_paused_reason: reason }).eq("owner", owner);
-      await Promise.resolve(post(pauseText({ seat: seatName(owner), reason, bounced: bounces.addresses, unsent: queue.length, listLink: listLink(owner), settingsLink: settingsLink() }))).catch(() => false);
-      out.push({ owner, action: "paused", reason });
-      continue;
-    }
-
     const rowsByDomain = new Map((state?.rows ?? []).map((row) => [row.domain, row]));
     const todays = new Set(unsent.map((card) => card.id));
     const quota = paceForRun(queue.length, local.minutes);
@@ -301,7 +297,7 @@ export type SendNowResult =
 
 /**
  * "Send now": the next email in the auto-send queue, at any hour, because the person chose to. The same queue
- * in the same order as the morning run, the same bounce brake (which pauses the seat), and every email goes
+ * in the same order as the morning run, and every email goes
  * through sendCardEmail with automatic=true, so Keep for me, do-not-contact, the address rules and the daily
  * cap all hold. `tried` lists cards already attempted in this session, so a refused one is not retried.
  */
@@ -312,13 +308,6 @@ export async function sendNextQueued(db: Db, owner: Owner, options: { now?: Date
   const seatState = await seat(db, owner);
   if (seatState.paused) return { action: "stopped", reason: "Auto-send is paused. Resume it first." };
   if (!seatState.postalAddress) return { action: "stopped", reason: "Add your business postal address in Settings first." };
-  const bounces = await bounceCounts(db, owner, now, seatState.resumedAt);
-  if (!bounces) return { action: "stopped", reason: "Could not read the bounce history, so nothing was sent." };
-  if (bounceBrake(bounces.sent, bounces.bounced, bounces.bouncedRecently)) {
-    const reason = bounceReason(bounces.sent, bounces.bounced, bounces.bouncedRecently);
-    await db.from("sender_profiles").update({ auto_send_paused: true, auto_send_paused_reason: reason }).eq("owner", owner);
-    return { action: "stopped", reason: `Auto-send paused itself: ${reason}` };
-  }
   const tried = new Set(options.tried ?? []);
   const { data: list } = await db.from("reachout_lists").select("id,status,rows").eq("list_date", local.date).eq("owner", owner).maybeSingle();
   const todays = new Set(list?.status === "ready" ? ((list as { rows?: ListRow[] }).rows ?? []).map((row) => row.domain) : []);

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { announceBlocks, bouncePauseText, buildFailureText, listProblemAlert, shouldSendMorningDigest, SLACK_MAX_BLOCKS, SLACK_MAX_SECTION, summaryBlocks, windowWarningText, type SlackBlock, type SlackMessage } from "./morning-messages.ts";
+import { announceBlocks, buildFailureText, listProblemAlert, shouldSendMorningDigest, SLACK_MAX_BLOCKS, SLACK_MAX_SECTION, summaryBlocks, windowWarningText, type SlackBlock, type SlackMessage } from "./morning-messages.ts";
 
 const window = { owner: "suuchi", baseUrl: "https://nw.test", sendFrom: 9 * 60, sendUntil: 11 * 60 + 30, size: 12 };
 const row = (index: number, deliverable: boolean, extra: Record<string, unknown> = {}) => ({
@@ -93,12 +93,7 @@ test("a seat with a ready list gets no 8:00 digest; a seat without one still doe
   assert.equal(shouldSendMorningDigest("suuchi", "building"), true);
 });
 
-test("pause, failure and window warnings are plain text with the details an operator needs", () => {
-  const pause = bouncePauseText("josh", "2 first emails bounced in the last 48 hours.", Array.from({ length: 7 }, (_, index) => ({ email: `p${index}@a.test`, company: `A${index}` })), 4, { list: "https://nw.test/list", settings: "https://nw.test/settings" });
-  assert.match(pause, /^Auto-send paused for Josh: 2 first emails bounced/);
-  assert.match(pause, /p0@a\.test \(A0\).*p4@a\.test \(A4\) and 2 more\./);
-  assert.match(pause, /4 of today's list still unsent: https:\/\/nw\.test\/list/);
-  assert.match(pause, /resume in Settings: https:\/\/nw\.test\/settings/);
+test("failure and window warnings are plain text with the details an operator needs", () => {
   assert.match(buildFailureText(new Error("Could not read tonight's lists: timeout")), /^The nightly list build failed: Could not read tonight's lists: timeout\./);
   assert.match(buildFailureText("boom", "The morning send"), /^The morning send failed: boom/);
   assert.equal(windowWarningText([]), null);

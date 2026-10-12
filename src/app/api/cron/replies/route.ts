@@ -55,7 +55,7 @@ export async function GET(request:Request){
     if((data?.length??0)<1000)break;
   }
   const unique=[...new Map([...candidates].reverse().map(t=>[`${t.sent_by}:${t.gmail_thread_id}`,t])).values()];
-  // Threads sent in the last 48h go first so a new bounce reaches the auto-send brake within one run.
+  // Threads sent in the last 48h go first so a new bounce reaches the bounce warning within one run.
   const touches=prioritizeThreads(unique,Math.floor(Date.now()/(15*60*1000))*300,Date.now());
   let replies=0,bounces=0; const failures:Array<{cardId:string;error:string}>=[];
   // A card with a first touch + a follow-up has TWO unreplied touches on one thread; without this a real

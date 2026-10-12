@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     const patch: Record<string, unknown> = { owner: seat };
     if (body.autoSend !== undefined) patch.auto_send = body.autoSend;
     if (body.paused !== undefined) { patch.auto_send_paused = body.paused; if (!body.paused) patch.auto_send_paused_reason = null; else patch.auto_send_paused_reason = `Paused by ${user.actor?.name ?? user.name}`; }
-    // The bounce brake counts only first emails sent after a resume, so the bounces that paused it cannot pause it again.
+    // The bounce warning counts only first emails sent after a resume, so old bounces do not warn again.
     if (body.paused === false && current.paused && current.safetyMigrated) patch.auto_send_resumed_at = new Date().toISOString();
     if (body.skipToday !== undefined) patch.auto_send_skip_on = body.skipToday ? localParts().date : null;
     const { error } = await admin().from("sender_profiles").upsert(patch, { onConflict: "owner" });

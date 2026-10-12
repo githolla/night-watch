@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { localParts } from "./local-time.ts";
 import {
-  announceText, automaticContentProblem, autoSendBlocker, bounceBrake, bounceReason, followupHoldReason, identityHoldReason, isSendDay, listAlertText, MORNING, morningWindowProblems, paceForRun, pauseText, rowForecast, summaryText,
+  announceText, automaticContentProblem, autoSendBlocker, bounceReason, bounceWarning, bounceWarningText, followupHoldReason, identityHoldReason, isSendDay, listAlertText, MORNING, morningWindowProblems, paceForRun, rowForecast, summaryText,
 } from "./morning-send-rules.ts";
 
 const withEnv = (values: Record<string, string | undefined>, run: () => void) => {
@@ -11,14 +11,15 @@ const withEnv = (values: Record<string, string | undefined>, run: () => void) =>
   try { run(); } finally { for (const [key, value] of Object.entries(saved)) if (value === undefined) delete process.env[key]; else process.env[key] = value; }
 };
 
-test("the bounce brake fires on two recent bounces or a rate over 5% across at least 10 first emails", () => {
-  assert.equal(bounceBrake(12, 5, 0), true);
-  assert.equal(bounceBrake(12, 0, 0), false);
-  assert.equal(bounceBrake(9, 1, 0), false, "below the minimum");
-  assert.equal(bounceBrake(20, 1, 0), false, "exactly 5% is allowed");
-  assert.equal(bounceBrake(8, 2, 2), true, "two bounces in 48 hours pause even with few sends");
-  assert.equal(bounceBrake(40, 2, 1), false, "one recent bounce and a 5% rate do not");
-  assert.match(bounceReason(8, 2, 2), /48 hours.*automatic follow-ups are paused/);
+test("the bounce warning fires on two recent bounces or a rate over 5% across at least 10 first emails", () => {
+  assert.equal(bounceWarning(12, 5, 0), true);
+  assert.equal(bounceWarning(12, 0, 0), false);
+  assert.equal(bounceWarning(9, 1, 0), false, "below the minimum");
+  assert.equal(bounceWarning(20, 1, 0), false, "exactly 5% is allowed");
+  assert.equal(bounceWarning(8, 2, 2), true, "two bounces in 48 hours warn even with few sends");
+  assert.equal(bounceWarning(40, 2, 1), false, "one recent bounce and a 5% rate do not");
+  assert.match(bounceReason(8, 2, 2), /48 hours/);
+  assert.doesNotMatch(bounceReason(8, 2, 2), /paused/);
   assert.doesNotMatch(bounceReason(12, 5, 0), /today/);
 });
 
@@ -92,10 +93,10 @@ test("morning messages name companies and reasons, and never claim edited cards 
   assert.match(summary, /- Beta: Not confirmed\./);
   for (const text of [announce, summary]) assert.doesNotMatch(text, /edited after the hold/);
   assert.match(listAlertText({ seat: "Josh", status: "failed", rows: 0, size: 12, errors: ["no buyer found (4)"], link: "x" }), /No list for Josh today: the nightly build failed.*no buyer found/);
-  const pause = pauseText({ seat: "Josh", reason: "2 first emails bounced in the last 48 hours.", bounced: [{ email: "bad@acme.com", company: "Acme" }], unsent: 7, listLink: "https://app/outreach", settingsLink: "https://app/settings" });
+  const pause = bounceWarningText({ seat: "Josh", reason: "2 first emails bounced in the last 48 hours.", bounced: [{ email: "bad@acme.com", company: "Acme" }], settingsLink: "https://app/settings" });
+  assert.match(pause, /^Bounce warning for Josh/);
   assert.match(pause, /bad@acme\.com \(Acme\)/);
-  assert.match(pause, /7 of today's list still unsent/);
-  assert.match(pause, /https:\/\/app\/settings/);
+  assert.match(pause, /Auto-send keeps going.*pause it yourself.*https:\/\/app\/settings/);
   assert.doesNotMatch(pause, /delivery-recovery/);
   for (const text of [announce, summary, pause]) assert.doesNotMatch(text, /[—–]/);
 });

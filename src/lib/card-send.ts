@@ -108,7 +108,7 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     const recipientCheck = await checkRecipient(db, recipient, { id: card.account_id, domain: card.accounts?.domain ?? recipient.email.split("@")[1] });
     await recordRecipientCheck(db, recipient, recipientCheck);
     // The morning auto-send takes the same addresses as Send all ready: anything not known to be bad. A wrong
-    // guess that bounces is caught by the bounce brake, which pauses auto-send for the seat.
+    // guess that bounces is flagged by the bounce warning in the morning messages.
     if (!recipientAllowed(recipientCheck, false)) throw new Error(`${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ""} Nothing was sent.`);
     // Idempotency: if an email to THIS PERSON is already logged for this card, don't send again even if a
     // prior status write failed. Scoped to the person, not the card, so emailing a second contact at the

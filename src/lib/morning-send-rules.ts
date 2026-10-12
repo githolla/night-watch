@@ -6,7 +6,7 @@ const hhmm = (name: string, fallback: number) => {
   return match ? Math.min(23 * 60 + 59, Number(match[1]) * 60 + Number(match[2])) : fallback;
 };
 
-/** Local times (minutes after midnight in SEND_TIMEZONE), pacing and the bounce brake. Times are HH:MM env overrides. */
+/** Local times (minutes after midnight in SEND_TIMEZONE), pacing and the bounce warning. Times are HH:MM env overrides. */
 export const MORNING = {
   announceAt: hhmm("LIST_ANNOUNCE_AT", 7 * 60),
   sendFrom: hhmm("AUTO_SEND_FROM", 9 * 60),
@@ -44,20 +44,21 @@ export function paceForRun(remaining: number, minutesNow: number, sendUntil = MO
 }
 
 /**
- * Pause on 2 or more bounces in the last 48 hours, or when more than 5% of first emails bounced once there
+ * Warn on 2 or more bounces in the last 48 hours, or when more than 5% of first emails bounced once there
  * are at least 10 of them. Counts cover the last 7 days, or since the seat was last resumed if that is later.
+ * It only warns: the person decides whether to pause.
  */
-export function bounceBrake(sent: number, bounced: number, bouncedRecently = 0) {
+export function bounceWarning(sent: number, bounced: number, bouncedRecently = 0) {
   if (bouncedRecently >= MORNING.recentBounceLimit) return true;
   return sent >= MORNING.bounceMinSends && bounced / sent > MORNING.bounceRate;
 }
 
-/** The words for why the brake fired, saved as the pause reason. */
+/** The words for why the warning fired. */
 export function bounceReason(sent: number, bounced: number, bouncedRecently: number) {
   const why = bouncedRecently >= MORNING.recentBounceLimit
     ? `${bouncedRecently} first emails bounced in the last ${MORNING.recentBounceHours} hours`
     : `${bounced} of ${sent} first emails bounced in the last ${MORNING.bounceWindowDays} days (over ${Math.round(MORNING.bounceRate * 100)}%)`;
-  return `${why}. Auto-send and automatic follow-ups are paused.`;
+  return `${why}.`;
 }
 
 type SeatState = { autoSend: boolean; paused: boolean; postalAddress: string; skipOn?: string | null; today?: string };
@@ -157,14 +158,13 @@ export function summaryText(input: { seat: string; sent: number; held: HeldCard[
   return [`${parts.join(", ")}. ${input.link}`, ...lines].join("\n");
 }
 
-/** The message when the bounce brake pauses a seat. */
-export function pauseText(input: { seat: string; reason: string; bounced: Array<{ email: string; company: string }>; unsent: number; listLink: string; settingsLink: string }) {
+/** The heads-up when bounces pass the warning line. Auto-send keeps going; the person decides whether to pause. */
+export function bounceWarningText(input: { seat: string; reason: string; bounced: Array<{ email: string; company: string }>; settingsLink: string }) {
   const shown = input.bounced.slice(0, 5).map((item) => `${item.email}${item.company ? ` (${item.company})` : ""}`);
   return [
-    `Auto-send paused for ${input.seat}: ${input.reason}`,
+    `Bounce warning for ${input.seat}: ${input.reason}`,
     shown.length ? `Bounced: ${shown.join(", ")}.` : "",
-    `${input.unsent} of today's list still unsent: ${input.listLink}`,
-    `Fix the addresses, then resume in Settings: ${input.settingsLink}`,
+    `Auto-send keeps going. Fix the addresses, or pause it yourself in Settings: ${input.settingsLink}`,
   ].filter(Boolean).join("\n");
 }
 

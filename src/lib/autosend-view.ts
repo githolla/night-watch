@@ -24,7 +24,7 @@ export type AutoSendEmail = {
   position: number; time: string | null; reason: string | null;
 };
 export type AutoSendSummary = Omit<SendPlan, "slots">;
-/** How the mailbox is doing against the bounce brake: this week, and the last 48 hours. */
+/** How the mailbox is doing against the bounce warning line: this week, and the last 48 hours. */
 export type MailboxHealth = { sent: number; bounced: number; bouncedRecently: number; rateLimit: number; recentLimit: number };
 /** The seat's switch, as stored: what the on/off control on the page shows. */
 export type AutoSendControl = { autoSend: boolean; paused: boolean; pausedReason: string | null; postalAddressSet: boolean; skippedToday: boolean };

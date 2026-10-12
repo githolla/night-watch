@@ -116,18 +116,6 @@ export function listProblemAlert(owner: string, status: ListStatus, rows: number
   return { text, blocks };
 }
 
-/** The message when the bounce brake pauses a seat: why, which addresses bounced, what is left, and where to fix it. */
-export function bouncePauseText(owner: string, reason: string, bounced: Array<{ email: string; company?: string }>, unsent: number, links: { list: string; settings: string }) {
-  const shown = bounced.slice(0, 5).map((item) => `${item.email}${item.company ? ` (${item.company})` : ""}`);
-  const more = bounced.length > shown.length ? ` and ${bounced.length - shown.length} more` : "";
-  return [
-    `Auto-send paused for ${seatName(owner)}: ${reason}`,
-    shown.length ? `Bounced: ${shown.join(", ")}${more}.` : "",
-    `${unsent} of today's list still unsent: ${links.list}`,
-    `Fix the addresses, then resume in Settings: ${links.settings}`,
-  ].filter(Boolean).join("\n");
-}
-
 /** The alert when a nightly or morning cron run throws. */
 export function buildFailureText(error: unknown, job = "The nightly list build") {
   const message = error instanceof Error ? error.message : typeof error === "string" ? error : "unknown error";

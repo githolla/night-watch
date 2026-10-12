@@ -19,7 +19,7 @@ export const tourSteps = [
  {path:'/',target:'.home-needs',title:'What you need to do',body:'This morning\'s to-do list, in order, with about how long each takes. Click one to do it; a bounced address has its Fix address button right here.'},
  {path:'/',target:'.home-week',title:'Is it working?',body:'Positive replies, meetings, emails sent and bounces for the period you pick. Each number opens the page behind it.'},
  {path:'/drafts',target:'.dw-cols',title:'Review your drafts',body:'The queue on the left, the email in the middle and the research on the right. Approve & next moves on; Hold keeps one from auto-send. Approval does not send anything. Changing every email at once is further down.'},
- {path:'/auto-send',target:'.as-status-card',title:'Auto-send in one place',body:'Turn it on or off, skip today or send now. Mailbox health shows bounces against the limit where sending pauses itself.'},
+ {path:'/auto-send',target:'.as-status-card',title:'Auto-send in one place',body:'Turn it on or off, skip today or send now. Mailbox health shows bounces against the warning line. Only you can pause it.'},
  {path:'/auto-send',target:'.as-queue',title:'Who gets emailed, in order',body:'Click anyone to read their email as it will be sent, change it, change the address, or keep it to send yourself.'},
  {path:'/replies',target:'.replies',title:'Answer replies',body:'What they wrote, how it reads and the next step. Reply in Gmail, open the call brief, or mark a meeting booked.'},
 ] as const;

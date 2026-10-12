@@ -23,6 +23,8 @@ export type HomeBounce = { personId: string; cardId: string; name: string; compa
 export type HomeDrafts = { total: number; ready: number; review: number; held: number; missing: number; checking: number; next: number; nextUnapproved: number;
   /** Unsent drafts that also have a LinkedIn message written, for sending by hand. */
   linkedinWritten: number };
+/** What happened today so far, in the send time zone. Emails come from the 90-day series. */
+export type HomeToday = { replies: number; interested: number; bounced: number; linkedin: number };
 export type HomeData = {
   first: string;
   /** Replies that still need a response, strongest first. */
@@ -47,6 +49,7 @@ export type HomeData = {
   /** 90 days, one entry per day, for the results ranges. */
   series: SeriesDay[];
   meetings: number;
+  today: HomeToday;
 };
 
 type Person = { email: string | null; email_status: string | null; email_check: unknown; do_not_contact?: boolean | null };
@@ -75,7 +78,9 @@ async function summarizeLists(owner: Owner, records: ListRecord[]): Promise<{ re
 export async function loadHome(owner: Owner, now: Date = new Date()): Promise<HomeData> {
   const db = admin();
   const since = (days: number) => new Date(now.getTime() - days * DAY_MS).toISOString();
-  const [profile, connection, replies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin, linkedinDone, templates] = await Promise.all([
+  const local = localParts(now);
+  const dayStart = new Date(now.getTime() - local.minutes * 60_000 - now.getUTCSeconds() * 1000 - now.getUTCMilliseconds()).toISOString();
+  const [profile, connection, replies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin, linkedinDone, templates, repliedToday, bouncedToday] = await Promise.all([
     db.from("sender_profiles").select("from_name").eq("owner", owner).maybeSingle().then((r) => r.data),
     db.from("gmail_connections").select("email").eq("owner", owner).maybeSingle().then((r) => r.data),
     // The same 21 days and "needs a response" rule as the Replies badge in the sidebar.
@@ -93,8 +98,10 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
       .eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).limit(500).then((r) => r.data ?? []),
     pendingFollowups(db, { owner, now: now.getTime() }).catch(() => null),
     linkedinTaskCount(owner, now).catch(() => 0),
-    loadLinkedInDone(owner, now, 7).then((done) => done.length).catch(() => 0),
+    loadLinkedInDone(owner, now, 7).catch(() => []),
     draftTemplates(owner).catch(() => null),
+    db.from("touches").select("reply_classification").eq("sent_by", owner).gte("reply_at", dayStart).not("reply_classification", "in", "(none,ooo)").limit(500).then((r) => (r.data ?? []) as Array<{ reply_classification: string }>),
+    db.from("touches").select("id", { count: "exact", head: true }).eq("sent_by", owner).eq("channel", "email").gte("bounced_at", dayStart).then((r) => r.count ?? 0),
   ]);
 
   const strong = (item: ReplyItem) => Number(POSITIVE.includes(item.classification));
@@ -128,7 +135,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     newReplies: waiting.filter((item) => Date.parse(item.repliedAt) >= now.getTime() - DAY_MS).length,
     followupsDue: followups ? [...followups.values()].flat().filter((step) => step.needsYou).length : 0,
     linkedin,
-    linkedinSent: linkedinDone,
+    linkedinSent: linkedinDone.length,
     autoSend: autoSend ? { plan: autoSend.plan, control: autoSend.control } : null,
     bounces: toFix,
     drafts,
@@ -139,6 +146,12 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     gmailConnected: Boolean((connection?.email as string | undefined)?.trim()),
     series: sent ? dailySeries(sent.touches, 90, sent.today, sent.dayOf) : [],
     meetings,
+    today: {
+      replies: repliedToday.length,
+      interested: repliedToday.filter((row) => POSITIVE.includes(row.reply_classification)).length,
+      bounced: bouncedToday,
+      linkedin: linkedinDone.filter((done) => localParts(new Date(done.sentAt)).date === local.date).length,
+    },
   };
 }
 

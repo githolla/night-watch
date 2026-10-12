@@ -123,7 +123,7 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
       ? { key: "review", title: "Every email is reviewed", why: `${count(d.ready, "approved email is", "approved emails are")} ready to send.`, href: `/drafts?${q}&tab=approved`, done: true }
       : { key: "review", title: "Nothing to review yet", why: d.missing ? `${count(d.missing, "draft is", "drafts are")} waiting on an email address. Night Watch keeps looking.` : "New drafts arrive with each weeknight's list.", href: `/drafts?${q}`, done: true },
     paused
-      ? { key: "auto", title: "Resume auto-send", why: auto?.control.pausedReason ? `Paused: ${auto.control.pausedReason.replace(/\.\s*$/, "")}.` : "It paused itself. Check why, then resume.", href: `/auto-send?${q}` }
+      ? { key: "auto", title: "Resume auto-send", why: auto?.control.pausedReason ? `Paused: ${auto.control.pausedReason.replace(/\.\s*$/, "")}.` : "It is paused. Resume when you are ready.", href: `/auto-send?${q}` }
       : on && auto
       ? { key: "auto", title: "Auto-send is on", why: auto.plan.going ? `Next, ${count(auto.plan.going, "email goes", "emails go")} out ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel} ET. Follow-ups go 3 and 10 business days later, and stop when someone replies.` : `Nothing is queued for ${day === "Today" ? "today" : day} yet. Approved emails go out each weekday morning.`, href: `/auto-send?${q}`, done: true }
       : { key: "auto", title: "Turn on auto-send", why: d.ready ? `${count(d.ready, "approved email is", "approved emails are")} waiting. Nothing goes out while it's off.` : "Once it's on, approved emails go out each weekday morning.", href: `/auto-send?${q}` },
@@ -145,6 +145,15 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
     { label: "Emails sent", value: sum(days, "sent"), href: `/drafts/sent?${q}&days=${Math.min(range, 30)}` },
     { label: "Bounces", value: sum(days, "bounced"), href: `/drafts/sent?${q}&days=${Math.min(range, 30)}` },
   ];
+  const sentToday = data.series.at(-1) ?? { sent: 0, firsts: 0 };
+  const isToday = day === "Today";
+  const todayStats = [
+    { label: "Emails sent", value: sentToday.sent, sub: sentToday.sent ? `${sentToday.firsts} first, ${sentToday.sent - sentToday.firsts} follow-up${sentToday.sent - sentToday.firsts === 1 ? "" : "s"}` : "None yet today", href: `/drafts/sent?${q}&days=1` },
+    { label: "Still to send", value: on && isToday ? auto?.plan.going ?? 0 : 0, sub: paused ? "Auto-send is paused" : !on ? "Auto-send is off" : isToday ? `${auto?.plan.windowLabel} ET` : `Next send ${day}`, href: `/auto-send?${q}` },
+    { label: "Replies in", value: data.today.replies, sub: data.today.interested ? `${data.today.interested} interested` : "Out-of-office not counted", href: `/replies?${q}` },
+    { label: "LinkedIn sent", value: data.today.linkedin, sub: data.linkedin ? `${data.linkedin} ready to send` : "Nothing waiting", href: `/linkedin?${q}` },
+    { label: "Bounces", value: data.today.bounced, sub: data.today.bounced ? "Fix the addresses below" : "All delivered", href: `/drafts/sent?${q}&days=1` },
+  ];
   const shownLists = shelf === "current" ? current : archived;
   const nextHref = (list: ListSummary) => list.next === "wait" ? null : list.next === "review" ? { href: `/drafts?${q}&tab=review`, label: "Review drafts" } : list.next === "contacts" ? { href: `/outreach?list=${owner}`, label: "Find contacts" } : { href: "/stats", label: "See results" };
 
@@ -165,6 +174,13 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
           <p className="ov-summary">{needed.length ? <><b>{count(needed.length, "thing needs", "things need")} you</b> today.</> : <>Nothing needs you right now.</>}</p>
         </div>
         <p className="ov-quote"><i>Today&rsquo;s thought</i><span>{quote}</span></p>
+      </section>
+
+      <section className="ov-card ov-today" aria-label="Today so far">
+        <header className="ov-card-head"><h2>Today so far</h2><span className="ov-meta">Since midnight, Eastern</span></header>
+        <div className="ov-results-row ov-today-row">
+          {todayStats.map((item) => <Link key={item.label} className={`ov-result ${item.value ? "" : "is-zero"} ${item.label === "Bounces" && item.value ? "is-warn" : ""}`} href={item.href}><span>{item.label}</span><b>{item.value}</b><small>{item.sub}</small></Link>)}
+        </div>
       </section>
 
       {warnings.map((warning) => <p key={warning.text} className="home-warning" role="alert"><span>{warning.text}</span><Link href={warning.href}>{warning.action} &rarr;</Link></p>)}
