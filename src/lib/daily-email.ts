@@ -6,7 +6,11 @@
 export type Tone = "good" | "warn" | "plain";
 export type DayPoint = { date: string; label: string; sent: number; replies: number };
 export type Tile = { label: string; value: number; note: string; tone: Tone; href: string };
-export type PersonRow = { name: string; company: string; domain: string; note: string; tone: Tone; href: string; time?: string };
+export type PersonRow = {
+  name: string; company: string; domain: string; note: string; tone: Tone; href: string; time?: string;
+  /** Whose initials go in the circle, when the row's company field holds something else. */
+  badge?: string;
+};
 export type Insight = { title: string; text: string; href: string; bars?: Array<{ label: string; value: number; display: string }> };
 export type Need = { text: string; action: string; href: string };
 export type SendState = "on" | "off" | "paused";
@@ -41,9 +45,16 @@ const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-s
 const esc = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 const toneColor = (tone: Tone) => (tone === "good" ? C.ok : tone === "warn" ? C.warn : C.ink);
-const logo = (domain: string, name: string) => domain
-  ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&amp;sz=64" width="24" height="24" alt="" style="display:block;width:24px;height:24px;border-radius:6px;border:1px solid ${C.line};background:${C.card}">`
-  : `<div style="width:24px;height:24px;border-radius:6px;background:${C.soft};color:${C.muted};font:600 10px/24px ${FONT};text-align:center">${esc(name.slice(0, 2).toUpperCase())}</div>`;
+// A colored circle with the company's initials: it looks the same in every mail app, where a logo image can be
+// missing (most small companies have none) or blocked.
+const BADGE = ["#9a6a27", "#2f6f5e", "#7a5c8e", "#b4542f", "#4f6d8f", "#6b7d3a", "#8a5a44", "#3f7c85"];
+const initials = (name: string) => esc(name.split(/\s+/).filter((word) => /^[a-z0-9]/i.test(word)).slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "?");
+const logo = (domain: string, name: string) => {
+  const key = (domain || name).toLowerCase();
+  let hash = 0;
+  for (const char of key) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return `<div style="width:26px;height:26px;border-radius:13px;background:${BADGE[hash % BADGE.length]};color:#ffffff;font:700 10px/26px ${FONT};text-align:center;letter-spacing:0.02em">${initials(name)}</div>`;
+};
 
 function link(href: string, label: string, color = C.accent) {
   return `<a href="${esc(href)}" style="color:${color};font-weight:600;text-decoration:none">${esc(label)}&nbsp;&rarr;</a>`;
@@ -106,7 +117,7 @@ function bars(items: Array<{ label: string; value: number; display: string }>, c
 /** People with their company logo, what happened and when; the name links to the company in the app. */
 function people(rows: PersonRow[]) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.map((row, index) => `<tr>
-<td width="32" valign="top" style="padding:9px 0;${index ? `border-top:1px solid ${C.line};` : ""}">${logo(row.domain, row.company)}</td>
+<td width="32" valign="top" style="padding:9px 0;${index ? `border-top:1px solid ${C.line};` : ""}">${logo(row.domain, row.badge ?? row.company)}</td>
 <td valign="top" style="padding:8px 8px 8px 0;${index ? `border-top:1px solid ${C.line};` : ""}">
 <a href="${esc(row.href)}" style="font:600 14px/1.35 ${FONT};color:${C.ink};text-decoration:none">${esc(row.name || row.company)}</a>${row.name && row.company ? `<span style="font:400 13px/1.35 ${FONT};color:${C.muted}"> · ${esc(row.company)}</span>` : ""}
 <div style="font:400 12px/1.4 ${FONT};color:${row.tone === "plain" ? C.muted : toneColor(row.tone)}">${esc(row.note)}</div></td>
@@ -157,7 +168,7 @@ export function morningEmail(data: MorningData): { subject: string; html: string
   parts.push(card("Today's send", `<div style="padding-bottom:${queue.length ? 10 : 0}px">${sendLine(data.send.state, data.send.going, data.send.dayLabel, data.send.window)}</div>${queue.length ? people(queue) : ""}${data.send.queue.length > queue.length ? `<div style="font:400 12px/1.4 ${FONT};color:${C.muted};padding-top:8px">and ${data.send.queue.length - queue.length} more</div>` : ""}`, { href: data.send.href, label: data.send.state === "on" ? "See the whole send order" : "Open Auto-send" }));
   if (data.list) {
     const shown = data.list.companies.slice(0, 12);
-    const rows = shown.map((company) => ({ name: company.company, company: company.sector, domain: company.domain, note: `${company.buyer ? `${company.buyer}${company.title ? `, ${company.title}` : ""} · ` : ""}${ADDRESS_NOTE[company.address]}`, tone: (company.address === "missing" ? "warn" : "plain") as Tone, href: company.href }));
+    const rows = shown.map((company) => ({ name: company.company, badge: company.company, company: company.sector, domain: company.domain, note: `${company.buyer ? `${company.buyer}${company.title ? `, ${company.title}` : ""} · ` : ""}${ADDRESS_NOTE[company.address]}`, tone: (company.address === "missing" ? "warn" : "plain") as Tone, href: company.href }));
     parts.push(card("New list", `${data.list.sectors.length > 1 ? `<div style="padding-bottom:12px">${bars(data.list.sectors.map((sector) => ({ ...sector, display: String(sector.value) })))}</div>` : ""}${people(rows)}`, { href: data.list.href, label: "Open the list" }, `${data.list.dateLabel} · ${plural(data.list.companies.length, "company", "companies")}`));
   }
   parts.push(card(data.yesterday.label, tiles(data.yesterday.tiles)));
