@@ -9,6 +9,8 @@ export type SentTouch = {
   personId?: string; email?: string | null;
   replyAt: string | null; replyClass: string | null; bouncedAt: string | null;
   name: string; title: string; company: string; subject: string;
+  /** The company website, for its logo. */
+  domain?: string;
   industry: string; role: string; size: string;
   /** Which email version it was (Direct Offer, Concrete Idea…), or null when not recorded. */
   version?: string | null;

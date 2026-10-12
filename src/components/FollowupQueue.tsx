@@ -1,9 +1,10 @@
 "use client";
 
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { useState } from "react";
 import { FollowupPanel, type FollowupView } from "./FollowupPanel";
 
-export type QueueItem = FollowupView & { person: string; title: string; company: string; status: string; sentAt: string | null };
+export type QueueItem = FollowupView & { person: string; title: string; company: string; domain: string; status: string; sentAt: string | null };
 
 const dayLabel = (iso: string) => new Date(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
 
@@ -20,7 +21,7 @@ export function FollowupQueue({ items: initial, sent }: { items: QueueItem[]; se
         return (
           <li key={item.stepId} className={`review-item ${isOpen ? "is-open" : ""}`}>
             <button type="button" className="review-row" aria-expanded={isOpen} onClick={() => setOpenId(isOpen ? null : item.stepId)}>
-              <span className="review-who"><b>{item.person}</b><small>{item.title ? `${item.title} · ` : ""}{item.company}</small></span>
+              <span className="co-cell"><CompanyLogo domain={item.domain} name={item.company} size={28} nested /><span className="review-who"><b>{item.person}</b><small>{item.title ? `${item.title} · ` : ""}{item.company}</small></span></span>
               <span className="review-mail"><b>Follow-up {item.step}{item.subject ? ` · ${item.subject}` : ""}</b><small>{item.body.split(/\n+/).map((line) => line.trim()).filter(Boolean)[1] ?? ""}</small></span>
               <span className="review-tags"><span className={`fq-status ${item.needsYou && !sent ? "needs-you" : sent ? "is-sent" : ""}`}>{status}</span><span className="review-caret" aria-hidden="true">{isOpen ? "▴" : "▾"}</span></span>
             </button>

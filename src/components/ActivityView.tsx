@@ -1,5 +1,6 @@
 "use client";
 
+import { CompanyLogo } from "@/components/CompanyLogo";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -15,6 +16,7 @@ export type ActivityEvent = {
   person: string;
   title: string;
   company: string;
+  domain: string;
   to: string | null;
   subject: string | null;
   body: string;
@@ -64,7 +66,6 @@ const monthName = (date: Date) => date.toLocaleDateString(undefined, { month: "l
 const dayLong = (day: string) => new Date(`${day}T12:00:00`).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 const timeOf = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 const fullWhen = (iso: string) => new Date(iso).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
-const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("") || "•";
 
 /** History of every outreach touch: a month calendar of what was done, and the day-by-day record beneath it. */
 export function ActivityView({ events: initialEvents, who, note, canDelete }: { events: ActivityEvent[]; who?: { name: string } | null; note?: string | null; canDelete?: boolean }) {
@@ -251,7 +252,7 @@ export function ActivityView({ events: initialEvents, who, note, canDelete }: { 
                 {!selectedDay && <div className="activity-day-label">{dayLong(day)}<span>{list.length}</span></div>}
                 {list.map((event) => (
                   <div key={event.id} className="activity-row is-open" role="button" tabIndex={0} onClick={() => setDetail(event)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDetail(event); } }} title="Open this message">
-                    <span className="avatar sm">{initials(event.person)}</span>
+                    <CompanyLogo domain={event.domain} name={event.company} size={32} nested />
                     <div className="activity-row-main">
                       <div className="activity-row-top">
                         <strong>{event.person}</strong>

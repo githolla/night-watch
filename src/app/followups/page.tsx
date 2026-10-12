@@ -18,7 +18,7 @@ type StepRow = {
   cadences: {
     status: string; owner: string;
     people: { full_name: string; title: string; email: string | null; email_status: string | null; email_check: unknown } | null;
-    cards: { accounts: { name: string } | null } | null;
+    cards: { accounts: { name: string; domain: string } | null } | null;
   } | null;
 };
 type View = "needs" | "upcoming" | "sent";
@@ -39,7 +39,7 @@ export default async function Followups({ searchParams }: { searchParams: Promis
   const isAdmin = user.role === "admin";
   const owner: Owner = isAdmin && (params.owner === "josh" || params.owner === "suuchi") ? params.owner : user.owner;
   const db = admin();
-  const select = "id,step_number,channel,kind,subject,body,status,error,sent_at,scheduled_at,cadences!inner(status,owner,people(full_name,title,email,email_status,email_check),cards(accounts(name)))";
+  const select = "id,step_number,channel,kind,subject,body,status,error,sent_at,scheduled_at,cadences!inner(status,owner,people(full_name,title,email,email_status,email_check),cards(accounts(name,domain)))";
   const [{ data: waiting, error }, { data: sentRows }] = await Promise.all([
     db.from("cadence_steps").select(select).in("status", ["pending", "ready", "failed"]).is("sent_at", null).eq("cadences.status", "active").eq("cadences.owner", owner).order("scheduled_at", { ascending: true }).limit(500),
     db.from("cadence_steps").select(select).eq("status", "sent").eq("cadences.owner", owner).order("sent_at", { ascending: false }).limit(100),
@@ -57,7 +57,7 @@ export default async function Followups({ searchParams }: { searchParams: Promis
       stepId: row.id, step: row.step_number, scheduledAt: row.scheduled_at, channel: row.channel, subject: row.subject,
       body: refreshLegacyFollowup(row.body ?? "", { firstName: person?.full_name?.split(/\s+/)[0] ?? "there", company: company || "your team", baseSubject: row.subject ?? "", step: row.step_number, channel: row.channel === "email" ? "email" : "linkedin_message" }),
       auto, needsYou, canAct: cadence.owner === user.owner || isAdmin, canSend: cadence.owner === user.owner,
-      person: person?.full_name ?? "Unknown contact", title: person?.title ?? "", company, status: row.status, sentAt: row.sent_at,
+      person: person?.full_name ?? "Unknown contact", title: person?.title ?? "", company, domain: cadence.cards?.accounts?.domain ?? "", status: row.status, sentAt: row.sent_at,
     };
   };
   const open = ((waiting ?? []) as unknown as StepRow[]).map(toItem).filter((item): item is QueueItem => Boolean(item));

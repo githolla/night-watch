@@ -1,5 +1,6 @@
 "use client";
 
+import { CompanyLogo } from "@/components/CompanyLogo";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -42,9 +43,6 @@ function ago(value: string | null, now: number) {
   if (!value) return "None";
   const days = Math.floor((now - Date.parse(value)) / 86_400_000);
   return days <= 0 ? "today" : days === 1 ? "1d ago" : days < 30 ? `${days}d ago` : days < 365 ? `${Math.round(days / 30)}mo ago` : `${Math.round(days / 365)}y ago`;
-}
-function initials(name: string) {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("");
 }
 function csvCell(value: unknown) {
   const text = value === null || value === undefined ? "" : String(value);
@@ -123,7 +121,7 @@ export function OutreachBoard({ rows, heldWithSignal, initial, scan }: { rows: O
     {first && <Link href={`/accounts/${first.domain}`} className="card next-card">
       <div className="next-card-tag">Contact first</div>
       <div className="next-card-body">
-        <div className="next-card-title"><span className="avatar">{initials(first.name)}</span><div><strong>{first.name}</strong><small>{first.industry}{first.hqState ? ` · ${first.hqCity}, ${first.hqState}` : ""} · Tier {first.tier}</small></div></div>
+        <div className="next-card-title"><CompanyLogo domain={first.domain} name={first.name} size={36} nested /><div><strong>{first.name}</strong><small>{first.industry}{first.hqState ? ` · ${first.hqCity}, ${first.hqState}` : ""} · Tier {first.tier}</small></div></div>
         <p>{first.why}</p>
         <div className="next-card-foot"><span>Write to <b>{first.who ? `${first.who}, ${first.whoTitle}` : "nobody on file yet"}</b>{REACH_LABEL[first.whoReach] ? ` · ${REACH_LABEL[first.whoReach]}` : ""}</span><span>Draft <b>{first.draftCardId ? `ready · ${first.draftScore}` : "not written yet"}</b></span><span className={`pill pill-${STAGE_TONE[first.stage]}`}><i />{STAGE_LABEL[first.stage]}</span></div>
       </div>
@@ -147,7 +145,7 @@ export function OutreachBoard({ rows, heldWithSignal, initial, scan }: { rows: O
           <tbody>
             {visible.map((row, index) => <tr key={row.domain} className={`is-clickable ${CLOSED_STAGES.has(row.stage) ? "is-closed" : ""}`} onMouseEnter={() => router.prefetch(`/accounts/${row.domain}`)} onClick={() => router.push(`/accounts/${row.domain}`)}>
               <td className="col-num">{(current - 1) * PAGE_SIZE + index + 1}</td>
-              <td><div className="cell-company"><span className="avatar">{initials(row.name)}</span><div><strong>{row.name}</strong><small>{row.industry}{row.revenueBand ? ` · ${row.revenueBand}` : ""}{row.hqState ? ` · ${row.hqCity}, ${row.hqState}` : ""} · {row.tier}</small></div></div></td>
+              <td><div className="cell-company"><CompanyLogo domain={row.domain} name={row.name} size={32} /><div><strong>{row.name}</strong><small>{row.industry}{row.revenueBand ? ` · ${row.revenueBand}` : ""}{row.hqState ? ` · ${row.hqCity}, ${row.hqState}` : ""} · {row.tier}</small></div></div></td>
               <td className="cell-why"><span>{row.why}</span>{row.draftCardId && <em className="pill pill-ink"><i />Draft {row.draftScore}</em>}</td>
               <td className="cell-who">{row.who ? <><strong>{row.who}</strong><small>{row.whoTitle}{REACH_LABEL[row.whoReach] ? ` · ${REACH_LABEL[row.whoReach]}` : ""}</small></> : <small>{row.contacts ? `${row.contacts} on file, none reachable` : "nobody yet"}</small>}</td>
               <td><span className={`pill pill-${STAGE_TONE[row.stage]}`}><i />{STAGE_LABEL[row.stage]}</span>{row.owner && <small className="cell-sub">{row.owner}</small>}</td>

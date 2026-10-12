@@ -1,3 +1,4 @@
+import { CompanyLogo } from "@/components/CompanyLogo";
 import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
@@ -64,7 +65,7 @@ export default async function PostsPage({ searchParams }: { searchParams: Promis
             const account = post.accounts as unknown as { name: string; domain: string };
             return <RowLink as="tr" key={post.id} href={`/accounts/${account.domain}`}>
               <td><div className="cell-lead"><strong>{post.author_name}</strong><small>{post.author_title || "None"}</small></div></td>
-              <td>{account.name}</td>
+              <td><span className="co-cell"><CompanyLogo domain={account.domain} name={account.name} size={24} nested />{account.name}</span></td>
               <td className="cell-clamp">{post.excerpt}</td>
               <td className="cell-sub">{post.platform || "post"}{post.topic ? ` · ${post.topic}` : ""}</td>
               <td className="cell-time">{post.posted_at ?? (post.created_at as string).slice(0, 10)}</td>

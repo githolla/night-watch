@@ -1,4 +1,5 @@
 "use client";
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { emailStyle, emailFirstName } from "@/lib/email-style";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -43,13 +44,13 @@ export function CustomizedEmails({ drafts, greeting, signoff, signature, sender,
         <input aria-label="Find a company" className="deskwork-search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search companies" />
         <div className="deskwork-list-scroll">
           {matches.map(item => <button key={item.id} type="button" aria-pressed={selected === item.id} onClick={() => { setSelected(item.id); setCopied(""); }} className={`deskwork-row ${selected === item.id ? "is-active" : ""}`}>
-            <span className="avatar sm">{initials(item.company)}</span><span className="deskwork-row-id"><strong>{item.company}</strong><small>{item.recipientName}</small><small>{item.tier}</small></span>
+            <CompanyLogo domain={item.domain} name={item.company} size={28} nested /><span className="deskwork-row-id"><strong>{item.company}</strong><small>{item.recipientName}</small><small>{item.tier}</small></span>
           </button>)}
           {!matches.length && <p className="deskwork-empty">No companies match your search.</p>}
         </div>
       </aside>
       <section className="deskwork-mid" aria-label="Company research">
-        <header className="deskwork-co"><span className="avatar">{initials(draft.company)}</span><div className="deskwork-co-name"><h2>{draft.company}</h2><p>{draft.tier}</p></div></header>
+        <header className="deskwork-co"><CompanyLogo domain={draft.domain} name={draft.company} size={40} /><div className="deskwork-co-name"><h2>{draft.company}</h2><p>{draft.tier}</p></div></header>
         <div className="deskwork-opening">
           <span className="overview-kick">The opening</span><p className="deskwork-opening-lead">{draft.signal}</p>
           {/^https?:\/\//i.test(draft.sourceUrl) && <a className="focus-link" href={draft.sourceUrl} target="_blank" rel="noreferrer">View company source ↗</a>}

@@ -24,7 +24,7 @@ type TouchRow = {
   gmail_thread_id: string | null;
   people: { full_name: string; title: string; email: string | null } | null;
   message_variants: { subject: string; dimensions: unknown; message_experiments: { context: string } | null } | null;
-  cards: { email_subject: string | null; linkedin_subject: string | null; accounts: { name: string } | null; people: { full_name: string; title: string; email: string | null } | null } | null;
+  cards: { email_subject: string | null; linkedin_subject: string | null; accounts: { name: string; domain: string } | null; people: { full_name: string; title: string; email: string | null } | null } | null;
 };
 
 type Params = { person?: string; name?: string };
@@ -46,7 +46,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
   const db = admin();
   let query = db
     .from("touches")
-    .select("id,card_id,channel,sent_at,created_at,reply_at,reply_classification,body,sent_by,gmail_thread_id,people(full_name,title,email),message_variants(subject,dimensions,message_experiments(context)),cards(email_subject,linkedin_subject,accounts(name),people(full_name,title,email))")
+    .select("id,card_id,channel,sent_at,created_at,reply_at,reply_classification,body,sent_by,gmail_thread_id,people(full_name,title,email),message_variants(subject,dimensions,message_experiments(context)),cards(email_subject,linkedin_subject,accounts(name,domain),people(full_name,title,email))")
     .order("created_at", { ascending: false })
     .limit(1000);
   if (personId) query = query.eq("person_id", personId);
@@ -88,6 +88,7 @@ export default async function Activity({ searchParams }: { searchParams: Promise
       person: row.people?.full_name ?? row.cards?.people?.full_name ?? "Unknown contact",
       title: row.people?.title ?? row.cards?.people?.title ?? "",
       company: row.cards?.accounts?.name ?? "Unknown company",
+      domain: row.cards?.accounts?.domain ?? "",
       to: row.channel === "email" ? row.people?.email ?? row.cards?.people?.email ?? null : null,
       subject: row.channel === "email" ? row.message_variants?.subject ?? row.cards?.email_subject ?? null : row.cards?.linkedin_subject ?? null,
       body,

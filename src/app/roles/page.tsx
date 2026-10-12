@@ -1,3 +1,4 @@
+import { CompanyLogo } from "@/components/CompanyLogo";
 import Link from "next/link";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { pendingMigrations } from "@/lib/schema-check";
@@ -100,7 +101,7 @@ export default async function RolesPage({ searchParams }: { searchParams: Promis
             const posted = row.posted_at ?? (row.first_seen_at as string).slice(0, 10);
             const days = ageInDays(posted);
             return <RowLink as="tr" key={row.id} href={`/accounts/${account.domain}`}>
-              <td>{account.name}</td>
+              <td><span className="co-cell"><CompanyLogo domain={account.domain} name={account.name} size={24} nested />{account.name}</span></td>
               <td className="cell-clamp">{row.title}</td>
               <td className="cell-sub">{row.family ? FAMILY_LABEL[row.family as JobFamily] : "Other"}</td>
               <td className="cell-sub">{row.location || "None"}</td>

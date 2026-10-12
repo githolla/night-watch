@@ -1,3 +1,4 @@
+import { CompanyLogo } from "@/components/CompanyLogo";
 import { MigrationRequired } from "@/components/MigrationRequired";
 import { BriefActions } from "@/components/BriefActions";
 import { pendingMigrations } from "@/lib/schema-check";
@@ -81,7 +82,7 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
     <main className="pipeline pipeline-work">
       <div className="call-brief">
         <div className="brief-head">
-          <div><span className="overview-kick">Call brief</span><h1>{brief.who}</h1><p>{brief.role} · {brief.company}</p></div>
+          <div className="co-cell">{account?.domain && <CompanyLogo domain={account.domain} name={account.name} size={44} />}<div><span className="overview-kick">Call brief</span><h1>{brief.who}</h1><p>{brief.role} · {brief.company}</p></div></div>
           <div className="brief-head-right">
             <BriefActions text={plain} />
           </div>

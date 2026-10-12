@@ -30,7 +30,7 @@ export async function loadSentTouches(owner: Owner, days: number, now: Date = ne
     const listRow = account?.domain ? listRows.get(account.domain.toLowerCase()) : undefined;
     return {
       id: row.id, cardId: row.card_id, personId: row.person_id, email: row.people?.email ?? null, sentAt: row.sent_at, replyAt: row.reply_at, replyClass: row.reply_classification, bouncedAt: row.bounced_at,
-      name: row.people?.full_name ?? "", title: row.people?.title ?? "", company: account?.name ?? account?.domain ?? "", subject: row.cards?.email_subject ?? "",
+      name: row.people?.full_name ?? "", title: row.people?.title ?? "", company: account?.name ?? account?.domain ?? "", domain: account?.domain ?? "", subject: row.cards?.email_subject ?? "",
       industry: industryOf(listRow?.sector ?? account?.vertical, account?.name), role: roleOf(row.people?.title), size: sizeOf(listRow?.revenue),
       version: versionMeta(row.message_variants?.dimensions)?.label ?? null,
     };
