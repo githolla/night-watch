@@ -44,6 +44,8 @@ export type HomeData = {
   templates: CurrentTemplates | null;
   /** Recent nightly lists, newest first, each summed into progress and results. */
   lists: ListSummary[];
+  /** Domains on the list the editor opens on, so links know whether a person's draft is there. */
+  listed: string[];
   /** When the newest list finished, and whether tonight's is being built now. */
   lastListAt: string | null;
   building: boolean;
@@ -129,7 +131,9 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     else drafts.review++;
   }
 
-  const rows = todayRows({ owner, dayStart, bounces: bounces as unknown as BounceRow[], replies: allReplies, sent: sent?.touches ?? [], queue: going, linkedin: linkedinDone });
+  // The list the editor opens on: the newest ready list with companies, as loadNightlyLists picks it.
+  const listed = new Set((lists.records.find((list) => list.status === "ready" && list.rows?.length)?.rows ?? []).map((row) => row.domain.toLowerCase()));
+  const rows = todayRows({ owner, dayStart, listed, bounces: bounces as unknown as BounceRow[], replies: allReplies, sent: sent?.touches ?? [], queue: going, linkedin: linkedinDone });
 
   return {
     first: ((profile?.from_name as string | undefined) ?? "").trim().split(/\s+/)[0] || (owner === "josh" ? "Josh" : "Suuchi"),
@@ -143,6 +147,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     drafts,
     templates,
     lists: lists.summaries,
+    listed: [...listed],
     lastListAt: lists.records.find((list) => list.status === "ready")?.updated_at ?? null,
     building: lists.records.some((list) => list.status === "building"),
     gmailConnected: Boolean((connection?.email as string | undefined)?.trim()),

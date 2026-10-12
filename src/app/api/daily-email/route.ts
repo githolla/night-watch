@@ -1,4 +1,5 @@
 import { requireUser } from "@/lib/auth";
+import { appBase } from "@/lib/app-url";
 import { eveningEmail, morningEmail } from "@/lib/daily-email";
 import { loadEveningEmail, loadMorningEmail } from "@/lib/daily-email-data";
 
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const asked = url.searchParams.get("owner");
   const owner = user.role === "admin" && (asked === "josh" || asked === "suuchi") ? asked : user.owner;
-  const base = (process.env.APP_URL ?? url.origin).replace(/\/$/, "");
+  const base = appBase(request);
   const email = url.searchParams.get("kind") === "evening"
     ? eveningEmail(await loadEveningEmail(owner, base))
     // A preview always shows the morning email, even on a quiet weekend when the real one would be skipped.

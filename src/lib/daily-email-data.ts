@@ -2,6 +2,7 @@ import { loadAutoSendView, type AutoSendEmail } from "./autosend-view.ts";
 import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
 import type { EveningData, ListCompany, MorningData, Need, PersonRow, SendState, Tile } from "./daily-email.ts";
 import type { HomeData, HomeTodayRow } from "./home-view.ts";
+import { personHref } from "./home-today.ts";
 import { loadHome } from "./home-view.ts";
 import { industryOf } from "./send-plan.ts";
 import { nightFocus } from "./list-sectors.ts";
@@ -48,8 +49,8 @@ function needsFrom(home: HomeData, { owner, base }: Seat): Need[] {
   return out;
 }
 
-const queueRows = (emails: AutoSendEmail[], base: string, owner: Owner): PersonRow[] => emails.filter((email) => email.group === "going").map((email) => ({
-  name: email.name, company: email.company, domain: email.domain, note: email.subject || "No subject", tone: "plain", href: `${base}/outreach?list=${owner}&card=${email.id}`, time: email.time ?? undefined,
+const queueRows = (emails: AutoSendEmail[], base: string, owner: Owner, listed: ReadonlySet<string>): PersonRow[] => emails.filter((email) => email.group === "going").map((email) => ({
+  name: email.name, company: email.company, domain: email.domain, note: email.subject || "No subject", tone: "plain", href: `${base}${personHref(owner, listed, email.id, email.domain)}`, time: email.time ?? undefined,
 }));
 
 /** Today's list for the seat, each company with its buyer and whether the address is confirmed. */
@@ -66,12 +67,12 @@ async function todaysList(db: Db, { owner, base }: Seat, date: string): Promise<
     return {
       company: row.company ?? row.domain, domain: row.domain, sector: sectorLabel(row.sector) || industryOf(row.sector, row.company), buyer: person?.full_name ?? "", title: person?.title ?? "",
       address: person && sendableAddress(person) ? (bulkSendable(person) ? "confirmed" : "unconfirmed") : "missing",
-      href: card ? `${base}/outreach?list=${owner}&card=${card.id}` : `${base}/outreach?list=${owner}`,
+      href: card ? `${base}/outreach?list=${owner}&batch=today&card=${card.id}` : `${base}/outreach?list=${owner}&batch=today`,
     };
   });
   const counts = new Map<string, number>();
   for (const company of companies) counts.set(company.sector, (counts.get(company.sector) ?? 0) + 1);
-  return { dateLabel: longDate(date), companies, sectors: [...counts].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value), href: `${base}/outreach?list=${owner}` };
+  return { dateLabel: longDate(date), companies, sectors: [...counts].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value), href: `${base}/outreach?list=${owner}&batch=today` };
 }
 
 async function meetingsAhead(db: Db, { owner, base, now }: Seat): Promise<MorningData["meetings"]> {
@@ -115,7 +116,7 @@ export async function loadMorningEmail(owner: Owner, base: string, now: Date = n
   const state = sendState(home);
   return {
     first: home.first, dateLabel: longDate(local.date), appHref: `${base}/?${q(owner)}`,
-    send: { state, going: home.autoSend?.plan.going ?? 0, window: home.autoSend?.plan.windowLabel ?? "", dayLabel: home.autoSend?.plan.dayLabel ?? "today", queue: state === "on" ? queueRows(view?.emails ?? [], base, owner) : [], href: `${base}/auto-send?${q(owner)}` },
+    send: { state, going: home.autoSend?.plan.going ?? 0, window: home.autoSend?.plan.windowLabel ?? "", dayLabel: home.autoSend?.plan.dayLabel ?? "today", queue: state === "on" ? queueRows(view?.emails ?? [], base, owner, new Set(home.listed)) : [], href: `${base}/auto-send?${q(owner)}` },
     list, yesterday: { label: lastLabel, tiles }, chart: chartDays(touches, local.date, dayOf),
     insights: insightsFrom(touches, local.date, dayOf, { sent: sentHref, results: `${base}/stats` }),
     needs: needsFrom(home, seat), meetings, sendDay: isSendDay(local.weekday, local.date),

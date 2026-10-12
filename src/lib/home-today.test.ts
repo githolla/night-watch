@@ -22,7 +22,7 @@ const queued = { id: "q1", name: "Queued Person", company: "Queue Co", domain: "
 
 test("today rows: only today's activity, follow-ups marked, outcomes and fixes shown", () => {
   const rows = todayRows({
-    owner: "josh", dayStart,
+    owner: "josh", dayStart, listed: new Set(["queue.com"]),
     sent: [
       touch("a1", "a", "2026-10-05T14:00:00+00:00"),
       touch("a2", "a", "2026-10-12T13:00:00+00:00", { replyAt: "2026-10-12T15:00:00+00:00", replyClass: "positive" }),
@@ -41,7 +41,12 @@ test("today rows: only today's activity, follow-ups marked, outcomes and fixes s
   assert.deepEqual(rows.sent.map((row) => [row.id, row.followup, row.tone]), [["a2", true, "good"], ["b1", false, "warn"]]);
   assert.match(rows.sent[0].note, /^Follow-up · Replied, interested$/);
   assert.match(rows.sent[1].note, /^First email: Hi · Bounced$/);
-  assert.equal(rows.sent[0].href, "/outreach?list=josh&card=a");
+  // Off today's list, a person opens on their company's page; on it, their draft in the list editor.
+  assert.equal(rows.sent[0].href, "/accounts/a.com");
+  assert.equal(rows.replies[0].href, "/accounts/a.com");
+  assert.equal(rows.bounces[0].href, "/accounts/b.com");
+  assert.equal(rows.queue[0].href, "/outreach?list=josh&batch=today&card=q1");
+  assert.equal(rows.linkedin[0].href, "/accounts/l.com");
 
   assert.deepEqual(rows.replies.map((row) => [row.name, row.tone, row.gmailUrl]), [["Person a", "good", "https://mail.google.com/x"]]);
   assert.match(rows.replies[0].note, /^Interested: “Sounds good”$/);

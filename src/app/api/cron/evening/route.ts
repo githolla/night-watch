@@ -1,4 +1,5 @@
 import { cronAuthorized } from "@/lib/auth";
+import { appBase } from "@/lib/app-url";
 import { eveningEmail } from "@/lib/daily-email";
 import { loadEveningEmail } from "@/lib/daily-email-data";
 import { sendEmail } from "@/lib/gmail";
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
   const now = new Date();
   const local = localParts(now);
   if (!isSendDay(local.weekday, local.date)) return Response.json({ skipped: "not a send day" });
-  const base = (process.env.APP_URL ?? new URL(request.url).origin).replace(/\/$/, "");
+  const base = appBase(request);
   const { data: connections } = await admin().from("gmail_connections").select("owner,email");
   const emails: Array<{ owner: string; sent: boolean; subject?: string }> = [];
   const errors: string[] = [];

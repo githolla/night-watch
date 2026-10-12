@@ -1,4 +1,5 @@
 import { cronAuthorized } from "@/lib/auth";
+import { appBase } from "@/lib/app-url";
 import { morningEmail } from "@/lib/daily-email";
 import { loadMorningEmail } from "@/lib/daily-email-data";
 import { sendEmail } from "@/lib/gmail";
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
   const db = admin();
   const now = new Date();
   const today = now.toISOString().slice(0, 10);
-  const base = (process.env.APP_URL ?? new URL(request.url).origin).replace(/\/$/, "");
+  const base = appBase(request);
   await loadNightlyLists(db).catch(() => {});
   const [{ data: cards }, { data: connections }, { data: lists }] = await Promise.all([
     db
