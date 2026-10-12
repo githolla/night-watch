@@ -2,6 +2,7 @@ import { loadAutoSendView, type AutoSendEmail } from "./autosend-view.ts";
 import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
 import type { EveningData, ListCompany, MorningData, Need, PersonRow, SendState, Tile } from "./daily-email.ts";
 import type { HomeData, HomeTodayRow } from "./home-view.ts";
+import { addLogos } from "./email-logos.ts";
 import { personHref } from "./home-today.ts";
 import { loadHome } from "./home-view.ts";
 import { industryOf } from "./send-plan.ts";
@@ -114,9 +115,11 @@ export async function loadMorningEmail(owner: Owner, base: string, now: Date = n
     { label: "Bounces", value: bounced, note: bounced ? "Fix on Overview" : "All delivered", tone: "warn", href: `${base}/?${q(owner)}` },
   ];
   const state = sendState(home);
+  const queue = state === "on" ? queueRows(view?.emails ?? [], base, owner, new Set(home.listed)) : [];
+  await addLogos([...queue.slice(0, 6), ...(list?.companies.slice(0, 12) ?? [])]);
   return {
     first: home.first, dateLabel: longDate(local.date), appHref: `${base}/?${q(owner)}`,
-    send: { state, going: home.autoSend?.plan.going ?? 0, window: home.autoSend?.plan.windowLabel ?? "", dayLabel: home.autoSend?.plan.dayLabel ?? "today", queue: state === "on" ? queueRows(view?.emails ?? [], base, owner, new Set(home.listed)) : [], href: `${base}/auto-send?${q(owner)}` },
+    send: { state, going: home.autoSend?.plan.going ?? 0, window: home.autoSend?.plan.windowLabel ?? "", dayLabel: home.autoSend?.plan.dayLabel ?? "today", queue, href: `${base}/auto-send?${q(owner)}` },
     list, yesterday: { label: lastLabel, tiles }, chart: chartDays(touches, local.date, dayOf),
     insights: insightsFrom(touches, local.date, dayOf, { sent: sentHref, results: `${base}/stats` }),
     needs: needsFrom(home, seat), meetings, sendDay: isSendDay(local.weekday, local.date),
@@ -151,10 +154,12 @@ export async function loadEveningEmail(owner: Owner, base: string, now: Date = n
   ];
   const state = sendState(home);
   const unread = home.drafts.nextUnapproved;
+  const sentRows = rows.sent.map(asRow(base)), replyRows = rows.replies.map(asRow(base));
+  await addLogos([...sentRows.slice(0, 10), ...replyRows]);
   return {
     first: home.first, dateLabel: longDate(local.date), appHref: `${base}/?${q(owner)}`, tiles,
-    sent: rows.sent.map(asRow(base)), sentHref: `${base}/drafts/sent?${q(owner)}&days=1`,
-    replies: rows.replies.map(asRow(base)), repliesHref: `${base}/replies?${q(owner)}`,
+    sent: sentRows, sentHref: `${base}/drafts/sent?${q(owner)}&days=1`,
+    replies: replyRows, repliesHref: `${base}/replies?${q(owner)}`,
     chart: chartDays(touches, local.date, dayOf),
     tomorrow: { state, going: home.autoSend?.plan.going ?? 0, window: home.autoSend?.plan.windowLabel ?? "", dayLabel: home.autoSend?.plan.dayLabel ?? (tomorrow === shiftDate(local.date, 1) ? "tomorrow" : dayName(tomorrow)), followups, unread, href: `${base}/auto-send?${q(owner)}` },
     tonight: {
