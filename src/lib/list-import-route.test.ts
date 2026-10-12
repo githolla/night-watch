@@ -16,9 +16,10 @@ function route(authorized: boolean) {
   const mocks: Record<string, unknown> = {
     zod: require("zod"),
     "@/lib/auth": { listImportAuthorized: () => authorized },
-    "@/lib/list-sectors": { REVENUE_BAND_USD_M: { min: 10, max: 50 }, SECTORS: ["roofing"] },
+    "@/lib/list-sectors": { REVENUE_BAND_USD_M: { min: 10, max: 50 }, SECTORS: ["roofing"], nightFocus: (listDate: string) => ({ region: `region for ${listDate}`, sectors: ["roofing"] }) },
     "@/lib/nightly-list-builder": {
       nightlyListConfig: () => ({ size: 12, minFit: 40 }),
+      learnedSectorWeights: async () => ({}),
       screenDomains: async (_db: unknown, domains: string[]) => domains.map((domain) => ({ domain, usable: true, reason: null })),
       importResearchedList: async (_db: unknown, input: unknown) => { calls.imports.push(input); return { status: "ready", listed: [], reserved: [], skipped: [], addresses: [] }; },
       addressesToWork: async () => [],
@@ -45,6 +46,7 @@ test("brief returns the band, sectors and the app's own research prompt", async 
   const body = await (await route(true).post({ action: "brief", listDate: "2026-10-12" })).json();
   assert.deepEqual(body.revenueBandUsdM, { min: 10, max: 50 });
   assert.equal(body.listSize, 12);
+  assert.deepEqual(body.focus, { region: "region for 2026-10-12", sectors: ["roofing"] });
   assert.match(body.researchPrompt, /Research/);
 });
 

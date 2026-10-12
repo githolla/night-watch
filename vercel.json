@@ -6,6 +6,7 @@
     { "path": "/api/cron/nightly-list", "schedule": "*/10 6-9 * * *" },
     { "path": "/api/cron/morning-send", "schedule": "*/10 10-17 * * *" },
     { "path": "/api/cron/morning", "schedule": "0 12 * * *" },
+    { "path": "/api/cron/evening", "schedule": "0 22 * * 1-5" },
     { "path": "/api/cron/replies", "schedule": "*/15 * * * *" },
     { "path": "/api/cron/cadences", "schedule": "*/15 * * * *" },
     { "path": "/api/cron/feedback-digest", "schedule": "30 9 * * *" },

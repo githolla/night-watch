@@ -59,3 +59,16 @@ export function sectorsForNight(day: number, weights: Record<string, number>) {
   const explore = slot === best ? (slot + 1) % count : slot;
   return [best, explore];
 }
+
+/** Regions the nightly list build rotates through, one per night by the list date's day of the month. */
+export const LIST_REGIONS = ["Northeast and Mid-Atlantic", "Southeast and Texas", "Midwest and Plains", "Mountain West and West Coast"] as const;
+
+/**
+ * What one night's list build leads with: a region and two sectors (the best by learned replies, plus one in
+ * rotation). The import brief hands this to the nightly routine, and the evening email says it in advance.
+ */
+export function nightFocus(listDate: string, weights: Record<string, number> = {}) {
+  const day = Math.floor(Date.parse(`${listDate}T00:00:00Z`) / 86_400_000);
+  const dayOfMonth = Number(listDate.slice(8, 10));
+  return { region: LIST_REGIONS[dayOfMonth % LIST_REGIONS.length], sectors: sectorsForNight(day, weights).map((index) => SECTORS[index]) };
+}

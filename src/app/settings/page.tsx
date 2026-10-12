@@ -84,6 +84,12 @@ export default async function Settings() {
         <div className="feature-center" style={{ marginBottom: 18 }}><Connections connections={connections ?? []} google={googleConfig} viewerOwner={me.owner} isAdmin={isAdmin} /></div>
         <div className="feature-center" style={{ marginBottom: 18 }}><SenderProfileForm initial={senderProfile} senderEmail={senderEmail} /></div>
         <AutoSendSettings />
+        <div className="feature-center" style={{ marginBottom: 18 }}>
+          <section className="conn-card daily-emails">
+            <header className="conn-head"><div><h2>Morning and evening emails</h2><p>Each weekday at about 8am you get your send for the day, the new list, yesterday&rsquo;s numbers and insights; at about 6pm, a recap of the day and what tonight&rsquo;s list build will look for. Both go from your Gmail to you.</p></div></header>
+            <div className="daily-email-links"><a className="btn" href="/api/daily-email?kind=morning" target="_blank" rel="noreferrer">Preview morning email</a><a className="btn" href="/api/daily-email?kind=evening" target="_blank" rel="noreferrer">Preview evening email</a></div>
+          </section>
+        </div>
         {isAdmin && <div className="feature-center"><TestSequence senderEmail={senderEmail} /></div>}
       </>,
     },

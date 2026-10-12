@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { listImportAuthorized } from "@/lib/auth";
-import { REVENUE_BAND_USD_M, SECTORS } from "@/lib/list-sectors";
-import { addressesToWork, importAddressEvidence, importResearchedList, nightlyListConfig, screenDomains, type EmailEvidence, type ResearchedCompany } from "@/lib/nightly-list-builder";
+import { nightFocus, REVENUE_BAND_USD_M, SECTORS } from "@/lib/list-sectors";
+import { addressesToWork, importAddressEvidence, importResearchedList, learnedSectorWeights, nightlyListConfig, screenDomains, type EmailEvidence, type ResearchedCompany } from "@/lib/nightly-list-builder";
 import { researchPrompt } from "@/lib/nightly-research";
 import { admin } from "@/lib/supabase/admin";
 import { seatOwner } from "@/lib/types";
@@ -39,7 +39,8 @@ export async function POST(request: Request) {
     if (body.action === "brief") {
       const template = researchPrompt({ id: "", company: "<company>", domain: "<domain>", sector: "<sector>", revenue_usd_m: null, revenue_year: null, source_url: null, sector_key: null }, body.listDate);
       const config = nightlyListConfig();
-      return Response.json({ revenueBandUsdM: REVENUE_BAND_USD_M, sectors: SECTORS, listSize: config.size, minFit: config.minFit, researchPrompt: template });
+      const focus = nightFocus(body.listDate, await learnedSectorWeights(db).catch(() => ({})));
+      return Response.json({ revenueBandUsdM: REVENUE_BAND_USD_M, sectors: SECTORS, focus, listSize: config.size, minFit: config.minFit, researchPrompt: template });
     }
     if (body.action === "status") {
       const { data, error } = await db.from("reachout_lists").select("owner,status,rows").eq("list_date", body.listDate);

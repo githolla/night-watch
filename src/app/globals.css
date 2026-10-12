@@ -2688,3 +2688,4 @@ button.ov-result:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 .ov-today-empty{margin:8px 0;color:var(--muted);font-size:13px}
 .ov-today-panel footer{padding-top:10px}
 @media (max-width:640px){.ov-today-list li{flex-wrap:wrap}.ov-today-side{width:100%;justify-content:flex-end}}
+.daily-email-links{display:flex;flex-wrap:wrap;gap:8px}
