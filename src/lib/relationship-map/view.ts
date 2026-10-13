@@ -3,6 +3,7 @@ import { layers, type Layer, type MapNode, type Point, type RelationshipGraph } 
 export const layerDesign: Record<Layer, { label: string; color: string; description: string }> = {
   company: { label: "Company", color: "#efb45c", description: "The business at the center of the records" },
   person: { label: "Contacts", color: "#ac9ff2", description: "People recorded at the company" },
+  email: { label: "Email addresses", color: "#69ddc0", description: "Current stored addresses, their status, source and verification date" },
   draft: { label: "Messages", color: "#6eb9f5", description: "Prepared email and outreach cards" },
   outreach: { label: "Reach-outs", color: "#75d6be", description: "Actual recorded sends" },
   reply: { label: "Replies", color: "#e6a6ce", description: "Recorded replies and classifications" },
@@ -22,7 +23,7 @@ export const DEFAULT_CAMERA: Camera = { x: 800, y: 580, scale: 0.78 };
 export function zoomCamera(camera: Camera, factor: number, anchor: Point): Camera { const scale = Math.min(3.5, Math.max(0.005, camera.scale * factor)); const ratio = scale / camera.scale; return { x: anchor.x - (anchor.x - camera.x) * ratio, y: anchor.y - (anchor.y - camera.y) * ratio, scale }; }
 export function edgePath(from: Point, to: Point) { const middle = { x: (from.x + to.x) / 2 + (to.y - from.y) * 0.1, y: (from.y + to.y) / 2 - (to.x - from.x) * 0.1 }; return `M${from.x},${from.y} Q${middle.x},${middle.y} ${to.x},${to.y}`; }
 export function shortLabel(node: MapNode, limit = 30) { const label = node.kind === "outreach" || node.kind === "reply" || node.kind === "bounce" ? `${node.label} · ${node.subtitle}` : node.label; return label.length > limit ? `${label.slice(0, limit - 1)}…` : label; }
-export function nodeRadius(node: MapNode) { return node.kind === "company" ? 42 : node.kind === "person" ? 13 : node.kind === "source" ? 5 : node.kind === "seat" ? 10 : node.kind === "draft" ? 11 : 8; }
+export function nodeRadius(node: MapNode) { return node.kind === "company" ? 42 : node.kind === "email" ? 11 : node.kind === "person" ? 13 : node.kind === "source" ? 5 : node.kind === "seat" ? 10 : node.kind === "draft" ? 11 : 8; }
 export function filterGraph(graph: RelationshipGraph, enabled: Set<Layer>, query: string, isolated: Set<string> | null) {
   const matches = query.trim().toLowerCase();
   const ids = new Set(graph.nodes.filter((node) => (node.kind === "company" || enabled.has(node.kind)) && (!isolated || isolated.has(node.id))).map((node) => node.id));

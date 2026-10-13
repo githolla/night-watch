@@ -3,7 +3,7 @@ import { z } from "zod";
 import { buildGraph, type Company, type GraphRecords } from "./graph.ts";
 const optionalText = z.string().nullable().optional().transform((value) => value ?? null);
 const companySchema = z.object({ id: z.string(), name: z.string(), domain: z.string(), status: z.string(), outreach_stage: optionalText, outreach_owner: optionalText, vertical: optionalText, employee_range: optionalText });
-const personSchema = z.object({ id: z.string(), account_id: z.string(), full_name: z.string(), title: z.string(), email: optionalText, email_status: z.string(), do_not_contact: z.boolean() });
+const personSchema = z.object({ id: z.string(), account_id: z.string(), full_name: z.string(), title: z.string(), email: optionalText, email_status: z.string(), do_not_contact: z.boolean(), email_source: optionalText, email_verified_at: optionalText, created_at: optionalText, linkedin_url: optionalText });
 const draftSchema = z.object({ id: z.string(), account_id: z.string(), person_id: optionalText, signal_id: optionalText, status: z.string(), email_subject: optionalText, email_body: optionalText, brief: optionalText, assigned_to: z.string(), created_at: z.string() });
 const touchSchema = z.object({ id: z.string(), card_id: z.string(), person_id: z.string(), channel: z.string(), sent_at: optionalText, sent_by: z.string(), reply_at: optionalText, reply_classification: optionalText, bounced_at: optionalText });
 const signalSchema = z.object({ id: z.string(), account_id: z.string(), person_id: optionalText, type: z.string(), summary: z.string(), source_url: z.string(), observed_at: optionalText });
@@ -27,7 +27,7 @@ export async function loadRelationshipGraph(db: SupabaseClient, domain: string, 
     catch { warnings.push(`${label} could not be loaded. This layer is incomplete.`); return []; }
   }
   const [people, drafts, signals, jobs, posts, discoveries] = await Promise.all([
-    read("Contacts", (from, to) => db.from("people").select("id,account_id,full_name,title,email,email_status,do_not_contact").eq("account_id", company.id).order("id").range(from, to), personSchema.array()),
+    read("Contacts", (from, to) => db.from("people").select("id,account_id,full_name,title,email,email_status,do_not_contact,email_source,email_verified_at,created_at,linkedin_url").eq("account_id", company.id).order("id").range(from, to), personSchema.array()),
     read("Message cards", (from, to) => db.from("cards").select("id,account_id,person_id,signal_id,status,email_subject,email_body,brief,assigned_to,created_at").eq("account_id", company.id).order("id").range(from, to), draftSchema.array()),
     read("Research signals", (from, to) => db.from("signals").select("id,account_id,person_id,type,summary,source_url,observed_at").eq("account_id", company.id).order("id").range(from, to), signalSchema.array()),
     read("Hiring inputs", (from, to) => db.from("job_postings").select("id,account_id,title,url,active,posted_at,family").eq("account_id", company.id).order("id").range(from, to), jobSchema.array()),
@@ -73,7 +73,7 @@ export async function loadPortfolioGraph(db: SupabaseClient, now = Date.now(), s
     catch { warnings.push(`${table}: records could not be fully loaded. This layer is incomplete.`); return []; }
   }
   const results = await Promise.allSettled([
-    read("people", "id,account_id,full_name,title,email,email_status,do_not_contact", personSchema.array()),
+    read("people", "id,account_id,full_name,title,email,email_status,do_not_contact,email_source,email_verified_at,created_at,linkedin_url", personSchema.array()),
     read("cards", "id,account_id,person_id,signal_id,status,email_subject,email_body,brief,assigned_to,created_at", draftSchema.array()),
     scopedCompanies ? Promise.resolve([]) : read("touches", "id,card_id,person_id,channel,sent_at,sent_by,reply_at,reply_classification,bounced_at", touchSchema.array()),
     read("signals", "id,account_id,person_id,type,summary,source_url,observed_at", signalSchema.array()),
