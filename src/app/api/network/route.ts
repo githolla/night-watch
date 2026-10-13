@@ -1,10 +1,12 @@
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { loadMapCompanies, loadRelationshipGraph } from "@/lib/relationship-map/load";
+import { loadPortfolio } from "@/lib/relationship-map/portfolio";
 export async function GET(request: Request) {
   if (!await requireUser().catch(() => null)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   const params = new URL(request.url).searchParams;
   try {
+    if (params.get("scope") === "all") return Response.json(await loadPortfolio(admin()), { headers: { "Cache-Control": "no-store" } });
     if (!params.has("domain")) return Response.json({ companies: await loadMapCompanies(admin(), params.get("q") ?? "") }, { headers: { "Cache-Control": "no-store" } });
     const domain = params.get("domain") ?? "";
     if (!/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(domain)) return Response.json({ error: "Choose a company domain." }, { status: 400 });

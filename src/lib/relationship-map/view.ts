@@ -16,17 +16,17 @@ export const layerDesign: Record<Layer, { label: string; color: string; descript
 };
 const nodeSchema = z.object({ id: z.string(), kind: z.enum(layers), label: z.string(), subtitle: z.string(), detail: z.string(), status: z.string(), companyId: z.string().nullable(), href: z.string().nullable(), sourceUrl: z.string().nullable(), at: z.string().nullable(), facts: z.array(z.object({ label: z.string(), value: z.string() })) });
 export const graphSchema = z.object({ nodes: z.array(nodeSchema), edges: z.array(z.object({ id: z.string(), from: z.string(), to: z.string(), label: z.string() })), warnings: z.array(z.string()), companyId: z.string().nullable(), loadedAt: z.string() });
-export const companiesSchema = z.array(z.object({ id: z.string(), name: z.string(), domain: z.string(), status: z.string(), outreach_stage: z.string().nullable().optional(), outreach_owner: z.string().nullable().optional(), vertical: z.string().nullable().optional() }));
+export const companiesSchema = z.array(z.object({ id: z.string(), name: z.string(), domain: z.string(), status: z.string(), outreach_stage: z.string().nullable().optional(), outreach_owner: z.string().nullable().optional(), vertical: z.string().nullable().optional(), employee_range: z.string().nullable().optional(), revenueUsdM: z.number().nullable().optional(), revenueStatus: z.string().nullable().optional(), revenueYear: z.number().nullable().optional(), revenueSource: z.string().nullable().optional() }));
 export type Camera = { x: number; y: number; scale: number };
 export const DEFAULT_CAMERA: Camera = { x: 800, y: 580, scale: 0.78 };
-export function zoomCamera(camera: Camera, factor: number, anchor: Point): Camera { const scale = Math.min(3.5, Math.max(0.35, camera.scale * factor)); const ratio = scale / camera.scale; return { x: anchor.x - (anchor.x - camera.x) * ratio, y: anchor.y - (anchor.y - camera.y) * ratio, scale }; }
-export function edgePath(from: Point, to: Point) { const middle = { x: (from.x + to.x) * 0.38, y: (from.y + to.y) * 0.38 }; return `M${from.x},${from.y} Q${middle.x},${middle.y} ${to.x},${to.y}`; }
+export function zoomCamera(camera: Camera, factor: number, anchor: Point): Camera { const scale = Math.min(3.5, Math.max(0.005, camera.scale * factor)); const ratio = scale / camera.scale; return { x: anchor.x - (anchor.x - camera.x) * ratio, y: anchor.y - (anchor.y - camera.y) * ratio, scale }; }
+export function edgePath(from: Point, to: Point) { const middle = { x: (from.x + to.x) / 2 + (to.y - from.y) * 0.1, y: (from.y + to.y) / 2 - (to.x - from.x) * 0.1 }; return `M${from.x},${from.y} Q${middle.x},${middle.y} ${to.x},${to.y}`; }
 export function shortLabel(node: MapNode, limit = 30) { const label = node.kind === "outreach" || node.kind === "reply" || node.kind === "bounce" ? `${node.label} · ${node.subtitle}` : node.label; return label.length > limit ? `${label.slice(0, limit - 1)}…` : label; }
 export function nodeRadius(node: MapNode) { return node.kind === "company" ? 42 : node.kind === "person" ? 13 : node.kind === "source" ? 5 : node.kind === "seat" ? 10 : node.kind === "draft" ? 11 : 8; }
 export function filterGraph(graph: RelationshipGraph, enabled: Set<Layer>, query: string, isolated: Set<string> | null) {
   const matches = query.trim().toLowerCase();
-  const ids = new Set(graph.nodes.filter((node) => (node.kind === "company" || enabled.has(node.kind)) && (!isolated || isolated.has(node.id) || node.kind === "company")).map((node) => node.id));
-  if (matches) { const found = new Set(graph.nodes.filter((node) => `${node.label} ${node.subtitle} ${node.status} ${node.facts.map((fact) => fact.value).join(" ")}`.toLowerCase().includes(matches)).map((node) => node.id)); const related = new Set(found); for (const edge of graph.edges) if (found.has(edge.from) || found.has(edge.to)) { related.add(edge.from); related.add(edge.to); } for (const node of graph.nodes) if (!related.has(node.id) && node.kind !== "company") ids.delete(node.id); }
+  const ids = new Set(graph.nodes.filter((node) => (node.kind === "company" || enabled.has(node.kind)) && (!isolated || isolated.has(node.id))).map((node) => node.id));
+  if (matches) { const found = new Set(graph.nodes.filter((node) => `${node.label} ${node.subtitle} ${node.status} ${node.facts.map((fact) => fact.value).join(" ")}`.toLowerCase().includes(matches)).map((node) => node.id)); const related = new Set(found); for (const edge of graph.edges) if (found.has(edge.from) || found.has(edge.to)) { related.add(edge.from); related.add(edge.to); } for (const node of graph.nodes) if (related.has(node.id) && node.companyId) related.add(`company:${node.companyId}`); for (const node of graph.nodes) if (!related.has(node.id)) ids.delete(node.id); }
   return { ...graph, nodes: graph.nodes.filter((node) => ids.has(node.id)), edges: graph.edges.filter((edge) => ids.has(edge.from) && ids.has(edge.to)) };
 }
 
@@ -51,4 +51,12 @@ export function placeLabels(nodes: MapNode[], points: Record<string, Point>): Re
     boxes.push(chosen); placed[node.id] = { x: chosen.x - point.x, y: chosen.y - point.y, width };
   }
   return placed;
+}
+
+export function fitCamera(points: Record<string, Point>): Camera {
+  const values = Object.values(points); if (!values.length) return DEFAULT_CAMERA;
+  const bounds = values.reduce((box, point) => ({ minX: Math.min(box.minX, point.x), maxX: Math.max(box.maxX, point.x), minY: Math.min(box.minY, point.y), maxY: Math.max(box.maxY, point.y) }), { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+  const minX = bounds.minX - 250, maxX = bounds.maxX + 250, minY = bounds.minY - 180, maxY = bounds.maxY + 180;
+  const scale = Math.min(0.78, 1450 / Math.max(1, maxX - minX), 1000 / Math.max(1, maxY - minY));
+  return { x: 800 - (minX + maxX) / 2 * scale, y: 580 - (minY + maxY) / 2 * scale, scale };
 }

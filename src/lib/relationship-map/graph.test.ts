@@ -48,7 +48,7 @@ test("layout is deterministic and dense contacts have distinct positions", () =>
 test("zoom anchors stay fixed and scale remains bounded", () => {
   const anchor = { x: 400, y: 300 }; const zoomed = zoomCamera(DEFAULT_CAMERA, 2, anchor);
   assert.equal((anchor.x - DEFAULT_CAMERA.x) / DEFAULT_CAMERA.scale, (anchor.x - zoomed.x) / zoomed.scale);
-  assert.equal(zoomCamera(DEFAULT_CAMERA, 100, anchor).scale, 3.5); assert.equal(zoomCamera(DEFAULT_CAMERA, 0.001, anchor).scale, 0.35);
+  assert.equal(zoomCamera(DEFAULT_CAMERA, 100, anchor).scale, 3.5); assert.equal(zoomCamera(DEFAULT_CAMERA, 0.001, anchor).scale, 0.005);
 });
 test("unsafe source links are not exposed as clickable evidence", () => {
   const graph = buildGraph({ ...records, signals: [{ ...records.signals[0], source_url: "javascript:alert(1)" }] });
