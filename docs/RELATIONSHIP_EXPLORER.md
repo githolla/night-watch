@@ -35,3 +35,10 @@ An email-address node represents the current contact record, with `email_source`
 Timed records display Eastern time and the year. Date-only research records preserve their calendar date. Source cards show linked evidence dates, while the inspector distinguishes those from an unrecorded source publication date. Missing dates are not synthesized.
 
 Validation includes graph-only server rendering for both initial all-target and focused-company views, timestamp formatting, source deduplication, current-address attribution, recorded sends and unique layout positions. A synthetic SVG flow was rasterized and visually inspected offline. Live browser inspection remains unavailable because computer-use access was denied.
+
+
+## Graph navigation
+
+Double-click a company to open its flow. The navigation strip keeps All targets available and provides Previous/Next controls through companies in the active segment. Search results show matching records; click a result or press Enter to open its company or center its node. Hover previews display record type, status, dates and contact context.
+
+The default drag action pans the chart. Arrange nodes explicitly enables node repositioning. A drag does not accidentally select the record beneath it. Fit graph restores the visible workspace, and the minimap shows the viewport and supports clicking to move it. Home fits the chart, / focuses search, and Escape clears search and closes the selected details. Pointer calculations account for SVG letterboxing, including wide and tall canvas sizes. Keyboard selection and minimap Enter/Space remain available.
