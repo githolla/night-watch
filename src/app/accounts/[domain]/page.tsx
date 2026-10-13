@@ -129,6 +129,7 @@ export default async function AccountPage({ params }: { params: Promise<{ domain
   return <div className="shell">
     <main className="targets-page account-page">
       <div className="company-topnav">
+        <Link href={`/network?company=${encodeURIComponent(domain)}`} className="btn-secondary">Explore relationships</Link>
         <p className="crumbs"><Link href="/outreach">Companies to email</Link><span>/</span><span>{name}</span></p>
         {sibIndex >= 0 && siblings.length > 1 && <div className="company-stepper">
           {prevSib ? <Link href={`/accounts/${prevSib.domain}`} className="btn ghost" title={prevSib.name}>← Prev</Link> : <span className="btn ghost is-disabled">← Prev</span>}

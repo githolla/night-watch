@@ -1,0 +1,20 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
+import { createRequire } from "node:module";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import ts from "typescript";
+import * as graph from "./graph.ts";
+import * as view from "./view.ts";
+import { records } from "./fixtures.ts";
+const require = createRequire(import.meta.url);
+test("map renders actual node controls, accessible list alternative and company details", () => {
+  const exports: { RelationshipMap?: React.ComponentType<{ initialCompanies: graph.Company[]; initialGraph: graph.RelationshipGraph }> } = {};
+  const mocks: Record<string, unknown> = { "@/lib/relationship-map/graph": graph, "@/lib/relationship-map/view": view, "next/link": { __esModule: true, default: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => React.createElement("a", props) }, "@phosphor-icons/react": Object.fromEntries(["ArrowUpRight", "CaretRight", "Crosshair", "MagnifyingGlass", "Minus", "Plus", "ArrowsCounterClockwise", "ArrowsOut", "X"].map((name) => [name, () => null])) };
+  runInNewContext(ts.transpileModule(readFileSync(new URL("../../components/RelationshipMap.tsx", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText, { exports, URL, Set, Map, Date, require: (name: string) => name in mocks ? mocks[name] : require(name) });
+  const html = renderToStaticMarkup(React.createElement(exports.RelationshipMap!, { initialCompanies: records.companies, initialGraph: graph.buildGraph(records) }));
+  assert.ok(html.includes("Northline Services")); assert.ok(html.includes('aria-label="Person:') || html.includes('aria-label="Contacts: Jamie Carter'));
+  assert.ok(html.includes('aria-label="Zoom in"')); assert.ok(html.includes("Show this connection path only")); assert.ok(html.includes("List</button>")); assert.ok(html.includes("Open record"));
+});
