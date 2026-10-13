@@ -31,13 +31,13 @@ test("a bounced address stays blocked, even by hand", async () => {
   assert.equal(recipientAllowed(check, false), false);
 });
 
-test("a verified address or one that already took an email is deliverable without asking Hunter", async () => {
+test("only mailbox verification proves delivery; an accepted send is insufficient", async () => {
   const { db } = memoryDb();
-  const verified = await checkRecipient(db, person({ email_status: "verified", email_verified_at: new Date().toISOString() }), account, { hunter: neverHunter });
+  const verified = await checkRecipient(db, person({ email_status: "verified", email_source: "hunter", email_verified_at: new Date().toISOString() }), account, { hunter: neverHunter });
   assert.equal(verified.level, "deliverable");
-  const delivered = await checkRecipient(db, person({ email_check: { lastSentEmail: "dana.ortiz@acme.test", lastSentAt: new Date(Date.now() - 2 * 3600_000).toISOString() } }), account, { hunter: neverHunter });
-  assert.equal(delivered.level, "deliverable");
-  assert.equal(recipientAllowed(delivered, true), true, "the follow-up cron may send to it");
+  const delivered = await checkRecipient(db, person({ email_check: { lastSentEmail: "dana.ortiz@acme.test", lastSentAt: new Date(Date.now() - 2 * 3600_000).toISOString() } }), account, { hunter: hunterSays("unknown"), mailHost: mailOk });
+  assert.equal(delivered.level, "risky");
+  assert.equal(recipientAllowed(delivered, true), false, "the follow-up cron may send to it");
   const justSent = await checkRecipient(db, person({ email_check: { lastSentEmail: "dana.ortiz@acme.test", lastSentAt: new Date().toISOString() } }), account, { hunter: hunterSays("unknown"), mailHost: mailOk });
   assert.notEqual(justSent.source, "history", "inside the bounce window a send is not yet proof of delivery");
 });
@@ -124,7 +124,7 @@ test("a verified address that is someone else's is capped at risky, even from hi
   const { db } = memoryDb();
   const other = await checkRecipient(db, person({ full_name: "John Smith", email: "jane.doe@acme.com" }), { id: "acct", domain: "acme.com" }, { hunter: hunterSays("verified"), mailHost: mailOk });
   assert.equal(other.level, "risky");
-  const delivered = await checkRecipient(db, person({ full_name: "John Smith", email: "office2@acme.com", email_check: { lastSentEmail: "office2@acme.com", lastSentAt: new Date(Date.now() - 2 * 3600_000).toISOString() } }), { id: "acct", domain: "acme.com" }, { hunter: neverHunter });
+  const delivered = await checkRecipient(db, person({ full_name: "John Smith", email: "office2@acme.com", email_check: { lastSentEmail: "office2@acme.com", lastSentAt: new Date(Date.now() - 2 * 3600_000).toISOString() } }), { id: "acct", domain: "acme.com" }, { hunter: hunterSays("unknown"), mailHost: mailOk });
   assert.equal(delivered.level, "risky");
 });
 

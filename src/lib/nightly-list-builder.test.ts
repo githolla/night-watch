@@ -1,3 +1,4 @@
+import * as addressHistory from "./address-history.ts";
 import * as pageEmailsModule from "./page-emails.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -54,6 +55,7 @@ function load(): Module {
   const source = readFileSync(new URL("./nightly-list-builder.ts", import.meta.url), "utf8");
   const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const mocks: Record<string, unknown> = {
+    "./address-history.ts": addressHistory,
     zod: require("zod"),
     "./ai-fit.ts": aiFit,
     "./anthropic-cost.ts": anthropicCost,
@@ -71,7 +73,7 @@ function load(): Module {
     "./nightly-lists.ts": { loadNightlyLists: async () => {} },
     "./nightly-research.ts": { isExcludedSector, researchOne: (candidate: Row, owner: string, _date: string, overrides: ResearchCall["overrides"]) => { const call = { candidate, owner, overrides }; calls.research.push(call); return hooks.research(call); } },
     "./prepare-priority-draft.ts": { preparePriorityDraft: (domain: string) => { calls.prepare.push(domain); return hooks.prepare(domain); } },
-    "./recipient-verification.ts": { domainAcceptsMail: async () => true, recordRecipientCheck: async () => {} },
+    "./recipient-verification.ts": { checkRecipient: async () => ({ level: "risky", reason: "Not verified." }), domainAcceptsMail: async () => true, recordRecipientCheck: async () => {} },
     "./site-check.ts": { verifySite: (domain: string) => hooks.verifySite(domain) },
   };
   const exports: Record<string, unknown> = {};
@@ -406,7 +408,7 @@ test("a list researched outside the app goes through the same checks, makes no m
   assert.deepEqual(json((await builder.screenDomains(db, ["good.test", "fresh.test"])).map((row) => row.usable)), [false, true], "an imported company is known from then on");
 });
 
-test("researched addresses are checked against their pages: published on the page is verified, a format proven by two colleagues is likely", async () => {
+test("researched addresses are checked against their pages: published on the page still needs mailbox verification, a format proven by two colleagues is likely", async () => {
   const pages: Record<string, string> = {
     "https://pub.test/team": "<p>Pat Lee, President: pat.lee@pub.test</p>",
     "https://fmt.test/a": "<p>Sam Reyes sam.reyes@fmt.test</p>", "https://fmt.test/b": "<p>Kim Bell kim.bell@fmt.test</p>",
@@ -423,12 +425,12 @@ test("researched addresses are checked against their pages: published on the pag
     { company: "One", domain: "one.test", research: {}, emailEvidence: { kind: "format", address: "pat.lee@one.test", examples: [{ name: "Sam Reyes", email: "sam.reyes@one.test", sourceUrl: "https://one.test/a" }] } },
   ] }, { fetcher, lookup: async () => ["93.184.216.34"], mailHost: async () => true });
   const outcome = (domain: string) => result.addresses.find((item) => item.domain === domain)?.outcome;
-  assert.equal(outcome("pub.test"), "verified");
+  assert.equal(outcome("pub.test"), "unconfirmed");
   assert.equal(outcome("gone.test"), "unconfirmed", "an address not on its cited page is not trusted");
   assert.equal(outcome("fmt.test"), "likely");
   assert.equal(outcome("one.test"), "unconfirmed", "one colleague does not prove a format");
   const person = (id: string) => tables.people.find((row) => row.id === id)!;
-  assert.equal(person("p0").email_status, "verified");
+  assert.equal(person("p0").email_status, "unverified");
   assert.equal(person("p0").email, "pat.lee@pub.test");
   assert.equal((person("p2").email_check as Row).likely, true);
   assert.equal(person("p1").email_status, "none", "unconfirmed evidence changes nothing");
@@ -452,8 +454,8 @@ test("a bounced guess can be corrected by research, but the bounced address itse
   const person = fixed.tables.people[0];
   assert.equal(person.email, "pat@fix.test");
   assert.equal(person.email_status, "unverified", "the bounce belonged to the old guess");
-  assert.equal(fixed.tables.cards[0].status, "edited", "the card goes back in the queue, to the right address this time");
-  assert.equal(fixed.tables.cards[0].auto_send_hold_reason, null);
+  assert.equal(fixed.tables.cards[0].status, "sent", "research alone does not reopen the card");
+  assert.equal(fixed.tables.cards[0].auto_send_hold_reason, "pat.lee@fix.test bounced.");
   // A page that still lists the bounced address does not bring it back.
   const stale = seed();
   const [refused] = await builder.importAddressEvidence(stale.db, [{ personId: "p1", domain: "fix.test", name: "Pat Lee", emailEvidence: { kind: "published", address: "pat.lee@fix.test", sourceUrl: "https://fix.test/team" } }], deps);
@@ -480,4 +482,23 @@ test("an import where every company fails leaves no empty failed list to announc
   assert.equal(result.skipped[0].reason, "AI fit 18 is below 40");
   assert.equal(tables.reachout_lists.length, 0);
   assert.equal(calls.prepare.length, 0);
+});
+
+test("a corrected person can never import an earlier failed mailbox again", async () => {
+  const { db, tables } = queryDb({ accounts: [{ id: "a", domain: "co.test" }], people: [{ id: "p", account_id: "a", full_name: "Pat Lee", email: "pat@co.test", email_status: "unverified", email_check: { email: "pat@co.test", bouncedEmails: ["pat.lee@co.test"] } }], cards: [] });
+  const [result] = await builder.importAddressEvidence(db, [{ personId: "p", domain: "co.test", name: "Pat Lee", emailEvidence: { kind: "published", address: "pat.lee@co.test", sourceUrl: "https://co.test/team" } }]);
+  assert.equal(result.outcome, "unconfirmed");
+  assert.match(result.reason, /already bounced/);
+  assert.equal(tables.people[0].email, "pat@co.test");
+});
+
+test("alternate email domains require the company's own citation and still wait for mailbox verification", async () => {
+  const { db, tables } = queryDb({ accounts: [{ id: "a", domain: "co.test" }], people: [{ id: "p", account_id: "a", full_name: "Pat Lee", email: "pat.lee@co.test", email_status: "invalid", email_check: { bouncedEmail: "pat.lee@co.test" } }], cards: [] });
+  const item = { personId: "p", domain: "co.test", name: "Pat Lee", emailEvidence: { kind: "published", address: "pat.lee@mailco.test", sourceUrl: "https://co.test/team" } };
+  const fetcher = async () => new Response("Pat Lee: pat.lee@mailco.test", { headers: { "content-type": "text/html" } });
+  const [result] = await builder.importAddressEvidence(db, [item], { fetcher, lookup: async () => ["93.184.216.34"] });
+  assert.equal(result.outcome, "unconfirmed");
+  assert.equal(tables.people[0].email, "pat.lee@mailco.test");
+  assert.equal(tables.people[0].email_status, "unverified");
+  assert.ok((tables.people[0].email_check as Row).bouncedEmails);
 });

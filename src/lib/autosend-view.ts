@@ -46,7 +46,7 @@ export async function loadAutoSendView(owner: Owner): Promise<{ plan: AutoSendSu
     skippedToday: ((profile?.auto_send_skip_on as string | null | undefined) ?? null) === localParts().date,
   };
   const queued = Object.keys(slots);
-  const select = "id,status,email_subject,email_body,updated_at,auto_send_hold,accounts(name,domain,vertical),people(id,full_name,title,email,email_status,email_check)";
+  const select = "id,status,email_subject,email_body,updated_at,auto_send_hold,accounts(name,domain,vertical),people(id,full_name,title,email,email_status,email_source,email_check)";
   const [{ data: inQueue }, { data: kept }] = await Promise.all([
     queued.length ? db.from("cards").select(select).in("id", queued) : Promise.resolve({ data: [] }),
     db.from("cards").select(`${select},signals!inner(hash)`).eq("assigned_to", owner).eq("auto_send_hold", true).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).limit(200),

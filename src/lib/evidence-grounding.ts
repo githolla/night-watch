@@ -125,8 +125,8 @@ async function hostRefusal(url: URL, lookup: Lookup): Promise<string | null> {
   return null;
 }
 
-async function readCapped(response: Response, maxBytes: number): Promise<string> {
-  if (!response.body) return "";
+async function readCapped(response: Response, maxBytes: number): Promise<Uint8Array> {
+  if (!response.body) return new Uint8Array();
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;
@@ -144,14 +144,14 @@ async function readCapped(response: Response, maxBytes: number): Promise<string>
     joined.set(part, offset);
     offset += part.length;
   }
-  return new TextDecoder().decode(joined);
+  return joined;
 }
 
 /**
  * GET one public https page: no IP literals, no hosts that resolve to private or loopback addresses (checked
  * on every redirect hop), at most 3 redirects, at most 300KB read. Never throws.
  */
-export async function safeFetch(raw: string, fetcher: Fetcher = fetch, options: { lookup?: Lookup; signal?: AbortSignal; maxBytes?: number } = {}): Promise<PageResult> {
+export async function safeFetch(raw: string, fetcher: Fetcher = fetch, options: { lookup?: Lookup; signal?: AbortSignal; maxBytes?: number; pdf?: boolean } = {}): Promise<PageResult> {
   const lookup = options.lookup ?? defaultLookup;
   const signal = options.signal ?? AbortSignal.timeout(8_000);
   let current: URL;
@@ -173,7 +173,16 @@ export async function safeFetch(raw: string, fetcher: Fetcher = fetch, options: 
         current = new URL(location, current);
         continue;
       }
-      const html = response.ok ? await readCapped(response, options.maxBytes ?? PAGE_MAX_BYTES) : "";
+      let html = "";
+      if (response.ok) {
+        const bytes = await readCapped(response, options.maxBytes ?? PAGE_MAX_BYTES);
+        if (options.pdf && (response.headers.get("content-type")?.includes("application/pdf") || new TextDecoder().decode(bytes.subarray(0, 5)) === "%PDF-")) {
+          const { extractText } = await import("unpdf");
+          const document = await extractText(bytes, { mergePages: true });
+          if (document.totalPages > 250) throw new Error("PDF exceeds the evidence page limit");
+          html = document.text;
+        } else html = new TextDecoder().decode(bytes);
+      }
       if (!response.ok) await response.body?.cancel().catch(() => undefined);
       return { kind: "page", status: response.status, finalUrl: current.toString(), html };
     }

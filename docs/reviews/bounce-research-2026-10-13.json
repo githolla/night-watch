@@ -1,0 +1,457 @@
+{
+  "reviewDate": "2026-10-13",
+  "timezone": "America/New_York",
+  "prospectBounces": 24,
+  "excludedTestRecords": 2,
+  "sitePagesRead": 111,
+  "liveContactsChanged": false,
+  "research": [
+    {
+      "personId": "233e6254-572d-40e3-a71e-12f607b86887",
+      "owner": "josh",
+      "name": "Russ Dupper",
+      "company": "Dupper Landscape",
+      "domain": "dupperlandscape.com",
+      "failedEmail": "russ.dupper@dupperlandscape.com",
+      "bouncedAt": "2026-10-13T13:15:49.1+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 8,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "bc326874-3e67-4c48-b10a-1175ce0b0518",
+      "owner": "suuchi",
+      "name": "Christy Webber",
+      "company": "Christy Webber Landscapes",
+      "domain": "christywebber.com",
+      "failedEmail": "christy.webber@christywebber.com",
+      "bouncedAt": "2026-10-13T13:15:50.033+00:00",
+      "failureDiagnosis": "550 5.7.133: group restricts external senders",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 3,
+        "addressesSeen": 1
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "bde94d02-348d-4ddc-bc71-8351ae9deed9",
+      "owner": "josh",
+      "name": "Victor Romeiro",
+      "company": "Xquisite Landscaping",
+      "domain": "xquisitelandscaping.com",
+      "failedEmail": "victor.romeiro@xquisitelandscaping.com",
+      "bouncedAt": "2026-10-13T13:15:51.627+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 2,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "49189d4c-cbb9-4494-bad0-272484b3cdb5",
+      "owner": "suuchi",
+      "name": "Chase Mullin",
+      "company": "Mullin",
+      "domain": "mullinlandscape.com",
+      "failedEmail": "cmullin@mullinlandscape.com",
+      "bouncedAt": "2026-10-13T13:30:48.395+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 7,
+        "addressesSeen": 1
+      },
+      "nextAction": "Confirm current identity and mailbox deliverability of the published candidate",
+      "candidate": {
+        "address": "chase@mullinlandscape.com",
+        "sourceUrl": "https://www.lnla.org/assets/docs/Newsletters/263612_LNLA_Newsletter_v86_DIGITAL.pdf",
+        "evidence": "historical association directory",
+        "sourceYear": null,
+        "status": "published_unverified",
+        "mailboxVerified": false,
+        "readyToSend": false
+      }
+    },
+    {
+      "personId": "2189350d-bf5a-472c-b519-707cfa45555d",
+      "owner": "suuchi",
+      "name": "Larry Thalmann",
+      "company": "Chalet",
+      "domain": "chaletnursery.com",
+      "failedEmail": "larry.thalmann@chaletnursery.com",
+      "bouncedAt": "2026-10-13T13:45:48.118+00:00",
+      "failureDiagnosis": "Bounce recorded in Nightwatch; original SMTP diagnostic not accessible in this review",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 4,
+        "addressesSeen": 1
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "b45592a6-15a5-4c43-beba-595ff9e48ddd",
+      "owner": "suuchi",
+      "name": "Chris Angelo",
+      "company": "Stay Green",
+      "domain": "staygreen.com",
+      "failedEmail": "chris.angelo@staygreen.com",
+      "bouncedAt": "2026-10-13T13:45:50.1+00:00",
+      "failureDiagnosis": "Bounce recorded in Nightwatch; original SMTP diagnostic not accessible in this review",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 0,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "929e67fc-9833-4b5b-a4ff-9902be9e7a23",
+      "owner": "josh",
+      "name": "Dan Waters",
+      "company": "Creative Environments",
+      "domain": "creativeenvironments.com",
+      "failedEmail": "dan.waters@creativeenvironments.com",
+      "bouncedAt": "2026-10-13T13:45:51.398+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 4,
+        "addressesSeen": 1
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "cdc4e371-bc5c-4c7c-beb3-67f6fe87148d",
+      "owner": "josh",
+      "name": "Mark Forsythe",
+      "company": "Mainscape",
+      "domain": "mainscape.com",
+      "failedEmail": "mark.forsythe@mainscape.com",
+      "bouncedAt": "2026-10-13T13:45:52.354+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 4,
+        "addressesSeen": 1
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "f7bc390c-8bc5-4af2-9727-117300240f8d",
+      "owner": "josh",
+      "name": "Lanny Allgood",
+      "company": "Cingo",
+      "domain": "cingohome.com",
+      "failedEmail": "lanny.allgood@cingohome.com",
+      "bouncedAt": "2026-10-13T14:00:49.235+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 18,
+        "addressesSeen": 0
+      },
+      "nextAction": "Confirm current identity and mailbox deliverability of the published candidate",
+      "candidate": {
+        "address": "lallgood@cingohome.com",
+        "sourceUrl": "https://assets.noviams.com/novi-file-uploads/gpca/GPCD0022-dl-2d9e3f4a.pdf",
+        "evidence": "historical association directory",
+        "sourceYear": 2022,
+        "status": "published_unverified",
+        "mailboxVerified": false,
+        "readyToSend": false
+      }
+    },
+    {
+      "personId": "30835809-0146-4ef2-8b7a-818068d53396",
+      "owner": "josh",
+      "name": "Jared LaJaunie",
+      "company": "LaJaunie\u2019s Pest Control",
+      "domain": "lajaunies.com",
+      "failedEmail": "jared.lajaunie@lajaunies.com",
+      "bouncedAt": "2026-10-13T14:00:50.16+00:00",
+      "failureDiagnosis": "550 5.1.1: mailbox does not exist",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 5,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "2f8c321c-35fd-4cb4-a1d3-7d0c556588ed",
+      "owner": "suuchi",
+      "name": "Mark Tomko",
+      "company": "Valor Landscape",
+      "domain": "valorlandscapeco.com",
+      "failedEmail": "mark.tomko@valorlandscapeco.com",
+      "bouncedAt": "2026-10-13T14:15:48.265+00:00",
+      "failureDiagnosis": "Bounce recorded in Nightwatch; original SMTP diagnostic not accessible in this review",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 3,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "4fc0204a-e96e-42d1-857b-8142787e77e3",
+      "owner": "josh",
+      "name": "Gary Evans",
+      "company": "Fast Action Pest Control",
+      "domain": "fastactionpestcontrol.com",
+      "failedEmail": "gary.evans@fastactionpestcontrol.com",
+      "bouncedAt": "2026-10-13T14:15:49.886+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 0,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "09540164-9b15-4f6b-bbf2-d23b6056927a",
+      "owner": "josh",
+      "name": "Greg Canning",
+      "company": "Economy Exterminators",
+      "domain": "economyexterminators.com",
+      "failedEmail": "greg.canning@economyexterminators.com",
+      "bouncedAt": "2026-10-13T14:15:50.841+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 6,
+        "addressesSeen": 0
+      },
+      "nextAction": "Confirm current identity and mailbox deliverability of the published candidate",
+      "candidate": {
+        "address": "greg.canning@callecon.com",
+        "sourceUrl": "https://www.economyexterminators.com/greg-canning/",
+        "evidence": "current company page; email domain differs from website",
+        "sourceYear": null,
+        "status": "published_unverified",
+        "mailboxVerified": false,
+        "readyToSend": false
+      }
+    },
+    {
+      "personId": "0ea20453-5e0e-465d-8aeb-1b3fb111ad59",
+      "owner": "suuchi",
+      "name": "David Snodgrass",
+      "company": "Dennis' 7 Dees",
+      "domain": "dennis7dees.com",
+      "failedEmail": "david.snodgrass@dennis7dees.com",
+      "bouncedAt": "2026-10-13T14:15:51.848+00:00",
+      "failureDiagnosis": "Bounce recorded in Nightwatch; original SMTP diagnostic not accessible in this review",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 5,
+        "addressesSeen": 0
+      },
+      "nextAction": "Confirm current identity and mailbox deliverability of the published candidate",
+      "candidate": {
+        "address": "davids@dennis7dees.com",
+        "sourceUrl": "https://www.ci.cannon-beach.or.us/media/43556",
+        "evidence": "historical correspondence published by the city; direct fetch unavailable during review",
+        "sourceYear": 2024,
+        "status": "published_unverified",
+        "mailboxVerified": false,
+        "readyToSend": false
+      }
+    },
+    {
+      "personId": "e72e7d92-1bd3-4552-a76b-ef6e90b75140",
+      "owner": "josh",
+      "name": "Mickey Nolen",
+      "company": "Nozzle Nolen",
+      "domain": "nozzlenolen.com",
+      "failedEmail": "mickey.nolen@nozzlenolen.com",
+      "bouncedAt": "2026-10-13T14:15:53.572+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 2,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "a42fb8b5-be1d-41a6-bd3a-e4c9fc7eac00",
+      "owner": "suuchi",
+      "name": "Justin Crocker",
+      "company": "Earthtones Companies",
+      "domain": "earthtonescompanies.com",
+      "failedEmail": "justin.crocker@earthtonescompanies.com",
+      "bouncedAt": "2026-10-13T14:30:48.169+00:00",
+      "failureDiagnosis": "Bounce recorded in Nightwatch; original SMTP diagnostic not accessible in this review",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 4,
+        "addressesSeen": 2
+      },
+      "nextAction": "Confirm current identity and mailbox deliverability of the published candidate",
+      "candidate": {
+        "address": "jcrocker@earthtonescompanies.com",
+        "sourceUrl": "https://earthtonescompanies.com/team/justin-crocker/",
+        "evidence": "current company page",
+        "sourceYear": null,
+        "status": "published_unverified",
+        "mailboxVerified": false,
+        "readyToSend": false
+      }
+    },
+    {
+      "personId": "cfa0ab79-f450-4652-b32d-0af219dc08f6",
+      "owner": "josh",
+      "name": "Joe Jerome",
+      "company": "Meerkat Pest Control",
+      "domain": "meerkatpest.com",
+      "failedEmail": "joe.jerome@meerkatpest.com",
+      "bouncedAt": "2026-10-13T14:30:49.614+00:00",
+      "failureDiagnosis": "550 5.1.1: mailbox does not exist",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 3,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "bc133382-1040-4812-82ff-3fe083ebe1bf",
+      "owner": "josh",
+      "name": "Lee Allen Whitmore",
+      "company": "Quality Pest Services",
+      "domain": "qualitypestservices.net",
+      "failedEmail": "lee.allen@qualitypestservices.net",
+      "bouncedAt": "2026-10-13T14:45:49.175+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 4,
+        "addressesSeen": 1
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "df5602f7-6596-46a9-bf43-ccf2a0299e56",
+      "owner": "suuchi",
+      "name": "Cheryl Balbinot",
+      "company": "AAA Landscape",
+      "domain": "aaalandscape.com",
+      "failedEmail": "cheryl.balbinot@aaalandscape.com",
+      "bouncedAt": "2026-10-13T14:45:50.563+00:00",
+      "failureDiagnosis": "Bounce recorded in Nightwatch; original SMTP diagnostic not accessible in this review",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 0,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "74307295-2656-4aac-bd16-58b3e8b4483d",
+      "owner": "suuchi",
+      "name": "Phil Kelly",
+      "company": "McHale Landscape Design",
+      "domain": "mchalelandscape.com",
+      "failedEmail": "phil.kelly@mchalelandscape.com",
+      "bouncedAt": "2026-10-13T14:45:51.543+00:00",
+      "failureDiagnosis": "Bounce recorded in Nightwatch; original SMTP diagnostic not accessible in this review",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 8,
+        "addressesSeen": 1
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "ee02c237-0d70-4514-a887-901d700797d7",
+      "owner": "josh",
+      "name": "Kyle Selbach",
+      "company": "All U Need Pest Control",
+      "domain": "alluneedpest.com",
+      "failedEmail": "kyle.selbach@alluneedpest.com",
+      "bouncedAt": "2026-10-13T14:45:52.881+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 6,
+        "addressesSeen": 1
+      },
+      "nextAction": "Confirm current identity and mailbox deliverability of the published candidate",
+      "candidate": {
+        "address": "kyle@alluneedpest.com",
+        "sourceUrl": "https://flpma.org/fpma-executive-committee",
+        "evidence": "current association page",
+        "sourceYear": null,
+        "status": "published_unverified",
+        "mailboxVerified": false,
+        "readyToSend": false
+      }
+    },
+    {
+      "personId": "37f39904-5686-4c62-a908-bd6db8193289",
+      "owner": "suuchi",
+      "name": "Rogelio Maldonado",
+      "company": "Maldonado Nursery & Landscaping",
+      "domain": "mnlsa.com",
+      "failedEmail": "rogelio@mnlsa.com",
+      "bouncedAt": "2026-10-13T15:00:48.654+00:00",
+      "failureDiagnosis": "Bounce recorded in Nightwatch; original SMTP diagnostic not accessible in this review",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 5,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "b73ce73e-7e56-4e0d-9012-80f7f6651034",
+      "owner": "josh",
+      "name": "Andrew Wolfertz",
+      "company": "Urbanex",
+      "domain": "urbanexpro.com",
+      "failedEmail": "andrew.wolfertz@urbanexpro.com",
+      "bouncedAt": "2026-10-13T15:00:50.102+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 5,
+        "addressesSeen": 0
+      },
+      "nextAction": "Research a different personal business address; keep failed address excluded"
+    },
+    {
+      "personId": "238f1551-d527-43ac-8db6-39ba0fb014fa",
+      "owner": "josh",
+      "name": "Keith Duncan Jr.",
+      "company": "Black Diamond Pest Control",
+      "domain": "blackdiamondpestcontrol.com",
+      "failedEmail": "keith.duncan@blackdiamondpestcontrol.com",
+      "bouncedAt": "2026-10-13T15:00:51.152+00:00",
+      "failureDiagnosis": "550 5.4.1: recipient rejected by Exchange directory",
+      "siteSweep": {
+        "kind": "none",
+        "pagesRead": 5,
+        "addressesSeen": 0
+      },
+      "nextAction": "Confirm current identity and mailbox deliverability of the published candidate",
+      "candidate": {
+        "address": "jr@blackdiamondpestcontrol.com",
+        "sourceUrl": "https://extension.entm.purdue.edu/IPMA/newsletter/pdfs/IPMA_March_2013.pdf",
+        "evidence": "historical association newsletter; too old to trust without fresh confirmation",
+        "sourceYear": 2013,
+        "status": "published_unverified",
+        "mailboxVerified": false,
+        "readyToSend": false
+      }
+    }
+  ]
+}

@@ -1,4 +1,6 @@
-import { pageShowsAddress } from "./page-emails.ts";
+import { addressCheck, addressRejected, rejectedAddresses, replacementCheck } from "./address-history.ts";
+import { checkRecipient } from "./recipient-verification.ts";
+import { pageShowsAddress, pageShowsNamedAddress } from "./page-emails.ts";
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { listOutcomes, priorScore, sectorWeights, type OutcomeTouch } from "./ai-fit.ts";
@@ -650,37 +652,37 @@ export type ResearchedImport = {
 };
 
 /** Staff pages run large (one listing every manager was 450KB), so address checks read up to 3MB. */
-const ADDRESS_PAGE_BYTES = 3_000_000;
-const pageHas = async (url: string, needle: string, fetcher: Fetcher | undefined, lookup?: Lookup) => {
-  const page = await safeFetch(url, fetcher, { ...(lookup ? { lookup } : {}), maxBytes: ADDRESS_PAGE_BYTES }).catch(() => null);
+const pageHas = async (url: string, needle: string, fetcher: Fetcher | undefined, lookup?: Lookup, name?: string) => {
+  const page = await safeFetch(url, fetcher, { ...(lookup ? { lookup } : {}), maxBytes: 12_000_000, pdf: true }).catch(() => null);
   // Hidden addresses count too (entities, encoded mailto, Cloudflare email protection): they are published.
-  return page?.kind === "page" && pageShowsAddress(page.html, needle);
+  return page?.kind === "page" && pageShowsAddress(page.html, needle) && (!name || pageShowsNamedAddress(page.html, needle, name));
 };
 
-/**
- * Check the researcher's address evidence against the pages it cites, then record it on the buyer: a
- * published address that is on its page is verified; a format-built address is likely when at least two
- * colleagues' addresses on their pages prove the format and the domain takes mail. Anything that does not
- * hold up is left unconfirmed, for a person to send one at a time.
- */
+/** Check cited evidence, preserve failures, and release published replacements only after verification. */
 async function applyEmailEvidence(db: Db, domain: string, buyerName: string, evidence: EmailEvidence, deps: { fetcher?: Fetcher; lookup?: Lookup; mailHost?: (domain: string) => Promise<boolean | null>; personId?: string }): Promise<AddressOutcome> {
   const address = evidence.address.trim().toLowerCase();
   const out = (outcome: AddressOutcome["outcome"], reason: string): AddressOutcome => ({ domain, address, outcome, reason });
-  if (!address.endsWith(`@${domain}`)) return out("unconfirmed", `the address is not at ${domain}`);
+  if (evidence.kind === "format" && !address.endsWith(`@${domain}`)) return out("unconfirmed", `the address is not at ${domain}`);
   const { data: account } = await db.from("accounts").select("id").eq("domain", domain).maybeSingle();
   if (!account) return out("unconfirmed", "the company was not saved");
-  const query = db.from("people").select("id,email,email_status,email_check,do_not_contact").eq("account_id", account.id);
+  const query = db.from("people").select("id,full_name,email,email_status,email_check,do_not_contact").eq("account_id", account.id);
   const { data: person } = await (deps.personId ? query.eq("id", deps.personId) : query.ilike("full_name", buyerName)).maybeSingle();
   if (!person || person.do_not_contact) return out("unconfirmed", "the buyer was not found or is do-not-contact");
   // An address that already bounced is never trusted again, whatever a page or a format says.
   const bouncedBefore = (person.email ?? "").toLowerCase() === address && (person.email_status === "invalid" || (person.email_check as { level?: string } | null)?.level === "undeliverable");
-  if (bouncedBefore) return out("unconfirmed", `${address} already bounced; find a different address`);
+  if (bouncedBefore || rejectedAddresses(person).includes(address) || await addressRejected(db, address)) return out("unconfirmed", `${address} already bounced; find a different address`);
   const now = new Date().toISOString();
   if (evidence.kind === "published") {
-    if (!(await pageHas(evidence.sourceUrl, address, deps.fetcher, deps.lookup))) return out("unconfirmed", `${address} is not on ${evidence.sourceUrl}`);
-    await db.from("people").update({ email: address, email_source: "published", email_status: "verified", email_verified_at: now, email_check: { email: address, source: "research", evidenceUrl: evidence.sourceUrl, checkedAt: now } }).eq("id", person.id);
-    await reopenBouncedCards(db, person.id);
-    return out("verified", `published on ${evidence.sourceUrl}`);
+    if (!(await pageHas(evidence.sourceUrl, address, deps.fetcher, deps.lookup, buyerName))) return out("unconfirmed", `${address} is not on ${evidence.sourceUrl}`);
+    if (!address.endsWith(`@${domain}`) && !onDomain(evidence.sourceUrl, domain)) return out("unconfirmed", "An alternate email domain must be published on the company's own site.");
+    const email_check = replacementCheck(person, { email: address, source: "research", evidenceUrl: evidence.sourceUrl, checkedAt: now });
+    const saved = await db.from("people").update({ email: address, email_source: "published", email_status: "unverified", email_verified_at: null, email_check }).eq("id", person.id);
+    if (saved.error) throw new Error(saved.error.message);
+    const candidate = { ...person, full_name: buyerName, email: address, email_status: "unverified", email_source: "published", email_check };
+    const check = await checkRecipient(db, candidate, { id: account.id, domain }, { mailHost: deps.mailHost, force: true });
+    await recordRecipientCheck(db, candidate, check);
+    if (check.level === "deliverable") { await reopenBouncedCards(db, person.id); return out("verified", check.reason); }
+    return out("unconfirmed", `Published address saved; mailbox verification pending. ${check.reason}`);
   }
   const proven: Array<{ name: string; email: string }> = [];
   for (const example of evidence.examples.slice(0, 4)) {
@@ -693,8 +695,7 @@ async function applyEmailEvidence(db: Db, domain: string, buyerName: string, evi
   if ((await (deps.mailHost ?? domainAcceptsMail)(domain)) === false) return out("unconfirmed", `${domain} does not accept email`);
   // A corrected address starts clean: the "invalid" left by the old guess's bounce belongs to that guess.
   const changed = (person.email ?? "").toLowerCase() !== address;
-  await db.from("people").update({ email: address, email_source: "pattern", ...(changed || person.email_status === "invalid" ? { email_status: "unverified" } : {}), email_check: { email: address, source: "research", likely: true, format: format.key, proof: proven.map((item) => item.email), checkedAt: now } }).eq("id", person.id);
-  await reopenBouncedCards(db, person.id);
+  await db.from("people").update({ email: address, email_source: "pattern", ...(changed || person.email_status === "invalid" ? { email_status: "unverified" } : {}), email_verified_at: null, email_check: replacementCheck(person, { email: address, source: "research", likely: true, format: format.key, proof: proven.map((item) => item.email), evidenceUrls: evidence.examples.map((item) => item.sourceUrl), checkedAt: now }) }).eq("id", person.id);
   return out("likely", `matches the ${format.key} format of ${proven.map((item) => item.email).join(", ")}`);
 }
 
@@ -821,8 +822,8 @@ export async function addressesToWork(db: Db) {
     const person = row.people as unknown as { id: string; full_name: string; title: string | null; email: string | null; email_status: string; email_source: string | null; email_check: unknown; do_not_contact: boolean } | null;
     const account = row.accounts as unknown as { name: string; domain: string; status: string } | null;
     if (!person || !account || person.do_not_contact || account.status !== "active" || bulkSendable(person)) return [];
-    if (row.status === "sent" && person.email_status !== "invalid") return [];
-    return [{ owner: row.assigned_to as string, personId: person.id, name: person.full_name, title: person.title, company: account.name, domain: account.domain, email: person.email, emailStatus: person.email_status, emailSource: person.email_source }];
+    if (row.status === "sent" && person.email_status !== "invalid" && !rejectedAddresses(person).length) return [];
+    return [{ owner: row.assigned_to as string, personId: person.id, name: person.full_name, title: person.title, company: account.name, domain: account.domain, email: person.email, emailStatus: person.email_status, emailSource: person.email_source, rejectedEmails: rejectedAddresses(person), evidenceUrl: addressCheck(person.email_check).evidenceUrl ?? null, researchOutcome: addressCheck(person.email_check).researchOutcome ?? null, researchedAt: addressCheck(person.email_check).searchedAt ?? null, failures: addressCheck(person.email_check).deliveryFailures ?? [] }];
   });
 }
 
@@ -833,6 +834,7 @@ export async function addressesToWork(db: Db) {
 export async function reopenBouncedCards(db: Db, personId: string) {
   const { data: bounced } = await db.from("touches").select("card_id").eq("person_id", personId).eq("channel", "email").not("bounced_at", "is", null);
   const ids = [...new Set(((bounced ?? []) as Array<{ card_id: string }>).map((row) => row.card_id))];
+  await db.from("cards").update({ auto_send_hold_reason: null }).eq("person_id", personId).in("status", ["new", "edited", "approved"]).like("auto_send_hold_reason", "Automatic sends need a verified personal mailbox.%");
   if (ids.length) await db.from("cards").update({ status: "edited", auto_send_hold_reason: null }).in("id", ids).eq("status", "sent");
 }
 

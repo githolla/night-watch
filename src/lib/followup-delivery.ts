@@ -9,7 +9,7 @@ import { validateEmail } from './send-action';
 import { dailyCap, sendDayStart } from './send-guards';
 import { fromHeader, sanitizeLinks, senderProfile } from './sender';
 import { outreachDelivery } from './outreach-ending';
-import { isBounce, senderAddress } from './bounce';
+import { bounceReport, isBounce, senderAddress } from './bounce';
 import { isCuratedDomain } from './curated-worklist';
 import { emailSuppressed } from './email-suppression';
 import { configuredBaseUrl, unsubscribeUrl, withOptOut } from './opt-out';
@@ -24,7 +24,7 @@ type Step = { id:string; title:string; step_number:number; status:string; sent_a
 export function assertFollowupOwner(owner: Owner, viewer: Owner) {
   if (owner !== viewer) throw new Error(`Sign in as ${owner === 'suuchi' ? 'Suuchi' : 'Josh'} to send this follow-up. Shared viewing does not change the sender.`);
 }
-type ThreadMessage = {internalDate:string;payload:{headers:Array<{name:string;value:string}>}};
+type ThreadMessage = {id?: string; internalDate:string;payload:{headers:Array<{name:string;value:string}>;body?: {data?: string}; parts?: Array<{body?: {data?: string};headers?: Array<{name:string;value:string}>}>}};
 /** Messages after our send that are not from us. Delivery failures are split out: they are not replies. */
 function inbound(messages: ThreadMessage[], sentAt:string, ours:string[]) {
   const addresses = new Set(ours.map(s => s.trim().toLowerCase()));
@@ -86,8 +86,14 @@ export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner, actor?:
   const ours = (connections ?? []).map(c => c.email);
   if (hasBounce(conversation.messages,previous.sent_at,ours)) {
     // The first email never arrived. Remember the address is bad and stop; never follow up into a bounce.
-    await markBounced(db,to,cadence.cards?.account_id ? {id:cadence.cards.account_id,domain} : null);
-    await db.from('touches').update({bounced_at:new Date().toISOString()}).eq('gmail_thread_id',previous.gmail_thread_id).is('bounced_at',null);
+    const failure = inbound(conversation.messages, previous.sent_at, ours).find((message) => isBounce(message.payload.headers));
+    const report = failure ? bounceReport({ ...failure, id: failure.id ?? `thread:${previous.gmail_thread_id}` }) : null;
+    if (report?.category === "temporary") throw new Error("Delivery is delayed; follow-up held while the mail server retries.");
+    const prior = to.email_check && typeof to.email_check === "object" ? to.email_check as { sentAddresses?: Record<string, string>; lastSentEmail?: string } : {};
+    const failedEmail = report?.recipient ?? prior.sentAddresses?.[previous.gmail_thread_id] ?? prior.lastSentEmail ?? to.email;
+    if (failedEmail !== to.email) throw new Error("The failure belongs to an earlier address. Review the conversation before following up.");
+    await markBounced(db,to,cadence.cards?.account_id ? {id:cadence.cards.account_id,domain} : null, { email: failedEmail, ...(report ?? {}) });
+    await db.from('touches').update({bounced_at:new Date().toISOString()}).eq('gmail_thread_id',previous.gmail_thread_id).eq('sent_by',cadence.owner).eq('person_id',to.id).eq('card_id',cadence.card_id).is('bounced_at',null);
     await db.from('cadences').update({status:'stopped',completed_at:new Date().toISOString()}).eq('id',cadence.id);
     await db.from('cadence_steps').update({status:'skipped',error:'The first email bounced; sequence stopped. Fix the address before writing again.'}).eq('cadence_id',cadence.id).in('status',['pending','ready','failed']);
     return {ok:true,stopped:true,bounced:true,to:to.full_name};
@@ -101,8 +107,8 @@ export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner, actor?:
   }
   // Follow-ups carry the same opt-out as the first email: the reply-no line (except curated list copy)
   // and a one-click List-Unsubscribe header on every message.
-  const delivery = withOptOut(outreachDelivery(body,profile),isCuratedDomain(domain));
   const unsubscribe = unsubscribeUrl(configuredBaseUrl(),to.id);
+  const delivery = withOptOut(outreachDelivery(body,profile),isCuratedDomain(domain),unsubscribe);
   const subject = step.subject, recipientEmail = to.email;
   const reservationId = deliveryReservationId(scheduledInitial ? cadence.card_id : `cadence:${step.id}`,to.id);
   const sent = await withMailboxQuota(db,{owner:cadence.owner,cardId:cadence.card_id,personId:to.id,count,cap:dailyCap(days),dayStart,reservationId},async () => {

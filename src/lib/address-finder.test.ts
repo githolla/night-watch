@@ -38,3 +38,12 @@ test("names are read nearest first", () => {
   assert.ok(names.indexOf("Jane Roe") >= 0 && names.indexOf("Sam Patel") > names.indexOf("Jane Roe"), names.join(" | "));
   assert.ok(namesBefore("David R. Frank, CEO ").includes("David R. Frank"));
 });
+
+test("linked individual biographies are followed before guessed paths, including alternate company mail domains", async () => {
+  const found = await findAddress({ name: "Greg Canning", domain: "co.test", rejected: ["greg.canning@co.test"] }, { ...deps({
+    "https://co.test": '<a href="/team">Team</a>',
+    "https://co.test/team": '<a href="/team/greg-canning">Greg Canning</a>',
+    "https://co.test/team/greg-canning": '<p>Greg Canning: greg.canning@mailco.test</p>',
+  }), maxPages: 9 });
+  assert.deepEqual(found, { kind: "evidence", evidence: { kind: "published", address: "greg.canning@mailco.test", sourceUrl: "https://co.test/team/greg-canning" } });
+});

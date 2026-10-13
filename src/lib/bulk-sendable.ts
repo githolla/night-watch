@@ -1,23 +1,19 @@
-/**
- * Whether Send all may include this person: a verified address, or one researched and marked likely
- * (built from the company's proven format, on a domain that takes mail) for this exact address.
- */
-export function bulkSendable(person: { email?: string | null; email_status?: string | null; email_check?: unknown }) {
-  if (!person.email || person.email_status === "invalid") return false;
-  if (person.email_status === "verified") return true;
-  const check = person.email_check as { likely?: unknown; email?: unknown } | null | undefined;
-  return check?.likely === true && String(check.email ?? "").toLowerCase() === person.email.toLowerCase();
+import { addressIdentityProblem } from "./address-identity.ts";
+/** Bulk outreach requires mailbox verification; publication and inferred formats stay held. */
+export function bulkSendable(person: { email?: string | null; email_status?: string | null; email_source?: string | null; full_name?: string | null; email_check?: unknown }) {
+  if (!sendableAddress(person)) return false;
+  const check = person.email_check as { source?: unknown; level?: unknown; email?: unknown } | null;
+  if (person.full_name && addressIdentityProblem(person.email!, person.full_name)) return false;
+  if (check?.level && check.email === person.email && check.level !== "deliverable") return false;
+  return person.email_status === "verified" && !["published", "pattern", "guess", "manual"].includes(person.email_source ?? "") && check?.source !== "research";
 }
 
-/**
- * Whether Send all ready and the morning auto-send may email this person: any address not already known to be
- * bad (marked invalid or bounced before). Confirmed or not; the send-time check still refuses a domain with no
- * mail server, and the morning messages warn if guesses start bouncing.
- */
+/** A human may send an unconfirmed address, but negative history always blocks it. */
 export function sendableAddress(person: { email?: string | null; email_status?: string | null; email_check?: unknown }) {
   if (!person.email || person.email_status === "invalid") return false;
-  const check = person.email_check as { bouncedEmail?: unknown; level?: unknown; email?: unknown } | null | undefined;
+  const check = person.email_check as { bouncedEmails?: unknown; bouncedEmail?: unknown; level?: unknown; email?: unknown } | null | undefined;
   const email = person.email.toLowerCase();
+  if (Array.isArray(check?.bouncedEmails) && check.bouncedEmails.some((value: unknown) => typeof value === "string" && value.toLowerCase() === email)) return false;
   if (String(check?.bouncedEmail ?? "").toLowerCase() === email) return false;
   return !(check?.level === "undeliverable" && String(check.email ?? email).toLowerCase() === email);
 }

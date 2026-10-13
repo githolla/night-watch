@@ -25,7 +25,7 @@ export async function loadSentTouches(owner: Owner, days: number, now: Date = ne
   if (error) throw new Error(error.message);
   type Row = { message_variants: { dimensions: unknown } | null; id: string; card_id: string; person_id: string; sent_at: string; reply_at: string | null; reply_classification: string | null; bounced_at: string | null; people: { full_name: string | null; title: string | null; email: string | null } | null; cards: { email_subject: string | null; accounts: { name: string | null; domain: string | null; vertical: string | null } | null } | null };
   const listRows = new Map(allFocus().map((row) => [row.domain.toLowerCase(), row]));
-  const touches: SentTouch[] = ((data ?? []) as unknown as Row[]).map((row) => {
+  const touches: SentTouch[] = ((data ?? []) as unknown as Row[]).filter((row) => !row.cards?.accounts?.domain?.endsWith(".invalid")).map((row) => {
     const account = row.cards?.accounts;
     const listRow = account?.domain ? listRows.get(account.domain.toLowerCase()) : undefined;
     return {

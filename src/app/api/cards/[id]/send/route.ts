@@ -12,7 +12,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const user = await requireUser();
     const { id } = await context.params;
     const parsed = sendInput.parse(await request.json());
-    const result = await sendCardEmail(admin(), { cardId: id, owner: user.owner, actor: user.actor, subject: parsed.subject, body: parsed.body, personId: parsed.personId, baseUrl: outboundBaseUrl(request) });
+    const result = await sendCardEmail(admin(), { cardId: id, owner: user.owner, actor: user.actor, subject: parsed.subject, body: parsed.body, personId: parsed.personId, automatic: parsed.batch === true, baseUrl: outboundBaseUrl(request) });
     return Response.json(result);
   } catch (error) {
     return deliveryErrorResponse(error);

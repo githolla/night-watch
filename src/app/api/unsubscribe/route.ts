@@ -18,6 +18,8 @@ export async function POST(request: Request) {
   const ok = await optOut(new URL(request.url).searchParams.get("t"));
   // Return 200 only when the flag was actually set. On a failed write, a 500 tells Gmail's one-click to
   // retry rather than mark them unsubscribed while we'd still contact them.
+  const form = request.headers.get("content-type")?.includes("application/x-www-form-urlencoded") ? await request.formData().catch(() => null) : null;
+  if (form?.get("confirm") === "yes") return new Response(page(ok ? "You're unsubscribed" : "Please try again", ok ? "<p>You will no longer receive outreach emails from Nine-67.</p>" : "<p>We couldn't save your request. Please try again or reply to the email with no.</p>"), { status: ok ? 200 : 500, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
   return new Response(null, { status: ok ? 200 : 500 });
 }
 
@@ -30,7 +32,7 @@ const page = (title: string, msg: string) =>
 export async function GET(request: Request) {
   const t = new URL(request.url).searchParams.get("t");
   const body = t
-    ? `<p>Click below to stop receiving outreach from Nine-67.</p><form method="POST" action="/api/unsubscribe?t=${encodeURIComponent(t)}"><button type="submit" style="font:600 15px/1 -apple-system,Arial,sans-serif;background:#1a1712;color:#fff;border:0;border-radius:8px;padding:12px 18px;cursor:pointer">Unsubscribe me</button></form>`
+    ? `<p>Click below to stop receiving outreach from Nine-67.</p><form method="POST" action="/api/unsubscribe?t=${encodeURIComponent(t)}"><input type="hidden" name="confirm" value="yes"><button type="submit" style="font:600 15px/1 -apple-system,Arial,sans-serif;background:#1a1712;color:#fff;border:0;border-radius:8px;padding:12px 18px;cursor:pointer">Unsubscribe me</button></form>`
     : "<p>We couldn't read that unsubscribe link. Please reply to the email with “no” and we'll take care of it.</p>";
   return new Response(page("Unsubscribe", body), { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
 }

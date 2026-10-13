@@ -22,6 +22,7 @@ export function queryDb(seed: Record<string, Row[]> = {}, rpcs: Record<string, R
     const filters: Array<(row: Row) => boolean> = [];
     const order: Array<{ key: string; ascending: boolean }> = [];
     const q = {
+      contains(key: string, value: Record<string, unknown>) { filters.push((row) => { const current = row[key] as Record<string, unknown> | null; return Boolean(current) && Object.entries(value).every(([field, expected]) => Array.isArray(expected) ? Array.isArray(current?.[field]) && expected.every((item) => (current?.[field] as unknown[]).includes(item)) : current?.[field] === expected); }); return q; },
       select(_columns?: string, opts?: { head?: boolean; count?: string }) { if (opts?.head) head = true; if (opts?.count) count = true; return q; },
       insert(value: Row | Row[]) { op = "insert"; payload = value; return q; },
       upsert(value: Row | Row[], opts?: { ignoreDuplicates?: boolean; onConflict?: string }) { op = "insert"; payload = value; ignore = Boolean(opts?.ignoreDuplicates); conflict = opts?.onConflict?.split(",").map((key) => key.trim()) ?? []; return q; },

@@ -1,5 +1,5 @@
 import { processReplyEvent } from "@/lib/reply-event";
-import { isBounce, markTouchBounced, prioritizeThreads } from "@/lib/bounce";
+import { bounceReport, isBounce, markTouchBounced, prioritizeThreads } from "@/lib/bounce";
 import { isOptOutReply, optOutPerson } from "@/lib/email-suppression";
 import { cronAuthorized } from "@/lib/auth";
 import { classifyReply } from "@/lib/agents";
@@ -70,7 +70,11 @@ export async function GET(request:Request){
       const value=await thread(touch.sent_by,touch.gmail_thread_id);
       // A genuine reply is a thread message AFTER our send that is NOT from one of our own seat mailboxes.
       const inbound=value.messages.filter(message=>Number(message.internalDate)>new Date(touch.sent_at).getTime()&&!ourEmails.has(fromAddress(message.payload.headers)));
-      if(inbound.some(message=>isBounce(message.payload.headers))){await markTouchBounced(db,touch);bounces++;}
+      for (const failure of inbound.filter(message=>isBounce(message.payload.headers))) {
+        const report = bounceReport(failure);
+        const related = [...new Map(candidates.filter((candidate) => candidate.sent_by === touch.sent_by && candidate.gmail_thread_id === touch.gmail_thread_id).map((candidate) => [candidate.person_id, candidate])).values()];
+        for (const candidate of related) if (await markTouchBounced(db,candidate,new Date(),report)) bounces++;
+      }
       const messages=inbound.filter(message=>!isBounce(message.payload.headers));
       if(!messages.length)continue;
       seenThreads.add(`${touch.sent_by}:${touch.gmail_thread_id}`);

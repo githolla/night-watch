@@ -7,14 +7,14 @@ export function optOutLine() {
 
 const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-/**
- * Append the opt-out line to both parts. Curated list copy was written to end on its question, so those
- * domains rely on the List-Unsubscribe header alone, exactly as the first email does.
- */
-export function withOptOut(delivery: { text: string; html: string }, curated: boolean) {
-  if (curated) return delivery;
-  const line = optOutLine();
-  return { text: `${delivery.text}\n\n${line}`, html: `${delivery.html}<p>${escapeHtml(line)}</p>` };
+/** The visible footer and reply opt-out accompany the same signed URL as the mail header. */
+export function withOptOut(delivery: { text: string; html: string }, curated: boolean, unsubscribe?: string) {
+  const line = curated ? "" : optOutLine();
+  const footer = unsubscribe ? `<p style="margin-top:20px"><a href="${escapeHtml(unsubscribe).replace(/"/g, "&quot;")}" style="display:inline-block;padding:8px 12px;border:1px solid #d6d3d1;border-radius:6px;color:#57534e;font:13px Arial,sans-serif;text-decoration:none">Unsubscribe</a></p>` : "";
+  return {
+    text: `${delivery.text}${line ? `\n\n${line}` : ""}${unsubscribe ? `\n\nUnsubscribe: ${unsubscribe}` : ""}`,
+    html: `${delivery.html}${line ? `<p>${escapeHtml(line)}</p>` : ""}${footer}`,
+  };
 }
 
 /** RFC 8058 one-click target. The token is the encrypted person id read by /api/unsubscribe. */

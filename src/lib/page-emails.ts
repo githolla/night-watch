@@ -54,3 +54,18 @@ export function pageShowsAddress(html: string, address: string): boolean {
   const needle = address.toLowerCase();
   return html.toLowerCase().includes(needle) || pageEmails(html).some((item) => item.email === needle);
 }
+
+/** Require the cited page to associate the address with this person's name. */
+export function pageShowsNamedAddress(html: string, address: string, name: string): boolean {
+  const text = revealEmails(html).replace(/<[^>]+>/g, " ").replace(/[^a-z0-9@._\s-]/gi, " ").replace(/\s+/g, " ").toLowerCase();
+  const words = name.toLowerCase().replace(/\b(jr|sr|iii|ii)\.?/g, " ").split(/[^a-z]+/).filter(Boolean);
+  const first = words[0], last = words.at(-1);
+  if (!first || !last) return false;
+  let start = text.indexOf(address.toLowerCase());
+  while (start >= 0) {
+    const context = text.slice(Math.max(0, start - 200), start + address.length + 200);
+    if (new RegExp(`\\b${first}\\b`).test(context) && new RegExp(`\\b${last}\\b`).test(context)) return true;
+    start = text.indexOf(address.toLowerCase(), start + 1);
+  }
+  return false;
+}

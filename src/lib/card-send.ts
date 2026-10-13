@@ -103,13 +103,10 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     if (await emailSuppressed(db, recipient.email)) throw new Error("This address opted out on another record. Do-not-contact guard blocked this send. Nothing was sent.");
     // "Keep for me": the person will send this one by hand, so nothing automatic may.
     if (automatic && card.auto_send_hold) throw new Error("Kept for sending by hand, so it was not auto-sent. Nothing was sent.");
-    // Researched list addresses are inferred or published, not verified. Block a known-bad address
-    // (bounced, rejected by Hunter, no mail server); let the rest through with what the check found.
+    // Check the exact mailbox again at send time, including failures saved on other contacts.
     const recipientCheck = await checkRecipient(db, recipient, { id: card.account_id, domain: card.accounts?.domain ?? recipient.email.split("@")[1] });
     await recordRecipientCheck(db, recipient, recipientCheck);
-    // The morning auto-send takes the same addresses as Send all ready: anything not known to be bad. A wrong
-    // guess that bounces is flagged by the bounce warning in the morning messages.
-    if (!recipientAllowed(recipientCheck, false)) throw new Error(`${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ""} Nothing was sent.`);
+    if (!recipientAllowed(recipientCheck, automatic)) throw new Error(`${automatic && recipientCheck.level === "risky" ? "Automatic sends need a verified personal mailbox. " : ""}${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ""} Nothing was sent.`);
     // Idempotency: if an email to THIS PERSON is already logged for this card, don't send again even if a
     // prior status write failed. Scoped to the person, not the card, so emailing a second contact at the
     // same company is still possible while a duplicate to the same one is not.
@@ -150,12 +147,12 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     // Unattended mail carries the text version of the signature (no logo, images or extra links); a person
     // clicking Send keeps the saved signature as it is.
     const deliveryProfile = automatic ? { ...profile, signature: signatureText(profile) } : profile;
-    const { text: fullBody, html } = withOptOut(outreachDelivery(body, deliveryProfile), curated);
+    const unsubscribe = unsubscribeUrl(input.baseUrl, recipient.id);
+    const { text: fullBody, html } = withOptOut(outreachDelivery(body, deliveryProfile), curated, unsubscribe);
     if (automatic) {
-      const problem = automaticContentProblem(fullBody, html);
+      const problem = automaticContentProblem(fullBody, html, unsubscribe);
       if (problem) throw new Error(`${problem} Nothing was sent.`);
     }
-    const unsubscribe = unsubscribeUrl(input.baseUrl, recipient.id);
     const recipientEmail = recipient.email;
     const reservationId = initialReservationId(id, recipient.id, bouncedBefore ?? 0);
     const deliveredBody = fullBody;
@@ -172,7 +169,7 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
         throw error;
       }
     });
-    await recordDelivery(db, recipient.id, recipientEmail);
+    await recordDelivery(db, recipient.id, recipientEmail, result.threadId);
     // The email has now actually left. Mark the card sent FIRST so it can never stay actionable after a
     // real send (which is how a "failed" toast used to lead to a duplicate re-send). Only then log to
     // History; if that write fails, the send still stands — we report success with a soft warning.

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-/** Type the right address for a person. It counts as confirmed by you; a bounced person goes back in the queue. */
+/** A replacement is saved for mailbox verification before it returns to automatic sending. */
 export function AddressFix({ personId, current, label = "Change address" }: { personId: string; current: string | null; label?: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -16,10 +16,10 @@ export function AddressFix({ personId, current, label = "Change address" }: { pe
     setNote(null);
     try {
       const response = await fetch(`/api/people/${personId}/address`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email: value }) });
-      const json = await response.json().catch(() => ({})) as { email?: string; error?: string };
+      const json = await response.json().catch(() => ({})) as { email?: string; verified?: boolean; reason?: string; error?: string };
       if (!response.ok) { setNote({ text: json.error ?? "Not saved. Try again.", ok: false }); return; }
       setOpen(false);
-      setNote({ text: `Saved ${json.email}. It counts as confirmed, and a bounced email goes again to this address.`, ok: true });
+      setNote({ text: json.verified ? `Saved and verified ${json.email}.` : `Saved ${json.email}. Automatic sending stays held while mailbox verification is pending. ${json.reason ?? ""}`, ok: true });
       router.refresh();
     } catch { setNote({ text: "Not saved: the connection dropped.", ok: false }); }
     finally { setBusy(false); }

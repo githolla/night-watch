@@ -1,3 +1,4 @@
+import * as addressHistory from "./address-history.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
@@ -16,11 +17,13 @@ function load(people: Row[], finder: (input: { name: string; domain: string; avo
   const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const exports: Record<string, unknown> = {};
   const mocks: Record<string, unknown> = {
+    "./address-history.ts": addressHistory,
+    "./address-research.ts": { researchAddress: async () => ({ evidence: null }) },
     "./address-finder.ts": { findAddress: async (input: { name: string; domain: string; avoid?: string | null }) => { searched.push(`${input.name}|${input.avoid ?? ""}`); return finder(input); } },
-    "./nightly-list-builder.ts": { addressesToWork: async () => people, importAddressEvidence: async (_db: unknown, items: Row[]) => { imported.push(...items); return [{ address: (items[0].emailEvidence as Row).address, outcome: "likely", reason: "matches" }]; } },
-    "./recipient-verification.ts": { domainAcceptsMail: async () => true },
+    "./nightly-list-builder.ts": { reopenBouncedCards: async () => {}, addressesToWork: async () => people, importAddressEvidence: async (_db: unknown, items: Row[]) => { imported.push(...items); return [{ address: (items[0].emailEvidence as Row).address, outcome: "likely", reason: "matches" }]; } },
+    "./recipient-verification.ts": { domainAcceptsMail: async () => true, checkRecipient: async () => ({ level: "risky" }), recordRecipientCheck: async () => {} },
   };
-  runInNewContext(output, { exports, Date, Error, Promise, require: (name: string) => { if (name in mocks) return mocks[name]; throw new Error(`Unmocked ${name}`); } });
+  runInNewContext(output, { exports, process, AbortSignal, Date, Error, Promise, require: (name: string) => { if (name in mocks) return mocks[name]; throw new Error(`Unmocked ${name}`); } });
   return { sweep: exports as unknown as Module, db, tables, searched, imported };
 }
 
@@ -47,4 +50,14 @@ test("someone searched in the last week is skipped", async () => {
   await h.sweep.runAddressSweep(h.db as never, { now: new Date("2026-10-09T20:00:00Z") });
   assert.deepEqual(h.searched, ["Person o|"]);
   assert.equal(((h.tables.people.find((row) => row.id === "o")!.email_check) as Row).searchedAt, "2026-10-09T20:00:00.000Z");
+});
+
+test("a fresh bounce bypasses a recent search, then unresolved failures are retried daily", async () => {
+  const h = load([person("b", { emailStatus: "invalid", check: { searchedAt: "2026-10-09T19:00:00Z", bouncedAt: "2026-10-09T19:30:00Z", bouncedEmail: "x@b.test" } })], async () => ({ kind: "none", pagesRead: 1, addressesSeen: 0 }));
+  await h.sweep.runAddressSweep(h.db, { now: new Date("2026-10-09T20:00:00Z") });
+  assert.equal(h.searched.length, 1);
+  await h.sweep.runAddressSweep(h.db, { now: new Date("2026-10-09T21:00:00Z") });
+  assert.equal(h.searched.length, 1);
+  await h.sweep.runAddressSweep(h.db, { now: new Date("2026-10-10T20:00:00Z") });
+  assert.equal(h.searched.length, 2);
 });

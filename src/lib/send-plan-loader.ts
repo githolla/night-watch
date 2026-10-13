@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { sendableAddress } from "./bulk-sendable.ts";
+import { bulkSendable } from "./bulk-sendable.ts";
 import { localParts } from "./local-time.ts";
 import { autoSendQueue } from "./morning-send.ts";
 import { isSendDay, MORNING } from "./morning-send-rules.ts";
@@ -26,9 +26,9 @@ function nextSendDay(now: Date): { label: string; date: string } {
 async function withAddressHolds(db: SupabaseClient, queue: Array<{ cardId: string; held: string | null }>) {
   const ids = queue.filter((entry) => !entry.held).map((entry) => entry.cardId);
   if (!ids.length) return queue;
-  const { data } = await db.from("cards").select("id,people(email,email_status,email_check,do_not_contact)").in("id", ids);
+  const { data } = await db.from("cards").select("id,people(full_name,email,email_status,email_source,email_check,do_not_contact)").in("id", ids);
   type Row = { id: string; people: { email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
-  const unusable = new Set(((data ?? []) as unknown as Row[]).filter((row) => !row.people || row.people.do_not_contact || !sendableAddress(row.people)).map((row) => row.id));
+  const unusable = new Set(((data ?? []) as unknown as Row[]).filter((row) => !row.people || row.people.do_not_contact || !bulkSendable(row.people)).map((row) => row.id));
   return queue.map((entry) => (unusable.has(entry.cardId) ? { ...entry, held: "no usable email address" } : entry));
 }
 

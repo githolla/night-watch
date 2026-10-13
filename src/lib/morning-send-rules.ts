@@ -176,9 +176,9 @@ export function deliveredLinks(text: string, html: string) {
 }
 
 /** Why the final automatic email breaks the plain-text guardrail (images or more than one link), or null. */
-export function automaticContentProblem(text: string, html: string) {
+export function automaticContentProblem(text: string, html: string, unsubscribe?: string) {
   if (/<img\b|cid:|data:image/i.test(html)) return "The email would carry an image. Auto-sent mail must be plain text; send it by hand.";
-  const links = deliveredLinks(text, html);
+  const links = deliveredLinks(text, html).filter((link) => link !== unsubscribe);
   if (links.length > 1) return `The email would carry ${links.length} links; auto-sent mail allows at most one. Send it by hand.`;
   return null;
 }

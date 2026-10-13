@@ -1,3 +1,4 @@
+import { addressRejected, rejectedAddresses, replacementCheck } from "./address-history.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -63,7 +64,7 @@ export async function findEmail(fullName: string, domain: string): Promise<Found
   return { email, result, position, sources };
 }
 
-type PersonRow = { id: string; full_name: string; level: string; email: string | null; email_status: string; email_source: string | null; email_verified_at: string | null };
+type PersonRow = { id: string; full_name: string; level: string; email: string | null; email_status: string; email_source: string | null; email_verified_at: string | null; email_check?: unknown };
 /** Verify the decision-makers' addresses first; the level column sorts alphabetically otherwise. */
 const LEVEL_RANK: Record<string, number> = { owner: 3, influencer: 2, adjacent: 1, unknown: 0 };
 
@@ -75,31 +76,32 @@ const LEVEL_RANK: Record<string, number> = { owner: 3, influencer: 2, adjacent: 
 export async function verifyAccountEmails(db: SupabaseClient, account: { id: string; domain: string }, limit = 12): Promise<{ checked: number; verified: number; invalid: number; found: number }> {
   const out = { checked: 0, verified: 0, invalid: 0, found: 0 };
   if (!verifierConfigured()) return out;
-  const { data } = await db.from("people").select("id,full_name,level,email,email_status,email_source,email_verified_at").eq("account_id", account.id).eq("do_not_contact", false).limit(60);
+  const { data } = await db.from("people").select("id,full_name,level,email,email_status,email_source,email_verified_at,email_check").eq("account_id", account.id).eq("do_not_contact", false).limit(60);
   const people = ((data ?? []) as PersonRow[]).sort((a, b) => (LEVEL_RANK[b.level] ?? 0) - (LEVEL_RANK[a.level] ?? 0));
   let budget = limit;
   for (const person of people) {
     if (budget <= 0) break;
     try {
-      if (person.email && person.email_status !== "verified" && !person.email_verified_at) {
+      if (person.email && !["verified", "invalid"].includes(person.email_status) && !person.email_verified_at) {
         budget -= 1;
         const result = await verifyEmail(person.email);
         out.checked += 1;
         const patch: Record<string, unknown> = { email_verified_at: new Date().toISOString() };
-        if (result.status === "verified") { patch.email_status = "verified"; out.verified += 1; }
+        if (result.status === "verified") { patch.email_status = "verified"; patch.email_source = "hunter"; out.verified += 1; }
         else if (result.status === "catch_all") patch.email_status = "catch_all";
         else if (result.status === "invalid") {
           // A wrong guess is worse than no address: clear it so the person is looked up instead.
           out.invalid += 1;
-          patch.email = null; patch.email_status = "none"; patch.email_source = null; patch.email_verified_at = null;
+          patch.email_status = "invalid"; patch.email_check = replacementCheck(person, { email: person.email, level: "undeliverable", status: "invalid", source: "hunter", bouncedEmails: [...rejectedAddresses(person), person.email.toLowerCase()] });
         }
         await db.from("people").update(patch).eq("id", person.id);
       } else if (!person.email) {
         budget -= 1;
         const found = await findEmail(person.full_name, account.domain);
-        if (!found || found.result.status === "invalid") continue;
+        if (!found || found.result.status === "invalid" || await addressRejected(db, found.email)) continue;
         out.found += 1;
         await db.from("people").update({
+          email_check: replacementCheck(person, { email: found.email }),
           email: found.email,
           email_status: found.result.status === "verified" ? "verified" : found.result.status === "catch_all" ? "catch_all" : "unverified",
           email_source: "hunter",

@@ -18,7 +18,7 @@ export type FinderResult =
   | { kind: "evidence"; evidence: FoundEvidence }
   | { kind: "no-mail" }
   | { kind: "none"; pagesRead: number; addressesSeen: number };
-export type FinderDeps = { fetcher?: Fetcher; lookup?: Lookup; mailHost?: (domain: string) => Promise<boolean | null>; maxPages?: number };
+export type FinderDeps = { fetcher?: Fetcher; lookup?: Lookup; mailHost?: (domain: string) => Promise<boolean | null>; maxPages?: number; signal?: AbortSignal };
 
 const PATHS = ["", "contact", "contact-us", "about", "about-us", "team", "our-team", "leadership", "staff", "meet-the-team", "management", "our-people", "people", "who-we-are", "company"];
 const LINK_HINT = /team|staff|leader|about|contact|people|management|who-we-are|our-company|directory|employees/i;
@@ -49,43 +49,61 @@ function formatFor(item: PageEmail): { name: string; key: PatternKey } | null {
 
 async function readSite(domain: string, deps: FinderDeps) {
   const max = deps.maxPages ?? 18;
-  const fetchOne = (url: string) => safeFetch(url, deps.fetcher, { ...(deps.lookup ? { lookup: deps.lookup } : {}), maxBytes: 3_000_000, signal: AbortSignal.timeout(8_000) });
+  const fetchOne = (url: string) => safeFetch(url, deps.fetcher, { ...(deps.lookup ? { lookup: deps.lookup } : {}), maxBytes: 3_000_000, signal: deps.signal ? AbortSignal.any([deps.signal, AbortSignal.timeout(8_000)]) : AbortSignal.timeout(8_000) });
   const home = await fetchOne(`https://${domain}/`);
   const origin = home.kind === "page" && home.html ? new URL(home.finalUrl).origin : `https://${domain}`;
-  const urls = new Set(PATHS.slice(1).map((path) => `${origin}/${path}`));
-  // The site's own links to its team and contact pages find what fixed paths miss (/our-story/leadership).
-  if (home.kind === "page") for (const match of home.html.matchAll(/href="([^"#]+)"/gi)) {
-    try { const url = new URL(match[1], origin); if (url.origin === origin && LINK_HINT.test(url.pathname)) urls.add(url.toString().replace(/\/$/, "")); } catch { /* not a link */ }
-  }
+  const urls = new Set<string>();
+  const links = (html: string) => {
+    for (const match of html.matchAll(/href=["']([^"'#]+)["']/gi)) {
+      try {
+        const url = new URL(match[1], origin);
+        if (url.origin === origin && LINK_HINT.test(url.pathname)) urls.add(url.toString().replace(/\/$/, ""));
+      } catch { /* Ignore malformed links. */ }
+    }
+  };
+  if (home.kind === "page") links(home.html);
+  for (const path of PATHS.slice(1)) urls.add(`${origin}/${path}`);
   const pages: Array<{ url: string; html: string }> = home.kind === "page" && home.html ? [{ url: home.finalUrl, html: home.html }] : [];
-  const queue = [...urls].slice(0, max - 1);
-  for (let i = 0; i < queue.length; i += 4) {
-    const batch = await Promise.all(queue.slice(i, i + 4).map(async (url) => ({ url, page: await fetchOne(url) })));
-    for (const { url, page } of batch) if (page.kind === "page" && page.status === 200 && page.html) pages.push({ url: page.finalUrl || url, html: page.html });
+  const visited = new Set<string>([`${origin}`]);
+  while (visited.size < max && !deps.signal?.aborted) {
+    const queue = [...urls].filter((url) => !visited.has(url)).slice(0, Math.min(4, max - visited.size));
+    if (!queue.length) break;
+    queue.forEach((url) => visited.add(url));
+    const batch = await Promise.all(queue.map(async (url) => ({ url, page: await fetchOne(url) })));
+    const discovered = new Set<string>();
+    for (const { url, page } of batch) if (page.kind === "page" && page.status === 200 && page.html) {
+      pages.push({ url: page.finalUrl || url, html: page.html });
+      const before = new Set(urls);
+      links(page.html);
+      for (const link of urls) if (!before.has(link)) discovered.add(link);
+    }
+    const ordered = [...discovered, ...urls];
+    urls.clear();
+    ordered.forEach((url) => urls.add(url));
   }
   return pages;
 }
 
-export async function findAddress(input: { name: string; domain: string; avoid?: string | null }, deps: FinderDeps = {}): Promise<FinderResult> {
+export async function findAddress(input: { name: string; domain: string; avoid?: string | null; rejected?: string[] }, deps: FinderDeps = {}): Promise<FinderResult> {
   const domain = input.domain.toLowerCase().replace(/^www\./, "");
-  if (deps.mailHost && (await deps.mailHost(domain)) === false) return { kind: "no-mail" };
-  const avoid = input.avoid?.toLowerCase() ?? null;
+  const rejected = new Set([...(input.rejected ?? []), input.avoid ?? ""].map((email) => email.toLowerCase()));
   const pages = await readSite(domain, deps);
   const found: Array<PageEmail & { url: string }> = [];
-  for (const page of pages) for (const item of pageEmails(page.html, domain)) if (!found.some((seen) => seen.email === item.email)) found.push({ ...item, url: page.url });
+  for (const page of pages) for (const item of pageEmails(page.html)) if (!rejected.has(item.email) && !found.some((seen) => seen.email === item.email)) found.push({ ...item, url: page.url });
   const personal = found.filter((item) => !isRoleAddress(item.email));
   // Their own address, in any common format.
-  const theirs = new Set(PATTERN_KEYS.map((key) => buildEmail(input.name, key, domain)).filter((email): email is string => Boolean(email) && email !== avoid));
-  const own = personal.find((item) => theirs.has(item.email));
+  const theirs = new Set(PATTERN_KEYS.map((key) => buildEmail(input.name, key, domain)).filter((email): email is string => email !== null && !rejected.has(email)));
+  const own = personal.find((item) => theirs.has(item.email) || PATTERN_KEYS.some((key) => buildEmail(input.name, key, item.email.split("@")[1]) === item.email));
   if (own) return { kind: "evidence", evidence: { kind: "published", address: own.email, sourceUrl: own.url } };
   // Two colleagues whose names sit next to their addresses prove the format.
   const byKey = new Map<PatternKey, Array<{ name: string; email: string; sourceUrl: string }>>();
-  for (const item of personal) {
+  for (const item of personal.filter((item) => item.email.endsWith(`@${domain}`))) {
     const match = formatFor(item);
     if (match) byKey.set(match.key, [...(byKey.get(match.key) ?? []), { name: match.name, email: item.email, sourceUrl: item.url }]);
   }
   const [best] = [...byKey.entries()].filter(([, examples]) => examples.length >= 2).sort((a, b) => b[1].length - a[1].length);
   const address = best ? buildEmail(input.name, best[0], domain) : null;
-  if (best && address && address !== avoid) return { kind: "evidence", evidence: { kind: "format", address, examples: best[1].slice(0, 4) } };
+  if (best && address && !rejected.has(address)) return { kind: "evidence", evidence: { kind: "format", address, examples: best[1].slice(0, 4) } };
+  if (deps.mailHost && (await deps.mailHost(domain)) === false) return { kind: "no-mail" };
   return { kind: "none", pagesRead: pages.length, addressesSeen: found.length };
 }

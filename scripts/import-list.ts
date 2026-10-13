@@ -35,6 +35,8 @@ if (command === "check") {
     for (const row of result.skipped) console.log(`  - ${row.domain}: ${row.reason}`);
     for (const row of result.addresses) console.log(`  @ ${row.address}: ${row.outcome} (${row.reason})`);
   }
+} else if (command === "bounces") {
+  console.log(JSON.stringify((await addressesToWork(db)).filter((person) => person.rejectedEmails.length), null, 2));
 } else if (command === "addresses") {
   // Unsent list drafts whose address is not ready for Send all, as JSON for the researcher.
   console.log(JSON.stringify(await addressesToWork(db), null, 2));
@@ -42,5 +44,5 @@ if (command === "check") {
   const items = JSON.parse(readFileSync(rest[0], "utf8")) as Array<{ personId: string; domain: string; name: string; emailEvidence: EmailEvidence }>;
   for (const row of await importAddressEvidence(db, items)) console.log(`  @ ${row.address} (${row.domain}): ${row.outcome} (${row.reason})`);
 } else {
-  console.log("Usage: pnpm list:check <domain...> | pnpm list:import <file.json> | pnpm list:addresses | pnpm list:addresses-import <file.json>");
+  console.log("Usage: pnpm list:check <domain...> | pnpm list:import <file.json> | pnpm list:bounces | pnpm list:addresses | pnpm list:addresses-import <file.json>");
 }

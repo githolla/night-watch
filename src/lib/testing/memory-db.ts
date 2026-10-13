@@ -7,10 +7,12 @@ export function memoryDb(seed:Record<string,Row[]>={}){
   let op='select',payload:Row|Row[]={},single=false,head=false,count=false,ignore=false,max=Infinity;
   const filters:Array<(r:Row)=>boolean>=[];
   const q={
+      contains(key: string, value: Record<string, unknown>) { filters.push((row) => { const current = row[key] as Record<string, unknown> | null; return Boolean(current) && Object.entries(value).every(([field, expected]) => Array.isArray(expected) ? Array.isArray(current?.[field]) && expected.every((item) => (current?.[field] as unknown[]).includes(item)) : current?.[field] === expected); }); return q; },
    select(_columns?:string,opts?:{head?:boolean;count?:string}){head=!!opts?.head;count=!!opts?.count;return q},
    insert(value:Row|Row[]){op='insert';payload=value;return q},
    upsert(value:Row|Row[],opts?:{ignoreDuplicates?:boolean}){op='insert';payload=value;ignore=!!opts?.ignoreDuplicates;return q},
    update(value:Row){op='update';payload=value;return q},
+   ilike(key:string,value:string){filters.push(r=>String(r[key]??"").toLowerCase()===value.replace(/\\([%_\\])/g,"$1").toLowerCase());return q},
    eq(key:string,value:unknown){filters.push(r=>r[key]===value);return q},
    neq(key:string,value:unknown){filters.push(r=>r[key]!==value);return q},
    in(key:string,value:unknown[]){filters.push(r=>value.includes(r[key]));return q},

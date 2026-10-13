@@ -4,7 +4,7 @@ import { localParts } from "./local-time.ts";
 import { LIST_OWNERS, nightlyListConfig } from "./nightly-list-builder.ts";
 import { configuredBaseUrl } from "./opt-out.ts";
 import { postSlackMessage } from "./slack.ts";
-import { sendableAddress } from "./bulk-sendable.ts";
+import { bulkSendable } from "./bulk-sendable.ts";
 import type { ListRow } from "./research-data/server.ts";
 import type { Owner } from "./types.ts";
 import {
@@ -67,7 +67,7 @@ async function todaysCards(db: Db, owner: Owner, rows: ListRow[]): Promise<DeskC
  * person rather than being retried every run.
  */
 async function leftoverCards(db: Db, owner: Owner, todays: Set<string>): Promise<DeskCard[]> {
-  const query = (columns: string) => db.from("cards").select(`${columns},accounts!inner(domain,name,status),signals!inner(hash),people(email,email_status,email_check,do_not_contact)`)
+  const query = (columns: string) => db.from("cards").select(`${columns},accounts!inner(domain,name,status),signals!inner(hash),people(full_name,email,email_status,email_source,email_check,do_not_contact)`)
     // Newest lists first (they are built to the current ICP), in a fixed order, so the Auto-send page can show
     // the send order the morning run will use.
     .eq("assigned_to", owner).in("status", ["new", "edited", "approved"]).like("signals.hash", "operator-shortlist-20260923:%").order("created_at", { ascending: false }).order("id", { ascending: true }).limit(500);
@@ -76,7 +76,7 @@ async function leftoverCards(db: Db, owner: Owner, todays: Set<string>): Promise
   if (error) return [];
   return ((data ?? []) as unknown as DeskCard[]).filter((card) =>
     !todays.has(card.accounts?.domain ?? "") && card.accounts?.status === "active" && !card.auto_send_hold && !card.auto_send_hold_reason &&
-    Boolean(card.people && !card.people.do_not_contact && sendableAddress(card.people)) && Boolean(card.email_subject?.trim() && card.email_body?.trim()));
+    Boolean(card.people && !card.people.do_not_contact && bulkSendable(card.people)) && Boolean(card.email_subject?.trim() && card.email_body?.trim()));
 }
 
 /**
@@ -112,7 +112,7 @@ async function bounceCounts(db: Db, owner: Owner, now: Date, resumedAt: string |
   const { data, error } = await db.from("touches").select("gmail_thread_id,sent_at,bounced_at,people(email),cards(accounts(name,domain))").eq("sent_by", owner).eq("channel", "email").not("gmail_thread_id", "is", null).gte("sent_at", since).order("sent_at", { ascending: true }).limit(1000);
   if (error) return null;
   const firstByThread = new Map<string, TouchRow>();
-  for (const touch of (data ?? []) as unknown as TouchRow[]) if (!firstByThread.has(touch.gmail_thread_id)) firstByThread.set(touch.gmail_thread_id, touch);
+  for (const touch of (data ?? []) as unknown as TouchRow[]) if (!touch.cards?.accounts?.domain?.endsWith(".invalid") && !firstByThread.has(touch.gmail_thread_id)) firstByThread.set(touch.gmail_thread_id, touch);
   if (firstByThread.size) {
     const { data: earlier, error: earlierError } = await db.from("touches").select("gmail_thread_id").eq("sent_by", owner).eq("channel", "email").in("gmail_thread_id", [...firstByThread.keys()]).lt("sent_at", since);
     if (earlierError) return null;

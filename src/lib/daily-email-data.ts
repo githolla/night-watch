@@ -1,3 +1,5 @@
+import { discoveryNeeds } from "./discovery/digest.ts";
+import { redditNeeds } from "./reddit/digest.ts";
 import { loadAutoSendView, type AutoSendEmail } from "./autosend-view.ts";
 import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
 import type { EveningData, ListCompany, MorningData, Need, PersonRow, SendState, Tile } from "./daily-email.ts";
@@ -10,7 +12,7 @@ import { nightFocus } from "./list-sectors.ts";
 import { localParts } from "./local-time.ts";
 import { isSendDay } from "./morning-send-rules.ts";
 import { sendDayStart } from "./send-guards.ts";
-import { learnedSectorWeights, nightlyListConfig } from "./nightly-list-builder.ts";
+import { addressesToWork, learnedSectorWeights, nightlyListConfig } from "./nightly-list-builder.ts";
 import { chartDays, insightsFrom, nextSendDay, previousSendDay } from "./daily-email-stats.ts";
 import { shiftDate } from "./sent-stats.ts";
 import { loadSentTouches } from "./sent-view.ts";
@@ -44,7 +46,7 @@ const asRow = (base: string) => (row: HomeTodayRow): PersonRow => ({ name: row.n
 function needsFrom(home: HomeData, { owner, base }: Seat): Need[] {
   const out: Need[] = [];
   if (home.replies.length) out.push({ text: home.replies.length === 1 ? `${home.replies[0].name}${home.replies[0].company ? ` at ${home.replies[0].company}` : ""} is waiting for an answer.` : `${home.replies.length} replies are waiting for an answer.`, action: "Answer", href: `${base}/replies?${q(owner)}` });
-  if (home.bounces.length) out.push({ text: home.bounces.length === 1 ? `${home.bounces[0].name}'s address bounced. Give it a new one and the email goes back in the queue.` : `${home.bounces.length} addresses bounced. Fix them and the emails go back in the queue.`, action: "Fix", href: `${base}/?${q(owner)}` });
+  if (home.bounces.length) out.push({ text: home.bounces.length === 1 ? `${home.bounces[0].name}'s address bounced. A replacement stays held until mailbox verification passes.` : `${home.bounces.length} addresses bounced. Research replacements and verify them before sending.`, action: "Fix", href: `${base}/?${q(owner)}` });
   if (home.followupsDue) out.push({ text: `${home.followupsDue === 1 ? "A follow-up" : `${home.followupsDue} follow-ups`} couldn't go out on ${home.followupsDue === 1 ? "its" : "their"} own.`, action: "Send", href: `${base}/followups?view=needs&${q(owner)}` });
   if (home.linkedin) out.push({ text: `${home.linkedin === 1 ? "A LinkedIn message is" : `${home.linkedin} LinkedIn messages are`} ready to send by hand.`, action: "Send", href: `${base}/linkedin?${q(owner)}` });
   return out;
@@ -59,7 +61,7 @@ async function todaysList(db: Db, { owner, base }: Seat, date: string): Promise<
   const { data: list } = await db.from("reachout_lists").select("status,rows").eq("owner", owner).eq("list_date", date).maybeSingle();
   const rows = ((list?.status === "ready" ? list.rows : null) ?? []) as Array<{ domain: string; company?: string; sector?: string }>;
   if (!rows.length) return null;
-  const { data: cards } = await db.from("cards").select("id,status,accounts!inner(domain),people(full_name,title,email,email_status,email_check)").eq("assigned_to", owner).in("accounts.domain", rows.map((row) => row.domain));
+  const { data: cards } = await db.from("cards").select("id,status,accounts!inner(domain),people(full_name,title,email,email_status,email_source,email_check)").eq("assigned_to", owner).in("accounts.domain", rows.map((row) => row.domain));
   type CardRow = { id: string; accounts: { domain: string }; people: { full_name: string | null; title: string | null; email: string | null; email_status: string | null; email_check: unknown } | null };
   const byDomain = new Map(((cards ?? []) as unknown as CardRow[]).map((card) => [card.accounts.domain.toLowerCase(), card]));
   const companies: ListCompany[] = rows.map((row) => {
@@ -89,9 +91,9 @@ export async function loadMorningEmail(owner: Owner, base: string, now: Date = n
   const db = admin();
   const seat = { owner, base, now };
   const local = localParts(now);
-  const [home, view, sent, list, meetings] = await Promise.all([
+  const [home, view, sent, list, meetings, reddit, discovery] = await Promise.all([
     loadHome(owner, now), loadAutoSendView(owner).catch(() => null), loadSentTouches(owner, 60, now).catch(() => null),
-    todaysList(db, seat, local.date).catch(() => null), meetingsAhead(db, seat).catch(() => []),
+    todaysList(db, seat, local.date).catch(() => null), meetingsAhead(db, seat).catch(() => []), redditNeeds(db, owner, base, now.getTime()).catch(() => []), discoveryNeeds(db, owner, base, now.getTime()).catch(() => []),
   ]);
   const touches = sent?.touches ?? [];
   const dayOf = sent?.dayOf ?? ((iso: string) => localParts(new Date(iso)).date);
@@ -112,8 +114,14 @@ export async function loadMorningEmail(owner: Owner, base: string, now: Date = n
     { label: "Emails sent", value: onDay.length, note: onDay.length ? `${firsts} first, ${onDay.length - firsts} follow-up · avg ${Math.round(weekSends.length / sendDays)}/day` : "None went out", tone: "plain", href: sentHref },
     { label: "Replies", value: repliedThen.length, note: repliedThen.length ? "Out-of-office not counted" : "None that day", tone: "good", href: `${base}/replies?${q(owner)}` },
     { label: "Interested", value: interested, note: interested ? "Said yes or pointed you on" : "Not yet", tone: "good", href: `${base}/replies?${q(owner)}` },
-    { label: "Bounces", value: bounced, note: bounced ? "Fix on Overview" : "All delivered", tone: "warn", href: `${base}/?${q(owner)}` },
+    { label: "Bounces", value: bounced, note: bounced ? "Fix on Overview" : "No bounce recorded", tone: "warn", href: `${base}/?${q(owner)}` },
   ];
+  const addressWork = (await addressesToWork(db)).filter((person) => person.owner === owner);
+  const failed = addressWork.filter((person) => person.rejectedEmails.length);
+  const researched = failed.filter((person) => person.researchedAt && Date.parse(String(person.researchedAt)) >= now.getTime() - 86_400_000).length;
+  const candidates = failed.filter((person) => person.email && !person.rejectedEmails.includes(person.email.toLowerCase())).length;
+  const needs = [...needsFrom(home, seat), ...reddit, ...discovery];
+  if (addressWork.length) needs.push({ text: `Address research: ${failed.length} unresolved failures, ${candidates} replacements awaiting verification, ${researched} researched in the last day. ${process.env.HUNTER_API_KEY?.trim() ? "Only verified personal mailboxes enter automatic sending." : "Mailbox verification is not configured, so these addresses stay held."}`, action: "Review", href: `${base}/?${q(owner)}` });
   const state = sendState(home);
   const queue = state === "on" ? queueRows(view?.emails ?? [], base, owner, new Set(home.listed)) : [];
   await addLogos([...queue.slice(0, 6), ...(list?.companies.slice(0, 12) ?? [])]);
@@ -122,7 +130,7 @@ export async function loadMorningEmail(owner: Owner, base: string, now: Date = n
     send: { state, going: home.autoSend?.plan.going ?? 0, window: home.autoSend?.plan.windowLabel ?? "", dayLabel: home.autoSend?.plan.dayLabel ?? "today", queue, href: `${base}/auto-send?${q(owner)}` },
     list, yesterday: { label: lastLabel, tiles }, chart: chartDays(touches, local.date, dayOf),
     insights: insightsFrom(touches, local.date, dayOf, { sent: sentHref, results: `${base}/stats` }),
-    needs: needsFrom(home, seat), meetings, sendDay: isSendDay(local.weekday, local.date),
+    needs, meetings, sendDay: isSendDay(local.weekday, local.date),
   };
 }
 
@@ -150,7 +158,7 @@ export async function loadEveningEmail(owner: Owner, base: string, now: Date = n
     { label: "Emails sent", value: rows.sent.length, note: rows.sent.length ? `${firsts} first, ${rows.sent.length - firsts} follow-up` : "None today", tone: "plain", href: `${base}/drafts/sent?${q(owner)}&days=1` },
     { label: "Replies", value: rows.replies.length, note: home.today.interested ? `${home.today.interested} interested` : "Out-of-office not counted", tone: "good", href: `${base}/replies?${q(owner)}` },
     { label: "LinkedIn", value: rows.linkedin.length, note: home.linkedin ? `${home.linkedin} ready` : "Nothing waiting", tone: "plain", href: `${base}/linkedin?${q(owner)}` },
-    { label: "Bounces", value: rows.bounces.length, note: rows.bounces.some((row) => row.fix) ? "Fix on Overview" : rows.bounces.length ? "All fixed" : "All delivered", tone: "warn", href: `${base}/?${q(owner)}` },
+    { label: "Bounces", value: rows.bounces.length, note: rows.bounces.some((row) => row.fix) ? "Fix on Overview" : rows.bounces.length ? "All fixed" : "No bounce recorded", tone: "warn", href: `${base}/?${q(owner)}` },
   ];
   const state = sendState(home);
   const unread = home.drafts.nextUnapproved;

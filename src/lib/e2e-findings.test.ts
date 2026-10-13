@@ -63,3 +63,13 @@ test("the Gmail handshake cookie is sealed and records seat and user", () => {
   assert.equal(readOAuthStateCookie("n1"), null, "a bare nonce (the old format) is not accepted");
   assert.equal(readOAuthStateCookie(cookie.slice(0, -2) + "xx"), null, "tampering breaks the seal");
 });
+
+test("every outreach footer has a visible unsubscribe button and matching plain-text URL", () => {
+  const url = unsubscribeUrl("https://app.test", "person-1");
+  for (const curated of [false, true]) {
+    const delivery = withOptOut({ text: "Hello", html: "<p>Hello</p>" }, curated, url);
+    assert.ok(delivery.text.includes(`Unsubscribe: ${url}`));
+    assert.ok(delivery.html.includes(`href="${url}"`));
+    assert.match(delivery.html, />Unsubscribe<\/a>/);
+  }
+});

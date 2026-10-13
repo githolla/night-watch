@@ -1,3 +1,4 @@
+import * as addressHistory from "./address-history.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
@@ -33,6 +34,7 @@ function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; reci
     touches: options.touches ?? [], message_experiments: [],
   });
   const mocks: Record<string, unknown> = {
+    "./address-history.ts": addressHistory,
     "@/lib/mailbox-quota": { withMailboxQuota: async (_db: unknown, _input: unknown, fn: () => unknown) => fn() },
     "@/lib/delivery-state": deliveryState,
     "@/lib/restore-selected-draft": { restoreSelectedDraft: async () => "edited" },
@@ -105,11 +107,12 @@ test("follow-ups get the speakable name and only a nightly row's workflow", asyn
   assert.equal(context({ accounts: { name: "Gamma Holdings Inc" } }, undefined).company, "Gamma Holdings");
 });
 
-test("an automatic send takes an unconfirmed guess like Send all ready, but never a known-bad address", async () => {
+test("automatic sends refuse guesses while a human may send an unconfirmed address", async () => {
   const person = { id: "p1", full_name: "Dana Ortiz", email: "dana.ortiz@acme.test", email_status: "unverified", do_not_contact: false };
   const guess = harness({ recipient: "risky", cardExtra: { people: { ...person, email_check: { level: "risky", reason: "Not confirmed." } } } });
-  assert.equal((await guess.send(true)).ok, true);
-  assert.equal(guess.gmail.length, 1);
+  await assert.rejects(guess.send(true));
+  assert.equal(guess.gmail.length, 0);
+  assert.equal((await guess.send(false)).ok, true);
   const bad = harness({ recipient: "undeliverable", cardExtra: { people: { ...person, email_status: "invalid" } } });
   await assert.rejects(bad.send(true));
   assert.equal(bad.gmail.length, 0);

@@ -21,6 +21,7 @@ Never print the secret. Actions (JSON body):
 | `status` | `{"action":"status","listDate":"..."}` | that date's lists per seat and how many addresses are unconfirmed |
 | `check` | `{"action":"check","domains":["a.com",...]}` | which domains are new (`usable`) and why others are out |
 | `import` | `{"action":"import","listDate":"...","owner":"josh"\|"suuchi","companies":[...]}` | what was listed, kept as reserve, skipped and why, and address outcomes |
+| `bounces` | `{"action":"bounces"}` | unresolved failures, rejected addresses, previous research, and provider configuration |
 | `addresses` | `{"action":"addresses"}` | unsent list contacts whose address is not yet confirmed |
 | `addresses-import` | `{"action":"addresses-import","items":[...]}` | each address: verified, likely or unconfirmed, and why |
 
@@ -38,7 +39,7 @@ Imports can take a few minutes; send at most about 8 companies per `import` call
    companies between the two seats so each seat's list mixes sectors: **no more than 3 of a seat's 12 from one
    sector**. Stop a seat at 12 listed. A failed import still marks the domain as known, so import only companies
    that clearly pass the gates.
-5. **Addresses.** Call `addresses` and work as many as the remaining budget allows, newest lists first, then
+5. **Addresses.** Call `bounces` first and prioritize those contacts, carrying every rejected address forward as an exclusion. Search individual leadership pages, association directories, releases, and public business PDFs. Call `addresses` and work as many as the remaining budget allows, newest lists first, then
    `addresses-import` what you can prove.
 6. Finish with `status` and a short report: per seat, companies listed by sector, addresses confirmed, and what was
    skipped and why.
@@ -99,14 +100,14 @@ Lever) usually work; Indeed and LinkedIn usually do not.
 
 ## Email evidence
 
-Only two kinds count, and the address must be at the company's own domain:
+Two kinds count as candidate evidence. A different email domain is accepted only when the person's address is explicitly published on the company's own site:
 
 - `{"kind":"published","address","sourceUrl"}`: the person's own address appears verbatim on a fetchable page.
 - `{"kind":"format","address","examples":[{"name","email","sourceUrl"},...]}`: two or more colleagues' addresses,
   each verbatim on a fetchable page, prove one format, and the person's address is exactly what it gives.
 
 Never guess, never use data-broker sites (ZoomInfo, RocketReach, Apollo and the like), and never use a shared inbox.
-Confirmed addresses go out with Send all ready and the morning auto-send; everything else waits for a person.
+Published evidence and proven formats remain candidates until mailbox verification passes. Only verified personal mailboxes enter Send all ready and morning auto-send. A correction preserves all failed addresses and stays held until verified. See [Bounce research loop](BOUNCE_RESEARCH.md).
 
 ## Company object for `import`
 

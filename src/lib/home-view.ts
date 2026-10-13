@@ -66,7 +66,7 @@ async function summarizeLists(owner: Owner, records: ListRecord[]): Promise<{ re
   if (!domains.length) return { records, summaries: [] };
   const db = admin();
   const [{ data: cards }, { data: replied }] = await Promise.all([
-    db.from("cards").select("id,status,auto_send_hold,accounts!inner(domain),people(email,email_status,email_check,do_not_contact)").eq("assigned_to", owner).in("accounts.domain", domains).limit(3000),
+    db.from("cards").select("id,status,auto_send_hold,accounts!inner(domain),people(email,email_status,email_source,email_check,do_not_contact)").eq("assigned_to", owner).in("accounts.domain", domains).limit(3000),
     db.from("touches").select("card_id").eq("sent_by", owner).in("reply_classification", POSITIVE).limit(2000),
   ]);
   const positive = new Set(((replied ?? []) as Array<{ card_id: string }>).map((row) => row.card_id));
@@ -98,7 +98,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     loadAutoSendView(owner).catch(() => null),
     loadSentTouches(owner, 90, now).catch(() => null),
     db.from("cards").select("id", { count: "exact", head: true }).eq("assigned_to", owner).eq("status", "meeting").then((r) => r.count ?? 0),
-    db.from("cards").select("id,person_id,status,auto_send_hold,linkedin_message,people(full_name,email,email_status,email_check,do_not_contact),signals!inner(hash)")
+    db.from("cards").select("id,person_id,status,auto_send_hold,linkedin_message,people(full_name,email,email_status,email_source,email_check,do_not_contact),signals!inner(hash)")
       .eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).limit(500).then((r) => r.data ?? []),
     pendingFollowups(db, { owner, now: now.getTime() }).catch(() => null),
     linkedinTaskCount(owner, now).catch(() => 0),

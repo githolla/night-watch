@@ -23,6 +23,7 @@ const input = z.discriminatedUnion("action", [
   z.object({ action: z.literal("check"), domains: z.array(z.string()).min(1).max(200) }),
   z.object({ action: z.literal("import"), listDate, owner: z.string(), companies: z.array(company).min(1).max(40) }),
   z.object({ action: z.literal("addresses") }),
+  z.object({ action: z.literal("bounces") }),
   z.object({ action: z.literal("addresses-import"), items: z.array(z.object({ personId: z.string(), domain: z.string(), name: z.string(), emailEvidence })).min(1).max(200) }),
 ]);
 
@@ -54,6 +55,7 @@ export async function POST(request: Request) {
       if (!owner) throw new Error(`Unknown seat ${body.owner}; use josh or suuchi.`);
       return Response.json(await importResearchedList(db, { listDate: body.listDate, owner, companies: body.companies }));
     }
+    if (body.action === "bounces") return Response.json({ people: (await addressesToWork(db)).filter((person) => person.rejectedEmails.length), verifierConfigured: Boolean(process.env.HUNTER_API_KEY?.trim()), broaderResearchConfigured: Boolean(process.env.ANTHROPIC_API_KEY?.trim()) });
     if (body.action === "addresses") return Response.json({ people: await addressesToWork(db) });
     return Response.json({ addresses: await importAddressEvidence(db, body.items) });
   } catch (error) {

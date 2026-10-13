@@ -13,7 +13,7 @@
 
 The schedules in `vercel.json` are UTC: the morning summary at 08:00 EDT, reply, follow-up and Sent-folder checks every 15 minutes, and the feedback digest twice a day. Adjust the fixed UTC schedules when daylight-saving time changes.
 
-Research is not scheduled. Outreach works from the curated lists, so the nightly research, careers sweep and analysis crons were removed from `vercel.json` to stop them spending the model budget. Their routes still exist: an admin can run research from the Runs page, or call `/api/cron/nightly`, `/api/cron/sweep` or `/api/cron/analysis` with `Authorization: Bearer $CRON_SECRET`. Add them back to `vercel.json` to schedule them again.
+The legacy account-research crons are not scheduled. Bounce address research runs through the existing addresses cron; see [Bounce research loop](BOUNCE_RESEARCH.md). Outreach works from the curated lists, so the nightly research, careers sweep and analysis crons were removed from `vercel.json` to stop them spending the model budget. Their routes still exist: an admin can run research from the Runs page, or call `/api/cron/nightly`, `/api/cron/sweep` or `/api/cron/analysis` with `Authorization: Bearer $CRON_SECRET`. Add them back to `vercel.json` to schedule them again.
 
 ## Nightly reach-out list and morning auto-send
 
@@ -49,7 +49,7 @@ The 8:00 card digest (`/api/cron/morning`) is skipped for a seat whose list is r
 
 Auto-send is off by default. Each person turns it on in Settings, and it needs the business postal address saved under Sender identity, because US law (CAN-SPAM) requires it in commercial email. Each prospect gets two follow-ups, on business days 3 and 10.
 
-- **Bounce brake:** auto-send pauses itself, and says in Slack which addresses bounced, after 2 bounced first emails within 48 hours, or when more than 5% of at least 10 first emails bounce. Pausing also holds automatic follow-ups. After fixing the addresses, Resume in Settings; the brake then counts only first emails sent after the resume.
+- **Bounce research:** failed mailboxes are excluded permanently, their follow-ups stop, and replacements stay held until mailbox verification passes. The address worker prioritizes fresh failures and retries unresolved research daily. See [Bounce research loop](BOUNCE_RESEARCH.md). The morning bounce warning reports mailbox health; it does not automatically pause the entire seat.
 - **Follow-ups** for a seat without a postal address wait for a person, the same rule as first emails.
 - **Signature:** automatically sent first emails use a plain-text signature (name and details, no logo or images, at most one link). Emails you send by hand keep the saved signature.
 - **Keep for me:** on Today's list, the "Keep for me (don't auto-send)" toggle next to Send takes one company off the morning auto-send without dismissing it. You can still send it yourself.
@@ -57,3 +57,11 @@ Auto-send is off by default. Each person turns it on in Settings, and it needs t
 - **Warm-up:** a newly connected mailbox starts at 5 emails a day and adds `SEND_RAMP_PER_DAY` (default 5) each day up to `SEND_DAILY_CAP` (default 40). Settings shows today's cap and how long Gmail has been connected. For a genuinely new domain or mailbox, set `SEND_RAMP_PER_DAY=2` or `3` for a slower ramp.
 
 Settings also shows tonight's build per seat (companies evaluated against the target, the fit range kept, when the 7:00 and summary messages went out, and the top skip reasons with the skipped companies) and the night's research spend once, because the $10 budget is shared by both lists. `/stats` shows list outcomes by AI-fit band and sector, and suggests a `NIGHTLY_LIST_MIN_FIT` once there are enough replies; it never changes the setting.
+
+### Reddit discovery
+
+Apply `0033_reddit_opportunities.sql` before opening `/reddit`. The optional channel stays disabled by default and requires written commercial Reddit approval and approved read credentials. See [REDDIT_DISCOVERY.md](./REDDIT_DISCOVERY.md) for exact setup, retention, query limits and the daily review loop. The added cron runs at 07:00 UTC and never posts or messages Reddit users.
+
+### Public-source signal discovery
+
+Apply `0034_open_discovery.sql`, then open `/discovery`. GDELT and Hacker News do not require app credentials for their public read endpoints; known public Greenhouse/Lever boards are reused from existing accounts. SAM and SEC are optional configured sources, and publisher feeds require permitted use. See [SIGNAL_DISCOVERY.md](./SIGNAL_DISCOVERY.md) for setup, limits and the review-to-research handoff. The cron runs at 06:30 UTC. Raw discoveries never bypass buyer research, suppression or mailbox verification.

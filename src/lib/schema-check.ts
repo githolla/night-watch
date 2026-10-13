@@ -44,6 +44,8 @@ const MIGRATIONS: Array<{ file: string; table: string; column: string; adds: str
  * broke every send's History logging with nothing surfacing in the UI.
  */
 const HEALTH_PROBES: Array<{ file: string; table: string; column: string; breaks: string }> = [
+  { file: "0034_open_discovery.sql", table: "discovery_opportunities", column: "version", breaks: "the public-source signal discovery inbox and nightly collectors" },
+  { file: "0033_reddit_opportunities.sql", table: "reddit_opportunities", column: "version", breaks: "the Reddit opportunity queue, conversation ownership and nightly discovery" },
   { file: "0002_cadences.sql", table: "cadences", column: "id", breaks: "follow-up sequences: none are ever created, the follow-up cron fails every run, /followups renders empty" },
   { file: "0002_cadences.sql", table: "cadence_steps", column: "id", breaks: "follow-up steps: the cadence planner saves nothing and 'mark step sent' silently does nothing" },
   { file: "0003_message_experiments.sql", table: "touches", column: "experiment_variant_id", breaks: "logging a send to History (the reported incident), and the Message Lab" },

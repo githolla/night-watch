@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { markTouchBounced, prioritizeThreads } from "./bounce.ts";
+import { bounceReport, markTouchBounced, prioritizeThreads } from "./bounce.ts";
 import { queryDb } from "./testing/query-db.ts";
 
 const NOW = Date.parse("2026-10-01T15:00:00Z");
@@ -36,4 +36,41 @@ test("a bounce is stamped once, marks the address bad and stops the sequence", a
   assert.equal(tables.people[0].email_status, "invalid");
   assert.equal(tables.cadences[0].status, "stopped");
   assert.equal(tables.cadence_steps[0].status, "skipped");
+});
+
+test("shared Gmail threads do not stamp unrelated contacts as bounced", async () => {
+  const { db, tables } = queryDb({
+    touches: [{ person_id: "p1", card_id: "card", sent_by: "josh", gmail_thread_id: "thread", bounced_at: null }, { person_id: "test", card_id: "test-card", sent_by: "suuchi", gmail_thread_id: "thread", bounced_at: null }],
+    people: [{ id: "p1", full_name: "Dana Ortiz", email: "dana@co.test", email_status: "unverified", account_id: "acct" }],
+  });
+  await markTouchBounced(db, { card_id: "card", person_id: "p1", sent_by: "josh", gmail_thread_id: "thread" }, new Date(NOW));
+  assert.equal(tables.touches[0].bounced_at, new Date(NOW).toISOString());
+  assert.equal(tables.touches[1].bounced_at, null);
+});
+
+
+test("delivery reports distinguish missing mailboxes, restricted groups and temporary delays", async () => {
+  for (const [status, category] of [["5.1.1", "invalid"], ["5.4.1", "invalid"], ["5.7.133", "policy_restricted"], ["4.2.2", "temporary"]]) {
+    const report = bounceReport({ id: "bounce", internalDate: String(NOW), payload: { headers: [{ name: "X-Failed-Recipients", value: "Dana@co.test" }], parts: [{ body: { data: Buffer.from(`Final-Recipient: rfc822; dana@co.test\nStatus: ${status}\nDiagnostic-Code: smtp; ${status.startsWith("4") ? "450" : "550"} ${status} failed`).toString("base64url") } }] } });
+    assert.equal(report.recipient, "dana@co.test");
+    assert.equal(report.category, category);
+    if (category === "temporary") {
+      const { db, tables } = queryDb({ people: [{ id: "p1", email: "dana@co.test", email_status: "unverified" }], touches: [{ person_id: "p1", card_id: "card", gmail_thread_id: "thread", bounced_at: null }] });
+      assert.equal(await markTouchBounced(db, { card_id: "card", person_id: "p1", gmail_thread_id: "thread" }, new Date(NOW), report), false);
+      assert.equal(tables.people[0].email_status, "unverified");
+      assert.equal(tables.touches[0].bounced_at, null);
+    }
+  }
+});
+
+test("a late failure on an old address preserves a verified replacement and its active cadence", async () => {
+  const { db, tables } = queryDb({
+    people: [{ id: "p", full_name: "Dana Ortiz", email: "new@co.test", email_status: "verified", email_source: "hunter", email_check: { email: "new@co.test", sentAddresses: { old: "old@co.test" } } }],
+    touches: [{ card_id: "card", person_id: "p", gmail_thread_id: "old", bounced_at: null }],
+    cadences: [{ id: "cad", card_id: "card", status: "active" }],
+  });
+  await markTouchBounced(db, { card_id: "card", person_id: "p", gmail_thread_id: "old" }, new Date(NOW), { recipient: "old@co.test", status: "5.1.1", diagnostic: "Mailbox not found", category: "invalid", messageId: "failure", at: new Date(NOW).toISOString() });
+  assert.equal(tables.people[0].email_status, "verified");
+  assert.equal(tables.cadences[0].status, "active");
+  assert.deepEqual((tables.people[0].email_check as { bouncedEmails: string[] }).bouncedEmails, ["old@co.test"]);
 });

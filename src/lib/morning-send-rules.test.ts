@@ -108,3 +108,9 @@ test("auto-sent content may carry one link and no images", () => {
   assert.match(String(automaticContentProblem("Hello", `<p>Hi</p><img src="cid:logo">`)), /image/);
   assert.match(String(automaticContentProblem(`See ${gift}`, `<a href="https://nine-67.com">site</a>`)), /2 links/);
 });
+
+test("the signed unsubscribe footer is exempt from the marketing link limit; other links still count", () => {
+  const unsubscribe = "https://app.test/api/unsubscribe?t=token";
+  assert.equal(automaticContentProblem(`Read https://app.test/brief/one\nUnsubscribe: ${unsubscribe}`, `<a href="${unsubscribe}">Unsubscribe</a>`, unsubscribe), null);
+  assert.match(String(automaticContentProblem("https://one.test https://two.test", `<a href="${unsubscribe}">Unsubscribe</a>`, unsubscribe)), /2 links/);
+});

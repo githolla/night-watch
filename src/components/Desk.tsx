@@ -3,7 +3,7 @@ import { AddressFix } from "@/components/AddressFix";
 import { CompanyLogo } from "@/components/CompanyLogo";
 import { cleanTrigger, cleanWorkflow } from "@/lib/call-brief";
 import { leftoverSourceNames, replaceOpening, retargetCopy } from "@/lib/bulk-copy";
-import { bulkSendable, sendableAddress } from "@/lib/bulk-sendable";
+import { bulkSendable } from "@/lib/bulk-sendable";
 import { acknowledgedDraftFields, DRAFT_TEXT_FIELDS, meetingTimesBody, resolveSaveConflict } from "@/lib/draft-save-state";
 import { batchOwner, type ListSequence } from "@/lib/focus-data";
 import type { AiFit } from "@/lib/ai-fit";
@@ -984,11 +984,10 @@ export function Desk({
     const owner = batchOwner(focusCard.accounts.domain ?? "");
     if (!(await flushPendingSaves())) { setNotice("An edit could not be saved, so nothing was sent. Press “Save changes”, then try again."); return; }
     const all = readyToSend(owner);
-    const verified = all.filter(c => sendableAddress(c.people as unknown as Parameters<typeof sendableAddress>[0]));
-    const unconfirmed = verified.filter(c => !addressConfirmed(c.people)).length;
+    const verified = all.filter(c => bulkSendable(c.people as unknown as Parameters<typeof bulkSendable>[0]));
     const others = all.length - verified.length;
     if (!verified.length) { setNotice(others ? `None of the ${others} unsent drafts has a usable address: each is missing one or bounced before.` : "Nothing is left to send in this list."); return; }
-    if (!window.confirm(`Send ${verified.length} email${verified.length === 1 ? "" : "s"} now from ${senderName}?\n\nThey go out one at a time, about 10 seconds apart, exactly as written. Your daily sending limit still applies, and you can press Stop at any time. Keep this tab open until it finishes.${unconfirmed ? `\n\n${unconfirmed} of them ${unconfirmed === 1 ? "has an" : "have"} unconfirmed address${unconfirmed === 1 ? "" : "es"}, so a few may bounce. You get a warning if bounces pile up.` : ""}${others ? `\n\n${others} draft${others === 1 ? " has" : "s have"} no usable address and will be skipped.` : ""}`)) return;
+    if (!window.confirm(`Send ${verified.length} email${verified.length === 1 ? "" : "s"} now from ${senderName}?\n\nThey go out one at a time, about 10 seconds apart, exactly as written. Your daily sending limit still applies, and you can press Stop at any time. Keep this tab open until it finishes.${others ? `\n\n${others} draft${others === 1 ? " has" : "s have"} no usable address and will be skipped.` : ""}`)) return;
     bulkStop.current = false;
     sendInFlight.current = true;
     setBulkSending(true);
@@ -1000,7 +999,7 @@ export function Desk({
         progress.current = `${item.people.full_name}, ${item.accounts.name}`;
         setBulkProgress({ ...progress });
         try {
-          const response = await fetch(`/api/cards/${item.id}/send`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ subject: item.email_subject, body: item.email_body }) });
+          const response = await fetch(`/api/cards/${item.id}/send`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ subject: item.email_subject, body: item.email_body, batch: true }) });
           const json = await response.json().catch(() => ({}));
           if (response.ok && json.ok && json.threadId) {
             progress.sent += 1;
@@ -1565,7 +1564,7 @@ export function Desk({
                           <button type="button" className="btn" disabled={bulkSending || applyingSubject || applyingOpening || applyingMessage || !focusCard.email_subject?.trim()} onClick={applySubjectToAll} title="Use this subject on the other unsent emails; each company's name is swapped in">{applyingSubject ? "Applying…" : "Apply subject to batch"}</button>
                           <button type="button" className="btn" disabled={bulkSending || applyingSubject || applyingOpening || applyingMessage || !focusCard.email_body?.trim()} onClick={applyMessageToAll} title="Use this message on the other unsent emails; each company's name and each greeting's first name are swapped in">{applyingMessage ? "Applying…" : "Apply message to batch"}</button>
                           {bulkUndo.length > 0 && <button type="button" className="btn ghost" disabled={bulkSending} onClick={undoBulk}>Undo last batch edit</button>}
-                          {senderIsViewer && (() => { const ready = readyToSend(batchOwner(focusCard.accounts.domain ?? "")); const verified = ready.filter(c => sendableAddress(c.people as unknown as Parameters<typeof sendableAddress>[0])).length; return <><button type="button" className="btn primary" disabled={bulkSending || sending || !verified} onClick={() => void sendAllReady()} title="Send every unsent draft with an address, confirmed or not, one at a time">{bulkSending ? "Sending…" : `Send all ready (${verified})`}</button></>; })()}
+                          {senderIsViewer && (() => { const ready = readyToSend(batchOwner(focusCard.accounts.domain ?? "")); const verified = ready.filter(c => bulkSendable(c.people as unknown as Parameters<typeof bulkSendable>[0])).length; return <><button type="button" className="btn primary" disabled={bulkSending || sending || !verified} onClick={() => void sendAllReady()} title="Send drafts with verified personal mailboxes, one at a time">{bulkSending ? "Sending…" : `Send all ready (${verified})`}</button></>; })()}
                         </div>}
                         {bulkProgress && <div className="composer-batch-progress" role="status" aria-live="polite">
                           <progress max={bulkProgress.total} value={bulkProgress.sent + bulkProgress.failed.length} />
