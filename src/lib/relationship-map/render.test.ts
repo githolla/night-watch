@@ -12,7 +12,7 @@ import * as segments from "./segments.ts";
 import * as view from "./view.ts";
 import { records } from "./fixtures.ts";
 const require = createRequire(import.meta.url);
-test("map renders actual node controls, accessible list alternative and company details", () => {
+test("graph-only view renders actual nodes, dates and details without alternate views", () => {
   const exports: { RelationshipMap?: React.ComponentType<{ initialCompanies: graph.Company[]; initialGraph: graph.RelationshipGraph; initialDomain?: string }> } = {};
   const mocks: Record<string, unknown> = { "@/lib/relationship-map/presentation": presentation, "@/lib/relationship-map/segments": segments, "@/lib/relationship-map/graph": graph, "@/lib/relationship-map/view": view, "next/link": { __esModule: true, default: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => React.createElement("a", props) }, "@phosphor-icons/react": Object.fromEntries(["ArrowUpRight", "CaretRight", "Crosshair", "MagnifyingGlass", "Minus", "Plus", "ArrowsCounterClockwise", "ArrowsOut", "X"].map((name) => [name, () => null])) };
   const viewExports: Record<string, unknown> = {};
@@ -20,7 +20,9 @@ test("map renders actual node controls, accessible list alternative and company 
   mocks["@/components/RelationshipViews"] = viewExports;
   runInNewContext(ts.transpileModule(readFileSync(new URL("../../components/RelationshipMap.tsx", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText, { exports, URL, Set, Map, Date, require: (name: string) => name in mocks ? mocks[name] : require(name) });
   const html = renderToStaticMarkup(React.createElement(exports.RelationshipMap!, { initialCompanies: records.companies, initialGraph: graph.buildGraph(records), initialDomain: records.companies[0].domain }));
-  assert.ok(html.includes("All 1 target companies")); assert.ok(html.includes('aria-label="Industries"')); assert.ok(html.includes('aria-label="Revenue"')); assert.ok(html.includes("Show everything")); assert.ok(html.includes("Timeline</button>")); assert.ok(html.includes("CURRENT EMAIL")); assert.ok(html.includes("RECORDED SENDS")); assert.ok(html.includes("jamie@northline.example")); assert.ok(html.includes("Sent Oct 12"));
+  const overviewHtml = renderToStaticMarkup(React.createElement(exports.RelationshipMap!, { initialCompanies: records.companies, initialGraph: graph.buildGraph(records) }));
+  assert.ok(overviewHtml.includes('aria-label="Interactive company relationship map"')); assert.equal(overviewHtml.includes("rm-company-overview"), false); assert.equal(overviewHtml.includes('aria-label="Selected relationship details"'), false);
+  assert.ok(html.includes("All 1 target companies")); assert.ok(html.includes('aria-label="Industries"')); assert.ok(html.includes('aria-label="Revenue"')); assert.ok(html.includes("Show everything")); assert.equal(html.includes("Timeline</button>"), false); assert.equal(html.includes("Companies</button>"), false); assert.equal(html.includes("rm-summary"), false); assert.ok(html.includes("CURRENT EMAIL")); assert.ok(html.includes("RECORDED SENDS")); assert.ok(html.includes("jamie@northline.example")); assert.ok(html.includes("Sent Oct 12"));
   assert.ok(html.includes("Northline Services")); assert.ok(html.includes('aria-label="Person:') || html.includes('aria-label="Contacts: Jamie Carter'));
-  assert.ok(html.includes('aria-label="Zoom in"')); assert.ok(html.includes("Show this connection path only")); assert.ok(html.includes("List</button>")); assert.ok(html.includes("Open record"));
+  assert.ok(html.includes('aria-label="Zoom in"')); assert.ok(html.includes("Show this connection path only")); assert.equal(html.includes("List</button>"), false); assert.ok(html.includes("Open record"));
 });
