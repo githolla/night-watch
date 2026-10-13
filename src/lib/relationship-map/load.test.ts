@@ -41,3 +41,12 @@ test("a later failed page is never presented as a complete layer", async () => {
   const portfolio = await loadPortfolioGraph(h.db);
   assert.match(portfolio.graph.warnings.join(" "), /people.*incomplete/);
 });
+
+test("expanding a company loads every relationship page without the former per-company caps", async () => {
+  const h = memory();
+  h.tables.people = Array.from({ length: 503 }, (_, index) => ({ ...records.people[0], id: `p-${index}` }));
+  h.tables.job_postings = Array.from({ length: 505 }, (_, index) => ({ ...records.jobs[0], id: `job-${index}` }));
+  const graph = await loadRelationshipGraph(h.db, records.companies[0].domain);
+  assert.ok(graph); assert.equal(graph.nodes.filter((node) => node.kind === "person").length, 503); assert.equal(graph.nodes.filter((node) => node.kind === "job").length, 505);
+  assert.ok(h.log.every((entry) => entry.op === "select"));
+});

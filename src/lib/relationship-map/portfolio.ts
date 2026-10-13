@@ -1,12 +1,13 @@
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Company } from "./graph.ts";
+import { buildGraph, type Company } from "./graph.ts";
 import { allFocus } from "../focus-data.ts";
 import { loadNightlyLists } from "../nightly-lists.ts";
-import { loadPortfolioGraph, readPages } from "./load.ts";
-export async function loadPortfolio(db: SupabaseClient) {
+import { loadMapCompanies, loadPortfolioGraph, readPages } from "./load.ts";
+import { loadTargetCompanies } from "./targets.ts";
+export async function loadPortfolio(db: SupabaseClient, options: { overview?: boolean; owner?: "josh" | "suuchi" } = {}) {
   await loadNightlyLists(db);
-  const portfolio = await loadPortfolioGraph(db);
+  const portfolio = options.overview ? await (options.owner ? loadTargetCompanies(db, options.owner) : loadMapCompanies(db)).then((companies) => ({ companies, graph: buildGraph({ companies, people: [], drafts: [], touches: [], signals: [], jobs: [], posts: [], discoveries: [] }) })) : await loadPortfolioGraph(db, Date.now(), options.owner ? await loadTargetCompanies(db, options.owner) : undefined);
   const candidateSchema = z.object({ domain: z.string(), sector: z.string(), revenue_usd_m: z.number().nullable(), revenue_year: z.number().nullable(), source_url: z.string().nullable() });
   let candidates: z.infer<typeof candidateSchema>[] = [];
   try { candidates = candidateSchema.array().parse(await readPages((from, to) => db.from("list_candidates").select("id,domain,sector,revenue_usd_m,revenue_year,source_url").order("id").range(from, to))); }
