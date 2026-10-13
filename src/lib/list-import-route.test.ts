@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
+import { buildersForNight } from "./list-builders.ts";
 import { seatOwner } from "./types.ts";
 
 const require = createRequire(import.meta.url);
@@ -15,6 +16,7 @@ function route(authorized: boolean) {
   const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const mocks: Record<string, unknown> = {
     zod: require("zod"),
+    "@/lib/list-builders": { buildersForNight },
     "@/lib/auth": { listImportAuthorized: () => authorized },
     "@/lib/list-sectors": { REVENUE_BAND_USD_M: { min: 10, max: 50 }, SECTORS: ["roofing"], nightFocus: (listDate: string) => ({ region: `region for ${listDate}`, sectors: ["roofing"] }) },
     "@/lib/nightly-list-builder": {

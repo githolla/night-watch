@@ -1,3 +1,4 @@
+import { withTestOptOut } from "@/lib/opt-out";
 import { deliveryErrorResponse } from '@/lib/delivery-state';
 import { batchOwner } from "@/lib/focus-data";
 import { firstTouchErrors } from "@/lib/first-touch";
@@ -48,7 +49,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const body = personalized.body;
     const errors = firstTouchErrors(payload.subject, body);
     if(errors.length) throw new Error(errors.join(" "));
-    const delivery = outreachDelivery(body, profile);
+    const delivery = withTestOptOut(outreachDelivery(body, profile), new URL(request.url).origin);
     const fullBody = delivery.text;
     const versionId = await trackEmailVersion(db, { actor: user.actor, cardId: id, personId, owner: user.owner, subject: payload.subject, body: fullBody, source: 'test' });
     const deliveredBody = fullBody;

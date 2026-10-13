@@ -8,6 +8,7 @@ import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import * as aiFit from "./ai-fit.ts";
 import * as anthropicCost from "./anthropic-cost.ts";
+import * as listBuilders from "./list-builders.ts";
 import * as listSectors from "./list-sectors.ts";
 import * as localTime from "./local-time.ts";
 import * as morningRules from "./morning-send-rules.ts";
@@ -67,6 +68,7 @@ function load(): Module {
     "./focus-data.ts": { allFocus: () => [] },
     "./local-time.ts": localTime,
     "./list-sectors.ts": listSectors,
+    "./list-builders.ts": listBuilders,
     "./models.ts": { researchModel: () => "test-model" },
     "./morning-send-rules.ts": morningRules,
     "./nightly-list-rules.ts": rules,

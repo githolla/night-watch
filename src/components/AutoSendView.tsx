@@ -9,13 +9,14 @@ import type { ReviewSender } from "@/components/DraftWorkspace";
 import { blockedGroups, type BlockKind } from "@/lib/autosend-blocked";
 import type { AutoSendControl, AutoSendEmail, AutoSendSummary, MailboxHealth } from "@/lib/autosend-view";
 import { outreachBody, outreachEmailHtml } from "@/lib/outreach-ending";
+import { REVENUE_OUT_OF_RANGE_TEXT } from "@/lib/list-sectors";
 import { tally } from "@/lib/send-plan";
 import type { Owner } from "@/lib/types";
 
 type Kind = "industry" | "role" | "size";
 const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 /** Outside the ICP: sized over the top of the revenue band. */
-const OUT_OF_RANGE = "Over $100M";
+const OUT_OF_RANGE = REVENUE_OUT_OF_RANGE_TEXT;
 
 /**
  * The morning auto-send at a glance: on or off, the next window, room left today, and what is eligible, later,
@@ -85,7 +86,7 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
       if (response?.ok) kept += 1;
     }
     setBusy(null);
-    setNotice({ text: kept === outOfRange.length ? `Kept ${kept} for you. Auto-send will skip companies over $100M; you can still send them yourself.` : `Kept ${kept} of ${outOfRange.length}. Try again for the rest.`, ok: kept === outOfRange.length });
+    setNotice({ text: kept === outOfRange.length ? `Kept ${kept} for you. Auto-send will skip companies over $1B; you can still send them yourself.` : `Kept ${kept} of ${outOfRange.length}. Try again for the rest.`, ok: kept === outOfRange.length });
     router.refresh();
   }
 
@@ -340,7 +341,7 @@ export function AutoSendView({ owner, plan, emails, control, health, canChange, 
         <div className="as-queue-head"><h2>Sending {plan.dayLabel} <span>{going.length}</span></h2><p>{plan.windowLabel} Eastern, {on ? "in this order" : "in this order once auto-send is on"}. Click anyone to read or change their email.</p></div>
         {canChange && outOfRange.length > 0 && (
           <p className="as-range">
-            <span><b>{outOfRange.length} {outOfRange.length === 1 ? "company is" : "companies are"} over $100M</b>, outside your range.</span>
+            <span><b>{outOfRange.length} {outOfRange.length === 1 ? "company is" : "companies are"} over $1B</b>, outside your range.</span>
             <button type="button" className="btn" disabled={busy !== null} onClick={() => void keepOutOfRange()}>{busy === "range" ? "Keeping…" : `Keep ${outOfRange.length === 1 ? "it" : "these"} for me`}</button>
           </p>
         )}

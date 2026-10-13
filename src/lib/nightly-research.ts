@@ -83,8 +83,8 @@ export function isExcludedSector(sector: string | null | undefined): boolean {
 
 const BUYER_TITLE = /\b(ceo|chief executive|president|coo|chief operating|owner|founder|co-founder|managing (director|partner)|general manager|principal)\b/i;
 const NOT_BUYER_TITLE = /\b(former|retired|emeritus|vice[ -]president|vp|assistant|interim|acting)\b|\bex-/i;
-/** At $10M to $100M the operations leader often owns the work: VP or Director of Operations. */
-const OPERATIONS_LEADER = /\b(?:(?:senior |sr\.? )?(?:vp|vice[ -]president|director)\b[^;|]{0,12}\boperations|operations director)\b/i;
+/** Functional operating leaders can own a scoped workflow at larger companies. */
+const OPERATIONS_LEADER = /\b(?:(?:senior |sr\.? )?(?:vp|vice[ -]president|director)\b[^;|]{0,12}\boperations|operations director|head of (?:field |regional )?operations)\b/i;
 const NOT_CURRENT = /\b(former|retired|emeritus|assistant|interim|acting)\b|\bex-/i;
 
 /** Why this title is not a current senior leader, or null when it is. */
@@ -224,8 +224,8 @@ export function researchPrompt(candidate: Candidate, listDate: string) {
   return `Research ${candidate.company} (${candidate.domain}), a ${candidate.sector || "U.S. operating"} company. Nine-67 builds AI tools with operations teams, and we are preparing one short cold email to a senior leader there. Use public sources and never invent a fact, a person, an address, a date or a URL. Copy every URL exactly as a search result gave it.
 
 ${revenueStep}
-2. Buyer: the current CEO, President, COO, owner, founder or general manager, or the VP or Director of Operations, with the URL of a page showing their name and current title, ideally the company's own about, team or leadership page. Not any other vice president, an assistant, or a former, retired, interim or acting leader.
-3. Email: only if a public page shows that person's own business email at this company, give it as {address, sourceUrl}. Otherwise null. Never guess an address and never give a shared inbox such as info@ or sales@.
+2. Buyer: for companies above $100M, prioritize a relevant division general manager, VP or Director of Operations tied to the workflow; a company-wide CEO is a fallback only when no functional leader is publicly substantiated. Confirm the buyer belongs to the exact targeted entity. The current CEO, President, COO, owner, founder or general manager, or the VP or Director of Operations, with the URL of a page showing their name and current title, ideally the company's own about, team or leadership page. Not any other vice president, an assistant, or a former, retired, interim or acting leader.
+3. Email: only if a public page shows that person's own business email at this company, give it as {address, sourceUrl}. Otherwise null. Never copy a parent or subsidiary email domain without evidence that the named buyer uses it. Never guess an address and never give a shared inbox such as info@ or sales@.
 4. Trigger (optional): a public development dated in the last 180 days, such as a new location, an acquisition, a leadership change or an award, as {fact, sourceUrl, date} with the date as YYYY-MM-DD. Otherwise null.
 5. AI-fit evidence. Only facts a page shows, each with its https URL, and a date (YYYY-MM-DD or YYYY-MM) where the page gives one:
    - hiring: this company's open roles doing coordination, scheduling, dispatch, estimating, quoting, admin, billing, data entry or reporting work, from its careers page or a job board. Skip ${NOT_TARGET_ROLES}, and skip field, trade, sales and engineering roles. Each item is {title, url, postedDate}.

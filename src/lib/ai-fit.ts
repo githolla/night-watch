@@ -263,7 +263,7 @@ export function aiFitScore(raw: unknown, options: { now?: Date; domain?: string 
  */
 export function priorScore(input: { revenueUsdM: number | null; locations: number | null; fieldService: boolean | null; sectorRank: number; sectorWeight?: number }) {
   const revenue = input.revenueUsdM;
-  const revenuePoints = revenue === null ? 5 : revenue >= 20 && revenue <= 80 ? 15 : revenue >= 10 && revenue <= 100 ? 8 : 0;
+  const revenuePoints = revenue === null ? 5 : revenue >= 20 && revenue <= 80 ? 15 : revenue >= 10 && revenue <= 1000 ? 8 : 0;
   const sectorPoints = Math.max(0, 20 - input.sectorRank * 2);
   const sizePoints = (input.locations ?? 0) >= 3 ? 10 : (input.locations ?? 0) === 2 ? 5 : 0;
   const fieldPoints = input.fieldService ? 5 : 0;

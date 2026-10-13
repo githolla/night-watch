@@ -27,7 +27,7 @@ Lists build and auto-send only on send days: `SEND_DAYS` (default `Mon,Tue,Wed,T
 
 Every night `/api/cron/nightly-list` (every ten minutes, 06:00 to 09:50 UTC) builds a list for Josh and for Suuchi:
 
-1. It finds privately held $10M to $100M operating companies in published industry rankings, two sectors a night in rotation, skipping consulting, IT, software and staffing, and anything already contacted, excluded or listed before.
+1. It finds private or public $10M to $1B operating companies with a baseline revenue builder and rotating hiring, branch coordination, growth, systems or larger-company strategy, two sectors a night in rotation, skipping consulting, IT, software and staffing, and anything already contacted, excluded or listed before.
 2. It evaluates 20 per person, most promising first by a pre-research score (operations-heavy sector, revenue in the $20M to $80M middle, locations and field crews, and sector reply rates once there are 20 sends to judge by). Reserves from earlier nights are evaluated first and cost nothing. Research finds revenue with its source, the current CEO, President, COO or owner with a source, an optional dated trigger, and the AI-fit evidence, with at most three paid searches and $0.50 per company.
    - **AI fit (0 to 100)** is scored in code (`src/lib/ai-fit.ts`) from sourced, dated facts only: hiring for work a system could do (25), repetitive work at scale (20), change in the last year (20), leadership open to technology (20), and named business systems to build on (15). A disqualifier (a software or IT business, a large in-house AI team, closing down) makes it 0. Companies under `NIGHTLY_LIST_MIN_FIT` (40) are skipped. The score and its linked reasons show on the desk.
 3. It finds and checks the buyer's address (published first, then Hunter's finder, then first.last), skipping domains with no mail server and addresses Hunter calls invalid.
@@ -65,3 +65,7 @@ Apply `0033_reddit_opportunities.sql` before opening `/reddit`. The optional cha
 ### Public-source signal discovery
 
 Apply `0034_open_discovery.sql`, then open `/discovery`. GDELT and Hacker News do not require app credentials for their public read endpoints; known public Greenhouse/Lever boards are reused from existing accounts. SAM and SEC are optional configured sources, and publisher feeds require permitted use. See [SIGNAL_DISCOVERY.md](./SIGNAL_DISCOVERY.md) for setup, limits and the review-to-research handoff. The cron runs at 06:30 UTC. Raw discoveries never bypass buyer research, suppression or mailbox verification.
+
+### Intelligent list builders and test unsubscribe footer
+
+Open `/builders` for the six sourcing strategies and segmented candidate pool. The supported revenue ceiling is now $1B; research preserves company/parent identity boundaries and prioritizes a scoped operating leader at larger firms. No additional SQL migration is required. Both draft and Settings test emails include the same visible unsubscribe footer, pointed at `/api/unsubscribe/preview`; the preview never changes any recipient or follow-up.

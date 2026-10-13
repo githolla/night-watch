@@ -30,3 +30,7 @@ export function configuredBaseUrl() {
   if (vercel) return `https://${vercel.replace(/^https?:\/\//, "").replace(/\/$/, "")}`;
   throw new Error("APP_URL is not set, so the unsubscribe link cannot be built. Nothing was sent.");
 }
+
+export function withTestOptOut(delivery: { text: string; html: string }, base: string) {
+  return withOptOut(delivery, true, `${base.replace(/\/$/, "")}/api/unsubscribe/preview`);
+}

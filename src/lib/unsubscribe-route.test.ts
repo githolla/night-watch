@@ -35,3 +35,11 @@ test("mail-client one-click responses remain empty and failed writes return a re
   assert.equal(await result.text(), "");
   assert.equal((await route(true).POST(request())).status, 500);
 });
+
+test("test unsubscribe preview has no suppression or database dependencies", async () => {
+  const exports: Record<string, () => Promise<Response>> = {};
+  const source = readFileSync(new URL("../app/api/unsubscribe/preview/route.ts", import.meta.url), "utf8");
+  runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports, Response, require: () => { throw new Error("Preview must not access suppression or the database"); } });
+  assert.match(await (await exports.GET()).text(), /Unsubscribe me/);
+  assert.match(await (await exports.POST()).text(), /Nobody was unsubscribed/);
+});

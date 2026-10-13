@@ -1,3 +1,4 @@
+import { REVENUE_OUT_OF_RANGE_TEXT } from "./list-sectors.ts";
 /**
  * What the morning auto-send will do next, in plain terms: when, how many, in what order, and what kinds of
  * companies and people. Pure, so the Drafts page and the Reach-out list bar say exactly the same thing. The
@@ -100,7 +101,10 @@ export function sizeOf(revenue: { usdMillions?: number | null; status?: string |
   if (value < 25) return "$10M to $25M";
   if (value <= 50) return "$25M to $50M";
   if (value <= 100) return "$50M to $100M";
-  return "Over $100M";
+  if (value <= 250) return "$100M to $250M";
+  if (value <= 500) return "$250M to $500M";
+  if (value <= 1000) return "$500M to $1B";
+  return REVENUE_OUT_OF_RANGE_TEXT;
 }
 
 /** Counts per label, largest first. */

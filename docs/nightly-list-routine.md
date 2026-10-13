@@ -122,3 +122,7 @@ Published evidence and proven formats remain candidates until mailbox verificati
 - Never invent a fact, person, address, date or URL. Being wrong is worse than leaving a slot empty.
 - Do not scrape search engines with curl to get around a search limit; stop and report instead.
 - Do not change code, commit or push in this run.
+
+## Intelligent builders
+
+The current revenue band is $10M to $1B. `/builders` shows the baseline and rotating signal strategies. Larger businesses should have a division, regional or functional workflow and a sourced operating leader, rather than a generic corporate pitch. Keep reported company revenue separate from parent, subsidiary, division and estimated headcount figures. The import brief now returns the selected builders.

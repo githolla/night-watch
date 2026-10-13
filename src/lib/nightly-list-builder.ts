@@ -1,3 +1,4 @@
+import { diversifiedResearchQueue } from "./list-builders.ts";
 import { addressCheck, addressRejected, rejectedAddresses, replacementCheck } from "./address-history.ts";
 import { checkRecipient } from "./recipient-verification.ts";
 import { pageShowsAddress, pageShowsNamedAddress } from "./page-emails.ts";
@@ -195,7 +196,9 @@ async function sourceCandidates(db: Db, listDate: string, context: { recordCost:
   const chosen = sectorsForNight(day + context.offset, weights);
   const known = await knownCompanies(db);
   const { data: prior } = await db.from("list_candidates").select("domain,source_url").in("sector_key", chosen).order("created_at", { ascending: false }).limit(2000);
-  const prompt = sourcingPrompt(chosen, (prior ?? []).map((row) => domainOf(row.domain as string)), minedHosts((prior ?? []).map((row) => row.source_url as string | null)));
+  const { data: discoveries } = await db.from("discovery_opportunities").select("company_name,company_domain,company_evidence_url").eq("company_confirmed", true).neq("status", "dismissed").order("checked_at", { ascending: false }).limit(12);
+  const seeds = (discoveries ?? []).flatMap((row) => typeof row.company_name === "string" && typeof row.company_domain === "string" && typeof row.company_evidence_url === "string" ? [{ company: row.company_name, domain: row.company_domain, sourceUrl: row.company_evidence_url }] : []);
+  const prompt = sourcingPrompt(chosen, (prior ?? []).map((row) => domainOf(row.domain as string)), minedHosts((prior ?? []).map((row) => row.source_url as string | null)), { day, wave: context.offset, seeds });
   const budget = researchBudget(config.sourcingSearches, config.maxCostPerCompanyUsd * 2);
   const raw = sourced.parse(await runSearchAgent(prompt, { model: researchModel(), maxSearches: config.sourcingSearches, maxTokens: 8_000, signal: context.signal }, withBudget(context.recordCost, budget)));
   const usable = (domain: string) => validDomain(domain) && !known.domains.has(domain);
@@ -554,8 +557,15 @@ export async function runNightlyListBuild(db: Db, options: NightlyBuildOptions =
 
       const slots = Math.min(config.concurrency, budgetSlots, open.reduce((sum, list) => sum + (config.research - list.attempts), 0));
       const columns = `id,company,domain,sector,revenue_usd_m,revenue_year,source_url,sector_key,cost_usd${has0029 ? ",research_attempts" : ""}`;
-      const { data: queued } = await db.from("list_candidates").select(columns).eq("status", "new").order("prior_score", { ascending: false }).order("revenue_usd_m", { ascending: false, nullsFirst: false }).limit(slots * 2);
-      const queue = (queued ?? []) as unknown as Queued[];
+      const { data: queued } = await db.from("list_candidates").select(columns).eq("status", "new").order("prior_score", { ascending: false }).order("revenue_usd_m", { ascending: false, nullsFirst: false }).limit(slots * 4);
+      const [growth, larger] = await Promise.all([
+        db.from("list_candidates").select(columns).eq("status", "new").gt("revenue_usd_m", 100).lte("revenue_usd_m", 250).order("prior_score", { ascending: false }).limit(slots),
+        db.from("list_candidates").select(columns).eq("status", "new").gt("revenue_usd_m", 250).lte("revenue_usd_m", 1000).order("prior_score", { ascending: false }).limit(slots),
+      ]);
+      if (growth.error || larger.error) throw new Error("Could not load the revenue segments for company research.");
+      const pool = [...(queued ?? []), ...(growth.data ?? []), ...(larger.data ?? [])] as unknown as Queued[];
+      const unique = pool.filter((row, index) => pool.findIndex((item) => item.id === row.id) === index);
+      const queue = diversifiedResearchQueue(unique, unique.length);
 
       // Rows can sit in the queue for days: drop any that became a client or do-not-contact account since sourcing.
       blocked ??= await blockedAccounts(db);

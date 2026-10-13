@@ -1,3 +1,4 @@
+import { withTestOptOut } from "@/lib/opt-out";
 import { requireUser } from "@/lib/auth";
 import { sendEmail } from "@/lib/gmail";
 import { outreachDelivery } from "@/lib/outreach-ending";
@@ -26,14 +27,14 @@ export async function POST(request: Request) {
 
     const profile = await senderProfile(db, owner);
     const first = (profile.fromName || user.name || "there").trim().split(/\s+/)[0];
-    const subject = "Night Watch test — here's how your outreach will look";
+    const subject = "Night Watch test: here's how your outreach will look";
     const body =
       `Hi ${first},\n\n` +
       `This is a test send from Night Watch. Nothing went to a real prospect.\n\n` +
       `A live email would open with a short, personal line about the company you're reaching, then your signature below. ` +
       `If this arrived and the From line and signature look right, you're ready to send for real.`;
     // The same ending a real send gets: name, signature and the postal address footer.
-    const { text: fullBody, html } = outreachDelivery(body, profile);
+    const { text: fullBody, html } = withTestOptOut(outreachDelivery(body, profile), new URL(request.url).origin);
     const result = await sendEmail(owner, fromHeader(profile, mailbox), to, subject, fullBody, undefined, undefined, html);
     return Response.json({ ok: true, to, from: mailbox, toSelf: to === mailbox, threadId: result.threadId });
   } catch (error) {

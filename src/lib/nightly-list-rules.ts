@@ -1,5 +1,6 @@
 /** Pure rules for the nightly list build, kept free of app imports so they can be tested directly. */
-import { REVENUE_BAND_USD_M, SECTORS } from "./list-sectors.ts";
+import { builderInstructions } from "./list-builders.ts";
+import { REVENUE_BAND_TEXT, SECTORS } from "./list-sectors.ts";
 
 // ---------- time ----------
 
@@ -86,15 +87,20 @@ export function minedHosts(sourceUrls: Array<string | null | undefined>, max = 4
  * The paid sourcing prompt. `priorDomains` are every candidate already found in tonight's sectors and
  * `mined` the ranking hosts already used, so the model looks further down a list or at a different one.
  */
-export function sourcingPrompt(chosen: number[], priorDomains: string[], mined: string[]) {
+export function sourcingPrompt(chosen: number[], priorDomains: string[], mined: string[], options: { day?: number; wave?: number; seeds?: Array<{ company: string; domain: string; sourceUrl: string }> } = {}) {
   const skip = [...new Set(priorDomains)].join(", ");
-  return `Find U.S. operating companies, private or public, with annual revenue between $${REVENUE_BAND_USD_M.min}M and $${REVENUE_BAND_USD_M.max}M that appear in a published, dated industry ranking or list, for example Landscape Management's LM150, ENR regional rankings, a Crain's or Business Journal list of largest private companies, a trade association top-100 list, or an Inc. regional list that states revenue.
+  return `Find U.S. operating companies, private or public, with annual revenue in the ${REVENUE_BAND_TEXT} band. Use published, dated industry rankings or lists for baseline candidates, for example Landscape Management's LM150, ENR regional rankings, a Crain's or Business Journal list of largest private companies, a trade association top-100 list, or an Inc. regional list that states revenue.
+
+${builderInstructions(options.day ?? 0, options.wave ?? 0)}
+
+Keep a mixed candidate pool: roughly half $10M-$100M, with the remainder spread between $100M-$250M and $250M-$1B when supported prospects exist. Do not invent companies to fill a quota. Revenue must belong to the exact targeted entity, with its year and source. Public and private operating companies are eligible. Missing revenue stays null and still needs size research.
+${options.seeds?.length ? `Previously reviewed company discoveries to investigate, not facts to repeat without checking: ${JSON.stringify(options.seeds)}.` : ""}
 
 Focus on these sectors, numbered: ${chosen.map((index) => `${index}. ${SECTORS[index]}`).join("; ")}.
 Prefer companies with several locations or branches, field crews or a fleet, or high order and quoting volume: the coordination and paperwork an AI tool can take on.
 Exclude consulting, IT services, software, staffing, marketing agencies, banks, insurance, investment firms, nonprofits, schools and hospitals.${skip ? `\nAlready found, do not repeat these domains: ${skip}.` : ""}${mined.length ? `\nRankings already used: ${mined.join(", ")}. Use a different ranking, or the positions after those already used.` : ""}
 
-For each company give its official website domain, its sector and the sector's number from the list above, the reported revenue in USD millions, the year it was reported for, the URL of the ranking page that states it, and, only if the ranking or the company's site shows it, how many locations it has and whether it runs field crews or a fleet. Never invent a company, a revenue figure, a domain or a URL; list only what the page shows. Aim for 25 companies.
+For each company give its official website domain, its sector and the sector's number from the list above, the reported revenue in USD millions, the year it was reported for, the URL of the source page that states it, and, only if the ranking or the company's site shows it, how many locations it has and whether it runs field crews or a fleet. Never invent a company, a revenue figure, a domain or a URL; list only what the page shows. Aim for 25 companies.
 
 Return JSON only: {"companies":[{"company":"","domain":"example.com","sector":"","sectorNumber":0,"revenueUsdM":0,"revenueYear":2025,"sourceUrl":"https://...","locations":null,"fieldService":null}]}`;
 }
