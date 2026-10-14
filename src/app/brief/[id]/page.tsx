@@ -4,6 +4,8 @@ import { BriefActions } from "@/components/BriefActions";
 import { pendingMigrations } from "@/lib/schema-check";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
+import { loadCallTasks } from "@/lib/call-tasks";
+import { dialHref } from "@/lib/call-plan";
 import { buildCallBrief } from "@/lib/call-brief";
 import { allFocus } from "@/lib/focus-data";
 import { loadNightlyLists } from "@/lib/nightly-lists";
@@ -49,7 +51,10 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
   const touches = (touchRows ?? []) as Array<{ channel: string; sent_at: string | null; created_at: string; reply_at: string | null; reply_classification: string | null; bounced_at: string | null; body: string | null }>;
   const firstEmail = touches.find((touch) => touch.channel === "email" && touch.body);
 
+  const callTask = (await loadCallTasks(db, card.assigned_to as "josh" | "suuchi")).find(task => task.cardId === id);
+  const phone = callTask?.plan.phone;
   const brief = buildCallBrief({
+    senderName: card.assigned_to === "suuchi" ? "Suuchi" : "Josh",
     person: person ?? { full_name: "Unknown", title: "", email: null, linkedin_url: null },
     account: { name: account?.name ?? "the company", domain: account?.domain ?? "", vertical: account?.vertical ?? null, employees: account?.employee_range ?? null },
     whyNow: (card.why_now as string) ?? "",
@@ -70,6 +75,9 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
   const plain = [
     `Call brief: ${brief.who}, ${brief.role}, ${brief.company}`,
     brief.status,
+    phone ? `Phone: ${phone.number} (${phone.kind})${phone.sourceUrl ? ` source: ${phone.sourceUrl}` : ""}` : "Phone not yet found",
+    `Opener: ${brief.opener}`,
+    `Voicemail: ${brief.voicemail}`,
     brief.facts.length ? brief.facts.join(" · ") : "",
     "", "Why them:", ...brief.why.map((item) => `- ${item.text}${item.url ? ` (${item.url})` : ""}`),
     brief.workflow ? `\nThe idea we pitched: ${brief.workflow}` : "",
@@ -91,6 +99,9 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
         <p className={`brief-status ${brief.meetingAt ? "is-meeting" : ""}`}>{brief.status}</p>
 
         <nav className="brief-links" aria-label="Reach them">
+          {phone && dialHref(phone.number) && <a className="btn primary" href={dialHref(phone.number)!}>Call {phone.number}</a>}
+          {phone?.sourceUrl && <a className="btn" href={phone.sourceUrl} target="_blank" rel="noreferrer">{phone.kind === "company" ? "Main line source" : "Phone source"} ↗</a>}
+          <Link className="btn" href={`/calls?owner=${card.assigned_to}`}>Calls &amp; prep</Link>
           {person?.email && <a className="btn primary" href={`mailto:${person.email}`}>Email {person.email}</a>}
           {person?.linkedin_url && <a className="btn" href={person.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a>}
           {account?.domain && <a className="btn" href={`https://${account.domain}`} target="_blank" rel="noreferrer">{account.domain} ↗</a>}
@@ -99,6 +110,8 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
         </nav>
 
         {brief.facts.length > 0 && <div className="brief-facts">{brief.facts.map((f, i) => <span key={i}>{f}</span>)}</div>}
+
+        <section className="brief-block"><h2>Open the call</h2><p>{brief.opener}</p><h3>Voicemail</h3><p>{brief.voicemail}</p><h3>If reception answers</h3><p>{brief.gatekeeper}</p></section>
 
         <div className="brief-grid">
           <section className="brief-block">

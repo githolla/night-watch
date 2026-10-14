@@ -1,3 +1,4 @@
+import { loadCallTasks } from "./call-tasks.ts";
 import { loadAutoSendView, type AutoSendControl, type AutoSendSummary } from "./autosend-view.ts";
 import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
 import { summarizeList, type ListCard, type ListSummary } from "./company-lists.ts";
@@ -34,6 +35,7 @@ export type HomeData = {
   /** Replies that came in over the last day, for the morning briefing. */
   newReplies: number;
   followupsDue: number;
+  callsDue?: number;
   /** LinkedIn messages ready to send by hand now, and how many went out in the last 7 days. */
   linkedin: number;
   linkedinSent: number;
@@ -84,7 +86,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
   const since = (days: number) => new Date(now.getTime() - days * DAY_MS).toISOString();
   const local = localParts(now);
   const dayStart = new Date(now.getTime() - local.minutes * 60_000 - now.getUTCSeconds() * 1000 - now.getUTCMilliseconds()).toISOString();
-  const [profile, connection, allReplies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin, linkedinDone, templates] = await Promise.all([
+  const [profile, connection, allReplies, bounces, lists, autoSend, sent, meetings, unsent, followups, linkedin, linkedinDone, templates, calls] = await Promise.all([
     db.from("sender_profiles").select("from_name").eq("owner", owner).maybeSingle().then((r) => r.data),
     db.from("gmail_connections").select("email").eq("owner", owner).maybeSingle().then((r) => r.data),
     // The same 21 days and "needs a response" rule as the Replies badge in the sidebar.
@@ -104,6 +106,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     linkedinTaskCount(owner, now).catch(() => 0),
     loadLinkedInDone(owner, now, 7).catch(() => []),
     draftTemplates(owner).catch(() => null),
+    loadCallTasks(db, owner).catch(() => []),
   ]);
   const replies = allReplies.filter((item) => item.group === "needs");
 
@@ -139,6 +142,7 @@ export async function loadHome(owner: Owner, now: Date = new Date()): Promise<Ho
     first: ((profile?.from_name as string | undefined) ?? "").trim().split(/\s+/)[0] || (owner === "josh" ? "Josh" : "Suuchi"),
     replies: waiting,
     newReplies: waiting.filter((item) => Date.parse(item.repliedAt) >= now.getTime() - DAY_MS).length,
+    callsDue: calls.filter(task => task.plan.status === "pending" && Date.parse(task.plan.scheduledAt) <= now.getTime()).length,
     followupsDue: followups ? [...followups.values()].flat().filter((step) => step.needsYou).length : 0,
     linkedin,
     linkedinSent: linkedinDone.length,

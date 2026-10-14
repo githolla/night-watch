@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { ArrowsClockwise, Briefcase, CaretDown, ChartBar, ChatCircleText, ChatTeardropText, ClockCounterClockwise, GearSix, House, Lifebuoy, LinkedinLogo, List, ListChecks, MagnifyingGlass, PaperPlaneTilt, PencilSimpleLine, PlayCircle, SidebarSimple, SignOut, TrendUp, UserSwitch, Users, type Icon } from "@phosphor-icons/react";
+import { ArrowsClockwise, Briefcase, CaretDown, ChartBar, ChatCircleText, ChatTeardropText, ClockCounterClockwise, GearSix, House, Lifebuoy, LinkedinLogo, List, ListChecks, MagnifyingGlass, PaperPlaneTilt, Phone, PencilSimpleLine, PlayCircle, SidebarSimple, SignOut, TrendUp, UserSwitch, Users, type Icon } from "@phosphor-icons/react";
 import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
@@ -27,6 +27,7 @@ const navGroups: Array<{ title: string | null; label?: string; items: NavItem[] 
   ] },
   { title: null, items: [
     { href: "/replies", label: "Replies", hint: "Everyone who wrote back, and what to do next", icon: ChatCircleText },
+    { href: "/calls", label: "Calls & prep", hint: "Call the day after the first email, with research and a script", icon: Phone },
     { href: "/linkedin", label: "LinkedIn tasks", hint: "Messages to send by hand on LinkedIn", icon: LinkedinLogo },
     { href: "/stats", label: "Results", hint: "Replies, meetings and what's working", icon: ChartBar },
   ] },
@@ -74,7 +75,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
   const searchParams = useSearchParams();
   const selectedOwner = searchParams.get("owner") || searchParams.get("list");
   const active = (href: string) => href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`) || (href === "/outreach" && pathname.startsWith("/accounts"));
-  const [counts, setCounts] = useState<{ today: number; companies: number; followups: number; queued?: number; replies?: number; drafts?: number; linkedin?: number } | null>(null);
+  const [counts, setCounts] = useState<{ today: number; companies: number; followups: number; queued?: number; replies?: number; drafts?: number; calls?: number; linkedin?: number } | null>(null);
   // Folded: no saved choice means "the page's default"; a choice she made is remembered on this browser.
   const foldChoice = useSyncExternalStore(subscribeFold, readFold, () => null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -119,7 +120,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
   const meInitials = me?.name ? me.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") : "";
 
 
-  const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/auto-send" ? counts?.queued : href === "/drafts" ? counts?.drafts : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : href === "/linkedin" ? counts?.linkedin : undefined;
+  const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/auto-send" ? counts?.queued : href === "/drafts" ? counts?.drafts : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : href === "/calls" ? counts?.calls : href === "/linkedin" ? counts?.linkedin : undefined;
   // A member's Results are her own sent stats; the full analytics page is for the admin.
   const hrefFor = (item: NavItem) => item.href === "/stats" && me && me.role !== "admin" ? "/drafts/sent?days=30" : item.href;
   const isActive = (item: NavItem) => active(item.href);

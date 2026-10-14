@@ -2865,3 +2865,36 @@ button.ov-result:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 .relationship-page .rm-evidence-panel h3, .relationship-page .rm-evidence-panel p, .relationship-page .rm-evidence-panel small, .relationship-page .rm-evidence-event small { color: var(--muted); }
 .relationship-page .rm-evidence-panel > div button, .relationship-page .rm-evidence-event { color: var(--ink-soft); }
 .relationship-page .rm-evidence-panel > div a { color: var(--ok); }
+
+.call-workspace { background: #fff; border: 1px solid var(--line, #e5e2dd); border-radius: 16px; overflow: hidden; }
+.call-summary { display: grid; grid-template-columns: repeat(4, 1fr); padding: 22px; gap: 16px; background: #faf9f6; border-bottom: 1px solid #e5e2dd; }
+.call-summary > div { display: flex; flex-direction: column; gap: 4px; }
+.call-summary strong { font-size: 27px; line-height: 1.1; }
+.call-summary span, .call-phone span { color: #756f67; font-size: 13px; }
+.call-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #e5e2dd; }
+.call-toolbar input, .call-edit input, .call-edit select, .call-outcome input, .call-outcome select, .call-outcome textarea { padding: 10px 12px; border: 1px solid #d9d5ce; border-radius: 7px; background: #fff; color: #24211d; font: inherit; max-width: 100%; }
+.call-toolbar .review-filters button { border: 0; background: transparent; padding: 9px 12px; border-radius: 7px; cursor: pointer; }
+.call-toolbar .review-filters button.is-active { background: #f2eee6; color: #8b5e24; }
+.call-columns { display: grid; grid-template-columns: minmax(240px, .8fr) minmax(0, 1.6fr); }
+.call-list { border-right: 1px solid #e5e2dd; max-height: 950px; overflow-y: auto; }
+.call-list > button { display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 18px; border: 0; border-bottom: 1px solid #eeeae4; background: #fff; cursor: pointer; }
+.call-list > button.is-active { background: #f7f3ea; box-shadow: inset 3px 0 #a5712a; }
+.call-list > button > span { display: flex; flex-direction: column; gap: 4px; }
+.call-list small { color: #756f67; font-size: 12px; }
+.call-detail { padding: 26px 30px; min-width: 0; }
+.call-detail h2 { font-size: 25px; margin: 6px 0; }
+.call-detail h3 { margin: 0 0 12px; font-size: 16px; }
+.call-detail section, .call-outcome { border-top: 1px solid #e5e2dd; padding-top: 22px; margin-top: 22px; }
+.call-detail p, .call-detail li { font-size: 14px; line-height: 1.65; }
+.call-detail li { margin-bottom: 10px; }
+.call-detail details { padding: 10px 0; }
+.call-detail summary { cursor: pointer; color: #756f67; font-size: 13px; }
+.call-phone { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px; background: #f4f7f4; border-radius: 10px; margin: 20px 0 8px; }
+.call-phone b { font-size: 19px; }
+.call-phone > span { flex-basis: 100%; }
+.call-edit form, .call-outcome { display: grid; gap: 14px; }
+.call-edit label, .call-outcome label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.call-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.call-message, .call-warning { padding: 12px 18px; background: #fff4df; color: #7a551e; border-radius: 8px; }
+.call-empty { padding: 26px; color: #756f67; font-size: 14px; line-height: 1.6; }
+@media (max-width: 800px) { .call-columns { grid-template-columns: 1fr; } .call-list { max-height: 300px; border-right: 0; border-bottom: 1px solid #e5e2dd; } .call-detail { padding: 20px; } .call-summary { grid-template-columns: repeat(2, 1fr); } }

@@ -1,5 +1,6 @@
 /** A discovery-call prep brief, assembled from what Night Watch already knows: no model needed. */
 export type BriefInput = {
+  senderName?: string;
   person: { full_name: string; title: string; email: string | null; linkedin_url: string | null };
   account: { name: string; domain: string; vertical: string | null; employees: string | null };
   whyNow: string;
@@ -33,6 +34,9 @@ export type CallBrief = {
   sentSubject: string | null;
   sentBody: string | null;
   meetingAt: string | null;
+  opener: string;
+  voicemail: string;
+  gatekeeper: string;
   discovery: string[];
   talkingPoints: string[];
   unknowns: string[];
@@ -120,6 +124,9 @@ export function buildCallBrief(input: BriefInput): CallBrief {
     sentSubject: input.emailSubject,
     sentBody: input.emailBody,
     meetingAt: input.meetingAt,
+    opener: `Hi ${first}, this is ${input.senderName || "your contact"} from Nine-67. I emailed you about ${workflow || "a small software project for your team"}. Have I caught you with a minute?`,
+    voicemail: `Hi ${first}, this is ${input.senderName || "your contact"} from Nine-67. I sent you an email about ${workflow || "a project for your team"}. If it is relevant, replying to that email is the easiest way to reach me. Thanks.`,
+    gatekeeper: `Could you put me through to ${input.person.full_name}${input.person.title ? `, ${input.person.title}` : ""}? I sent them a note about ${workflow || "their team's operations"}.`,
     discovery,
     talkingPoints,
     unknowns,

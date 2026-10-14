@@ -1,3 +1,4 @@
+import { newCallPlan } from "./call-plan.ts";
 import { enrollCadence, CadenceExists } from "./cadence-enrollment.ts";
 import type { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
@@ -60,7 +61,7 @@ function scheduleBusinessDays(days: number): string {
  *  Idempotent: does nothing if the card already has a cadence, so re-recording a touch never stacks duplicates. */
 export async function ensureFollowupCadence(
   db: Db,
-  ctx: { cardId: string; personId: string; owner: Owner; touchedChannel: string; firstName: string; company: string; baseSubject: string; task?: string; metric?: string },
+  ctx: { cardId: string; personId: string; owner: Owner; touchedChannel: string; firstName: string; company: string; baseSubject: string; task?: string; metric?: string; firstSentAt?: string },
 ): Promise<{ created: boolean; steps: number }> {
   const channel: FollowupChannel = ctx.touchedChannel === "email" ? "email" : "linkedin_message";
   const steps = buildFollowups(channel, { firstName: ctx.firstName, company: ctx.company, baseSubject: ctx.baseSubject, task: ctx.task, metric: ctx.metric });
@@ -78,7 +79,7 @@ export async function ensureFollowupCadence(
     scheduled_at: scheduleBusinessDays(step.day),
   }));
   try {
-    const cadence=await enrollCadence(db,{cardId:ctx.cardId,personId:ctx.personId,owner:ctx.owner,mode:'manual',rules:{stop_on_reply:true,weekdays_only:true,time_zone:'America/New_York',origin:'touch'},steps:rows});
+    const cadence=await enrollCadence(db,{cardId:ctx.cardId,personId:ctx.personId,owner:ctx.owner,mode:'manual',rules:{stop_on_reply:true,weekdays_only:true,time_zone:'America/New_York',origin:'touch',...(ctx.touchedChannel==='email'?{call:newCallPlan(ctx.firstSentAt??new Date().toISOString())}:{})},steps:rows});
     return {created:true,steps:cadence.steps};
   }catch(error){if(error instanceof CadenceExists)return {created:false,steps:0};throw error;}
 }
