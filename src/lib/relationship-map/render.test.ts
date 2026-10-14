@@ -16,7 +16,7 @@ import { records } from "./fixtures.ts";
 const require = createRequire(import.meta.url);
 test("graph-only view renders actual nodes, dates and details without alternate views", () => {
   const exports: { RelationshipMap?: React.ComponentType<{ initialCompanies: graph.Company[]; initialGraph: graph.RelationshipGraph; initialDomain?: string }> } = {};
-  const mocks: Record<string, unknown> = { "@/components/RadialNetworkGraph": { RadialNetworkGraph: (props: { nodes: Array<{id:string;label:string}> }) => React.createElement("canvas", { "aria-label": "Interactive radial lead network", "data-node-count": props.nodes.length }) }, "@/lib/relationship-map/radial": radial, "@/lib/relationship-map/navigation": navigation, "@/lib/relationship-map/presentation": presentation, "@/lib/relationship-map/segments": segments, "@/lib/relationship-map/graph": graph, "@/lib/relationship-map/view": view, "next/link": { __esModule: true, default: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => React.createElement("a", props) }, "@phosphor-icons/react": Object.fromEntries(["ArrowUpRight", "CaretRight", "Crosshair", "MagnifyingGlass", "Minus", "Plus", "ArrowsCounterClockwise", "ArrowsOut", "X"].map((name) => [name, () => null])) };
+  const mocks: Record<string, unknown> = { "@/lib/radial-network/navigation": require("./../radial-network/navigation.ts"), "@/components/RadialNetworkGraph": { RadialNetworkGraph: (props: { nodes: Array<{id:string;label:string}> }) => React.createElement("canvas", { "aria-label": "Interactive radial lead network", "data-node-count": props.nodes.length }) }, "@/lib/relationship-map/radial": radial, "@/lib/relationship-map/navigation": navigation, "@/lib/relationship-map/presentation": presentation, "@/lib/relationship-map/segments": segments, "@/lib/relationship-map/graph": graph, "@/lib/relationship-map/view": view, "next/link": { __esModule: true, default: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => React.createElement("a", props) }, "@phosphor-icons/react": Object.fromEntries(["ArrowUpRight", "CaretRight", "Crosshair", "MagnifyingGlass", "Minus", "Plus", "ArrowsCounterClockwise", "ArrowsOut", "X"].map((name) => [name, () => null])) };
   const viewExports: Record<string, unknown> = {};
   runInNewContext(ts.transpileModule(readFileSync(new URL("../../components/RelationshipViews.tsx", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText, { exports: viewExports, URL, Set, Map, Date, require: (name: string) => name in mocks ? mocks[name] : require(name) });
   mocks["@/components/RelationshipViews"] = viewExports;
@@ -25,6 +25,10 @@ test("graph-only view renders actual nodes, dates and details without alternate 
   const overviewHtml = renderToStaticMarkup(React.createElement(exports.RelationshipMap!, { initialCompanies: records.companies, initialGraph: graph.buildGraph(records) }));
   assert.ok(overviewHtml.includes('aria-label="Interactive company relationship map"')); assert.equal(overviewHtml.includes("rm-company-overview"), false); assert.equal(overviewHtml.includes('aria-label="Selected relationship details"'), false);
   assert.ok(overviewHtml.includes("<canvas"));
+  assert.ok(overviewHtml.includes("Companies only."));
+  assert.ok(html.includes("Back to companies"));
+  assert.ok(html.includes("Contacts &amp; emails"));
+  assert.ok(html.includes("All relationships"));
   assert.ok(overviewHtml.includes("rn-workspace"));
   assert.ok(overviewHtml.includes("rn-layout"));
   const css = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
