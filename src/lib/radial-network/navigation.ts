@@ -14,3 +14,9 @@ export function viewForType(type: string): DetailView {
   if (["signal", "job", "post", "discovery", "source"].includes(type)) return "research";
   return "all";
 }
+
+export function entryRingGroup(id: string, type: string): string | null {
+  if (!id.startsWith("context:")) return null;
+  if (id.includes(":selection")) return type === "date" ? "ENTRY RESEARCH DATE" : type === "source" ? "ENTRY SOURCE" : "WHY ADDED TO THE LIST";
+  return type === "source" ? "REVENUE EVIDENCE SOURCE" : null;
+}

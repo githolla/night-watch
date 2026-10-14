@@ -15,6 +15,9 @@ test("portfolio uses sourced researched revenue and preserves unconfirmed candid
   assert.ok(portfolio.graph.nodes.find((node) => node.id === "company:other")?.facts.some((fact) => fact.label === "Revenue" && fact.value.includes("unconfirmed")));
   const rationale = portfolio.graph.nodes.find(node => node.label === "Why this company was selected");
   assert.ok(rationale?.detail);
+  const entryDate = portfolio.graph.nodes.find(node => node.id === `${rationale?.id}:date`);
+  assert.equal(entryDate?.status, "recorded research date");
+  assert.ok(entryDate?.detail.includes("not an email date"));
   assert.ok(rationale?.facts.some(item => item.label === "Added to list" && item.value === "Exact timestamp not recorded"));
   assert.ok(portfolio.graph.edges.some(edge => edge.to === rationale?.id && edge.label === "selected using this research"));
   assert.ok(portfolio.graph.nodes.some(node => node.kind === "source" && node.sourceUrl));

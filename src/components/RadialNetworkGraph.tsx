@@ -46,11 +46,12 @@ function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, widt
     if (n.id === focus) { ctx.beginPath(); ctx.arc(n.x, n.y, n.size + 6 / k, 0, Math.PI * 2); ctx.strokeStyle = "#fff"; ctx.setLineDash([3 / k, 3 / k]); ctx.stroke(); ctx.setLineDash([]); }
   }
   type Box = { x: number; y: number; w: number; h: number }; const occupied: Box[] = [];
-  const candidates = visible.filter(n => n.hub || n.id === focus || neighbors?.has(n.id) || (labels === "all" && !n.ring && n.size > 2.5) || (k > 3.2 || !n.ring && (n.size >= 6 ? k > 1.25 : n.size > 2.5 && k > 2.4))).sort((a, b) => Number(b.id === focus) - Number(a.id === focus) || Number(b.hub) - Number(a.hub) || b.size - a.size);
+  const candidates = visible.filter(n => (n.ring && visible.length <= 40) || n.hub || n.id === focus || neighbors?.has(n.id) || (labels === "all" && !n.ring && n.size > 2.5) || (k > 3.2 || !n.ring && (n.size >= 6 ? k > 1.25 : n.size > 2.5 && k > 2.4))).sort((a, b) => Number(b.id === focus) - Number(a.id === focus) || Number(b.hub) - Number(a.hub) || b.size - a.size);
   for (const n of candidates) {
     const label = n.label.length > 32 ? n.label.slice(0, 31) + "…" : n.label; const text = n.hub ? label.toUpperCase() : label;
     ctx.font = `${n.hub ? 600 : 400} ${10 / k}px ${n.hub ? "monospace" : "sans-serif"}`; const w = ctx.measureText(text).width + 12 / k, h = 20 / k, gap = n.size + 8 / k;
     const options: Box[] = [{ x: n.x + gap, y: n.y - h / 2, w, h }, { x: n.x - w / 2, y: n.y + gap, w, h }, { x: n.x - w / 2, y: n.y - gap - h, w, h }, { x: n.x - gap - w, y: n.y - h / 2, w, h }];
+    if (n.ring) options.sort((a, b) => Math.hypot(a.x + a.w / 2 - cx, a.y + a.h / 2 - cy) - Math.hypot(b.x + b.w / 2 - cx, b.y + b.h / 2 - cy));
     const box = options.find(a => !occupied.some(b => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y)) ?? (n.id === focus ? options[0] : null); if (!box) continue; occupied.push(box);
     ctx.globalAlpha = bright(n) ? 1 : .16; ctx.textAlign = "left";
     if (n.hub) { ctx.beginPath(); ctx.roundRect(box.x, box.y, box.w, box.h, 3 / k); ctx.fillStyle = "#0a1320"; ctx.fill(); ctx.strokeStyle = n.color; ctx.lineWidth = .6 / k; ctx.stroke(); } else { ctx.strokeStyle = "#060a12"; ctx.lineWidth = 3 / k; ctx.strokeText(text, box.x + 6 / k, box.y + 14 / k); }

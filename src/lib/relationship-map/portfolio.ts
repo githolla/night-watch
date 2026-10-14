@@ -38,6 +38,11 @@ export async function loadPortfolio(db: SupabaseClient, options: { overview?: bo
       const id = `context:${company.id}:${context.key}`, sourceUrl = safeSourceUrl(context.source);
       portfolio.graph.nodes.push({ id, kind: "signal", label: context.label, subtitle: company.name, detail: context.detail, status: "stored list research", companyId: company.id, href: `/accounts/${encodeURIComponent(company.domain)}`, sourceUrl, at: context.at || null, facts: context.facts });
       portfolio.graph.edges.push({ id: `${rootId}:${id}`, from: rootId, to: id, label: context.key === "selection" ? "selected using this research" : "has financial research" });
+      if (context.key === "selection" && context.at && /^\d{4}-\d{2}-\d{2}$/.test(context.at)) {
+        const dateId = `${id}:date`;
+        portfolio.graph.nodes.push({ id: dateId, kind: "date", label: `Researched ${context.at}`, subtitle: "List research date; exact entry timestamp not recorded", detail: "This is the research date stored with the list selection. It is not an email date or a confirmed timestamp for when the company entered the list.", status: "recorded research date", companyId: company.id, href: null, sourceUrl: null, at: context.at, facts: [{ label: "Research date", value: context.at }, { label: "Added to list", value: "Exact timestamp not recorded" }] });
+        portfolio.graph.edges.push({ id: `${id}:${dateId}`, from: id, to: dateId, label: "researched on" });
+      }
       if (sourceUrl) {
         const sourceId = `${id}:source`;
         portfolio.graph.nodes.push({ id: sourceId, kind: "source", label: new URL(sourceUrl).hostname, subtitle: sourceUrl, detail: "Original source recorded in the outreach list research.", status: "stored source", companyId: company.id, href: null, sourceUrl, at: null, facts: [{ label: "URL", value: sourceUrl }] });
