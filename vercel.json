@@ -50,6 +50,10 @@
     {
       "path": "/api/cron/discovery",
       "schedule": "30 6 * * *"
+    },
+    {
+      "path": "/api/cron/outreach-recovery",
+      "schedule": "0 10,12,14 * * 1-5"
     }
   ]
 }

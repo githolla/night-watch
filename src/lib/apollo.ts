@@ -26,6 +26,7 @@ export async function matchPerson(name: string, domain: string) {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": process.env.APOLLO_API_KEY },
     body: JSON.stringify({ first_name, last_name: rest.join(" "), domain, reveal_personal_emails: false }),
+    signal: AbortSignal.timeout(15000),
   });
   if (!response.ok) throw new Error(`Apollo match failed: ${response.status}`);
   const person = result.parse(await response.json()).person;
