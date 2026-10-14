@@ -25,6 +25,11 @@ test("graph-only view renders actual nodes, dates and details without alternate 
   const overviewHtml = renderToStaticMarkup(React.createElement(exports.RelationshipMap!, { initialCompanies: records.companies, initialGraph: graph.buildGraph(records) }));
   assert.ok(overviewHtml.includes('aria-label="Interactive company relationship map"')); assert.equal(overviewHtml.includes("rm-company-overview"), false); assert.equal(overviewHtml.includes('aria-label="Selected relationship details"'), false);
   assert.ok(overviewHtml.includes("<canvas"));
+  assert.ok(overviewHtml.includes("rn-workspace"));
+  assert.ok(overviewHtml.includes("rn-layout"));
+  const css = readFileSync(new URL("../../app/globals.css", import.meta.url), "utf8");
+  assert.ok(css.includes(".relationship-page .rn-workspace"));
+  assert.ok(css.includes(".relationship-page .rn-layout { grid-template-columns: minmax(0, 1fr) 280px"));
   assert.ok(html.includes("All 1 target companies"));
   assert.ok(html.includes('aria-label="Industries"'));
   assert.ok(html.includes('aria-label="Revenue"'));

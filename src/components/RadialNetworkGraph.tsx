@@ -21,7 +21,7 @@ function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, widt
       const a = -Math.PI / 2 + (group.start - .4) * 2 * Math.PI / ring.length, b = -Math.PI / 2 + (group.end + .4) * 2 * Math.PI / ring.length;
       if (!visible.some(n => n.ring && (n.sub?.split(" · ")[0] || n.type) === group.name)) continue;
       ctx.beginPath(); ctx.arc(cx, cy, R * 1.06, a, b); ctx.strokeStyle = group.color; ctx.globalAlpha = .5; ctx.lineWidth = .8 / k; ctx.stroke(); ctx.globalAlpha = 1;
-      const middle = (a + b) / 2, left = Math.cos(middle) < 0, text = group.name.toUpperCase(); ctx.font = `${9 / k}px monospace`;
+      const middle = (a + b) / 2, left = Math.sin(middle) > 0, text = group.name.toUpperCase(); ctx.font = `${9 / k}px monospace`;
       const spacing = 1.7 / k, widths = [...text].map(char => ctx.measureText(char).width + spacing), total = widths.reduce((sum, v) => sum + v, 0), r = R * 1.11;
       let offset = -total / 2;
       for (let i = 0; i < text.length; i++) { const angle = middle + (left ? -1 : 1) * (offset + widths[i] / 2) / r; ctx.save(); ctx.translate(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r); ctx.rotate(angle + Math.PI / 2 + (left ? Math.PI : 0)); ctx.fillStyle = group.color; ctx.textAlign = "center"; ctx.fillText(text[i], 0, 0); ctx.restore(); offset += widths[i]; }
@@ -34,7 +34,7 @@ function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, widt
     const a = sim.byId.get(link.source)!, b = sim.byId.get(link.target)!;
     if (hidden.has(a.type) || hidden.has(b.type) || (!showRing && (a.ring || b.ring))) continue;
     const focused = focus === a.id || focus === b.id, tiny = Math.min(a.size, b.size) <= 2.5, parent = a.size > b.size ? a : b;
-    const color = focused ? parent.color : tiny ? parent.color : "#96aae1", alpha = focused ? .85 : focus ? .048 : tiny ? .12 : .3, lineWidth = focused ? 1.2 : tiny ? .55 : .9;
+    const color = focused ? parent.color : tiny ? parent.color : "#96aae1", alpha = focused ? .85 : focus ? .025 : tiny ? .07 : .09, lineWidth = focused ? 1.2 : tiny ? .55 : .9;
     const key = `${focused ? "1" : "0"}:${color}:${alpha}:${lineWidth}`; let batch = paths.get(key); if (!batch) { batch = { path: new Path2D(), color, width: lineWidth, alpha }; paths.set(key, batch); } batch.path.moveTo(a.x, a.y); batch.path.lineTo(b.x, b.y);
   }
   for (const [, batch] of [...paths].sort(([a], [b]) => a.localeCompare(b))) { ctx.strokeStyle = batch.color; ctx.globalAlpha = batch.alpha; ctx.lineWidth = batch.width / k; ctx.stroke(batch.path); }
@@ -51,7 +51,7 @@ function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, widt
     const label = n.label.length > 32 ? n.label.slice(0, 31) + "…" : n.label; const text = n.hub ? label.toUpperCase() : label;
     ctx.font = `${n.hub ? 600 : 400} ${10 / k}px ${n.hub ? "monospace" : "sans-serif"}`; const w = ctx.measureText(text).width + 12 / k, h = 20 / k, gap = n.size + 8 / k;
     const options: Box[] = [{ x: n.x + gap, y: n.y - h / 2, w, h }, { x: n.x - w / 2, y: n.y + gap, w, h }, { x: n.x - w / 2, y: n.y - gap - h, w, h }, { x: n.x - gap - w, y: n.y - h / 2, w, h }];
-    const box = options.find(a => !occupied.some(b => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y)) ?? (n.hub || n.id === focus ? options[0] : null); if (!box) continue; occupied.push(box);
+    const box = options.find(a => !occupied.some(b => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y)) ?? (n.id === focus ? options[0] : null); if (!box) continue; occupied.push(box);
     ctx.globalAlpha = bright(n) ? 1 : .16; ctx.textAlign = "left";
     if (n.hub) { ctx.beginPath(); ctx.roundRect(box.x, box.y, box.w, box.h, 3 / k); ctx.fillStyle = "#0a1320"; ctx.fill(); ctx.strokeStyle = n.color; ctx.lineWidth = .6 / k; ctx.stroke(); } else { ctx.strokeStyle = "#060a12"; ctx.lineWidth = 3 / k; ctx.strokeText(text, box.x + 6 / k, box.y + 14 / k); }
     ctx.fillStyle = "#e6edf8"; ctx.fillText(text, box.x + 6 / k, box.y + 14 / k);

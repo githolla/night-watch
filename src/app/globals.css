@@ -2843,3 +2843,10 @@ button.ov-result:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 .rm-hub-initials { font-size: 22px; }
 .rm-node-label { fill: #eef5fa; font-size: 27px; }
 @media(max-width:850px) { .relationship-page .targets-page { padding: 16px; }.rm-page-head p { display: none; }.rm-workspace > nav.rm-segments { top: -44px; }.rm-main.is-chart-only { grid-template-columns: 1fr; }.rm-radial-legend { height: auto; max-height: 300px; }.rm-main.is-chart-only .rm-inspector { height: auto; max-height: 500px; }.rm-toolbar { flex-wrap: wrap; padding-right: 12px; }.rm-company-picker { padding-right: 175px; }.rm-find { min-width: 0; }.rm-data-status > small { display: none; } }
+
+.relationship-page .grid { grid-template-columns: minmax(0, 1fr); }
+.relationship-page .rn-workspace { width: 100%; min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.relationship-page .rn-layout { grid-template-columns: minmax(0, 1fr) 280px; align-items: start; }
+.relationship-page .rn-layout > section { min-width: 0; }
+.relationship-page .rm-page-head p { margin-right: 0; }
+@media(max-width:850px) { .relationship-page .rn-layout { grid-template-columns: minmax(0, 1fr); } }
