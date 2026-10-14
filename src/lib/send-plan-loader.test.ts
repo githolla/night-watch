@@ -1,0 +1,21 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
+import ts from "typescript";
+import * as bulk from "./bulk-sendable.ts";
+import * as time from "./local-time.ts";
+import * as rules from "./morning-send-rules.ts";
+import * as guards from "./send-guards.ts";
+import * as plan from "./send-plan.ts";
+import { queryDb } from "./testing/query-db.ts";
+test("send forecast omits delivered card recipients but preserves bounces and other recipients", async () => {
+  const person = { full_name: "Jane Doe", email: "jane.doe@company.com", email_status: "verified", email_source: "apollo", email_check: null, do_not_contact: false };
+  const cards = ["a", "b", "c"].map(id => ({ id, person_id: `person-${id}`, people: person }));
+  const { db } = queryDb({ cards, sender_profiles: [{ owner: "josh", auto_send: true, postal_address: "1 Main St" }], gmail_connections: [{ owner: "josh", connected_at: "2026-09-01T00:00:00Z" }], touches: [{ card_id: "a", person_id: "person-a", channel: "email", gmail_thread_id: "thread-a", bounced_at: null }, { card_id: "b", person_id: "person-b", channel: "email", gmail_thread_id: "thread-b", bounced_at: "2026-10-13T10:00:00Z" }, { card_id: "c", person_id: "other-person", channel: "email", gmail_thread_id: "thread-c", bounced_at: null }] });
+  const mocks: Record<string, unknown> = { "./bulk-sendable.ts": bulk, "./local-time.ts": time, "./morning-send.ts": { autoSendQueue: async () => cards.map(row => ({ cardId: row.id, held: null })) }, "./morning-send-rules.ts": rules, "./send-guards.ts": guards, "./send-plan.ts": plan };
+  const exports: { loadSendPlan?: (db: unknown, owner: string, now: Date) => Promise<plan.SendPlan> } = {};
+  runInNewContext(ts.transpileModule(readFileSync(new URL("./send-plan-loader.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, Set, Date, Error, require: (name: string) => mocks[name] });
+  const result = await exports.loadSendPlan!(db, "josh", new Date("2026-10-14T12:00:00Z"));
+  assert.equal(result.going, 2); assert.equal(result.slots.a, undefined); assert.ok(result.slots.b); assert.ok(result.slots.c);
+});

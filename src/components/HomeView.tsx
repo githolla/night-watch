@@ -126,7 +126,7 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
       : on && auto
       ? { key: "send", title: auto.plan.going ? `${count(auto.plan.going, "email", "emails")} ${day === "Today" ? "today" : day}, ${auto.plan.windowLabel}` : `Nothing to send ${day === "Today" ? "today" : day}`, meta: `${auto.plan.sentToday} of ${auto.plan.dailyCap} sent today · ${yesterday} yesterday`, status: "Auto-send on", tone: "ok", href: `/auto-send?${q}` }
       : { key: "send", title: "Auto-send is off", meta: `${count(d.ready + d.review, "email", "emails")} waiting · ${yesterday} sent yesterday`, status: "Auto-send off", tone: "warn", href: `/auto-send?${q}` },
-    ...(d.missing || d.checking ? [{ key: "addresses", title: "Finding email addresses", meta: [d.missing && `${d.missing} missing`, d.checking && `${d.checking} being confirmed`].filter(Boolean).join(", "), status: "Running", tone: "run" as const, href: `/drafts?${q}` }] : []),
+    ...(d.missing || d.checking ? [{ key: "addresses", title: "Finding email addresses", meta: [d.missing && `${d.missing} missing`, d.checking && `${d.checking} awaiting verification`].filter(Boolean).join(", "), status: "Pending", tone: "warn" as const, href: `/drafts?${q}` }] : []),
     { key: "followups", title: data.followupsDue ? `${count(data.followupsDue, "follow-up needs", "follow-ups need")} you` : "Follow-ups on schedule", meta: "3 and 10 business days after each first email", status: data.followupsDue ? "Waiting on you" : "Running", tone: data.followupsDue ? "warn" : "run", href: `/followups?view=${data.followupsDue ? "needs" : "upcoming"}&${q}` },
   ];
 
@@ -154,7 +154,7 @@ export function HomeView({ data, owner, hello, today, quote, aside }: { data: Ho
       : d.review
       ? { key: "review", title: `Review ${count(d.review, "email", "emails")}`, why: d.nextUnapproved ? `${d.nextUnapproved} of them send ${day === "Today" ? "today" : day}. Approve each one, fix it or hold it back.` : "Approve each one, fix it or hold it back.", href: `/drafts?${q}&tab=review` }
       : d.ready
-      ? { key: "review", title: "Every email is reviewed", why: `${count(d.ready, "email is", "emails are")} ready to send.`, href: `/drafts?${q}&tab=approved`, done: true }
+      ? { key: "review", title: "Every draft is reviewed", why: d.checking ? `${count(d.ready, "reviewed draft", "reviewed drafts")}. ${count(d.checking, "address needs", "addresses need")} verification before automatic sending.` : `${count(d.ready, "email is", "emails are")} ready to send.`, href: `/drafts?${q}&tab=approved`, done: true }
       : { key: "review", title: "Nothing to review yet", why: d.missing ? `${count(d.missing, "draft is", "drafts are")} waiting on an email address. Night Watch keeps looking.` : "New drafts arrive with each weeknight's list.", href: `/drafts?${q}`, done: true },
     paused
       ? { key: "auto", title: "Resume auto-send", why: auto?.control.pausedReason ? `Paused: ${auto.control.pausedReason.replace(/\.\s*$/, "")}.` : "It is paused. Resume when you are ready.", href: `/auto-send?${q}` }

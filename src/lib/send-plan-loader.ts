@@ -26,10 +26,14 @@ function nextSendDay(now: Date): { label: string; date: string } {
 async function withAddressHolds(db: SupabaseClient, queue: Array<{ cardId: string; held: string | null }>) {
   const ids = queue.filter((entry) => !entry.held).map((entry) => entry.cardId);
   if (!ids.length) return queue;
-  const { data } = await db.from("cards").select("id,people(full_name,email,email_status,email_source,email_check,do_not_contact)").in("id", ids);
-  type Row = { id: string; people: { email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
+  const { data } = await db.from("cards").select("id,person_id,people(full_name,email,email_status,email_source,email_check,do_not_contact)").in("id", ids);
+  type Row = { id: string; person_id: string; people: { email: string | null; email_status: string | null; email_check: unknown; do_not_contact: boolean | null } | null };
+  const { data: sent, error: historyError } = await db.from("touches").select("card_id,person_id").in("card_id", ids).eq("channel", "email").not("gmail_thread_id", "is", null).is("bounced_at", null);
+  if (historyError) throw new Error("Could not verify send history for the queue.");
+  const delivered = new Set((sent ?? []).map(row => `${row.card_id}:${row.person_id}`));
+  const alreadySent = new Set(((data ?? []) as unknown as Row[]).filter(row => delivered.has(`${row.id}:${row.person_id}`)).map(row => row.id));
   const unusable = new Set(((data ?? []) as unknown as Row[]).filter((row) => !row.people || row.people.do_not_contact || !bulkSendable(row.people)).map((row) => row.id));
-  return queue.map((entry) => (unusable.has(entry.cardId) ? { ...entry, held: "no usable email address" } : entry));
+  return queue.filter(entry => !alreadySent.has(entry.cardId)).map((entry) => (unusable.has(entry.cardId) ? { ...entry, held: "no usable email address" } : entry));
 }
 
 /** What the morning auto-send will do next for one seat, from its own queue and limits. Read-only. */
