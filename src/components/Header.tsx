@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { ArrowsClockwise, Briefcase, CaretDown, ChartBar, ChatCircleText, ChatTeardropText, ClockCounterClockwise, GearSix, House, Lifebuoy, LinkedinLogo, List, ListChecks, MagnifyingGlass, PaperPlaneTilt, PencilSimpleLine, PlayCircle, SidebarSimple, SignOut, TrendUp, UserSwitch, Users, type Icon } from "@phosphor-icons/react";
 import { Walkthrough } from "./Walkthrough";
@@ -13,7 +13,7 @@ type NavItem = { href: string; label: string; hint: string; icon: Icon; adminOnl
 const navGroups: Array<{ title: string | null; label?: string; items: NavItem[] }> = [
   { title: null, label: "Workspace", items: [
     { href: "/", label: "Overview", hint: "Your next action, what needs you and how it is going", icon: House },
-    { href: "/outreach", label: "Companies to email", hint: "The companies picked each night, with their custom emails", icon: ListChecks },
+    { href: "/outreach", label: "Company lists", hint: "Companies in today’s researched list, including drafts awaiting address verification", icon: ListChecks },
     { href: "/network", label: "Relationship explorer", hint: "Follow company contacts, outreach, replies and research inputs", icon: Users },
     { href: "/builders", label: "List builders", hint: "Evidence-based sourcing strategies and revenue segments", icon: ListChecks },
     { href: "/discovery", label: "Signal discovery", hint: "Hiring, company changes and buying requests with evidence", icon: MagnifyingGlass },
@@ -71,8 +71,10 @@ function subscribeFold(onChange: () => void) {
 
 export function Header({showTour=true}:{showTour?:boolean}) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const selectedOwner = searchParams.get("owner") || searchParams.get("list");
   const active = (href: string) => href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`) || (href === "/outreach" && pathname.startsWith("/accounts"));
-  const [counts, setCounts] = useState<{ today: number; companies: number; followups: number; replies?: number; drafts?: number; linkedin?: number } | null>(null);
+  const [counts, setCounts] = useState<{ today: number; companies: number; followups: number; queued?: number; replies?: number; drafts?: number; linkedin?: number } | null>(null);
   // Folded: no saved choice means "the page's default"; a choice she made is remembered on this browser.
   const foldChoice = useSyncExternalStore(subscribeFold, readFold, () => null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -98,9 +100,10 @@ export function Header({showTour=true}:{showTour?:boolean}) {
 
   useEffect(() => {
     let live = true;
-    fetch("/api/nav-counts", { cache: "no-store" }).then((response) => response.ok ? response.json() : null).then((data) => { if (live && data) setCounts(data); }).catch(() => {});
-    return () => { live = false; };
-  }, [pathname]);
+    const refresh = () => { void fetch(`/api/nav-counts${selectedOwner === "josh" || selectedOwner === "suuchi" ? `?owner=${selectedOwner}` : ""}`, { cache: "no-store" }).then((response) => response.ok ? response.json() : null).then((data) => { if (live && data) setCounts(data); }).catch(() => {}); };
+    refresh(); const interval = window.setInterval(refresh, 60000); window.addEventListener("focus", refresh);
+    return () => { live = false; window.clearInterval(interval); window.removeEventListener("focus", refresh); };
+  }, [pathname, selectedOwner]);
   useEffect(() => {
     if (!mobileOpen) return;
     const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setMobileOpen(false); };
@@ -116,7 +119,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
   const meInitials = me?.name ? me.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") : "";
 
 
-  const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/drafts" ? counts?.drafts : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : href === "/linkedin" ? counts?.linkedin : undefined;
+  const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/auto-send" ? counts?.queued : href === "/drafts" ? counts?.drafts : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : href === "/linkedin" ? counts?.linkedin : undefined;
   // A member's Results are her own sent stats; the full analytics page is for the admin.
   const hrefFor = (item: NavItem) => item.href === "/stats" && me && me.role !== "admin" ? "/drafts/sent?days=30" : item.href;
   const isActive = (item: NavItem) => active(item.href);
@@ -127,7 +130,7 @@ export function Header({showTour=true}:{showTour?:boolean}) {
       <Link key={item.href} href={hrefFor(item)} onClick={() => setMobileOpen(false)} title={folded ? `${item.label}: ${item.hint}` : item.hint} className={`side-link ${isActive(item) ? "is-active" : ""}`} aria-current={isActive(item) ? "page" : undefined}>
         <Icon size={20} weight={isActive(item) ? "duotone" : "regular"} aria-hidden="true" />
         <span className="side-label">{item.label}</span>
-        {count ? <b className={`side-count ${item.href === "/replies" ? "is-alert" : ""}`}>{count}</b> : null}
+        {count !== undefined && (count > 0 || item.href === "/auto-send") ? <b className={`side-count ${item.href === "/replies" ? "is-alert" : ""}`}>{count}</b> : null}
       </Link>
     );
   };

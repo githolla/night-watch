@@ -1,20 +1,28 @@
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
-import { curatedDomains } from "@/lib/curated-worklist";
+import { focusForOwner } from "@/lib/focus-data";
+import { loadNightlyLists } from "@/lib/nightly-lists";
+import { loadSendPlan } from "@/lib/send-plan-loader";
 import { waitingReplyCount } from "@/lib/replies-view";
 import { seatSummary } from "@/lib/draft-summary";
 import { linkedinTaskCount } from "@/lib/linkedin-tasks";
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const user = await requireUser();
-    const [{ count, error }, replies, drafts, linkedin] = await Promise.all([
+    const requested = new URL(request.url).searchParams.get("owner");
+    const owner = user.role === "admin" && (requested === "josh" || requested === "suuchi") ? requested : user.owner;
+    await loadNightlyLists(admin());
+    const today = focusForOwner(owner, 3);
+    const companies = new Set((today.length ? today : focusForOwner(owner, 1)).map(row => row.domain)).size;
+    const [{ count, error }, replies, drafts, linkedin, plan] = await Promise.all([
       admin().from("cadence_steps").select("id,cadences!inner(status)", { count: "exact", head: true }).eq("kind", "review").in("status", ["pending", "ready"]).lte("scheduled_at", new Date().toISOString()).eq("cadences.status", "active"),
       // Replies still waiting on the signed-in seat: the number beside Replies in the sidebar.
-      waitingReplyCount(user.owner).catch(() => 0),
-      seatSummary(user.owner).then((summary) => summary.unsent).catch(() => 0),
-      linkedinTaskCount(user.owner).catch(() => 0),
+      waitingReplyCount(owner).catch(() => 0),
+      seatSummary(owner).then((summary) => summary.unsent).catch(() => 0),
+      linkedinTaskCount(owner).catch(() => 0),
+      loadSendPlan(admin(), owner),
     ]);
     if (error) throw error;
-    return Response.json({ today: curatedDomains().length, companies: curatedDomains().length, followups: count ?? 0, replies, drafts, linkedin });
+    return Response.json({ today: companies, companies, queued: plan.blocker ? 0 : plan.going, followups: count ?? 0, replies, drafts, linkedin });
   } catch { return Response.json({ today: 0, companies: 0, followups: 0, replies: 0, drafts: 0, linkedin: 0 }); }
 }

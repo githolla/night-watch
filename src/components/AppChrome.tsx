@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { Header } from "./Header";
 
@@ -13,5 +14,5 @@ const BARE = [/^\/login(\/|$)/, /^\/setup(\/|$)/, /^\/invite\//, /^\/gift\//];
 export function AppChrome() {
   const pathname = usePathname();
   if (BARE.some((pattern) => pattern.test(pathname))) return null;
-  return <Header />;
+  return <Suspense fallback={null}><Header /></Suspense>;
 }
