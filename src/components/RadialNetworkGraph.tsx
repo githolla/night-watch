@@ -5,7 +5,7 @@ export type { Node, Link } from "@/lib/radial-network/physics";
 export type RadialNetworkProps = { nodes: Node[]; links: Link[]; height: number; showRing?: boolean; selectedId?: string | null; onSelect: (node: Node | null) => void; hiddenTypes: Set<string>; labels: "auto" | "all"; rootId?: string; centerOn?: { id: string; n: number } };
 type View = { x: number; y: number; k: number };
 type Tooltip = { node: Node; x: number; y: number };
-function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, width: number, height: number, hidden: Set<string>, selected: string | null, hover: string | null, showRing: boolean, labels: "auto" | "all") {
+function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, width: number, height: number, hidden: Set<string>, selected: string | null, hover: string | null, showRing: boolean, labels: "auto" | "all", logos: Map<string, HTMLImageElement>) {
   ctx.clearRect(0, 0, width, height); ctx.fillStyle = "#060a12"; ctx.fillRect(0, 0, width, height);
   ctx.save(); ctx.translate(view.x, view.y); ctx.scale(view.k, view.k);
   const k = view.k, R = sim.radius, cx = sim.cx, cy = sim.cy;
@@ -42,7 +42,9 @@ function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, widt
     ctx.globalAlpha = bright(n) ? 1 : .16;
     if (n.hub) { ctx.beginPath(); ctx.arc(n.x, n.y, n.size * 2.4, 0, Math.PI * 2); ctx.fillStyle = n.color; ctx.globalAlpha *= .1; ctx.fill(); ctx.globalAlpha = bright(n) ? 1 : .16; ctx.beginPath(); ctx.arc(n.x, n.y, n.size + 3 / k, 0, Math.PI * 2); ctx.strokeStyle = n.color; ctx.lineWidth = .7 / k; ctx.stroke(); }
     ctx.beginPath(); ctx.arc(n.x, n.y, n.size, 0, Math.PI * 2); ctx.fillStyle = n.color; ctx.fill(); ctx.strokeStyle = "#060a12"; ctx.lineWidth = 1 / k; ctx.stroke();
-    if (n.hub) { ctx.font = `${8 / k}px monospace`; ctx.fillStyle = "#060a12"; ctx.textAlign = "center"; ctx.fillText(n.label.split(/\s+/).slice(0, 2).map(s => s[0]).join(""), n.x, n.y + 3 / k); }
+    const logo = n.logoUrl ? logos.get(n.logoUrl) : undefined;
+    if (logo?.complete && logo.naturalWidth > 0) { ctx.save(); ctx.beginPath(); ctx.arc(n.x, n.y, n.size - 1 / k, 0, Math.PI * 2); ctx.clip(); ctx.fillStyle = "#fff"; ctx.fillRect(n.x - n.size, n.y - n.size, n.size * 2, n.size * 2); const diameter = (n.size - 2 / k) * 2, ratio = Math.min(diameter / logo.naturalWidth, diameter / logo.naturalHeight); ctx.drawImage(logo, n.x - logo.naturalWidth * ratio / 2, n.y - logo.naturalHeight * ratio / 2, logo.naturalWidth * ratio, logo.naturalHeight * ratio); ctx.restore(); }
+    else if (n.hub) { ctx.font = `${8 / k}px monospace`; ctx.fillStyle = "#060a12"; ctx.textAlign = "center"; ctx.fillText(n.label.split(/\s+/).slice(0, 2).map(s => s[0]).join(""), n.x, n.y + 3 / k); }
     if (n.id === focus) { ctx.beginPath(); ctx.arc(n.x, n.y, n.size + 6 / k, 0, Math.PI * 2); ctx.strokeStyle = "#fff"; ctx.setLineDash([3 / k, 3 / k]); ctx.stroke(); ctx.setLineDash([]); }
   }
   type Box = { x: number; y: number; w: number; h: number }; const occupied: Box[] = [];
@@ -61,6 +63,8 @@ function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, widt
 }
 export function RadialNetworkGraph(props: RadialNetworkProps) {
   const container = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null), sim = useRef<Simulation | null>(null), view = useRef<View>({ x: 0, y: 0, k: 1 }), latest = useRef(props), hover = useRef<string | null>(null);
+  const logos = useRef(new Map<string, HTMLImageElement>());
+  useEffect(() => { for (const node of props.nodes) { if (!node.logoUrl || logos.current.has(node.logoUrl)) continue; const image = new Image(); logos.current.set(node.logoUrl, image); image.src = node.logoUrl; } }, [props.nodes]);
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
   useEffect(() => { latest.current = props; });
   useEffect(() => { if (sim.current) sim.current.alpha = .3; }, [props.hiddenTypes]);
@@ -71,7 +75,7 @@ export function RadialNetworkGraph(props: RadialNetworkProps) {
     let width = 0, height = 0, dpr = 1, frame = 0;
     function resize() { if (!element || !surface) return; const nextWidth = element.clientWidth, nextHeight = element.clientHeight; if (!nextWidth || !nextHeight || (width === nextWidth && height === nextHeight)) return; width = nextWidth; height = nextHeight; dpr = Math.min(window.devicePixelRatio || 1, 2); surface.width = Math.round(width * dpr); surface.height = Math.round(height * dpr); sim.current = createSimulation(latest.current.nodes, latest.current.links, width, height, latest.current.rootId); for (let i = 0; i < 220; i++) step(sim.current, latest.current.hiddenTypes); sim.current.alpha = .12; view.current = { x: 0, y: 0, k: 1 }; const target = latest.current.centerOn && sim.current.byId.get(latest.current.centerOn.id); if (target) view.current = { x: width / 2 - target.x * 1.8, y: height / 2 - target.y * 1.8, k: 1.8 }; }
     resize(); const observer = new ResizeObserver(resize); observer.observe(element);
-    const draw = () => { const current = sim.current, p = latest.current; if (current) { step(current, p.hiddenTypes); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); render(ctx, current, view.current, width, height, p.hiddenTypes, p.selectedId ?? null, hover.current, p.showRing ?? true, p.labels); } frame = requestAnimationFrame(draw); }; frame = requestAnimationFrame(draw);
+    const draw = () => { const current = sim.current, p = latest.current; if (current) { step(current, p.hiddenTypes); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); render(ctx, current, view.current, width, height, p.hiddenTypes, p.selectedId ?? null, hover.current, p.showRing ?? true, p.labels, logos.current); } frame = requestAnimationFrame(draw); }; frame = requestAnimationFrame(draw);
     function wheel(event: WheelEvent) { event.preventDefault(); if (!surface) return; const rect = surface.getBoundingClientRect(); view.current = zoomAt(view.current, event.clientX - rect.left, event.clientY - rect.top, event.deltaY); }
     surface.addEventListener("wheel", wheel, { passive: false });
     return () => { observer.disconnect(); cancelAnimationFrame(frame); surface.removeEventListener("wheel", wheel); };

@@ -1,4 +1,4 @@
-export type Node = { id: string; label: string; type: string; color: string; size: number; sub?: string; group?: string; ring?: boolean };
+export type Node = { id: string; label: string; type: string; color: string; size: number; sub?: string; group?: string; ring?: boolean; logoUrl?: string };
 export type Link = { source: string; target: string; kind?: string };
 export type Particle = Node & { x: number; y: number; vx: number; vy: number; fx?: number; fy?: number; hub: boolean; anchorX?: number; anchorY?: number };
 export type Simulation = { nodes: Particle[]; byId: Map<string, Particle>; links: Link[]; adjacency: Map<string, Set<string>>; radius: number; cx: number; cy: number; alpha: number; rootId?: string };
