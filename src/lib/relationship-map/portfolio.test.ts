@@ -13,6 +13,11 @@ test("portfolio uses sourced researched revenue and preserves unconfirmed candid
   const candidate = portfolio.companies.find((company) => company.domain === "other.com")!;
   assert.equal(candidate.revenueUsdM, 450); assert.equal(candidate.revenueStatus, "unconfirmed"); assert.equal(candidate.vertical, "Retail");
   assert.ok(portfolio.graph.nodes.find((node) => node.id === "company:other")?.facts.some((fact) => fact.label === "Revenue" && fact.value.includes("unconfirmed")));
+  const rationale = portfolio.graph.nodes.find(node => node.label === "Why this company was selected");
+  assert.ok(rationale?.detail);
+  assert.ok(rationale?.facts.some(item => item.label === "Added to list" && item.value === "Exact timestamp not recorded"));
+  assert.ok(portfolio.graph.edges.some(edge => edge.to === rationale?.id && edge.label === "selected using this research"));
+  assert.ok(portfolio.graph.nodes.some(node => node.kind === "source" && node.sourceUrl));
   assert.ok(h.log.every((entry) => entry.op === "select"));
 });
 test("employee-based sizing never becomes reported revenue in the portfolio", async () => {

@@ -28,13 +28,13 @@ function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, widt
     }
   }
   const focus = selected || hover, neighbors = focus ? sim.adjacency.get(focus) : undefined;
-  const bright = (n: Particle) => !focus || n.id === focus || neighbors?.has(n.id);
+  const bright = (n: Particle) => !focus || focus === sim.rootId || n.id === focus || neighbors?.has(n.id);
   const paths = new Map<string, { path: Path2D; color: string; width: number; alpha: number }>();
   for (const link of sim.links) {
     const a = sim.byId.get(link.source)!, b = sim.byId.get(link.target)!;
     if (hidden.has(a.type) || hidden.has(b.type) || (!showRing && (a.ring || b.ring))) continue;
     const focused = focus === a.id || focus === b.id, tiny = Math.min(a.size, b.size) <= 2.5, parent = a.size > b.size ? a : b;
-    const color = focused ? parent.color : tiny ? parent.color : "#96aae1", alpha = focused ? .85 : focus ? .025 : tiny ? .07 : .09, lineWidth = focused ? 1.2 : tiny ? .55 : .9;
+    const color = focused ? parent.color : tiny ? parent.color : "#96aae1", alpha = focused ? .85 : focus && focus !== sim.rootId ? .025 : tiny ? .07 : .09, lineWidth = focused ? 1.2 : tiny ? .55 : .9;
     const key = `${focused ? "1" : "0"}:${color}:${alpha}:${lineWidth}`; let batch = paths.get(key); if (!batch) { batch = { path: new Path2D(), color, width: lineWidth, alpha }; paths.set(key, batch); } batch.path.moveTo(a.x, a.y); batch.path.lineTo(b.x, b.y);
   }
   for (const [, batch] of [...paths].sort(([a], [b]) => a.localeCompare(b))) { ctx.strokeStyle = batch.color; ctx.globalAlpha = batch.alpha; ctx.lineWidth = batch.width / k; ctx.stroke(batch.path); }
@@ -84,6 +84,6 @@ export function RadialNetworkGraph(props: RadialNetworkProps) {
     <canvas ref={canvas} className="block h-full w-full touch-none" aria-label="Interactive radial lead network. Drag nodes or empty space, scroll to zoom." role="img" onPointerDown={event => { if (event.button !== 0) return; const p = coordinates(event), node = hit(p.wx, p.wy); gesture.current = { x: p.x, y: p.y, startView: { ...view.current }, node, moved: false }; if (node && !node.ring) { node.fx = node.x; node.fy = node.y; } setTooltip(null); event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={event => { const p = coordinates(event), active = gesture.current; if (active) { if (Math.hypot(p.x - active.x, p.y - active.y) >= 3) active.moved = true; if (active.node) { if (!active.node.ring && active.node.id !== latest.current.rootId) { active.node.fx = p.wx; active.node.fy = p.wy; if (sim.current) sim.current.alpha = .25; } } else view.current = { ...active.startView, x: active.startView.x + p.x - active.x, y: active.startView.y + p.y - active.y }; return; } const node = hit(p.wx, p.wy); hover.current = node?.id ?? null; event.currentTarget.style.cursor = node ? "pointer" : "grab"; setTooltip(node ? { node, x: Math.max(8, Math.min(p.x + 14, event.currentTarget.clientWidth - 260)), y: Math.max(8, Math.min(p.y + 14, latest.current.height - 100)) } : null); }} onPointerUp={event => release(event)} onPointerCancel={event => release(event, true)} onPointerLeave={() => { hover.current = null; setTooltip(null); }} />
     {tooltip && <div className="pointer-events-none absolute z-10 max-w-64 rounded-lg border border-slate-600 bg-slate-950/95 p-3 shadow-xl backdrop-blur" style={{ left: tooltip.x, top: tooltip.y }}><div className="text-xs uppercase tracking-wider" style={{ color: tooltip.node.color }}>{tooltip.node.type}</div><div className="mt-1 text-sm font-semibold text-slate-100">{tooltip.node.label}</div><div className="mt-1 text-xs text-slate-400">{tooltip.node.sub}</div></div>}
     <div className="absolute bottom-4 left-4 flex gap-2"><button aria-label="Zoom out" className="rounded-md border border-slate-600 bg-slate-900/90 px-3 py-2 text-sm text-slate-200" onClick={() => { if (sim.current) view.current = zoomAt(view.current, sim.current.cx, sim.current.cy, 240); }}>−</button><button aria-label="Zoom in" className="rounded-md border border-slate-600 bg-slate-900/90 px-3 py-2 text-sm text-slate-200" onClick={() => { if (sim.current) view.current = zoomAt(view.current, sim.current.cx, sim.current.cy, -240); }}>+</button></div>
-    <button className="absolute bottom-4 right-4 rounded-md border border-slate-600 bg-slate-900/90 px-3 py-2 text-xs text-slate-200 hover:bg-slate-800" onClick={() => { view.current = { x: 0, y: 0, k: 1 }; }}>Reset view</button>
+    <button className="absolute bottom-4 right-4 rounded-md border border-slate-600 bg-slate-900/90 px-3 py-2 text-xs text-slate-200 hover:bg-slate-800" onClick={() => { view.current = { x: 0, y: 0, k: 1 }; latest.current.onSelect(null); }}>Reset view</button>
   </div>;
 }

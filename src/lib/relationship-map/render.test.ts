@@ -27,6 +27,7 @@ test("graph-only view renders actual nodes, dates and details without alternate 
   assert.ok(overviewHtml.includes("<canvas"));
   assert.ok(overviewHtml.includes("Companies only."));
   assert.ok(html.includes("Back to companies"));
+  assert.ok(html.includes(`data-node-count="${graph.buildGraph(records).nodes.length}"`));
   assert.ok(html.includes("Contacts &amp; emails"));
   assert.ok(html.includes("All relationships"));
   assert.ok(overviewHtml.includes("rn-workspace"));

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { buildGraph, type Company } from "./graph.ts";
+import { buildGraph, safeSourceUrl, type Company } from "./graph.ts";
 import { allFocus } from "../focus-data.ts";
 import { loadNightlyLists } from "../nightly-lists.ts";
 import { loadMapCompanies, loadPortfolioGraph, readPages } from "./load.ts";
@@ -26,5 +26,24 @@ export async function loadPortfolio(db: SupabaseClient, options: { overview?: bo
     const company = node.kind === "company" && node.companyId ? companies.get(node.companyId) : null;
     return company ? { ...node, facts: node.facts.map((fact) => fact.label === "Industry" ? { ...fact, value: company.vertical || "Not recorded" } : fact.label === "Revenue" ? { ...fact, value: company.revenueUsdM == null ? "Not recorded" : `$${company.revenueUsdM}M · ${company.revenueStatus}${company.revenueYear ? ` · ${company.revenueYear}` : ""}` } : fact.label === "Revenue source" ? { ...fact, value: company.revenueSource || "Not recorded" } : fact.label === "Employees" ? { ...fact, value: company.employee_range || "Not recorded" } : fact) } : node;
   });
+  for (const company of enriched) {
+    const row = focus.get(company.domain.toLowerCase().replace(/^www\./, ""));
+    if (!row || options.overview) continue;
+    const rootId = `company:${company.id}`;
+    const provenance = [
+      { key: "selection", label: "Why this company was selected", detail: [row.fit, row.hypothesis, ...(row.limitations ?? [])].filter(Boolean).join("\n\n"), source: row.trigger?.sourceUrl, at: row.researchDate, facts: [{ label: "List", value: company.outreachList || "Not recorded" }, { label: "Research date", value: row.researchDate || "Not recorded" }, { label: "Added to list", value: "Exact timestamp not recorded" }] },
+      { key: "revenue", label: "Revenue & industry", detail: `${company.vertical || "Industry not recorded"}\n${row.revenue.note ?? ""}`, source: company.revenueSource, at: null, facts: [{ label: "Revenue", value: company.revenueUsdM == null ? "Not recorded" : `$${company.revenueUsdM}M` }, { label: "Status", value: company.revenueStatus || "unconfirmed" }, { label: "Year", value: company.revenueYear?.toString() || "Not recorded" }] },
+    ];
+    for (const context of provenance) {
+      const id = `context:${company.id}:${context.key}`, sourceUrl = safeSourceUrl(context.source);
+      portfolio.graph.nodes.push({ id, kind: "signal", label: context.label, subtitle: company.name, detail: context.detail, status: "stored list research", companyId: company.id, href: `/accounts/${encodeURIComponent(company.domain)}`, sourceUrl, at: context.at || null, facts: context.facts });
+      portfolio.graph.edges.push({ id: `${rootId}:${id}`, from: rootId, to: id, label: context.key === "selection" ? "selected using this research" : "has financial research" });
+      if (sourceUrl) {
+        const sourceId = `${id}:source`;
+        portfolio.graph.nodes.push({ id: sourceId, kind: "source", label: new URL(sourceUrl).hostname, subtitle: sourceUrl, detail: "Original source recorded in the outreach list research.", status: "stored source", companyId: company.id, href: null, sourceUrl, at: null, facts: [{ label: "URL", value: sourceUrl }] });
+        portfolio.graph.edges.push({ id: `${id}:${sourceId}`, from: id, to: sourceId, label: "cites this source" });
+      }
+    }
+  }
   return { ...portfolio, companies: enriched };
 }
