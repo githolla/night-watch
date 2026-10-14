@@ -1,4 +1,4 @@
-export const layers = ["company", "person", "email", "draft", "outreach", "reply", "bounce", "signal", "job", "post", "discovery", "source", "seat"] as const;
+export const layers = ["company", "person", "email", "date", "draft", "outreach", "reply", "bounce", "signal", "job", "post", "discovery", "source", "seat"] as const;
 export type Layer = (typeof layers)[number];
 export type MapNode = { id: string; kind: Layer; label: string; subtitle: string; detail: string; status: string; companyId: string | null; href: string | null; sourceUrl: string | null; at: string | null; facts: Array<{ label: string; value: string }> };
 export type MapEdge = { id: string; from: string; to: string; label: string };
@@ -81,7 +81,20 @@ export function buildGraph(records: GraphRecords, warnings: string[] = [], now =
     link(`draft:${draft.id}`, id, "recorded delivery"); if (person) link(id, `person:${person.id}`, "sent to");
     const seatId = `seat:${touch.sent_by}`; if (!nodes.has(seatId)) add({ id: seatId, kind: "seat", label: title(touch.sent_by), subtitle: "Sending seat", detail: "This seat is recorded as the sender on connected deliveries.", status: "sending seat", companyId: null, href: "/activity", sourceUrl: null, at: null, facts: [] }); link(seatId, id, "sent message");
     if (touch.reply_at) { const reply = `reply:${touch.id}`; add({ id: reply, kind: "reply", label: title(touch.reply_classification || "Reply received"), subtitle: person?.full_name || company.name, detail: "A reply is recorded for this delivery. The label is the stored classification, not an inferred conversation or meeting.", status: touch.reply_classification || "received", companyId: company.id, href: "/replies", sourceUrl: null, at: touch.reply_at, facts: [{ label: "Classification", value: title(touch.reply_classification || "Not classified") }] }); link(id, reply, "received reply"); if (person) link(`person:${person.id}`, reply, "reply recorded from"); }
-    if (touch.bounced_at) { const bounce = `bounce:${touch.id}`; add({ id: bounce, kind: "bounce", label: "Delivery bounced", subtitle: person?.full_name || company.name, detail: "A bounce was recorded for this delivery. Replacement address research and verification are handled by the existing recovery workflow.", status: "delivery failure", companyId: company.id, href: "/", sourceUrl: null, at: touch.bounced_at, facts: [] }); link(id, bounce, "delivery failed"); if (person) link(`person:${person.id}`, bounce, "failed delivery to"); }
+    if (touch.bounced_at) { const bounce = `bounce:${touch.id}`; add({ id: bounce, kind: "bounce", label: "Delivery bounced", subtitle: person?.full_name || company.name, detail: "A bounce was recorded for this delivery. Replacement address research and verification are handled by the existing recovery workflow.", status: "delivery failure", companyId: company.id, href: "/delivery-recovery", sourceUrl: null, at: touch.bounced_at, facts: [] }); link(id, bounce, "delivery failed"); if (person) link(`person:${person.id}`, bounce, "failed delivery to"); }
+  }
+  for (const node of [...nodes.values()]) {
+    if (!node.at || ["company", "source", "seat", "date"].includes(node.kind)) continue;
+    let day: string;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(node.at)) { const parsed = new Date(`${node.at}T12:00:00Z`); if (!Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== node.at) continue; day = node.at; }
+    else {
+      const date = new Date(node.at); if (!Number.isFinite(date.getTime())) continue;
+      const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(date);
+      day = ["year", "month", "day"].map((key) => parts.find((part) => part.type === key)!.value).join("-");
+    }
+    const id = `date:${day}`;
+    if (!nodes.has(id)) add({ id, kind: "date", label: day, subtitle: "Recorded activity date", detail: "Records connected to this day have this stored calendar date. Timestamps are grouped in Eastern time; date-only evidence keeps its original calendar date.", status: "recorded date", companyId: null, href: null, sourceUrl: null, at: day, facts: [{ label: "Calendar date", value: day }, { label: "Basis", value: "Stored record dates, not an inferred publication date" }] });
+    link(node.id, id, "recorded on");
   }
   return { nodes: [...nodes.values()], edges: edges.filter((edge) => nodes.has(edge.from) && nodes.has(edge.to)), warnings, companyId: records.companies.length === 1 ? records.companies[0].id : null, loadedAt: new Date(now).toISOString() };
 }
@@ -96,7 +109,7 @@ export function connectionPath(graph: RelationshipGraph, start: string, goal: st
 export type Point = { x: number; y: number };
 export function layoutGraph(graph: RelationshipGraph): Record<string, Point> {
   const points: Record<string, Point> = {}; const companyNodes = graph.nodes.filter((node) => node.kind === "company");
-  const arcs: Record<Layer, [number, number, number]> = { company: [0, 0, 0], person: [260, -3.2, -1.7], email: [390, -3.2, -1.7], draft: [285, -1.4, -0.25], outreach: [470, -1.3, -0.15], reply: [465, 0.1, 0.8], bounce: [550, 0.85, 1.2], signal: [290, 1.1, 2.15], job: [400, 1.4, 2.15], post: [475, 2.15, 2.55], discovery: [410, 2.6, 3.3], source: [625, 1.4, 3.5], seat: [580, -1.55, -1.25] };
+  const arcs: Record<Layer, [number, number, number]> = { company: [0, 0, 0], date: [720, 0.5, 1.5], person: [260, -3.2, -1.7], email: [390, -3.2, -1.7], draft: [285, -1.4, -0.25], outreach: [470, -1.3, -0.15], reply: [465, 0.1, 0.8], bounce: [550, 0.85, 1.2], signal: [290, 1.1, 2.15], job: [400, 1.4, 2.15], post: [475, 2.15, 2.55], discovery: [410, 2.6, 3.3], source: [625, 1.4, 3.5], seat: [580, -1.55, -1.25] };
   const ordered = [...companyNodes].sort((a, b) => (a.facts.find((fact) => fact.label === "Industry")?.value ?? "").localeCompare(b.facts.find((fact) => fact.label === "Industry")?.value ?? "") || a.label.localeCompare(b.label));
   const columns = Math.ceil(Math.sqrt(ordered.length));
   for (const [index, company] of ordered.entries()) points[company.id] = companyNodes.length === 1 ? { x: 0, y: 0 } : { x: (index % columns - (columns - 1) / 2) * 1800, y: (Math.floor(index / columns) - (Math.ceil(ordered.length / columns) - 1) / 2) * 1800 };

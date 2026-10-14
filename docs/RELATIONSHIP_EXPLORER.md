@@ -28,7 +28,7 @@ The complete graph for those 60 targets was also verified against stored data: 3
 
 The network page opens directly to the graph chart for all companies on the selected owner's active outreach lists. Company-card, Timeline and List views and summary tiles are absent. Compact company filters, node search, layer controls, pan, zoom, fullscreen and drag-to-arrange remain.
 
-Selecting a node opens a dismissible overlay with its original sources, current addresses, recorded dates and direct relationships. Company selection opens readable cards in lanes for company, contacts, current email addresses, recorded sends and responses, with original sources, dated research and prepared messages underneath. Longer edges route around intermediate cards. Returning to all targets keeps the graph visible.
+Selecting a node opens a dismissible overlay with its original sources, current addresses, recorded dates and direct relationships. Company selection focuses a circular orbit around that lead, with contacts, current addresses, sources, research and recorded outreach on categorized rings. Returning to all targets keeps the graph visible.
 
 An email-address node represents the current contact record, with `email_source`, `email_status` and `email_verified_at`. It links to its actual person and a safe source URL when one is stored. A send remains linked to the person and card, not to a current address that may have changed after sending. Copying an address does not send an email. Missing verification dates remain unknown.
 
@@ -39,6 +39,15 @@ Validation includes graph-only server rendering for both initial all-target and 
 
 ## Graph navigation
 
-Double-click a company to open its flow. The navigation strip keeps All targets available and provides Previous/Next controls through companies in the active segment. Search results show matching records; click a result or press Enter to open its company or center its node. Hover previews display record type, status, dates and contact context.
+Double-click a company to open its flow. The navigation strip keeps All targets available and provides Previous/Next controls through companies in the active segment, in their actual list order. Search results show matching records; click a result or press Enter to open its company or center its node. Hover previews display record type, status, dates and contact context.
 
 The default drag action pans the chart. Arrange nodes explicitly enables node repositioning. A drag does not accidentally select the record beneath it. Fit graph restores the visible workspace, and the minimap shows the viewport and supports clicking to move it. Home fits the chart, / focuses search, and Escape clears search and closes the selected details. Pointer calculations account for SVG letterboxing, including wide and tall canvas sizes. Keyboard selection and minimap Enter/Space remain available.
+
+
+## Circular lead network
+
+Every view now uses a circular constellation, including a focused company. Company hubs sit inside the disk, grouped by industry, recorded revenue or actual outreach list. An inner segmented ring shows the active grouping and can be clicked to filter that industry, revenue band or list. Contacts, current email addresses, original sources, recorded dates, research and outreach occupy distinct sections of the outer ring. Clicking a ring highlights that category and its recorded connections. Hover previews, node selection, double-click to focus, pan/zoom, minimap and keyboard navigation remain. Alt-drag or Arrange nodes repositions an individual node. Reset restores all target companies, filters, layers and the default grouping.
+
+Date nodes are derived from actual stored record dates. Date-only evidence preserves its calendar date; timestamps use Eastern time. Their edges mean “recorded on”, not a business relationship between companies sharing a day. Missing or malformed dates do not create date nodes. Source publication dates remain unknown unless separately stored.
+
+The supporting graph panel contains clickable layers, industry and revenue segments and links to existing outreach, reply and bounce-recovery workspaces. Lead shortcuts use recorded sends, replies, bounces and stored address fields. Bounces on file are historical records, not proof that a replacement address remains bad. Review addresses excludes contacts explicitly marked do not contact. All shortcuts are read-only and do not send, verify, enrich or change restrictions.

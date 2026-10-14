@@ -3,6 +3,7 @@ import { layers, type Layer, type MapNode, type Point, type RelationshipGraph } 
 export const layerDesign: Record<Layer, { label: string; color: string; description: string }> = {
   company: { label: "Company", color: "#efb45c", description: "The business at the center of the records" },
   person: { label: "Contacts", color: "#ac9ff2", description: "People recorded at the company" },
+  date: { label: "Dates", color: "#e4bf75", description: "Calendar days connected to their actual dated records" },
   email: { label: "Email addresses", color: "#69ddc0", description: "Current stored addresses, their status, source and verification date" },
   draft: { label: "Messages", color: "#6eb9f5", description: "Prepared email and outreach cards" },
   outreach: { label: "Reach-outs", color: "#75d6be", description: "Actual recorded sends" },
@@ -38,8 +39,8 @@ export function placeLabels(nodes: MapNode[], points: Record<string, Point>): Re
   const placed: Record<string, LabelBox> = {};
   const overlaps = (box: { x: number; y: number; width: number; height: number }) => boxes.some((other) => box.x < other.x + other.width + 6 && box.x + box.width + 6 > other.x && box.y < other.y + other.height + 6 && box.y + box.height + 6 > other.y);
   for (const node of nodes) {
-    const point = points[node.id]; if (!point || node.kind === "company") continue;
-    const width = Math.max(80, shortLabel(node).length * 10.5 + 20); const radius = nodeRadius(node);
+    const point = points[node.id]; if (!point) continue;
+    const width = Math.max(80, shortLabel(node).length * 12.5 + 20); const radius = nodeRadius(node);
     let chosen = { x: point.x + radius + 10, y: point.y - 18, width, height: 34 };
     let found = false;
     for (const side of [point.x >= 0 ? 1 : -1, point.x >= 0 ? -1 : 1]) {

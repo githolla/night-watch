@@ -8,13 +8,13 @@ export function matchesSegment(company: Company, filters: SegmentFilters) {
 }
 export function segmentGraph(graph: RelationshipGraph, companies: Company[], filters: SegmentFilters) {
   const companyIds = new Set(companies.filter((company) => matchesSegment(company, filters)).map((company) => company.id));
-  const ids = new Set(graph.nodes.filter((node) => node.companyId && companyIds.has(node.companyId) && node.kind !== "source" && node.kind !== "seat").map((node) => node.id));
+  const ids = new Set(graph.nodes.filter((node) => node.companyId && companyIds.has(node.companyId) && node.kind !== "source" && node.kind !== "seat" && node.kind !== "date").map((node) => node.id));
   const byId = new Map(graph.nodes.map((node) => [node.id, node]));
   for (const edge of graph.edges) {
     const target = byId.get(edge.to);
-    if (ids.has(edge.from) && (target?.kind === "source" || target?.kind === "seat")) ids.add(edge.to);
+    if (ids.has(edge.from) && (target?.kind === "source" || target?.kind === "seat" || target?.kind === "date")) ids.add(edge.to);
     const origin = byId.get(edge.from);
-    if (ids.has(edge.to) && (origin?.kind === "source" || origin?.kind === "seat")) ids.add(edge.from);
+    if (ids.has(edge.to) && (origin?.kind === "source" || origin?.kind === "seat" || origin?.kind === "date")) ids.add(edge.from);
   }
   return { ...graph, nodes: graph.nodes.filter((node) => ids.has(node.id)), edges: graph.edges.filter((edge) => ids.has(edge.from) && ids.has(edge.to)) };
 }

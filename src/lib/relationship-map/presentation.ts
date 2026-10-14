@@ -29,16 +29,16 @@ export function companyStory(graph: RelationshipGraph, companyId: string) {
 }
 export function journeyLayout(graph: RelationshipGraph): Record<string, Point> {
   const points: Record<string, Point> = {};
-  const columns: Record<Layer, number> = { source: 0, signal: 400, job: 400, post: 400, discovery: 400, company: 0, person: 400, email: 800, draft: 800, outreach: 1200, reply: 1600, bounce: 1600, seat: 1200 };
-  const lanes = [["source"], ["signal", "job", "post", "discovery"], ["company"], ["person"], ["email"], ["draft"], ["outreach"], ["reply", "bounce"], ["seat"]];
+  const columns: Record<Layer, number> = { source: 0, signal: 400, job: 400, post: 400, discovery: 400, date: 1600, company: 0, person: 400, email: 800, draft: 800, outreach: 1200, reply: 1600, bounce: 1600, seat: 1200 };
+  const lanes = [["source"], ["signal", "job", "post", "discovery"], ["company"], ["person"], ["email"], ["draft"], ["outreach"], ["reply", "bounce"], ["date"], ["seat"]];
   for (const lane of lanes) {
     const nodes = graph.nodes.filter((node) => lane.includes(node.kind)).sort((a, b) => a.label.localeCompare(b.label) || a.id.localeCompare(b.id));
-    for (const [index, node] of nodes.entries()) points[node.id] = { x: columns[node.kind], y: node.kind === "seat" ? -420 - index * 180 : ["source", "signal", "job", "post", "discovery", "draft"].includes(node.kind) ? 380 + index * 190 : (index - (nodes.length - 1) / 2) * 190 };
+    for (const [index, node] of nodes.entries()) points[node.id] = { x: columns[node.kind], y: node.kind === "date" ? 380 + index * 190 : node.kind === "seat" ? -420 - index * 180 : ["source", "signal", "job", "post", "discovery", "draft"].includes(node.kind) ? 380 + index * 190 : (index - (nodes.length - 1) / 2) * 190 };
   }
   // An address follows its actual contact, keeping multiple contacts visually distinct.
   for (const edge of graph.edges) if (edge.label === "has current address" && points[edge.from] && points[edge.to]) points[edge.to].y = points[edge.from].y;
   return points;
 }
 export const journeyLanes = [{ x: 0, y: -330, label: "COMPANY" }, { x: 400, y: -330, label: "CONTACTS" }, { x: 800, y: -330, label: "CURRENT EMAIL" }, { x: 1200, y: -330, label: "RECORDED SENDS" }, { x: 1600, y: -330, label: "RESPONSES" }, { x: 0, y: 270, label: "ORIGINAL SOURCES" }, { x: 400, y: 270, label: "RESEARCH & DATES" }, { x: 800, y: 270, label: "PREPARED EMAILS" }];
-export function timelineNodes(graph: RelationshipGraph) { return graph.nodes.filter((node) => node.at && !["company", "source", "seat"].includes(node.kind)).sort((a, b) => new Date(b.at!).getTime() - new Date(a.at!).getTime() || a.id.localeCompare(b.id)); }
+export function timelineNodes(graph: RelationshipGraph) { return graph.nodes.filter((node) => node.at && !["company", "source", "seat", "date"].includes(node.kind)).sort((a, b) => new Date(b.at!).getTime() - new Date(a.at!).getTime() || a.id.localeCompare(b.id)); }
 export function layerCounts(nodes: MapNode[]) { return Object.fromEntries(layers.map((kind) => [kind, nodes.filter((node) => node.kind === kind).length])) as Record<Layer, number>; }
