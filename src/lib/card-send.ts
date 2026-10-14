@@ -1,4 +1,5 @@
 import { withMailboxQuota } from '@/lib/mailbox-quota';
+import { researchedSendAuthorized } from '@/lib/bulk-sendable';
 import { DeliveryError, initialReservationId } from '@/lib/delivery-state';
 import { restoreSelectedDraft } from "@/lib/restore-selected-draft";
 import { allFocus, assertCardSender } from "@/lib/focus-data";
@@ -106,7 +107,8 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     // Check the exact mailbox again at send time, including failures saved on other contacts.
     const recipientCheck = await checkRecipient(db, recipient, { id: card.account_id, domain: card.accounts?.domain ?? recipient.email.split("@")[1] });
     await recordRecipientCheck(db, recipient, recipientCheck);
-    if (!recipientAllowed(recipientCheck, automatic)) throw new Error(`${automatic && recipientCheck.level === "risky" ? "Automatic sends need a verified personal mailbox. " : ""}${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ""} Nothing was sent.`);
+    const authorizedResearch = recipientCheck.level === "risky" && researchedSendAuthorized(recipient);
+    if (!recipientAllowed(recipientCheck, automatic) && !authorizedResearch) throw new Error(`${automatic && recipientCheck.level === "risky" ? "Automatic sends need a verified personal mailbox or explicit research authorization. " : ""}${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ""} Nothing was sent.`);
     // Idempotency: if an email to THIS PERSON is already logged for this card, don't send again even if a
     // prior status write failed. Scoped to the person, not the card, so emailing a second contact at the
     // same company is still possible while a duplicate to the same one is not.

@@ -1,7 +1,17 @@
 import { addressIdentityProblem } from "./address-identity.ts";
-/** Bulk outreach requires mailbox verification; publication and inferred formats stay held. */
+/** Explicit authorization applies only to the researched address recorded by the operator. */
+export function researchedSendAuthorized(person: { email?: string | null; email_status?: string | null; full_name?: string | null; email_check?: unknown }) {
+  if (!sendableAddress(person)) return false;
+  const check = person.email_check as { outreachAuthorization?: { email?: unknown; authorizedAt?: unknown } } | null;
+  const authorization = check?.outreachAuthorization;
+  if (!authorization) return false;
+  return authorization.email === person.email && typeof authorization.authorizedAt === "string" && Boolean(authorization.authorizedAt) && (!person.full_name || !addressIdentityProblem(person.email!, person.full_name));
+}
+
+/** Bulk outreach accepts verified mailboxes or explicit, address-specific authorization. */
 export function bulkSendable(person: { email?: string | null; email_status?: string | null; email_source?: string | null; full_name?: string | null; email_check?: unknown }) {
   if (!sendableAddress(person)) return false;
+  if (researchedSendAuthorized(person)) return true;
   const check = person.email_check as { source?: unknown; level?: unknown; email?: unknown } | null;
   if (person.full_name && addressIdentityProblem(person.email!, person.full_name)) return false;
   if (check?.level && check.email === person.email && check.level !== "deliverable") return false;

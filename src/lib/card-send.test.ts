@@ -11,7 +11,7 @@ import { emailMime } from "./email-mime.ts";
 import * as ending from "./outreach-ending.ts";
 import { withOptOut } from "./opt-out.ts";
 import { recipientAllowed } from "./recipient-verification.ts";
-import { bulkSendable } from "./bulk-sendable.ts";
+import { bulkSendable, researchedSendAuthorized } from "./bulk-sendable.ts";
 import { isRealContact } from "./clean.ts";
 import { queryDb } from "./testing/query-db.ts";
 
@@ -41,7 +41,7 @@ function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; reci
     "@/lib/focus-data": { assertCardSender: () => {}, allFocus: () => options.focus ?? [] },
     "@/lib/email-suppression": suppression,
     "@/lib/morning-send-rules": rules,
-    "@/lib/bulk-sendable": { bulkSendable },
+    "@/lib/bulk-sendable": { bulkSendable, researchedSendAuthorized },
     "@/lib/recipient-verification": { checkRecipient: async () => ({ level: options.recipient ?? "deliverable", reason: "Verified address.", suggestion: null }), recipientAllowed, recordRecipientCheck: async () => {}, recordDelivery: async () => {} },
     "@/lib/opt-out": { withOptOut, unsubscribeUrl: () => "https://app.test/api/unsubscribe?t=x" },
     "@/lib/first-touch": { firstTouchErrors: () => [] },
@@ -65,6 +65,16 @@ function harness(options: { cardExtra?: Row; people?: Row[]; focus?: Row[]; reci
   const send = (automatic: boolean) => loaded.sendCardEmail(db, { cardId: "card", owner: "suuchi", subject: "An idea for Acme", body: "Hi Dana,\n\nWould this help?", baseUrl: "https://app.test", automatic });
   return { send, loaded, gmail, followups, tables };
 }
+
+test("authorized research permits uncertain mailboxes but still refuses known delivery failures", async () => {
+  const people = { id: "p1", full_name: "Dana Ortiz", email: "dana.ortiz@acme.test", email_status: "unverified", do_not_contact: false, email_check: { outreachAuthorization: { email: "dana.ortiz@acme.test", authorizedAt: "2026-10-14T13:40:00Z" } } };
+  const permitted = harness({ recipient: "risky", cardExtra: { people } });
+  await permitted.send(true);
+  assert.equal(permitted.gmail.length, 1);
+  const refused = harness({ recipient: "undeliverable", cardExtra: { people } });
+  await assert.rejects(refused.send(true), /Nothing was sent/);
+  assert.equal(refused.gmail.length, 0);
+});
 
 test("an automatic send refuses a card kept for sending by hand; a person can still send it", async () => {
   const auto = harness({ cardExtra: { auto_send_hold: true } });

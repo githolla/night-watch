@@ -2,6 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
 
+test("explicit research authorization is scoped to an address and never overrides failures", () => {
+  const email_check = { email: "pat@co.test", level: "risky", outreachAuthorization: { email: "pat@co.test", authorizedAt: "2026-10-14T13:40:00Z" } };
+  assert.equal(bulkSendable({ email: "pat@co.test", full_name: "Pat Lee", email_status: "unverified", email_check }), true);
+  assert.equal(bulkSendable({ email: "other@co.test", email_status: "unverified", email_check }), false);
+  assert.equal(bulkSendable({ email: "pat@co.test", email_status: "invalid", email_check }), false);
+  assert.equal(bulkSendable({ email: "pat@co.test", email_status: "unverified", email_check: { ...email_check, bouncedEmails: ["pat@co.test"] } }), false);
+});
+
 test("bulk sends require verification and refuse pattern evidence", () => {
   assert.equal(bulkSendable({ email: "a@x.test", email_status: "verified" }), true);
   assert.equal(bulkSendable({ email: "a@x.test", email_status: "unverified", email_check: { likely: true, email: "a@x.test" } }), false);
