@@ -2850,3 +2850,18 @@ button.ov-result:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 .relationship-page .rn-layout > section { min-width: 0; }
 .relationship-page .rm-page-head p { margin-right: 0; }
 @media(max-width:850px) { .relationship-page .rn-layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* Use the application's paper palette throughout the lead network. */
+.shell.relationship-page, .relationship-page .targets-page { background: var(--canvas); color: var(--ink); }
+.relationship-page .rm-page-head h1 { color: var(--ink); }
+.relationship-page .rm-page-head span { color: var(--ok); }
+.relationship-page .rm-page-head p { color: var(--muted); }
+.rn-canvas-light button { background: var(--paper); border-color: var(--line-strong); color: var(--ink-soft); box-shadow: var(--shadow-sm); }
+.rn-canvas-light button:hover { background: var(--soft); }
+.rn-canvas-light .backdrop-blur { background: rgba(255,254,252,.96); border-color: var(--line-strong); color: var(--ink); }
+.rn-canvas-light .text-slate-100 { color: var(--ink); }
+.rn-canvas-light .text-slate-400 { color: var(--muted); }
+.relationship-page .rm-evidence-panel, .relationship-page .rm-evidence-panel > div, .relationship-page .rm-evidence-event { border-color: var(--line); }
+.relationship-page .rm-evidence-panel h3, .relationship-page .rm-evidence-panel p, .relationship-page .rm-evidence-panel small, .relationship-page .rm-evidence-event small { color: var(--muted); }
+.relationship-page .rm-evidence-panel > div button, .relationship-page .rm-evidence-event { color: var(--ink-soft); }
+.relationship-page .rm-evidence-panel > div a { color: var(--ok); }
