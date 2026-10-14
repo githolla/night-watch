@@ -10,6 +10,7 @@ import * as cost from "../anthropic-cost.ts";
 import { itemId } from "./identity.ts";
 import { queryDb } from "../testing/query-db.ts";
 import { item, assessment, now, opportunity } from "./fixtures.ts";
+import { assessCompanySignal } from "./company-signals.ts";
 function runner(options: { configured?: boolean; changed?: boolean; failed?: boolean; empty?: boolean; expensive?: boolean } = {}) {
   let calls = 0;
   class Collector {
@@ -17,8 +18,9 @@ function runner(options: { configured?: boolean; changed?: boolean; failed?: boo
     async collect(source: domain.SourceConfig) { this.requests++; return { items: options.empty || options.failed ? [] : [{ ...item, source_id: source.id, ...(options.changed ? { text: `${item.text} Daily reporting is also needed.` } : {}) }], coverage: { source_id: source.id, state: options.failed ? "failed" : "complete", found: options.empty || options.failed ? 0 : 1, detail: options.failed ? "API unavailable" : "" } }; }
   }
   const exports: { runDiscovery?: (db: SupabaseClient, key: string, now: number) => Promise<{ status: string; report: { analyzed: number; saved: number; analysis_deferred: number; cost_usd: number } }> } = {};
+  const addedMocks = { "./watchlist.ts": { knownTargetSites: async () => [] }, "./company-signals.ts": { assessCompanySignal } };
   const mocks: Record<string, unknown> = { "../anthropic-cost.ts": cost, "./domain.ts": domain, "./identity.ts": { itemId }, "./providers.ts": { DiscoveryCollector: Collector }, "./analyze.ts": { assess: async (_item: unknown, _signal: unknown, usage: cost.UsageRecorder) => { calls++; const amount = options.expensive ? 4 : 0.03; usage(amount); if (usage.budget) usage.budget.spentUsd += amount; return assessment; } }, "./store.ts": { ...store, loadOpportunities: async (db: SupabaseClient) => { const { data, error } = await db.from("discovery_opportunities").select("*"); store.check(error); return (data ?? []).map((row) => domain.opportunitySchema.parse({ ...opportunity(), assessment: null, ...row })); } } };
-  runInNewContext(ts.transpileModule(readFileSync(new URL("./run.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, process: { env: { ANTHROPIC_API_KEY: options.configured === false ? "" : "test-key" } }, Date, Map, Set, Error, AbortSignal, require: (name: string) => mocks[name] });
+  runInNewContext(ts.transpileModule(readFileSync(new URL("./run.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, process: { env: { ANTHROPIC_API_KEY: options.configured === false ? "" : "test-key" } }, Date, Map, Set, Error, AbortSignal, require: (name: string) => ({ ...mocks, ...addedMocks })[name] });
   return { run: exports.runDiscovery!, calls: () => calls };
 }
 function database(rows: domain.DiscoveryOpportunity[] = [], enabled = true) { return queryDb({ discovery_config: [{ id: true, config: { ...domain.defaultConfig, enabled, max_sources: 2, sources: domain.defaultConfig.sources.slice(0, 2) } }], discovery_opportunities: rows, accounts: [] }); }

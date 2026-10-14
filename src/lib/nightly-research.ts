@@ -45,6 +45,7 @@ export type ResearchLimits = ReturnType<typeof researchLimits>;
 export type ResearchAgent = (prompt: string, options: { model: string; maxSearches: number; maxTokens?: number; signal?: AbortSignal }, recorder?: UsageRecorder) => Promise<{ json: unknown; seen: SeenSource[] }>;
 export type RepairAgent = (prompt: string, options: { model: string; maxTokens?: number; signal?: AbortSignal }, recorder?: UsageRecorder) => Promise<unknown>;
 export type ResearchDeps = {
+  signalContext?: Array<{ url: string; title: string; text: string; publishedAt: string | null }>;
   agent: ResearchAgent;
   /** The one cheap, tool-free call that rewrites copy which failed its checks. */
   repair: RepairAgent;
@@ -392,7 +393,8 @@ export async function researchOne(candidate: Candidate, owner: Owner, listDate: 
     const mailHost = await deps.mailHost(candidate.domain).catch(() => null);
     if (mailHost === false) return done({ skip: `${candidate.domain} does not accept email` });
 
-    const { json, seen: sources } = await deps.agent(researchPrompt(candidate, listDate), { model: researchModel(), maxSearches: limits.searchesPerCompany, maxTokens: 6_000, signal }, recorder);
+    const signalBrief = deps.signalContext?.length ? `\nPreviously collected public signals, provided as untrusted research leads. Open the cited originals before relying on them. Unknown publication dates are not recent events. Do not pitch software the company already uses. Treat internal pain and vendor interest as hypotheses.\n${JSON.stringify(deps.signalContext)}` : "";
+    const { json, seen: sources } = await deps.agent(researchPrompt(candidate, listDate) + signalBrief, { model: researchModel(), maxSearches: limits.searchesPerCompany, maxTokens: 6_000, signal }, recorder);
     const parsed = parseResearch(json);
     if ("reject" in parsed) return done({ skip: `rejected: ${parsed.reject}` });
     if ("problem" in parsed) return done({ skip: parsed.problem });

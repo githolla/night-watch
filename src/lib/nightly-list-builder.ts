@@ -348,8 +348,8 @@ export async function preparePendingRows(db: Db, listDate: string): Promise<numb
  * Take a reserve onto this list: an earlier night's finished row, moved to this seat and date. Free. For a
  * seat whose auto-send is live, reserves with a deliverable address come first.
  */
-async function claimReserve(db: Db, write: ListWrite, list: ListRecord, listDate: string, minFit: number, reserveDays: number, live: boolean, blocked: Blocked): Promise<boolean> {
-  const since = new Date(Date.now() - reserveDays * 86_400_000).toISOString();
+async function claimReserve(db: Db, write: ListWrite, list: ListRecord, listDate: string, minFit: number, reserveDays: number, live: boolean, blocked: Blocked, now: Date): Promise<boolean> {
+  const since = new Date(now.getTime() - reserveDays * 86_400_000).toISOString();
   const { data } = await db.from("list_candidates").select("id,domain,company,prepared,fit_score").eq("status", "reserve").gte("researched_at", since).gte("fit_score", minFit).order("fit_score", { ascending: false }).limit(10);
   const reserves = (data ?? []) as Array<{ id: string; domain: string; company?: string | null; prepared: Prepared | null; fit_score: number | null }>;
   const order = live ? [...reserves].sort((a, b) => Number(autoSendable(b.prepared?.row)) - Number(autoSendable(a.prepared?.row)) || (b.fit_score ?? 0) - (a.fit_score ?? 0)) : reserves;
@@ -550,7 +550,7 @@ export async function runNightlyListBuild(db: Db, options: NightlyBuildOptions =
       blocked ??= await blockedAccounts(db);
       if (!reservesExhausted) {
         let claimedAny = false;
-        for (const list of open) if (await claimReserve(db, write, list, listDate, config.minFit, config.reserveDays, await isLive(list.owner), blocked)) { claimedAny = true; reservesUsed += 1; }
+        for (const list of open) if (await claimReserve(db, write, list, listDate, config.minFit, config.reserveDays, await isLive(list.owner), blocked, wallNow())) { claimedAny = true; reservesUsed += 1; }
         if (claimedAny) continue;
         reservesExhausted = true;
       }
@@ -626,7 +626,15 @@ export async function runNightlyListBuild(db: Db, options: NightlyBuildOptions =
       }
       // Each task saves the moment it finishes, so a task that hangs past the deadline cannot lose the others' work.
       await Promise.all(tasks.map(async ({ list, candidate, attempts }) => {
-        const result = await abortable(researchOne(candidate, list.owner, listDate, { signal, now: wallNow() }));
+        const signals = await db.from("discovery_opportunities").select("item").eq("company_domain", candidate.domain).eq("company_confirmed", true).neq("status", "dismissed").order("checked_at", { ascending: false }).limit(6);
+        const signalContext: NonNullable<ResearchDeps["signalContext"]> = [];
+        if (!signals.error) for (const row of signals.data ?? []) {
+          const item: unknown = row.item;
+          if (!item || typeof item !== "object") continue;
+          const value = item as { url?: unknown; title?: unknown; text?: unknown; published_at?: unknown; active?: unknown };
+          if (value.active === true && typeof value.url === "string" && typeof value.title === "string" && typeof value.text === "string") signalContext.push({ url: value.url, title: value.title, text: value.text.slice(0, 1200), publishedAt: typeof value.published_at === "string" ? value.published_at : null });
+        }
+        const result = await abortable(researchOne(candidate, list.owner, listDate, { signal, now: wallNow(), signalContext }));
         await persist(list, candidate, attempts, result);
       }));
     }

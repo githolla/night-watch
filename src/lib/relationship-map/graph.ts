@@ -62,7 +62,7 @@ export function buildGraph(records: GraphRecords, warnings: string[] = [], now =
   for (const discovery of records.discoveries) {
     const company = discovery.company_confirmed && discovery.company_domain ? companiesByDomain.get(discovery.company_domain.toLowerCase().replace(/^www\./, "")) : null;
     if (!company) continue;
-    const id = `discovery:${discovery.id}`; add({ id, kind: "discovery", label: discovery.item.title, subtitle: title(discovery.item.provider), detail: discovery.item.text, status: discovery.status, companyId: company.id, href: `/discovery#signal-${discovery.id}`, sourceUrl: safeSourceUrl(discovery.item.url), at: discovery.item.published_at, facts: [{ label: "Identity", value: "Company confirmed by reviewer" }, { label: "Source", value: title(discovery.item.provider) }, { label: "Owner", value: discovery.owner || "Unassigned" }] });
+    const id = `discovery:${discovery.id}`; add({ id, kind: "discovery", label: discovery.item.title, subtitle: title(discovery.item.provider), detail: discovery.item.text, status: discovery.status, companyId: company.id, href: `/discovery#signal-${discovery.id}`, sourceUrl: safeSourceUrl(discovery.item.url), at: discovery.item.published_at, facts: [{ label: "Identity", value: discovery.item.provider === "company_site" ? "Known target company website; review the statement's subject" : "Company confirmed by reviewer" }, { label: "Source", value: title(discovery.item.provider) }, { label: "Owner", value: discovery.owner || "Unassigned" }] });
     link(`company:${company.id}`, id, "has confirmed discovery"); source(discovery.item.url, company.id, id);
   }
   for (const draft of records.drafts) {

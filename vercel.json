@@ -4,6 +4,10 @@
   "outputDirectory": null,
   "crons": [
     {
+      "path": "/api/cron/company-signals",
+      "schedule": "*/20 2-6 * * *"
+    },
+    {
       "path": "/api/cron/nightly-list",
       "schedule": "*/10 6-9 * * *"
     },

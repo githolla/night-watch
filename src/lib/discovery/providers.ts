@@ -3,10 +3,11 @@ import { XMLParser, XMLValidator } from "fast-xml-parser";
 import { safeFetch, type Fetcher, type Lookup } from "../evidence-grounding.ts";
 import { classifyTitle, operatingNeedFor } from "../job-sweep/classify.ts";
 import { itemSchema, type DiscoveryItem, type SourceConfig } from "./domain.ts";
+import { companyLinks, companyPageItems } from "./company-signals.ts";
 
 class SourceReadError extends Error {}
 
-export type Coverage = { source_id: string; state: "complete" | "partial" | "skipped" | "failed"; found: number; detail: string };
+export type Coverage = { source_id: string; state: "complete" | "partial" | "skipped" | "failed"; found: number; detail: string; checked_urls?: string[] };
 export type Collection = { items: DiscoveryItem[]; coverage: Coverage };
 export function cleanText(raw: string) { return raw.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim(); }
 function date(raw: unknown) {
@@ -40,7 +41,7 @@ export class DiscoveryCollector {
   private lookup: Lookup | undefined;
   private env: Record<string, string | undefined>;
   constructor(signal: AbortSignal, options: { fetcher?: Fetcher; lookup?: Lookup; env?: Record<string, string | undefined> } = {}) { this.signal = signal; this.fetcher = options.fetcher ?? fetch; this.lookup = options.lookup; this.env = options.env ?? process.env; }
-  private async get(url: string, sec = false) {
+  private async get(url: string, sec = false, companyDomain?: string) {
     if (this.requests >= 80) throw new SourceReadError("Read allowance reached.");
     if (this.signal.aborted) throw new SourceReadError("Discovery deadline reached.");
     this.requests++;
@@ -48,6 +49,7 @@ export class DiscoveryCollector {
     const result = await safeFetch(url, fetcher, { lookup: this.lookup, signal: AbortSignal.any([this.signal, AbortSignal.timeout(new URL(url).hostname === "api.gdeltproject.org" ? 25000 : 10000)]), maxBytes: 1500000 });
     if (result.kind !== "page") throw new SourceReadError(result.kind === "failed" && result.timeout ? "Public source timed out." : "Public source unavailable or refused by the URL guard.");
     if (result.status !== 200) throw new SourceReadError(`Public source returned HTTP ${result.status}.`);
+    if (companyDomain && ![companyDomain, `www.${companyDomain}`].includes(new URL(result.finalUrl).hostname)) throw new SourceReadError("Company URL redirected to a different organization domain.");
     if (result.html.length >= 1490000) throw new SourceReadError("Source exceeds the response-size limit; coverage is incomplete.");
     return result.html;
   }
@@ -59,7 +61,29 @@ export class DiscoveryCollector {
     const make = (values: Omit<DiscoveryItem, keyof typeof base> & Partial<typeof base>) => itemSchema.parse({ ...base, ...values });
     try {
       if (source.provider === "feed" && (!source.permission_reference.trim() || !allowedUrl(source.value))) throw new Error("Feed permission or allowed URL missing.");
-      if (source.provider === "greenhouse") {
+      if (source.provider === "company_site") {
+        const origin = new URL(source.value);
+        if (!allowedUrl(source.value) || ![source.domain, `www.${source.domain}`].includes(origin.hostname) || !source.company) throw new Error("Company site must match the recorded company domain.");
+        const visited = new Set<string>();
+        const queue = [source.value];
+        const errors: string[] = [];
+        coverage.checked_urls = [];
+        while (queue.length && visited.size < 5 && !this.signal.aborted) {
+          const url = queue.shift()!;
+          if (visited.has(url)) continue;
+          visited.add(url);
+          try {
+            const html = await this.get(url, false, source.domain);
+            coverage.checked_urls.push(url);
+            items.push(...companyPageItems(html, url, source, now));
+            const discovered = companyLinks(html, url, source.domain).filter(link => !visited.has(link) && !queue.includes(link));
+            queue.unshift(...discovered);
+          } catch (error) { errors.push(error instanceof Error ? error.message : "Page unavailable."); }
+        }
+        coverage.state = "partial";
+        coverage.detail = `Read ${visited.size - errors.length} of ${visited.size} requested company pages. Bounded website sample; dates are never inferred from crawl time.${errors.length ? ` ${errors.length} pages unavailable.` : ""}`;
+        if (errors.length === visited.size) { coverage.state = "failed"; coverage.detail += ` ${errors[0] ?? "No public pages available."}`; }
+      } else if (source.provider === "greenhouse") {
         const json = z.object({ jobs: z.array(z.object({ id: z.number(), title: z.string(), absolute_url: z.string(), content: z.string().optional(), first_published: z.string().optional() })) }).parse(await this.json(`https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(source.value)}/jobs?content=true`));
         items = json.jobs.filter((job) => Boolean(classifyTitle(job.title))).flatMap((job) => {
           const family = classifyTitle(job.title); if (!family || !allowedUrl(job.absolute_url)) return [];
@@ -108,7 +132,7 @@ export class DiscoveryCollector {
         coverage.state = "partial"; coverage.detail = "Filing metadata only; no funding or operational claim inferred from a form number.";
       } else if (source.provider === "feed") items = feedItems(await this.get(source.value), source, now);
       coverage.found = items.length;
-      if (items.length > limit) { coverage.state = "partial"; coverage.detail += ` ${items.length - limit} items deferred by the source cap.`; }
+      if (items.length > limit) { coverage.state = "partial"; coverage.detail += ` ${items.length - limit} items deferred by the source cap.`; coverage.checked_urls = []; }
       return { items: items.slice(0, limit), coverage };
     } catch (error) { return { items: [], coverage: { ...coverage, state: "failed", detail: `${error instanceof SourceReadError ? error.message : "Source response or configuration failed validation."} No fallback scraping attempted.` } }; }
   }

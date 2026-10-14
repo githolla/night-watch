@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-export const providers = ["greenhouse", "lever", "gdelt", "hacker_news", "sam", "sec", "feed"] as const;
+export const providers = ["greenhouse", "lever", "gdelt", "hacker_news", "sam", "sec", "feed", "company_site"] as const;
 export const providerSchema = z.enum(providers);
 export type Provider = z.infer<typeof providerSchema>;
 export const domainSchema = z.string().trim().toLowerCase().regex(/^(?!.*\.example$)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/);
 export const publicUrlSchema = z.string().url().refine((raw) => { const url = new URL(raw); return url.protocol === "https:" && !url.username && !url.password; }, "Use a public HTTPS URL.");
-export const sourceConfigSchema = z.object({ id: z.string().regex(/^[a-z0-9_-]+$/), provider: providerSchema, label: z.string().min(1).max(150), enabled: z.boolean(), value: z.string().max(500), company: z.string().max(200).default(""), domain: z.union([domainSchema, z.literal("")]).default(""), permission_reference: z.string().max(500).default("") }).strict();
+export const sourceConfigSchema = z.object({ id: z.string().regex(/^[a-z0-9_-]+$/), provider: providerSchema, label: z.string().min(1).max(150), enabled: z.boolean(), value: z.string().max(500), company: z.string().max(200).default(""), domain: z.union([domainSchema, z.literal("")]).default(""), permission_reference: z.string().max(500).default(""), owner: z.enum(["josh", "suuchi"]).optional() }).strict();
 export type SourceConfig = z.infer<typeof sourceConfigSchema>;
 export const configSchema = z.object({ enabled: z.boolean(), sources: z.array(sourceConfigSchema).max(30), keywords: z.array(z.string().min(2).max(80)).min(1).max(20), max_sources: z.number().int().min(1).max(12), max_items: z.number().int().min(1).max(30), max_analysis: z.number().int().min(0).max(12), cost_cap_usd: z.number().min(0.1).max(10), retention_days: z.number().int().min(7).max(90) }).strict().superRefine((config, ctx) => {
   if (new Set(config.sources.map((source) => source.id)).size !== config.sources.length) ctx.addIssue({ code: "custom", message: "Source IDs must be unique." });
@@ -13,10 +13,11 @@ export const configSchema = z.object({ enabled: z.boolean(), sources: z.array(so
     if (["greenhouse", "lever"].includes(source.provider) && (!/^[A-Za-z0-9_-]+$/.test(source.value) || !source.company || !source.domain)) ctx.addIssue({ code: "custom", path: ["sources", index], message: "Job boards require a board ID, company name and domain." });
     if (source.provider === "feed" && (!publicUrlSchema.safeParse(source.value).success || !source.permission_reference.trim())) ctx.addIssue({ code: "custom", path: ["sources", index], message: "Feeds require a public HTTPS URL and a reference permitting this use." });
     if (source.provider === "sec" && (!/^\d{1,10}$/.test(source.value) || !source.company || !source.domain)) ctx.addIssue({ code: "custom", path: ["sources", index], message: "SEC sources require a CIK, company name and domain." });
+    if (source.provider === "company_site" && (!publicUrlSchema.safeParse(source.value).success || !source.company || !source.domain)) ctx.addIssue({ code: "custom", path: ["sources", index], message: "Company monitoring requires a public company URL, name and domain." });
   });
 });
 export type DiscoveryConfig = z.infer<typeof configSchema>;
-export const defaultConfig: DiscoveryConfig = { enabled: true, max_sources: 6, max_items: 20, max_analysis: 6, cost_cap_usd: 2, retention_days: 30,
+export const defaultConfig: DiscoveryConfig = { enabled: true, max_sources: 12, max_items: 20, max_analysis: 6, cost_cap_usd: 2, retention_days: 30,
   keywords: ["CRM", "reporting", "workflow", "integration", "manual process", "operations", "automation", "spreadsheet"],
   sources: [
     { id: "business_changes", provider: "gdelt", label: "Business expansion and systems changes", value: '("expands operations" OR "new locations" OR "CRM implementation" OR "digital transformation") sourcelang:english', enabled: true, company: "", domain: "", permission_reference: "GDELT open-data API; article metadata only" },
@@ -24,7 +25,7 @@ export const defaultConfig: DiscoveryConfig = { enabled: true, max_sources: 6, m
     { id: "buying_requests", provider: "sam", label: "Federal systems and reporting requests", value: "541512", enabled: true, company: "", domain: "", permission_reference: "SAM.gov public opportunities API" },
   ],
 };
-export const itemSchema = z.object({ provider: providerSchema, external_id: z.string().min(1).max(500), source_id: z.string(), url: publicUrlSchema, title: z.string().min(1).max(1000), text: z.string().max(20000), published_at: z.string().datetime().nullable(), observed_at: z.string().datetime(), company: z.string().max(200).nullable(), domain: domainSchema.nullable(), kind: z.enum(["hiring", "company_change", "buying_request", "discussion", "filing"]), partial: z.boolean(), deadline: z.string().datetime().nullable(), active: z.boolean(), permission_reference: z.string() });
+export const itemSchema = z.object({ provider: providerSchema, external_id: z.string().min(1).max(500), source_id: z.string(), url: publicUrlSchema, title: z.string().min(1).max(1000), text: z.string().max(20000), published_at: z.string().datetime().nullable(), observed_at: z.string().datetime(), company: z.string().max(200).nullable(), domain: domainSchema.nullable(), kind: z.enum(["hiring", "company_change", "buying_request", "discussion", "filing"]), partial: z.boolean(), owner: z.enum(["josh", "suuchi"]).optional(), signal_category: z.enum(["hiring", "expansion", "acquisition", "leadership", "technology", "contract", "compliance", "operational_pain"]).optional(), deadline: z.string().datetime().nullable(), active: z.boolean(), permission_reference: z.string() });
 export type DiscoveryItem = z.infer<typeof itemSchema>;
 export const assessmentSchema = z.object({ relevant: z.boolean(), summary: z.string().max(1000), problem: z.enum(["crm_hygiene", "reporting", "handoffs", "integration", "manual_operations", "other"]), evidence: z.array(z.object({ quote: z.string().min(8).max(600), supports: z.string().min(1).max(300) })).min(1).max(5), unknowns: z.array(z.string().max(200)).max(10), confidence: z.number().min(0).max(1), fit: z.number().int().min(0).max(40), intent: z.number().int().min(0).max(25), actionability: z.number().int().min(0).max(20), why_now: z.string().max(1000), suggested_buyer: z.string().max(200), next_step: z.string().max(600), asset: z.string().max(1000) });
 export type Assessment = z.infer<typeof assessmentSchema>;
