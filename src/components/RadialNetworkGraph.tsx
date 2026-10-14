@@ -10,11 +10,20 @@ function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, widt
   ctx.clearRect(0, 0, width, height); ctx.fillStyle = background; ctx.fillRect(0, 0, width, height);
   ctx.save(); ctx.translate(view.x, view.y); ctx.scale(view.k, view.k);
   const k = view.k, R = sim.radius, cx = sim.cx, cy = sim.cy;
+  const overview = !sim.rootId && sim.nodes.length > 1 && sim.nodes.every(n => n.hub);
   const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, R); glow.addColorStop(0, light ? "rgba(154,106,39,.05)" : "rgba(65,125,220,.10)"); glow.addColorStop(1, light ? "rgba(154,106,39,0)" : "rgba(65,125,220,0)"); ctx.fillStyle = glow; ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
-  for (const ratio of [.28, .56, .84]) { ctx.beginPath(); ctx.arc(cx, cy, R * ratio, 0, Math.PI * 2); ctx.strokeStyle = light ? ratio === .84 ? "#d5cfc4" : "#e6e0d6" : ratio === .84 ? "#203043" : "#172337"; ctx.lineWidth = .7 / k; ctx.setLineDash(ratio === .84 ? [] : [3 / k, 7 / k]); ctx.stroke(); }
+  if (!overview) for (const ratio of [.28, .56, .84]) { ctx.beginPath(); ctx.arc(cx, cy, R * ratio, 0, Math.PI * 2); ctx.strokeStyle = light ? ratio === .84 ? "#d5cfc4" : "#e6e0d6" : ratio === .84 ? "#203043" : "#172337"; ctx.lineWidth = .7 / k; ctx.setLineDash(ratio === .84 ? [] : [3 / k, 7 / k]); ctx.stroke(); }
   ctx.setLineDash([]); ctx.strokeStyle = light ? "#d3ccbf" : "#25364c"; ctx.lineWidth = .7 / k;
-  for (let i = 0; i < 24; i++) { const a = i * Math.PI / 12; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * R * .9, cy + Math.sin(a) * R * .9); ctx.lineTo(cx + Math.cos(a) * (R * .9 - (i % 6 ? 4 : 10) / k), cy + Math.sin(a) * (R * .9 - (i % 6 ? 4 : 10) / k)); ctx.stroke(); }
+  if (!overview) for (let i = 0; i < 24; i++) { const a = i * Math.PI / 12; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * R * .9, cy + Math.sin(a) * R * .9); ctx.lineTo(cx + Math.cos(a) * (R * .9 - (i % 6 ? 4 : 10) / k), cy + Math.sin(a) * (R * .9 - (i % 6 ? 4 : 10) / k)); ctx.stroke(); }
   const visible = sim.nodes.filter(n => !hidden.has(n.type) && (showRing || !n.ring));
+  if (overview) {
+    const names = [...new Set(sim.nodes.map(n => n.cluster || "Target companies"))], columns = Math.min(names.length, width >= 900 ? 3 : width >= 600 ? 2 : 1), rows = Math.ceil(names.length / columns);
+    for (const [index, name] of names.entries()) {
+      const members = visible.filter(n => (n.cluster || "Target companies") === name); if (!members.length) continue;
+      const cellWidth = width / columns, cellHeight = height / rows, x = (index % columns + .5) * cellWidth, y = (Math.floor(index / columns) + .5) * cellHeight, r = Math.min(cellWidth * .43, cellHeight * .41);
+      ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = members[0].color; ctx.globalAlpha = .045; ctx.fill(); ctx.globalAlpha = .22; ctx.strokeStyle = members[0].color; ctx.lineWidth = 1 / k; ctx.stroke(); ctx.globalAlpha = 1; ctx.textAlign = "center"; ctx.font = `600 ${12 / k}px sans-serif`; ctx.fillStyle = ink; ctx.fillText(name, x, y - r - 13 / k); ctx.font = `${10 / k}px sans-serif`; ctx.fillStyle = light ? "#726b62" : "#9baac0"; ctx.fillText(`${members.length} companies`, x, y - r + 3 / k); ctx.restore();
+    }
+  }
   if (showRing) {
     const ring = sim.nodes.filter(n => n.ring), groups: Array<{ name: string; color: string; start: number; end: number }> = [];
     ring.forEach((n, i) => { const name = n.sub?.split(" · ")[0] || n.type; const last = groups.at(-1); if (last?.name === name) last.end = i; else groups.push({ name, color: n.color, start: i, end: i }); });
@@ -51,13 +60,14 @@ function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, widt
   type Box = { x: number; y: number; w: number; h: number }; const occupied: Box[] = [];
   const candidates = visible.filter(n => (n.ring && visible.length <= 40) || n.hub || n.id === focus || neighbors?.has(n.id) || (labels === "all" && !n.ring && n.size > 2.5) || (k > 3.2 || !n.ring && (n.size >= 6 ? k > 1.25 : n.size > 2.5 && k > 2.4))).sort((a, b) => Number(b.id === focus) - Number(a.id === focus) || Number(b.hub) - Number(a.hub) || b.size - a.size);
   for (const n of candidates) {
-    const label = n.label.length > 32 ? n.label.slice(0, 31) + "…" : n.label; const text = n.hub ? label.toUpperCase() : label;
-    ctx.font = `${n.hub ? 600 : 400} ${10 / k}px ${n.hub ? "monospace" : "sans-serif"}`; const w = ctx.measureText(text).width + 12 / k, h = 20 / k, gap = n.size + 8 / k;
+    const label = n.label.length > 32 ? n.label.slice(0, 31) + "…" : n.label; const text = overview ? n.label.length > 21 ? n.label.slice(0, 20) + "…" : n.label : n.hub ? label.toUpperCase() : label;
+    ctx.font = `${n.hub && !overview ? 600 : 400} ${10 / k}px ${n.hub && !overview ? "monospace" : "sans-serif"}`; const w = ctx.measureText(text).width + 12 / k, h = 20 / k, gap = n.size + 8 / k;
     const options: Box[] = [{ x: n.x + gap, y: n.y - h / 2, w, h }, { x: n.x - w / 2, y: n.y + gap, w, h }, { x: n.x - w / 2, y: n.y - gap - h, w, h }, { x: n.x - gap - w, y: n.y - h / 2, w, h }];
+    if (overview) options.unshift({ x: n.x - w / 2, y: n.y + gap, w, h });
     if (n.ring) options.sort((a, b) => Math.hypot(a.x + a.w / 2 - cx, a.y + a.h / 2 - cy) - Math.hypot(b.x + b.w / 2 - cx, b.y + b.h / 2 - cy));
     const box = options.find(a => !occupied.some(b => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y)) ?? (n.id === focus ? options[0] : null); if (!box) continue; occupied.push(box);
     ctx.globalAlpha = bright(n) ? 1 : .16; ctx.textAlign = "left";
-    if (n.hub) { ctx.beginPath(); ctx.roundRect(box.x, box.y, box.w, box.h, 3 / k); ctx.fillStyle = light ? "#fffefc" : "#0a1320"; ctx.fill(); ctx.strokeStyle = n.color; ctx.lineWidth = .6 / k; ctx.stroke(); } else { ctx.strokeStyle = background; ctx.lineWidth = 3 / k; ctx.strokeText(text, box.x + 6 / k, box.y + 14 / k); }
+    if (n.hub && !overview) { ctx.beginPath(); ctx.roundRect(box.x, box.y, box.w, box.h, 3 / k); ctx.fillStyle = light ? "#fffefc" : "#0a1320"; ctx.fill(); ctx.strokeStyle = n.color; ctx.lineWidth = .6 / k; ctx.stroke(); } else { ctx.strokeStyle = background; ctx.lineWidth = 3 / k; ctx.strokeText(text, box.x + 6 / k, box.y + 14 / k); }
     ctx.fillStyle = ink; ctx.fillText(text, box.x + 6 / k, box.y + 14 / k);
   }
   ctx.globalAlpha = 1; ctx.restore();

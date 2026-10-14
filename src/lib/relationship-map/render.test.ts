@@ -25,7 +25,7 @@ test("graph-only view renders actual nodes, dates and details without alternate 
   const overviewHtml = renderToStaticMarkup(React.createElement(exports.RelationshipMap!, { initialCompanies: records.companies, initialGraph: graph.buildGraph(records) }));
   assert.ok(overviewHtml.includes('aria-label="Interactive company relationship map"')); assert.equal(overviewHtml.includes("rm-company-overview"), false); assert.equal(overviewHtml.includes('aria-label="Selected relationship details"'), false);
   assert.ok(overviewHtml.includes("<canvas"));
-  assert.ok(overviewHtml.includes("Companies only."));
+  assert.ok(overviewHtml.includes("Group companies"));
   assert.ok(html.includes("Back to companies"));
   assert.ok(html.includes(`data-node-count="${graph.buildGraph(records).nodes.length}"`));
   assert.ok(html.includes("Contacts &amp; emails"));
