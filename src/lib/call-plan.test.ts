@@ -18,3 +18,10 @@ test("saved call plans round-trip and malformed data cannot become a call", () =
   assert.deepEqual(readCallPlan(plan), plan);
   assert.equal(readCallPlan({ scheduledAt: "tomorrow" }), null);
 });
+
+test("Supabase offset timestamps preserve saved phone evidence and call outcomes", () => {
+  const plan = newCallPlan("2026-10-14T14:00:00+00:00");
+  assert.equal(plan.firstEmailAt, "2026-10-14T14:00:00.000Z");
+  const saved = { ...plan, firstEmailAt: "2026-10-14T14:00:00+00:00", phone: { number: "8005551234", kind: "company", sourceUrl: "https://acme.test/contact", checkedAt: "2026-10-14T14:00:00Z", notes: "Main line" } };
+  assert.equal(readCallPlan(saved)?.phone?.number, "8005551234");
+});
