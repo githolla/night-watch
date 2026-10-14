@@ -1,259 +1,47 @@
 "use client";
 import Link from "next/link";
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { ArrowUpRight, CaretRight, Crosshair, MagnifyingGlass, Minus, Plus, ArrowsCounterClockwise, ArrowsOut, X } from "@phosphor-icons/react";
-import { connectionPath, layers, neighborhood, type Company, type Layer, type Point, type RelationshipGraph } from "@/lib/relationship-map/graph";
-import { DEFAULT_CAMERA, graphSchema, metricsSchema, metricKeys, type PortfolioMetrics, edgePath, filterGraph, layerDesign, nodeRadius, placeLabels, shortLabel, zoomCamera, type Camera } from "@/lib/relationship-map/view";
-
-import { ALL_SEGMENTS, matchesSegment, revenueBands, segmentGraph, type SegmentFilters } from "@/lib/relationship-map/segments";
-
-
+import { useEffect, useMemo, useState } from "react";
+import { RadialNetworkGraph, type Node } from "@/components/RadialNetworkGraph";
 import { EvidencePanel } from "@/components/RelationshipViews";
-import { dateLabel, fact,  recordedDate } from "@/lib/relationship-map/presentation";
-
-import { canvasPoint, centeredCamera, minimapGeometry, orderedCompanies } from "@/lib/relationship-map/navigation";
-
-import { radialCamera, radialFacets, radialLayout, ringArc, ringRadius, ringSections, polar, leadLenses, matchesLeadLens, type LeadLens, type RadialGrouping } from "@/lib/relationship-map/radial";
-
-type Gesture = { kind: "pan"; start: Point; camera: Camera; last?: Point } | { kind: "node"; id: string; start: Point; point: Point; last?: Point };
-const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
-const Artwork = memo(function Artwork({ graph, points, selected, highlighted, scale, onSelect, onDrag }: { graph: RelationshipGraph; points: Record<string, Point>; selected: string | null; highlighted: Set<string> | null; scale: number; onSelect: (id: string) => void; onDrag: (id: string, event: ReactPointerEvent<SVGGElement>) => void }) {
-  const byId = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node])), [graph.nodes]);
-  const labels = useMemo(() => {
-    if (scale < 0.2) return {};
-    const companyCount = graph.nodes.filter((node) => node.kind === "company").length;
-    const peopleCount = graph.nodes.filter((node) => node.kind === "person").length;
-    const preferred = new Set(graph.nodes.filter((node) => node.kind === "company" && node.facts.some((item) => item.label === "Outreach list" && item.value.startsWith("Today"))).map((node) => node.id));
-    const counters = new Map<string, number>();
-    const labeled = graph.nodes.filter((node) => { const count = counters.get(node.kind) ?? 0; counters.set(node.kind, count + 1); return (node.kind !== "company" || companyCount > 1) && (selected === node.id || highlighted?.has(node.id) || (node.kind === "person" && peopleCount <= 12) || (node.kind === "company" && ((preferred.size ? preferred.has(node.id) : count < 10) || scale > 0.85)) || (scale > 0.85 && node.kind !== "source" && node.kind !== "company" && count < 4)); });
-    return placeLabels(labeled, points);
-  }, [graph.nodes, points, selected, highlighted, scale]);
-  return <>
-    {graph.edges.map((edge) => { const from = points[edge.from], to = points[edge.to]; if (!from || !to) return null; const emphasized = selected === edge.from || selected === edge.to; return <path key={edge.id} d={edgePath(from, to)} className={`rm-edge ${emphasized ? "is-emphasized" : ""}`} stroke={emphasized ? layerDesign[byId.get(edge.to)!.kind].color : "#587184"} opacity={highlighted && !(highlighted.has(edge.from) && highlighted.has(edge.to)) ? 0.05 : emphasized ? 0.85 : 0.025} markerEnd={emphasized ? "url(#rm-arrow)" : undefined}><title>{`${byId.get(edge.from)?.label} → ${edge.label} → ${byId.get(edge.to)?.label}`}</title></path>; })}
-    {graph.nodes.map((node) => { const point = points[node.id]; if (!point) return null; const design = layerDesign[node.kind], radius = node.kind === "company" ? graph.nodes.filter((node) => node.kind === "company").length === 1 ? 48 : 23 : nodeRadius(node); const picked = selected === node.id; const dim = highlighted && !highlighted.has(node.id); const label = labels[node.id]; return <g key={node.id} transform={`translate(${point.x},${point.y})`} className={`rm-node is-${node.kind} ${picked ? "is-picked" : ""}`} opacity={dim ? 0.13 : 1} data-map-node={node.id} role="button" tabIndex={0} aria-label={`${design.label}: ${node.label}, ${node.status}`} aria-pressed={picked} onPointerDown={(event) => onDrag(node.id, event)} onClick={() => onSelect(node.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(node.id); } }}>
-      <title>{`${node.label} · ${node.status}`}</title><circle r={Math.max(radius + 12, 22)} fill="transparent" />{picked && <circle r={radius + 10} className="rm-selection-ring" stroke={design.color} />}{node.kind === "company" && <circle r={65} fill={design.color} opacity="0.055" />}
-      <circle r={radius + 5} fill={design.color} opacity={picked || node.kind === "company" ? 0.15 : 0.04} />
-      <circle r={radius} fill={node.kind === "company" ? "#172126" : design.color} stroke={node.kind === "company" || picked ? design.color : "#0c151c"} strokeWidth={node.kind === "company" ? 2 : 1.5} />
-      {node.kind === "company" && graph.nodes.filter((node) => node.kind === "company").length === 1 ? scale >= 0.05 ? <><text className="rm-initials" textAnchor="middle" y="6" fill={design.color}>{initials(node.label)}</text><text className="rm-company-label" textAnchor="middle" y={scale < 0.2 ? radius + 18 / scale : 84} style={{ fontSize: scale < 0.2 ? 11 / scale : undefined }}>{node.label.length > (scale < 0.2 ? 18 : 30) ? `${node.label.slice(0, scale < 0.2 ? 17 : 29)}…` : node.label}</text>{scale >= 0.2 && <text className="rm-company-domain" textAnchor="middle" y="104">{node.subtitle}</text>}</> : null : label && <><line x1="0" y1="0" x2={label.x > 0 ? label.x : label.x + label.width} y2={label.y + 17} stroke={design.color} strokeWidth="0.6" opacity="0.35" pointerEvents="none" /><rect x={label.x} y={label.y} width={label.width} height="34" rx="5" fill="#0c151c" stroke={picked ? design.color : "#233543"} opacity="0.97" /><text className="rm-node-label" x={label.x + 8} y={label.y + 24}>{shortLabel(node)}</text></>}
-      {node.kind === "company" && graph.nodes.filter((node) => node.kind === "company").length > 1 && <text className="rm-hub-initials" textAnchor="middle" y="5" fill={design.color}>{initials(node.label)}</text>}
-      {(node.status === "do not contact" || node.status === "bounced") && <circle cx={radius} cy={-radius} r="4" fill="#f1857e" stroke="#0c151c" strokeWidth="2" />}
-    </g>; })}
-  </>;
-});
+import { layers, type Company, type RelationshipGraph } from "@/lib/relationship-map/graph";
+import { graphSchema, layerDesign } from "@/lib/relationship-map/view";
+import { ALL_SEGMENTS, matchesSegment, revenueBands, segmentGraph, type SegmentFilters } from "@/lib/relationship-map/segments";
+import { leadLenses, matchesLeadLens, ringSections, type LeadLens } from "@/lib/relationship-map/radial";
+import { recordedDate } from "@/lib/relationship-map/presentation";
 export function RelationshipMap({ initialCompanies, initialGraph, initialDomain = "", owner = "josh", showOwners = false }: { initialCompanies: Company[]; initialGraph: RelationshipGraph | null; initialDomain?: string; owner?: "josh" | "suuchi"; showOwners?: boolean }) {
-  const [leadLens, setLeadLens] = useState<LeadLens>("all");
-  const [grouping, setGrouping] = useState<RadialGrouping>("industry");
-  const [activeRing, setActiveRing] = useState<string | null>(null);
-  const mapLayout = useCallback((graph: RelationshipGraph) => radialLayout(graph, grouping), [grouping]);
-  const [graph, setGraph] = useState(initialGraph);
-  const fullGraph = useRef(initialGraph);
-  const complete = useRef(false);
-  const [arrange, setArrange] = useState(false);
-  const [searchIndex, setSearchIndex] = useState(0);
-  const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
-  const suppressClick = useRef(false);
-  const searchInput = useRef<HTMLInputElement>(null);
-  const [loading, setLoading] = useState(false);
-  const [metrics, setMetrics] = useState<PortfolioMetrics | null>(null);
-  const [metricsError, setMetricsError] = useState("");
-  const details = useRef(new Map<string, RelationshipGraph>());
-  const loadController = useRef<AbortController | null>(null);
-  const [domain, setDomain] = useState(initialDomain);
-  const [segments, setSegments] = useState<SegmentFilters>(ALL_SEGMENTS);
-  const scopedGraph = useMemo(() => {
-    if (!graph) return null;
-    const selectedCompanies = (domain ? initialCompanies.filter((company) => company.domain === domain) : initialCompanies).filter((company) => matchesLeadLens(graph, company.id, leadLens));
-    return segmentGraph(graph, selectedCompanies, segments);
-  }, [graph, initialCompanies, domain, segments, leadLens]);
-  const [initialCamera] = useState(() => initialGraph ? radialCamera(mapLayout(initialDomain ? segmentGraph(initialGraph, initialCompanies.filter((company) => company.domain === initialDomain), ALL_SEGMENTS) : initialGraph)) : DEFAULT_CAMERA);
-  const [companyQuery, setCompanyQuery] = useState(""); const [query, setQuery] = useState(""); const [picked, setPicked] = useState<string | null>(initialDomain ? initialGraph?.nodes.find((node) => node.kind === "company" && node.subtitle === initialDomain)?.id ?? null : null); const [enabled, setEnabled] = useState(new Set<Layer>(layers)); const [isolated, setIsolated] = useState(false); const [camera, setCamera] = useState<Camera>(initialCamera); const [manualPoints, setManualPoints] = useState<Record<string, Point>>({}); const [error, setError] = useState("");  const [copied, setCopied] = useState<string | null>(null);
-  const svg = useRef<SVGSVGElement>(null); const cameraRef = useRef(initialCamera); const pointsRef = useRef<Record<string, Point>>({}); const gesture = useRef<Gesture | null>(null); const frame = useRef<number | null>(null);
-  const basePositions = useMemo(() => scopedGraph ? mapLayout(scopedGraph) : {}, [scopedGraph, mapLayout]);
-  const positions = useMemo(() => ({ ...basePositions, ...manualPoints }), [basePositions, manualPoints]);
-  useEffect(() => { pointsRef.current = positions; }, [positions]);
-  const changeCamera = useCallback((value: Camera) => { cameraRef.current = value; setCamera(value); }, []);
-  const choose = useCallback((id: string) => { setHover(null); setPicked(id); const kind = layers.find((layer) => id.startsWith(`${layer}:`)); if (kind) setEnabled((previous) => previous.has(kind) ? previous : new Set([...previous, kind])); }, []);
-  const selectFromChart = useCallback((id: string) => { if (!suppressClick.current) choose(id); }, [choose]);
-  const selected = scopedGraph?.nodes.find((node) => node.id === picked) ?? null;
-  const datedCompany = selected?.kind === "date" ? scopedGraph?.edges.filter((edge) => edge.to === selected.id).map((edge) => scopedGraph.nodes.find((node) => node.id === edge.from)?.companyId).find((id) => id && scopedGraph.nodes.some((node) => node.id === `company:${id}`)) : null;
-  const rootId = selected?.companyId && scopedGraph?.nodes.some((node) => node.id === `company:${selected.companyId}`) ? `company:${selected.companyId}` : datedCompany ? `company:${datedCompany}` : scopedGraph?.nodes.find((node) => node.kind === "company")?.id ?? null;
-  const adjacent = useMemo(() => scopedGraph && picked ? neighborhood(scopedGraph, picked) : null, [scopedGraph, picked]);
-  const path = useMemo(() => scopedGraph && rootId && picked ? connectionPath(scopedGraph, rootId, picked) : [], [scopedGraph, rootId, picked]);
-  const isolatedIds = useMemo(() => isolated && adjacent ? new Set([...adjacent.ids, ...path]) : null, [isolated, adjacent, path]);
-  const visible = useMemo(() => scopedGraph ? filterGraph(scopedGraph, enabled, query, isolatedIds) : null, [scopedGraph, enabled, query, isolatedIds]);
-
-  const visiblePositions = useMemo(() => Object.fromEntries((visible?.nodes ?? []).filter((node) => positions[node.id]).map((node) => [node.id, positions[node.id]])), [visible, positions]);
-  const facets = useMemo(() => scopedGraph ? radialFacets(scopedGraph, grouping, initialCompanies) : [], [scopedGraph, grouping, initialCompanies]);
-  const circleRadius = useMemo(() => ringRadius(positions), [positions]);
-  const ringHighlighted = useMemo(() => {
-    const section = ringSections.find((section) => section.id === activeRing); if (!section || !scopedGraph) return null;
-    const ids = new Set(scopedGraph.nodes.filter((node) => section.kinds.includes(node.kind)).map((node) => node.id));
-    const targets = new Set(ids);
-    for (const edge of scopedGraph.edges) if (targets.has(edge.from) || targets.has(edge.to)) { ids.add(edge.from); ids.add(edge.to); }
-    for (const node of scopedGraph.nodes) if (ids.has(node.id) && node.companyId) ids.add(`company:${node.companyId}`);
-    return ids;
-  }, [activeRing, scopedGraph]);
-  const highlighted = selected ? adjacent?.ids ?? null : ringHighlighted;
-  useEffect(() => {
-    const element = svg.current; if (!element) return;
-    const wheel = (event: WheelEvent) => { event.preventDefault(); const rect = element.getBoundingClientRect(); const anchor = canvasPoint({ x: event.clientX, y: event.clientY }, rect); changeCamera(zoomCamera(cameraRef.current, Math.exp(-event.deltaY * 0.0015), anchor)); };
-    element.addEventListener("wheel", wheel, { passive: false }); return () => element.removeEventListener("wheel", wheel);
-  }, [changeCamera, graph]);
-  useEffect(() => () => { loadController.current?.abort(); if (frame.current !== null) cancelAnimationFrame(frame.current); }, []);
-  const loadCompany = useCallback(async (value: string) => {
-    loadController.current?.abort();
-    const controller = new AbortController(); loadController.current = controller;
-    const company = initialCompanies.find((company) => company.domain === value);
-    setHover(null); setDomain(value); setPicked(company ? `company:${company.id}` : null); setManualPoints({}); setQuery(""); setIsolated(false); setError("");
-    window.history.replaceState(null, "", value ? `/network?owner=${owner}&company=${encodeURIComponent(value)}` : `/network?owner=${owner}`);
-    if (!value) { setLoading(false); setGraph(fullGraph.current); if (fullGraph.current) changeCamera(radialCamera(mapLayout(segmentGraph(fullGraph.current, initialCompanies, segments)))); return; }
-    if (complete.current && fullGraph.current) { setGraph(fullGraph.current); changeCamera(radialCamera(mapLayout(segmentGraph(fullGraph.current, initialCompanies.filter((company) => company.domain === value), segments)))); setLoading(false); return; }
-    setLoading(true);
-    try {
-      let next = details.current.get(value);
-      if (!next) {
-        const response = await fetch(`/api/network?owner=${owner}&domain=${encodeURIComponent(value)}`, { signal: controller.signal, cache: "no-store" });
-        const data: unknown = await response.json();
-        if (!response.ok || typeof data !== "object" || !data || !("graph" in data)) throw new Error(typeof data === "object" && data && "error" in data ? String(data.error) : "Company relationships could not be loaded. Try again.");
-        next = graphSchema.parse(data.graph); if (controller.signal.aborted) return; details.current.set(value, next);
-      }
-      const roots = initialGraph?.nodes.filter((node) => node.kind === "company") ?? [];
-      const merged = { ...next, companyId: null, nodes: [...roots, ...next.nodes.filter((node) => node.kind !== "company")] };
-      setGraph(complete.current && fullGraph.current ? fullGraph.current : merged);
-      changeCamera(radialCamera(mapLayout(segmentGraph(merged, initialCompanies.filter((company) => company.domain === value), segments))));
-    } catch (error) { if (!controller.signal.aborted) setError(error instanceof Error ? error.message : "Company relationships could not be loaded."); }
-    finally { if (!controller.signal.aborted) setLoading(false); }
-  }, [initialGraph, initialCompanies, segments, changeCamera, owner, mapLayout]);
-  useEffect(() => {
-    const controller = new AbortController();
-    void fetch(`/api/network?scope=all&owner=${owner}`, { signal: controller.signal, cache: "no-store" }).then(async (response) => {
-      if (!response.ok) throw new Error("Target-list relationships could not be loaded. Refresh to retry.");
-      const data: unknown = await response.json();
-      if (typeof data !== "object" || !data || !("graph" in data)) throw new Error("Invalid target-list response.");
-      const next = graphSchema.parse(data.graph);
-      if (!controller.signal.aborted) {
-        const companies = Object.fromEntries(initialCompanies.map((company) => [company.id, Object.fromEntries(metricKeys.map((key) => [key, 0]))]));
-        for (const node of next.nodes) if (node.companyId && companies[node.companyId] && metricKeys.some((key) => key === node.kind)) companies[node.companyId][node.kind]++;
-        fullGraph.current = next; complete.current = true; setGraph(next);
-        setMetrics(metricsSchema.parse({ companies, warnings: next.warnings }));
-      }
-    }).catch((error: unknown) => { if (!controller.signal.aborted) setMetricsError(error instanceof Error ? error.message : "Portfolio totals could not be loaded."); });
-    return () => controller.abort();
-  }, [owner, initialCompanies]);
-  const initialLoad = useRef(false);
-  useEffect(() => { if (!initialDomain || initialLoad.current) return; initialLoad.current = true; void Promise.resolve().then(() => loadCompany(initialDomain)); }, [initialDomain, loadCompany]);
-  function updateSegments(next: SegmentFilters) {
-    loadController.current?.abort(); setLoading(false);
-    setDomain(""); setPicked(null); setIsolated(false); setManualPoints({}); setSegments(next);
-    if (fullGraph.current) changeCamera(radialCamera(mapLayout(segmentGraph(fullGraph.current, initialCompanies, next))));
-    window.history.replaceState(null, "", `/network?owner=${owner}`);
-  }
-  const companies = initialCompanies.filter((company) => `${company.name} ${company.domain}`.toLowerCase().includes(companyQuery.toLowerCase()));
-  function segmentControl(field: keyof SegmentFilters, label: string, values: string[]) {
-    return <label>{label}<select aria-label={label} value={segments[field]} onChange={(event) => { updateSegments({ ...segments, [field]: event.target.value }); }}><option value="">All {label.toLowerCase()}</option>{values.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>;
-  }
-  const dragNode = useCallback((id: string, event: ReactPointerEvent<SVGGElement>) => {
-    if (event.button !== 0 || (!arrange && !event.altKey)) return;
-    event.stopPropagation(); suppressClick.current = false;
-    const point = pointsRef.current[id]; if (!point) return;
-    choose(id); gesture.current = { kind: "node", id, point, start: { x: event.clientX, y: event.clientY } }; svg.current?.setPointerCapture(event.pointerId);
-  }, [choose, arrange]);
-  function move(event: ReactPointerEvent<SVGSVGElement>) {
-    const active = gesture.current; const element = svg.current; if (!element) return;
-    if (!active) {
-      const target = event.target instanceof Element ? event.target.closest("[data-map-node]") : null;
-      const id = target?.getAttribute("data-map-node"); const rect = element.parentElement!.getBoundingClientRect();
-      setHover(id && id !== picked ? { id, x: Math.min(Math.max(12, event.clientX - rect.left + 18), Math.max(12, rect.width - 290)), y: Math.min(Math.max(60, event.clientY - rect.top + 18), Math.max(60, rect.height - 190)) } : null); return;
-    }
-    setHover(null); active.last = { x: event.clientX, y: event.clientY };
-    if (Math.hypot(event.clientX - active.start.x, event.clientY - active.start.y) > 4) { suppressClick.current = true; element.setPointerCapture(event.pointerId); }
-    if (active.kind === "pan" && !suppressClick.current) return;
-    const rect = element.getBoundingClientRect(); const start = canvasPoint(active.start, rect), end = canvasPoint({ x: event.clientX, y: event.clientY }, rect); const dx = end.x - start.x, dy = end.y - start.y;
-    if (frame.current !== null) cancelAnimationFrame(frame.current);
-    frame.current = requestAnimationFrame(() => { if (active.kind === "pan") changeCamera({ ...active.camera, x: active.camera.x + dx, y: active.camera.y + dy }); else { const scale = cameraRef.current.scale; setManualPoints((points) => ({ ...points, [active.id]: { x: active.point.x + dx / scale, y: active.point.y + dy / scale } })); } frame.current = null; });
-  }
-  function stop() {
-    const active = gesture.current; gesture.current = null;
-    if (frame.current !== null) { cancelAnimationFrame(frame.current); frame.current = null; }
-    if (!active?.last || !svg.current || (active.kind === "pan" && !suppressClick.current)) return;
-    const rect = svg.current.getBoundingClientRect(), start = canvasPoint(active.start, rect), end = canvasPoint(active.last, rect);
-    if (active.kind === "pan") changeCamera({ ...active.camera, x: active.camera.x + end.x - start.x, y: active.camera.y + end.y - start.y });
-    else setManualPoints((points) => ({ ...points, [active.id]: { x: active.point.x + (end.x - start.x) / cameraRef.current.scale, y: active.point.y + (end.y - start.y) / cameraRef.current.scale } }));
-  }
-  function reset() {
-    loadController.current?.abort(); setLoading(false); setManualPoints({}); setActiveRing(null); setLeadLens("all"); setGrouping("industry"); setSegments(ALL_SEGMENTS); setDomain(""); setGraph(fullGraph.current); setIsolated(false); setQuery(""); setCompanyQuery(""); setEnabled(new Set(layers)); setPicked(null); setArrange(false);
-    if (fullGraph.current) changeCamera(radialCamera(radialLayout(fullGraph.current, "industry")));
-    window.history.replaceState(null, "", `/network?owner=${owner}`);
-  }
-  function focus() { if (picked && positions[picked]) changeCamera(centeredCamera(positions[picked], 1.05)); }
-  const searchHits = query.trim() ? scopedGraph?.nodes.filter((node) => `${node.label} ${node.subtitle} ${node.facts.map((item) => item.value).join(" ")}`.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 8) ?? [] : [];
-  function jumpTo(id: string) {
-    const node = graph?.nodes.find((node) => node.id === id); if (!node) return;
-    suppressClick.current = false; setQuery("");
-    if (node.kind === "company") { void loadCompany(node.subtitle); return; }
-    choose(id); if (positions[id]) changeCamera(centeredCamera(positions[id], 1.05));
-  }
-  const hovered = hover ? graph?.nodes.find((node) => node.id === hover.id) : null;
-  const miniature = useMemo(() => minimapGeometry(positions), [positions]);
-  const navigationCompanies = orderedCompanies(initialCompanies.filter((company) => matchesSegment(company, segments) && (!graph || matchesLeadLens(graph, company.id, leadLens))));
-  const currentIndex = navigationCompanies.findIndex((company) => company.domain === domain);
-  useEffect(() => {
-    const keyboard = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { setQuery(""); searchInput.current?.blur(); setPicked(null); setIsolated(false); setHover(null); setActiveRing(null); return; }
-      if (event.target instanceof HTMLElement && (event.target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName))) return;
-      if (event.key === "/") { event.preventDefault(); searchInput.current?.focus(); }
-      if (event.key === "Home") { event.preventDefault(); changeCamera(radialCamera(visiblePositions, circleRadius)); }
-    };
-    window.addEventListener("keydown", keyboard); return () => window.removeEventListener("keydown", keyboard);
-  }, [visiblePositions, circleRadius, changeCamera]);
-  const counts = useMemo(() => {
-    const counts = Object.fromEntries(layers.map((kind) => [kind, scopedGraph?.nodes.filter((node) => node.kind === kind).length ?? 0])) as Record<Layer, number>;
-    if (metrics) {
-      const ids = scopedGraph?.nodes.filter((node) => node.kind === "company").map((node) => node.companyId!) ?? [];
-      for (const kind of metricKeys) counts[kind] = ids.reduce((sum, id) => sum + (metrics.companies[id]?.[kind] ?? 0), 0);
-    }
-    return counts;
-  }, [scopedGraph, metrics]);
-
-  return <div className="rm-workspace">
-    {showOwners && <nav className="rm-segments" aria-label="List owner"><Link href="/network?owner=josh" aria-current={owner === "josh" ? "page" : undefined}>Josh’s lists</Link><Link href="/network?owner=suuchi" aria-current={owner === "suuchi" ? "page" : undefined}>Suuchi’s lists</Link></nav>}
-
-    <div className="rm-toolbar"><div className="rm-company-picker"><label htmlFor="rm-company-query">Company</label><input id="rm-company-query" value={companyQuery} placeholder="Search companies…" onChange={(event) => { setCompanyQuery(event.target.value);  }} /><select aria-label="Choose company" value={domain} onChange={(event) => void loadCompany(event.target.value)}><option value="">All {initialCompanies.length} target companies</option>{domain && !companies.some((company) => company.domain === domain) && <option value={domain}>{graph?.nodes.find((node) => node.kind === "company")?.label ?? domain}</option>}{companies.map((company) => <option key={company.id} value={company.domain}>{company.name}</option>)}</select></div><label className="rm-find"><MagnifyingGlass size={17} /><input ref={searchInput} aria-label="Find a node" placeholder="Find a contact, message or signal…" value={query} onKeyDown={(event) => { if ((event.key === "ArrowDown" || event.key === "ArrowUp") && searchHits.length) { event.preventDefault(); setSearchIndex((index) => (index + (event.key === "ArrowDown" ? 1 : searchHits.length - 1)) % searchHits.length); } if (event.key === "Enter" && searchHits[Math.min(searchIndex, searchHits.length - 1)]) { event.preventDefault(); jumpTo(searchHits[Math.min(searchIndex, searchHits.length - 1)].id); } }} onChange={(event) => { setSearchIndex(0); setQuery(event.target.value); }} />{query && <button aria-label="Clear node search" onClick={() => setQuery("")}><X size={14} /></button>}{query.trim() && <div className="rm-search-results" role="region" aria-label="Matching graph records">{searchHits.map((node, index) => <button key={node.id} className={index === Math.min(searchIndex, searchHits.length - 1) ? "is-active" : ""} onMouseEnter={() => setSearchIndex(index)} onClick={() => jumpTo(node.id)}><i style={{ background: layerDesign[node.kind].color }} /><span><strong>{shortLabel(node, 36)}</strong><small>{layerDesign[node.kind].label} · {node.subtitle}</small></span><span>↗</span></button>)}{!searchHits.length && <p>No matching records in this view.</p>}{searchHits.length > 0 && <small className="rm-search-hint">↑ ↓ choose · Enter open · Type more to refine</small>}</div>}</label></div>
-    <details className="rm-filter-panel"><summary>Filter companies <span>{Object.values(segments).filter(Boolean).length ? `${Object.values(segments).filter(Boolean).length} active` : "Lists, industry, revenue, company size and outreach state"}</span></summary><div className="rm-segments">
-      {segmentControl("batch", "Lists", [...new Set(initialCompanies.map((company) => company.outreachList || "Not recorded"))].sort())}
-      {segmentControl("industry", "Industries", [...new Set(initialCompanies.map((company) => company.vertical || "Unknown"))].sort())}
-      <label>Revenue<select aria-label="Revenue" value={segments.revenue} onChange={(event) => { updateSegments({ ...segments, revenue: event.target.value }); }}><option value="">All revenue bands</option>{revenueBands.map((band) => <option key={band.value} value={band.value}>{band.label}</option>)}</select></label>
-      {segmentControl("employees", "Employee size", [...new Set(initialCompanies.map((company) => company.employee_range || "Unknown"))].sort())}
-      {segmentControl("status", "Statuses", [...new Set(initialCompanies.map((company) => company.status))].sort())}
-      {segmentControl("owner", "Owners", [...new Set(initialCompanies.map((company) => company.outreach_owner || "Unassigned"))].sort())}
-      {segmentControl("stage", "Outreach stages", [...new Set(initialCompanies.map((company) => company.outreach_stage || "Not recorded"))].sort())}
-      <button onClick={() => { setLeadLens("all"); setActiveRing(null); updateSegments(ALL_SEGMENTS); setEnabled(new Set(layers)); setQuery(""); setCompanyQuery(""); }}>Show everything</button>
-    </div><small>Revenue figures retain their stored status, year and source. Unknown values remain selectable.</small>    <div className="rm-lead-lenses" aria-label="Lead review shortcuts">{leadLenses.map((lens) => <button key={lens.value} aria-pressed={leadLens === lens.value} disabled={!metrics && lens.value !== "all"} onClick={() => { loadController.current?.abort(); setLoading(false); setLeadLens(lens.value); setDomain(""); setPicked(null); setIsolated(false); if (graph) { const targets = initialCompanies.filter((company) => matchesLeadLens(graph, company.id, lens.value)); changeCamera(radialCamera(radialLayout(segmentGraph(graph, targets, segments), grouping))); } }}>{lens.label}<b>{metrics && graph ? initialCompanies.filter((company) => matchesSegment(company, segments) && matchesLeadLens(graph, company.id, lens.value)).length : "…"}</b></button>)}</div>
-    <div className="rm-radial-grouping"><span>Company hubs grouped by</span><select aria-label="Group company hubs" value={grouping} onChange={(event) => { const next = event.target.value as RadialGrouping; setGrouping(next); setManualPoints({}); if (scopedGraph) changeCamera(radialCamera(radialLayout(scopedGraph, next))); }}><option value="industry">Industry</option><option value="revenue">Recorded revenue</option><option value="list">Outreach list</option></select>{activeRing && <button onClick={() => setActiveRing(null)}>Clear ring highlight ×</button>}</div>
-</details>
-    <p className="rm-data-status"><span className={metrics ? "is-ready" : "is-pending"} />{counts.company} of {initialCompanies.length} target companies · {metrics ? "Stored relationships loaded" : "Loading relationship details…"}<small>{graph ? `Snapshot ${recordedDate(graph.loadedAt, true)}` : ""}</small></p>
-    {metricsError && <p role="alert" className="rm-warning">{metricsError}</p>}{metrics?.warnings.map((warning) => <p key={warning} className="rm-warning">{warning}</p>)}
-    {error && <div role="alert" className="rm-warning">{error}</div>}{graph?.warnings.length ? <details className="rm-coverage"><summary>Some layers are incomplete · {graph.warnings.length} coverage notices</summary>{graph.warnings.map((warning) => <p key={warning}>{warning}</p>)}</details> : null}
-    <div className="rm-navigation-strip"><button onClick={() => void loadCompany("")} aria-current={!domain ? "page" : undefined}>All targets</button>{domain && <><span>›</span><strong>{initialCompanies.find((company) => company.domain === domain)?.name ?? domain}</strong><div className="rm-company-stepper"><button disabled={currentIndex <= 0} onClick={() => void loadCompany(navigationCompanies[currentIndex - 1].domain)}>← Previous</button><small>{Math.max(0, currentIndex + 1)} / {navigationCompanies.length}</small><button disabled={currentIndex < 0 || currentIndex >= navigationCompanies.length - 1} onClick={() => void loadCompany(navigationCompanies[currentIndex + 1].domain)}>Next →</button></div></>}{selected && selected.kind !== "company" && <small className="rm-current-record">› {shortLabel(selected, 28)}</small>}<span className="rm-navigation-tip">Double-click a company to explore · / search · Esc close</span></div>
-    <div className="rm-main is-chart-only"><section className={`rm-canvas is-map ${arrange ? "is-arranging" : ""}`} aria-label="Interactive company relationship map">
-      <div className="rm-canvas-heading"><span><i />{domain ? "COMPANY RELATIONSHIP ORBIT" : "CIRCULAR LEAD NETWORK"}</span><small>{visible?.nodes.length ?? 0} records · {visible?.edges.length ?? 0} links</small></div>
-
-      <svg className="rm-graph-svg" ref={svg} viewBox="0 0 1600 1160" role="group" aria-label="Relationship graph. Tab through nodes, then press Enter to inspect. Drag to pan; scroll to zoom." onDoubleClick={(event) => { const target = event.target instanceof Element ? event.target.closest("[data-map-node]") : null; const node = graph?.nodes.find((node) => node.id === target?.getAttribute("data-map-node")); if (node?.kind === "company") void loadCompany(node.subtitle); }} onPointerLeave={() => setHover(null)} onPointerDown={(event) => { if (event.button !== 0) return; suppressClick.current = false; gesture.current = { kind: "pan", start: { x: event.clientX, y: event.clientY }, camera: cameraRef.current }; if (!(event.target instanceof Element && event.target.closest("[data-map-node]"))) event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={move} onPointerUp={stop} onPointerCancel={stop}>
-        <defs><pattern id="rm-grid" width="60" height="60" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.8" fill="#294050" opacity="0.4" /></pattern><radialGradient id="rm-glow"><stop offset="0" stopColor="#274651" stopOpacity="0.17" /><stop offset="1" stopColor="#0c151c" stopOpacity="0" /></radialGradient><marker id="rm-arrow" viewBox="0 0 10 10" refX="16" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9" fill="#acbbc6" /></marker></defs>
-        <rect width="1600" height="1160" fill="url(#rm-grid)" /><ellipse cx="800" cy="580" rx="640" ry="530" fill="url(#rm-glow)" />
-        <g transform={`translate(${camera.x},${camera.y}) scale(${camera.scale})`}><g className="rm-circular-orbits" aria-label="Circular relationship rings"><circle r="650" /><circle r="780" />{facets.map((facet, index) => { const color = ["#d9b872", "#8cacd7", "#aa9ee5", "#72c6b0"][index % 4]; const middle = (facet.start + facet.end) / 2; const point = polar(710, middle); const rotation = middle * 180 / Math.PI + 90; return <g key={facet.value} role="button" tabIndex={0} aria-label={`Filter ${grouping}: ${facet.label}, ${facet.count} companies`} onPointerDown={(event) => event.stopPropagation()} onClick={() => updateSegments({ ...segments, [grouping === "industry" ? "industry" : grouping === "revenue" ? "revenue" : "batch"]: facet.value })} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); updateSegments({ ...segments, [grouping === "industry" ? "industry" : grouping === "revenue" ? "revenue" : "batch"]: facet.value }); } }}><path d={ringArc(690, facet.start + 0.012, facet.end - 0.012)} stroke={color} style={{ strokeWidth: 10, opacity: 0.3 }} /><title>{`${facet.label}: ${facet.count} target companies. Click to filter.`}</title>{facet.count / Math.max(1, counts.company) > 0.09 && <text x={point.x} y={point.y} textAnchor="middle" fill={color} style={{ fontSize: 24, letterSpacing: 1 }} transform={`rotate(${rotation > 90 && rotation < 270 ? rotation + 180 : rotation},${point.x},${point.y})`}>{facet.label.length > 25 ? `${facet.label.slice(0, 24)}…` : facet.label} · {facet.count}</text>}</g>; })}{ringSections.map((section, index) => { const start = -Math.PI / 2 + index * Math.PI / 3 + 0.02, end = start + Math.PI / 3 - 0.04; const point = polar(circleRadius + 48, (start + end) / 2); return <g key={section.id} className={activeRing === section.id ? "is-active" : ""} role="button" tabIndex={0} aria-label={`Highlight ${section.label.toLowerCase()} ring`} aria-pressed={activeRing === section.id} onPointerDown={(event) => event.stopPropagation()} onClick={() => { setPicked(null); setActiveRing((value) => value === section.id ? null : section.id); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setPicked(null); setActiveRing((value) => value === section.id ? null : section.id); } }}><path d={ringArc(circleRadius, start, end)} stroke="transparent" style={{ strokeWidth: 28, opacity: 1 }} /><path d={ringArc(circleRadius, start, end)} stroke={section.color} /><text x={point.x} y={point.y} textAnchor="middle" dominantBaseline="middle" fill={section.color} transform={`rotate(${((start + end) / 2 * 180 / Math.PI + 90) > 90 && ((start + end) / 2 * 180 / Math.PI + 90) < 270 ? (start + end) / 2 * 180 / Math.PI + 270 : (start + end) / 2 * 180 / Math.PI + 90},${point.x},${point.y})`}>{section.label}</text></g>; })}</g>{visible && <Artwork graph={visible} points={positions} selected={picked} highlighted={highlighted} scale={camera.scale} onSelect={selectFromChart} onDrag={dragNode} />}</g>
-      </svg><div className="rm-map-controls"><button aria-label="Zoom out" onClick={() => changeCamera(zoomCamera(cameraRef.current, 0.8, { x: 800, y: 580 }))}><Minus size={17} /></button><span>{Math.round(camera.scale * 100)}%</span><button aria-label="Zoom in" onClick={() => changeCamera(zoomCamera(cameraRef.current, 1.25, { x: 800, y: 580 }))}><Plus size={17} /></button><button aria-label="Center selected node" onClick={focus}><Crosshair size={17} /></button><button aria-label="Open map fullscreen" onClick={() => { const container = svg.current?.closest(".rm-canvas"); if (container instanceof HTMLElement) void container.requestFullscreen().catch(() => setError("Fullscreen is unavailable in this browser.")); }}><ArrowsOut size={17} /></button><button className="rm-control-label" onClick={() => changeCamera(radialCamera(visiblePositions, circleRadius))}>Fit graph</button><button className="rm-control-label" aria-pressed={arrange} onClick={() => setArrange((value) => !value)}>Arrange nodes</button><button aria-label="Reset graph layout and filters" onClick={reset}><ArrowsCounterClockwise size={17} /></button></div><p className="rm-map-hint">Drag to pan · Alt-drag a node to arrange · Click to inspect · Scroll to zoom</p>
-      <svg className="rm-minimap" viewBox="0 0 200 120" role="button" tabIndex={0} aria-label="Graph minimap. Click to move the viewport; press Enter to fit the graph." onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { const rect = event.currentTarget.getBoundingClientRect(); const x = (event.clientX - rect.left) * 200 / rect.width, y = (event.clientY - rect.top) * 120 / rect.height; changeCamera(centeredCamera({ x: (x - miniature.x) / miniature.scale, y: (y - miniature.y) / miniature.scale }, camera.scale)); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); changeCamera(radialCamera(visiblePositions, circleRadius)); } }}>
-        <rect width="200" height="120" rx="8" fill="#0d1b25" />{visible?.nodes.map((node) => { const point = positions[node.id]; return point ? <circle key={node.id} cx={point.x * miniature.scale + miniature.x} cy={point.y * miniature.scale + miniature.y} r={node.kind === "company" ? 2.5 : 1.1} fill={layerDesign[node.kind].color} opacity={node.kind === "company" ? 1 : 0.4} /> : null; })}<rect x={-camera.x / camera.scale * miniature.scale + miniature.x} y={-camera.y / camera.scale * miniature.scale + miniature.y} width={1600 / camera.scale * miniature.scale} height={1160 / camera.scale * miniature.scale} rx="3" fill="#75d6be15" stroke="#75d6be" strokeWidth="0.7" />
-      </svg>
-      {hover && hovered && <div className="rm-node-preview" style={{ left: hover.x, top: hover.y }}><small style={{ color: layerDesign[hovered.kind].color }}>{layerDesign[hovered.kind].label} · {hovered.status.replaceAll("_", " ")}</small><strong>{hovered.label}</strong><p>{hovered.kind === "person" ? `${hovered.subtitle} · ${fact(hovered, "Email") || "No address recorded"}` : hovered.subtitle}</p><span>{hovered.kind === "company" ? `${fact(hovered, "Industry") || "Industry unknown"} · ${fact(hovered, "Outreach list") || "Target list"}` : dateLabel(hovered)}</span><em>Click for details{hovered.kind === "company" ? " · Double-click to explore" : ""}</em></div>}
-      {loading && <div className="rm-loading" role="status">Loading this company’s complete relationships…</div>}{!graph && <div className="rm-loading">No companies are available to explore.</div>}{visible && metrics && !loading && visible.nodes.length <= 1 && <p className="rm-empty">No additional records match the current layers and search.</p>}
-    </section>{!selected && <aside className="rm-radial-legend" aria-label="Graph layers and lead segments"><header><span>NETWORK LAYERS</span><small>{visible?.nodes.length ?? 0} records</small></header>{layers.map((kind) => <button title={layerDesign[kind].description} key={kind} disabled={kind === "company"} aria-pressed={enabled.has(kind)} onClick={() => setEnabled((previous) => { const next = new Set(previous); if (next.has(kind)) next.delete(kind); else next.add(kind); return next; })}><i style={{ background: layerDesign[kind].color }} /><span><strong>{layerDesign[kind].label}</strong></span><b>{kind === "company" || metrics ? counts[kind] : "…"}</b></button>)}<details><summary>Industries</summary>{[...new Set(initialCompanies.map((company) => company.vertical || "Unknown"))].sort().map((industry) => <button key={industry} onClick={() => updateSegments({ ...segments, industry })}>{industry}<b>{initialCompanies.filter((company) => (company.vertical || "Unknown") === industry).length}</b></button>)}</details><details><summary>Revenue segments</summary>{revenueBands.map((band) => <button key={band.value} onClick={() => updateSegments({ ...segments, revenue: band.value })}>{band.label}<b>{initialCompanies.filter((company) => matchesSegment(company, { ...ALL_SEGMENTS, revenue: band.value })).length}</b></button>)}</details><nav aria-label="Lead management"><Link href={`/outreach?list=${owner}`}>Outreach workspace ↗</Link><Link href="/delivery-recovery">Manage bounced addresses ↗</Link><Link href="/replies">Review replies ↗</Link></nav></aside>}{selected && <aside className="rm-inspector" aria-label="Selected relationship details">
-      <button className="rm-close-inspector" aria-label="Close node details" onClick={() => setPicked(null)}><X size={16} /></button>
-      {selected ? <><div className="rm-inspector-kind"><i style={{ background: layerDesign[selected.kind].color }} />{layerDesign[selected.kind].label}<span>{selected.status}</span></div><h2>{selected.label}</h2><p className="rm-subtitle">{selected.subtitle}</p><p className="rm-detail">{selected.detail}</p>{selected.at && <p className="rm-date">{dateLabel(selected)}</p>}<dl>{selected.facts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl><div className="rm-inspector-actions">{selected.kind === "company" && <button disabled={loading} onClick={() => { void loadCompany(selected.subtitle); }}>Open company graph <ArrowUpRight size={15} /></button>}{selected.kind !== "company" && selected.companyId && <button onClick={() => { const company = initialCompanies.find((company) => company.id === selected.companyId); if (company) void loadCompany(company.domain); }}>View company graph <ArrowUpRight size={15} /></button>}{selected.href && <Link href={selected.href}>Open record <ArrowUpRight size={15} /></Link>}{selected.sourceUrl && <a href={selected.sourceUrl} target="_blank" rel="noopener noreferrer">Original source <ArrowUpRight size={15} /></a>}{selected.kind === "email" && <button onClick={() => { void navigator.clipboard.writeText(selected.label).then(() => setCopied(selected.id)).catch(() => setError("Could not copy this address. Select the address text to copy it.")); }}>{copied === selected.id ? "Address copied" : "Copy address"}</button>}<button onClick={() => { focus(); }}>Center node <Crosshair size={15} /></button></div><EvidencePanel graph={scopedGraph!} node={selected} onSelect={choose} /><label className="rm-isolate"><input type="checkbox" checked={isolated} onChange={(event) => setIsolated(event.target.checked)} /> Show this connection path only</label>
-      {path.length > 1 && <div className="rm-path"><h3>Path from company</h3>{path.map((id, index) => { const node = graph!.nodes.find((node) => node.id === id)!; return <button key={id} onClick={() => choose(id)}><small>{String(index + 1).padStart(2, "0")}</small><i style={{ background: layerDesign[node.kind].color }} /><span>{shortLabel(node, 40)}</span></button>; })}</div>}
-      <div className="rm-connections"><h3>Direct connections <span>{adjacent?.edges.length ?? 0}</span></h3>{adjacent?.edges.map((edge) => { const id = edge.from === selected.id ? edge.to : edge.from; const node = graph!.nodes.find((node) => node.id === id)!; return <button key={edge.id} onClick={() => choose(id)}><i style={{ background: layerDesign[node.kind].color }} /><span><strong>{shortLabel(node, 40)}</strong><small>{edge.from === selected.id ? edge.label : `Connected by: ${edge.label}`}</small></span><CaretRight size={14} /></button>; })}{!adjacent?.edges.length && <p>No linked records are loaded for this node.</p>}</div></> : <><h2>Explore the portfolio</h2><p>Choose a node to see its source, recorded state and direct relationships.</p></>}
-      <details className="rm-legend"><summary>About the layers</summary>{layers.map((kind) => <p key={kind}><i style={{ background: layerDesign[kind].color }} /><span><b>{layerDesign[kind].label}</b>{layerDesign[kind].description}</span></p>)}</details><p className="rm-integrity">Lines connect stored relationships or recorded dates. Shared dates do not imply a business relationship.</p>
-    </aside>}</div>
+  const [graph, setGraph] = useState(initialGraph), [error, setError] = useState(""), [loaded, setLoaded] = useState(false);
+  const [segments, setSegments] = useState<SegmentFilters>(ALL_SEGMENTS), [lens, setLens] = useState<LeadLens>("all"), [domain, setDomain] = useState(initialDomain);
+  const [selectedId, setSelectedId] = useState<string | null>(null), [hidden, setHidden] = useState(new Set<string>()), [query, setQuery] = useState(""), [labels, setLabels] = useState<"auto" | "all">("auto"), [centerOn, setCenterOn] = useState<{ id: string; n: number }>();
+  const [height, setHeight] = useState(680);
+  useEffect(() => { const resize = () => setHeight(Math.max(520, window.innerHeight - 245)); resize(); window.addEventListener("resize", resize); return () => window.removeEventListener("resize", resize); }, []);
+  useEffect(() => { const controller = new AbortController(); void fetch(`/api/network?scope=all&owner=${owner}`, { signal: controller.signal }).then(async response => { const data: unknown = await response.json(); if (!response.ok) throw new Error("Could not load relationship records."); const parsed = graphSchema.parse(typeof data === "object" && data !== null && "graph" in data ? data.graph : data); setGraph(parsed); setLoaded(true); }).catch((cause: unknown) => { if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : "Could not load relationships."); }); return () => controller.abort(); }, [owner]);
+  const companies = useMemo(() => initialCompanies.filter(company => (!domain || company.domain === domain) && matchesSegment(company, segments) && (!graph || matchesLeadLens(graph, company.id, lens))), [initialCompanies, domain, segments, graph, lens]);
+  const scoped = useMemo(() => graph ? segmentGraph(graph, companies, ALL_SEGMENTS) : null, [graph, companies]);
+  const nodes = useMemo<Node[]>(() => {
+    const mapped = scoped?.nodes.map(node => { const section = ringSections.find(section => section.kinds.includes(node.kind)); const ring = ["email", "source", "date"].includes(node.kind); return { id: node.id, label: node.label, type: node.kind, color: layerDesign[node.kind].color, size: node.kind === "company" ? 12 : ["signal", "job", "post", "discovery"].includes(node.kind) ? 2 : node.kind === "person" ? 6 : 4, sub: ring ? `${section?.label ?? node.kind} · ${node.subtitle}` : node.subtitle, group: node.companyId ? `company:${node.companyId}` : undefined, ring }; }) ?? [];
+    return mapped.sort((a, b) => a.ring && b.ring ? (a.sub ?? "").localeCompare(b.sub ?? "") : Number(a.ring) - Number(b.ring));
+  }, [scoped]);
+  const links = useMemo(() => scoped?.edges.map(edge => ({ source: edge.from, target: edge.to, kind: edge.label })) ?? [], [scoped]);
+  const selected = scoped?.nodes.find(node => node.id === selectedId);
+  const results = query.trim() ? nodes.filter(node => `${node.label} ${node.sub ?? ""}`.toLowerCase().includes(query.toLowerCase())).slice(0, 8) : [];
+  function select(node: Node | null) { setSelectedId(node?.id ?? null); }
+  function jump(id: string) { setSelectedId(id); setCenterOn(previous => ({ id, n: (previous?.n ?? 0) + 1 })); setQuery(""); }
+  function toggle(type: string) { setHidden(previous => { const next = new Set(previous); if (next.has(type)) next.delete(type); else next.add(type); return next; }); }
+  function filter(key: keyof SegmentFilters, title: string, values: string[]) { return <label className="grid gap-1 text-xs text-slate-400">{title}<select aria-label={title} value={segments[key]} onChange={event => { setSegments({ ...segments, [key]: event.target.value }); setSelectedId(null); }} className="rounded-md border border-slate-700 bg-slate-900 p-2 text-slate-200"><option value="">All</option>{values.map(value => <option key={value}>{value}</option>)}</select></label>; }
+  return <div className="grid gap-3 text-slate-200">
+    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-800 bg-slate-950 p-3">
+      {showOwners && <nav className="flex gap-2 text-xs" aria-label="List owner"><Link className={owner === "josh" ? "text-emerald-300" : "text-slate-400"} href="/network?owner=josh">Josh’s lists</Link><Link className={owner === "suuchi" ? "text-emerald-300" : "text-slate-400"} href="/network?owner=suuchi">Suuchi’s lists</Link></nav>}
+      <select aria-label="Choose company" className="rounded-md border border-slate-700 bg-slate-900 p-2 text-xs" value={domain} onChange={event => { setDomain(event.target.value); setSelectedId(null); }}><option value="">All {initialCompanies.length} target companies</option>{initialCompanies.map(company => <option key={company.id} value={company.domain}>{company.name}</option>)}</select>
+      <div className="relative min-w-52 flex-1"><input aria-label="Find a node" className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 text-xs" placeholder="Search companies, contacts, emails…" value={query} onChange={event => setQuery(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && results[0]) jump(results[0].id); if (event.key === "Escape") setQuery(""); }} />{query.trim() && <div className="absolute left-0 right-0 top-full z-20 mt-2 rounded-lg border border-slate-700 bg-slate-950 p-2 shadow-xl">{results.map(node => <button key={node.id} onClick={() => jump(node.id)} className="flex w-full items-center gap-2 rounded p-2 text-left text-xs hover:bg-slate-800"><span style={{ color: node.color }}>●</span><span>{node.label}<small className="block text-slate-500">{node.type}</small></span></button>)}{!results.length && <p className="p-2 text-xs text-slate-400">No matching records.</p>}</div>}</div>
+      <details className="relative"><summary className="cursor-pointer rounded-md border border-slate-700 px-3 py-2 text-xs">Filter companies</summary><div className="absolute right-0 top-full z-20 mt-2 grid w-80 gap-3 rounded-lg border border-slate-700 bg-slate-950 p-4 shadow-xl">{filter("batch", "Lists", [...new Set(initialCompanies.map(c => c.outreachList || "Not recorded"))])}{filter("industry", "Industries", [...new Set(initialCompanies.map(c => c.vertical || "Unknown"))].sort())}<label className="grid gap-1 text-xs text-slate-400">Revenue<select aria-label="Revenue" className="rounded-md border border-slate-700 bg-slate-900 p-2 text-slate-200" value={segments.revenue} onChange={event => setSegments({ ...segments, revenue: event.target.value })}><option value="">All revenue bands</option>{revenueBands.map(band => <option key={band.value} value={band.value}>{band.label}</option>)}</select></label>{filter("employees", "Employee size", [...new Set(initialCompanies.map(c => c.employee_range || "Unknown"))])}<button className="text-left text-xs text-emerald-300" onClick={() => { setSegments(ALL_SEGMENTS); setLens("all"); setDomain(""); setHidden(new Set()); }}>Show everything</button></div></details>
+      <select aria-label="Label visibility" value={labels} onChange={event => setLabels(event.target.value as "auto" | "all")} className="rounded-md border border-slate-700 bg-slate-900 p-2 text-xs"><option value="auto">Auto labels</option><option value="all">All labels</option></select>
+    </div>
+    <div className="flex items-center justify-between text-xs text-slate-400"><span>{companies.length} target companies · {loaded ? `${nodes.length} records` : "Loading relationships…"}</span><span>Drag nodes · Drag background to pan · Scroll to zoom</span></div>
+    {error && <p role="alert" className="text-sm text-amber-300">{error}</p>}{graph?.warnings.map(warning => <p className="text-xs text-amber-300" key={warning}>{warning}</p>)}
+    <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]"><section aria-label="Interactive company relationship map"><RadialNetworkGraph nodes={nodes} links={links} height={height} hiddenTypes={hidden} selectedId={selected?.id ?? null} onSelect={select} labels={labels} rootId={domain ? nodes.find(node => node.type === "company")?.id : undefined} centerOn={centerOn} /></section>
+      <aside className="overflow-auto rounded-xl border border-slate-800 bg-slate-950 p-4" style={{ maxHeight: height }}>
+        {selected ? <div aria-label="Selected relationship details"><button onClick={() => setSelectedId(null)} className="float-right text-xs text-slate-400">Close ×</button><span className="text-xs uppercase" style={{ color: layerDesign[selected.kind].color }}>{layerDesign[selected.kind].label}</span><h2 className="mt-3 text-lg font-semibold">{selected.label}</h2><p className="mt-2 break-words text-xs text-slate-400">{selected.subtitle}</p><p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-slate-300">{selected.detail}</p><dl className="mt-4">{selected.facts.map(item => <div className="flex justify-between gap-4 border-t border-slate-800 py-2 text-xs" key={item.label}><dt className="text-slate-500">{item.label}</dt><dd className="break-words text-right">{item.value}</dd></div>)}</dl><div className="my-4 flex flex-wrap gap-3 text-xs text-emerald-300">{selected.href && <Link href={selected.href}>Open record ↗</Link>}{selected.sourceUrl && <a href={selected.sourceUrl} target="_blank" rel="noopener noreferrer">Original source ↗</a>}{selected.kind === "company" && <button onClick={() => { setDomain(selected.subtitle); setSelectedId(null); }}>Open company graph ↗</button>}</div><EvidencePanel graph={scoped!} node={selected} onSelect={jump} /><h3 className="mt-5 text-xs uppercase text-slate-400">Connections</h3>{layers.map(type => { const ids = new Set(scoped?.edges.filter(edge => edge.from === selected.id || edge.to === selected.id).map(edge => edge.from === selected.id ? edge.to : edge.from)); const connected = scoped?.nodes.filter(node => node.kind === type && ids.has(node.id)) ?? []; return connected.length ? <div key={type} className="mt-3"><h4 className="text-xs" style={{ color: layerDesign[type].color }}>{layerDesign[type].label} · {connected.length}</h4>{connected.slice(0, 24).map(node => <button className="block w-full py-2 text-left text-xs text-slate-300 hover:text-white" key={node.id} onClick={() => jump(node.id)}>{node.label}</button>)}{connected.length > 24 && <p className="text-xs text-slate-500">+{connected.length - 24} more</p>}</div> : null; })}</div> : <><h2 className="mb-3 text-xs uppercase tracking-widest text-slate-400">Network layers</h2>{layers.map(type => <button className="flex w-full items-center gap-2 border-t border-slate-800 py-2 text-left text-xs" key={type} aria-pressed={!hidden.has(type)} onClick={() => toggle(type)} style={{ opacity: hidden.has(type) ? .35 : 1 }}><i className="h-2 w-2 rounded-full" style={{ background: layerDesign[type].color }} /><span className="flex-1">{layerDesign[type].label}</span><span className="text-slate-500">{nodes.filter(node => node.type === type).length}</span></button>)}<h3 className="mb-2 mt-5 text-xs uppercase tracking-wider text-slate-400">Review leads</h3>{leadLenses.map(item => <button className={`mb-1 flex w-full justify-between rounded px-2 py-2 text-left text-xs ${lens === item.value ? "bg-slate-800 text-emerald-300" : "text-slate-400"}`} key={item.value} disabled={!loaded && item.value !== "all"} onClick={() => { setLens(item.value); setSelectedId(null); }}>{item.label}<span>{graph ? initialCompanies.filter(company => matchesLeadLens(graph, company.id, item.value)).length : "…"}</span></button>)}<nav className="mt-4 grid gap-3 border-t border-slate-800 pt-4 text-xs text-emerald-300"><Link href={`/outreach?list=${owner}`}>Outreach workspace ↗</Link><Link href="/delivery-recovery">Manage bounced addresses ↗</Link><Link href="/replies">Review replies ↗</Link></nav><p className="mt-4 text-xs leading-5 text-slate-500">Lines represent stored relationships. Shared dates do not imply a business relationship.{graph && ` Snapshot ${recordedDate(graph.loadedAt, true)}.`}</p></>}
+      </aside>
+    </div>
   </div>;
 }
