@@ -82,7 +82,7 @@ export async function markTouchBounced(db: SupabaseClient, touch: BouncedTouch, 
   const stamped = await query;
   if (stamped.error) throw new Error("Could not record the bounce.");
   const account = person.accounts as unknown as { domain: string } | null;
-  if (failed && (person.email_status !== "invalid" || !rejectedAddresses(person).includes(failed) || report && !(Array.isArray(check.deliveryFailures) && check.deliveryFailures.some((failure) => addressCheck(failure).messageId === report.messageId)))) await markBounced(db, person as RecipientPerson, account ? { id: person.account_id as string, domain: account.domain } : null, { email: failed, ...(report ? { ...report, at: report.at } : { at: now.toISOString() }) });
+  if (failed && (failed === person.email?.toLowerCase() && person.email_status !== "invalid" || !rejectedAddresses(person).includes(failed) || report && !(Array.isArray(check.deliveryFailures) && check.deliveryFailures.some((failure) => addressCheck(failure).messageId === report.messageId)))) await markBounced(db, person as RecipientPerson, account ? { id: person.account_id as string, domain: account.domain } : null, { email: failed, ...(report ? { ...report, at: report.at } : { at: now.toISOString() }) });
   if (failed && failed !== person.email?.toLowerCase()) return true;
   const { data: cadence, error: cadenceError } = await db.from("cadences").select("id").eq("card_id", touch.card_id).maybeSingle();
   if (cadenceError) throw new Error("Could not load the bounced sequence.");

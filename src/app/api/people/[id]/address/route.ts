@@ -5,6 +5,7 @@ import { isRoleAddress } from "@/lib/clean";
 import { reopenBouncedCards } from "@/lib/nightly-list-builder";
 import { admin } from "@/lib/supabase/admin";
 import { z } from "zod";
+import { syncRecipientLists } from "@/lib/recipient-list-sync";
 
 const input = z.object({ email: z.string().trim().toLowerCase().email().max(254) });
 
@@ -35,6 +36,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const candidate = { ...person, email, email_status: "unverified", email_source: "manual", email_check: replacementCheck(person, { email }) };
     const check = await checkRecipient(db, candidate, { id: person.account_id, domain: email.split("@")[1] }, { force: true });
     await recordRecipientCheck(db, candidate, check);
+    await syncRecipientLists(db, id);
     if (check.level === "deliverable") await reopenBouncedCards(db, id);
     return Response.json({ email, verified: check.level === "deliverable", reason: check.reason });
   } catch (error) {

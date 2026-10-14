@@ -1,5 +1,5 @@
 import { withMailboxQuota } from '@/lib/mailbox-quota';
-import { researchedSendAuthorized } from '@/lib/bulk-sendable';
+import { researchedAddressProblem, researchedSendAuthorized } from '@/lib/bulk-sendable';
 import { DeliveryError, initialReservationId } from '@/lib/delivery-state';
 import { restoreSelectedDraft } from "@/lib/restore-selected-draft";
 import { allFocus, assertCardSender } from "@/lib/focus-data";
@@ -98,6 +98,8 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
       recipient = chosen as typeof recipient;
     }
     if (!recipient.email) throw new Error(`There is no email address on file for ${recipient.full_name}.`);
+    const unappliedResearch = researchedAddressProblem(recipient);
+    if (unappliedResearch) throw new Error(`${unappliedResearch} Nothing was sent.`);
     if (recipient.do_not_contact || ["client", "do_not_contact"].includes(card.accounts.status)) throw new Error("Do-not-contact guard blocked this send");
     // A shared mailbox or a scraped phrase ("Human Resources", "Domestic Sales") is never a person to pitch.
     if (!isRealContact({ full_name: recipient.full_name, email: recipient.email, title: (recipient as { title?: string | null }).title ?? null })) throw new Error(`${recipient.full_name} is a shared mailbox or a phrase, not a person, so nothing was sent.`);

@@ -1,5 +1,6 @@
 import { diversifiedResearchQueue } from "./list-builders.ts";
 import { addressCheck, addressRejected, rejectedAddresses, replacementCheck } from "./address-history.ts";
+import { syncRecipientLists } from "./recipient-list-sync.ts";
 import { checkRecipient } from "./recipient-verification.ts";
 import { pageShowsAddress, pageShowsNamedAddress } from "./page-emails.ts";
 import { z } from "zod";
@@ -691,7 +692,7 @@ async function applyEmailEvidence(db: Db, domain: string, buyerName: string, evi
   if (bouncedBefore || rejectedAddresses(person).includes(address) || await addressRejected(db, address)) return out("unconfirmed", `${address} already bounced; find a different address`);
   const now = new Date().toISOString();
   if (evidence.kind === "published") {
-    if (!(await pageHas(evidence.sourceUrl, address, deps.fetcher, deps.lookup, buyerName))) return out("unconfirmed", `${address} is not on ${evidence.sourceUrl}`);
+    if (!(await pageHas(evidence.sourceUrl, address, deps.fetcher, deps.lookup, buyerName))) return out("unconfirmed", `Could not corroborate ${address} with ${buyerName} on the cited source. Address was not changed.`);
     if (!address.endsWith(`@${domain}`) && !onDomain(evidence.sourceUrl, domain)) return out("unconfirmed", "An alternate email domain must be published on the company's own site.");
     const email_check = replacementCheck(person, { email: address, source: "research", evidenceUrl: evidence.sourceUrl, checkedAt: now });
     const saved = await db.from("people").update({ email: address, email_source: "published", email_status: "unverified", email_verified_at: null, email_check }).eq("id", person.id);
@@ -859,6 +860,9 @@ export async function reopenBouncedCards(db: Db, personId: string) {
 /** Record researched address evidence for existing list contacts, checked against the cited pages. */
 export async function importAddressEvidence(db: Db, items: Array<{ personId: string; domain: string; name: string; emailEvidence: EmailEvidence }>, overrides: { fetcher?: Fetcher; lookup?: Lookup; mailHost?: (domain: string) => Promise<boolean | null> } = {}) {
   const out: AddressOutcome[] = [];
-  for (const item of items) out.push(await applyEmailEvidence(db, domainOf(item.domain), item.name, item.emailEvidence, { ...overrides, personId: item.personId }));
+  for (const item of items) {
+    out.push(await applyEmailEvidence(db, domainOf(item.domain), item.name, item.emailEvidence, { ...overrides, personId: item.personId }));
+    await syncRecipientLists(db, item.personId);
+  }
   return out;
 }

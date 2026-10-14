@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { decodeCfEmail, pageEmails, pageShowsAddress } from "./page-emails.ts";
+import { decodeCfEmail, pageEmails, pageShowsAddress, pageShowsNamedAddress } from "./page-emails.ts";
+
+test("published contacts with punctuated initials remain associated with the same named person", () => {
+  assert.equal(pageShowsNamedAddress("A.J. Treleven Email: atreleven@co.test", "atreleven@co.test", "AJ Treleven"), true);
+  assert.equal(pageShowsNamedAddress("A.J. Other Email: atreleven@co.test", "atreleven@co.test", "AJ Treleven"), false);
+});
 
 // Cloudflare-style encoding with key 0x42.
 const cf = (email: string, key = 0x42) => key.toString(16).padStart(2, "0") + [...email].map((c) => (c.charCodeAt(0) ^ key).toString(16).padStart(2, "0")).join("");

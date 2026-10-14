@@ -14,7 +14,10 @@ export function rejectedAddresses(person: { email?: string | null; email_status?
 
 export function replacementCheck(person: Parameters<typeof rejectedAddresses>[0], check: Record<string, unknown>) {
   const previous = addressCheck(person.email_check);
-  return { ...previous, level: "risky", status: "unverified", lastSentEmail: null, lastSentAt: null, likely: false, ...check, bouncedEmails: [...new Set([...rejectedAddresses(person), ...(Array.isArray(check.bouncedEmails) ? check.bouncedEmails.filter((value): value is string => typeof value === "string") : [])])] };
+  const research = addressCheck(previous.publicResearch);
+  const selected = typeof check.email === "string" ? check.email : null;
+  const superseded = selected && selected !== person.email && research.addressCandidate && research.addressCandidate !== selected;
+  return { ...previous, ...(superseded ? { publicResearch: { ...research, supersededBy: selected, supersededAt: check.checkedAt ?? new Date().toISOString() } } : {}), outreachAuthorization: null, level: "risky", status: "unverified", lastSentEmail: null, lastSentAt: null, likely: false, ...check, bouncedEmails: [...new Set([...rejectedAddresses(person), ...(Array.isArray(check.bouncedEmails) ? check.bouncedEmails.filter((value): value is string => typeof value === "string") : [])])] };
 }
 
 /** Negative history belongs to an address across every contact, even after a correction. */

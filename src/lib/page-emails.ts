@@ -61,10 +61,11 @@ export function pageShowsNamedAddress(html: string, address: string, name: strin
   const words = name.toLowerCase().replace(/\b(jr|sr|iii|ii)\.?/g, " ").split(/[^a-z]+/).filter(Boolean);
   const first = words[0], last = words.at(-1);
   if (!first || !last) return false;
+  const firstPattern = first.length === 2 ? first.split("").join("[.\\s]*") : first;
   let start = text.indexOf(address.toLowerCase());
   while (start >= 0) {
     const context = text.slice(Math.max(0, start - 200), start + address.length + 200);
-    if (new RegExp(`\\b${first}\\b`).test(context) && new RegExp(`\\b${last}\\b`).test(context)) return true;
+    if (new RegExp(`\\b${firstPattern}\\b`).test(context) && new RegExp(`\\b${last}\\b`).test(context)) return true;
     start = text.indexOf(address.toLowerCase(), start + 1);
   }
   return false;

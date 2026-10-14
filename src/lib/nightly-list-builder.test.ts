@@ -57,6 +57,7 @@ function load(): Module {
   const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const mocks: Record<string, unknown> = {
     "./address-history.ts": addressHistory,
+    "./recipient-list-sync.ts": { syncRecipientLists: async () => 0 },
     zod: require("zod"),
     "./ai-fit.ts": aiFit,
     "./anthropic-cost.ts": anthropicCost,

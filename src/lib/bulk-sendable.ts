@@ -1,7 +1,19 @@
 import { addressIdentityProblem } from "./address-identity.ts";
+import { addressCheck } from "./address-history.ts";
+
+export function researchedAddressProblem(person: { email?: string | null; email_status?: string | null; email_check?: unknown }) {
+  const check = addressCheck(person.email_check);
+  const research = addressCheck(check.publicResearch);
+  const candidate = typeof research.addressCandidate === "string" ? research.addressCandidate.trim().toLowerCase() : "";
+  if (research.supersededBy === person.email) return null;
+  if (!candidate || research.previouslyFailed === true || candidate === person.email?.toLowerCase()) return null;
+  if (person.email_status === "verified" && check.email === person.email && check.level === "deliverable") return null;
+  return `A researched replacement (${candidate}) is saved but has not been applied to the outbound address.`;
+}
 /** Explicit authorization applies only to the researched address recorded by the operator. */
 export function researchedSendAuthorized(person: { email?: string | null; email_status?: string | null; full_name?: string | null; email_check?: unknown }) {
   if (!sendableAddress(person)) return false;
+  if (researchedAddressProblem(person)) return false;
   const check = person.email_check as { outreachAuthorization?: { email?: unknown; authorizedAt?: unknown } } | null;
   const authorization = check?.outreachAuthorization;
   if (!authorization) return false;
@@ -11,6 +23,7 @@ export function researchedSendAuthorized(person: { email?: string | null; email_
 /** Bulk outreach accepts verified mailboxes or explicit, address-specific authorization. */
 export function bulkSendable(person: { email?: string | null; email_status?: string | null; email_source?: string | null; full_name?: string | null; email_check?: unknown }) {
   if (!sendableAddress(person)) return false;
+  if (researchedAddressProblem(person)) return false;
   if (researchedSendAuthorized(person)) return true;
   const check = person.email_check as { source?: unknown; level?: unknown; email?: unknown } | null;
   if (person.full_name && addressIdentityProblem(person.email!, person.full_name)) return false;

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { bounceReport, markTouchBounced, prioritizeThreads } from "./bounce.ts";
 import { queryDb } from "./testing/query-db.ts";
+import { bulkSendable } from "./bulk-sendable.ts";
 
 const NOW = Date.parse("2026-10-01T15:00:00Z");
 const hoursAgo = (hours: number) => new Date(NOW - hours * 3_600_000).toISOString();
@@ -73,4 +74,14 @@ test("a late failure on an old address preserves a verified replacement and its 
   assert.equal(tables.people[0].email_status, "verified");
   assert.equal(tables.cadences[0].status, "active");
   assert.deepEqual((tables.people[0].email_check as { bouncedEmails: string[] }).bouncedEmails, ["old@co.test"]);
+});
+test("repeated old bounces cannot poison an authorized published replacement", async () => {
+  const check = { email: "dortiz@co.test", level: "risky", status: "unverified", source: "research", sentAddresses: { old: "dana.ortiz@co.test" }, outreachAuthorization: { email: "dortiz@co.test", authorizedAt: new Date(NOW).toISOString() } };
+  const { db, tables } = queryDb({ people: [{ id: "p", full_name: "Dana Ortiz", email: "dortiz@co.test", email_status: "unverified", email_source: "published", email_check: check }], touches: [{ card_id: "card", person_id: "p", gmail_thread_id: "old", bounced_at: null }] });
+  const report = { recipient: "dana.ortiz@co.test", status: "5.1.1", diagnostic: "Mailbox not found", category: "invalid" as const, messageId: "old-failure", at: new Date(NOW).toISOString() };
+  await markTouchBounced(db, { card_id: "card", person_id: "p", gmail_thread_id: "old" }, new Date(NOW), report);
+  await markTouchBounced(db, { card_id: "card", person_id: "p", gmail_thread_id: "old" }, new Date(NOW + 60000), report);
+  const person = tables.people[0] as { email: string; email_status: string; full_name: string; email_check: { email: string; level: string; bouncedEmails: string[]; deliveryFailures: unknown[] } };
+  assert.equal(person.email_check.email, "dortiz@co.test"); assert.equal(person.email_check.level, "risky");
+  assert.deepEqual(person.email_check.bouncedEmails, ["dana.ortiz@co.test"]); assert.equal(person.email_check.deliveryFailures.length, 1); assert.equal(bulkSendable(person), true);
 });

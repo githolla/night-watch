@@ -174,12 +174,13 @@ export async function recordDelivery(db: SupabaseClient, personId: string, email
 /** A delivery failure came back: the address is wrong. Offer the proven format's address when there is one. */
 export async function markBounced(db: SupabaseClient, person: RecipientPerson, account: RecipientAccount | null, failure?: { email: string; messageId?: string; status?: string | null; diagnostic?: string; at?: string }) {
   const email = (failure?.email ?? person.email ?? "").toLowerCase();
+  const currentFailed = email === (person.email ?? "").toLowerCase();
   const format = account ? await provenFormat(db, account, person) : null;
   const built = format && account ? buildEmail(person.full_name, format.key, account.domain) : null;
   const suggestion = built && built !== email ? built : null;
   const saved = await db.from("people").update({
-    ...(email === (person.email ?? "").toLowerCase() ? { email_status: "invalid" } : {}),
-    email_check: { ...addressCheck(person.email_check), bouncedEmails: [...new Set([...rejectedAddresses(person), email])], bouncedEmail: email, bouncedAt: failure?.at ?? new Date().toISOString(), deliveryFailures: [...(Array.isArray(addressCheck(person.email_check).deliveryFailures) ? addressCheck(person.email_check).deliveryFailures as unknown[] : []), { email, ...failure }].filter((item, index, all) => !failure?.messageId || all.findIndex((entry) => addressCheck(entry).messageId === addressCheck(item).messageId) === index), level: "undeliverable", reason: failure?.diagnostic || `${email} bounced.`, source: "history", status: "invalid", suggestion, checkedAt: new Date().toISOString(), email },
+    ...(currentFailed ? { email_status: "invalid" } : {}),
+    email_check: { ...addressCheck(person.email_check), bouncedEmails: [...new Set([...rejectedAddresses(person), email])], bouncedEmail: email, bouncedAt: failure?.at ?? new Date().toISOString(), deliveryFailures: [...(Array.isArray(addressCheck(person.email_check).deliveryFailures) ? addressCheck(person.email_check).deliveryFailures as unknown[] : []), { email, ...failure }].filter((item, index, all) => !failure?.messageId || all.findIndex((entry) => addressCheck(entry).messageId === addressCheck(item).messageId) === index), ...(currentFailed ? { level: "undeliverable", reason: failure?.diagnostic || `${email} bounced.`, source: "history", status: "invalid", suggestion, checkedAt: new Date().toISOString(), email } : {}) },
   }).eq("id", person.id);
   if (saved.error) throw new Error("Could not preserve the failed address.");
   return suggestion;

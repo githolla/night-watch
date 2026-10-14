@@ -1,6 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { bulkSendable, sendableAddress } from "./bulk-sendable.ts";
+import { bulkSendable, sendableAddress, researchedAddressProblem } from "./bulk-sendable.ts";
+
+test("a saved published replacement blocks the old guess even with send authorization", () => {
+  const person = { email: "todd.leyse@co.test", email_status: "unverified", email_check: { publicResearch: { addressCandidate: "tleyse@co.test" }, outreachAuthorization: { email: "todd.leyse@co.test", authorizedAt: "2026-10-14T12:00:00Z" } } };
+  assert.match(researchedAddressProblem(person)!, /has not been applied/);
+  assert.equal(bulkSendable(person), false);
+  assert.equal(researchedAddressProblem({ ...person, email: "tleyse@co.test" }), null);
+  assert.equal(researchedAddressProblem({ ...person, email_check: { publicResearch: { addressCandidate: "tleyse@co.test", previouslyFailed: true } } }), null);
+});
 
 test("explicit research authorization is scoped to an address and never overrides failures", () => {
   const email_check = { email: "pat@co.test", level: "risky", outreachAuthorization: { email: "pat@co.test", authorizedAt: "2026-10-14T13:40:00Z" } };
