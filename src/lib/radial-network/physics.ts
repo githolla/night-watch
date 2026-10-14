@@ -11,15 +11,12 @@ export function createSimulation(nodes: Node[], links: Link[], width: number, he
   const byId = new Map(particles.map(n => [n.id, n]));
   const hubs = particles.filter(n => n.hub && n.id !== rootId), ring = particles.filter(n => n.ring);
   const overview = particles.length > 1 && particles.every(n => n.hub) && !rootId;
-  const clusters = [...new Set(hubs.map(n => n.cluster || "Target companies"))];
-  const columns = Math.min(clusters.length, width >= 900 ? 3 : width >= 600 ? 2 : 1), rows = Math.ceil(clusters.length / columns);
   hubs.forEach((n, i) => { const angle = -Math.PI / 2 + i * Math.PI * 2 / hubs.length; n.x = cx + Math.cos(angle) * radius * (rootId ? .8 : .42); n.y = cy + Math.sin(angle) * radius * (rootId ? .8 : .42); if (hubs.length > 16) { const theta = i * 2.399963229728653 - Math.PI / 2, r = radius * (.2 + .38 * Math.sqrt((i + 1) / hubs.length)); n.x = cx + Math.cos(theta) * r; n.y = cy + Math.sin(theta) * r; } n.anchorX = n.x; n.anchorY = n.y; });
-  if (overview) for (const [index, name] of clusters.entries()) {
-    const members = hubs.filter(n => (n.cluster || "Target companies") === name), cellWidth = width / columns, cellHeight = height / rows;
-    const centerX = (index % columns + .5) * cellWidth, centerY = (Math.floor(index / columns) + .5) * cellHeight;
-    const r = Math.min(cellWidth * .39, cellHeight * .37);
-    members.forEach((n, i) => { const angle = i * 2.399963229728653 - Math.PI / 2, distance = r * Math.sqrt((i + .5) / members.length); n.x = n.anchorX = centerX + Math.cos(angle) * distance; n.y = n.anchorY = centerY + Math.sin(angle) * distance; });
-  }
+  if (overview) hubs.forEach((n, i) => {
+    const angle = i * 2.399963229728653 - Math.PI / 2, distance = Math.sqrt((i + .5) / hubs.length);
+    n.x = n.anchorX = cx + Math.cos(angle) * width * .40 * distance;
+    n.y = n.anchorY = cy + Math.sin(angle) * height * .36 * distance;
+  });
   ring.forEach((n, i) => { const angle = -Math.PI / 2 + i * Math.PI * 2 / ring.length; const r = radius * (i % 2 ? .965 : 1); n.x = n.fx = cx + Math.cos(angle) * r; n.y = n.fy = cy + Math.sin(angle) * r; });
   particles.filter(n => !n.ring && !n.hub).forEach(n => { const hub = n.group ? byId.get(n.group) : undefined; n.x = (hub?.x ?? cx) + (random() - .5) * radius * .4; n.y = (hub?.y ?? cy) + (random() - .5) * radius * .4; });
   const root = rootId ? byId.get(rootId) : undefined; if (root) { root.x = root.fx = cx; root.y = root.fy = cy; }

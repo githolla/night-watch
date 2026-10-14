@@ -17,12 +17,7 @@ function render(ctx: CanvasRenderingContext2D, sim: Simulation, view: View, widt
   if (!overview) for (let i = 0; i < 24; i++) { const a = i * Math.PI / 12; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * R * .9, cy + Math.sin(a) * R * .9); ctx.lineTo(cx + Math.cos(a) * (R * .9 - (i % 6 ? 4 : 10) / k), cy + Math.sin(a) * (R * .9 - (i % 6 ? 4 : 10) / k)); ctx.stroke(); }
   const visible = sim.nodes.filter(n => !hidden.has(n.type) && (showRing || !n.ring));
   if (overview) {
-    const names = [...new Set(sim.nodes.map(n => n.cluster || "Target companies"))], columns = Math.min(names.length, width >= 900 ? 3 : width >= 600 ? 2 : 1), rows = Math.ceil(names.length / columns);
-    for (const [index, name] of names.entries()) {
-      const members = visible.filter(n => (n.cluster || "Target companies") === name); if (!members.length) continue;
-      const cellWidth = width / columns, cellHeight = height / rows, x = (index % columns + .5) * cellWidth, y = (Math.floor(index / columns) + .5) * cellHeight, r = Math.min(cellWidth * .43, cellHeight * .41);
-      ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = members[0].color; ctx.globalAlpha = .045; ctx.fill(); ctx.globalAlpha = .22; ctx.strokeStyle = members[0].color; ctx.lineWidth = 1 / k; ctx.stroke(); ctx.globalAlpha = 1; ctx.textAlign = "center"; ctx.font = `600 ${12 / k}px sans-serif`; ctx.fillStyle = ink; ctx.fillText(name, x, y - r - 13 / k); ctx.font = `${10 / k}px sans-serif`; ctx.fillStyle = light ? "#726b62" : "#9baac0"; ctx.fillText(`${members.length} companies`, x, y - r + 3 / k); ctx.restore();
-    }
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(width * .44, height * .43); ctx.beginPath(); ctx.arc(0, 0, 1, 0, Math.PI * 2); ctx.restore(); ctx.strokeStyle = light ? "#ddd6ca" : "#25364c"; ctx.lineWidth = .8 / k; ctx.stroke();
   }
   if (showRing) {
     const ring = sim.nodes.filter(n => n.ring), groups: Array<{ name: string; color: string; start: number; end: number }> = [];
