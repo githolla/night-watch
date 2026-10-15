@@ -78,13 +78,17 @@ export function CallQueue({ tasks, canComplete, canEdit, seat, now }: { tasks: T
           <div className="call-contact-title"><span className="overview-kick">{task.company}</span><h2>{task.name}</h2><p>{task.title}</p></div>
           <div className="call-dial-control">{phone ? <><b>{formatCallPhone(phone.number)}</b><small>{phoneLabel}</small>{dialHref(phone.number) && <a className="btn primary" href={dialHref(phone.number)!}>Call now ↗</a>}</> : <b>Not available</b>}</div>
         </header>
-        <div className="call-session-meta"><span className={task.bounced ? "call-bounce-badge" : "call-sent-badge"}>{task.bounced ? "Email bounced" : "Email sent"} · {date(task.plan.firstEmailAt)} ET</span><span>Call due {date(task.plan.scheduledAt)} ET</span><Link href={`/brief/${task.cardId}`}>Full brief ↗</Link></div>
+        <div className="call-session-meta"><span>Call due {date(task.plan.scheduledAt)} ET</span><Link href={`/brief/${task.cardId}`}>Full brief ↗</Link></div>
         {task.bounced && <p className="call-warning">The email bounced. Confirm their work address before referring to its contents.</p>}
+            <details className="call-number-tools"><summary>Phone source &amp; number settings</summary>{phone && <><p>{phone.notes}</p>{phone.sourceUrl && <a href={phone.sourceUrl} target="_blank" rel="noreferrer">View phone source ↗</a>}</>}
+              {canEdit && task.plan.status === "pending" && <form className="call-phone-form" onSubmit={event => { event.preventDefault(); const data = new FormData(event.currentTarget); void save(task.id, { action: "edit", phone: { number: data.get("phone"), kind: data.get("kind"), sourceUrl: data.get("source"), checkedAt: new Date().toISOString(), notes: "Public source reviewed by the operator." } }); }}>
+                <label>Number<input name="phone" required defaultValue={phone ? formatCallPhone(phone.number) : ""} /></label><label>Type<select name="kind" defaultValue={phone?.kind ?? "company"}><option value="company">Company office</option><option value="direct">Direct / extension</option><option value="contact">Named contact, type unknown</option></select></label><label>Public source URL<input name="source" type="url" required defaultValue={phone?.sourceUrl ?? ""} /></label><button className="btn-secondary" disabled={pending}>Save number</button>
+              </form>}
+            </details>
         <div className="call-live-layout">
           <div className="call-conversation">
-            <CallQuestionPills key={task.id} questions={task.intel.questionCards} />
-            <div className="call-company-snapshot"><CompanyLogo domain={task.domain} name={task.company} size={36} /><div><b>{task.company}</b><p>{task.intel.overview || "Company overview not available."}</p><div className="call-facts">{task.prep.facts.slice(0, 3).map(fact => <span key={fact}>{fact}</span>)}</div></div></div>
-            <details className="call-expand-intel"><summary>Company background &amp; full intel <span>Products, customers, systems and signals</span></summary><CallCompanyIntel company={task.company} domain={task.domain} intel={task.intel} facts={task.prep.facts} /></details>
+            <CallCompanyIntel company={task.company} domain={task.domain} intel={task.intel} facts={task.prep.facts} />
+            <div className="call-flow-heading"><h3>Call prep</h3></div>
             <section className="call-sent-email call-live-email" aria-label="Sent email for this call">
               <div className="call-section-heading"><span className="overview-kick">Your sent email</span><span>{seat} · {date(task.plan.firstEmailAt)} ET</span></div>
               <h3>{task.emailSubject || "Subject not available"}</h3><p className="call-email-recipient">Contact: {task.name}{task.email ? ` · ${task.email}` : ""}</p>
@@ -95,18 +99,15 @@ export function CallQueue({ tasks, canComplete, canEdit, seat, now }: { tasks: T
               <div className="call-script-tabs" role="group" aria-label="Call scripts">{([["opener", "Opening"], ["gatekeeper", "Gatekeeper"], ["voicemail", "Voicemail"]] as const).map(([key, label]) => <button type="button" key={key} aria-pressed={script === key} onClick={() => setScript(key)}>{label}</button>)}</div>
               <p className="call-script-text">{scripts?.[script]}</p>
             </section>
+            <CallQuestionPills key={task.id} questions={task.intel.questionCards} />
 
-            <details className="call-number-tools"><summary>Phone source &amp; number settings</summary>{phone && <><p>{phone.notes}</p>{phone.sourceUrl && <a href={phone.sourceUrl} target="_blank" rel="noreferrer">View phone source ↗</a>}</>}
-              {canEdit && task.plan.status === "pending" && <form className="call-phone-form" onSubmit={event => { event.preventDefault(); const data = new FormData(event.currentTarget); void save(task.id, { action: "edit", phone: { number: data.get("phone"), kind: data.get("kind"), sourceUrl: data.get("source"), checkedAt: new Date().toISOString(), notes: "Public source reviewed by the operator." } }); }}>
-                <label>Number<input name="phone" required defaultValue={phone ? formatCallPhone(phone.number) : ""} /></label><label>Type<select name="kind" defaultValue={phone?.kind ?? "company"}><option value="company">Company office</option><option value="direct">Direct / extension</option><option value="contact">Named contact, type unknown</option></select></label><label>Public source URL<input name="source" type="url" required defaultValue={phone?.sourceUrl ?? ""} /></label><button className="btn-secondary" disabled={pending}>Save number</button>
-              </form>}
-            </details>
+
           </div>
           <aside className="call-notepad">{task.plan.status === "pending" && canEdit ? <form className="call-outcome" onSubmit={event => { event.preventDefault(); void save(task.id, { action: "complete", outcome: draft.outcome, notes: draft.notes }); }}>
-            <div className="call-section-heading"><h3>Call notes</h3><span>Keep this open</span></div>
+            <div className="call-section-heading"><h3>Notes</h3></div>
             <label className="call-notes-label">What you learn<textarea name="notes" maxLength={3000} value={draft.notes} disabled={pending} onChange={event => editDraft({ notes: event.target.value })} rows={8} placeholder={"Current process / tools\n\nProblem or priority\n\nRight person\n\nAgreed next step + date"} /></label>
             <div className="call-notes-meta"><span>Draft kept while switching contacts</span><button type="button" disabled={pending} onClick={() => void save(task.id, { action: "edit", notes: draft.notes })}>Save notes</button></div>
-            <fieldset className="call-outcome-choices" disabled={pending}><legend>Outcome</legend>{outcomes.map(([value, label]) => <label key={value}><input type="radio" name="outcome" value={value} checked={draft.outcome === value} required onChange={() => editDraft({ outcome: value })} /><span>{label}</span></label>)}</fieldset>
+            <div className="call-flow-heading"><h3>Finish call</h3></div><fieldset className="call-outcome-choices" disabled={pending}><legend>Outcome</legend>{outcomes.map(([value, label]) => <label key={value}><input type="radio" name="outcome" value={value} checked={draft.outcome === value} required onChange={() => editDraft({ outcome: value })} /><span>{label}</span></label>)}</fieldset>
             {draft.outcome === "not_interested" && <p className="call-warning">Saving this outcome stops outreach.</p>}
             <button className="btn primary call-save-next" disabled={pending || !canComplete || !phone || !draft.outcome}>{pending ? "Saving…" : "Save & next contact →"}</button>
             <details><summary>Call later instead</summary><label>New time<input type="datetime-local" value={draft.reschedule} disabled={pending} onChange={event => editDraft({ reschedule: event.target.value })} /></label><small>Your browser&rsquo;s local time.</small><button type="button" className="btn-secondary" disabled={pending || !draft.reschedule} onClick={() => void save(task.id, { action: "edit", scheduledAt: new Date(draft.reschedule).toISOString(), notes: draft.notes })}>Save new time</button></details>
