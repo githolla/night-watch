@@ -2912,3 +2912,99 @@ button.ov-result:focus-visible{outline:2px solid var(--accent);outline-offset:2p
 @media(max-width:800px){.call-list{position:static;max-height:240px}.call-prep-steps small{display:none}.call-prep-steps button{padding:10px 6px;gap:5px}.call-prep-steps b{font-size:12px}.call-summary>div{flex-direction:column;gap:3px}.call-phone>b{font-size:18px}.call-outcome-choices{grid-template-columns:1fr}.call-detail{padding:16px}.call-prep-head h2{font-size:23px}}
 .call-company-identity{display:flex;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--line)}.call-company-identity>div{min-width:0}.call-company-identity h3{font-size:19px;letter-spacing:-.025em;margin:4px 0!important}.call-company-identity a{font-size:12px}.call-company-identity .overview-kick{font-size:9px;margin-bottom:4px}.call-business-summary p{font-size:15px;line-height:1.7}.call-business-summary>a{font-size:11px}.call-business-summary>small{display:block;color:var(--muted);font-size:10px;margin-top:5px}.call-product-list{display:flex;flex-wrap:wrap;list-style:none;padding:0!important;gap:6px}.call-product-list li{padding:6px 9px;background:#f3f1eb;border-radius:6px;margin:0;font-size:12px}.call-intel-evidence{border-top:1px solid var(--line);margin-top:16px}.call-intel-evidence a{font-size:11px}.call-angle{padding:16px;border-radius:8px;background:#f6f1e6;margin-top:20px}.call-angle p{font-size:13px}.call-angle>b{font-size:12px}.call-angle>small,.call-email-angle small{color:var(--muted);font-size:11px}.call-email-angle{margin-top:16px;border-top:1px solid var(--line)}.call-context-grid>.call-sent-email{align-self:start;position:sticky;top:18px}.call-listen-for{padding:12px 16px;border:1px dashed var(--line-strong);border-radius:8px}.call-listen-for ul{display:flex;flex-wrap:wrap;gap:8px 24px;padding-left:16px}.call-listen-for li{font-size:12px}.call-context-grid{grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr)}
 @media(max-width:1100px){.call-context-grid{grid-template-columns:1fr}.call-context-grid>.call-sent-email{position:static}}
+
+.call-cockpit .call-toolbar { padding: 12px 16px; background: #faf9f6; }
+.call-cockpit .call-columns { grid-template-columns: 222px minmax(0, 1fr); }
+.call-cockpit .call-list { max-height: calc(100vh - 110px); top: 80px; }
+.call-queue-caption { display: flex; justify-content: space-between; padding: 16px 14px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.call-cockpit .call-list > button { align-items: flex-start; gap: 9px; padding: 14px 12px; }
+.call-cockpit .call-list > button b { font-size: 12px; }
+.call-cockpit .call-list > button > span > span { font-size: 11px; color: var(--muted); }
+.call-cockpit .call-list small { font-size: 10px; }
+.call-cockpit .call-detail { padding: 0 22px 22px; }
+.call-contact-bar { display: flex; align-items: center; gap: 12px; position: sticky; top: 64px; z-index: 5; background: rgba(255,255,255,.98); border-bottom: 1px solid var(--line); padding: 18px 0; }
+.call-contact-title { flex: 1; min-width: 0; }
+.call-contact-title .overview-kick { font-size: 9px; }
+.call-contact-title h2 { font-size: 25px; letter-spacing: -.035em; margin: 3px 0; }
+.call-contact-title p { margin: 0; color: var(--muted); font-size: 12px; }
+.call-dial-control { display: grid; grid-template-columns: 1fr auto; column-gap: 14px; align-items: center; }
+.call-dial-control > b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.call-dial-control > small { grid-column: 1; font-size: 10px; color: var(--muted); }
+.call-dial-control > a { grid-column: 2; grid-row: 1 / 3; }
+.call-session-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; padding: 12px 0 16px; font-size: 10px; color: var(--muted); }
+.call-session-meta > a { margin-left: auto; }
+.call-bounce-badge { color: #a14328; }
+.call-live-layout { display: grid; grid-template-columns: minmax(0, 1fr) 278px; gap: 22px; align-items: start; }
+.call-conversation { min-width: 0; }
+.call-company-snapshot { display: flex; gap: 12px; padding: 16px; background: #f7f6f2; border: 1px solid var(--line); border-radius: 10px; }
+.call-company-snapshot > div { min-width: 0; }
+.call-company-snapshot b { font-size: 14px; }
+.call-company-snapshot p { margin: 5px 0; font-size: 12px; line-height: 1.6; }
+.call-company-snapshot .call-facts { margin-top: 8px; }
+.call-company-snapshot .call-facts span { font-size: 10px; background: white; }
+.call-expand-intel > summary { display: flex; justify-content: space-between; gap: 8px; font-weight: 600; padding: 4px 0; color: var(--ink); }
+.call-expand-intel > summary > span { color: var(--muted); font-size: 10px; font-weight: 400; }
+.call-expand-intel .call-intel { border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin: 10px 0; }
+.call-cockpit .call-live-email { margin: 6px 0 0; background: white; border: 1px solid var(--line); border-left: 3px solid var(--ok); padding: 16px; }
+.call-section-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.call-section-heading > span:not(.overview-kick) { font-size: 10px; color: var(--muted); }
+.call-section-heading h3 { margin: 0; }
+.call-cockpit .call-live-email h3 { font-size: 14px; margin-bottom: 4px; }
+.call-email-recipient { color: var(--muted); font-size: 11px !important; overflow-wrap: anywhere; margin: 0; }
+.call-cockpit .call-live-email .brief-email { max-height: 210px; overflow: auto; padding: 12px 0; margin: 0; font-size: 12px; line-height: 1.75; background: white; white-space: pre-wrap; overflow-wrap: anywhere; }
+.call-email-foot { display: flex; justify-content: space-between; gap: 8px; padding-top: 9px; border-top: 1px solid var(--line); font-size: 10px; color: var(--muted); }
+.call-cockpit .call-script-panel { margin-top: 18px; padding-top: 18px; }
+.call-cockpit .call-script-tabs button { padding: 7px 12px; }
+.call-cockpit .call-script-text { font-size: 14px !important; padding: 16px; line-height: 1.8 !important; margin-bottom: 0; }
+.call-cockpit .call-discovery ol { grid-template-columns: 1fr; gap: 0; }
+.call-cockpit .call-discovery li { font-size: 13px; }
+.call-goal { font-size: 12px; color: #386354; border-radius: 7px; background: #f1f6f2; padding: 12px; margin-top: 12px; }
+.call-notepad { position: sticky; top: 160px; max-height: calc(100vh - 180px); overflow-y: auto; }
+.call-cockpit .call-outcome { margin: 0; padding: 16px; gap: 12px; background: #faf9f6; box-shadow: 0 4px 20px #211e1905; }
+.call-cockpit .call-outcome h3 { font-size: 15px; margin: 0; }
+.call-cockpit .call-outcome textarea { min-height: 205px; resize: vertical; font-size: 12px; line-height: 1.7; padding: 10px; }
+.call-cockpit .call-notes-label { font-size: 11px; color: var(--muted); }
+.call-notes-meta { display: flex; align-items: center; gap: 8px; justify-content: space-between; margin-top: -5px; }
+.call-notes-meta > span { font-size: 9px; color: var(--muted); }
+.call-notes-meta button { border: 0; background: transparent; cursor: pointer; font-size: 11px; white-space: nowrap; text-decoration: underline; color: var(--ink); }
+.call-cockpit .call-outcome-choices { gap: 6px; }
+.call-cockpit .call-outcome-choices label { gap: 6px; padding: 9px 7px; font-size: 11px; }
+.call-cockpit .call-outcome-choices input { padding: 0; }
+.call-cockpit .call-outcome-choices label:last-child { grid-column: 1 / -1; }
+.call-save-next { width: 100%; justify-content: center; }
+.call-skip { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 11px; cursor: pointer; text-decoration: underline; }
+.call-cockpit .call-outcome > small { font-size: 10px; line-height: 1.5; }
+.call-cockpit .call-outcome details { padding: 8px 0; border-top: 1px solid var(--line); }
+.call-cockpit .call-outcome details .btn-secondary { margin-top: 10px; }
+.call-cockpit .call-outcome details input { font-size: 12px; width: 100%; }
+.call-number-tools { border-top: 1px solid var(--line); margin-top: 20px; }
+.call-phone-form { display: grid; gap: 10px; margin-top: 12px; }
+.call-phone-form label { display: grid; gap: 5px; font-size: 12px; }
+.call-phone-form input, .call-phone-form select { padding: 8px; border: 1px solid var(--line-strong); border-radius: 6px; font: inherit; width: 100%; }
+.call-completed-note { padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); }
+.call-queue-done { padding: 70px 24px; text-align: center; }
+.call-queue-done h2 { font-size: 22px; }
+.call-message.is-saved { color: #28624d; background: #edf6ef; }
+.call-message.is-error { color: #943d2c; background: #fff0eb; }
+@media(max-width:1200px) {
+  .call-cockpit .call-columns { grid-template-columns: 180px minmax(0, 1fr); }
+  .call-live-layout { grid-template-columns: minmax(0, 1fr) 240px; gap: 16px; }
+  .call-dial-control { column-gap: 8px; }
+  .call-dial-control > b { font-size: 13px; }
+  .call-cockpit .call-detail { padding: 0 16px 16px; }
+}
+@media(max-width:1000px) {
+  .call-live-layout { grid-template-columns: minmax(0, 1fr); }
+  .call-notepad { position: static; max-height: none; }
+  .call-contact-bar { flex-wrap: wrap; position: static; }
+  .call-cockpit .call-outcome-choices { grid-template-columns: repeat(3, 1fr); }
+  .call-cockpit .call-outcome-choices label:last-child { grid-column: auto; }
+}
+@media(max-width:800px) {
+  .call-cockpit .call-columns { grid-template-columns: minmax(0, 1fr); }
+  .call-cockpit .call-list { position: static; max-height: 180px; }
+  .call-contact-title h2 { font-size: 22px; }
+  .call-dial-control { width: 100%; padding-top: 8px; border-top: 1px solid var(--line); }
+  .call-expand-intel > summary { flex-direction: column; }
+  .call-cockpit .call-outcome-choices { grid-template-columns: repeat(2, 1fr); }
+}

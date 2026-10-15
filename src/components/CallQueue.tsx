@@ -3,67 +3,115 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { CallTask } from "@/lib/call-tasks";
-import type { CallBrief } from "@/lib/call-brief";
-import { emailFollowupScripts } from "@/lib/call-brief";
+import { emailFollowupScripts, type CallBrief } from "@/lib/call-brief";
 import { dialHref } from "@/lib/call-plan";
 import type { CompanyIntel } from "@/lib/call-intel";
 import { CallCompanyIntel } from "./CallCompanyIntel";
 import { CompanyLogo } from "./CompanyLogo";
 
 type Task = CallTask & { prep: CallBrief; intel: CompanyIntel };
+type Draft = { notes: string; outcome: string; reschedule: string };
+const outcomes = [["connected", "Connected"], ["voicemail", "Voicemail"], ["no_answer", "No answer"], ["wrong_number", "Wrong number"], ["not_interested", "Not interested"]] as const;
 const date = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" });
+
 export function CallQueue({ tasks, canComplete, canEdit, seat, now }: { tasks: Task[]; canComplete: boolean; canEdit: boolean; seat: string; now: number }) {
   const router = useRouter();
   const [view, setView] = useState(tasks.some(task => task.plan.status === "pending" && Date.parse(task.plan.scheduledAt) <= now) ? "due" : "upcoming");
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState(tasks.find(t => t.plan.status === "pending")?.id ?? tasks[0]?.id);
+  const [selected, setSelected] = useState(tasks[0]?.id ?? "");
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
-  const [phase, setPhase] = useState<"prep" | "call" | "result">("prep");
+  const [failed, setFailed] = useState(false);
+  const [finished, setFinished] = useState<Set<string>>(new Set());
+  const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [script, setScript] = useState<"opener" | "gatekeeper" | "voicemail">("opener");
-  const open = tasks.filter(t => t.plan.status === "pending");
-  const due = open.filter(t => Date.parse(t.plan.scheduledAt) <= now);
-  const upcoming = open.filter(t => Date.parse(t.plan.scheduledAt) > now);
-  const completed = tasks.filter(t => t.plan.status !== "pending");
-  const shown = (view === "due" ? due : view === "upcoming" ? upcoming : view === "missing" ? open.filter(t => !t.plan.phone) : completed).filter(t => `${t.name} ${t.company}`.toLowerCase().includes(search.toLowerCase()));
-  const task = tasks.find(t => t.id === selected && shown.some(row => row.id === t.id)) ?? shown[0];
+  const open = tasks.filter(task => task.plan.status === "pending" && !finished.has(task.id));
+  const due = open.filter(task => Date.parse(task.plan.scheduledAt) <= now);
+  const upcoming = open.filter(task => Date.parse(task.plan.scheduledAt) > now);
+  const completed = tasks.filter(task => task.plan.status !== "pending");
+  const shown = (view === "due" ? due : view === "upcoming" ? upcoming : view === "missing" ? open.filter(task => !task.plan.phone) : completed).filter(task => `${task.name} ${task.company}`.toLowerCase().includes(search.toLowerCase()));
+  const task = shown.find(task => task.id === selected) ?? shown[0];
+  const draft = task ? drafts[task.id] ?? { notes: task.plan.notes, outcome: "", reschedule: "" } : null;
   const scripts = task ? emailFollowupScripts({ name: task.name, sender: seat, sentAt: task.plan.firstEmailAt, subject: task.emailSubject, bounced: task.bounced }) : null;
-  async function save(id: string, body: Record<string, unknown>) {
-    setPending(true); setMessage("");
-    try { const response = await fetch(`/api/calls/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); const result = await response.json(); if (!response.ok) throw new Error(result.error || "Could not save call."); setMessage(body.action === "complete" ? "Call saved. Next contact ready." : "Saved."); if (body.action === "complete" || body.action === "skip") { const next = shown.find(t => t.id !== id && t.plan.status === "pending"); setSelected(next?.id ?? id); setPhase("prep"); setScript("opener"); } router.refresh(); }
-    catch (error) { setMessage(error instanceof Error ? error.message : "Could not save call."); }
-    finally { setPending(false); }
+  const phone = task?.plan.phone;
+  const phoneLabel = phone?.kind === "direct" ? "Direct / extension" : phone?.kind === "contact" ? "Named contact number" : "Office line";
+
+  function editDraft(change: Partial<Draft>) {
+    if (!task || !draft) return;
+    setDrafts(current => ({ ...current, [task.id]: { ...draft, ...change } }));
   }
-  return <section className="call-workspace">
-    <div className="call-summary"><div><strong>{due.length}</strong><span>Due now</span></div><div><strong>{upcoming.length}</strong><span>Coming up</span></div><div><strong>{open.filter(t => t.plan.phone).length}</strong><span>With a number</span></div><div><strong>{open.filter(t => !t.plan.phone).length}</strong><span>Need a number</span></div></div>
-    <div className="call-toolbar"><div className="review-filters" aria-label="Call queue">{[["due", `Due (${due.length})`], ["upcoming", `Upcoming (${upcoming.length})`], ["missing", "Need a number"], ["completed", "Completed"]].map(([key, label]) => <button type="button" key={key} className={view === key ? "is-active" : ""} onClick={() => setView(key)}>{label}</button>)}</div><input aria-label="Search calls" placeholder="Find a person or company" value={search} onChange={e => setSearch(e.target.value)} /></div>
-    {message && <p role="status" className="call-message">{message}</p>}
-    <div className="call-columns"><div className="call-list">{shown.length ? shown.map(t => <button type="button" key={t.id} disabled={pending} onClick={() => { setSelected(t.id); setPhase("prep"); setScript("opener"); setMessage(""); }} className={task?.id === t.id ? "is-active" : ""}><CompanyLogo domain={t.domain} name={t.company} size={36} /><span><b>{t.name}</b><span>{t.company}</span><small>{date(t.plan.scheduledAt)} ET · {t.plan.phone ? t.plan.phone.kind === "company" ? "Office line" : t.plan.phone.kind === "direct" ? "Direct / extension" : "Named contact" : "Number needed"}</small></span></button>) : <p className="call-empty">{tasks.length ? "No calls in this view. Check Upcoming or Need a number." : "Calls appear after your first email sends. Emails with a reply or opt-out do not become cold-call tasks."}</p>}</div>
-    <div className="call-detail">{task ? <div key={task.id}>
-      <header className="call-prep-head"><CompanyLogo domain={task.domain} name={task.company} size={48} /><div><span className="overview-kick">{seat}&rsquo;s call prep</span><h2>{task.name}</h2><p className="muted">{task.title} · {task.company}</p></div><Link className="btn-secondary" href={`/brief/${task.cardId}`}>Full brief ↗</Link></header>
-      <nav className="call-prep-steps" aria-label="Call workflow">{([["prep", "01", "Get ready", "Email & company intel"], ["call", "02", "Make the call", "Opening & questions"], ["result", "03", "Wrap up", "Outcome & next step"]] as const).map(([key, number, title, hint]) => <button type="button" key={key} aria-pressed={phase === key} onClick={() => setPhase(key)}><span>{number}</span><div><b>{title}</b><small>{hint}</small></div></button>)}</nav>
-      <div className="call-timing"><span>Follow-up due <b>{date(task.plan.scheduledAt)} ET</b></span><span className={task.bounced ? "" : "call-sent-badge"}>{task.bounced ? "Email bounced" : "Email sent"} · {date(task.plan.firstEmailAt)} ET</span></div>
-      {task.bounced && <p className="call-warning">The first email bounced. Confirm the contact and email address on the call; do not assume they received it.</p>}
-      <div className="call-phone">{task.plan.phone ? <><b>{task.plan.phone.number}</b><span>{task.plan.phone.kind === "company" ? "Company main line: ask for this person" : task.plan.phone.kind === "direct" ? "Direct line from the saved source" : "Contact number: direct-line status not recorded"}</span><details className="call-phone-notes"><summary>Number details &amp; fallback</summary><p>{task.plan.phone.notes}</p></details>{task.plan.phone.sourceUrl && <a href={task.plan.phone.sourceUrl} target="_blank" rel="noreferrer">Phone source ↗</a>}{dialHref(task.plan.phone.number) && <a className="btn primary" href={dialHref(task.plan.phone.number)!} onClick={() => setPhase("call")}>Call now ↗</a>}</> : <><b>No phone number on file</b><span>Night Watch searches the company&rsquo;s public contact pages. Add a sourced number below when needed.</span></>}</div>
-      {phase === "prep" && canEdit && task.plan.status === "pending" && <details className="call-edit"><summary>Add or update a number</summary><form onSubmit={e => { e.preventDefault(); const data = new FormData(e.currentTarget); void save(task.id, { action: "edit", phone: { number: data.get("phone"), kind: data.get("kind"), sourceUrl: data.get("source"), checkedAt: new Date().toISOString(), notes: "Public source reviewed by the operator." } }); }}><label>Phone number<input name="phone" required defaultValue={task.plan.phone?.number ?? ""} placeholder="+1 555 123 4567" /></label><label>Number type<select name="kind" defaultValue={task.plan.phone?.kind ?? "company"}><option value="company">Company main line</option><option value="direct">Direct line</option><option value="contact">Contact number, type unknown</option></select></label><label>Source URL<input type="url" name="source" required defaultValue={task.plan.phone?.sourceUrl ?? ""} placeholder="https://company.com/contact" /></label><button className="btn" disabled={pending}>Save number</button></form></details>}
-      {phase === "prep" && <><div className="call-context-grid" id="call-context">
-      <section className="call-sent-email" aria-label="Sent email for this call">
-        <span className="overview-kick">{task.bounced ? "Email attempted · bounced" : "Email sent · follow up on this"}</span>
-        <h3>{task.emailSubject || "Subject not recorded"}</h3>
-        <p><b>Sent by {seat}:</b> <time dateTime={task.plan.firstEmailAt}>{date(task.plan.firstEmailAt)} Eastern</time></p>
-        <p><b>Contact:</b> {task.name}{task.email ? ` · ${task.email}` : ""}</p>
-        <p className="muted">{task.bounced ? "They did not receive this email. Confirm the address before referring to its contents." : "Recorded as sent. No substantive reply recorded; delivery and reading are not confirmed. Use this email as the context for your call."}</p>
-        <p className="brief-email">{task.emailBody || "Email body not saved. Review Send history before calling."}</p>
-        <Link href="/drafts/sent">Open Send history ↗</Link><div className="call-email-angle"><h4>The idea we emailed about</h4><p>{task.prep.workflow || "Use the sent email above to recap the idea."}</p><small>Proposed workflow. Confirm relevance before pitching a solution.</small></div><details><summary>Why this company was selected</summary><ul>{task.prep.why.map((why, i) => <li key={i}>{why.text}{why.url && <> <a href={why.url} target="_blank" rel="noreferrer">Source ↗</a></>}</li>)}</ul></details>
-      </section>
-      <CallCompanyIntel company={task.company} domain={task.domain} intel={task.intel} facts={task.prep.facts} /></div><div className="call-phase-footer"><span>Read the email, scan the intel, then start the conversation.</span><button type="button" className="btn primary" onClick={() => setPhase("call")}>Ready to call →</button></div></>}
-      {phase === "call" && <><div className="call-email-reminder"><span className="overview-kick">The email you are following up on</span><b>{task.emailSubject || "Subject not recorded"}</b><small>{seat} · {date(task.plan.firstEmailAt)} ET</small><details><summary>Read sent email</summary><p className="brief-email">{task.emailBody || "Email body not saved."}</p></details></div><section className="call-script-panel" id="call-script"><span className="overview-kick">During the call</span><h3>Pick up the email conversation</h3>
-        <div className="call-script-tabs" role="group" aria-label="Call scripts">{([["opener", "Opening"], ["gatekeeper", "Someone else answers"], ["voicemail", "Voicemail"]] as const).map(([key, label]) => <button type="button" key={key} aria-pressed={script === key} onClick={() => setScript(key)}>{label}</button>)}</div>
-        <p className="call-script-text">{scripts?.[script]}</p><p className="muted">{task.bounced ? "Confirm the right work email first. Then ask permission to share the idea." : "If they read it, ask what stood out. If they have not, give the quick version from the email above."}</p>
-      </section>
-      <section className="call-discovery"><h3>Learn enough to agree on a next step</h3><ol>{task.intel.questions.slice(0, 4).map(question => <li key={question}>{question}</li>)}</ol><div className="call-listen-for"><h4>Listen for</h4><ul>{task.intel.listenFor.map(item => <li key={item}>{item}</li>)}</ul><p className="muted">Possible signals to explore, not problems we know they have.</p></div><p><b>Goal:</b> Agree on one workflow to explore and a next step with a date.</p></section>
-      <div className="call-phase-footer"><button type="button" className="btn-secondary" onClick={() => setPhase("prep")}>← Back to intel</button><button type="button" className="btn primary" onClick={() => setPhase("result")}>Call finished →</button></div></>}
-      {phase === "result" && (task.plan.status === "pending" && canEdit ? <form id="call-result" className="call-outcome" onSubmit={e => { e.preventDefault(); const data = new FormData(e.currentTarget); void save(task.id, { action: "complete", outcome: data.get("outcome"), notes: data.get("notes") }); }}><div><span className="overview-kick">After the call</span><h3>Save the outcome and next step</h3><p className="muted">Capture what you learned before opening the next contact.</p></div><fieldset className="call-outcome-choices"><legend>How did it go?</legend>{([["connected", "Connected", "Spoke with the contact"], ["voicemail", "Voicemail", "Left a message"], ["no_answer", "No answer", "Try again later"], ["wrong_number", "Wrong number", "Number needs correcting"], ["not_interested", "Not interested", "Stops outreach"]] as const).map(([value, label, hint]) => <label key={value}><input type="radio" name="outcome" value={value} required /><span><b>{label}</b><small>{hint}</small></span></label>)}</fieldset><label>Notes and next step<textarea name="notes" maxLength={3000} defaultValue={task.plan.notes} rows={3} placeholder="What did they say? Who owns the workflow? Agreed next step and date?" /></label><div className="call-actions"><button className="btn primary" disabled={pending || !canComplete || !task.plan.phone}>Save &amp; next contact →</button><button type="button" className="btn" disabled={pending} onClick={() => { const form = document.querySelector<HTMLFormElement>(".call-outcome"); const data = form ? new FormData(form) : null; void save(task.id, { action: "skip", notes: data?.get("notes") ?? "" }); }}>Skip</button><button type="button" className="btn" disabled={pending} onClick={() => { const form = document.querySelector<HTMLFormElement>(".call-outcome"); const data = form ? new FormData(form) : null; void save(task.id, { action: "edit", notes: data?.get("notes") ?? "" }); }}>Save notes</button></div><details><summary>Schedule this call for later</summary><label>New call time<input type="datetime-local" name="reschedule" aria-label="New call time in your browser's local timezone" /></label><button type="button" className="btn-secondary" disabled={pending} onClick={e => { const form = e.currentTarget.closest("form"); if (!form) return; const data = new FormData(form); const value = String(data.get("reschedule") ?? ""); if (value) void save(task.id, { action: "edit", scheduledAt: new Date(value).toISOString(), notes: String(data.get("notes") ?? "") }); }}>Save new time</button></details><small className="muted">Save call outcome logs your notes; it does not record audio. Reschedule uses your browser&rsquo;s local time.</small></form> : <p id="call-result"><b>{task.plan.outcome?.replaceAll("_", " ") ?? task.plan.status}</b>{task.plan.notes && <span> · {task.plan.notes}</span>}</p>)}
-    </div> : <p className="call-empty">Select a call to see its prep.</p>}</div></div>
+  async function save(id: string, body: Record<string, unknown>) {
+    setPending(true); setMessage(""); setFailed(false);
+    try {
+      const response = await fetch(`/api/calls/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const result: unknown = await response.json();
+      if (!response.ok) throw new Error(typeof result === "object" && result !== null && "error" in result ? String(result.error) : "Could not save call.");
+      if (body.action === "complete" || body.action === "skip") {
+        const next = shown.find(task => task.id !== id && task.plan.status === "pending");
+        setFinished(current => new Set([...current, id]));
+        setSelected(next?.id ?? ""); setScript("opener");
+        setMessage(next ? "Saved. Next contact ready." : "Saved. You have finished this queue.");
+      } else setMessage("Saved.");
+      router.refresh();
+    } catch (error) {
+      setFailed(true); setMessage(error instanceof Error ? error.message : "Could not save call.");
+    } finally { setPending(false); }
+  }
+  return <section className="call-workspace call-cockpit">
+    <div className="call-toolbar">
+      <div className="review-filters" aria-label="Call queue">{[["due", `Due ${due.length}`], ["upcoming", `Upcoming ${upcoming.length}`], ["missing", `Need a number ${open.filter(task => !task.plan.phone).length}`], ["completed", `Completed ${completed.length}`]].map(([key, label]) => <button type="button" key={key} disabled={pending} className={view === key ? "is-active" : ""} aria-pressed={view === key} onClick={() => setView(key)}>{label}</button>)}</div>
+      <input aria-label="Search calls" placeholder="Find a contact or company" value={search} disabled={pending} onChange={event => setSearch(event.target.value)} />
+    </div>
+    {message && <p role={failed ? "alert" : "status"} className={`call-message ${failed ? "is-error" : "is-saved"}`}>{message}</p>}
+    <div className="call-columns">
+      <aside className="call-list" aria-label="Contacts to call">
+        <div className="call-queue-caption">{seat}&rsquo;s contacts <span>{shown.length}</span></div>
+        {shown.map(item => <button type="button" key={item.id} disabled={pending} aria-pressed={task?.id === item.id} onClick={() => { setSelected(item.id); setScript("opener"); setMessage(""); }} className={task?.id === item.id ? "is-active" : ""}>
+          <CompanyLogo domain={item.domain} name={item.company} size={32} /><span><b>{item.name}</b><span>{item.company}</span><small>{item.plan.phone?.kind === "direct" ? "Direct / extension" : item.plan.phone ? "Number available" : "Number needed"}{drafts[item.id]?.notes !== undefined && drafts[item.id].notes !== item.plan.notes ? " · Draft notes" : ""}</small></span>
+        </button>)}
+        {!shown.length && <p className="call-empty">No contacts in this view. Try another filter.</p>}
+      </aside>
+      <div className="call-detail">{task && draft ? <div key={task.id}>
+        <header className="call-contact-bar">
+          <CompanyLogo domain={task.domain} name={task.company} size={44} />
+          <div className="call-contact-title"><span className="overview-kick">{task.company}</span><h2>{task.name}</h2><p>{task.title}</p></div>
+          <div className="call-dial-control">{phone ? <><b>{phone.number}</b><small>{phoneLabel}</small>{dialHref(phone.number) && <a className="btn primary" href={dialHref(phone.number)!}>Call now ↗</a>}</> : <b>Number needed</b>}</div>
+        </header>
+        <div className="call-session-meta"><span className={task.bounced ? "call-bounce-badge" : "call-sent-badge"}>{task.bounced ? "Email bounced" : "Email sent"} · {date(task.plan.firstEmailAt)} ET</span><span>Call due {date(task.plan.scheduledAt)} ET</span><Link href={`/brief/${task.cardId}`}>Full brief ↗</Link></div>
+        {task.bounced && <p className="call-warning">The email bounced. Confirm their work address before referring to its contents.</p>}
+        <div className="call-live-layout">
+          <div className="call-conversation">
+            <div className="call-company-snapshot"><CompanyLogo domain={task.domain} name={task.company} size={36} /><div><b>{task.company}</b><p>{task.intel.overview || "Company overview needs research."}</p><div className="call-facts">{task.prep.facts.slice(0, 3).map(fact => <span key={fact}>{fact}</span>)}</div></div></div>
+            <details className="call-expand-intel"><summary>Company background &amp; full intel <span>Products, customers, systems and signals</span></summary><CallCompanyIntel company={task.company} domain={task.domain} intel={task.intel} facts={task.prep.facts} /></details>
+            <section className="call-sent-email call-live-email" aria-label="Sent email for this call">
+              <div className="call-section-heading"><span className="overview-kick">Your sent email</span><span>{seat} · {date(task.plan.firstEmailAt)} ET</span></div>
+              <h3>{task.emailSubject || "Subject not recorded"}</h3><p className="call-email-recipient">Contact: {task.name}{task.email ? ` · ${task.email}` : ""}</p>
+              <p className="brief-email">{task.emailBody || "Email body not saved. Check Send history before calling."}</p>
+              <div className="call-email-foot"><span>{task.bounced ? "Delivery failed" : "Sent; reading is not confirmed"}</span><Link href="/drafts/sent">Send history ↗</Link></div>
+            </section>
+            <section className="call-script-panel"><div className="call-section-heading"><h3>Start the conversation</h3><span>Use your own words</span></div>
+              <div className="call-script-tabs" role="group" aria-label="Call scripts">{([["opener", "Opening"], ["gatekeeper", "Gatekeeper"], ["voicemail", "Voicemail"]] as const).map(([key, label]) => <button type="button" key={key} aria-pressed={script === key} onClick={() => setScript(key)}>{label}</button>)}</div>
+              <p className="call-script-text">{scripts?.[script]}</p>
+            </section>
+            <section className="call-discovery"><h3>Three things to learn</h3><ol>{task.intel.questions.slice(0, 3).map(question => <li key={question}>{question}</li>)}</ol><details><summary>Listen for &amp; suggested angle</summary><p>{task.intel.roleAngle}</p><ul>{task.intel.listenFor.map(item => <li key={item}>{item}</li>)}</ul><p className="muted">These are ideas to explore, not confirmed company problems.</p></details><div className="call-goal">Leave with one relevant workflow, its owner and an agreed next step.</div></section>
+            <details className="call-number-tools"><summary>Phone source &amp; number settings</summary>{phone && <><p>{phone.notes}</p>{phone.sourceUrl && <a href={phone.sourceUrl} target="_blank" rel="noreferrer">View phone source ↗</a>}</>}
+              {canEdit && task.plan.status === "pending" && <form className="call-phone-form" onSubmit={event => { event.preventDefault(); const data = new FormData(event.currentTarget); void save(task.id, { action: "edit", phone: { number: data.get("phone"), kind: data.get("kind"), sourceUrl: data.get("source"), checkedAt: new Date().toISOString(), notes: "Public source reviewed by the operator." } }); }}>
+                <label>Number<input name="phone" required defaultValue={phone?.number ?? ""} /></label><label>Type<select name="kind" defaultValue={phone?.kind ?? "company"}><option value="company">Company office</option><option value="direct">Direct / extension</option><option value="contact">Named contact, type unknown</option></select></label><label>Public source URL<input name="source" type="url" required defaultValue={phone?.sourceUrl ?? ""} /></label><button className="btn-secondary" disabled={pending}>Save number</button>
+              </form>}
+            </details>
+          </div>
+          <aside className="call-notepad">{task.plan.status === "pending" && canEdit ? <form className="call-outcome" onSubmit={event => { event.preventDefault(); void save(task.id, { action: "complete", outcome: draft.outcome, notes: draft.notes }); }}>
+            <div className="call-section-heading"><h3>Call notes</h3><span>Keep this open</span></div>
+            <label className="call-notes-label">What you learn<textarea name="notes" maxLength={3000} value={draft.notes} disabled={pending} onChange={event => editDraft({ notes: event.target.value })} rows={8} placeholder={"Current process / tools\n\nProblem or priority\n\nRight person\n\nAgreed next step + date"} /></label>
+            <div className="call-notes-meta"><span>Draft kept while switching contacts</span><button type="button" disabled={pending} onClick={() => void save(task.id, { action: "edit", notes: draft.notes })}>Save notes</button></div>
+            <fieldset className="call-outcome-choices" disabled={pending}><legend>Outcome</legend>{outcomes.map(([value, label]) => <label key={value}><input type="radio" name="outcome" value={value} checked={draft.outcome === value} required onChange={() => editDraft({ outcome: value })} /><span>{label}</span></label>)}</fieldset>
+            {draft.outcome === "not_interested" && <p className="call-warning">Saving this outcome stops outreach.</p>}
+            <button className="btn primary call-save-next" disabled={pending || !canComplete || !phone || !draft.outcome}>{pending ? "Saving…" : "Save & next contact →"}</button>
+            <details><summary>Call later instead</summary><label>New time<input type="datetime-local" value={draft.reschedule} disabled={pending} onChange={event => editDraft({ reschedule: event.target.value })} /></label><small>Your browser&rsquo;s local time.</small><button type="button" className="btn-secondary" disabled={pending || !draft.reschedule} onClick={() => void save(task.id, { action: "edit", scheduledAt: new Date(draft.reschedule).toISOString(), notes: draft.notes })}>Save new time</button></details>
+            <button type="button" className="call-skip" disabled={pending} onClick={() => void save(task.id, { action: "skip", notes: draft.notes })}>Skip this contact</button><small className="muted">Logs notes and outcomes. Audio recording is not connected.</small>
+          </form> : <div className="call-completed-note"><h3>Call outcome</h3><p>{task.plan.outcome?.replaceAll("_", " ") ?? task.plan.status}</p><p className="brief-email">{task.plan.notes || "No notes saved."}</p></div>}</aside>
+        </div>
+      </div> : <div className="call-queue-done"><h2>{tasks.length ? "You’re caught up in this view." : "Your call queue starts with a sent email."}</h2><p>Choose another queue or search for a contact to continue.</p></div>}</div>
+    </div>
   </section>;
 }
