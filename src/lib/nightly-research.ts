@@ -124,6 +124,7 @@ const reject = z.object({ reject: z.string().min(2) });
 const present = (value: unknown) => value ?? {};
 const researched = z.object({
   sector: z.string().default("").catch(""),
+  businessProfile: z.object({ overview: z.string().min(20).max(800), products: z.array(z.string().max(160)).max(12), customers: z.array(z.string().max(160)).max(8), operations: z.string().max(800), sourceUrl: z.string().url().startsWith("https://") }).nullish().catch(null),
   revenue: z.object({ usdMillions: z.number(), year: z.number().int(), sourceUrl: z.string().url() }).nullish(),
   // Headcount stands in for revenue when none is published.
   size: z.object({ employees: z.number().int().positive(), sourceUrl: z.string().url() }).nullish().catch(null),
@@ -238,11 +239,13 @@ ${revenueStep}
    Leave a part empty rather than guess.
 6. Workflow: one practical piece of work a company like this probably handles by hand that an AI tool could help with, inspired by the evidence above; do not restate the evidence. It is an idea, not a claim about them. Keep every field generic and lowercase: no numbers, no company, product, software or place names, and no "your", "their" or "our". Give: task, a short noun phrase such as "branch service follow-up"; subject, two words for an email subject, such as "branch follow-ups" (one version prefixes it with "one AI project:", which must stay within five words); inputs, what the tool would bring together, three items in one phrase such as "site inspection notes, the promised fix and evidence that it was completed"; metric, what to measure, such as "time spent chasing updates". No question marks, dashes or links in these. For a healthcare company keep it to office work such as scheduling, intake, authorizations or follow-ups, never patient records or clinical decisions.
 
+7. Business profile for call preparation: open the company's own product, service or about page. Return businessProfile as {overview, products, customers, operations, sourceUrl}. Explain what it actually makes, distributes, grows or delivers. Name specific product or service categories, stated customer segments and how work is organized. For manufacturing include the manufactured products and applications; for distribution the goods and customer industries; for contractors the trades and project types; for logistics the freight or warehouse services; for restaurants the brands and operating model. All fields must be supported by the same cited company page. Leave unknown arrays empty and operations blank; use null for the entire profile if no suitable source was read. Never infer installed systems, customers, capacity or internal pain from the industry label.
+
 Size: if no revenue figure is published, give "size" as {employees, sourceUrl}: the employee count a page states (the company's site, a job post or a profile), which must be ${HEADCOUNT_BAND.min} to ${HEADCOUNT_BAND.max}. Otherwise set "size" to null.
 
 Return {"reject":"reason"} instead if revenue is outside ${REVENUE_BAND_TEXT} (or, with no revenue, headcount is outside ${HEADCOUNT_BAND.min} to ${HEADCOUNT_BAND.max}), the company is consulting, IT, software, staffing, an agency, a financial firm or a nonprofit, it has closed or been acquired, or no current senior leader can be named from a source.
 
-Return JSON only, in this shape, filling the arrays with items as described above: {"sector":"","revenue":${reuse ? "null" : `{"usdMillions":0,"year":${year},"sourceUrl":""}`},"size":null,"buyer":{"name":"","title":"","sourceUrl":""},"email":null,"trigger":null,"evidence":{"hiring":[],"scale":null,"change":[],"techOpenness":[],"systems":[],"disqualifiers":[],"concerns":[]},"workflow":{"task":"","subject":"","inputs":"","metric":""}}`;
+Return JSON only, in this shape, filling the arrays with items as described above: {"sector":"","businessProfile":null,"revenue":${reuse ? "null" : `{"usdMillions":0,"year":${year},"sourceUrl":""}`},"size":null,"buyer":{"name":"","title":"","sourceUrl":""},"email":null,"trigger":null,"evidence":{"hiring":[],"scale":null,"change":[],"techOpenness":[],"systems":[],"disqualifiers":[],"concerns":[]},"workflow":{"task":"","subject":"","inputs":"","metric":""}}`;
 }
 
 // ---------- address ----------
@@ -357,6 +360,7 @@ export function listRow(input: RowInput): { row: ListRow; offer: ListOffer } {
     fit: fit.summary,
     // Extra fields beyond the curated shape: the scored evidence, the address check, the copy arm and any hold.
     aiFit: fit,
+    businessProfile: found.businessProfile ? { ...found.businessProfile, checkedAt: listDate } : null,
     emailCheck: verdict.check,
     identityHold: input.identityHold,
     variantArm: armId,
@@ -414,6 +418,7 @@ export async function researchOne(candidate: Candidate, owner: Owner, listDate: 
     }
     const buyerSource = buyerSourceCheck(found.buyer.sourceUrl, candidate.domain, seen, now);
     if ("skip" in buyerSource) return done({ skip: buyerSource.skip });
+    if (found.businessProfile && (!onDomain(found.businessProfile.sourceUrl, candidate.domain) || !seen.has(normalizeUrl(found.businessProfile.sourceUrl)))) found.businessProfile = null;
 
     const grounded = await groundEvidence(found.evidence, { seen: seen.values(), domain: candidate.domain, sourceUrl: candidate.source_url, fetcher: deps.fetcher, lookup: deps.lookup, now });
     const scored = aiFitScore(grounded.evidence, { domain: candidate.domain, now });

@@ -1,0 +1,681 @@
+[
+  {
+    "domain": "taylordevices.com",
+    "industry": "manufacturing",
+    "overview": "Makes equipment that controls shock, vibration and structural movement.",
+    "products": [
+      "Fluid viscous dampers",
+      "Visco-elastic dampers",
+      "Bridge movement-control devices"
+    ],
+    "customers": [
+      "Structural engineering projects",
+      "Aerospace and defense",
+      "Industrial applications"
+    ],
+    "operations": "Products involve engineering design, analysis and testing; the company describes AS9100 and ISO 9001 quality standards.",
+    "sourceUrl": "https://www.taylordevices.com/products/fluid-viscous-dampers/",
+    "checkedAt": "2026-10-15",
+    "question": "When a customer changes a damper specification, how does that change reach production and the quality documentation?"
+  },
+  {
+    "domain": "neloncole.com",
+    "industry": "pest",
+    "overview": "Provides pest protection, moisture control and repair services in the Carolinas.",
+    "products": [
+      "Termite and pest inspections",
+      "Wildlife control",
+      "Crawlspace encapsulation",
+      "Waterproofing and renovations"
+    ],
+    "customers": [
+      "Homeowners",
+      "Commercial properties"
+    ],
+    "operations": "Separate pest, moisture, repair and wildlife divisions; offices in Shelby, Boiling Springs and Columbus.",
+    "sourceUrl": "https://www.neloncole.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do you hand off a pest inspection that turns into moisture remediation or repair work?"
+  },
+  {
+    "domain": "ridgelineconstructionhsv.com",
+    "industry": "construction",
+    "overview": "Family-owned roofing and exterior contractor serving North Alabama, the Alabama Gulf Coast and the Florida Panhandle.",
+    "products": [
+      "Roof replacement and repair",
+      "Siding",
+      "Gutters",
+      "Commercial roofing"
+    ],
+    "customers": [
+      "Homeowners",
+      "Commercial properties"
+    ],
+    "operations": "Runs assessment, written-estimate, installation and warranty stages across regional offices.",
+    "sourceUrl": "https://ridgelineconstructionhsv.com/",
+    "checkedAt": "2026-10-15",
+    "question": "After an assessment, how do photos and scope details become the estimate and installation instructions?"
+  },
+  {
+    "domain": "thebugman.com",
+    "industry": "pest",
+    "overview": "Southern California pest and termite service business.",
+    "products": [
+      "Pest treatments",
+      "Termite treatments",
+      "Rodent control",
+      "Commercial pest services"
+    ],
+    "customers": [
+      "Residential customers",
+      "Commercial and industrial clients"
+    ],
+    "operations": "Offers inspections and treatment visits across Southern California.",
+    "sourceUrl": "https://www.thebugman.com/our-story",
+    "checkedAt": "2026-10-15",
+    "question": "How do inspection findings get from the technician to the office and into the next customer action?"
+  },
+  {
+    "domain": "allamericanpestcontrol.com",
+    "industry": "pest",
+    "overview": "Family-owned pest company serving Middle Tennessee and the greater Atlanta area.",
+    "products": [
+      "Year-round pest plans",
+      "Mosquito treatments",
+      "Sentricon termite protection",
+      "Yard treatments"
+    ],
+    "customers": [
+      "Homeowners",
+      "Businesses",
+      "Builders and realtors"
+    ],
+    "operations": "Sells bundled protection plans with scheduled services and return-treatment guarantees.",
+    "sourceUrl": "https://www.allamericanpestcontrol.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do you coordinate recurring plan visits with unscheduled return-treatment requests?"
+  },
+  {
+    "domain": "impactlandscaping.net",
+    "industry": "landscape",
+    "overview": "Provides landscape design, installation, irrigation and ongoing property maintenance.",
+    "products": [
+      "Landscape design and build",
+      "Irrigation",
+      "Full-service maintenance",
+      "Homeowner enhancements"
+    ],
+    "customers": [],
+    "operations": "Has Jupiter and Sarasota offices and supports work from design through project maintenance.",
+    "sourceUrl": "https://impactlandscaping.net/about-us/",
+    "checkedAt": "2026-10-15",
+    "question": "What information is hardest to transfer from the installation team to the maintenance team?"
+  },
+  {
+    "domain": "yourfocalpointe.com",
+    "industry": "landscape",
+    "overview": "Landscape company serving commercial and residential properties across the Midwest.",
+    "products": [
+      "Design and installation",
+      "Grounds maintenance",
+      "Irrigation",
+      "Lighting",
+      "Snow removal"
+    ],
+    "customers": [
+      "Businesses",
+      "Homeowners"
+    ],
+    "operations": "Combines horticulture, arboriculture and irrigation services, with one contact coordinating the customer relationship.",
+    "sourceUrl": "https://www.yourfocalpointe.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How does the account contact see open issues across maintenance, irrigation and seasonal work?"
+  },
+  {
+    "domain": "hlei.us",
+    "industry": "landscape",
+    "overview": "Provides landscape management, construction, tree care and water management.",
+    "products": [
+      "Landscape maintenance",
+      "Construction and design",
+      "Arbor care",
+      "Water management"
+    ],
+    "customers": [],
+    "operations": "Publishes a customer portal alongside field service offerings.",
+    "sourceUrl": "https://hlei.us/",
+    "checkedAt": "2026-10-15",
+    "question": "Which field updates still need a person to turn them into an actionable customer update?"
+  },
+  {
+    "domain": "choateusa.com",
+    "industry": "landscape",
+    "overview": "Landscape and irrigation contractor serving builder and commercial projects.",
+    "products": [
+      "Landscape installation",
+      "Irrigation",
+      "Lawn maintenance",
+      "Landscape lighting"
+    ],
+    "customers": [
+      "Commercial clients",
+      "Homebuilders"
+    ],
+    "operations": "Leadership describes six Texas and Louisiana markets and project teams supporting installation.",
+    "sourceUrl": "https://www.choateusa.com/our-mission/our-team/",
+    "checkedAt": "2026-10-15",
+    "question": "How do scope changes move between the builder, project manager and installation crew?"
+  },
+  {
+    "domain": "aphix.com",
+    "industry": "landscape",
+    "overview": "Provides commercial grounds and exterior facility maintenance in the Southeast.",
+    "products": [
+      "Grounds maintenance",
+      "Landscape construction",
+      "Winter services",
+      "Parking-lot upkeep"
+    ],
+    "customers": [
+      "Commercial properties",
+      "Logistics facilities"
+    ],
+    "operations": "Offers multiple exterior services through a coordinated customer relationship.",
+    "sourceUrl": "https://aphix.com/",
+    "checkedAt": "2026-10-15",
+    "question": "For a multi-location customer, how do you identify which sites need attention this week?"
+  },
+  {
+    "domain": "levelgreenlandscaping.com",
+    "industry": "landscape",
+    "overview": "Commercial landscape provider serving Washington DC, Maryland and Northern Virginia.",
+    "products": [
+      "Maintenance",
+      "Enhancements",
+      "Design and installation",
+      "Irrigation",
+      "Snow and ice management"
+    ],
+    "customers": [
+      "Property managers",
+      "Facility directors",
+      "Community associations"
+    ],
+    "operations": "Local branch teams manage recurring property services and improvement projects.",
+    "sourceUrl": "https://levelgreenlandscaping.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do branch teams turn a site observation into a priced enhancement and a scheduled job?"
+  },
+  {
+    "domain": "graslawn.com",
+    "industry": "landscape",
+    "overview": "Provides commercial landscaping and grounds services for individual properties and multi-site portfolios.",
+    "products": [
+      "Maintenance",
+      "Landscape installation",
+      "Hardscapes",
+      "Snow and ice management",
+      "Enhancements"
+    ],
+    "customers": [
+      "Commercial property owners",
+      "Multi-site property portfolios"
+    ],
+    "operations": "Combines recurring maintenance and project-based landscape work.",
+    "sourceUrl": "https://graslawn.com/commercial-landscaping-pennsylvania/",
+    "checkedAt": "2026-10-15",
+    "question": "How do you track an exception at one property without losing the wider portfolio view?"
+  },
+  {
+    "domain": "landtechcontractors.com",
+    "industry": "landscape",
+    "overview": "Commercial landscape contractor with maintenance, irrigation and snow-removal services in Colorado.",
+    "products": [
+      "Landscape construction",
+      "Grounds maintenance",
+      "Irrigation",
+      "Snow removal"
+    ],
+    "customers": [
+      "Corporate campuses",
+      "Schools",
+      "Government facilities",
+      "Multi-family properties"
+    ],
+    "operations": "Describes self-performed maintenance, field equipment and licensed technicians, plus around-the-clock snow response.",
+    "sourceUrl": "https://www.landtechcontractors.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How does an on-call manager decide which crew and equipment to send when several sites need service?"
+  },
+  {
+    "domain": "designscapescolorado.com",
+    "industry": "landscape",
+    "overview": "Designs, builds and maintains residential and commercial landscapes in Colorado.",
+    "products": [
+      "Landscape architecture",
+      "Construction",
+      "Maintenance"
+    ],
+    "customers": [
+      "Residential properties",
+      "Commercial properties"
+    ],
+    "operations": "Combines design and construction with ongoing property care.",
+    "sourceUrl": "https://www.designscapescolorado.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do design revisions and client decisions stay aligned with the crews building the project?"
+  },
+  {
+    "domain": "integritylandscapecorp.com",
+    "industry": "landscape",
+    "overview": "Commercial landscape group operating exterior and interior landscaping businesses on the West Coast.",
+    "products": [
+      "Exterior landscape maintenance",
+      "Tree care",
+      "Irrigation",
+      "Interior plants and living walls"
+    ],
+    "customers": [
+      "Commercial properties"
+    ],
+    "operations": "Medallion handles exterior services; CityLeaf handles interior services, with multiple operating offices.",
+    "sourceUrl": "https://integritylandscapecorp.com/",
+    "checkedAt": "2026-10-15",
+    "question": "Where do Medallion and CityLeaf share customer or operating information, and where is it still separate?"
+  },
+  {
+    "domain": "winterberrygardens.com",
+    "industry": "landscape",
+    "overview": "Connecticut landscape and garden-center business with design, build and maintenance services.",
+    "products": [
+      "Landscape design and build",
+      "Irrigation and lighting",
+      "Lawn care",
+      "Seasonal planting"
+    ],
+    "customers": [
+      "Residential clients"
+    ],
+    "operations": "Residential offering spans installation, recurring maintenance and seasonal color work.",
+    "sourceUrl": "https://winterberrygardens.com/residential/",
+    "checkedAt": "2026-10-15",
+    "question": "How do installation selections and planting plans carry into the ongoing maintenance schedule?"
+  },
+  {
+    "domain": "americanlandscapesystems.com",
+    "industry": "landscape",
+    "overview": "Designs, installs and maintains commercial landscapes and irrigation systems in the Dallas-Fort Worth area.",
+    "products": [
+      "Hardscapes",
+      "Landscape construction",
+      "Irrigation design and repair",
+      "Commercial maintenance"
+    ],
+    "customers": [
+      "Developers",
+      "Municipalities",
+      "Schools",
+      "Hospitals",
+      "General contractors"
+    ],
+    "operations": "Commercial project delivery and maintenance operate alongside emergency irrigation service.",
+    "sourceUrl": "https://www.americanlandscapesystems.com/",
+    "checkedAt": "2026-10-15",
+    "question": "When an irrigation emergency interrupts planned work, how do you update crews and affected customers?"
+  },
+  {
+    "domain": "hiddencreeklandscaping.com",
+    "industry": "landscape",
+    "overview": "Designs, builds and maintains outdoor living spaces in Central Ohio.",
+    "products": [
+      "Landscape design",
+      "Pool installation and renovation",
+      "Irrigation",
+      "Lighting",
+      "Estate management"
+    ],
+    "customers": [
+      "Residential outdoor-living clients"
+    ],
+    "operations": "Combines design, construction and maintenance with multiple pool types and outdoor specialties.",
+    "sourceUrl": "https://www.hiddencreeklandscaping.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do approved pool and landscape selections become purchasing lists and crew instructions?"
+  },
+  {
+    "domain": "timberlinelandscaping.com",
+    "industry": "landscape",
+    "overview": "Colorado Springs landscape company providing construction and ongoing property care.",
+    "products": [
+      "Design and construction",
+      "Maintenance",
+      "Irrigation",
+      "Tree care",
+      "Snow removal",
+      "Trail building"
+    ],
+    "customers": [
+      "Homeowners",
+      "Commercial properties"
+    ],
+    "operations": "Works across installation projects, recurring grounds care and seasonal services.",
+    "sourceUrl": "https://www.timberlinelandscaping.com/",
+    "checkedAt": "2026-10-15",
+    "question": "Which handoff between construction, irrigation and maintenance creates the most follow-up work?"
+  },
+  {
+    "domain": "brucecompany.com",
+    "industry": "landscape",
+    "overview": "Operates landscape services, a garden center and wholesale landscape-supply activities in the Madison area.",
+    "products": [
+      "Landscape services",
+      "Garden-center products",
+      "Nursery stock",
+      "Wholesale distribution"
+    ],
+    "customers": [],
+    "operations": "Public offering includes nursery, distribution-yard and aquatic wholesale divisions.",
+    "sourceUrl": "https://www.brucecompany.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do nursery availability and material orders stay aligned with landscape project schedules?"
+  },
+  {
+    "domain": "dortchenterprises.com",
+    "industry": "restaurant",
+    "overview": "Great Lakes Taco operates Taco Bell restaurants in southeast Michigan.",
+    "products": [
+      "Taco Bell restaurant operations"
+    ],
+    "customers": [
+      "Restaurant guests"
+    ],
+    "operations": "Current website lists 47 restaurants; older news posts list fewer, so confirm the present footprint.",
+    "sourceUrl": "https://gltaco.com/",
+    "checkedAt": "2026-10-15",
+    "question": "Which restaurant exceptions need area-manager attention, and how do you collect them each morning?"
+  },
+  {
+    "domain": "nationwideconstructiongroup.com",
+    "industry": "construction",
+    "overview": "Installs fencing, guardrails and perimeter-control systems.",
+    "products": [
+      "Permanent and temporary fencing",
+      "Highway guardrails",
+      "Gate operators",
+      "Steel fabrication"
+    ],
+    "customers": [
+      "Residential and commercial clients",
+      "Industrial facilities",
+      "Government projects"
+    ],
+    "operations": "Provides materials and installation crews, plus new construction and on-call guardrail maintenance.",
+    "sourceUrl": "https://www.nationwideconstructiongroup.com/services/",
+    "checkedAt": "2026-10-15",
+    "question": "How do field quantities and completed work become progress claims and customer documentation?"
+  },
+  {
+    "domain": "lasalleinc.com",
+    "industry": "construction",
+    "overview": "Full-service construction firm offering estimating, general contracting, design-build and construction management.",
+    "products": [
+      "Cost estimating",
+      "General contracting",
+      "Design-build",
+      "Construction management"
+    ],
+    "customers": [
+      "Commercial",
+      "Education",
+      "Municipal",
+      "Healthcare and senior living"
+    ],
+    "operations": "Also self-performs construction work to manage schedule, cost, quality and safety.",
+    "sourceUrl": "https://www.lasalleinc.com/index.php",
+    "checkedAt": "2026-10-15",
+    "question": "How do estimating assumptions and approved changes reach project teams and self-perform crews?"
+  },
+  {
+    "domain": "selectexterminating.com",
+    "industry": "pest",
+    "overview": "Provides residential and commercial pest management through Select Exterminating and related service brands.",
+    "products": [
+      "Pest control",
+      "Termite services",
+      "Commercial pest management"
+    ],
+    "customers": [
+      "Residential customers",
+      "Businesses"
+    ],
+    "operations": "Operates residential and commercial service offerings.",
+    "sourceUrl": "https://selectexterminating.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How does an inspection turn into the right service plan and follow-up visit?"
+  },
+  {
+    "domain": "bugs.com",
+    "industry": "pest",
+    "overview": "South Florida pest-service business with additional lawn, wildlife and home services.",
+    "products": [
+      "Pest and termite control",
+      "Lawn care",
+      "Wildlife removal",
+      "Insulation",
+      "AC services"
+    ],
+    "customers": [
+      "Homeowners",
+      "Commercial properties"
+    ],
+    "operations": "Multiple Florida offices support several distinct service lines.",
+    "sourceUrl": "https://www.bugs.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do the office and field teams coordinate when one customer needs more than one service line?"
+  },
+  {
+    "domain": "contractdirect.net",
+    "industry": "facilities",
+    "overview": "Provides commercial and industrial facility-maintenance services.",
+    "products": [
+      "Janitorial work",
+      "Building maintenance",
+      "Floor and carpet cleaning",
+      "Security",
+      "Window cleaning"
+    ],
+    "customers": [
+      "Commercial facilities",
+      "Industrial facilities"
+    ],
+    "operations": "Company describes bundled facility-service offerings; the indexed source is older and should be reconfirmed.",
+    "sourceUrl": "https://contractdirect.net/about.html",
+    "checkedAt": "2026-10-15",
+    "question": "How do you turn site requests and inspection findings into assigned work and proof of completion?"
+  },
+  {
+    "domain": "bredapest.com",
+    "industry": "pest",
+    "overview": "Atlanta-area pest-management provider based in Loganville, Georgia.",
+    "products": [
+      "Pest management",
+      "Termite services"
+    ],
+    "customers": [
+      "Residential customers"
+    ],
+    "operations": "Provides inspections and pest treatment services.",
+    "sourceUrl": "https://www.bredapest.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do inspection notes and photos become the treatment plan and next customer update?"
+  },
+  {
+    "domain": "ridd.com",
+    "industry": "pest",
+    "overview": "Provides pest-control services across multiple US markets.",
+    "products": [
+      "Pest control",
+      "Termite services",
+      "Mosquito services"
+    ],
+    "customers": [],
+    "operations": "Operates a multi-market service business.",
+    "sourceUrl": "https://www.ridd.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do you compare unresolved customer issues across branches without chasing each office?"
+  },
+  {
+    "domain": "westtermite.com",
+    "industry": "pest",
+    "overview": "Provides pest, termite and lawn services in Arkansas, Missouri and Oklahoma.",
+    "products": [
+      "Pest control",
+      "Termite control",
+      "Lawn care"
+    ],
+    "customers": [
+      "Homeowners",
+      "Businesses"
+    ],
+    "operations": "Regional operation combines pest protection and lawn services.",
+    "sourceUrl": "https://westtermite.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do you coordinate recurring pest and lawn visits when the same property needs both?"
+  },
+  {
+    "domain": "thegreeneryinc.com",
+    "industry": "landscape",
+    "overview": "Commercial landscape company offering installation and ongoing grounds services.",
+    "products": [
+      "Landscaping",
+      "Irrigation",
+      "Hardscapes",
+      "Outdoor lighting",
+      "Floral displays",
+      "Aquatic management"
+    ],
+    "customers": [
+      "Property and resort managers",
+      "Businesses",
+      "Community associations"
+    ],
+    "operations": "Offers weekly maintenance as well as construction and installation projects.",
+    "sourceUrl": "https://thegreeneryinc.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do site observations become a clear action list for the branch and property manager?"
+  },
+  {
+    "domain": "russelllandscape.com",
+    "industry": "landscape",
+    "overview": "Commercial landscape company serving properties across the Southeast.",
+    "products": [
+      "Landscape maintenance",
+      "Irrigation",
+      "Hardscape renovations",
+      "New installations"
+    ],
+    "customers": [
+      "Office campuses",
+      "Retail centers",
+      "HOA communities",
+      "Municipal sites"
+    ],
+    "operations": "Serves recurring maintenance accounts and construction or renovation projects.",
+    "sourceUrl": "https://www.russelllandscape.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do account managers keep recurring maintenance and enhancement work aligned at each site?"
+  },
+  {
+    "domain": "fernway.com",
+    "industry": "manufacturing",
+    "overview": "Makes and markets cannabis vape products, including cartridges and all-in-one devices.",
+    "products": [
+      "510 vape cartridges",
+      "Traveler PRO all-in-one vapes",
+      "LIVE product line"
+    ],
+    "customers": [
+      "Adult cannabis consumers through licensed retail channels"
+    ],
+    "operations": "Lists products across several state markets and runs a dispensary-based recycling program.",
+    "sourceUrl": "https://fernway.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do product variants and state-market requirements flow into production planning and order fulfillment?"
+  },
+  {
+    "domain": "cherrylake.com",
+    "industry": "nursery",
+    "overview": "Grows landscape plants and provides landscape construction, irrigation and maintenance.",
+    "products": [
+      "Trees",
+      "Shrubs",
+      "Palms",
+      "Landscape installation",
+      "Irrigation"
+    ],
+    "customers": [
+      "Wholesale plant buyers",
+      "Landscape projects"
+    ],
+    "operations": "Farm operations include plant health, individual tree selection, loading and coordination with trucking vendors.",
+    "sourceUrl": "https://cherrylake.com/farm/",
+    "checkedAt": "2026-10-15",
+    "question": "How do plant availability, customer selection and truck loading stay coordinated as orders change?"
+  },
+  {
+    "domain": "rotoloconsultants.com",
+    "industry": "landscape",
+    "overview": "Commercial landscape contractor providing installation and grounds maintenance.",
+    "products": [
+      "Landscape construction",
+      "Landscape maintenance",
+      "Irrigation"
+    ],
+    "customers": [],
+    "operations": "Project and maintenance services are organized through a regional landscape business.",
+    "sourceUrl": "https://www.rotoloconsultants.com/about",
+    "checkedAt": "2026-10-15",
+    "question": "How do supervisors turn work completed in the field into the office records used for customer updates and billing?"
+  },
+  {
+    "domain": "desantislandscapes.com",
+    "industry": "landscape",
+    "overview": "Oregon and southwest Washington landscape business serving commercial and residential properties.",
+    "products": [
+      "Landscape maintenance",
+      "Design-build",
+      "Irrigation",
+      "Plant care"
+    ],
+    "customers": [
+      "Commercial properties",
+      "Homeowners"
+    ],
+    "operations": "Publishes site logs, reports and photos through a customer portal.",
+    "sourceUrl": "https://www.desantislandscapes.com/",
+    "checkedAt": "2026-10-15",
+    "question": "With reporting already in the portal, which exceptions still need a manager to assemble the next action?"
+  },
+  {
+    "domain": "brubakerinc.com",
+    "industry": "field-service",
+    "overview": "Employee-owned home and commercial services business in Lancaster, Pennsylvania.",
+    "products": [
+      "Plumbing",
+      "Heating and cooling",
+      "Electrical",
+      "Remodeling",
+      "Appliances",
+      "Commercial design-build"
+    ],
+    "customers": [
+      "Homeowners",
+      "Property managers",
+      "Commercial projects"
+    ],
+    "operations": "Runs service and installation work plus maintenance protection plans, an appliance showroom and commercial teams.",
+    "sourceUrl": "https://www.brubakerinc.com/",
+    "checkedAt": "2026-10-15",
+    "question": "How do you coordinate a job that needs plumbing, HVAC and electrical teams without repeating the intake?"
+  }
+]

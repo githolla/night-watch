@@ -389,3 +389,15 @@ test("larger operating companies remain eligible with scoped buyer research", ()
   assert.equal(buyerTitleProblem("Head of Operations"), null);
   assert.ok(buyerTitleProblem("Former Head of Operations"));
 });
+
+
+test("business profiles persist only when their company source appeared in research", async () => {
+  const businessProfile = { overview: "Provides commercial grounds maintenance", products: ["Irrigation", "Grounds maintenance"], customers: ["Commercial properties"], operations: "Regional field crews", sourceUrl: "https://acmeland.com/locations" };
+  const valid = harness(research({ businessProfile }));
+  const row = rowOf(await researchOne(candidate, "suuchi", LIST_DATE, valid.deps));
+  assert.equal((row.businessProfile as { overview: string }).overview, businessProfile.overview);
+  const unseen = harness(research({ businessProfile: { ...businessProfile, sourceUrl: "https://acmeland.com/not-seen" } }));
+  assert.equal(rowOf(await researchOne(candidate, "suuchi", LIST_DATE, unseen.deps)).businessProfile, null);
+  const foreign = harness(research({ businessProfile: { ...businessProfile, sourceUrl: "https://news.example.com/acme-acquires" } }));
+  assert.equal(rowOf(await researchOne(candidate, "suuchi", LIST_DATE, foreign.deps)).businessProfile, null);
+});
