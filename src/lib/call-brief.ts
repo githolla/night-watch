@@ -47,6 +47,22 @@ const CHANNEL_LABEL: Record<string, string> = { email: "Email", linkedin_message
 const REPLY_LABEL: Record<string, string> = { positive: "replied, interested", referral: "replied with a referral", neutral: "replied", objection: "replied with an objection", negative: "replied, not interested", ooo: "auto-reply (out of office)" };
 const day = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" });
 
+export function emailFollowupScripts(input: { name: string; sender: string; sentAt: string; subject: string; bounced: boolean }) {
+  const first = input.name.split(/\s+/)[0];
+  const sentDay = new Date(input.sentAt).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", timeZone: "America/New_York" });
+  const email = input.subject ? `my email from ${sentDay}, with the subject “${input.subject}”` : `my email from ${sentDay}`;
+  if (input.bounced) return {
+    opener: `Hi ${first}, this is ${input.sender} from Nine-67. I tried to email you on ${sentDay}, but it bounced. Have I caught you with a minute, and is there a better work email for you?`,
+    voicemail: `Hi ${first}, this is ${input.sender} from Nine-67. I tried to email you on ${sentDay}, but the address did not work. I'll check with your office for the best way to reach you. Thanks.`,
+    gatekeeper: `Hi, this is ${input.sender} from Nine-67. Could you put me through to ${input.name}? An email I sent on ${sentDay} bounced, so I'd also like to confirm their current work email.`,
+  };
+  return {
+    opener: `Hi ${first}, this is ${input.sender} from Nine-67. I'm following up on ${email}. Have I caught you with a minute? I can give you the quick version if you haven't had a chance to read it.`,
+    voicemail: `Hi ${first}, this is ${input.sender} from Nine-67, following up on ${email}. I'd like to hear whether the idea fits what your team is working on. You can reply directly to that email if it's worth a conversation. Thanks.`,
+    gatekeeper: `Hi, this is ${input.sender} from Nine-67. Could you put me through to ${input.name}? I'm following up on an email I sent on ${sentDay}${input.subject ? ` with the subject “${input.subject}”` : ""}.`,
+  };
+}
+
 /**
  * The research writes a workflow as "Proposed workflow: X. Internal need and buying intent are not
  * confirmed." The caveat belongs in "What we don't know yet", never inside a question to ask.

@@ -22,6 +22,12 @@ test("replies, opt-outs and inactive companies exclude cold calls; OOO does not"
 test("multiple cards for the same contact do not produce duplicate calls", () => {
   assert.equal(buildCallTasks([row, { ...row, id: "second" }], [touch]).length, 1);
 });
+test("saved call plans cannot replace the actual first-email timestamp", () => {
+  const plan = newCallPlan("2026-10-01T14:00:00Z");
+  const task = buildCallTasks([{ ...row, rules: { call: plan } }], [touch])[0];
+  assert.equal(task.plan.firstEmailAt, "2026-10-14T14:00:00.000Z");
+  assert.equal(task.plan.scheduledAt, plan.scheduledAt);
+});
 test("call edits preserve sequence rules and recorded outcomes", async () => {
   const plan = newCallPlan(touch.sent_at);
   const h = memoryDb({ cadences: [{ id: "cadence", status: "active", updated_at: "v1", rules: { stop_on_reply: true, enrollment_steps: [{ body: "Personal followup" }], call: plan } }] });

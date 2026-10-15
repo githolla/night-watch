@@ -18,6 +18,7 @@ export function buildCallTasks(rows: Row[], touches: Touch[]): CallTask[] {
     if (seen.has(key)) return [];
     seen.add(key);
     const plan = readCallPlan(addressCheck(row.rules).call) ?? newCallPlan(first.sent_at);
+    plan.firstEmailAt = new Date(first.sent_at).toISOString();
     if (!plan.phone && p.phone) plan.phone = { number: p.phone, kind: "contact", sourceUrl: null, checkedAt: first.sent_at, notes: "Existing contact number. Source and direct-line status have not been recorded." };
     return [{ id: row.id, cardId: row.card_id, personId: row.person_id, owner: row.owner, name: p.full_name, title: p.title, company: account.name, domain: account.domain, email: p.email, emailBody: first.body ?? "", emailSubject: card.email_subject ?? "", bounced: Boolean(first.bounced_at), why: card.why_now, plan }];
   }).sort((a, b) => a.plan.scheduledAt.localeCompare(b.plan.scheduledAt));

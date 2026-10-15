@@ -1,6 +1,25 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildCallBrief, cleanWorkflow, type BriefInput } from "./call-brief.ts";
+import { buildCallBrief, cleanWorkflow, emailFollowupScripts, type BriefInput } from "./call-brief.ts";
+
+test("follow-up scripts use the sender, sent date and email subject without claiming it was read", () => {
+  const scripts = emailFollowupScripts({ name: "Lee Edwards", sender: "Suuchi", sentAt: "2026-10-15T13:31:00Z", subject: "Branch reporting at The Greenery", bounced: false });
+  for (const text of Object.values(scripts)) {
+    assert.match(text, /Suuchi/);
+    assert.match(text, /Thursday, Oct 15/);
+    assert.match(text, /Branch reporting at The Greenery/);
+  }
+  assert.match(scripts.opener, /haven't had a chance to read/);
+  assert.match(scripts.voicemail, /reply directly to that email/);
+});
+
+test("bounced email scripts do not ask the recipient to reply to an undelivered email", () => {
+  const scripts = emailFollowupScripts({ name: "Lee Edwards", sender: "Suuchi", sentAt: "2026-10-15T02:00:00Z", subject: "Branch reporting", bounced: true });
+  assert.match(scripts.opener, /Wednesday, Oct 14/);
+  assert.match(scripts.opener, /bounced/);
+  assert.match(scripts.gatekeeper, /confirm their current work email/);
+  assert.doesNotMatch(scripts.voicemail, /reply directly/);
+});
 
 const input = (over: Partial<BriefInput> = {}): BriefInput => ({
   person: { full_name: "Scott Keller", title: "Chief Operating Officer", email: "skeller@nationwidecos.com", linkedin_url: null },
