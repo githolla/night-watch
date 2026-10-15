@@ -61,3 +61,23 @@ test("new researched company profiles flow into prep without an industry guess b
   assert.equal(intel.evidence.length, 0);
   assert.ok(intel.gaps.some(gap => gap.includes("Installed")));
 });
+
+test("every company has four distinct question cards with deeper follow-ups and a clear goal", () => {
+  for (const domain of [...profiles.map(profile => profile.domain), "unknown.test"]) {
+    const intel = buildCompanyIntel({ domain, title: "COO" });
+    assert.equal(intel.questionCards.length, 4, domain);
+    assert.equal(new Set(intel.questionCards.map(card => card.ask)).size, 4, domain);
+    for (const card of intel.questionCards) {
+      assert.ok(card.ask.endsWith("?"), domain);
+      assert.equal(card.followups.length, 3, domain);
+      assert.ok(card.listenFor.length > 0, domain);
+      assert.ok(card.goal.length > 20, domain);
+    }
+  }
+});
+
+test("deeper tool questions reference only sourced installed-system evidence", () => {
+  const intel = buildCompanyIntel({ domain: "unknown.test", title: "CEO", row: { aiFit: { reasons: [{ criterion: "systems", points: 8, text: "Runs on Aspire", url: "https://example.test/case" }, { criterion: "systems", points: 0, text: "Unconfirmed ERP", url: "https://example.test/other" }] } } });
+  assert.deepEqual(intel.questionCards[2].context, [{ text: "Runs on Aspire", url: "https://example.test/case" }]);
+  assert.match(intel.questionCards[2].followups[0], /already handled well/);
+});

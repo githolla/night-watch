@@ -1,6 +1,7 @@
 import profiles from "../../data/call-company-profiles.json" with { type: "json" };
 
 export type IntelFact = { text: string; url: string | null; date?: string | null };
+export type CallQuestion = { title: string; ask: string; followups: string[]; listenFor: string[]; goal: string; context: IntelFact[] };
 export type CompanyIntel = {
   overview: string | null;
   products: string[];
@@ -11,6 +12,7 @@ export type CompanyIntel = {
   productHeading: string;
   evidence: Array<{ title: string; facts: IntelFact[] }>;
   questions: string[];
+  questionCards: CallQuestion[];
   listenFor: string[];
   roleAngle: string;
   gaps: string[];
@@ -58,12 +60,20 @@ export function buildCompanyIntel(input: { domain: string; sector?: string | nul
   const products = profile?.products ?? [];
   const customers = profile?.customers ?? [];
   const gaps = [!overview ? "Company activity needs more research." : null, !products.length ? "Specific products or service lines have not been recorded." : null, !customers.length ? "Customer segments have not been confirmed." : null, !sections.some(item => item.title === "Systems already in place") ? "Installed business systems are not confirmed. Ask before proposing integrations." : null].filter((item): item is string => Boolean(item));
+  const systems = sections.find(section => section.title === "Systems already in place")?.facts ?? [];
+  const questionCards: CallQuestion[] = [
+    { title: "The workflow", ask: profile?.question || book.questions[0], followups: ["Could you walk me through the most recent example?", "Who takes it from the initial request through to completion?", products.length ? `Which of your service or product lines, such as ${products.slice(0, 2).join(" or ")}, makes that process most complex?` : "Which type of work makes that process most complex?"], listenFor: [book.listenFor[0]], goal: "Understand a real example before proposing a change.", context: profile ? [{ text: profile.overview, url: profile.sourceUrl }] : [] },
+    { title: "Where it gets stuck", ask: book.questions[1], followups: ["What happens when that step does not go to plan?", "Who notices the exception, and who has to resolve it?", "Does it cause delays, rework, missed commitments or something else?"], listenFor: [book.listenFor[1]], goal: "Find the exception worth solving and the person responsible for it.", context: [] },
+    { title: "Tools & manual work", ask: book.questions[2], followups: [systems.length ? "Which parts are already handled well by your existing systems?" : "Which systems do you use for that work today?", "Where does someone still copy information, check a spreadsheet or chase an update?", "What needs human judgment, and what is just repetitive preparation?"], listenFor: [book.listenFor[2]], goal: "Identify a useful gap around existing tools rather than assuming they need replacing.", context: systems },
+    { title: "A useful first project", ask: "If we improved one small part of that process, what would make it worthwhile for your team?", followups: ["How often does it happen, and roughly how much time does it take?", "What would you measure in a first trial: turnaround time, checking effort, errors or another outcome?", "Who runs this process day to day, and would it make sense to include them in a short follow-up?"], listenFor: ["A measurable recurring task", "A named workflow owner", "A concrete next step with a date"], goal: "Agree on a small test and the right next conversation, if there is a fit.", context: [] },
+  ];
   return {
     overview, products, customers, operations: profile?.operations ?? text(business.hq), sourceUrl: profile?.sourceUrl ?? null,
     checkedAt: profile?.checkedAt ?? text(record(brief.verification).checked_on) ?? text(row.researchDate),
     productHeading: kind === "manufacturing" ? "What they manufacture" : kind === "distribution" ? "What they distribute" : kind === "nursery" ? "What they grow & deliver" : "What they sell & deliver",
     evidence: sections,
     questions: [...new Set([...(profile?.question ? [profile.question] : []), ...book.questions])],
+    questionCards,
     listenFor: book.listenFor,
     roleAngle: /operations|\bcoo\b|general manager/i.test(input.title) ? "Explore cross-team handoffs, exceptions and time spent coordinating. Ask which manager owns the workflow." : /ceo|president|owner|founder/i.test(input.title) ? "Ask which operational constraint deserves attention, then identify the person who runs that process day to day." : "Confirm their responsibility for this workflow and ask who else should join a follow-up.",
     gaps,

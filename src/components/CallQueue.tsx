@@ -6,6 +6,7 @@ import type { CallTask } from "@/lib/call-tasks";
 import { emailFollowupScripts, type CallBrief } from "@/lib/call-brief";
 import { dialHref, formatCallPhone } from "@/lib/call-plan";
 import type { CompanyIntel } from "@/lib/call-intel";
+import { CallQuestionPills } from "./CallQuestionPills";
 import { CallCompanyIntel } from "./CallCompanyIntel";
 import { CompanyLogo } from "./CompanyLogo";
 
@@ -81,6 +82,7 @@ export function CallQueue({ tasks, canComplete, canEdit, seat, now }: { tasks: T
         {task.bounced && <p className="call-warning">The email bounced. Confirm their work address before referring to its contents.</p>}
         <div className="call-live-layout">
           <div className="call-conversation">
+            <CallQuestionPills key={task.id} questions={task.intel.questionCards} />
             <div className="call-company-snapshot"><CompanyLogo domain={task.domain} name={task.company} size={36} /><div><b>{task.company}</b><p>{task.intel.overview || "Company overview not available."}</p><div className="call-facts">{task.prep.facts.slice(0, 3).map(fact => <span key={fact}>{fact}</span>)}</div></div></div>
             <details className="call-expand-intel"><summary>Company background &amp; full intel <span>Products, customers, systems and signals</span></summary><CallCompanyIntel company={task.company} domain={task.domain} intel={task.intel} facts={task.prep.facts} /></details>
             <section className="call-sent-email call-live-email" aria-label="Sent email for this call">
@@ -93,7 +95,7 @@ export function CallQueue({ tasks, canComplete, canEdit, seat, now }: { tasks: T
               <div className="call-script-tabs" role="group" aria-label="Call scripts">{([["opener", "Opening"], ["gatekeeper", "Gatekeeper"], ["voicemail", "Voicemail"]] as const).map(([key, label]) => <button type="button" key={key} aria-pressed={script === key} onClick={() => setScript(key)}>{label}</button>)}</div>
               <p className="call-script-text">{scripts?.[script]}</p>
             </section>
-            <section className="call-discovery"><h3>Three things to learn</h3><ol>{task.intel.questions.slice(0, 3).map(question => <li key={question}>{question}</li>)}</ol><details><summary>Listen for &amp; suggested angle</summary><p>{task.intel.roleAngle}</p><ul>{task.intel.listenFor.map(item => <li key={item}>{item}</li>)}</ul><p className="muted">These are ideas to explore, not confirmed company problems.</p></details><div className="call-goal">Leave with one relevant workflow, its owner and an agreed next step.</div></section>
+
             <details className="call-number-tools"><summary>Phone source &amp; number settings</summary>{phone && <><p>{phone.notes}</p>{phone.sourceUrl && <a href={phone.sourceUrl} target="_blank" rel="noreferrer">View phone source ↗</a>}</>}
               {canEdit && task.plan.status === "pending" && <form className="call-phone-form" onSubmit={event => { event.preventDefault(); const data = new FormData(event.currentTarget); void save(task.id, { action: "edit", phone: { number: data.get("phone"), kind: data.get("kind"), sourceUrl: data.get("source"), checkedAt: new Date().toISOString(), notes: "Public source reviewed by the operator." } }); }}>
                 <label>Number<input name="phone" required defaultValue={phone ? formatCallPhone(phone.number) : ""} /></label><label>Type<select name="kind" defaultValue={phone?.kind ?? "company"}><option value="company">Company office</option><option value="direct">Direct / extension</option><option value="contact">Named contact, type unknown</option></select></label><label>Public source URL<input name="source" type="url" required defaultValue={phone?.sourceUrl ?? ""} /></label><button className="btn-secondary" disabled={pending}>Save number</button>
