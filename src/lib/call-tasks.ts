@@ -13,7 +13,7 @@ export function buildCallTasks(rows: Row[], touches: Touch[]): CallTask[] {
     if (!p || !card || !account || p.do_not_contact || ["client", "do_not_contact", "paused"].includes(account.status) || ["dismissed", "archived", "meeting"].includes(card.status)) return [];
     const history = touches.filter(t => t.person_id === row.person_id && t.sent_by === row.owner).sort((a, b) => a.sent_at.localeCompare(b.sent_at));
     const first = history[0];
-    if (!first || first.card_id !== row.card_id || history.some(t => t.reply_at && !["ooo", "none"].includes(t.reply_classification ?? "neutral"))) return [];
+    if (!first || first.card_id !== row.card_id || history.some(t => t.bounced_at || (t.reply_at && !["ooo", "none"].includes(t.reply_classification ?? "neutral")))) return [];
     const key = `${row.owner}:${row.person_id}`;
     if (seen.has(key)) return [];
     seen.add(key);

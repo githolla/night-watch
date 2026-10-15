@@ -93,7 +93,7 @@ export function CallQueue({ tasks, canComplete, canEdit, seat, now }: { tasks: T
               <div className="call-section-heading"><span className="overview-kick">Your sent email</span><span>{seat} · {date(task.plan.firstEmailAt)} ET</span></div>
               <h3>{task.emailSubject || "Subject not available"}</h3><p className="call-email-recipient">Contact: {task.name}{task.email ? ` · ${task.email}` : ""}</p>
               <p className="brief-email">{task.emailBody || "Email body not saved. Check Send history before calling."}</p>
-              <div className="call-email-foot"><span>{task.bounced ? "Delivery failed" : "Sent; reading is not confirmed"}</span><Link href="/drafts/sent">Send history ↗</Link></div>
+              <div className="call-email-foot"><span>{task.bounced ? "Delivery failed" : "Sent · No bounce recorded · Reading not confirmed"}</span><Link href="/drafts/sent">Send history ↗</Link></div>
             </section>
             <section className="call-script-panel"><div className="call-section-heading"><h3>Start the conversation</h3><span>Use your own words</span></div>
               <div className="call-script-tabs" role="group" aria-label="Call scripts">{([["opener", "Opening"], ["gatekeeper", "Gatekeeper"], ["voicemail", "Voicemail"]] as const).map(([key, label]) => <button type="button" key={key} aria-pressed={script === key} onClick={() => setScript(key)}>{label}</button>)}</div>

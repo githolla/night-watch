@@ -22,3 +22,9 @@ test("backfilling preserves stopped or existing email sequences", async () => {
   assert.equal(h.tables.cadences[0].status, "stopped");
   assert.deepEqual(h.tables.cadences[0].rules, { stop_on_reply: true });
 });
+test("backfilling does not create call follow-ups from bounced emails", async () => {
+  const h = harness();
+  h.tables.touches[0].bounced_at = row.sent_at;
+  assert.equal(await backfillCallPlans(h.db), 0);
+  assert.equal(h.tables.cadences.length, 0);
+});

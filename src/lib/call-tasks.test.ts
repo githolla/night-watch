@@ -22,6 +22,13 @@ test("replies, opt-outs and inactive companies exclude cold calls; OOO does not"
 test("multiple cards for the same contact do not produce duplicate calls", () => {
   assert.equal(buildCallTasks([row, { ...row, id: "second" }], [touch]).length, 1);
 });
+test("bounced first emails and subsequent bounces remove the email follow-up call", () => {
+  assert.equal(buildCallTasks([row], [{ ...touch, bounced_at: touch.sent_at }]).length, 0);
+  assert.equal(buildCallTasks([row], [touch, { ...touch, sent_at: "2026-10-16T14:00:00Z", bounced_at: "2026-10-16T14:01:00Z" }]).length, 0);
+  const saved = { ...row, rules: { call: { ...newCallPlan(touch.sent_at), phone: { number: "3235550100", kind: "company", sourceUrl: "https://acme.test", checkedAt: touch.sent_at, notes: "" } } } };
+  assert.equal(buildCallTasks([saved], [{ ...touch, bounced_at: touch.sent_at }]).length, 0);
+  assert.equal(buildCallTasks([row], [touch]).length, 1);
+});
 test("saved call plans cannot replace the actual first-email timestamp", () => {
   const plan = newCallPlan("2026-10-01T14:00:00Z");
   const task = buildCallTasks([{ ...row, rules: { call: plan } }], [touch])[0];
