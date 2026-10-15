@@ -5,7 +5,7 @@ import { pendingMigrations } from "@/lib/schema-check";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
 import { loadCallTasks } from "@/lib/call-tasks";
-import { dialHref } from "@/lib/call-plan";
+import { dialHref, formatCallPhone } from "@/lib/call-plan";
 import { buildCallBrief } from "@/lib/call-brief";
 import { allFocus } from "@/lib/focus-data";
 import { loadNightlyLists } from "@/lib/nightly-lists";
@@ -75,7 +75,7 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
   const plain = [
     `Call brief: ${brief.who}, ${brief.role}, ${brief.company}`,
     brief.status,
-    phone ? `Phone: ${phone.number} (${phone.kind})${phone.sourceUrl ? ` source: ${phone.sourceUrl}` : ""}` : "Phone not yet found",
+    phone ? `Phone: ${formatCallPhone(phone.number)} (${phone.kind})${phone.sourceUrl ? ` source: ${phone.sourceUrl}` : ""}` : "Phone: Not available",
     `Opener: ${brief.opener}`,
     `Voicemail: ${brief.voicemail}`,
     brief.facts.length ? brief.facts.join(" · ") : "",
@@ -99,7 +99,7 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
         <p className={`brief-status ${brief.meetingAt ? "is-meeting" : ""}`}>{brief.status}</p>
 
         <nav className="brief-links" aria-label="Reach them">
-          {phone && dialHref(phone.number) && <a className="btn primary" href={dialHref(phone.number)!}>Call {phone.number}</a>}
+          {phone && dialHref(phone.number) && <a className="btn primary" href={dialHref(phone.number)!}>Call {formatCallPhone(phone.number)}</a>}
           {phone?.sourceUrl && <a className="btn" href={phone.sourceUrl} target="_blank" rel="noreferrer">{phone.kind === "company" ? "Main line source" : "Phone source"} ↗</a>}
           <Link className="btn" href={`/calls?owner=${card.assigned_to}`}>Calls &amp; prep</Link>
           {person?.email && <a className="btn primary" href={`mailto:${person.email}`}>Email {person.email}</a>}

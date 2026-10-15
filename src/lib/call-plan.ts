@@ -26,3 +26,15 @@ export function dialHref(number: string): string | null {
   if (digits.replace(/\D/g, "").length < 7 || digits.replace(/\D/g, "").length > 15) return null;
   return `tel:${digits}${ext ? `;ext=${ext}` : ""}`;
 }
+
+export function formatCallPhone(number: string | null | undefined): string {
+  if (!number?.trim()) return "Not available";
+  const href = dialHref(number);
+  if (!href) return "Not available";
+  const [base, extension] = href.slice(4).split(";ext=");
+  const digits = base.replace(/\D/g, "");
+  const national = digits.length === 11 && digits.startsWith("1") ? digits.slice(1) : digits;
+  const formatted = national.length === 10 && (!base.startsWith("+") || digits.startsWith("1"))
+    ? `(${national.slice(0, 3)}) ${national.slice(3, 6)}-${national.slice(6)}` : base;
+  return `${formatted}${extension ? ` ext. ${extension}` : ""}`;
+}

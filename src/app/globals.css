@@ -3008,3 +3008,15 @@ button.ov-result:focus-visible{outline:2px solid var(--accent);outline-offset:2p
   .call-expand-intel > summary { flex-direction: column; }
   .call-cockpit .call-outcome-choices { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Consistent type and number formatting throughout the calling workspace. */
+.call-cockpit, .call-cockpit button, .call-cockpit input, .call-cockpit select, .call-cockpit textarea { font-family: inherit; }
+.call-cockpit .call-detail p, .call-cockpit .call-detail li { font-size: 14px; }
+.call-cockpit .call-detail h3 { font-size: 16px; }
+.call-cockpit .call-detail h4, .call-cockpit summary, .call-cockpit small, .call-cockpit .call-session-meta, .call-cockpit .call-email-recipient, .call-cockpit .call-email-foot, .call-cockpit .call-section-heading > span:not(.overview-kick), .call-cockpit .call-notes-label, .call-cockpit .call-notes-meta > span, .call-cockpit .call-notes-meta button, .call-cockpit .call-product-list li, .call-cockpit .call-facts span { font-size: 12px !important; }
+.call-cockpit .overview-kick, .call-cockpit .call-queue-caption { font-size: 10px; letter-spacing: .08em; }
+.call-cockpit .call-list > button b, .call-cockpit .call-list > button > span > span, .call-cockpit .call-outcome-choices label, .call-cockpit .call-outcome textarea, .call-cockpit .call-script-tabs button, .call-cockpit .call-phone-form input, .call-cockpit .call-phone-form select { font-size: 13px; }
+.call-cockpit .call-dial-control > b { font-family: inherit; font-size: 19px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.call-cockpit .call-session-meta, .call-cockpit input[type="datetime-local"], .call-cockpit .review-filters { font-variant-numeric: tabular-nums; }
+.call-cockpit .call-live-email .brief-email { font-family: inherit; font-size: 14px; }
+@media(max-width:1200px) { .call-cockpit .call-dial-control > b { font-size: 17px; } }

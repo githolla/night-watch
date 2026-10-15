@@ -1,6 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { nextCallDate, dialHref, newCallPlan, readCallPlan } from "./call-plan.ts";
+import { nextCallDate, dialHref, formatCallPhone, newCallPlan, readCallPlan } from "./call-plan.ts";
+
+test("call numbers share one display format while preserving extensions and international prefixes", () => {
+  for (const number of ["3235550199", "+1 323 555 0199", "1 (323) 555-0199", "323.555.0199"]) assert.equal(formatCallPhone(number), "(323) 555-0199");
+  assert.equal(formatCallPhone("5867496900 ext 232"), "(586) 749-6900 ext. 232");
+  assert.equal(formatCallPhone("+44 20 7946 0958"), "+442079460958");
+  for (const number of [null, undefined, "", "none", "javascript:alert(1)"]) assert.equal(formatCallPhone(number), "Not available");
+  assert.equal(dialHref("+1 323 555 0199"), "tel:+13235550199");
+});
 test("calls use the next Eastern business day at 10am, across weekends and DST", () => {
   assert.equal(nextCallDate("2026-10-14T14:30:00Z"), "2026-10-15T14:00:00.000Z");
   assert.equal(nextCallDate("2026-10-16T14:30:00Z"), "2026-10-19T14:00:00.000Z");
