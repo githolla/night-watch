@@ -36,6 +36,7 @@ function OpportunityCard({ row, config, owner, isAdmin, now }: { row: Opportunit
   return <article className="card reddit-opportunity">
     <header><span>r/{row.source.subreddit} · {new Date(row.source.created_at).toLocaleDateString("en-US", { timeZone: "America/New_York" })}</span><strong>{row.analysis ? `${score(row.analysis, row.source, now)}/100 · ${Math.round(row.analysis.confidence * 100)}% confidence` : "Awaiting analysis"}</strong></header>
     <h3><a href={row.source.permalink} target="_blank" rel="noopener noreferrer">{row.source.title}</a></h3>
+    <div className="reddit-actions"><a className="btn-secondary" href={row.source.permalink} target="_blank" rel="noopener noreferrer" aria-label={`Open Reddit post: ${row.source.title}`}>Open original Reddit post ↗</a></div>
     <p>{row.analysis?.summary}</p><p>{row.analysis?.rationale}</p>
     {row.analysis?.evidence.map((evidence, index) => <blockquote key={index}><p>{evidence.quote}</p><small>{evidence.supports} · source {evidence.source_id}</small></blockquote>)}
     {row.analysis && <p><b>Still unknown:</b> {row.analysis.unknowns.join("; ") || "No additional unknowns recorded. Verify the thread before replying."}</p>}
