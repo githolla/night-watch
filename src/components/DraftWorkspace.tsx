@@ -271,7 +271,7 @@ export function DraftWorkspace({ drafts: initial, plan, owner, sender, optOut, l
                     <CompanyLogo domain={draft.domain} name={draft.company} size={34} />
                     <button type="button" className="review-row" aria-expanded={current?.id === draft.id} onClick={() => open(draft)}>
                       <span className="review-who"><b>{draft.company}</b><small>{draft.name}{draft.title ? ` · ${draft.title}` : ""}</small></span>
-                      <span className={`dw-addr ${draft.confirmed ? "is-ok" : draft.sendable ? "is-warn" : "is-bad"}`}>{draft.confirmed ? <Check size={14} aria-hidden="true" /> : <WarningCircle size={14} aria-hidden="true" />}{draft.confirmed ? "Email verified" : draft.sendable ? "Needs verification" : "No address"}</span>
+                      <span className={`dw-addr ${draft.confirmed ? "is-ok" : draft.sendable ? "is-warn" : "is-bad"}`} title={draft.confirmed ? "Eligible under the sending rules. This does not mean the mailbox is independently verified; see the research notes." : undefined}>{draft.confirmed ? <Check size={14} aria-hidden="true" /> : <WarningCircle size={14} aria-hidden="true" />}{draft.confirmed ? "Ready to send" : draft.sendable ? "Needs address review" : "No address"}</span>
                     </button>
                   </li>
                 ))}
