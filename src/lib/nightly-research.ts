@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { importedResearchContext } from "./prospect-import.ts";
 import { aiFitEvidence, aiFitScore, DISQUALIFIER_KINDS, isFreshDate, type AiFit, type AiFitCriterion, type AiFitEvidence, type AiFitReason, type Grounding } from "./ai-fit.ts";
 import { researchBudget, withBudget, type UsageRecorder } from "./anthropic-cost.ts";
 import { NOT_TARGET_ROLES, runGroundedSearchAgent, runWritingAgent } from "./agents.ts";
@@ -225,6 +226,7 @@ export function researchPrompt(candidate: Candidate, listDate: string) {
     : `1. Revenue: the most recent reported annual revenue in USD millions and the year (${year - 3} or later), with the URL that states it.${candidate.source_url ? ` Start from ${candidate.source_url}${candidate.revenue_usd_m ? ` (listed at $${candidate.revenue_usd_m}M${candidate.revenue_year ? ` for ${candidate.revenue_year}` : ""})` : ""}.` : ""}`;
   return `Research ${candidate.company} (${candidate.domain}), a ${candidate.sector || "U.S. operating"} company. Nine-67 builds AI tools with operations teams, and we are preparing one short cold email to a senior leader there. Use public sources and never invent a fact, a person, an address, a date or a URL. Copy every URL exactly as a search result gave it.
 
+${importedResearchContext(candidate.domain)}
 ${revenueStep}
 2. Buyer: for companies above $100M, prioritize a relevant division general manager, VP or Director of Operations tied to the workflow; a company-wide CEO is a fallback only when no functional leader is publicly substantiated. Confirm the buyer belongs to the exact targeted entity. The current CEO, President, COO, owner, founder or general manager, or the VP or Director of Operations, with the URL of a page showing their name and current title, ideally the company's own about, team or leadership page. Not any other vice president, an assistant, or a former, retired, interim or acting leader.
 3. Email: only if a public page shows that person's own business email at this company, give it as {address, sourceUrl}. Otherwise null. Never copy a parent or subsidiary email domain without evidence that the named buyer uses it. Never guess an address and never give a shared inbox such as info@ or sales@.

@@ -316,6 +316,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="shell">
+      <div style={{ padding: "8px 24px" }}><Link href="/builders/imported">New: 500-company research list</Link></div>
       <ReachoutListNavigation owner={selectedList.id} batch={selectedList.sequence} todayCount={reachoutList(selectedList.id, me.owner, 3).drafts.length} showOwners={me.role === "admin"} />
       {me.role === "admin" && <RefreshDraftCopy revision={createHash("sha256").update(JSON.stringify(curatedDrafts)).digest("hex").slice(0, 16)} />}
       {missing.length > 0 && <BatchPreparation domains={missing} />}
