@@ -38,7 +38,7 @@ type Module = {
   claimBuildAlert: (db: unknown, now?: Date) => Promise<boolean>;
   learnedSectorWeights: (db: unknown) => Promise<Record<string, number>>;
   nightlyListConfig: () => { budgetUsd: number; maxCostPerCompanyUsd: number; research: number; size: number };
-  importResearchedList: (db: unknown, input: { listDate: string; owner: string; companies: Row[] }, overrides?: Row) => Promise<{ status: string; listed: Array<{ domain: string; fit: number }>; reserved: string[]; skipped: Array<{ domain: string; reason: string }>; addresses: Array<{ domain: string; address: string; outcome: string; reason: string }> }>;
+  importResearchedList: (db: unknown, input: { listDate: string; owner: string; companies: Row[]; resumeQueued?: boolean }, overrides?: Row) => Promise<{ status: string; listed: Array<{ domain: string; fit: number }>; reserved: string[]; skipped: Array<{ domain: string; reason: string }>; addresses: Array<{ domain: string; address: string; outcome: string; reason: string }> }>;
   screenDomains: (db: unknown, domains: string[]) => Promise<Array<{ domain: string; usable: boolean; reason: string | null }>>;
   importAddressEvidence: (db: unknown, items: Row[], overrides?: Row) => Promise<Array<{ domain: string; address: string; outcome: string; reason: string }>>;
 };
@@ -409,6 +409,26 @@ test("a list researched outside the app goes through the same checks, makes no m
   assert.equal(tables.list_candidates.find((row) => row.domain === "good.test")!.status, "listed");
   assert.equal(tables.list_candidates.find((row) => row.domain === "weak.test")!.status, "skipped");
   assert.deepEqual(json((await builder.screenDomains(db, ["good.test", "fresh.test"])).map((row) => row.usable)), [false, true], "an imported company is known from then on");
+});
+
+test("explicit queued imports finish the assigned candidate without inserting a duplicate", async () => {
+  reset({ research: async call => ({ row: listRow(String(call.candidate.domain), 70), offer: { domain: call.candidate.domain }, fit: { score: 70 }, cost: 0, searches: 0 }) });
+  const { db, tables } = queryDb({ list_candidates: [candidate("queued.test", { owner: "suuchi" })], reachout_lists: [] });
+  const result = await builder.importResearchedList(db, { listDate: TODAY, owner: "suuchi", resumeQueued: true, companies: [{ company: "Queued", domain: "queued.test", sector: "manufacturing", research: {} }] });
+  assert.equal(result.listed.length, 1);
+  assert.equal(tables.list_candidates.length, 1);
+  assert.equal(tables.list_candidates[0].status, "listed");
+  assert.equal(tables.list_candidates[0].id, "c-queued.test");
+});
+
+test("queued completion preserves ownership, account restrictions and prior outreach", async () => {
+  reset();
+  const domains = ["other.test", "done.test", "blocked.test", "contacted.test"];
+  const { db } = queryDb({ list_candidates: domains.map(domain => candidate(domain, { owner: domain === "other.test" ? "josh" : "suuchi", status: domain === "done.test" ? "listed" : "new" })), accounts: [{ id: "blocked", domain: "blocked.test", name: "Blocked", status: "do_not_contact" }, { id: "contacted", domain: "contacted.test", status: "active" }], cards: [{ id: "old-card", account_id: "contacted" }], touches: [{ id: "old-touch", card_id: "old-card", sent_at: NOW.toISOString() }], reachout_lists: [] });
+  const result = await builder.importResearchedList(db, { listDate: TODAY, owner: "suuchi", resumeQueued: true, companies: domains.map(domain => ({ company: domain, domain, sector: "manufacturing", research: {} })) });
+  assert.equal(result.listed.length, 0);
+  assert.equal(result.skipped.length, 4);
+  assert.equal(calls.research.length, 0);
 });
 
 test("researched addresses are checked against their pages: published on the page still needs mailbox verification, a format proven by two colleagues is likely", async () => {

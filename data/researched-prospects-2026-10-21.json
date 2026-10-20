@@ -1,0 +1,2032 @@
+[
+  {
+    "owner": "suuchi",
+    "company": "United Vision Logistics",
+    "domain": "uvlogistics.com",
+    "sector": "Transportation and freight logistics",
+    "revenueUsdM": 286,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.ttnews.com/for-hire/companies/unitedvision/2026",
+    "research": {
+      "sector": "Transportation and freight logistics",
+      "revenue": {
+        "usdMillions": 286,
+        "year": 2025,
+        "sourceUrl": "https://www.ttnews.com/for-hire/companies/unitedvision/2026"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Mark Schnittke",
+        "title": "Chief Operating Officer",
+        "sourceUrl": "https://uvlogistics.com/leadership"
+      },
+      "email": {
+        "address": "mark.schnittke@uvlogistics.com",
+        "sourceUrl": "https://uvlogistics.com/leadership"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": null,
+          "fieldWorkforce": 1005,
+          "highVolume": null,
+          "url": "https://www.ttnews.com/for-hire/companies/unitedvision/2026"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "UVL describes custom EDI integrations for load management, invoicing and payment processing.",
+            "date": null,
+            "url": "https://uvlogistics.com/technology-advantage"
+          }
+        ],
+        "systems": [
+          {
+            "name": "McLeod",
+            "url": "https://uvlogistics.com/technology-advantage"
+          },
+          {
+            "name": "Motive",
+            "url": "https://uvlogistics.com/technology-advantage"
+          },
+          {
+            "name": "Vision 2020",
+            "url": "https://uvlogistics.com/technology-advantage"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Own engineering team and custom systems already exist. Qualify a narrow operational exception workflow rather than presume a technology gap. Published COO address, mailbox delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "dispatch to billing handoffs",
+        "subject": "billing handoffs",
+        "inputs": "dispatch exceptions, delivery documents and settlement requirements",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Lafayette-based carrier and logistics operator providing specialized trucking, freight brokerage and project transport for industrial shippers.",
+        "products": [
+          "Specialized trucking",
+          "Freight brokerage",
+          "Project transport"
+        ],
+        "customers": [
+          "Industrial shippers",
+          "Energy companies"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://uvlogistics.com/technology-advantage"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "mark.schnittke@uvlogistics.com",
+      "sourceUrl": "https://uvlogistics.com/leadership"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Logistics Plus",
+    "domain": "logisticsplus.com",
+    "sector": "Freight logistics and warehousing",
+    "revenueUsdM": 695,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.ttnews.com/logistics/rankings/2026",
+    "research": {
+      "sector": "Freight logistics and warehousing",
+      "revenue": {
+        "usdMillions": 695,
+        "year": 2025,
+        "sourceUrl": "https://www.ttnews.com/logistics/rankings/2026"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Yuriy Ostapyak",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://www.logisticsplus.com/logistics-plus-founder-jim-berlin-transitions-to-chairman-names-yuriy-ostapyak-as-ceo/"
+      },
+      "email": {
+        "address": "yuriy.ostapyak@logisticsplus.com",
+        "sourceUrl": "https://www.logisticsplus.com/wp-content/uploads/sites/26/2023/07/Logistics-Plus-Media-Press-Kit.pdf"
+      },
+      "trigger": {
+        "fact": "Yuriy Ostapyak was named CEO as founder Jim Berlin transitioned to chairman.",
+        "date": "2026-05-04",
+        "sourceUrl": "https://www.logisticsplus.com/logistics-plus-founder-jim-berlin-transitions-to-chairman-names-yuriy-ostapyak-as-ceo/"
+      },
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": null,
+          "fieldWorkforce": null,
+          "highVolume": "600000 parcel, LTL and truckload shipments annually",
+          "url": "https://www.logisticsplus.com/wp-content/uploads/sites/26/2023/04/LP-Company-Fact-Sheet-2025.pdf"
+        },
+        "change": [
+          {
+            "kind": "leadership",
+            "fact": "Yuriy Ostapyak was named CEO as founder Jim Berlin transitioned to chairman.",
+            "date": "2026-05-04",
+            "url": "https://www.logisticsplus.com/logistics-plus-founder-jim-berlin-transitions-to-chairman-names-yuriy-ostapyak-as-ceo/"
+          }
+        ],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "eworldplus",
+            "url": "https://www.logisticsplus.com/wp-content/uploads/sites/26/2023/04/LP-Company-Fact-Sheet-2025.pdf"
+          },
+          {
+            "name": "eshipplus",
+            "url": "https://www.logisticsplus.com/wp-content/uploads/sites/26/2023/04/LP-Company-Fact-Sheet-2025.pdf"
+          },
+          {
+            "name": "mylogisticsplus",
+            "url": "https://www.logisticsplus.com/wp-content/uploads/sites/26/2023/04/LP-Company-Fact-Sheet-2025.pdf"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Ranking states 2025 gross revenue of $695M; the newer undated company fact sheet shows $785M global revenue. These are different reported snapshots, not interchangeable. Already offers substantial logistics technology; qualify a discrete internal operational need. CEO is a fallback to identifying the workflow owner. Mailbox delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "project shipment status handoffs",
+        "subject": "shipment handoffs",
+        "inputs": "shipment updates, cargo documents and customer commitments",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Erie-based logistics operator coordinating domestic and international freight, warehousing, fulfillment and complex project cargo.",
+        "products": [
+          "Freight forwarding",
+          "Warehousing and fulfillment",
+          "Project cargo"
+        ],
+        "customers": [
+          "Manufacturers",
+          "Retailers",
+          "Industrial shippers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.logisticsplus.com/wp-content/uploads/sites/26/2023/04/LP-Company-Fact-Sheet-2025.pdf"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "yuriy.ostapyak@logisticsplus.com",
+      "sourceUrl": "https://www.logisticsplus.com/wp-content/uploads/sites/26/2023/07/Logistics-Plus-Media-Press-Kit.pdf"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Grown Rogue International",
+    "domain": "grownrogue.com",
+    "sector": "Cannabis cultivation and wholesale",
+    "revenueUsdM": 32.427936,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1463000/000182912626003271/grownrogue_10k.htm",
+    "research": {
+      "sector": "Cannabis cultivation and wholesale",
+      "revenue": {
+        "usdMillions": 32.427936,
+        "year": 2025,
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1463000/000182912626003271/grownrogue_10k.htm"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Obie Strickler",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://ir.grownrogue.com/company-information/executive-team"
+      },
+      "email": {
+        "address": "obie@grownrogue.com",
+        "sourceUrl": "https://www.grownrogue.com/post/grown-rogue-reports-first-quarter-2026-results"
+      },
+      "trigger": {
+        "fact": "Illinois partner began cultivation after June regulatory approval while Minnesota construction continued.",
+        "date": "2026-08-04",
+        "sourceUrl": "https://ir.grownrogue.com/news-events/press-releases/detail/215/grown-rogue-reports-second-quarter-2026-results"
+      },
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://ir.grownrogue.com/news-events/press-releases/detail/215/grown-rogue-reports-second-quarter-2026-results"
+        },
+        "change": [
+          {
+            "kind": "expansion",
+            "fact": "Illinois partner began cultivation after June regulatory approval while Minnesota construction continued.",
+            "date": "2026-08-04",
+            "url": "https://ir.grownrogue.com/news-events/press-releases/detail/215/grown-rogue-reports-second-quarter-2026-results"
+          }
+        ],
+        "techOpenness": [
+          {
+            "fact": "CEO reports completed Michigan technology improvements and operating systems intended to work across markets.",
+            "date": "2026-08-04",
+            "url": "https://ir.grownrogue.com/news-events/press-releases/detail/215/grown-rogue-reports-second-quarter-2026-results"
+          }
+        ],
+        "systems": [],
+        "disqualifiers": [],
+        "concerns": [
+          "Expansion timing is forward-looking. Illinois partner results are not consolidated in reported financials. Workflow is a discovery hypothesis, not a confirmed pain point. Published business email, mailbox delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "inventory exception reporting",
+        "subject": "inventory exceptions",
+        "inputs": "inventory discrepancies, production updates and wholesale order notes",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Oregon-rooted cannabis cultivator producing indoor flower and packaged products with operations in Oregon, Michigan and New Jersey.",
+        "products": [
+          "Indoor cannabis flower",
+          "Packaged flower",
+          "Pre-rolls"
+        ],
+        "customers": [
+          "Licensed retailers",
+          "Cannabis wholesalers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://ir.grownrogue.com/news-events/press-releases/detail/215/grown-rogue-reports-second-quarter-2026-results"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "obie@grownrogue.com",
+      "sourceUrl": "https://www.grownrogue.com/post/grown-rogue-reports-first-quarter-2026-results"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Standard Wellness",
+    "domain": "standardwellness.com",
+    "sector": "Cannabis cultivation processing and retail",
+    "revenueUsdM": 100,
+    "revenueYear": 2025,
+    "sourceUrl": "https://sbnonline.com/article/how-jared-maloof-navigates-obstacles-in-the-nascent-cannabis-industry-to-grow-standard-wellness-co/",
+    "research": {
+      "sector": "Cannabis cultivation processing and retail",
+      "revenue": {
+        "usdMillions": 100,
+        "year": 2025,
+        "sourceUrl": "https://sbnonline.com/article/how-jared-maloof-navigates-obstacles-in-the-nascent-cannabis-industry-to-grow-standard-wellness-co/"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Jared Maloof",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://www.standardwellness.com/blog/standard-wellness-appoints-rob-mccourt-as-vp-of-wholesale/"
+      },
+      "email": {
+        "address": "jmaloof@standardwellness.com",
+        "sourceUrl": "https://www.streetinsider.com/PRNewswire/Standard%2BWellness%2BAppoints%2BRob%2BMcCourt%2Bas%2BVP%2Bof%2BWholesale/25319786.html"
+      },
+      "trigger": {
+        "fact": "Announced opening of The Forest branded Cleveland Heights dispensary with acquisition subject to regulatory approval.",
+        "date": "2026-08-05",
+        "sourceUrl": "https://www.standardwellness.com/blog/standard-wellness-celebrates-grand-opening-of-the-forest-branded-location-in-cleveland-heights-ohio/"
+      },
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://sbnonline.com/article/how-jared-maloof-navigates-obstacles-in-the-nascent-cannabis-industry-to-grow-standard-wellness-co/"
+        },
+        "change": [
+          {
+            "kind": "expansion",
+            "fact": "Announced opening of The Forest branded Cleveland Heights dispensary with acquisition subject to regulatory approval.",
+            "date": "2026-08-05",
+            "url": "https://www.standardwellness.com/blog/standard-wellness-celebrates-grand-opening-of-the-forest-branded-location-in-cleveland-heights-ohio/"
+          }
+        ],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Online ordering",
+            "url": "https://www.standardwellness.com/blog/standard-wellness-appoints-rob-mccourt-as-vp-of-wholesale/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Revenue source says nearing $100M, not an exact reported annual figure. Private-company size is approximate. New branded location acquisition remains subject to approvals. No claim of a confirmed workflow problem or mailbox delivery."
+        ]
+      },
+      "workflow": {
+        "task": "inventory and order exception handoffs",
+        "subject": "order exceptions",
+        "inputs": "store order discrepancies, inventory updates and purchasing notes",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Multi-state cannabis operator cultivating and processing cannabis and operating The Forest branded retail dispensaries.",
+        "products": [
+          "Cannabis cultivation",
+          "Processed cannabis products",
+          "Dispensary retail"
+        ],
+        "customers": [
+          "Licensed retailers",
+          "Adult-use consumers",
+          "Qualified patients"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.standardwellness.com/blog/standard-wellness-appoints-rob-mccourt-as-vp-of-wholesale/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "jmaloof@standardwellness.com",
+      "sourceUrl": "https://www.streetinsider.com/PRNewswire/Standard%2BWellness%2BAppoints%2BRob%2BMcCourt%2Bas%2BVP%2Bof%2BWholesale/25319786.html"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "RJW Logistics Group",
+    "domain": "rjwgroup.com",
+    "sector": "Retail logistics warehousing and distribution",
+    "revenueUsdM": 700,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.ttnews.com/logistics/companies/rjw/2026",
+    "research": {
+      "sector": "Retail logistics warehousing and distribution",
+      "revenue": {
+        "usdMillions": 700,
+        "year": 2025,
+        "sourceUrl": "https://www.ttnews.com/logistics/companies/rjw/2026"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Kevin Williamson",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://rjwgroup.com/team_member/kevin-williamson/"
+      },
+      "email": {
+        "address": "kwilliamson@rjwgroup.com",
+        "sourceUrl": "https://ttabvue.uspto.gov/ttabvue/ttabvue-92067014-CAN-4.pdf"
+      },
+      "trigger": {
+        "fact": "Opened a fourth Dallas facility to expand its retail logistics footprint.",
+        "date": "2026-07-08",
+        "sourceUrl": "https://rjwgroup.com/news/rjw-logistics-group-grows-national-retail-logistics-footprint-with-dallas-expansion/"
+      },
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 4,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://rjwgroup.com/news/rjw-logistics-group-grows-national-retail-logistics-footprint-with-dallas-expansion/"
+        },
+        "change": [
+          {
+            "kind": "expansion",
+            "fact": "Opened a fourth Dallas facility to expand its retail logistics footprint.",
+            "date": "2026-07-08",
+            "url": "https://rjwgroup.com/news/rjw-logistics-group-grows-national-retail-logistics-footprint-with-dallas-expansion/"
+          }
+        ],
+        "techOpenness": [
+          {
+            "fact": "Company describes investment in AI-enabled technologies and retail logistics data analytics.",
+            "date": "2026-03-17",
+            "url": "https://rjwgroup.com/news/rjw-logistics-group-executives-named-2026-pros-to-know/"
+          }
+        ],
+        "systems": [],
+        "disqualifiers": [],
+        "concerns": [
+          "Published email is from a 2017 business correspondence exhibit, so delivery is uncertain. Current CEO identity independently confirmed. Existing AI and technology investment means qualify a specific operational gap and internal ownership before proposing implementation. Revenue is gross logistics revenue."
+        ]
+      },
+      "workflow": {
+        "task": "retail shipment exception handoffs",
+        "subject": "shipment exceptions",
+        "inputs": "appointment changes, shipment documents and retailer requirements",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Retail logistics operator consolidating consumer goods shipments, warehousing inventory and supporting retailer distribution requirements.",
+        "products": [
+          "Retail consolidation",
+          "Warehousing",
+          "Distribution"
+        ],
+        "customers": [
+          "Consumer packaged goods suppliers",
+          "Food and beverage suppliers",
+          "Retail suppliers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://rjwgroup.com/news/rjw-logistics-group-grows-national-retail-logistics-footprint-with-dallas-expansion/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "kwilliamson@rjwgroup.com",
+      "sourceUrl": "https://ttabvue.uspto.gov/ttabvue/ttabvue-92067014-CAN-4.pdf"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "RoadOne IntermodaLogistics",
+    "domain": "roadone.com",
+    "sector": "Intermodal trucking and logistics",
+    "revenueUsdM": 720.65,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.ttnews.com/for-hire/companies/roadone/2026",
+    "research": {
+      "sector": "Intermodal trucking and logistics",
+      "revenue": {
+        "usdMillions": 720.65,
+        "year": 2025,
+        "sourceUrl": "https://www.ttnews.com/for-hire/companies/roadone/2026"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Ken Kellaway",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://www.roadone.com/about/ken-kellaway"
+      },
+      "email": {
+        "address": "kkellaway@roadone.com",
+        "sourceUrl": "https://www.joc.com/sites/default/files/u52092/RoadOne-ExecMgmtTeamREL_9.9.13-FINAL.pdf"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 100,
+          "fieldWorkforce": 2500,
+          "highVolume": "1 million moves annually",
+          "url": "https://www.roadone.com/files/RoadOne_IntermodaLogistics_January_2025.pdf"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "TrueVision",
+            "url": "https://www.roadone.com/files/RoadOne_IntermodaLogistics_January_2025.pdf"
+          },
+          {
+            "name": "Samsara",
+            "url": "https://www.roadone.com/files/RoadOne_IntermodaLogistics_January_2025.pdf"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Revenue is a Transport Topics estimate. Business email was published in 2013 and is historical, not independently delivery tested. Current CEO identity separately confirmed. Existing proprietary systems require qualification of a narrow exception workflow."
+        ]
+      },
+      "workflow": {
+        "task": "container availability exception handoffs",
+        "subject": "container exceptions",
+        "inputs": "container availability notices, delivery appointments and terminal updates",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "U.S. intermodal logistics operator handling port drayage, dedicated trucking, container yards, warehousing and transloading.",
+        "products": [
+          "Intermodal drayage",
+          "Dedicated trucking",
+          "Transloading and warehousing"
+        ],
+        "customers": [
+          "Importers",
+          "Exporters",
+          "Industrial shippers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.roadone.com/files/RoadOne_IntermodaLogistics_January_2025.pdf"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "kkellaway@roadone.com",
+      "sourceUrl": "https://www.joc.com/sites/default/files/u52092/RoadOne-ExecMgmtTeamREL_9.9.13-FINAL.pdf"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Artur Express",
+    "domain": "arturexpress.com",
+    "sector": "Transportation and freight logistics",
+    "revenueUsdM": 283.787,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.ttnews.com/for-hire/companies/artur/2026",
+    "research": {
+      "sector": "Transportation and freight logistics",
+      "revenue": {
+        "usdMillions": 283.787,
+        "year": 2025,
+        "sourceUrl": "https://www.ttnews.com/for-hire/companies/artur/2026"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Artur Wagrodzki",
+        "title": "President",
+        "sourceUrl": "https://arturexpress.com/contact"
+      },
+      "email": {
+        "address": "artur@arturexpress.com",
+        "sourceUrl": "https://arturexpress.com/contact"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 11,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://arturexpress.com/locations"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company describes using GPS and telematics to improve fleet operations.",
+            "date": null,
+            "url": "https://arturexpress.com/sustainability"
+          }
+        ],
+        "systems": [
+          {
+            "name": "ELD",
+            "url": "https://arturexpress.com/sustainability"
+          },
+          {
+            "name": "GPS",
+            "url": "https://arturexpress.com/sustainability"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Transport Topics revenue is estimated. Public directory publishes president contact; mailbox delivery unconfirmed. Discovery hypothesis only."
+        ]
+      },
+      "workflow": {
+        "task": "delivery document exception handoffs",
+        "subject": "delivery exceptions",
+        "inputs": "proof of delivery, missing shipment documents and billing notes",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Hazelwood-based trucking operator moving freight across a national terminal and yard network with dedicated operations and customer support.",
+        "products": [
+          "Truckload transportation",
+          "Dedicated freight services",
+          "Temperature controlled transport"
+        ],
+        "customers": [
+          "Freight shippers",
+          "Industrial customers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://arturexpress.com/sustainability"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "artur@arturexpress.com",
+      "sourceUrl": "https://arturexpress.com/contact"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Flexsteel Industries",
+    "domain": "flexsteel.com",
+    "sector": "Residential furniture manufacturing and distribution",
+    "revenueUsdM": 459.178,
+    "revenueYear": 2026,
+    "sourceUrl": "https://www.sec.gov/Archives/edgar/data/37472/000119312526357097/flxs-20260630.htm",
+    "research": {
+      "sector": "Residential furniture manufacturing and distribution",
+      "revenue": {
+        "usdMillions": 459.178,
+        "year": 2026,
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/37472/000119312526357097/flxs-20260630.htm"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Derek Schmidt",
+        "title": "President and Chief Executive Officer",
+        "sourceUrl": "https://ir.flexsteel.com/news-releases/news-release-details/flexsteel-industries-inc-reports-fiscal-third-quarter-2026/"
+      },
+      "email": {
+        "address": "dschmidt@flexsteel.com",
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/37472/000003747226000028/flxs-ex10_1.htm"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": 900,
+          "highVolume": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/37472/000119312526357097/flxs-20260630.htm"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "ERP",
+            "url": "https://www.sec.gov/Archives/edgar/data/37472/000119312526357097/flxs-20260630.htm"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Operations span the U.S., Mexico and Asia. Three Juarez plants are operating; Mexicali was not yet operating at fiscal year end and is not counted as an operating plant. ERP modernization is a disclosed risk area, not proof of an active failure. Mailbox delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "production and order exception handoffs",
+        "subject": "production handoffs",
+        "inputs": "customer order changes, production updates and supplier documents",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "U.S.-headquartered furniture manufacturer and importer supplying residential seating and furniture through retail partners and online channels.",
+        "products": [
+          "Residential upholstered furniture",
+          "Reclining seating",
+          "Home furnishings"
+        ],
+        "customers": [
+          "Furniture retailers",
+          "Residential consumers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/37472/000119312526357097/flxs-20260630.htm"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "dschmidt@flexsteel.com",
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/37472/000003747226000028/flxs-ex10_1.htm"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Rocky Brands",
+    "domain": "rockybrands.com",
+    "sector": "Footwear manufacturing and distribution",
+    "revenueUsdM": 481.976,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.sec.gov/Archives/edgar/data/895456/000143774926007634/rcky20251231_10k.htm",
+    "research": {
+      "sector": "Footwear manufacturing and distribution",
+      "revenue": {
+        "usdMillions": 481.976,
+        "year": 2025,
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/895456/000143774926007634/rcky20251231_10k.htm"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Tom Robertson",
+        "title": "Chief Operating Officer",
+        "sourceUrl": "https://investors.rockybrands.com/sec-filings/all-sec-filings/content/0001437749-26-014746/0001437749-26-014746.pdf"
+      },
+      "email": {
+        "address": "tom.robertson@rockybrands.com",
+        "sourceUrl": "https://investors.rockybrands.com/sec-filings/all-sec-filings/content/0001437749-21-011184/ex_247319.htm"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.sec.gov/Archives/edgar/data/895456/000143774926007634/rcky20251231_10k.htm"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company is completing a multiyear ERP implementation integrating information systems and business processes.",
+            "date": null,
+            "url": "https://www.sec.gov/Archives/edgar/data/895456/000143774926007634/rcky20251231_10k.htm"
+          }
+        ],
+        "systems": [
+          {
+            "name": "ERP",
+            "url": "https://www.sec.gov/Archives/edgar/data/895456/000143774926007634/rcky20251231_10k.htm"
+          },
+          {
+            "name": "CustomFit",
+            "url": "https://www.sec.gov/Archives/edgar/data/895456/000143774926007634/rcky20251231_10k.htm"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Buyer signs filings as Thomas D. Robertson and is publicly known as Tom Robertson. Address was published in a 2021 SEC-filed agreement and is historical; current COO role independently confirmed. ERP project does not establish that a specific exception workflow is broken."
+        ]
+      },
+      "workflow": {
+        "task": "order and production exception handoffs",
+        "subject": "order exceptions",
+        "inputs": "wholesale order changes, production updates and shipping documents",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Ohio-based branded footwear manufacturer and distributor selling work, outdoor and lifestyle footwear through wholesale and direct consumer channels.",
+        "products": [
+          "Work boots",
+          "Outdoor footwear",
+          "Lifestyle footwear"
+        ],
+        "customers": [
+          "Footwear retailers",
+          "Industrial buyers",
+          "Consumers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/895456/000143774926007634/rcky20251231_10k.htm"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "tom.robertson@rockybrands.com",
+      "sourceUrl": "https://investors.rockybrands.com/sec-filings/all-sec-filings/content/0001437749-21-011184/ex_247319.htm"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Acme Truck Line",
+    "domain": "acmetruck.com",
+    "sector": "Specialized trucking and freight logistics",
+    "revenueUsdM": 238.331,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.ttnews.com/for-hire/companies/acme/2026",
+    "research": {
+      "sector": "Specialized trucking and freight logistics",
+      "revenue": {
+        "usdMillions": 238.331,
+        "year": 2025,
+        "sourceUrl": "https://www.ttnews.com/for-hire/companies/acme/2026"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Tyler Coatney",
+        "title": "President",
+        "sourceUrl": "https://www.acmetruck.com/about/team/"
+      },
+      "email": {
+        "address": "tyler.coatney@acmetruck.com",
+        "sourceUrl": "https://www.acmetruck.com/about/team/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.acmetruck.com/about/team/"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company provides a mobile backhaul system and intranet shipping documents and settlement sheets.",
+            "date": null,
+            "url": "https://www.acmetruck.com/work-with-us/open-a-terminal/"
+          }
+        ],
+        "systems": [
+          {
+            "name": "TRANSFLO",
+            "url": "https://www.acmetruck.com/carriers/"
+          },
+          {
+            "name": "KeepTruckin",
+            "url": "https://www.acmetruck.com/work-with-us/open-a-terminal/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Revenue is a Transport Topics estimate. Current official management page publishes president email. Existing document scanning and intranet tools should remain part of any discovery. Delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "shipment document and settlement handoffs",
+        "subject": "settlement handoffs",
+        "inputs": "load confirmations, delivery documents and settlement exceptions",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Louisiana-based specialized trucking carrier and brokerage serving oilfield and industrial freight through a terminal network.",
+        "products": [
+          "Heavy haul transportation",
+          "Oilfield trucking",
+          "Freight brokerage"
+        ],
+        "customers": [
+          "Oil and gas operators",
+          "Industrial shippers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.acmetruck.com/carriers/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "tyler.coatney@acmetruck.com",
+      "sourceUrl": "https://www.acmetruck.com/about/team/"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "The Korte Company",
+    "domain": "korteco.com",
+    "sector": "Design build construction contracting",
+    "revenueUsdM": 553,
+    "revenueYear": 2024,
+    "sourceUrl": "https://www.enr.com/articles/61265-obituary-former-contractor-ceo-ralph-korte-91-leaves-legacy-of-industry-firsts",
+    "research": {
+      "sector": "Design build construction contracting",
+      "revenue": {
+        "usdMillions": 553,
+        "year": 2024,
+        "sourceUrl": "https://www.enr.com/articles/61265-obituary-former-contractor-ceo-ralph-korte-91-leaves-legacy-of-industry-firsts"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Brent Korte",
+        "title": "President and Chief Executive Officer",
+        "sourceUrl": "https://www.korteco.com/our-people/"
+      },
+      "email": {
+        "address": "brent.korte@korteco.com",
+        "sourceUrl": "https://www.korteco.com/our-people/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.korteco.com/las-vegas/"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Vista",
+            "url": "https://www.korteco.com/construction-industry-articles/susan-bowman-sets-the-example/"
+          },
+          {
+            "name": "Procore",
+            "url": "https://www.korteco.com/construction-industry-articles/susan-bowman-sets-the-example/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "2024 revenue is historical. Systems are documented in an older company article and need reconfirmation during discovery. Current president and CEO email publicly listed. No confirmed internal workflow problem or mailbox delivery."
+        ]
+      },
+      "workflow": {
+        "task": "project cost and change handoffs",
+        "subject": "project handoffs",
+        "inputs": "project cost updates, approved changes and supporting documents",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Employee-owned design build contractor delivering industrial facilities, distribution centers, healthcare buildings and other commercial projects.",
+        "products": [
+          "Design build construction",
+          "Construction management",
+          "Preconstruction"
+        ],
+        "customers": [
+          "Industrial owners",
+          "Commercial property owners",
+          "Public agencies"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.korteco.com/our-people/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "brent.korte@korteco.com",
+      "sourceUrl": "https://www.korteco.com/our-people/"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Harkins Builders",
+    "domain": "harkinsbuilders.com",
+    "sector": "Construction contracting",
+    "revenueUsdM": 725,
+    "revenueYear": 2023,
+    "sourceUrl": "https://www.enr.com/articles/59088-enr-midatlantic-2024-contractor-of-the-year-maryland-firm-optimizes-opportunity",
+    "research": {
+      "sector": "Construction contracting",
+      "revenue": {
+        "usdMillions": 725,
+        "year": 2023,
+        "sourceUrl": "https://www.enr.com/articles/59088-enr-midatlantic-2024-contractor-of-the-year-maryland-firm-optimizes-opportunity"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Ben Nichols",
+        "title": "President and Chief Executive Officer",
+        "sourceUrl": "https://harkinsbuilders.com/about/our-people/"
+      },
+      "email": {
+        "address": "bnichols@harkinsbuilders.com",
+        "sourceUrl": "https://mhec.maryland.gov/institutions_training/documents/acadaff/acadproginstitapprovals/Proposals/PP25439.pdf"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 5,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.harkinsbuilders.com/why-harkins/timeline/"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Procore",
+            "url": "https://harkinsbuilders.com/news/our-commitment-to-innovation-through-accounting/"
+          },
+          {
+            "name": "Viewpoint",
+            "url": "https://harkinsbuilders.com/news/our-commitment-to-innovation-through-accounting/"
+          },
+          {
+            "name": "Oracle PeopleSoft",
+            "url": "https://harkinsbuilders.com/news/our-commitment-to-innovation-through-accounting/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Revenue is a historical 2023 figure, not current annual revenue. Software evidence is historical and PeopleSoft upgrade completion must be confirmed. Current CEO role separately confirmed. Source publication does not confirm mailbox delivery."
+        ]
+      },
+      "workflow": {
+        "task": "project document and invoice handoffs",
+        "subject": "invoice handoffs",
+        "inputs": "project approvals, supporting documents and invoice exceptions",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Employee-owned general contractor serving multifamily, commercial and public-sector construction across the Mid-Atlantic and Southeast.",
+        "products": [
+          "General contracting",
+          "Preconstruction",
+          "Construction management"
+        ],
+        "customers": [
+          "Housing developers",
+          "Commercial owners",
+          "Public agencies"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://harkinsbuilders.com/about/our-history/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "bnichols@harkinsbuilders.com",
+      "sourceUrl": "https://mhec.maryland.gov/institutions_training/documents/acadaff/acadproginstitapprovals/Proposals/PP25439.pdf"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Steam Logistics",
+    "domain": "steamlogistics.com",
+    "sector": "Freight logistics and brokerage",
+    "revenueUsdM": 578,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.ttnews.com/logistics/rankings/2026",
+    "research": {
+      "sector": "Freight logistics and brokerage",
+      "revenue": {
+        "usdMillions": 578,
+        "year": 2025,
+        "sourceUrl": "https://www.ttnews.com/logistics/rankings/2026"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Jason Provonsha",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://live.freightwaves.com/event-speakers/jason-provonsha"
+      },
+      "email": {
+        "address": "jason.provonsha@steamlogistics.com",
+        "sourceUrl": "https://www.nitoda.com/a/steam-logistics-5896"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 12,
+          "fieldWorkforce": null,
+          "highVolume": "5000 customers globally",
+          "url": "https://www.steamlogistics.com/company"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company describes end to end shipment visibility through technology enabled logistics solutions.",
+            "date": null,
+            "url": "https://www.steamlogistics.com/company"
+          }
+        ],
+        "systems": [
+          {
+            "name": "SteamVision",
+            "url": "https://www.steamlogistics.com/company"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Email is published in a third-party logistics directory; CEO identity is independently supported by an industry speaker biography. Mailbox delivery is unconfirmed. Current SteamVision portal means qualify exceptions around existing systems. Revenue is gross logistics revenue."
+        ]
+      },
+      "workflow": {
+        "task": "shipment inbox exception handoffs",
+        "subject": "shipment exceptions",
+        "inputs": "customer shipment messages, delivery updates and transport documents",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Chattanooga-based third-party logistics provider coordinating domestic truckload, international ocean and air freight, customs brokerage and drayage.",
+        "products": [
+          "Freight brokerage",
+          "International forwarding",
+          "Drayage"
+        ],
+        "customers": [
+          "Manufacturers",
+          "Retailers",
+          "Commercial shippers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.steamlogistics.com/company"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "jason.provonsha@steamlogistics.com",
+      "sourceUrl": "https://www.nitoda.com/a/steam-logistics-5896"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "GrowGeneration",
+    "domain": "growgeneration.com",
+    "sector": "Hydroponic and cultivation supply distribution",
+    "revenueUsdM": 161.741,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1604868/000160486826000004/grwg-20251231.htm",
+    "research": {
+      "sector": "Hydroponic and cultivation supply distribution",
+      "revenue": {
+        "usdMillions": 161.741,
+        "year": 2025,
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1604868/000160486826000004/grwg-20251231.htm"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Darren Lampert",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1604868/000160486826000019/pressrelease06302026.htm"
+      },
+      "email": {
+        "address": "darren@growgeneration.com",
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1604868/000121390021041829/ea145691ex99-2growgen.htm"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 6,
+          "fieldWorkforce": null,
+          "highVolume": "1000+ facilities supplied (company describes thousands)",
+          "url": "https://www.growgeneration.com/pro"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company offers a commercial portal with self service quotes, order tracking and invoice visibility.",
+            "date": null,
+            "url": "https://www.growgeneration.com/pro"
+          }
+        ],
+        "systems": [
+          {
+            "name": "GrowGeneration Pro",
+            "url": "https://www.growgeneration.com/pro"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Company has reduced its retail footprint; qualify budget and workflow owner. Pro portal already handles standard procurement, so explore remaining exceptions rather than pitch replacing it. Email is historical published company evidence and mailbox delivery is unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "purchasing and order exception handoffs",
+        "subject": "purchasing exceptions",
+        "inputs": "supplier updates, stock discrepancies and customer order changes",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "U.S. distributor of specialty cultivation and gardening supplies serving commercial growers, garden centers and controlled environment agriculture businesses.",
+        "products": [
+          "Growing media and nutrients",
+          "Cultivation lighting",
+          "Benching and storage solutions"
+        ],
+        "customers": [
+          "Commercial growers",
+          "Garden centers",
+          "Greenhouse operators"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1604868/000160486826000019/pressrelease06302026.htm"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "darren@growgeneration.com",
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1604868/000121390021041829/ea145691ex99-2growgen.htm"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Commodore Builders",
+    "domain": "commodorebuilders.com",
+    "sector": "Construction management and general contracting",
+    "revenueUsdM": 246.9,
+    "revenueYear": 2026,
+    "sourceUrl": "https://growjo.com/company/Commodore_Builders",
+    "research": {
+      "sector": "Construction management and general contracting",
+      "revenue": {
+        "usdMillions": 246.9,
+        "year": 2026,
+        "sourceUrl": "https://growjo.com/company/Commodore_Builders"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Tom Comeau",
+        "title": "President",
+        "sourceUrl": "https://commodorebuilders.com/people/group/field-operations/page/3/"
+      },
+      "email": {
+        "address": "tcomeau@commodorebuilders.com",
+        "sourceUrl": "https://commodorebuilders.com/contact/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://commodorebuilders.com/contact/"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company technology leader describes consolidating project data and adopting Procore Financials for cost reporting.",
+            "date": null,
+            "url": "https://www.procore.com/casestudies/commodore-builders-analytics"
+          }
+        ],
+        "systems": [
+          {
+            "name": "Procore Analytics",
+            "url": "https://www.procore.com/casestudies/commodore-builders-analytics"
+          },
+          {
+            "name": "Procore Financials",
+            "url": "https://www.procore.com/casestudies/commodore-builders-analytics"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Revenue is a third-party estimate, not reported annual revenue. Current own company page lists Tom as president and Richard Lucht as COO, so imported combined title was corrected. Existing analytics initiative may already cover proposed reporting; qualify remaining gaps. Published president address, delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "project document and cost handoffs",
+        "subject": "cost handoffs",
+        "inputs": "project cost updates, approval notes and supporting documents",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Massachusetts-based construction manager delivering commercial interiors, life science facilities, institutional projects and public buildings.",
+        "products": [
+          "Construction management",
+          "Preconstruction",
+          "Commercial fit outs"
+        ],
+        "customers": [
+          "Commercial owners",
+          "Life science businesses",
+          "Public institutions"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://commodorebuilders.com/contact/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "tcomeau@commodorebuilders.com",
+      "sourceUrl": "https://commodorebuilders.com/contact/"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Heartland Express",
+    "domain": "heartlandexpress.com",
+    "sector": "Truckload transportation",
+    "revenueUsdM": 805.709,
+    "revenueYear": 2025,
+    "sourceUrl": "https://static1.squarespace.com/static/55bb7b86e4b07fa7600fb97b/t/69ce787966d60c0204c10d50/1775138937830/Heartland%2BExpress%2BAnnual%2BReport%2B2025.pdf",
+    "research": {
+      "sector": "Truckload transportation",
+      "revenue": {
+        "usdMillions": 805.709,
+        "year": 2025,
+        "sourceUrl": "https://static1.squarespace.com/static/55bb7b86e4b07fa7600fb97b/t/69ce787966d60c0204c10d50/1775138937830/Heartland%2BExpress%2BAnnual%2BReport%2B2025.pdf"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Michael Gerdin",
+        "title": "Chairman and Chief Executive Officer",
+        "sourceUrl": "https://www.heartlandexpress.com/our-people"
+      },
+      "email": {
+        "address": "mgerdin@heartlandexpress.com",
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/799233/000079923325000008/exhibit192024insidertradin.htm"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 26,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://static1.squarespace.com/static/55bb7b86e4b07fa7600fb97b/t/69ce787966d60c0204c10d50/1775138937830/Heartland%2BExpress%2BAnnual%2BReport%2B2025.pdf"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company transitioned operating fleets to a common TMS and aligned telematics providers.",
+            "date": null,
+            "url": "https://static1.squarespace.com/static/55bb7b86e4b07fa7600fb97b/t/69ce787966d60c0204c10d50/1775138937830/Heartland%2BExpress%2BAnnual%2BReport%2B2025.pdf"
+          }
+        ],
+        "systems": [
+          {
+            "name": "TMS",
+            "url": "https://static1.squarespace.com/static/55bb7b86e4b07fa7600fb97b/t/69ce787966d60c0204c10d50/1775138937830/Heartland%2BExpress%2BAnnual%2BReport%2B2025.pdf"
+          },
+          {
+            "name": "Customer POD",
+            "url": "https://www.heartlandexpress.com/our-people"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Annual report discloses a 2025 operating loss and substantial systems integration. Qualify budget and exact workflow ownership. Existing TMS and POD portal should remain the source systems. Published email, mailbox delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "dispatch and billing exception handoffs",
+        "subject": "billing exceptions",
+        "inputs": "delivery records, dispatch changes and billing documents",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Iowa-based truckload carrier with regional terminal operations and operating brands including Heartland Express, Millis Transfer and Smith Transport.",
+        "products": [
+          "Truckload transportation",
+          "Regional freight services",
+          "Dedicated transport"
+        ],
+        "customers": [
+          "Retail shippers",
+          "Manufacturers",
+          "Industrial freight customers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://static1.squarespace.com/static/55bb7b86e4b07fa7600fb97b/t/69ce787966d60c0204c10d50/1775138937830/Heartland%2BExpress%2BAnnual%2BReport%2B2025.pdf"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "mgerdin@heartlandexpress.com",
+      "sourceUrl": "https://www.sec.gov/Archives/edgar/data/799233/000079923325000008/exhibit192024insidertradin.htm"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Dimeo Construction",
+    "domain": "dimeo.com",
+    "sector": "Construction management and general contracting",
+    "revenueUsdM": 646.82,
+    "revenueYear": 2025,
+    "sourceUrl": "https://digital.enr.com/articles/top-contractors?article_id=5185373&i=867922",
+    "research": {
+      "sector": "Construction management and general contracting",
+      "revenue": {
+        "usdMillions": 646.82,
+        "year": 2025,
+        "sourceUrl": "https://digital.enr.com/articles/top-contractors?article_id=5185373&i=867922"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Chris Doepper",
+        "title": "Chief Operating Officer",
+        "sourceUrl": "https://dimeo.com/history/"
+      },
+      "email": {
+        "address": "cdoepper@dimeo.com",
+        "sourceUrl": "https://www.providenceri.gov/wp-content/uploads/2024/04/Public-Property-Design-Build-D-B-Services-for-Minor-Renovations-Projects-Phase-IV-Elementary-School-Facility-MT44755.pdf"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://dimeo.com/"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Technology leader describes cloud systems and collaboration from pilot to production.",
+            "date": null,
+            "url": "https://dimeo.com/category/people/"
+          }
+        ],
+        "systems": [
+          {
+            "name": "Procore",
+            "url": "https://dimeo.com/category/people/"
+          },
+          {
+            "name": "Join.Build",
+            "url": "https://dimeo.com/category/people/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Industry source describes 2025 revenue and current COO. Company already has substantial cloud technology; qualify an unresolved workflow. Business email published in a 2024 public procurement record; mailbox delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "project document and change handoffs",
+        "subject": "change handoffs",
+        "inputs": "project correspondence, approval notes and change documents",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "New England construction manager and general contractor delivering institutional, education, commercial and life science projects.",
+        "products": [
+          "Construction management",
+          "General contracting",
+          "Preconstruction"
+        ],
+        "customers": [
+          "Universities",
+          "Healthcare organizations",
+          "Commercial property owners"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://dimeo.com/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "cdoepper@dimeo.com",
+      "sourceUrl": "https://www.providenceri.gov/wp-content/uploads/2024/04/Public-Property-Design-Build-D-B-Services-for-Minor-Renovations-Projects-Phase-IV-Elementary-School-Facility-MT44755.pdf"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Schimenti Construction",
+    "domain": "schimenti.com",
+    "sector": "Commercial construction contracting",
+    "revenueUsdM": 440,
+    "revenueYear": 2024,
+    "sourceUrl": "https://napeo.org/wp-content/uploads/2025/12/2025-CNY-Private-Companies-1-100.pdf",
+    "research": {
+      "sector": "Commercial construction contracting",
+      "revenue": {
+        "usdMillions": 440,
+        "year": 2024,
+        "sourceUrl": "https://napeo.org/wp-content/uploads/2025/12/2025-CNY-Private-Companies-1-100.pdf"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Matthew Schimenti",
+        "title": "Chief Executive Officer and Board Chair",
+        "sourceUrl": "https://schimenti.com/about/"
+      },
+      "email": {
+        "address": "mschimenti@schimenti.com",
+        "sourceUrl": "https://retailgcs.memberclicks.net/assets/NewsletterArchive/RCA_2025SpringNewsletter_Final_20250625.pdf"
+      },
+      "trigger": {
+        "fact": "James Harrison was appointed president while Matthew Schimenti remains CEO and board chair.",
+        "date": "2026-09-21",
+        "sourceUrl": "https://schimenti.com/2026/09/21/james-harrison-appointed-president/"
+      },
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": null,
+          "fieldWorkforce": 80,
+          "highVolume": null,
+          "url": "https://schimenti.com/about/"
+        },
+        "change": [
+          {
+            "kind": "leadership",
+            "fact": "James Harrison was appointed president while Matthew Schimenti remains CEO and board chair.",
+            "date": "2026-09-21",
+            "url": "https://schimenti.com/2026/09/21/james-harrison-appointed-president/"
+          }
+        ],
+        "techOpenness": [
+          {
+            "fact": "Company describes nationwide content sharing and enterprise telephony to support remote team communication.",
+            "date": null,
+            "url": "https://schimenti.com/projects/schimentihq/"
+          }
+        ],
+        "systems": [],
+        "disqualifiers": [],
+        "concerns": [
+          "Revenue is reported for 2024, not a current forecast. President handles daily operational leadership after September 2026 change; CEO can route to appropriate workflow owner. Business email published in an industry newsletter, delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "project approval and change handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, approved changes and subcontractor documents",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Employee-owned contractor delivering retail, hospitality and commercial construction with project teams operating nationally.",
+        "products": [
+          "Retail construction",
+          "Commercial interiors",
+          "Hospitality construction"
+        ],
+        "customers": [
+          "Retail chains",
+          "Hospitality operators",
+          "Commercial property owners"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://schimenti.com/about/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "mschimenti@schimenti.com",
+      "sourceUrl": "https://retailgcs.memberclicks.net/assets/NewsletterArchive/RCA_2025SpringNewsletter_Final_20250625.pdf"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Cooper Carry",
+    "domain": "coopercarry.com",
+    "sector": "Architecture and design services",
+    "revenueUsdM": 107.23,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "research": {
+      "sector": "Architecture and design services",
+      "revenue": {
+        "usdMillions": 107.23,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Kyle Reis",
+        "title": "President and Chief Executive Officer",
+        "sourceUrl": "https://www.coopercarry.com/people/kyle-reis/"
+      },
+      "email": {
+        "address": "kylereis@coopercarry.com",
+        "sourceUrl": "https://www.coopercarry.com/people/kyle-reis/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.coopercarry.com/people/kyle-reis/"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://www.linkedin.com/jobs/view/project-manager-architecture-k-12-at-cooper-carry-4422028380"
+          },
+          {
+            "name": "Bluebeam",
+            "url": "https://www.linkedin.com/jobs/view/project-manager-architecture-k-12-at-cooper-carry-4422028380"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Revenue is firm-reported 2025 design services revenue. Software requirements are from a company job posting, not an independent systems audit. Proposed workflow is administrative document coordination with professional review, not autonomous design decisions. Published CEO email, mailbox delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "project document and decision handoffs",
+        "subject": "decision handoffs",
+        "inputs": "meeting decisions, document revisions and approval notes",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Architecture and design practice delivering commercial, mixed use, hospitality, education and civic projects across multiple U.S. offices.",
+        "products": [
+          "Architectural design",
+          "Interior design",
+          "Urban planning"
+        ],
+        "customers": [
+          "Commercial developers",
+          "Educational institutions",
+          "Public agencies"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.coopercarry.com/services/architecture/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "kylereis@coopercarry.com",
+      "sourceUrl": "https://www.coopercarry.com/people/kyle-reis/"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Beyer Blinder Belle Architects & Planners",
+    "domain": "beyerblinderbelle.com",
+    "sector": "Architecture and design services",
+    "revenueUsdM": 74.2,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.enr.com/ext/resources/Issues/National_Issues/2026/27-Apr/ENR04272026_Top500_compressed.pdf",
+    "research": {
+      "sector": "Architecture and design services",
+      "revenue": {
+        "usdMillions": 74.2,
+        "year": 2025,
+        "sourceUrl": "https://www.enr.com/ext/resources/Issues/National_Issues/2026/27-Apr/ENR04272026_Top500_compressed.pdf"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Elizabeth Leber",
+        "title": "Managing Partner",
+        "sourceUrl": "https://www.beyerblinderbelle.com/about/people/view/leber-liz/"
+      },
+      "email": {
+        "address": "eleber@bbbarch.com",
+        "sourceUrl": "https://www.beyerblinderbelle.com/about/people/view/leber-liz/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.beyerblinderbelle.com/about/mission/"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company digital practice group has implemented background production tasks and customized automation scripts.",
+            "date": null,
+            "url": "https://www.beyerblinderbelle.com/ideas/read/how-can-architects-automate-basic-time-consuming-production-tasks/"
+          }
+        ],
+        "systems": [
+          {
+            "name": "Ideate Automation",
+            "url": "https://www.beyerblinderbelle.com/ideas/read/how-can-architects-automate-basic-time-consuming-production-tasks/"
+          },
+          {
+            "name": "Microsoft Power Automate",
+            "url": "https://www.beyerblinderbelle.com/ideas/read/how-can-architects-automate-basic-time-consuming-production-tasks/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Published buyer email uses official alternate domain bbbarch.com. Revenue is 2025 design services revenue. Existing design technology group already automates production, so qualify a remaining cross-team administrative need. Mailbox delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "project decision and approval handoffs",
+        "subject": "decision handoffs",
+        "inputs": "meeting notes, project approvals and unresolved questions",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Architecture and planning practice designing new buildings and adapting historic places for cultural, educational, residential and civic clients.",
+        "products": [
+          "Architectural design",
+          "Historic preservation",
+          "Urban planning"
+        ],
+        "customers": [
+          "Universities",
+          "Cultural institutions",
+          "Property developers"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.beyerblinderbelle.com/about/people/view/leber-liz/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "eleber@bbbarch.com",
+      "sourceUrl": "https://www.beyerblinderbelle.com/about/people/view/leber-liz/"
+    },
+    "alternateDomainProof": "https://www.beyerblinderbelle.com/about/people/view/leber-liz/"
+  },
+  {
+    "owner": "suuchi",
+    "company": "Quinn Evans",
+    "domain": "quinnevans.com",
+    "sector": "Architecture and design services",
+    "revenueUsdM": 61.59,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "research": {
+      "sector": "Architecture and design services",
+      "revenue": {
+        "usdMillions": 61.59,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Alyson Steele",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://www.quinnevans.com/people/alyson-steele"
+      },
+      "email": {
+        "address": "alyson.steele@quinnevans.com",
+        "sourceUrl": "https://www.quinnevans.com/directory"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 6,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.quinnevans.com/connect"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://www.quinnevans.com/news/an-introduction-to-hbim"
+          },
+          {
+            "name": "HBIM",
+            "url": "https://www.quinnevans.com/news/an-introduction-to-hbim"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Revenue is 2025 design services revenue. Existing historic building information management capabilities must be respected. Explore proposal coordination and document handoffs; no claim of an established pain or autonomous licensed design. Published CEO email, delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "proposal evidence and approval handoffs",
+        "subject": "proposal handoffs",
+        "inputs": "project narratives, qualification records and review comments",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Architecture practice focused on cultural places, historic preservation, education and community projects across six U.S. offices.",
+        "products": [
+          "Architectural design",
+          "Historic preservation",
+          "Interior design"
+        ],
+        "customers": [
+          "Cultural institutions",
+          "Educational organizations",
+          "Public clients"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.quinnevans.com/connect"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "alyson.steele@quinnevans.com",
+      "sourceUrl": "https://www.quinnevans.com/directory"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Wold Architects and Engineers",
+    "domain": "woldae.com",
+    "sector": "Architecture and engineering design services",
+    "revenueUsdM": 110,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "research": {
+      "sector": "Architecture and engineering design services",
+      "revenue": {
+        "usdMillions": 110,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Vaughn Dierks",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://www.woldae.com/insights/wold-architects-engineers-expands-midwest-presence-with-acquisition-of-vps-architecture"
+      },
+      "email": {
+        "address": "vdierks@woldae.com",
+        "sourceUrl": "https://www.woldae.com/people/vaughn-dierks"
+      },
+      "trigger": {
+        "fact": "Company announced acquisition of VPS Architecture and integration across its seven-office platform.",
+        "date": null,
+        "sourceUrl": "https://www.woldae.com/insights/wold-architects-engineers-expands-midwest-presence-with-acquisition-of-vps-architecture"
+      },
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 7,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.woldae.com/insights/wold-architects-engineers-expands-midwest-presence-with-acquisition-of-vps-architecture"
+        },
+        "change": [
+          {
+            "kind": "acquisition",
+            "fact": "Company announced acquisition of VPS Architecture and integration across its seven-office platform.",
+            "date": null,
+            "url": "https://www.woldae.com/insights/wold-architects-engineers-expands-midwest-presence-with-acquisition-of-vps-architecture"
+          }
+        ],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://www.woldae.com/insights/designing-and-retrofitting-hospitals-during-covid"
+          },
+          {
+            "name": "SketchUp",
+            "url": "https://www.woldae.com/insights/designing-and-retrofitting-hospitals-during-covid"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "2025 total design services revenue includes architecture and engineering. Acquisition announcement has no visible publication date, so it is not claimed as a fresh dated event. Older software examples need reconfirmation. Proposed workflow is administrative proposal coordination with professional review. Delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "proposal document and review handoffs",
+        "subject": "proposal handoffs",
+        "inputs": "qualification records, project examples and reviewer comments",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Architecture and engineering practice serving education, government, healthcare and senior living facilities across a multi-office U.S. network.",
+        "products": [
+          "Architecture",
+          "Engineering design",
+          "Facility master planning"
+        ],
+        "customers": [
+          "School districts",
+          "Local governments",
+          "Healthcare organizations"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.woldae.com/insights/wold-architects-engineers-expands-midwest-presence-with-acquisition-of-vps-architecture"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "vdierks@woldae.com",
+      "sourceUrl": "https://www.woldae.com/people/vaughn-dierks"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "AO",
+    "domain": "aoarchitects.com",
+    "sector": "Architecture and design services",
+    "revenueUsdM": 105.8,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "research": {
+      "sector": "Architecture and design services",
+      "revenue": {
+        "usdMillions": 105.8,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Jack Selman",
+        "title": "Chief Executive Officer and Managing Partner",
+        "sourceUrl": "https://www.aoarchitects.com/person/jack-selman/"
+      },
+      "email": {
+        "address": "jack@aoarchitects.com",
+        "sourceUrl": "https://www.aoarchitects.com/person/jack-selman/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 7,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.aoarchitects.com/contact/"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Public company knowledge base lists project search tools and document workflow tools.",
+            "date": null,
+            "url": "https://wiki.aoarchitects.com/wiki/Main_Page"
+          },
+          {
+            "fact": "Company describes use of BIM and CAD tools in design development and construction documentation.",
+            "date": null,
+            "url": "https://www.aoarchitects.com/person/juan-ibarra/"
+          }
+        ],
+        "systems": [
+          {
+            "name": "Deltek",
+            "url": "https://wiki.aoarchitects.com/wiki/Main_Page"
+          },
+          {
+            "name": "Newforma",
+            "url": "https://wiki.aoarchitects.com/wiki/Main_Page"
+          },
+          {
+            "name": "Revit",
+            "url": "https://wiki.aoarchitects.com/wiki/Main_Page"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "2025 revenue is firm-reported design services revenue. Public wiki lists existing JackGPT and project-search tools, so qualify an unresolved administrative workflow and current internal ownership rather than pitch a duplicate. No sourced evidence of a large AI engineering team was established. Delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "document handoffs",
+        "inputs": "design review comments, approval notes and project correspondence",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "California-based architecture practice designing multifamily, commercial, retail, hospitality and mixed use developments.",
+        "products": [
+          "Architectural design",
+          "Planning",
+          "Construction documentation"
+        ],
+        "customers": [
+          "Property developers",
+          "Commercial owners",
+          "Hospitality operators"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://www.aoarchitects.com/person/jack-selman/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "jack@aoarchitects.com",
+      "sourceUrl": "https://www.aoarchitects.com/person/jack-selman/"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "CO Architects",
+    "domain": "coarchitects.com",
+    "sector": "Architecture and design services",
+    "revenueUsdM": 82.66,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "research": {
+      "sector": "Architecture and design services",
+      "revenue": {
+        "usdMillions": 82.66,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Jenna Knudsen",
+        "title": "Managing Principal",
+        "sourceUrl": "https://coarchitects.com/news/p/jenna-knudsen-promoted-to-managing-principal-of-co-architects/"
+      },
+      "email": {
+        "address": "jknudsen@coarchitects.com",
+        "sourceUrl": "https://coarchitects.com/practice/team/principals/jenna-knudsen/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": null,
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company investigates digital design tools and customized apps to track metrics and support decisions.",
+            "date": null,
+            "url": "https://coarchitects.com/practice/technology/"
+          },
+          {
+            "fact": "Company describes integrating scanned building information with digital design models for remote project coordination.",
+            "date": null,
+            "url": "https://coarchitects.com/news/p/digital-twin-hsib-with-matterport/"
+          }
+        ],
+        "systems": [
+          {
+            "name": "Matterport",
+            "url": "https://coarchitects.com/news/p/digital-twin-hsib-with-matterport/"
+          },
+          {
+            "name": "Revit",
+            "url": "https://coarchitects.com/news/p/digital-twin-hsib-with-matterport/"
+          },
+          {
+            "name": "Navisworks",
+            "url": "https://coarchitects.com/news/p/digital-twin-hsib-with-matterport/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Revenue is 2025 design services revenue. Existing digital practice capabilities mean discovery should identify an unmet administrative handoff. Technical and licensed design decisions remain with professionals. Historical software case study may not describe every current project. Mailbox delivery unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "project decision and document handoffs",
+        "subject": "decision handoffs",
+        "inputs": "meeting decisions, document updates and outstanding approvals",
+        "metric": "time spent resolving each exception"
+      },
+      "businessProfile": {
+        "overview": "Architecture practice designing education, research, healthcare and civic buildings with multidisciplinary project teams.",
+        "products": [
+          "Architectural design",
+          "Planning",
+          "Building design coordination"
+        ],
+        "customers": [
+          "Universities",
+          "Research organizations",
+          "Healthcare institutions"
+        ],
+        "operations": "Potential discovery topic: quote, order, production and shipping handoffs. Confirm the current workflow and exceptions before proposing a tool.",
+        "sourceUrl": "https://coarchitects.com/news/p/jenna-knudsen-promoted-to-managing-principal-of-co-architects/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "jknudsen@coarchitects.com",
+      "sourceUrl": "https://coarchitects.com/practice/team/principals/jenna-knudsen/"
+    }
+  }
+]

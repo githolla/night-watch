@@ -747,10 +747,11 @@ async function buyerPageSeen(research: unknown, domain: string, fetcher: Fetcher
  * best `size` by AI fit, merged with any rows it already has; the rest become reserves. Cards are prepared
  * at once, and the morning run announces the list as usual.
  */
-export async function importResearchedList(db: Db, input: { listDate: string; owner: Owner; companies: ResearchedCompany[] }, overrides: Partial<ResearchDeps> = {}): Promise<ResearchedImport> {
+export async function importResearchedList(db: Db, input: { listDate: string; owner: Owner; companies: ResearchedCompany[]; resumeQueued?: boolean }, overrides: Partial<ResearchDeps> = {}): Promise<ResearchedImport> {
   const config = nightlyListConfig();
   const { listDate, owner } = input;
   const known = await knownCompanies(db);
+  const blocked = input.resumeQueued ? await blockedAccounts(db) : null;
   const existing = (await loadLists(db, listDate)).find((list) => list.owner === owner) ?? null;
   const skipped: ResearchedImport["skipped"] = [];
   const fresh: Array<{ row: ListRow; offer: ListOffer | undefined; fit: number }> = [];
@@ -762,14 +763,39 @@ export async function importResearchedList(db: Db, input: { listDate: string; ow
     if (!validDomain(domain)) { skip("not a valid domain"); continue; }
     if (seenNow.has(domain)) { skip("listed twice in this import"); continue; }
     seenNow.add(domain);
-    if (known.domains.has(domain)) { skip("already known: on a list, researched before, contacted, a client or do-not-contact"); continue; }
+    if (known.domains.has(domain) && !input.resumeQueued) { skip("already known: on a list, researched before, contacted, a client or do-not-contact"); continue; }
     if (known.names.has(normalizeCompanyName(item.company))) { skip("matches a client or do-not-contact company by name"); continue; }
+    if (blocked?.domains.has(domain) || blocked?.names.has(normalizeCompanyName(item.company))) { skip("client or do-not-contact company"); continue; }
     if (isExcludedSector(item.sector)) { skip("excluded sector"); continue; }
 
-    const { data: saved, error } = await db.from("list_candidates").insert({
+    const patch = {
       company: item.company.trim(), domain, sector: (item.sector ?? "").trim(), revenue_usd_m: item.revenueUsdM ?? null, revenue_year: item.revenueYear ?? null,
       source_url: item.sourceUrl ?? null, status: "researching", owner, list_date: listDate, prior_score: 0, updated_at: new Date().toISOString(),
-    }).select("id").single();
+    };
+    let queuedId: string | null = null;
+    if (input.resumeQueued) {
+      const queued = await db.from("list_candidates").select("id,status,owner").eq("domain", domain).maybeSingle();
+      if (queued.error) throw new Error("Could not confirm queued research state.");
+      if (queued.data) {
+        if (queued.data.status !== "new" || (queued.data.owner && queued.data.owner !== owner) || allFocus().some(row => domainOf(row.domain) === domain)) { skip("already handled or assigned to another owner"); continue; }
+        const account = await db.from("accounts").select("id,status").eq("domain", domain).maybeSingle();
+        if (account.error) throw new Error("Could not confirm queued company restrictions.");
+        if (account.data) {
+          if (account.data.status !== "active") { skip("company is not active"); continue; }
+          const cards = await db.from("cards").select("id").eq("account_id", account.data.id);
+          if (cards.error) throw new Error("Could not confirm prior outreach cards.");
+          if (cards.data?.length) {
+            const touched = await db.from("touches").select("id").in("card_id", cards.data.map(card => card.id)).not("sent_at", "is", null).limit(1);
+            if (touched.error) throw new Error("Could not confirm prior outreach history.");
+            if (touched.data?.length) { skip("company already contacted"); continue; }
+          }
+        }
+        queuedId = queued.data.id as string;
+      } else if (known.domains.has(domain)) { skip("already known outside this queue"); continue; }
+    }
+    const { data: saved, error } = queuedId
+      ? await db.from("list_candidates").update(patch).eq("id", queuedId).eq("status", "new").select("id").maybeSingle()
+      : await db.from("list_candidates").insert(patch).select("id").single();
     if (error || !saved) { skip(`could not save the company: ${error?.message ?? "no row"}`); continue; }
     const candidate: Candidate = { id: saved.id as string, company: item.company.trim(), domain, sector: (item.sector ?? "").trim(), revenue_usd_m: item.revenueUsdM ?? null, revenue_year: item.revenueYear ?? null, source_url: item.sourceUrl ?? null, sector_key: null };
 
