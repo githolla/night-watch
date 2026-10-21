@@ -13,6 +13,7 @@ test("transport diagnostic reports rejected credentials without exposing tokens"
   } finally { globalThis.fetch = original; }
 });
 test("transport diagnostic reports when provider credentials cannot be checked", async () => {
-  const result = await checkVoiceTransport({ provider: "twilio" });
+  const result = await checkVoiceTransport({ provider: "twilio", twilioAccountSid: `AC${"0".repeat(32)}` });
   assert.equal(result.checked, false);
+  assert.equal("accountSid" in result && result.accountSid, `AC${"0".repeat(32)}`);
 });

@@ -25,4 +25,6 @@ One internal call to Josh was attempted: 01a15fb1-8a78-788a-ac26-2107c6f11503. V
 
 The call's endedMessage reports: "Account not authorized to call +17177255050" and points to Twilio Voice Geo Permissions. Enable United States low-risk calling in the Twilio account owning the imported number, save, then retry the internal test once. Vapi reports a cost of zero for the failed attempt. A direct Twilio credential check was unavailable because Vapi did not return usable credentials.
 
+The latest October 21 retry, 01a16002-46be-7cc5-bede-8cbabd80289a, still returned the same authorization error after the Console permission checker displayed Enabled. Vapi's imported Twilio Account SID matches the account in Josh's dashboard. A conflicting save-error banner remains visible in the supplied screenshot; verify persistence after a full page refresh before making another test call. The transport diagnostic exposes the Account SID for this comparison but never returns the Auth Token.
+
 Automated prospect dispatch, per-prospect Nightwatch context loading, opt-out callbacks and end-of-call outcome persistence are not implemented by this calendar integration. Do not enable a prospect calling campaign until those pieces and the internal tests are complete.
