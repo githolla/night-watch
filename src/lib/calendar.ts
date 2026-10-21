@@ -87,7 +87,7 @@ export function matchProposedSlot(reply: string, slots: Slot[], now = Date.now()
 }
 
 /** Create a calendar invite for a chosen slot and email the attendee (with a Google Meet link). */
-export async function createInvite(owner: Owner, opts: { summary: string; description?: string; start: string; end: string; timeZone: string; attendee: string; bookingKey?: string }) {
+export async function createInvite(owner: Owner, opts: { summary: string; description?: string; start: string; end: string; timeZone: string; attendee: string; bookingKey?: string; bufferMinutes?: number }) {
   const token = await ownerAccessToken(owner);
   const eventId = opts.bookingKey ? createHash('sha256').update(`${owner}:${opts.bookingKey}`).digest('hex') : undefined;
   const existing = async () => {
@@ -100,9 +100,13 @@ export async function createInvite(owner: Owner, opts: { summary: string; descri
   };
   if(eventId){const found=await existing();if(found)return found;}
   if(!Number.isFinite(Date.parse(opts.start)) || Date.parse(opts.start)<=Date.now() || Date.parse(opts.end)<=Date.parse(opts.start))throw new Error('Choose a future meeting time.');
-  const availability=await fetch(`${CAL}/freeBusy`,{method:'POST',signal:AbortSignal.timeout(20000),headers:{authorization:`Bearer ${token}`,'content-type':'application/json'},body:JSON.stringify({timeMin:opts.start,timeMax:opts.end,items:[{id:'primary'}]})});
+  const buffer = (opts.bufferMinutes ?? 0) * 60_000;
+  if (!Number.isFinite(buffer) || buffer < 0 || buffer > 60 * 60_000) throw new Error('Invalid meeting buffer.');
+  const checkStart = new Date(Date.parse(opts.start) - buffer).toISOString();
+  const checkEnd = new Date(Date.parse(opts.end) + buffer).toISOString();
+  const availability=await fetch(`${CAL}/freeBusy`,{method:'POST',signal:AbortSignal.timeout(20000),headers:{authorization:`Bearer ${token}`,'content-type':'application/json'},body:JSON.stringify({timeMin:checkStart,timeMax:checkEnd,items:[{id:'primary'}]})});
   if(!availability.ok)throw new Error('Could not recheck calendar availability.');
-  if(checkedBusy(await availability.json()).some(([a,b])=>a<Date.parse(opts.end)&&b>Date.parse(opts.start)))throw new Error('That time is no longer available.');
+  if(checkedBusy(await availability.json()).some(([a,b])=>a<Date.parse(checkEnd)&&b>Date.parse(checkStart)))throw new Error('That time is no longer available.');
   const res = await fetch(`${CAL}/calendars/primary/events?sendUpdates=all&conferenceDataVersion=1`, {
     method: "POST",
     signal: AbortSignal.timeout(20000),
