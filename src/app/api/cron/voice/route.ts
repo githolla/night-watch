@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         customer: { number: VOICE_BOOKING.transferNumber, name: "Josh: internal voice test" },
         assistantOverrides: {
           maxDurationSeconds: 180,
-          firstMessage: "Hi Josh, this is Nine-67's AI assistant for Suuchi. This is our internal test call. Can you hear me clearly?",
+          firstMessage: "Hi Josh, this is Alex with Nine-67. Can you hear me clearly?",
           model: { ...payload.model, messages: [{ role: "system", content: `${VOICE_INSTRUCTIONS}\nThis is an internal test with Josh, not a prospect call. No prospect email or company history is provided. Say so if asked. Help Josh test natural conversation and calendar availability. Do not transfer: Josh is already on the destination phone. Do not create a calendar event unless Josh explicitly requests a test invitation and confirms the attendee email and time.` }] },
         },
       });

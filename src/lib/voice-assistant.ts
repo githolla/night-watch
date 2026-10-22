@@ -20,8 +20,8 @@ export function voiceAssistantPayload(value: unknown, secret: string) {
   const retained = tools.filter(item => !item.type.startsWith("google.calendar.") && !["transferCall", "endCall"].includes(item.type) && !calendarNames.includes(item.function?.name ?? ""));
   const date = { type: "string", description: "ISO 8601 date and time with explicit UTC offset" };
   return {
-    name: "Nine-67 | Suuchi",
-    firstMessage: "Hi, I'm Nine-67's AI assistant calling for Suuchi. Is now a good time for a quick question?",
+    name: "Alex | Nine-67",
+    firstMessage: "Hi, this is Alex with Nine-67. Is now a good time for a quick question?",
     maxDurationSeconds: 300,
     model: {
       ...current.model,
