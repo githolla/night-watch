@@ -9,7 +9,7 @@ export const VOICE_TURN_TIMING = {
     },
     customEndpointingRules: [
       { type: "assistant", regex: "(email|e-mail|address|spell|invitation)", timeoutSeconds: 2.5 },
-      { type: "user", regex: "(@|\\bat\\b|\\bdot\\b|\\bno dots?\\b|\\bno hyphens?\\b)", timeoutSeconds: 2.5 },
+      { type: "customer", regex: "(@|\\bat\\b|\\bdot\\b|\\bno dots?\\b|\\bno hyphens?\\b)", timeoutSeconds: 2.5 },
     ],
   },
   stopSpeakingPlan: { numWords: 0, voiceSeconds: 0.15, backoffSeconds: 1.3 },
