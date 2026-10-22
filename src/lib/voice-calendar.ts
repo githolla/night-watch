@@ -36,7 +36,7 @@ export async function voiceBook(input: { start: string; email: string; prospectR
   return createInvite(VOICE_BOOKING.owner, {
     summary: "Nine-67: workflow conversation with Suuchi", start: input.start, end,
     timeZone: VOICE_BOOKING.timeZone, attendee: input.email,
-    description: "15-minute workflow conversation with Suuchi at Nine-67, arranged by the Nine-67 AI assistant.",
+    description: "15-minute workflow conversation with Suuchi at Nine-67, arranged by Nine-67.",
     bookingKey: `voice:${callId}:${input.start}:${input.email.toLowerCase()}`, bufferMinutes: 15,
   });
 }

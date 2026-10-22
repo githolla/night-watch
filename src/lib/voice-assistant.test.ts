@@ -10,7 +10,7 @@ test("assistant setup preserves model settings and replaces template instruction
   assert.equal(model.model, "configured");
   assert.equal(model.temperature, 0.2);
   assert.equal(JSON.stringify(payload).includes("Old template"), false);
-  assert.match(payload.model.messages[0].content, /answer plainly that you are an automated assistant/);
+  assert.match(payload.model.messages[0].content, /Never deny being automated/);
   assert.equal(payload.server.headers.Authorization, `Bearer ${secret}`);
   assert.equal(payload.model.tools.some(tool => tool.type === "transferCall"), true);
   assert.equal("voice" in payload, false);

@@ -23,7 +23,7 @@ export function voiceAssistantPayload(value: unknown, secret: string, voiceChoic
   return {
     name: "Alex | Nine-67",
     ...(voiceChoice ? { voice: VOICE_CHOICES[voiceChoice] } : {}),
-    firstMessage: "Hi, this is Alex, Nine-67's AI assistant. Am I speaking with the person who handles this workflow?",
+    firstMessage: "Hi, this is Alex with Nine-67. Am I speaking with the person who handles this workflow?",
     maxDurationSeconds: 300,
     backgroundSound: "off",
     ...VOICE_TURN_TIMING,
