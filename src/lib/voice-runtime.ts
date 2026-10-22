@@ -1,3 +1,4 @@
+import { spokenEmailAddress } from "./voice-conversation.ts";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { admin } from "./supabase/admin.ts";
@@ -73,7 +74,7 @@ export async function executeVoiceTool(attempt: VoiceAttempt, toolId: string, na
       if (read.error || !read.data) throw new Error("Choose a slot offered for this call.");
       const slot = slotSchema.parse(read.data);
       if (Date.parse(slot.expires_at) <= Date.now() || Date.parse(slot.start_at) <= Date.now()) throw new Error("That offered slot expired. Ask for a fresh availability check.");
-      if (attempt.mode === "internal") result = { status: "simulated", invitation_sent: false, message: "Rehearsal booking recorded. No calendar event or invitation was created." };
+      if (attempt.mode === "internal") result = { status: "simulated", invitation_sent: false, attendee_email: booking.email, attendee_email_spoken: spokenEmailAddress(booking.email), start_at: slot.start_at, timezone: slot.timezone, message: "Rehearsal booking recorded. No calendar event or invitation was created. Confirm this test result, ask if anything else is needed and wait for the caller to finish before ending." };
       else {
         const contact = z.object({ email: z.email() }).parse(attempt.context_snapshot.contact);
         if (booking.email.toLowerCase() !== contact.email.toLowerCase()) throw new Error("A changed attendee email requires human review.");
@@ -85,7 +86,7 @@ export async function executeVoiceTool(attempt: VoiceAttempt, toolId: string, na
           const stopped = await db.from("cadences").update({ status: "completed" }).eq("id", attempt.task_id);
           if (card.error || stopped.error) throw new Error("Calendar booking succeeded but outreach could not be stopped. Urgent review required.");
         }
-        result = { status: "confirmed", invite_status: "sent", ...invite, start_at: slot.start_at, end_at: slot.end_at, timezone: slot.timezone, spoken_confirmation: new Date(slot.start_at).toLocaleString("en-US", { timeZone: slot.timezone, weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "long" }) };
+        result = { status: "confirmed", invite_status: "sent", ...invite, attendee_email: contact.email, attendee_email_spoken: spokenEmailAddress(contact.email), start_at: slot.start_at, end_at: slot.end_at, timezone: slot.timezone, spoken_confirmation: new Date(slot.start_at).toLocaleString("en-US", { timeZone: slot.timezone, weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "long" }) };
       }
     } else if (name === "suppress_contact") {
       const suppression = suppressInput.parse(args);

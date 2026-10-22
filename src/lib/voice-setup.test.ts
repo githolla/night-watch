@@ -1,3 +1,4 @@
+import { VOICE_TEST_DURATION_SECONDS, VOICE_TURN_TIMING } from "./voice-conversation.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -17,6 +18,7 @@ function route(number: string = VOICE_BOOKING.callerNumber) {
   runInNewContext(ts.transpileModule(readFileSync(new URL("../app/api/cron/voice/route.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
     exports, Response, Date, process: { env: { VAPI_ASSISTANT_ID: assistantId, VAPI_WEBHOOK_SECRET: "test-secret-that-is-long-enough-for-testing" } },
     require: (name: string) => {
+      if (name === "@/lib/voice-conversation") return { VOICE_TEST_DURATION_SECONDS, VOICE_TURN_TIMING };
       if (name === "@/lib/voice-queue") return { prepareVoiceQueue: async () => ({ queued: 0, held: [], externalDispatchEnabled: false }) };
       if (name === "@/lib/voice-analysis") return { ensureVoiceStructuredOutput: async () => "output-1", voiceStructuredResult: () => null };
       if (name === "@/lib/voice-runtime") return { reserveInternalVoiceAttempt: async () => "attempt-1", attachVoiceCall: async () => undefined, holdVoiceAttempt: async () => undefined };
@@ -87,4 +89,12 @@ test("follow-up preview never places a call", async () => {
   const hook = route();
   assert.equal((await hook.post(request("followup-preview"))).status, 200);
   assert.equal(hook.requests.every(item => item.method === "GET"), true);
+});
+test("internal booking rehearsals have enough time to finish confirmation", async () => {
+  const hook = route();
+  assert.equal((await hook.post(request("test-followup"))).status, 200);
+  const call = hook.requests.find(item => item.path === "/call");
+  const body = call?.body as { assistantOverrides: { maxDurationSeconds: number; startSpeakingPlan: { smartEndpointingPlan: { provider: string } } } };
+  assert.ok(body.assistantOverrides.maxDurationSeconds >= 600);
+  assert.equal(body.assistantOverrides.startSpeakingPlan.smartEndpointingPlan.provider, "livekit");
 });

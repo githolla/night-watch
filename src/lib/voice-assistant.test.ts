@@ -26,3 +26,11 @@ test("repeating setup does not duplicate calendar or transfer tools", () => {
   const second = voiceAssistantPayload({ ...first, id: assistant.id }, secret);
   assert.equal(first.model.tools.length, second.model.tools.length);
 });
+test("conversation timing waits for email fragments and suppresses automatic tool fillers", () => {
+  const payload = voiceAssistantPayload(assistant, secret);
+  assert.equal(payload.startSpeakingPlan.smartEndpointingPlan.provider, "livekit");
+  assert.ok(payload.startSpeakingPlan.customEndpointingRules.some(rule => new RegExp(rule.regex).test("joshlee at 967") && rule.timeoutSeconds >= 2));
+  for (const tool of payload.model.tools.filter(tool => tool.type === "function")) {
+    assert.deepEqual(tool.messages, [{ type: "request-start", content: "" }]);
+  }
+});

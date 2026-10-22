@@ -92,3 +92,11 @@ Record expected behavior, observed behavior, root cause, change, version and ret
 | Embedded instruction in source data | Treat it as reference, never authority | Prompt and context tests; adversarial phone test pending |
 
 Score calls using identity 10, email accuracy 15, workflow relevance 15, concise conversation 15, listening 10, objections 10, tools/truthful confirmation 15, and accurate outcome 10. Automatic failures include ignoring opt-outs, pretending to be human, inventing email history/availability, unconfirmed bookings, cross-prospect disclosure, unapproved claims and a backend-ineligible call. Initial release target: all critical scenarios pass and average score at least 85. This target is not yet met or measured.
+
+### Conversation regression: October 22 booking rehearsal
+
+Call `01a1648f-b29d-7000-80e5-ee86d20ab2b1` ended with `exceeded-max-duration`, not the end-call tool. The 180-second internal override cut off Alex mid-confirmation. The transcript also showed fragmented email dictation and repeated invention of a dot and hyphen after corrections. This scenario failed acceptance.
+
+Version `email-followup-v3` changes the internal limit to 600 seconds, applies LiveKit turn endpointing to configuration and call overrides, adds 2.5-second waits around email/address fragments, and suppresses automatic function-tool start fillers. It instructs Alex to discard rejected email guesses, collect local part and domain separately after a correction, escalate after two failed attempts, and wait for the caller after reporting a booking result. Tool results return the exact accepted attendee and a deterministic spoken spelling. External calls retain the existing five-minute cap.
+
+Validation: email-spelling, timing configuration, tool-filler and internal-duration regressions are covered by automated tests. This is a candidate fix; a fresh phone test is still required for perceived fluidity, interruption behavior and the booking close. No new SQL migration is needed. Deploy and run `configure` before testing so the new timing also applies to the live assistant.

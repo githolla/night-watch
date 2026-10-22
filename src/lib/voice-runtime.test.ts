@@ -1,3 +1,4 @@
+import { spokenEmailAddress } from "./voice-conversation.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -19,6 +20,7 @@ function harness(seed: Parameters<typeof queryDb>[0] = {}) {
   runInNewContext(ts.transpileModule(readFileSync(new URL("./voice-runtime.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
     exports, Buffer, Date,
     require: (name: string) => {
+      if (name === "./voice-conversation.ts") return { spokenEmailAddress };
       if (name === "./supabase/admin.ts") return { admin: () => memory.db };
       if (name === "./voice-calendar.ts") return { voiceAvailability: async () => ({ slots: [] }), voiceBook: async () => { calendarBookings++; return { eventId: "event" }; } };
       if (name === "./voice-booking.ts") return { VOICE_BOOKING };
@@ -35,6 +37,8 @@ test("rehearsal booking never invites the real prospect", async () => {
   const h = harness({ voice_slots: [{ id: slotId, attempt_id: id, start_at: "2035-10-22T14:00:00Z", end_at: "2035-10-22T14:15:00Z", timezone: "America/New_York", prospect_requested: false, expires_at: "2035-10-21T00:00:00Z" }] });
   const result = await h.tool(attempt, "book-1", "nightwatch_book", { slot_id: slotId, email: "buyer@example.test", confirmed: true });
   assert.equal(result.status, "simulated");
+  assert.equal(result.attendee_email, "buyer@example.test");
+  assert.equal(result.invitation_sent, false);
   assert.equal(h.bookings(), 0);
 });
 test("slot from another call cannot be booked", async () => {
