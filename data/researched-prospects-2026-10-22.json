@@ -1,0 +1,1868 @@
+[
+  {
+    "owner": "josh",
+    "company": "Ayers Saint Gross",
+    "domain": "ayerssaintgross.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 58.68,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 58.68,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Joel Fidler",
+        "title": "President",
+        "sourceUrl": "https://ayerssaintgross.com/people/view/joel-fidler/"
+      },
+      "email": {
+        "address": "jfidler@ayerssaintgross.com",
+        "sourceUrl": "https://ayerssaintgross.com/people/view/joel-fidler/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://ayerssaintgross.com/practice/contact/"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://recruiting.paylocity.com/recruiting/jobs/Details/2073180/Ayers-Saint-Gross-Inc/Project-Architect"
+          },
+          {
+            "name": "Deltek",
+            "url": "https://recruiting.paylocity.com/recruiting/jobs/Details/2073180/Ayers-Saint-Gross-Inc/Project-Architect"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Software evidence is an older job posting, not a fresh hiring signal."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Employee-owned interdisciplinary design practice serving education and cultural institutions from Baltimore, Washington and Tempe.",
+        "products": [
+          "Architecture",
+          "Campus planning",
+          "Landscape architecture"
+        ],
+        "customers": [
+          "Universities",
+          "Cultural institutions"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://ayerssaintgross.com/practice/about/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "jfidler@ayerssaintgross.com",
+      "sourceUrl": "https://ayerssaintgross.com/people/view/joel-fidler/"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "VLK",
+    "domain": "vlkarchitects.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 150.78,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 150.78,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Sloan Harris",
+        "title": "CEO and Chairman",
+        "sourceUrl": "https://vlkarchitects.com/leadership/"
+      },
+      "email": {
+        "address": "sharris@vlkarchitects.com",
+        "sourceUrl": "https://vlkarchitects.com/leadership/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 6,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://vlkarchitects.com/contact/"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://vlkarchitects.com/career/project-architect-fort-worth/"
+          },
+          {
+            "name": "Bluebeam",
+            "url": "https://vlkarchitects.com/career/project-architect-fort-worth/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Architecture practice designing education, commercial and civic projects across six listed U.S. offices.",
+        "products": [
+          "Architectural design",
+          "Interior design",
+          "Facility planning"
+        ],
+        "customers": [
+          "School districts",
+          "Higher education",
+          "Commercial owners"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://vlkarchitects.com/about/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "sharris@vlkarchitects.com",
+      "sourceUrl": "https://vlkarchitects.com/leadership/"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "GPD Group",
+    "domain": "gpdgroup.com",
+    "sector": "Engineering, environmental and infrastructure consulting",
+    "revenueUsdM": 214.78,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Engineering, environmental and infrastructure consulting",
+      "revenue": {
+        "usdMillions": 214.78,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Darrin Kotecki",
+        "title": "President",
+        "sourceUrl": "https://gpdgroup.com/who-we-are/our-team/"
+      },
+      "email": {
+        "address": "dkotecki@gpdgroup.com",
+        "sourceUrl": "https://gpdgroup.com/who-we-are/our-team/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 15,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://gpdgroup.com/who-we-are/"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company describes shared cloud models connecting designers, contractors and owners.",
+            "date": "2025-08-14",
+            "url": "https://gpdgroup.com/2025/08/gpd-bim-partner/"
+          }
+        ],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://gpdgroup.com/2025/08/gpd-bim-partner/"
+          },
+          {
+            "name": "ACC/BIM 360",
+            "url": "https://gpdgroup.com/2025/08/gpd-bim-partner/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Company homepage and about page show different employee counts; no precise workforce count is asserted."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Employee-owned architecture and engineering practice supporting retail rollouts, infrastructure and public-sector projects.",
+        "products": [
+          "Architecture",
+          "Civil engineering",
+          "Building engineering"
+        ],
+        "customers": [
+          "Retail brands",
+          "Municipalities",
+          "Public agencies"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://gpdgroup.com/who-we-are/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "dkotecki@gpdgroup.com",
+      "sourceUrl": "https://gpdgroup.com/who-we-are/our-team/"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Kirksey Architects Inc.",
+    "domain": "kirksey.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 91.35,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 91.35,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Wes Good",
+        "title": "President and CEO",
+        "sourceUrl": "https://www.kirksey.com/about-us/leadership"
+      },
+      "email": {
+        "address": "wesg@kirksey.com",
+        "sourceUrl": "https://www.kirksey.com/about-us/leadership"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 3,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.kirksey.com/contact"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Financial systems leader develops internal processes and drives automation initiatives.",
+            "date": null,
+            "url": "https://www.kirksey.com/about-us/leadership"
+          },
+          {
+            "fact": "Director of Innovation leads digital practice strategies to improve project delivery workflows.",
+            "date": null,
+            "url": "https://www.kirksey.com/about-us/leadership"
+          }
+        ],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://www.kirksey.com/about-us/leadership"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Existing financial automation and innovation leadership make a narrow unmet workflow essential."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Texas architecture practice delivering commercial, education, healthcare and science facilities through Houston, Austin and Dallas offices.",
+        "products": [
+          "Architecture",
+          "Interior architecture",
+          "Sustainable design"
+        ],
+        "customers": [
+          "Commercial owners",
+          "Education organizations",
+          "Healthcare organizations"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://www.kirksey.com/contact"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "wesg@kirksey.com",
+      "sourceUrl": "https://www.kirksey.com/about-us/leadership"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "DLR Group",
+    "domain": "dlrgroup.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 536.8,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 536.8,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Steven McKay",
+        "title": "CEO",
+        "sourceUrl": "https://www.dlrgroup.com/firm/leadership/"
+      },
+      "email": {
+        "address": "smckay@dlrgroup.com",
+        "sourceUrl": "https://www.dlrgroup.com/firm/leadership/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": null,
+          "fieldWorkforce": null,
+          "highVolume": "Historical vendor case study reports 2300 scanned invoices per month",
+          "url": "https://www.eleviasoftware.com/case-studies/dlr-group/"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Vendor case study describes electronic invoice routing and approval connected to the ERP.",
+            "date": null,
+            "url": "https://www.eleviasoftware.com/case-studies/dlr-group/"
+          }
+        ],
+        "systems": [
+          {
+            "name": "Deltek Vision",
+            "url": "https://www.eleviasoftware.com/case-studies/dlr-group/"
+          },
+          {
+            "name": "EleVia Payables Approval and Tracking",
+            "url": "https://www.eleviasoftware.com/case-studies/dlr-group/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Vendor case study describes a historical implementation and volume, not a new pain signal. Do not suggest replacing existing invoice automation."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Integrated architecture and engineering practice delivering building projects for public and private clients across multiple offices.",
+        "products": [
+          "Architecture",
+          "Engineering",
+          "Interiors",
+          "Building optimization"
+        ],
+        "customers": [
+          "Public agencies",
+          "Commercial owners",
+          "Education organizations"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://www.dlrgroup.com/firm/leadership/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "smckay@dlrgroup.com",
+      "sourceUrl": "https://www.dlrgroup.com/firm/leadership/"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Flad Architects",
+    "domain": "flad.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 117.6,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 117.6,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Laura Serebin",
+        "title": "President and CEO",
+        "sourceUrl": "https://www.flad.com/people.php"
+      },
+      "email": {
+        "address": "lserebin@flad.com",
+        "sourceUrl": "https://www.flad.com/content/epubs/uw-transplant-clinic-post-occupancy-evaluation.pdf?2026="
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 9,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.flad.com/contact/"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://www.aialosangeles.org/wp-content/uploads/job-listings-2023/08-22-24-FladArchitects-ConstructionAdministrator.pdf"
+          },
+          {
+            "name": "Bluebeam",
+            "url": "https://www.aialosangeles.org/wp-content/uploads/job-listings-2023/08-22-24-FladArchitects-ConstructionAdministrator.pdf"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Software requirements are from a 2024 employer job posting, not evidence of a current opening."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Integrated planning and design practice creating healthcare, academic and science facilities for research and manufacturing clients.",
+        "products": [
+          "Architecture",
+          "Facility planning",
+          "Interior design"
+        ],
+        "customers": [
+          "Healthcare organizations",
+          "Research companies",
+          "Universities"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://www.flad.com/contact/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "lserebin@flad.com",
+      "sourceUrl": "https://www.flad.com/content/epubs/uw-transplant-clinic-post-occupancy-evaluation.pdf?2026="
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "RATIO Design",
+    "domain": "ratiodesign.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 88.25,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 88.25,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Chris Boardman",
+        "title": "President",
+        "sourceUrl": "https://ratiodesign.com/people/"
+      },
+      "email": {
+        "address": "cboardman@ratiodesign.com",
+        "sourceUrl": "https://ratiodesign.com/people/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 7,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://ratiodesign.com/contact/"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://ratiodesign.com/job/project-architect/"
+          },
+          {
+            "name": "AutoCAD",
+            "url": "https://ratiodesign.com/job/project-architect/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Multidisciplinary design practice serving commercial, civic, education and hospitality clients across seven listed studios.",
+        "products": [
+          "Architecture",
+          "Interior design",
+          "Planning"
+        ],
+        "customers": [
+          "Education organizations",
+          "Public agencies",
+          "Commercial owners"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://ratiodesign.com/contact/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "cboardman@ratiodesign.com",
+      "sourceUrl": "https://ratiodesign.com/people/"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Hanbury",
+    "domain": "hanbury.design",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 52.17,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 52.17,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "David Keith",
+        "title": "CEO",
+        "sourceUrl": "https://www.hanbury.design/team?category=associate_principals"
+      },
+      "email": {
+        "address": "david.keith@hanbury.design",
+        "sourceUrl": "https://www.hanbury.design/team?category=associate_principals"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 9,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.hanbury.design/contact"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Deltek Vision",
+            "url": "https://www.hanbury.design/team?category=leadership"
+          },
+          {
+            "name": "Revit",
+            "url": "https://www.hanbury.design/team?category=leadership"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Team profiles describe an existing AI initiative; qualify administrative gaps rather than presume no internal capability."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Design practice serving education, science and civic clients through a network of nine listed offices.",
+        "products": [
+          "Architecture",
+          "Laboratory planning",
+          "Campus planning"
+        ],
+        "customers": [
+          "Universities",
+          "Science organizations",
+          "Civic clients"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://www.hanbury.design/contact"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "david.keith@hanbury.design",
+      "sourceUrl": "https://www.hanbury.design/team?category=associate_principals"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "ZGF",
+    "domain": "zgf.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 212.53,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 212.53,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Sharron van der Meulen",
+        "title": "Managing Partner",
+        "sourceUrl": "https://www.zgf.com/leadership/1564-sharron-van-der-meulen"
+      },
+      "email": {
+        "address": "sharron.vandermeulen@zgf.com",
+        "sourceUrl": "https://www.zgf.com/leadership/1564-sharron-van-der-meulen"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 7,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.zgf.com/contact"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://www.zgf.com/careers/OcZAkshUWE-senior-architect"
+          },
+          {
+            "name": "Deltek Vision",
+            "url": "https://www.zgf.com/careers/OcZAkshUWE-senior-architect"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Architecture and interior design practice operating seven offices in the U.S. and Canada for commercial, public and institutional projects.",
+        "products": [
+          "Architecture",
+          "Interior design",
+          "Urban design"
+        ],
+        "customers": [
+          "Commercial owners",
+          "Universities",
+          "Public agencies"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://www.zgf.com/contact"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "sharron.vandermeulen@zgf.com",
+      "sourceUrl": "https://www.zgf.com/leadership/1564-sharron-van-der-meulen"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "LS3P",
+    "domain": "ls3p.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 153.03,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 153.03,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Marc Marchant",
+        "title": "CEO",
+        "sourceUrl": "https://www.ls3p.com/portfolio/marc-marchant/"
+      },
+      "email": {
+        "address": "marcmarchant@ls3p.com",
+        "sourceUrl": "https://www.ls3p.com/imaging-healthcare/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 12,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.ls3p.com/locations/"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Synthesis",
+            "url": "https://www.knowledge-architecture.com/blog/intranet-tour-launching-synthesis-ls3p"
+          },
+          {
+            "name": "Deltek",
+            "url": "https://www.knowledge-architecture.com/blog/intranet-tour-launching-synthesis-ls3p"
+          },
+          {
+            "name": "OpenAsset",
+            "url": "https://www.knowledge-architecture.com/blog/intranet-tour-launching-synthesis-ls3p"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Vendor material describes an existing intranet integration; identify gaps without duplicating it."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Southeastern architecture and interiors practice coordinating education, civic, healthcare and commercial projects across twelve listed offices.",
+        "products": [
+          "Architecture",
+          "Interiors",
+          "Planning"
+        ],
+        "customers": [
+          "Education organizations",
+          "Commercial owners",
+          "Public agencies"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://www.ls3p.com/locations/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "marcmarchant@ls3p.com",
+      "sourceUrl": "https://www.ls3p.com/imaging-healthcare/"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Goodwyn Mills Cawood",
+    "domain": "gmcnetwork.com",
+    "sector": "Engineering, environmental and infrastructure consulting",
+    "revenueUsdM": 206.77,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Engineering, environmental and infrastructure consulting",
+      "revenue": {
+        "usdMillions": 206.77,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Jeffrey Brewer",
+        "title": "CEO",
+        "sourceUrl": "https://www.gmcnetwork.com/people/"
+      },
+      "email": {
+        "address": "jeffrey.brewer@gmcnetwork.com",
+        "sourceUrl": "https://www.gmcnetwork.com/projects/uab-east-science-hall-and-south-science-hall/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [
+          {
+            "title": "Engineering Project Coordinator",
+            "url": "https://jobs.hireheroesusa.org/jobs/623402886-engineering-project-coordinator-at-goodwyn-mills-cawood-llc",
+            "postedDate": "2026-10-13"
+          }
+        ],
+        "scale": {
+          "locations": 27,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://gmcnetwork.com/"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Deltek Vantagepoint",
+            "url": "https://jobs.hireheroesusa.org/jobs/623402886-engineering-project-coordinator-at-goodwyn-mills-cawood-llc"
+          },
+          {
+            "name": "Microsoft Excel",
+            "url": "https://jobs.hireheroesusa.org/jobs/623402886-engineering-project-coordinator-at-goodwyn-mills-cawood-llc"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions."
+        ]
+      },
+      "workflow": {
+        "task": "project budget and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project budgets, change notices and subconsultant invoices",
+        "metric": "time spent reconciling project records"
+      },
+      "businessProfile": {
+        "overview": "Architecture and engineering firm serving public and private clients through 27 listed Southeastern offices.",
+        "products": [
+          "Architecture",
+          "Civil engineering",
+          "Surveying",
+          "Construction administration"
+        ],
+        "customers": [
+          "Municipalities",
+          "Education organizations",
+          "Commercial owners"
+        ],
+        "operations": "Discovery hypothesis: project budget and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://gmcnetwork.com/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "jeffrey.brewer@gmcnetwork.com",
+      "sourceUrl": "https://www.gmcnetwork.com/projects/uab-east-science-hall-and-south-science-hall/"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Hoefer Welker",
+    "domain": "hoeferwelker.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 64.1,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 64.1,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Rob Welker",
+        "title": "Co-CEO",
+        "sourceUrl": "https://hoeferwelker.com/press/30-years-of-impact-a-conversation-with-hoefer-welkers-co-ceos"
+      },
+      "email": {
+        "address": "rob.welker@hoeferwelker.com",
+        "sourceUrl": "https://hoeferwelker.com/press/30-years-of-impact-a-conversation-with-hoefer-welkers-co-ceos"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 5,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://hoeferwelker.com/press/30-years-of-impact-a-conversation-with-hoefer-welkers-co-ceos"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Co-CEOs describe automation and AI reshaping the practice while emphasizing problem solving.",
+            "date": null,
+            "url": "https://hoeferwelker.com/press/30-years-of-impact-a-conversation-with-hoefer-welkers-co-ceos"
+          },
+          {
+            "fact": "Clinical technology service integrates equipment procurement planning, design coordination and staff training.",
+            "date": null,
+            "url": "https://hoeferwelker.com/services/clinical-technology-solutions"
+          }
+        ],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://hoeferwelker.com/services/clinical-technology-solutions"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Existing in-house clinical technology consulting capability is substantial. Qualify a narrowly scoped internal administrative workflow."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Integrated architecture, engineering and interiors practice serving healthcare, government and commercial projects through five listed offices.",
+        "products": [
+          "Architecture",
+          "Engineering",
+          "Interior design",
+          "Equipment planning"
+        ],
+        "customers": [
+          "Healthcare organizations",
+          "Government agencies",
+          "Commercial developers"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://hoeferwelker.com/services/clinical-technology-solutions"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "rob.welker@hoeferwelker.com",
+      "sourceUrl": "https://hoeferwelker.com/press/30-years-of-impact-a-conversation-with-hoefer-welkers-co-ceos"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "HKS",
+    "domain": "hksinc.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 732.6,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 732.6,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Heath May",
+        "title": "CEO",
+        "sourceUrl": "https://www.hksinc.com/our-news/articles/designing-leadership-lessons-from-hkss-ceo-transition-for-firms-navigating-industry-transformation/"
+      },
+      "email": {
+        "address": "hmay@hksinc.com",
+        "sourceUrl": "https://www.hksinc.com/wp-content/uploads/2024/09/HKS_Innovation_Brochure_2024pdf.pdf"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 28,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.hksinc.com/our-news/articles/hks-secures-its-succession-heath-may-to-succeed-dan-noble-as-ceo/"
+        },
+        "change": [
+          {
+            "kind": "leadership",
+            "fact": "Heath May became CEO in January 2026 following a planned succession.",
+            "date": "2026-01",
+            "url": "https://www.hksinc.com/our-news/articles/designing-leadership-lessons-from-hkss-ceo-transition-for-firms-navigating-industry-transformation/"
+          }
+        ],
+        "techOpenness": [
+          {
+            "fact": "Company describes investment in computational design, research and design technology.",
+            "date": null,
+            "url": "https://www.hksinc.com/our-news/articles/hks-secures-its-succession-heath-may-to-succeed-dan-noble-as-ceo/"
+          }
+        ],
+        "systems": [],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Published address predates the CEO appointment, while current leadership is corroborated separately. Global practice already has advanced technology capability."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Interdisciplinary design practice serving healthcare, education, sports, hospitality and commercial clients through a global office network.",
+        "products": [
+          "Architecture",
+          "Interior design",
+          "Planning"
+        ],
+        "customers": [
+          "Healthcare organizations",
+          "Hospitality groups",
+          "Commercial owners"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://www.hksinc.com/our-news/articles/hks-secures-its-succession-heath-may-to-succeed-dan-noble-as-ceo/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "hmay@hksinc.com",
+      "sourceUrl": "https://www.hksinc.com/wp-content/uploads/2024/09/HKS_Innovation_Brochure_2024pdf.pdf"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Myomo, Inc.",
+    "domain": "myomo.com",
+    "sector": "Rehabilitation devices",
+    "revenueUsdM": 40.93,
+    "revenueYear": 2025,
+    "sourceUrl": "https://stockanalysis.com/stocks/myo/financials/",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Rehabilitation devices",
+      "revenue": {
+        "usdMillions": 40.93,
+        "year": 2025,
+        "sourceUrl": "https://stockanalysis.com/stocks/myo/financials/"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Paul Gudonis",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://myomo.com/myomo-reports-second-quarter-2026-financial-and-operating-results/"
+      },
+      "email": {
+        "address": "paul@myomo.com",
+        "sourceUrl": "https://ir.myomo.com/~/media/Files/M/Myomo-IR/reports-and-presentations/myomo-investor-presentation-april-2026.pdf"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": null,
+        "change": [
+          {
+            "kind": "expansion",
+            "fact": "May 2026 shareholder letter reports opening a Burlington manufacturing facility in 2025.",
+            "date": null,
+            "url": "https://ir.myomo.com/~/media/Files/M/Myomo-IR/reports-and-presentations/shareholder-letter-may-2026.pdf"
+          }
+        ],
+        "techOpenness": [
+          {
+            "fact": "Company is introducing a mobile app to replace the separate laptop supplied with each device.",
+            "date": "2026-05",
+            "url": "https://ir.myomo.com/~/media/Files/M/Myomo-IR/reports-and-presentations/shareholder-letter-may-2026.pdf"
+          },
+          {
+            "fact": "Company is bringing assembly work in house to reduce labor cost per device.",
+            "date": "2026-05",
+            "url": "https://ir.myomo.com/~/media/Files/M/Myomo-IR/reports-and-presentations/shareholder-letter-may-2026.pdf"
+          }
+        ],
+        "systems": [],
+        "disqualifiers": [],
+        "concerns": [
+          "Buyer address is publicly published; mailbox delivery is not independently verified.",
+          "Workflow is a hypothesis for administrative operations, not confirmed pain or a clinical use case. Confirm current ownership and existing systems in conversation.",
+          "Financial discipline and lower cash burn are explicit priorities; qualify budget and a narrowly scoped administrative opportunity. The plant opening is a 2025 event, not a new 2026 announcement."
+        ]
+      },
+      "workflow": {
+        "task": "device order and assembly handoffs",
+        "subject": "assembly handoffs",
+        "inputs": "approved device orders, assembly updates and shipping records",
+        "metric": "time spent resolving each administrative exception"
+      },
+      "businessProfile": {
+        "overview": "Massachusetts manufacturer of MyoPro wearable robotic arm braces, serving orthotics providers and rehabilitation referral networks.",
+        "products": [
+          "MyoPro powered arm braces",
+          "Device support and training"
+        ],
+        "customers": [
+          "Orthotics and prosthetics providers",
+          "Rehabilitation organizations"
+        ],
+        "operations": "Discovery hypothesis: device order and assembly handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://myomo.com/myomo-reports-second-quarter-2026-financial-and-operating-results/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "paul@myomo.com",
+      "sourceUrl": "https://ir.myomo.com/~/media/Files/M/Myomo-IR/reports-and-presentations/myomo-investor-presentation-april-2026.pdf"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Drilling Tools International",
+    "domain": "drillingtools.com",
+    "sector": "Oilfield tool rental",
+    "revenueUsdM": 159.63,
+    "revenueYear": 2025,
+    "sourceUrl": "https://stockanalysis.com/stocks/dti/revenue/",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Oilfield tool rental",
+      "revenue": {
+        "usdMillions": 159.63,
+        "year": 2025,
+        "sourceUrl": "https://stockanalysis.com/stocks/dti/revenue/"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Wayne Prejean",
+        "title": "CEO",
+        "sourceUrl": "https://investors.drillingtools.com/static-files/f3e650d7-a7b7-432d-92e0-fbcba2f25fe8"
+      },
+      "email": {
+        "address": "wayne.prejean@drillingtools.com",
+        "sourceUrl": "https://investors.drillingtools.com/node/6646/html"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 22,
+          "fieldWorkforce": null,
+          "highVolume": "2023 transaction material reports a fleet of over 65000 tools",
+          "url": "https://investors.drillingtools.com/node/6646/html"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Customer Login portal",
+            "url": "https://drillingtools.com/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Buyer address is publicly published; mailbox delivery is not independently verified.",
+          "Workflow is a hypothesis for administrative operations, not confirmed pain or a clinical use case. Confirm current ownership and existing systems in conversation.",
+          "Fleet and location scale are from 2023 transaction material and require reconfirmation. Current homepage still provides a customer login. No new expansion is claimed."
+        ]
+      },
+      "workflow": {
+        "task": "rental return and inspection handoffs",
+        "subject": "rental handoffs",
+        "inputs": "tool return records, inspection results and billing notes",
+        "metric": "time spent resolving each administrative exception"
+      },
+      "businessProfile": {
+        "overview": "Tool rental and manufacturing operator supplying downhole drilling tools, inspection and related services to energy customers.",
+        "products": [
+          "Downhole tool rentals",
+          "Drilling tools",
+          "Tool manufacturing",
+          "Inspection services"
+        ],
+        "customers": [
+          "Drilling contractors",
+          "Oilfield service companies"
+        ],
+        "operations": "Discovery hypothesis: rental return and inspection handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://drillingtools.com/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "wayne.prejean@drillingtools.com",
+      "sourceUrl": "https://investors.drillingtools.com/node/6646/html"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Kestra Medical Technologies, Ltd.",
+    "domain": "kestramedical.com",
+    "sector": "Wearable cardiac devices",
+    "revenueUsdM": 59.82,
+    "revenueYear": 2025,
+    "sourceUrl": "https://stockanalysis.com/stocks/kmts/financials/",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Wearable cardiac devices",
+      "revenue": {
+        "usdMillions": 59.82,
+        "year": 2025,
+        "sourceUrl": "https://stockanalysis.com/stocks/kmts/financials/"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Brian Webster",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://stockanalysis.com/stocks/kmts/company/"
+      },
+      "email": {
+        "address": "brian.webster@kestramedical.com",
+        "sourceUrl": "https://investors.kestramedical.com/static-files/6d03d266-cbcb-45b0-bf5d-92d0d8cea8f7"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": null,
+          "fieldWorkforce": 80,
+          "highVolume": null,
+          "url": "https://investors.kestramedical.com/static-files/6d03d266-cbcb-45b0-bf5d-92d0d8cea8f7"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "Kestra CareStation",
+            "url": "https://investors.kestramedical.com/static-files/6d03d266-cbcb-45b0-bf5d-92d0d8cea8f7"
+          },
+          {
+            "name": "ASSURE patient application",
+            "url": "https://investors.kestramedical.com/static-files/6d03d266-cbcb-45b0-bf5d-92d0d8cea8f7"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Buyer address is publicly published; mailbox delivery is not independently verified.",
+          "Workflow is a hypothesis for administrative operations, not confirmed pain or a clinical use case. Confirm current ownership and existing systems in conversation.",
+          "Existing patient apps and remote monitoring are core capabilities, not a gap to replace. Focus discovery on device fulfillment and service administration. Sales force count is from the cited offering filing."
+        ]
+      },
+      "workflow": {
+        "task": "device fulfillment and service handoffs",
+        "subject": "fulfillment handoffs",
+        "inputs": "device fulfillment records, service requests and shipment updates",
+        "metric": "time spent resolving each administrative exception"
+      },
+      "businessProfile": {
+        "overview": "Medical device manufacturer supplying wearable cardiac defibrillators and connected support services to healthcare customers.",
+        "products": [
+          "ASSURE wearable cardiac defibrillator",
+          "Connected device support"
+        ],
+        "customers": [
+          "Healthcare providers",
+          "Cardiology practices"
+        ],
+        "operations": "Discovery hypothesis: device fulfillment and service handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://kestramedical.com/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "brian.webster@kestramedical.com",
+      "sourceUrl": "https://investors.kestramedical.com/static-files/6d03d266-cbcb-45b0-bf5d-92d0d8cea8f7"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "OrthoPediatrics Corp.",
+    "domain": "orthopediatrics.com",
+    "sector": "Pediatric orthopedics",
+    "revenueUsdM": 236.35,
+    "revenueYear": 2025,
+    "sourceUrl": "https://stockanalysis.com/stocks/kids/financials/",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Pediatric orthopedics",
+      "revenue": {
+        "usdMillions": 236.35,
+        "year": 2025,
+        "sourceUrl": "https://stockanalysis.com/stocks/kids/financials/"
+      },
+      "size": null,
+      "buyer": {
+        "name": "David Bailey",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://stockanalysis.com/stocks/kids/company/"
+      },
+      "email": {
+        "address": "dbailey@orthopediatrics.com",
+        "sourceUrl": "https://ir.orthopediatrics.com/static-files/fec8fe19-8551-4797-9bf7-9763230732cc"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 9,
+          "fieldWorkforce": 200,
+          "highVolume": null,
+          "url": "https://ir.orthopediatrics.com/node/11086/ixbrl-viewer"
+        },
+        "change": [],
+        "techOpenness": [],
+        "systems": [
+          {
+            "name": "ERP system",
+            "url": "https://ir.orthopediatrics.com/static-files/5eae14da-bb77-461d-9ae5-44b519598dd1"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Buyer address is publicly published; mailbox delivery is not independently verified.",
+          "Workflow is a hypothesis for administrative operations, not confirmed pain or a clinical use case. Confirm current ownership and existing systems in conversation.",
+          "Sales force and clinic footprint are a 2024 analyst-day snapshot, not current counts. ERP upgrade was disclosed in 2023; reconfirm present systems. Proposed workflow concerns inventory administration, not surgical planning."
+        ]
+      },
+      "workflow": {
+        "task": "instrument inventory and shipment handoffs",
+        "subject": "inventory handoffs",
+        "inputs": "instrument requests, inventory updates and shipment records",
+        "metric": "time spent resolving each administrative exception"
+      },
+      "businessProfile": {
+        "overview": "Medical device manufacturer supplying pediatric orthopedic implants, instrument sets and specialty bracing through a field sales network.",
+        "products": [
+          "Orthopedic implants",
+          "Instrument systems",
+          "Specialty bracing"
+        ],
+        "customers": [
+          "Children\u2019s hospitals",
+          "Orthopedic providers"
+        ],
+        "operations": "Discovery hypothesis: instrument inventory and shipment handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://orthopediatrics.com/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "dbailey@orthopediatrics.com",
+      "sourceUrl": "https://ir.orthopediatrics.com/static-files/fec8fe19-8551-4797-9bf7-9763230732cc"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Outset Medical, Inc.",
+    "domain": "outsetmedical.com",
+    "sector": "Dialysis equipment",
+    "revenueUsdM": 119.48,
+    "revenueYear": 2025,
+    "sourceUrl": "https://stockanalysis.com/stocks/om/financials/",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Dialysis equipment",
+      "revenue": {
+        "usdMillions": 119.48,
+        "year": 2025,
+        "sourceUrl": "https://stockanalysis.com/stocks/om/financials/"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Leslie Trigg",
+        "title": "Chief Executive Officer",
+        "sourceUrl": "https://stockanalysis.com/stocks/om/company/"
+      },
+      "email": {
+        "address": "ltrigg@outsetmedical.com",
+        "sourceUrl": "https://investors.outsetmedical.com/static-files/8507a79e-24c7-4038-a32b-0207d96b7e2f"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 2,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://investors.outsetmedical.com/static-files/de570aac-afa8-47ad-a5ce-7c2350a91dcd"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "Company describes two-way cloud communication for automated device documentation and system management.",
+            "date": null,
+            "url": "https://outsetmedical.com/"
+          }
+        ],
+        "systems": [
+          {
+            "name": "MES",
+            "url": "https://investors.outsetmedical.com/static-files/de570aac-afa8-47ad-a5ce-7c2350a91dcd"
+          },
+          {
+            "name": "ERP",
+            "url": "https://investors.outsetmedical.com/static-files/de570aac-afa8-47ad-a5ce-7c2350a91dcd"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Buyer address is publicly published; mailbox delivery is not independently verified.",
+          "Workflow is a hypothesis for administrative operations, not confirmed pain or a clinical use case. Confirm current ownership and existing systems in conversation.",
+          "ERP, MES and two-site footprint are described in a 2021 report and need reconfirmation. Current homepage describes Outset Connect; do not pitch replacing its clinical or device software."
+        ]
+      },
+      "workflow": {
+        "task": "console shipment and service handoffs",
+        "subject": "service handoffs",
+        "inputs": "console shipment records, service updates and parts requests",
+        "metric": "time spent resolving each administrative exception"
+      },
+      "businessProfile": {
+        "overview": "Medical device manufacturer supplying Tablo dialysis consoles and connected device support to healthcare organizations.",
+        "products": [
+          "Tablo dialysis systems",
+          "Connected console support"
+        ],
+        "customers": [
+          "Hospitals",
+          "Dialysis providers"
+        ],
+        "operations": "Discovery hypothesis: console shipment and service handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://outsetmedical.com/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "ltrigg@outsetmedical.com",
+      "sourceUrl": "https://investors.outsetmedical.com/static-files/8507a79e-24c7-4038-a32b-0207d96b7e2f"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "Photronics",
+    "domain": "photronics.com",
+    "sector": "Electronics",
+    "revenueUsdM": 849.294,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.sec.gov/Archives/edgar/data/810136/000114036125045083/ef20060918_ex99-1.htm",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Electronics",
+      "revenue": {
+        "usdMillions": 849.294,
+        "year": 2025,
+        "sourceUrl": "https://www.sec.gov/Archives/edgar/data/810136/000114036125045083/ef20060918_ex99-1.htm"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Eric Rivera",
+        "title": "President and CFO",
+        "sourceUrl": "https://photronicsinc.gcs-web.com/news-releases/news-release-details/photronics-announces-executive-officer-appointments"
+      },
+      "email": {
+        "address": "erivera@photronics.com",
+        "sourceUrl": "https://photronicsinc.gcs-web.com/news-releases/news-release-details/photronics-announces-chief-financial-officer-appointment"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 11,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://photronicsinc.gcs-web.com/static-files/17e61264-923d-4bab-86aa-bc8f4692f77b"
+        },
+        "change": [
+          {
+            "kind": "leadership",
+            "fact": "Eric Rivera was appointed president in January 2026 while continuing as CFO.",
+            "date": "2026-01-12",
+            "url": "https://photronicsinc.gcs-web.com/news-releases/news-release-details/photronics-announces-executive-officer-appointments"
+          },
+          {
+            "kind": "expansion",
+            "fact": "May 2026 presentation describes Allen, Texas and South Korea manufacturing expansion investment.",
+            "date": "2026-05-28",
+            "url": "https://photronicsinc.gcs-web.com/static-files/e8441376-f5b6-495d-afb0-7cb195197bba"
+          }
+        ],
+        "techOpenness": [],
+        "systems": [],
+        "disqualifiers": [],
+        "concerns": [
+          "The president and CFO owns finance and reporting; qualify a specific operating workflow rather than presume a purchasing decision.",
+          "International facility network includes operations outside the U.S.; scope initial discovery to a U.S.-owned workflow.",
+          "Published business email is not independently mailbox tested."
+        ]
+      },
+      "workflow": {
+        "task": "production reporting and invoice handoffs",
+        "subject": "reporting handoffs",
+        "inputs": "production updates, shipment records and invoice exceptions",
+        "metric": "time spent resolving each administrative exception"
+      },
+      "businessProfile": {
+        "overview": "U.S.-headquartered manufacturer of photomasks used in semiconductor and display manufacturing, with an eleven-facility international network.",
+        "products": [
+          "Semiconductor photomasks",
+          "Flat-panel-display photomasks"
+        ],
+        "customers": [
+          "Semiconductor manufacturers",
+          "Display manufacturers"
+        ],
+        "operations": "Discovery hypothesis: production reporting and invoice handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://www.photronics.com/about-photronics/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "erivera@photronics.com",
+      "sourceUrl": "https://photronicsinc.gcs-web.com/news-releases/news-release-details/photronics-announces-chief-financial-officer-appointment"
+    }
+  },
+  {
+    "owner": "josh",
+    "company": "HMC Architects",
+    "domain": "hmcarchitects.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 152.48,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 152.48,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Brian Staton",
+        "title": "Chief Executive Officer and Chair of the Board",
+        "sourceUrl": "https://hmcarchitects.com/who-we-are/"
+      },
+      "email": {
+        "address": "brian.staton@hmcarchitects.com",
+        "sourceUrl": "https://hmcarchitects.com/blog/2019/06/14/what-is-the-future-of-architecture-as-a-profession-hmc-looks-forward-2019-06-14/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 7,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://hmcarchitects.com/contact/"
+        },
+        "change": [],
+        "techOpenness": [
+          {
+            "fact": "President discusses using scripting and digital tools to reduce document errors and improve coordination.",
+            "date": "2025-09-30",
+            "url": "https://hmcarchitects.com/blog/2025/09/30/five-in-focus-with-kirk-rose-insights-from-hmcs-new-president/"
+          }
+        ],
+        "systems": [
+          {
+            "name": "Revit",
+            "url": "https://hmcarchitects.com/blog/2025/09/30/five-in-focus-with-kirk-rose-insights-from-hmcs-new-president/"
+          }
+        ],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Corrected workbook title: Brian Staton is CEO and chair; Kirk Rose is president. Existing CTO and digital tools require qualification.",
+          "Email is corroborated in company publications; delivery is unconfirmed."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Architecture practice serving healthcare, education and civic clients through seven listed West Coast offices.",
+        "products": [
+          "Architecture",
+          "Interior design",
+          "Facility planning"
+        ],
+        "customers": [
+          "Healthcare organizations",
+          "School districts",
+          "Civic organizations"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://hmcarchitects.com/who-we-are/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "brian.staton@hmcarchitects.com",
+      "sourceUrl": "https://hmcarchitects.com/blog/2019/06/14/what-is-the-future-of-architecture-as-a-profession-hmc-looks-forward-2019-06-14/"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "KTGY",
+    "domain": "ktgy.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 105.4,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 105.4,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Will Bate",
+        "title": "CEO",
+        "sourceUrl": "https://www.ktgy.com/People/will-bate/"
+      },
+      "email": {
+        "address": "wbate@ktgy.com",
+        "sourceUrl": "https://www.ktgy.com/People/will-bate/"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 7,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.ktgy.com/people/"
+        },
+        "change": [
+          {
+            "kind": "leadership",
+            "fact": "Will Bate joined as CEO in April 2026, succeeding Tricia Esser.",
+            "date": "2026-04",
+            "url": "https://www.ktgy.com/People/will-bate/"
+          }
+        ],
+        "techOpenness": [
+          {
+            "fact": "CEO discusses construction innovation, including modular construction and mass timber, to address tighter project constraints.",
+            "date": "2026-08-24",
+            "url": "https://www.ktgy.com/2026-aug-pr-wbate-ocbj/"
+          }
+        ],
+        "systems": [],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Corrected stale workbook leadership link, which pointed to former CEO Tricia Esser. Company profile publishes the current CEO address."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Architecture, interiors and planning practice designing housing, mixed-use and hospitality projects through seven U.S. offices.",
+        "products": [
+          "Architecture",
+          "Interior design",
+          "Residential planning"
+        ],
+        "customers": [
+          "Housing developers",
+          "Hospitality operators",
+          "Mixed-use developers"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://www.ktgy.com/People/will-bate/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "wbate@ktgy.com",
+      "sourceUrl": "https://www.ktgy.com/People/will-bate/"
+    }
+  },
+  {
+    "owner": "suuchi",
+    "company": "Perkins Eastman",
+    "domain": "perkinseastman.com",
+    "sector": "Architecture and engineering services",
+    "revenueUsdM": 254.24,
+    "revenueYear": 2025,
+    "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms",
+    "researchDate": "2026-10-22",
+    "research": {
+      "sector": "Architecture and engineering services",
+      "revenue": {
+        "usdMillions": 254.24,
+        "year": 2025,
+        "sourceUrl": "https://www.architecturalrecord.com/2026-Top-300-Architecture-Firms"
+      },
+      "size": null,
+      "buyer": {
+        "name": "Shawn Basler",
+        "title": "Co-CEO",
+        "sourceUrl": "https://www.perkinseastman.com/2026/01/12/perkins-eastman-expands-executive-committee-for-2026/"
+      },
+      "email": {
+        "address": "s.basler@perkinseastman.com",
+        "sourceUrl": "https://nycasinos.ny.gov/system/files/documents/2026/04/gi9.rwnyc_.projectfirms.pdf"
+      },
+      "trigger": null,
+      "evidence": {
+        "hiring": [],
+        "scale": {
+          "locations": 26,
+          "fieldWorkforce": null,
+          "highVolume": null,
+          "url": "https://www.perkinseastman.com/2026/01/12/perkins-eastman-expands-executive-committee-for-2026/"
+        },
+        "change": [
+          {
+            "kind": "leadership",
+            "fact": "Company expanded its executive committee with three leaders in January 2026.",
+            "date": "2026-01-12",
+            "url": "https://www.perkinseastman.com/2026/01/12/perkins-eastman-expands-executive-committee-for-2026/"
+          },
+          {
+            "kind": "leadership",
+            "fact": "Company named a co-managing principal of its Pittsburgh studio in September 2026.",
+            "date": "2026-09-09",
+            "url": "https://www.perkinseastman.com/2026/09/09/amy-maceyko-joins-perkins-eastman-as-co-managing-principal-of-pittsburgh-studio/"
+          }
+        ],
+        "techOpenness": [],
+        "systems": [],
+        "disqualifiers": [],
+        "concerns": [
+          "Business email is publicly published, not independently mailbox tested.",
+          "Proposed workflow is a discovery hypothesis, not established buying intent. Existing design and technology capabilities require qualification.",
+          "Scope is administrative coordination with professional review, not autonomous design decisions.",
+          "Buyer address is corroborated by a public New York State project-firms filing. No claim that the filing represents current buying intent or confirmed delivery."
+        ]
+      },
+      "workflow": {
+        "task": "project document and approval handoffs",
+        "subject": "approval handoffs",
+        "inputs": "project correspondence, review comments and approval notes",
+        "metric": "time spent following up on approvals"
+      },
+      "businessProfile": {
+        "overview": "Global design practice coordinating architecture, interiors and planning projects through twenty-six studios.",
+        "products": [
+          "Architecture",
+          "Interior design",
+          "Planning"
+        ],
+        "customers": [
+          "Education organizations",
+          "Commercial developers",
+          "Hospitality operators"
+        ],
+        "operations": "Discovery hypothesis: project document and approval handoffs. Confirm the existing process and any remaining exceptions before recommending a tool.",
+        "sourceUrl": "https://www.perkinseastman.com/2026/01/12/perkins-eastman-expands-executive-committee-for-2026/"
+      }
+    },
+    "emailEvidence": {
+      "kind": "published",
+      "address": "s.basler@perkinseastman.com",
+      "sourceUrl": "https://nycasinos.ny.gov/system/files/documents/2026/04/gi9.rwnyc_.projectfirms.pdf"
+    }
+  }
+]
