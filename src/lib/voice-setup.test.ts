@@ -5,6 +5,8 @@ import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import { voiceAssistantPayload } from "./voice-assistant.ts";
+import { newCallPlan } from "./call-plan.ts";
+import { voiceFollowup } from "./voice-followup.ts";
 import { VOICE_BOOKING, VOICE_INSTRUCTIONS } from "./voice-booking.ts";
 
 const require = createRequire(import.meta.url);
@@ -15,6 +17,9 @@ function route(number: string = VOICE_BOOKING.callerNumber) {
   runInNewContext(ts.transpileModule(readFileSync(new URL("../app/api/cron/voice/route.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
     exports, Response, Date, process: { env: { VAPI_ASSISTANT_ID: assistantId, VAPI_WEBHOOK_SECRET: "test-secret-that-is-long-enough-for-testing" } },
     require: (name: string) => {
+      if (name === "@/lib/supabase/admin") return { admin: () => ({}) };
+      if (name === "@/lib/call-tasks") return { loadCallTasks: async () => [{ id: "task", owner: "suuchi", name: "Sam Jones", title: "COO", company: "Example", domain: "example.test", email: "sam@example.test", emailBody: "Shipping handoffs", why: "Growing", bounced: false, plan: newCallPlan("2026-10-21T14:00:00Z") }] };
+      if (name === "@/lib/voice-followup") return { voiceFollowup };
       if (name === "@/lib/auth") return { cronAuthorized: (request: Request) => request.headers.get("authorization") === "Bearer test-cron" };
       if (name === "@/lib/voice-assistant") return { voiceAssistantPayload };
       if (name === "@/lib/voice-booking") return { VOICE_BOOKING, VOICE_INSTRUCTIONS };
@@ -62,4 +67,20 @@ test("voice setup cannot reassign an unexpected originating phone number", async
   const hook = route("+15555550100");
   assert.equal((await hook.post(request("configure"))).status, 400);
   assert.equal(hook.requests.some(item => item.method !== "GET"), false);
+});
+
+test("follow-up rehearsal attaches sent email but still only calls Josh", async () => {
+  const hook = route();
+  const response = await hook.post(request("test-followup"));
+  assert.equal(response.status, 200);
+  const call = hook.requests.find(item => item.path === "/call");
+  const body = call?.body as { customer: { number: string }; assistantOverrides: { model: { messages: Array<{ content: string }> } } };
+  assert.equal(body.customer.number, VOICE_BOOKING.transferNumber);
+  assert.match(body.assistantOverrides.model.messages[0].content, /Shipping handoffs/);
+  assert.match(body.assistantOverrides.model.messages[0].content, /internal roleplay/);
+});
+test("follow-up preview never places a call", async () => {
+  const hook = route();
+  assert.equal((await hook.post(request("followup-preview"))).status, 200);
+  assert.equal(hook.requests.every(item => item.method === "GET"), true);
 });

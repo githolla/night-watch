@@ -1,3 +1,6 @@
+import { admin } from "@/lib/supabase/admin";
+import { loadCallTasks } from "@/lib/call-tasks";
+import { voiceFollowup } from "@/lib/voice-followup";
 import { cronAuthorized } from "@/lib/auth";
 import { vapiStatus } from "@/lib/vapi";
 import { vapiRequest } from "@/lib/vapi";
@@ -18,7 +21,7 @@ export async function GET(request: Request) {
   }
 }
 
-const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional() });
+const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional() });
 
 export async function POST(request: Request) {
   if (!cronAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -45,19 +48,27 @@ export async function POST(request: Request) {
     if (input.action === "enable-us-calling") return Response.json({ ok: true, ...await enableUsVoiceCalling(phone) });
     if (input.action === "transport-check") return Response.json({ ok: true, transport: await checkVoiceTransport(phone) });
     const payload = voiceAssistantPayload(assistant, process.env.VAPI_WEBHOOK_SECRET ?? "");
-    if (input.action === "test-call") {
+    let followup: ReturnType<typeof voiceFollowup> | null = null;
+    if (["followup-preview", "test-followup"].includes(input.action)) {
+      const tasks = await loadCallTasks(admin(), "suuchi");
+      const task = input.taskId ? tasks.find(item => item.id === input.taskId) : tasks.filter(item => item.plan.status === "pending" && item.emailBody.trim()).sort((a, b) => b.plan.firstEmailAt.localeCompare(a.plan.firstEmailAt))[0];
+      if (!task) throw new Error("No eligible sent-email follow-up found.");
+      followup = voiceFollowup(task);
+      if (input.action === "followup-preview") return Response.json({ ok: true, ...followup, callsPlaced: 0 });
+    }
+    if (input.action === "test-call" || input.action === "test-followup") {
       if (number.assistantId !== input.assistantId) throw new Error("Configure and assign the assistant before calling.");
       const result = await vapiRequest("/call", "POST", {
         assistantId: input.assistantId, phoneNumberId: input.phoneNumberId,
         customer: { number: VOICE_BOOKING.transferNumber, name: "Josh: internal voice test" },
         assistantOverrides: {
           maxDurationSeconds: 180,
-          firstMessage: "Hi Josh, this is Alex with Nine-67. Can you hear me clearly?",
-          model: { ...payload.model, messages: [{ role: "system", content: `${VOICE_INSTRUCTIONS}\nThis is an internal test with Josh, not a prospect call. No prospect email or company history is provided. Say so if asked. Help Josh test natural conversation and calendar availability. Do not transfer: Josh is already on the destination phone. Do not create a calendar event unless Josh explicitly requests a test invitation and confirms the attendee email and time.` }] },
+          firstMessage: followup?.firstMessage ?? "Hi Josh, this is Alex with Nine-67. Can you hear me clearly?",
+          model: { ...payload.model, messages: [{ role: "system", content: `${VOICE_INSTRUCTIONS}\n${followup ? followup.instructions + "\nThis is an internal roleplay with Josh acting as the named prospect. Use the supplied email context for the roleplay. No prospect is being called. If asked, explain that this is a rehearsal." : "This is an internal test with Josh, not a prospect call. No prospect email or company history is provided. Say so if asked."} Help Josh test natural conversation and calendar availability. Do not transfer: Josh is already on the destination phone. Do not create a calendar event unless Josh explicitly requests a test invitation and confirms the attendee email and time.` }] },
         },
       });
       const call = z.object({ id: z.string(), status: z.string().optional() }).parse(result);
-      return Response.json({ ok: true, call, destination: VOICE_BOOKING.transferNumber });
+      return Response.json({ ok: true, call, destination: VOICE_BOOKING.transferNumber, ...(followup ? { taskId: followup.taskId, mode: "internal-followup-rehearsal" } : {}) });
     }
     if (input.action === "configure") {
       await vapiRequest(`/assistant/${input.assistantId}`, "PATCH", payload);
