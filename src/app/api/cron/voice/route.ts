@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   }
 }
 
-const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), voiceChoice: z.enum(["clara", "sid"]).optional() });
+const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), voiceChoice: z.enum(["clara", "sid", "savannah"]).optional() });
 
 export async function POST(request: Request) {
   if (!cronAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });

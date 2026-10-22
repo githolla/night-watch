@@ -42,4 +42,6 @@ test("outbound greeting waits for hello and selected voice is applied explicitly
   assert.equal(payload.firstMessageInterruptionsEnabled, true);
   assert.deepEqual(payload.voice, { provider: "vapi", voiceId: "Clara", version: 2 });
   assert.equal(voiceAssistantPayload(assistant, secret, "sid").voice?.voiceId, "Sid");
+  assert.deepEqual(voiceAssistantPayload(assistant, secret, "savannah").voice, { provider: "vapi", voiceId: "Savannah", version: 1 });
+  assert.equal(payload.stopSpeakingPlan.numWords, 1);
 });

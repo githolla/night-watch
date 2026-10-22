@@ -14,7 +14,7 @@ export const VOICE_TURN_TIMING = {
       { type: "customer", regex: "(@|\\bat\\b|\\bdot\\b|\\bno dots?\\b|\\bno hyphens?\\b)", timeoutSeconds: 2.5 },
     ],
   },
-  stopSpeakingPlan: { numWords: 0, voiceSeconds: 0.15, backoffSeconds: 1.3 },
+  stopSpeakingPlan: { numWords: 1, voiceSeconds: 0.25, backoffSeconds: 1.0 },
 };
 
 export function spokenEmailAddress(email: string): string {
@@ -24,6 +24,7 @@ export function spokenEmailAddress(email: string): string {
 }
 
 export const VOICE_CHOICES = {
+  savannah: { provider: "vapi", voiceId: "Savannah", version: 1 },
   clara: { provider: "vapi", voiceId: "Clara", version: 2 },
   sid: { provider: "vapi", voiceId: "Sid", version: 2 },
 } as const;

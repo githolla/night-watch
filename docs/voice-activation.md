@@ -106,3 +106,9 @@ Validation: email-spelling, timing configuration, tool-filler and internal-durat
 Version `email-followup-v4` sets `firstMessageMode=assistant-waits-for-user` on the assistant and internal call overrides, and allows interruptions during the first message. Alex should wait for the recipient's greeting rather than speak as soon as the line connects. Phone verification is still required.
 
 The authenticated configure action accepts `voiceChoice: "clara"` or `"sid"`. Clara is a natural American female Vapi V2 voice; Sid is a calm American male Vapi V2 voice. An omitted choice preserves the currently selected voice. The proposed next test uses Clara, pending the user's preference. Native Vapi voice settings are applied without changing calendar or outreach authorization. No new SQL is required.
+
+### Audio and conversational style candidate
+
+Call `01a16511-e729-777a-a338-221c5ae40e64` confirms the recipient spoke first, but the user reported garbled speech and stiff delivery. It ended as `customer-ended-call`, with no transport failure reported. The transcript is insufficient to establish whether the audio defect came from synthesis, interruption detection or transport.
+
+Version `email-followup-v5` offers Savannah V1 as a comparison to Clara V2, changes interruption detection from 0.15-second voice activity to one transcribed word, and replaces the permission/explanation sequence with a short workflow reference and direct question. Ten to twenty words per turn is the starting target. The wait-for-hello behavior and longer booking rehearsal limit remain. Run `configure` with `voiceChoice: "savannah"` after deployment. This is a candidate audio/style change, not a verified audio fix; listen to a fresh phone test before accepting it.
