@@ -8,7 +8,18 @@ export async function vapiRequest(path: string, method = "GET", body?: unknown):
     headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
-  if (!response.ok) throw new Error(`Vapi request failed (${response.status}).`);
+  if (!response.ok) {
+    let fields: string[] = [];
+    if (response.status === 400) {
+      const parsed = z.object({ message: z.union([z.string(), z.array(z.string())]) }).safeParse(await response.json().catch(() => null));
+      const messages = parsed.success ? typeof parsed.data.message === "string" ? [parsed.data.message] : parsed.data.message : [];
+      fields = [...new Set(messages.flatMap(message => {
+        const field = message.match(/^(voice(?:\.[A-Za-z0-9_]+)*|startSpeakingPlan(?:\.[A-Za-z0-9_]+)*|stopSpeakingPlan(?:\.[A-Za-z0-9_]+)*|firstMessageMode)\s/)?.[1];
+        return field ? [field] : [];
+      }))];
+    }
+    throw new Error(`Vapi request failed (${response.status}).${fields.length ? ` Check configuration fields: ${fields.join(", ")}.` : ""}`);
+  }
   return response.json();
 }
 

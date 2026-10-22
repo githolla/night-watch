@@ -30,7 +30,7 @@ export const VOICE_BRAND_REPLACEMENT = {
 };
 const brandChunkPlan = { enabled: true, formatPlan: { enabled: true, replacements: [VOICE_BRAND_REPLACEMENT] } };
 export const VOICE_CHOICES = {
-  jess: { provider: "vapi", voiceId: "Jess", version: 1, speed: 1.03, chunkPlan: brandChunkPlan },
+  jess: { provider: "vapi", voiceId: "Jess" },
   savannah: { provider: "vapi", voiceId: "Savannah", version: 1, chunkPlan: brandChunkPlan },
   clara: { provider: "vapi", voiceId: "Clara", version: 2, chunkPlan: brandChunkPlan },
   sid: { provider: "vapi", voiceId: "Sid", version: 2, chunkPlan: brandChunkPlan },

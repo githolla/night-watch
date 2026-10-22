@@ -35,3 +35,15 @@ test("provider errors omit raw response bodies", async () => {
     else process.env.VAPI_API_KEY = originalKey;
   }
 });
+
+test("configuration errors expose field names without rejected values or credentials", async () => {
+  const originalFetch = globalThis.fetch, originalKey = process.env.VAPI_API_KEY;
+  process.env.VAPI_API_KEY = "private-voice-key";
+  globalThis.fetch = async () => Response.json({ message: ["voice.chunkPlan must be valid: private-voice-key", "secret-token must not be exposed"] }, { status: 400 });
+  try {
+    await assert.rejects(vapiRequest("/assistant/test", "PATCH", {}), { message: "Vapi request failed (400). Check configuration fields: voice.chunkPlan." });
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalKey === undefined) delete process.env.VAPI_API_KEY; else process.env.VAPI_API_KEY = originalKey;
+  }
+});
