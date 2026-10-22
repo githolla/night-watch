@@ -96,7 +96,7 @@ export async function createInvite(owner: Owner, opts: { summary: string; descri
     if(!response.ok)throw new Error('Could not verify the existing calendar invitation.');
     const event=await response.json();
     if(event.status==='cancelled')throw new Error('This invitation was cancelled. Review it in Calendar.');
-    return {htmlLink:event.htmlLink??null,meetLink:event.hangoutLink??null};
+    return {htmlLink:event.htmlLink??null,meetLink:event.hangoutLink??null,eventId};
   };
   if(eventId){const found=await existing();if(found)return found;}
   if(!Number.isFinite(Date.parse(opts.start)) || Date.parse(opts.start)<=Date.now() || Date.parse(opts.end)<=Date.parse(opts.start))throw new Error('Choose a future meeting time.');
@@ -124,7 +124,7 @@ export async function createInvite(owner: Owner, opts: { summary: string; descri
   if(res.status===409&&eventId){const found=await existing();if(found)return found;}
   if (!res.ok) throw new Error(`Calendar invite failed: ${res.status}`);
   const json = (await res.json()) as { htmlLink?: string; hangoutLink?: string };
-  return { htmlLink: json.htmlLink ?? null, meetLink: json.hangoutLink ?? null };
+  return { htmlLink: json.htmlLink ?? null, meetLink: json.hangoutLink ?? null, eventId };
 }
 
 /** HTTP 200 can still contain a per-calendar failure. Missing data is not availability. */

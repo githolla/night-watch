@@ -7,7 +7,7 @@ import type { CallTask } from "./call-tasks.ts";
 const task: CallTask = { id: "task", cardId: "card", personId: "person", owner: "suuchi", name: "Sam Jones", title: "COO", company: "Example Manufacturing", domain: "example.test", email: "sam@example.test", emailBody: "Could we help connect production orders to shipping paperwork?", emailSubject: "Mutable draft subject", bounced: false, why: "Multiple production sites", plan: newCallPlan("2026-10-21T14:00:00Z") };
 test("voice follow-up uses actual email body and date instead of mutable draft subject", () => {
   const result = voiceFollowup(task, new Date("2026-10-22T14:00:00Z"));
-  assert.equal(result.firstMessage, "Hi, this is Alex with Nine-67. Am I speaking with Sam?");
+  assert.equal(result.firstMessage, "Hi, this is Alex, Nine-67's AI assistant. Am I speaking with Sam?");
   assert.ok(result.instructions.includes(task.emailBody));
   assert.ok(result.instructions.includes("October 21, 2026"));
   assert.ok(!result.instructions.includes("Mutable draft subject"));

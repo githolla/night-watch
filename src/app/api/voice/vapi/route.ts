@@ -1,15 +1,14 @@
+import { voiceStructuredResult } from "@/lib/voice-analysis";
 import { timingSafeEqual } from "node:crypto";
 import { z } from "zod";
-import { voiceAvailability, voiceBook } from "@/lib/voice-calendar";
+import { boundVoiceAttempt, executeVoiceTool, saveVoiceReport } from "@/lib/voice-runtime";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-const envelope = z.object({ message: z.object({
-  type: z.literal("tool-calls"), call: z.object({ id: z.string().min(1), assistantId: z.string().min(1) }),
-  toolCallList: z.array(z.object({ id: z.string().min(1), function: z.object({ name: z.string(), arguments: z.unknown() }) })).min(1).max(8),
-}) });
-const availability = z.object({ start: z.string().datetime({ offset: true }), end: z.string().datetime({ offset: true }), prospectRequested: z.boolean().default(false) });
-const booking = z.object({ start: z.string().datetime({ offset: true }), email: z.email(), confirmed: z.boolean(), prospectRequested: z.boolean().default(false) });
+const call = z.object({ id: z.string().min(1), assistantId: z.string().min(1) });
+const toolMessage = z.object({ type: z.literal("tool-calls"), call, toolCallList: z.array(z.object({ id: z.string().min(1), function: z.object({ name: z.string(), arguments: z.unknown() }) })).min(1).max(8) });
+const reportMessage = z.object({ type: z.literal("end-of-call-report"), call, endedReason: z.string().max(1000).optional(), transcript: z.string().max(200_000).optional(), analysis: z.unknown().optional(), artifact: z.object({ transcript: z.string().max(200_000).optional(), structuredOutputs: z.record(z.string(), z.object({ name: z.string().optional(), result: z.unknown().optional() })).optional() }).optional() });
+const envelope = z.object({ message: z.discriminatedUnion("type", [toolMessage, reportMessage]) });
 
 export async function POST(request: Request) {
   const secret = process.env.VAPI_WEBHOOK_SECRET;
@@ -18,23 +17,29 @@ export async function POST(request: Request) {
   const expected = Buffer.from(`Bearer ${secret ?? ""}`);
   if (!secret || !assistant || supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   const parsed = envelope.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return Response.json({ error: "Invalid tool request" }, { status: 400 });
+  if (!parsed.success) return Response.json({ error: "Invalid voice request" }, { status: 400 });
   const { message } = parsed.data;
   if (message.call.assistantId !== assistant) return Response.json({ error: "Unknown assistant" }, { status: 403 });
-  const results = [];
-  for (const tool of message.toolCallList) {
-    let result: unknown;
-    try {
-      const args: unknown = typeof tool.function.arguments === "string" ? JSON.parse(tool.function.arguments) : tool.function.arguments;
-      if (tool.function.name === "nightwatch_availability") {
-        const input = availability.parse(args);
-        result = { success: true, ...await voiceAvailability(input.start, input.end, input.prospectRequested) };
-      } else if (tool.function.name === "nightwatch_book") result = { success: true, ...await voiceBook(booking.parse(args), message.call.id) };
-      else result = { success: false, error: "Unknown tool" };
-    } catch (error) {
-      result = { success: false, error: error instanceof Error ? error.message : "Calendar action failed" };
+  try {
+    const attempt = await boundVoiceAttempt(message.call.id);
+    if (message.type === "end-of-call-report") {
+      const structured = voiceStructuredResult(message.artifact);
+      await saveVoiceReport(attempt, { endedReason: message.endedReason, transcript: message.transcript ?? message.artifact?.transcript, analysis: structured });
+      return Response.json({ ok: true });
     }
-    results.push({ name: tool.function.name, toolCallId: tool.id, result: JSON.stringify(result) });
+    const results = [];
+    for (const tool of message.toolCallList) {
+      let result: unknown;
+      try {
+        const args: unknown = typeof tool.function.arguments === "string" ? JSON.parse(tool.function.arguments) : tool.function.arguments;
+        result = { success: true, ...await executeVoiceTool(attempt, tool.id, tool.function.name, args) };
+      } catch (error) {
+        result = { success: false, error: error instanceof Error ? error.message : "Voice action failed" };
+      }
+      results.push({ name: tool.function.name, toolCallId: tool.id, result: JSON.stringify(result) });
+    }
+    return Response.json({ results });
+  } catch (error) {
+    return Response.json({ error: error instanceof Error ? error.message : "Could not process voice event" }, { status: 409 });
   }
-  return Response.json({ results });
 }

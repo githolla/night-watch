@@ -39,7 +39,10 @@ export async function loadCallTasks(db: SupabaseClient, owner?: Owner): Promise<
   const suppressed = await db.from("people").select("email").eq("do_not_contact", true).not("email", "is", null).limit(5000);
   if (suppressed.error) throw new Error("Could not confirm opt-outs for call tasks.");
   const optedOut = new Set((suppressed.data ?? []).map(person => String(person.email).trim().toLowerCase()));
-  return buildCallTasks(data.filter(row => !row.people?.email || !optedOut.has(row.people.email.trim().toLowerCase())), touches);
+  const voiceSuppression = await db.from("voice_suppressions").select("person_id");
+  if (voiceSuppression.error && !["42P01", "PGRST205"].includes(voiceSuppression.error.code)) throw new Error("Could not check call suppression. Calls are held.");
+  const voiceSuppressed = new Set((voiceSuppression.data ?? []).map(row => String(row.person_id)));
+  return buildCallTasks(data.filter(row => !voiceSuppressed.has(row.person_id) && (!row.people?.email || !optedOut.has(row.people.email.trim().toLowerCase()))), touches);
 }
 
 /** Compare-and-swap preserves cadence rules and concurrently recorded call outcomes. */

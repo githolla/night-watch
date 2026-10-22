@@ -17,6 +17,10 @@ function route(number: string = VOICE_BOOKING.callerNumber) {
   runInNewContext(ts.transpileModule(readFileSync(new URL("../app/api/cron/voice/route.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
     exports, Response, Date, process: { env: { VAPI_ASSISTANT_ID: assistantId, VAPI_WEBHOOK_SECRET: "test-secret-that-is-long-enough-for-testing" } },
     require: (name: string) => {
+      if (name === "@/lib/voice-queue") return { prepareVoiceQueue: async () => ({ queued: 0, held: [], externalDispatchEnabled: false }) };
+      if (name === "@/lib/voice-analysis") return { ensureVoiceStructuredOutput: async () => "output-1", voiceStructuredResult: () => null };
+      if (name === "@/lib/voice-runtime") return { reserveInternalVoiceAttempt: async () => "attempt-1", attachVoiceCall: async () => undefined, holdVoiceAttempt: async () => undefined };
+      if (name === "@/lib/voice-sent-context") return { currentVoiceFollowup: async (task: Parameters<typeof voiceFollowup>[0]) => voiceFollowup(task) };
       if (name === "@/lib/supabase/admin") return { admin: () => ({}) };
       if (name === "@/lib/call-tasks") return { loadCallTasks: async () => [{ id: "task", owner: "suuchi", name: "Sam Jones", title: "COO", company: "Example", domain: "example.test", email: "sam@example.test", emailBody: "Shipping handoffs", why: "Growing", bounced: false, plan: newCallPlan("2026-10-21T14:00:00Z") }] };
       if (name === "@/lib/voice-followup") return { voiceFollowup };

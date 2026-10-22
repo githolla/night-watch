@@ -8,7 +8,7 @@ const existingAssistant = z.object({
   server: z.object({ url: z.string().optional() }).optional(),
 });
 const tool = z.object({ type: z.string(), function: z.object({ name: z.string().optional() }).optional() }).passthrough();
-const calendarNames = ["nightwatch_availability", "nightwatch_book"];
+const calendarNames = ["nightwatch_availability", "nightwatch_book", "request_email_followup", "schedule_callback", "suppress_contact", "request_human_followup"];
 
 export function voiceAssistantPayload(value: unknown, secret: string) {
   if (secret.length < 32) throw new Error("Configure a strong VAPI_WEBHOOK_SECRET first.");
@@ -21,20 +21,31 @@ export function voiceAssistantPayload(value: unknown, secret: string) {
   const date = { type: "string", description: "ISO 8601 date and time with explicit UTC offset" };
   return {
     name: "Alex | Nine-67",
-    firstMessage: "Hi, this is Alex with Nine-67. Is now a good time for a quick question?",
+    firstMessage: "Hi, this is Alex, Nine-67's AI assistant. Am I speaking with the person who handles this workflow?",
     maxDurationSeconds: 300,
+    backgroundSound: "off",
+    startSpeakingPlan: { waitSeconds: 0.4 },
+    stopSpeakingPlan: { numWords: 0, voiceSeconds: 0.2, backoffSeconds: 1 },
+    voicemailMessage: "",
+    voicemailDetection: { provider: "vapi" },
     model: {
       ...current.model,
       messages: [{ role: "system", content: VOICE_INSTRUCTIONS }],
       tools: [
         ...retained,
-        { type: "function", function: { name: "nightwatch_availability", description: "Find available 30-minute meetings with Suuchi, respecting preferred hours, pickup and 15-minute buffers.", parameters: { type: "object", properties: { start: date, end: date, prospectRequested: { type: "boolean", description: "True only if the prospect explicitly requests a time outside preferred hours" } }, required: ["start", "end", "prospectRequested"] } } },
-        { type: "function", function: { name: "nightwatch_book", description: "Create an explicitly confirmed meeting and email its invitation. Rechecks availability. Only confirm success after this tool succeeds.", parameters: { type: "object", properties: { start: date, email: { type: "string" }, confirmed: { type: "boolean" }, prospectRequested: { type: "boolean" } }, required: ["start", "email", "confirmed", "prospectRequested"] } } },
+        { type: "function", function: { name: "nightwatch_availability", description: "Find available 15-minute meetings with Suuchi, respecting preferred hours, pickup and 15-minute buffers.", parameters: { type: "object", properties: { start: date, end: date, timezone: { type: "string", description: "Prospect-confirmed IANA timezone" }, prospectRequested: { type: "boolean", description: "True only if the prospect explicitly requests a time outside preferred hours" } }, required: ["start", "end", "timezone", "prospectRequested"] } } },
+        { type: "function", function: { name: "nightwatch_book", description: "Book only a slot returned for this call after explicit agreement. Internal rehearsals simulate booking without inviting prospects.", parameters: { type: "object", properties: { slot_id: { type: "string" }, email: { type: "string" }, confirmed: { type: "boolean" } }, required: ["slot_id", "email", "confirmed"] } } },
+        ...[
+          { name: "request_email_followup", description: "Save an explicitly requested email for human review. This does not send email.", extra: { email: { type: "string" }, confirmed: { type: "boolean" } }, required: ["email", "confirmed"] },
+          { name: "schedule_callback", description: "Save an explicitly agreed callback date and timezone. Never infer permission from vague interest.", extra: { start: date, timezone: { type: "string" }, confirmed: { type: "boolean" } }, required: ["start", "timezone", "confirmed"] },
+          { name: "suppress_contact", description: "Immediately suppress voice for stop-calling requests, or all outreach for remove-me requests. Uses the current authenticated call's contact.", extra: { scope: { type: "string", enum: ["voice", "all"] } }, required: ["scope"] },
+          { name: "request_human_followup", description: "Save an actionable human task. Use category decline to stop the current sequence, wrong_number to hold voice, referral to record a correction, question for unknown details, or suppression_failure for an urgent opt-out problem.", extra: { category: { type: "string", enum: ["question", "decline", "wrong_number", "referral", "suppression_failure"] } }, required: ["category"] },
+        ].map(item => ({ type: "function", function: { name: item.name, description: item.description, parameters: { type: "object", properties: { reason: { type: "string" }, expressed_words: { type: "string", description: "Actual prospect words supporting this request" }, ...item.extra }, required: ["reason", "expressed_words", ...item.required] } } })),
         { type: "transferCall", destinations: [{ type: "number", number: VOICE_BOOKING.transferNumber, description: "Transfer to Josh only after the caller asks to speak with a person and agrees. Never transfer a test call already connected to Josh's own number.", message: "I'll try connecting you with Josh now.", transferPlan: { mode: "blind-transfer" } }] },
         { type: "endCall" },
       ],
     },
     server: { url: callback, headers: { Authorization: `Bearer ${secret}` } },
-    serverMessages: ["tool-calls"],
+    serverMessages: ["tool-calls", "end-of-call-report"],
   };
 }

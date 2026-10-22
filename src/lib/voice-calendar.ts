@@ -21,22 +21,22 @@ export async function voiceAvailability(start: string, end: string, prospectRequ
   if (!response.ok) throw new Error("Could not check Suuchi's calendar.");
   const busy = checkedBusy(await response.json());
   const slots: Array<{ start: string; end: string }> = [];
-  for (let at = Math.ceil(from / 900_000) * 900_000; at + 1_800_000 <= to && slots.length < 8; at += 900_000) {
-    const a = new Date(at).toISOString(), b = new Date(at + 1_800_000).toISOString();
+  for (let at = Math.ceil(from / 900_000) * 900_000; at + VOICE_BOOKING.durationMinutes * 60_000 <= to && slots.length < 8; at += 900_000) {
+    const a = new Date(at).toISOString(), b = new Date(at + VOICE_BOOKING.durationMinutes * 60_000).toISOString();
     if (voiceSlotAllowed(a, b, prospectRequested) && voiceSlotClear(a, b, busy)) slots.push({ start: a, end: b });
   }
-  return { slots, timeZone: VOICE_BOOKING.timeZone, durationMinutes: 30 };
+  return { slots, timeZone: VOICE_BOOKING.timeZone, durationMinutes: VOICE_BOOKING.durationMinutes };
 }
 
 export async function voiceBook(input: { start: string; email: string; prospectRequested: boolean; confirmed: boolean }, callId: string) {
-  const end = new Date(Date.parse(input.start) + 1_800_000).toISOString();
+  const end = new Date(Date.parse(input.start) + VOICE_BOOKING.durationMinutes * 60_000).toISOString();
   if (!input.confirmed) throw new Error("Confirm the prospect's email, date, time and time zone before booking.");
   if (!voiceSlotAllowed(input.start, end, input.prospectRequested)) throw new Error("That meeting conflicts with Suuchi's scheduling rules.");
   await calendarToken();
   return createInvite(VOICE_BOOKING.owner, {
     summary: "Nine-67: workflow conversation with Suuchi", start: input.start, end,
     timeZone: VOICE_BOOKING.timeZone, attendee: input.email,
-    description: "30-minute workflow conversation with Suuchi at Nine-67, arranged by the Nine-67 AI assistant.",
+    description: "15-minute workflow conversation with Suuchi at Nine-67, arranged by the Nine-67 AI assistant.",
     bookingKey: `voice:${callId}:${input.start}:${input.email.toLowerCase()}`, bufferMinutes: 15,
   });
 }

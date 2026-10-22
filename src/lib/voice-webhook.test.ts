@@ -14,10 +14,19 @@ function webhook(env: Record<string, string | undefined>) {
   }).outputText;
   runInNewContext(code, {
     exports, Buffer, Response, process: { env },
-    require: (name: string) => name === "@/lib/voice-calendar" ? {
-      voiceAvailability: async () => { calls++; return { slots: [] }; },
-      voiceBook: async () => { calls++; return { htmlLink: "https://example.com/event" }; },
-    } : require(name),
+    require: (name: string) => {
+      if (name === "@/lib/voice-analysis") return { voiceStructuredResult: () => null };
+      if (name === "@/lib/voice-runtime") return {
+        boundVoiceAttempt: async (id: string) => { if (id === "unknown") throw new Error("Unknown call"); return { id: "attempt-1" }; },
+        executeVoiceTool: async (_attempt: unknown, _id: string, _name: string, args: unknown) => {
+          const input = args as { start?: string };
+          if (!input.start || !Number.isFinite(Date.parse(input.start))) throw new Error("Invalid date");
+          calls++; return { slots: [] };
+        },
+        saveVoiceReport: async () => { calls++; return {}; },
+      };
+      return require(name);
+    },
   });
   return { post: exports.POST as (request: Request) => Promise<Response>, calls: () => calls };
 }
@@ -49,5 +58,19 @@ test("voice tool results preserve IDs and validate inputs without calendar acces
   const passed = await hook.post(request(payload()));
   const success = await passed.json() as { results: Array<{ result: string }> };
   assert.equal(JSON.parse(success.results[0].result).success, true);
+  assert.equal(hook.calls(), 1);
+});
+
+test("voice callback rejects unbound calls before executing tools", async () => {
+  const hook = webhook({ VAPI_WEBHOOK_SECRET: "secret", VAPI_ASSISTANT_ID: "assistant-1" });
+  const data = payload();
+  data.message.call.id = "unknown";
+  assert.equal((await hook.post(request(data))).status, 409);
+  assert.equal(hook.calls(), 0);
+});
+test("authenticated end-of-call report is persisted without executing a tool", async () => {
+  const hook = webhook({ VAPI_WEBHOOK_SECRET: "secret", VAPI_ASSISTANT_ID: "assistant-1" });
+  const response = await hook.post(request({ message: { type: "end-of-call-report", call: { id: "call-1", assistantId: "assistant-1" }, endedReason: "customer-ended-call", transcript: "Test conversation" } }));
+  assert.equal(response.status, 200);
   assert.equal(hook.calls(), 1);
 });
