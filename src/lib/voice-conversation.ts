@@ -23,9 +23,16 @@ export function spokenEmailAddress(email: string): string {
   return `${Array.from(local).map(symbol).join(" ")} at ${Array.from(domain).map(symbol).join(" ")}`;
 }
 
+export const VOICE_BRAND_REPLACEMENT = {
+  type: "regex",
+  regex: "(?<![\\w@.-])(?:[Nn]ine|9)[-\\s]67(?![\\w@-]|\\.[a-zA-Z])",
+  value: "Nine Six Seven",
+};
+const brandChunkPlan = { enabled: true, formatPlan: { enabled: true, replacements: [VOICE_BRAND_REPLACEMENT] } };
 export const VOICE_CHOICES = {
-  savannah: { provider: "vapi", voiceId: "Savannah", version: 1 },
-  clara: { provider: "vapi", voiceId: "Clara", version: 2 },
-  sid: { provider: "vapi", voiceId: "Sid", version: 2 },
+  jess: { provider: "vapi", voiceId: "Jess", version: 1, speed: 1.03, chunkPlan: brandChunkPlan },
+  savannah: { provider: "vapi", voiceId: "Savannah", version: 1, chunkPlan: brandChunkPlan },
+  clara: { provider: "vapi", voiceId: "Clara", version: 2, chunkPlan: brandChunkPlan },
+  sid: { provider: "vapi", voiceId: "Sid", version: 2, chunkPlan: brandChunkPlan },
 } as const;
 export type VoiceChoice = keyof typeof VOICE_CHOICES;

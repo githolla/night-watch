@@ -116,3 +116,7 @@ Version `email-followup-v5` offers Savannah V1 as a comparison to Clara V2, chan
 ### CEO email follow-up opening
 
 Version `email-followup-v6` supersedes the explicit-AI introduction in the initial playbook at the user's request. The opening is "Alex with Nine-67" after the recipient's hello. Suuchi's verified sender role is supplied as CEO so Alex can follow up on "an email from our CEO, Suuchi" using the actual workflow. Other sender titles must not be inferred. The caller never claims to be human and directly identifies itself as an automated caller if asked. The phrase "AI assistant" is excluded from conversational wording. This changes the introduction, not prospect dispatch authorization.
+
+### Upbeat voice and brand pronunciation
+
+Version `email-followup-v7` adds the Jess V1 voice candidate with a modest 1.03 speed and upbeat conversational instructions. Spoken introductions now contain the words "Nine Six Seven", never a hyphenated or numeric brand. Voice chunk formatting replaces standalone Nine-67 and 9-67 with those three words before synthesis, without changing email addresses or domains. Apply `configure` with `voiceChoice: "jess"` after deployment. The actual delivery still needs a phone test; no SQL change is required.

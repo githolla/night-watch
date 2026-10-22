@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { VOICE_CHOICES } from "./voice-conversation.ts";
 import { voiceAssistantPayload } from "./voice-assistant.ts";
 
 const secret = "test-webhook-secret-long-enough-for-tests";
@@ -40,8 +41,10 @@ test("outbound greeting waits for hello and selected voice is applied explicitly
   const payload = voiceAssistantPayload(assistant, secret, "clara");
   assert.equal(payload.firstMessageMode, "assistant-waits-for-user");
   assert.equal(payload.firstMessageInterruptionsEnabled, true);
-  assert.deepEqual(payload.voice, { provider: "vapi", voiceId: "Clara", version: 2 });
+  assert.deepEqual(payload.voice, VOICE_CHOICES.clara);
   assert.equal(voiceAssistantPayload(assistant, secret, "sid").voice?.voiceId, "Sid");
-  assert.deepEqual(voiceAssistantPayload(assistant, secret, "savannah").voice, { provider: "vapi", voiceId: "Savannah", version: 1 });
+  assert.deepEqual(voiceAssistantPayload(assistant, secret, "savannah").voice, VOICE_CHOICES.savannah);
   assert.equal(payload.stopSpeakingPlan.numWords, 1);
+  assert.equal(voiceAssistantPayload(assistant, secret, "jess").voice?.voiceId, "Jess");
+  assert.match(payload.firstMessage, /Nine Six Seven/);
 });
