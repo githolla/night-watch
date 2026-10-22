@@ -1,4 +1,4 @@
-import { VOICE_TURN_TIMING } from "./voice-conversation.ts";
+import { VOICE_TURN_TIMING, VOICE_CHOICES, type VoiceChoice } from "./voice-conversation.ts";
 import { z } from "zod";
 import { VOICE_BOOKING, VOICE_INSTRUCTIONS } from "./voice-booking.ts";
 
@@ -11,7 +11,7 @@ const existingAssistant = z.object({
 const tool = z.object({ type: z.string(), function: z.object({ name: z.string().optional() }).optional() }).passthrough();
 const calendarNames = ["nightwatch_availability", "nightwatch_book", "request_email_followup", "schedule_callback", "suppress_contact", "request_human_followup"];
 
-export function voiceAssistantPayload(value: unknown, secret: string) {
+export function voiceAssistantPayload(value: unknown, secret: string, voiceChoice?: VoiceChoice) {
   if (secret.length < 32) throw new Error("Configure a strong VAPI_WEBHOOK_SECRET first.");
   const current = existingAssistant.parse(value);
   if (current.server?.url && current.server.url !== callback) throw new Error("Assistant uses another server integration; review it before replacing it.");
@@ -22,6 +22,7 @@ export function voiceAssistantPayload(value: unknown, secret: string) {
   const date = { type: "string", description: "ISO 8601 date and time with explicit UTC offset" };
   return {
     name: "Alex | Nine-67",
+    ...(voiceChoice ? { voice: VOICE_CHOICES[voiceChoice] } : {}),
     firstMessage: "Hi, this is Alex, Nine-67's AI assistant. Am I speaking with the person who handles this workflow?",
     maxDurationSeconds: 300,
     backgroundSound: "off",

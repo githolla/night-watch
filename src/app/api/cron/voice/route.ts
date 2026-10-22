@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   }
 }
 
-const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional() });
+const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), voiceChoice: z.enum(["clara", "sid"]).optional() });
 
 export async function POST(request: Request) {
   if (!cronAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     if (number.assistantId && number.assistantId !== input.assistantId) throw new Error("This number is assigned to another assistant; review routing first.");
     if (input.action === "enable-us-calling") return Response.json({ ok: true, ...await enableUsVoiceCalling(phone) });
     if (input.action === "transport-check") return Response.json({ ok: true, transport: await checkVoiceTransport(phone) });
-    const payload = voiceAssistantPayload(assistant, process.env.VAPI_WEBHOOK_SECRET ?? "");
+    const payload = voiceAssistantPayload(assistant, process.env.VAPI_WEBHOOK_SECRET ?? "", input.voiceChoice);
     let followup: ReturnType<typeof voiceFollowup> | null = null;
     if (["followup-preview", "test-followup"].includes(input.action)) {
       const tasks = await loadCallTasks(admin(), "suuchi");
@@ -80,6 +80,7 @@ export async function POST(request: Request) {
         assistantOverrides: {
           maxDurationSeconds: VOICE_TEST_DURATION_SECONDS,
           ...VOICE_TURN_TIMING,
+          ...(payload.voice ? { voice: payload.voice } : {}),
           variableValues: { first_name: followup?.context.first_name ?? "Josh", full_name: followup?.context.full_name ?? "Josh", call_context: JSON.stringify(followup?.context ?? { internal: true }) },
           firstMessage: followup?.firstMessage ?? "Hi Josh, this is Alex, Nine-67's AI assistant. Can you hear me clearly?",
           model: { ...payload.model, messages: [{ role: "system", content: `${VOICE_INSTRUCTIONS}\n${followup ? followup.instructions + "\nThis is an internal roleplay with Josh acting as the named prospect. Use the supplied email context for the roleplay. No prospect is being called. If asked, explain that this is a rehearsal." : "This is an internal test with Josh, not a prospect call. No prospect email or company history is provided. Say so if asked."} Help Josh test natural conversation and calendar availability. Do not transfer: Josh is already on the destination phone. Do not create a calendar event unless Josh explicitly requests a test invitation and confirms the attendee email and time.` }] },
@@ -102,7 +103,7 @@ export async function POST(request: Request) {
       await vapiRequest(`/assistant/${input.assistantId}`, "PATCH", { ...payload, artifactPlan: { ...currentArtifacts, structuredOutputIds: [...new Set([...priorOutputs, outputId])] } });
       await vapiRequest(`/phone-number/${input.phoneNumberId}`, "PATCH", { assistantId: input.assistantId });
     }
-    return Response.json({ ok: true, action: input.action, assistantId: input.assistantId, phoneNumber: VOICE_BOOKING.callerNumber, tools: ["nightwatch_availability", "nightwatch_book", "request_email_followup", "schedule_callback", "suppress_contact", "request_human_followup", "transferCall", "endCall"], callsPlaced: 0 });
+    return Response.json({ ok: true, action: input.action, assistantId: input.assistantId, phoneNumber: VOICE_BOOKING.callerNumber, ...(input.voiceChoice ? { voiceChoice: input.voiceChoice } : {}), tools: ["nightwatch_availability", "nightwatch_book", "request_email_followup", "schedule_callback", "suppress_contact", "request_human_followup", "transferCall", "endCall"], callsPlaced: 0 });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Could not configure Vapi" }, { status: 400 });
   }

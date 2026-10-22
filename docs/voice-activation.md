@@ -100,3 +100,9 @@ Call `01a1648f-b29d-7000-80e5-ee86d20ab2b1` ended with `exceeded-max-duration`, 
 Version `email-followup-v3` changes the internal limit to 600 seconds, applies LiveKit turn endpointing to configuration and call overrides, adds 2.5-second waits around email/address fragments, and suppresses automatic function-tool start fillers. It instructs Alex to discard rejected email guesses, collect local part and domain separately after a correction, escalate after two failed attempts, and wait for the caller after reporting a booking result. Tool results return the exact accepted attendee and a deterministic spoken spelling. External calls retain the existing five-minute cap.
 
 Validation: email-spelling, timing configuration, tool-filler and internal-duration regressions are covered by automated tests. This is a candidate fix; a fresh phone test is still required for perceived fluidity, interruption behavior and the booking close. No new SQL migration is needed. Deploy and run `configure` before testing so the new timing also applies to the live assistant.
+
+### Greeting and alternate voice candidate
+
+Version `email-followup-v4` sets `firstMessageMode=assistant-waits-for-user` on the assistant and internal call overrides, and allows interruptions during the first message. Alex should wait for the recipient's greeting rather than speak as soon as the line connects. Phone verification is still required.
+
+The authenticated configure action accepts `voiceChoice: "clara"` or `"sid"`. Clara is a natural American female Vapi V2 voice; Sid is a calm American male Vapi V2 voice. An omitted choice preserves the currently selected voice. The proposed next test uses Clara, pending the user's preference. Native Vapi voice settings are applied without changing calendar or outreach authorization. No new SQL is required.

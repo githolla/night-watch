@@ -96,5 +96,6 @@ test("internal booking rehearsals have enough time to finish confirmation", asyn
   const call = hook.requests.find(item => item.path === "/call");
   const body = call?.body as { assistantOverrides: { maxDurationSeconds: number; startSpeakingPlan: { smartEndpointingPlan: { provider: string } } } };
   assert.ok(body.assistantOverrides.maxDurationSeconds >= 600);
+  assert.equal((call?.body as { assistantOverrides: { firstMessageMode: string } }).assistantOverrides.firstMessageMode, "assistant-waits-for-user");
   assert.equal(body.assistantOverrides.startSpeakingPlan.smartEndpointingPlan.provider, "livekit");
 });

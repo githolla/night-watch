@@ -35,3 +35,11 @@ test("conversation timing waits for email fragments and suppresses automatic too
     assert.deepEqual(tool.messages, [{ type: "request-start", content: "" }]);
   }
 });
+
+test("outbound greeting waits for hello and selected voice is applied explicitly", () => {
+  const payload = voiceAssistantPayload(assistant, secret, "clara");
+  assert.equal(payload.firstMessageMode, "assistant-waits-for-user");
+  assert.equal(payload.firstMessageInterruptionsEnabled, true);
+  assert.deepEqual(payload.voice, { provider: "vapi", voiceId: "Clara", version: 2 });
+  assert.equal(voiceAssistantPayload(assistant, secret, "sid").voice?.voiceId, "Sid");
+});
