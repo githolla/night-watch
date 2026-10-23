@@ -11,9 +11,9 @@ test("voice follow-up uses actual email body and date instead of mutable draft s
   assert.ok(result.instructions.includes(task.emailBody));
   assert.equal(result.context.email_sender_role, "CEO");
   assert.equal(result.context.email_sender_name, "Suuchi");
-  assert.equal(result.context.email_sender_name_spoken, "Sue-chee");
-  assert.equal(result.context.meeting_host_spoken, "Sue-chee");
-  assert.match(result.instructions, /email from our CEO, Sue-chee/);
+  assert.equal(result.context.email_sender_name_spoken, "Sue Chi");
+  assert.equal(result.context.meeting_host_spoken, "Sue Chi");
+  assert.match(result.instructions, /email from our CEO, Sue Chi/);
   assert.equal(result.firstMessage.includes("AI assistant"), false);
   assert.ok(result.instructions.includes("October 21, 2026"));
   assert.ok(!result.instructions.includes("Mutable draft subject"));
