@@ -67,6 +67,7 @@ test("internal call test is restricted to Josh even when another destination is 
   assert.equal(response.status, 200);
   const call = hook.requests.find(item => item.path === "/call");
   assert.equal((call?.body as { customer: { number: string } }).customer.number, VOICE_BOOKING.transferNumber);
+  assert.equal((call?.body as { assistantOverrides: { voicemailDetection: string } }).assistantOverrides.voicemailDetection, "off");
   assert.equal(hook.requests.filter(item => item.method === "POST").length, 1);
 });
 test("voice setup cannot reassign an unexpected originating phone number", async () => {

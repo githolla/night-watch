@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   }
 }
 
-const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), voiceChoice: z.enum(["clara", "sid", "savannah", "jess"]).optional() });
+const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
 
 export async function POST(request: Request) {
   if (!cronAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -51,7 +51,9 @@ export async function POST(request: Request) {
       const raw = z.record(z.string(), z.unknown()).parse(await vapiRequest(`/call/${input.callId}`));
       const call = z.object({ id: z.string(), assistantId: z.string(), customer: z.object({ number: z.literal(VOICE_BOOKING.transferNumber) }), status: z.string(), endedReason: z.string().optional(), endedMessage: z.string().optional(), transcript: z.string().optional(), phoneCallProviderId: z.string().optional(), cost: z.number().optional() }).parse(raw);
       if (call.assistantId !== input.assistantId) throw new Error("Call belongs to another assistant.");
-      return Response.json({ ok: true, call, diagnosticFields: Object.keys(raw), artifactFields: raw.artifact && typeof raw.artifact === "object" ? Object.keys(raw.artifact) : [] });
+      const turns = z.array(z.object({ role: z.string(), message: z.string().optional(), secondsFromStart: z.number().optional(), duration: z.number().optional() })).safeParse(raw.messages);
+      const firstTurns = turns.success ? turns.data.filter(turn => ["user", "bot", "assistant"].includes(turn.role)).slice(0, 4).map(turn => ({ ...turn, message: turn.message?.slice(0, 200) })) : [];
+      return Response.json({ ok: true, call, firstTurns, diagnosticFields: Object.keys(raw), artifactFields: raw.artifact && typeof raw.artifact === "object" ? Object.keys(raw.artifact) : [] });
     }
     const [assistant, phone] = await Promise.all([
       vapiRequest(`/assistant/${input.assistantId}`), vapiRequest(`/phone-number/${input.phoneNumberId}`),
@@ -80,6 +82,7 @@ export async function POST(request: Request) {
         assistantOverrides: {
           maxDurationSeconds: VOICE_TEST_DURATION_SECONDS,
           ...VOICE_TURN_TIMING,
+          voicemailDetection: "off",
           ...(payload.voice ? { voice: payload.voice } : {}),
           variableValues: { first_name: followup?.context.first_name ?? "Josh", full_name: followup?.context.full_name ?? "Josh", call_context: JSON.stringify(followup?.context ?? { internal: true }) },
           firstMessage: followup?.firstMessage ?? "Hi Josh, this is Alex with Nine Six Seven. Can you hear me clearly?",
@@ -103,7 +106,8 @@ export async function POST(request: Request) {
       await vapiRequest(`/assistant/${input.assistantId}`, "PATCH", { ...payload, artifactPlan: { ...currentArtifacts, structuredOutputIds: [...new Set([...priorOutputs, outputId])] } });
       await vapiRequest(`/phone-number/${input.phoneNumberId}`, "PATCH", { assistantId: input.assistantId });
     }
-    return Response.json({ ok: true, action: input.action, assistantId: input.assistantId, phoneNumber: VOICE_BOOKING.callerNumber, ...(input.voiceChoice ? { voiceChoice: input.voiceChoice } : {}), tools: ["nightwatch_availability", "nightwatch_book", "request_email_followup", "schedule_callback", "suppress_contact", "request_human_followup", "transferCall", "endCall"], callsPlaced: 0 });
+    const voice = z.object({ voice: z.object({ provider: z.string(), voiceId: z.string(), version: z.number().optional(), language: z.string().optional() }).optional() }).parse(assistant).voice;
+    return Response.json({ ok: true, action: input.action, assistantId: input.assistantId, phoneNumber: VOICE_BOOKING.callerNumber, ...(input.voiceChoice ? { voiceChoice: input.voiceChoice } : {}), voice: payload.voice ?? voice, timing: VOICE_TURN_TIMING, tools: ["nightwatch_availability", "nightwatch_book", "request_email_followup", "schedule_callback", "suppress_contact", "request_human_followup", "transferCall", "endCall"], callsPlaced: 0 });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Could not configure Vapi" }, { status: 400 });
   }

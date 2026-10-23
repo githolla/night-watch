@@ -46,6 +46,7 @@ test("outbound greeting waits for hello and selected voice is applied explicitly
   assert.deepEqual(voiceAssistantPayload(assistant, secret, "savannah").voice, VOICE_CHOICES.savannah);
   assert.equal(payload.stopSpeakingPlan.numWords, 1);
   assert.equal(voiceAssistantPayload(assistant, secret, "jess").voice?.voiceId, "Jess");
+  assert.deepEqual(voiceAssistantPayload(assistant, secret, "elliot").voice, { provider: "vapi", voiceId: "Elliot", version: 2, language: "en" });
   assert.match(payload.firstMessage, /Nine Six Seven/);
 });
 
@@ -55,6 +56,6 @@ test("a simple hello gets a fast response while email dictation retains its long
   const email = plan.customEndpointingRules.find(rule => rule.type === "customer" && new RegExp(rule.regex).test("joshlee at nine six seven"));
   assert.ok(hello && hello.timeoutSeconds <= 0.2);
   assert.ok(email && email.timeoutSeconds >= 2);
-  assert.ok(plan.waitSeconds <= 0.25);
+  assert.ok(plan.waitSeconds <= 0.15);
   assert.equal(plan.customEndpointingRules.some(rule => rule.timeoutSeconds < 1 && new RegExp(rule.regex).test("Hello, I'm still giving you my email address")), false);
 });

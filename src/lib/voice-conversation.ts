@@ -4,10 +4,10 @@ export const VOICE_TURN_TIMING = {
   firstMessageMode: "assistant-waits-for-user",
   firstMessageInterruptionsEnabled: true,
   startSpeakingPlan: {
-    waitSeconds: 0.25,
+    waitSeconds: 0.15,
     smartEndpointingPlan: {
       provider: "livekit",
-      waitFunction: "(20 + 500 * sqrt(x) + 2500 * x^3 + 700 + 4000 * max(0, x-0.5)) / 2",
+      waitFunction: "2000 / (1 + exp(-10 * (x - 0.5)))",
     },
     customEndpointingRules: [
       { type: "customer", regex: "^\\s*(?:[Hh]ello|[Hh]i|[Hh]ey)(?: there)?[.!?\\s]*$", timeoutSeconds: 0.12 },
@@ -31,6 +31,7 @@ export const VOICE_BRAND_REPLACEMENT = {
 };
 const brandChunkPlan = { enabled: true, formatPlan: { enabled: true, replacements: [VOICE_BRAND_REPLACEMENT] } };
 export const VOICE_CHOICES = {
+  elliot: { provider: "vapi", voiceId: "Elliot", version: 2, language: "en" },
   jess: { provider: "vapi", voiceId: "Jess" },
   savannah: { provider: "vapi", voiceId: "Savannah" },
   clara: { provider: "vapi", voiceId: "Clara", version: 2, chunkPlan: brandChunkPlan },
