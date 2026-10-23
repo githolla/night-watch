@@ -83,7 +83,7 @@ export async function POST(request: Request) {
           maxDurationSeconds: VOICE_TEST_DURATION_SECONDS,
           ...VOICE_TURN_TIMING,
           voicemailDetection: input.testVoicemail ? { provider: "vapi" } : "off",
-          ...(input.testVoicemail ? { voicemailMessage: "Hi, this is Alex with Nine Six Seven, following up on an email from our CEO, Sue Chi. You can reply to her email or call two zero one, five eight one, four three zero nine. Thank you." } : {}),
+          ...(input.testVoicemail ? { voicemailMessage: "Hi, this is Alex with Nine Six Seven, following up on an email from Nine Six Seven. You can reply to that email or call two zero one, five eight one, four three zero nine. Thank you." } : {}),
           ...(payload.voice ? { voice: payload.voice } : {}),
           variableValues: { first_name: followup?.context.first_name ?? "Josh", full_name: followup?.context.full_name ?? "Josh", call_context: JSON.stringify(followup?.context ?? { internal: true }) },
           firstMessage: followup?.firstMessage ?? "Hi Josh, this is Alex with Nine Six Seven. Can you hear me clearly?",

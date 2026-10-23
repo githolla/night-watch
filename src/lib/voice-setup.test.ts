@@ -120,6 +120,6 @@ test("internal voicemail rehearsal enables detection and leaves the approved fol
   const body = hook.requests.find(item => item.path === "/call")?.body as { customer: { number: string }; assistantOverrides: { voicemailDetection: { provider: string }; voicemailMessage: string } };
   assert.equal(body.customer.number, VOICE_BOOKING.transferNumber);
   assert.equal(body.assistantOverrides.voicemailDetection.provider, "vapi");
-  assert.match(body.assistantOverrides.voicemailMessage, /Sue Chi/);
-  assert.match(body.assistantOverrides.voicemailMessage, /reply to her email/);
+  assert.doesNotMatch(body.assistantOverrides.voicemailMessage, /Suuchi|Sue Chi|CEO/);
+  assert.match(body.assistantOverrides.voicemailMessage, /reply to that email/);
 });
