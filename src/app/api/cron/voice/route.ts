@@ -1,3 +1,4 @@
+import { auditVoicePhones } from "@/lib/voice-phone-audit";
 import { VOICE_TEST_DURATION_SECONDS, VOICE_TURN_TIMING } from "@/lib/voice-conversation";
 import { prepareVoiceQueue } from "@/lib/voice-queue";
 import { ensureVoiceStructuredOutput, voiceStructuredResult } from "@/lib/voice-analysis";
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
   }
 }
 
-const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), testVoicemail: z.boolean().optional(), liveCalendarTest: z.boolean().default(false), testRecipient: z.enum(["josh", "suuchi"]).default("josh"), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
+const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh", "phone-audit"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), testVoicemail: z.boolean().optional(), liveCalendarTest: z.boolean().default(false), testRecipient: z.enum(["josh", "suuchi"]).default("josh"), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
 
 export async function POST(request: Request) {
   if (!cronAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -60,6 +61,7 @@ export async function POST(request: Request) {
     ]);
     const number = z.object({ number: z.literal(VOICE_BOOKING.callerNumber), assistantId: z.string().nullable().optional() }).parse(phone);
     if (number.assistantId && number.assistantId !== input.assistantId) throw new Error("This number is assigned to another assistant; review routing first.");
+    if (input.action === "phone-audit") return Response.json({ ok: true, ...await auditVoicePhones(phone, input.taskId), callsPlaced: 0 });
     if (input.action === "enable-us-calling") return Response.json({ ok: true, ...await enableUsVoiceCalling(phone) });
     if (input.action === "transport-check") return Response.json({ ok: true, transport: await checkVoiceTransport(phone) });
     const payload = voiceAssistantPayload(assistant, process.env.VAPI_WEBHOOK_SECRET ?? "", input.voiceChoice);

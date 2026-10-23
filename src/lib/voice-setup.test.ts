@@ -18,6 +18,7 @@ function route(number: string = VOICE_BOOKING.callerNumber, voice?: Record<strin
   runInNewContext(ts.transpileModule(readFileSync(new URL("../app/api/cron/voice/route.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
     exports, Response, Date, process: { env: { VAPI_ASSISTANT_ID: assistantId, VAPI_WEBHOOK_SECRET: "test-secret-that-is-long-enough-for-testing" } },
     require: (name: string) => {
+      if (name === "@/lib/voice-phone-audit") return { auditVoicePhones: async () => ({ checked: [], errors: [] }) };
       if (name === "@/lib/voice-conversation") return { VOICE_TEST_DURATION_SECONDS, VOICE_TURN_TIMING };
       if (name === "@/lib/voice-queue") return { prepareVoiceQueue: async () => ({ queued: 0, held: [], externalDispatchEnabled: false }) };
       if (name === "@/lib/voice-analysis") return { ensureVoiceStructuredOutput: async () => "output-1", voiceStructuredResult: () => null };
