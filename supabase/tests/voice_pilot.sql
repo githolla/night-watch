@@ -1,4 +1,6 @@
+-- Run only through scripts/test-voice-database.sh against its isolated database.
 begin;
+insert into people values ('00000000-0000-4000-8000-000000000001','pilot-one@example.test',false), ('00000000-0000-4000-8000-000000000003','pilot-two@example.test',false);
 update voice_pilot_config set enabled=false, starts_at=now()-interval '1 hour', ends_at=now()+interval '1 day', daily_limit=1;
 insert into voice_eligibility(person_id,timezone,timezone_source,approved_until,approved_by,delay_business_days,approval_basis,approval_evidence,approved_number)
 select '00000000-0000-4000-8000-000000000001',name,'Isolated test',now()+interval '1 day','test',1,'written_consent','Test fixture','+15555550100' from pg_timezone_names where extract(isodow from now() at time zone name) between 1 and 5 and extract(hour from now() at time zone name) between 9 and 16 limit 1;

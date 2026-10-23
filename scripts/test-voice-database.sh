@@ -8,4 +8,6 @@ pg_ctl -D "$voice_test_dir/data" -l "$voice_test_dir/server.log" -o "-F -k $voic
 psql -h "$voice_test_dir" -p 55439 -d postgres -v ON_ERROR_STOP=1 \
   -f supabase/tests/voice_fixture.sql \
   -f supabase/migrations/0035_voice_followup.sql \
-  -f supabase/tests/voice_followup.sql
+  -f supabase/tests/voice_followup.sql \
+  -f supabase/migrations/0036_voice_pilot.sql \
+  -f supabase/tests/voice_pilot.sql
