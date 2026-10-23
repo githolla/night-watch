@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   }
 }
 
-const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
+const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), testVoicemail: z.boolean().optional(), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
 
 export async function POST(request: Request) {
   if (!cronAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -82,7 +82,8 @@ export async function POST(request: Request) {
         assistantOverrides: {
           maxDurationSeconds: VOICE_TEST_DURATION_SECONDS,
           ...VOICE_TURN_TIMING,
-          voicemailDetection: "off",
+          voicemailDetection: input.testVoicemail ? { provider: "vapi" } : "off",
+          ...(input.testVoicemail ? { voicemailMessage: "Hi, this is Alex with Nine Six Seven, following up on an email from our CEO, Sue-chee. You can reply to her email or call two zero one, five eight one, four three zero nine. Thank you." } : {}),
           ...(payload.voice ? { voice: payload.voice } : {}),
           variableValues: { first_name: followup?.context.first_name ?? "Josh", full_name: followup?.context.full_name ?? "Josh", call_context: JSON.stringify(followup?.context ?? { internal: true }) },
           firstMessage: followup?.firstMessage ?? "Hi Josh, this is Alex with Nine Six Seven. Can you hear me clearly?",

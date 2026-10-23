@@ -109,3 +109,17 @@ test("internal booking rehearsals have enough time to finish confirmation", asyn
   assert.equal((call?.body as { assistantOverrides: { firstMessageMode: string } }).assistantOverrides.firstMessageMode, "assistant-waits-for-user");
   assert.equal(body.assistantOverrides.startSpeakingPlan.smartEndpointingPlan.provider, "livekit");
 });
+
+test("internal voicemail rehearsal enables detection and leaves the approved follow-up message", async () => {
+  const hook = route();
+  const response = await hook.post(new Request("https://example.com/api/cron/voice", {
+    method: "POST", headers: { authorization: "Bearer test-cron", "content-type": "application/json" },
+    body: JSON.stringify({ action: "test-followup", assistantId, phoneNumberId, testVoicemail: true }),
+  }));
+  assert.equal(response.status, 200);
+  const body = hook.requests.find(item => item.path === "/call")?.body as { customer: { number: string }; assistantOverrides: { voicemailDetection: { provider: string }; voicemailMessage: string } };
+  assert.equal(body.customer.number, VOICE_BOOKING.transferNumber);
+  assert.equal(body.assistantOverrides.voicemailDetection.provider, "vapi");
+  assert.match(body.assistantOverrides.voicemailMessage, /Sue-chee/);
+  assert.match(body.assistantOverrides.voicemailMessage, /reply to her email/);
+});
