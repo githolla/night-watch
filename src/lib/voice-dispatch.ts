@@ -28,11 +28,11 @@ export async function dispatchVoicePilot() {
     const task = tasks.find(item => item.id === attempt.task_id && item.personId === attempt.person_id && item.plan.status === "pending");
     if (!task) throw new Error("Contact is no longer eligible: reply, bounce, meeting, opt-out or changed call plan.");
     const read = await db.from("voice_eligibility").select("*").eq("person_id", attempt.person_id).single();
-    if (read.error) throw new Error("Could not refresh calling approval.");
+    if (read.error) throw new Error("Could not refresh automated-calling eligibility.");
     const approval = approvalSchema.parse(read.data);
     const digits = task.plan.phone?.number.replace(/\D/g, "") ?? "";
     const destination = `+${digits.length === 10 ? "1" : ""}${digits}`;
-    if (approval.approved_number !== attempt.destination || destination !== attempt.destination) throw new Error("Phone number changed after approval.");
+    if (approval.approved_number !== attempt.destination || destination !== attempt.destination) throw new Error("Phone number no longer matches the recorded eligibility evidence.");
     const followup = await currentVoiceFollowup(task, approval.timezone);
     const now = new Date();
     const eligibility = voiceEligibility({ sentAt: task.plan.firstEmailAt, hasBody: Boolean(followup.context.email_body.trim() && followup.context.email_subject), hasBounce: task.bounced, hasReply: false, hasMeeting: false, suppressed: false, activeCall: false, timezone: approval.timezone, generatedAt: followup.context.context_generated_at, expiresAt: approval.approved_until, eligibilityApproved: true }, now, approval.delay_business_days);

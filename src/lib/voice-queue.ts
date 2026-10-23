@@ -11,19 +11,19 @@ export async function prepareVoiceQueue() {
     db.from("voice_eligibility").select("*"),
     db.from("voice_suppressions").select("person_id"),
   ]);
-  if (approvals.error || suppressions.error) throw new Error("Voice approval and suppression checks are unavailable. Nothing queued.");
+  if (approvals.error || suppressions.error) throw new Error("Calling eligibility and suppression checks are unavailable. Nothing queued.");
   const profiles = z.array(z.object({ person_id: z.uuid(), timezone: z.string(), timezone_source: z.string().nullish(), approved_until: z.string(), delay_business_days: z.number(), approval_basis: z.enum(["written_consent", "reviewed_business_landline"]).nullish(), approval_evidence: z.string().nullish(), approved_number: z.string().nullish() })).parse(approvals.data);
   const suppressed = new Set((suppressions.data ?? []).map(item => item.person_id));
   let queued = 0;
   const held: Array<{ taskId: string; name: string; reason: string }> = [];
   for (const task of tasks.filter(item => item.plan.status === "pending")) {
     const profile = profiles.find(item => item.person_id === task.personId);
-    if (!profile || !validVoiceTimezone(profile.timezone) || !profile.timezone_source?.trim() || !Number.isFinite(Date.parse(profile.approved_until)) || Date.parse(profile.approved_until) <= Date.now()) { held.push({ taskId: task.id, name: task.name, reason: "Needs sourced timezone and current calling approval" }); continue; }
+    if (!profile || !validVoiceTimezone(profile.timezone) || !profile.timezone_source?.trim() || !Number.isFinite(Date.parse(profile.approved_until)) || Date.parse(profile.approved_until) <= Date.now()) { held.push({ taskId: task.id, name: task.name, reason: "Needs a sourced timezone and current automated-calling eligibility" }); continue; }
     if (suppressed.has(task.personId)) { held.push({ taskId: task.id, name: task.name, reason: "Voice suppressed" }); continue; }
     const digits = task.plan.phone?.number.replace(/\D/g, "") ?? "";
     if (!/^(1\d{10}|\d{10})$/.test(digits)) { held.push({ taskId: task.id, name: task.name, reason: "Needs a valid US phone number" }); continue; }
     const destination = `+${digits.length === 10 ? "1" : ""}${digits}`;
-    if (!profile.approval_basis || !profile.approval_evidence?.trim() || profile.approved_number !== destination) { held.push({ taskId: task.id, name: task.name, reason: "Needs documented calling eligibility for this exact phone number" }); continue; }
+    if (!profile.approval_basis || !profile.approval_evidence?.trim() || profile.approved_number !== destination) { held.push({ taskId: task.id, name: task.name, reason: "Automated-calling eligibility evidence is missing for this phone number" }); continue; }
     try {
       const context = await currentVoiceFollowup(task, profile.timezone);
       if (!context.context.email_subject) throw new Error("Exact sent subject could not be verified; hold for correction");

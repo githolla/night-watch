@@ -17,9 +17,10 @@ export async function VoicePilotReadiness({ tasks, now }: { tasks: CallTask[]; n
   const active = Boolean(!config.error && config.data?.enabled && checksPassed && now < Date.parse(config.data.ends_at));
   const date = new Date(config.data?.starts_at ?? "2026-10-26T13:00:00Z").toLocaleDateString("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" });
   return <section className="my-4 rounded-xl border border-stone-200 bg-white p-5">
-    <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold text-stone-900">Alex calling pilot</h2><span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">{active ? "Scheduled" : "Not activated"}</span></div>
+    <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold text-stone-900">Alex calling pilot</h2><span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">{active ? "Automatic follow-up scheduled" : config.data?.enabled ? "Launch checks pending" : "Not activated"}</span></div>
     <p className="mt-2 text-sm text-stone-600">{date} · Up to {config.data?.daily_limit ?? 5} calls · One at a time · 9am to 5pm in the recipient’s timezone.</p>
-    <p className="mt-2 text-sm text-stone-700">{pending.length} pending follow-ups · {approvals.error ? "Approval checks unavailable" : `${ready} with documented phone approval`}.</p>
+    <p className="mt-2 text-sm text-stone-600">No per-call approval. By default, Alex follows the first sent email at 10am on the next business day in the recipient’s timezone.</p>
+    <p className="mt-2 text-sm text-stone-700">{pending.length} pending follow-ups · {approvals.error ? "Eligibility checks unavailable" : `${ready} eligible for automatic calling`}.</p>
     {!active && <p className="mt-2 text-sm text-amber-800">Prospect calls are off. Launch requires eligible contacts and successful real booking, voicemail and opt-out tests.</p>}
     <p className="mt-2 text-xs text-stone-500">Alex follows the sent email. Voicemail asks for an email reply or callback. Replies, bounces, opt-outs and existing meetings hold further calls.</p>
   </section>;
