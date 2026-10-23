@@ -123,3 +123,16 @@ test("internal voicemail rehearsal enables detection and leaves the approved fol
   assert.doesNotMatch(body.assistantOverrides.voicemailMessage, /Suuchi|Sue Chi|CEO/);
   assert.match(body.assistantOverrides.voicemailMessage, /reply to that email/);
 });
+
+test("internal rehearsal supports Suuchi only through the named test recipient", async () => {
+  const hook = route();
+  const response = await hook.post(new Request("https://example.com/api/cron/voice", {
+    method: "POST", headers: { authorization: "Bearer test-cron", "content-type": "application/json" },
+    body: JSON.stringify({ action: "test-followup", assistantId, phoneNumberId, testRecipient: "suuchi" }),
+  }));
+  assert.equal(response.status, 200);
+  const call = hook.requests.find(item => item.path === "/call")?.body as { customer: { number: string }; assistantOverrides: { model: { messages: Array<{ content: string }> } } };
+  assert.equal(call.customer.number, "+19178090711");
+  assert.match(call.assistantOverrides.model.messages[0].content, /roleplay with Suuchi/);
+  assert.match(call.assistantOverrides.model.messages[0].content, /Do not transfer during this internal rehearsal/);
+});

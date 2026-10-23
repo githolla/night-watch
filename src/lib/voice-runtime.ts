@@ -13,10 +13,10 @@ export async function boundVoiceAttempt(callId: string): Promise<VoiceAttempt> {
   if (result.error || !result.data) throw new Error("This call has no authenticated Nightwatch attempt. Hold for review.");
   return attemptSchema.parse(result.data);
 }
-export async function reserveInternalVoiceAttempt(input: { taskId?: string; personId?: string; context: Record<string, unknown>; attemptKey: string }) {
+export async function reserveInternalVoiceAttempt(input: { destination?: string; taskId?: string; personId?: string; context: Record<string, unknown>; attemptKey: string }) {
   const db = admin();
   const id = randomUUID();
-  const result = await db.from("voice_attempts").insert({ id, task_id: input.taskId ?? null, person_id: input.personId ?? null, owner: "suuchi", mode: "internal", destination: VOICE_BOOKING.transferNumber, attempt_key: input.attemptKey, status: "creating", context_snapshot: input.context, prompt_version: VOICE_PROMPT_VERSION, eligibility_expires_at: new Date(Date.now() + 300_000).toISOString() }).select("id").single();
+  const result = await db.from("voice_attempts").insert({ id, task_id: input.taskId ?? null, person_id: input.personId ?? null, owner: "suuchi", mode: "internal", destination: z.enum([VOICE_BOOKING.transferNumber, "+19178090711"]).parse(input.destination ?? VOICE_BOOKING.transferNumber), attempt_key: input.attemptKey, status: "creating", context_snapshot: input.context, prompt_version: VOICE_PROMPT_VERSION, eligibility_expires_at: new Date(Date.now() + 300_000).toISOString() }).select("id").single();
   if (result.error) throw new Error("Could not reserve the internal call. Check the voice migration, duplicate attempt or existing active call before retrying.");
   return id;
 }

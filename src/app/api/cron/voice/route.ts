@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   }
 }
 
-const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), testVoicemail: z.boolean().optional(), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
+const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), testVoicemail: z.boolean().optional(), testRecipient: z.enum(["josh", "suuchi"]).default("josh"), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
 
 export async function POST(request: Request) {
   if (!cronAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     if (input.action === "call-status") {
       if (!input.callId) throw new Error("Provide the internal test call ID.");
       const raw = z.record(z.string(), z.unknown()).parse(await vapiRequest(`/call/${input.callId}`));
-      const call = z.object({ id: z.string(), assistantId: z.string(), customer: z.object({ number: z.literal(VOICE_BOOKING.transferNumber) }), status: z.string(), endedReason: z.string().optional(), endedMessage: z.string().optional(), transcript: z.string().optional(), phoneCallProviderId: z.string().optional(), cost: z.number().optional() }).parse(raw);
+      const call = z.object({ id: z.string(), assistantId: z.string(), customer: z.object({ number: z.enum([VOICE_BOOKING.transferNumber, "+19178090711"]) }), status: z.string(), endedReason: z.string().optional(), endedMessage: z.string().optional(), transcript: z.string().optional(), phoneCallProviderId: z.string().optional(), cost: z.number().optional() }).parse(raw);
       if (call.assistantId !== input.assistantId) throw new Error("Call belongs to another assistant.");
       const turns = z.array(z.object({ role: z.string(), message: z.string().optional(), secondsFromStart: z.number().optional(), duration: z.number().optional() })).safeParse(raw.messages);
       const firstTurns = turns.success ? turns.data.filter(turn => ["user", "bot", "assistant"].includes(turn.role)).slice(0, 4).map(turn => ({ ...turn, message: turn.message?.slice(0, 200) })) : [];
@@ -73,21 +73,23 @@ export async function POST(request: Request) {
     }
     if (input.action === "test-call" || input.action === "test-followup") {
       if (number.assistantId !== input.assistantId) throw new Error("Configure and assign the assistant before calling.");
-      const attemptId = await reserveInternalVoiceAttempt({ taskId: followup?.taskId, personId: followup?.personId, context: followup?.context ?? { internal: true, contact: null }, attemptKey: input.attemptKey ?? `internal:${followup?.taskId ?? "audio"}:${Math.floor(Date.now() / 300_000)}` });
+      const testName = input.testRecipient === "suuchi" ? "Suuchi" : "Josh";
+      const destination = input.testRecipient === "suuchi" ? "+19178090711" : VOICE_BOOKING.transferNumber;
+      const attemptId = await reserveInternalVoiceAttempt({ destination, taskId: followup?.taskId, personId: followup?.personId, context: followup?.context ?? { internal: true, contact: null }, attemptKey: input.attemptKey ?? `internal:${input.testRecipient}:${followup?.taskId ?? "audio"}:${Math.floor(Date.now() / 300_000)}` });
       let result: unknown;
       try {
         result = await vapiRequest("/call", "POST", {
         assistantId: input.assistantId, phoneNumberId: input.phoneNumberId,
-        customer: { number: VOICE_BOOKING.transferNumber, name: "Josh: internal voice test" },
+        customer: { number: destination, name: `${testName}: internal voice test` },
         assistantOverrides: {
           maxDurationSeconds: VOICE_TEST_DURATION_SECONDS,
           ...VOICE_TURN_TIMING,
           voicemailDetection: input.testVoicemail ? { provider: "vapi" } : "off",
           ...(input.testVoicemail ? { voicemailMessage: "Hi, this is Alex with Nine Six Seven, following up on an email from Nine Six Seven. You can reply to that email or call two zero one, five eight one, four three zero nine. Thank you." } : {}),
           ...(payload.voice ? { voice: payload.voice } : {}),
-          variableValues: { first_name: followup?.context.first_name ?? "Josh", full_name: followup?.context.full_name ?? "Josh", call_context: JSON.stringify(followup?.context ?? { internal: true }) },
-          firstMessage: followup?.firstMessage ?? "Hi Josh, this is Alex with Nine Six Seven. Can you hear me clearly?",
-          model: { ...payload.model, messages: [{ role: "system", content: `${VOICE_INSTRUCTIONS}\n${followup ? followup.instructions + "\nThis is an internal roleplay with Josh acting as the named prospect. Use the supplied email context for the roleplay. No prospect is being called. If asked, explain that this is a rehearsal." : "This is an internal test with Josh, not a prospect call. No prospect email or company history is provided. Say so if asked."} Help Josh test natural conversation and calendar availability. Do not transfer: Josh is already on the destination phone. Do not create a calendar event unless Josh explicitly requests a test invitation and confirms the attendee email and time.` }] },
+          variableValues: { first_name: followup?.context.first_name ?? testName, full_name: followup?.context.full_name ?? testName, call_context: JSON.stringify(followup?.context ?? { internal: true }) },
+          firstMessage: followup?.firstMessage ?? `Hi, this is Alex with Nine Six Seven. Can you hear me clearly?`,
+          model: { ...payload.model, messages: [{ role: "system", content: `${VOICE_INSTRUCTIONS}\n${followup ? followup.instructions + `\nThis is an internal roleplay with ${testName} acting as the named prospect. Use the supplied email context for the roleplay. No prospect is being called. If asked, explain that this is a rehearsal.` : `This is an internal test with ${testName}, not a prospect call. No prospect email or company history is provided. Say so if asked.`} Help ${testName} test natural conversation and calendar availability. Do not transfer during this internal rehearsal. Do not create a calendar event unless the tester explicitly requests a test invitation and confirms the attendee email and time.` }] },
         },
       });
       } catch (error) {
@@ -96,7 +98,7 @@ export async function POST(request: Request) {
       }
       const call = z.object({ id: z.string(), status: z.string().optional() }).parse(result);
       await attachVoiceCall(attemptId, call.id);
-      return Response.json({ ok: true, call, destination: VOICE_BOOKING.transferNumber, ...(followup ? { taskId: followup.taskId, mode: "internal-followup-rehearsal" } : {}) });
+      return Response.json({ ok: true, call, destination, ...(followup ? { taskId: followup.taskId, mode: "internal-followup-rehearsal" } : {}) });
     }
     if (input.action === "configure") {
       const audit = await admin().from("voice_attempts").select("id").limit(1);
