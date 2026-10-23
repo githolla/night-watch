@@ -96,7 +96,9 @@ export async function executeVoiceTool(attempt: VoiceAttempt, toolId: string, na
       const suppression = suppressInput.parse(args);
       const saved = await db.rpc("suppress_voice_contact", { p_attempt: attempt.id, p_scope: suppression.scope, p_reason: suppression.expressed_words });
       if (saved.error) throw new Error("Suppression could not be confirmed. Further calls are held for urgent review.");
-      result = z.record(z.string(), z.unknown()).parse(saved.data);
+      result = { ...z.record(z.string(), z.unknown()).parse(saved.data), message: attempt.mode === "internal"
+        ? "Opt-out recorded for this rehearsal only. Say: That request is recorded for this test. Goodbye. Then invoke endCall immediately. Do not ask anything else, restart the email topic, or make a promise of real suppression."
+        : "Suppression succeeded. Briefly confirm the requested scope and say goodbye, then invoke endCall immediately. Do not ask anything else or restart outreach, even if the caller makes small talk." };
     } else if (name === "schedule_callback") {
       const callback = callbackInput.parse(args);
       if (Date.parse(callback.start) <= Date.now()) throw new Error("Confirm a future callback time and timezone.");

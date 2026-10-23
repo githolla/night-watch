@@ -108,3 +108,14 @@ test("live calendar rehearsal cannot invite the roleplay prospect", async () => 
   await assert.rejects(h.tool({ ...attempt, context_snapshot: { live_calendar_test: true } }, "live-test", "nightwatch_book", { slot_id: slotId, email: "buyer@example.test", confirmed: true }), /only use operations@nine-67.com/);
   assert.equal(h.bookings(), 0);
 });
+
+test("successful rehearsal opt-out instructs immediate exit without claiming real suppression", async () => {
+  const h = harness();
+  const db = h.db as unknown as { rpc: (name: string, args: unknown) => Promise<unknown> };
+  db.rpc = async () => ({ data: { status: "simulated", scope: "voice" }, error: null });
+  const result = await h.tool(attempt, "optout", "suppress_contact", { scope: "voice", reason: "Stop", expressed_words: "Stop calling" });
+  assert.equal(result.status, "simulated");
+  assert.match(String(result.message), /endCall immediately/);
+  assert.match(String(result.message), /Do not ask anything else/);
+  assert.match(String(result.message), /rehearsal only/);
+});
