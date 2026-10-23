@@ -1,3 +1,4 @@
+import { VoicePilotReadiness } from "@/components/VoicePilotReadiness";
 import { VoiceActivity } from "@/components/VoiceActivity";
 import { requireUser } from "@/lib/auth";
 import { admin } from "@/lib/supabase/admin";
@@ -29,6 +30,7 @@ export default async function CallsPage({ searchParams }: { searchParams: Promis
   });
   return <main className="workspace-page drafts-page"><div className="feature-center drafts-shell">
     <PageHead title="Calls & prep" seats={user.role === "admin" ? { current: owner, href: seat => `/calls?owner=${seat}`, label: "Whose calls" } : undefined}>Review the sent email and company intel, make your follow-up call, then save the outcome. Calls are due the next business day after the first email sends. Bounced emails, replies and opt-outs are excluded.</PageHead>
+    {owner === "suuchi" && <VoicePilotReadiness tasks={tasks} now={new Date().getTime()} />}
     <VoiceActivity owner={owner} />
     <CallQueue now={new Date().getTime()} key={owner} tasks={prepared} canComplete={owner === user.owner} canEdit={owner === user.owner || user.role === "admin"} seat={seatName(owner)} />
   </div></main>;

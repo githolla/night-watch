@@ -13,8 +13,8 @@ export async function VoiceActivity({ owner }: { owner: Owner }) {
   const actions = attempts.data.length ? await db.from("voice_actions").select("id,attempt_id,kind,status,details,result").in("attempt_id", attempts.data.map(item => item.id)).order("created_at", { ascending: false }).limit(60) : { data: [], error: null };
   const records = z.array(z.object({ id: z.string(), attempt_id: z.string(), kind: z.string(), status: z.string(), details: z.record(z.string(), z.unknown()), result: z.unknown().nullable() })).safeParse(actions.data);
   return <details className="my-4 rounded-xl border border-stone-200 bg-white p-4">
-    <summary className="cursor-pointer font-medium text-stone-900">AI follow-up activity <span className="ml-2 text-sm font-normal text-stone-500">Internal testing · External calling off</span></summary>
-    <p className="mt-2 text-sm text-stone-600">Review what Alex knew, what happened, and which requests need a person. Rehearsal actions are simulated.</p>
+    <summary className="cursor-pointer font-medium text-stone-900">AI follow-up activity <span className="ml-2 text-sm font-normal text-stone-500">Call records and follow-up tasks</span></summary>
+    <p className="mt-2 text-sm text-stone-600">Review what Alex knew, what happened, and which requests need a person. Rehearsal outreach actions are simulated. Explicit live-calendar tests create a real event labelled TEST.</p>
     {!attempts.data.length && <p className="mt-3 text-sm text-stone-500">No recorded AI call attempts yet.</p>}
     {attempts.data.map(attempt => {
       const contact = z.object({ name: z.string() }).safeParse(attempt.context_snapshot.contact);

@@ -1,4 +1,5 @@
 import type { CallTask } from "./call-tasks.ts";
+import { voiceVoicemail } from "./voice-voicemail.ts";
 import { emailSentSpoken } from "./voice-policy.ts";
 import { VOICE_BOOKING } from "./voice-booking.ts";
 import { buildCompanyIntel } from "./call-intel.ts";
@@ -34,6 +35,7 @@ export function voiceFollowup(task: CallTask, now = new Date(), metadata: { time
   };
   return {
     taskId: task.id, personId: task.personId, context,
+    voicemailMessage: voiceVoicemail({ firstName: context.first_name, sentSpoken: context.email_sent_spoken, subject: context.email_subject }),
     firstMessage: "Hi, this is Alex with Nine Six Seven. Am I speaking with " + task.name.split(/\s+/)[0] + "?",
     instructions: `This is a follow-up to the actual email in the data below. After confirming the person's identity, say you are following up on an email from Nine Six Seven ${context.email_sent_spoken} and briefly describe its specific workflow in plain language. Do not recite the email or pitch unrelated services. Keep this first follow-up under twenty-five words and ask one direct question about whether they handle that workflow. Do not ask a separate permission question followed by a long explanation.
 Never say you sent the email yourself or imply the person received, read or opened it. An absence of a recorded bounce does not prove delivery. If they have not seen it, give a one-sentence summary and ask permission to continue. If they ask when or what it said, answer from the stored send date and body. Only use an email subject when email_subject is supplied from the sent message. A draft subject is not evidence.

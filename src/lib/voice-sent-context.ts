@@ -20,6 +20,12 @@ export async function currentVoiceFollowup(task: CallTask, timezone?: string) {
   let subject: string | undefined;
   if (first.gmail_thread_id) {
     const mailbox = await thread(task.owner, first.gmail_thread_id);
+    const ours = String(sender.data.email).toLowerCase();
+    const inbound = mailbox.messages.some(message => {
+      const from = message.payload.headers.find(header => header.name.toLowerCase() === "from")?.value.toLowerCase() ?? "";
+      return Number(message.internalDate) > Date.parse(first.sent_at) && !from.includes(ours);
+    });
+    if (inbound) throw new Error("New inbound email requires handling before automated follow-up.");
     const matched = mailbox.messages.filter(message => Math.abs(Number(message.internalDate) - Date.parse(first.sent_at)) < 120_000).find(message => {
       const headers = message.payload.headers;
       const from = headers.find(header => header.name.toLowerCase() === "from")?.value.toLowerCase() ?? "";

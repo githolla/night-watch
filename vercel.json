@@ -62,6 +62,10 @@
     {
       "path": "/api/cron/calls",
       "schedule": "0 8,12,16 * * 1-5"
+    },
+    {
+      "path": "/api/cron/voice-pilot",
+      "schedule": "*/15 13-23 * * 1-5"
     }
   ]
 }
