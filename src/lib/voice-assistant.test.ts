@@ -59,3 +59,10 @@ test("a simple hello gets a fast response while email dictation retains its long
   assert.ok(plan.waitSeconds <= 0.15);
   assert.equal(plan.customEndpointingRules.some(rule => rule.timeoutSeconds < 1 && new RegExp(rule.regex).test("Hello, I'm still giving you my email address")), false);
 });
+
+test("setup replaces inherited appointment-confirmation closing and hangup phrases", () => {
+  const payload = voiceAssistantPayload({ ...assistant, endCallMessage: "Thank you for scheduling with Wellness Partners. Your appointment is confirmed.", endCallPhrases: ["appointment is confirmed"] }, secret);
+  assert.equal(payload.endCallMessage, "Thanks for your time. Goodbye.");
+  assert.deepEqual(payload.endCallPhrases, []);
+  assert.doesNotMatch(JSON.stringify(payload), /Wellness Partners/);
+});

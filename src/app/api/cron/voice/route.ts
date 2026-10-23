@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       if (call.assistantId !== input.assistantId) throw new Error("Call belongs to another assistant.");
       const turns = z.array(z.object({ role: z.string(), message: z.string().optional(), secondsFromStart: z.number().optional(), duration: z.number().optional() })).safeParse(raw.messages);
       const firstTurns = turns.success ? turns.data.filter(turn => ["user", "bot", "assistant"].includes(turn.role)).slice(0, 4).map(turn => ({ ...turn, message: turn.message?.slice(0, 200) })) : [];
-      return Response.json({ ok: true, call, firstTurns, diagnosticFields: Object.keys(raw), artifactFields: raw.artifact && typeof raw.artifact === "object" ? Object.keys(raw.artifact) : [] });
+      return Response.json({ ok: true, call, firstTurns, toolTurns: Array.isArray(raw.messages) ? raw.messages.filter((turn: unknown) => typeof turn === "object" && turn !== null && "role" in turn && ["tool", "tool_calls", "function"].includes(String(turn.role))) : [], diagnosticFields: Object.keys(raw), artifactFields: raw.artifact && typeof raw.artifact === "object" ? Object.keys(raw.artifact) : [] });
     }
     const [assistant, phone] = await Promise.all([
       vapiRequest(`/assistant/${input.assistantId}`), vapiRequest(`/phone-number/${input.phoneNumberId}`),
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       const testContext = { ...(followup?.context ?? { internal: true, contact: null }), live_calendar_test: input.liveCalendarTest };
       if (input.liveCalendarTest) await voiceAvailability(new Date(Date.now() + 3_600_000).toISOString(), new Date(Date.now() + 7 * 86_400_000).toISOString(), false);
       const bookingTestInstructions = input.liveCalendarTest
-        ? `This rehearsal has REAL calendar booking enabled. Availability comes from the connected executive team calendar. A confirmed booking creates a real event labelled TEST. The only allowed attendee is ${VOICE_BOOKING.calendar}; do not use the prospect address from the roleplay. Before booking, tell the tester it creates a real test event, confirm that internal email, the chosen slot and timezone, and get explicit agreement. Only confirm success after the tool returns confirmed. All other outreach actions remain simulated.`
+        ? `This rehearsal has REAL calendar booking enabled. Availability comes from the connected executive team calendar. A confirmed booking creates a real event labelled TEST. The only allowed attendee is ${VOICE_BOOKING.calendar}; pass that exact address to nightwatch_book, not the prospect address from the roleplay. Do not read or spell that internal email aloud unless explicitly asked. Say "This will create a real test event on our executive team calendar." Confirm the chosen slot and timezone and get explicit agreement. Only confirm success after the tool returns confirmed. All other outreach actions remain simulated.`
         : "Calendar availability is real, but booking is simulated: no calendar event or invitation is created.";
       const attemptId = await reserveInternalVoiceAttempt({ destination, taskId: followup?.taskId, personId: followup?.personId, context: testContext, attemptKey: input.attemptKey ?? `internal:${input.testRecipient}:${followup?.taskId ?? "audio"}:${Math.floor(Date.now() / 300_000)}` });
       let result: unknown;
@@ -114,8 +114,9 @@ export async function POST(request: Request) {
       await vapiRequest(`/assistant/${input.assistantId}`, "PATCH", { ...payload, artifactPlan: { ...currentArtifacts, structuredOutputIds: [...new Set([...priorOutputs, outputId])] } });
       await vapiRequest(`/phone-number/${input.phoneNumberId}`, "PATCH", { assistantId: input.assistantId });
     }
+    const currentClosing = z.object({ endCallMessage: z.string().optional(), endCallPhrases: z.array(z.string()).optional() }).parse(assistant);
     const voice = z.object({ voice: z.object({ provider: z.string(), voiceId: z.string(), version: z.union([z.number(), z.string()]).optional(), language: z.string().optional() }).optional() }).parse(assistant).voice;
-    return Response.json({ ok: true, action: input.action, assistantId: input.assistantId, phoneNumber: VOICE_BOOKING.callerNumber, ...(input.voiceChoice ? { voiceChoice: input.voiceChoice } : {}), voice: payload.voice ?? voice, timing: VOICE_TURN_TIMING, tools: ["nightwatch_availability", "nightwatch_book", "request_email_followup", "schedule_callback", "suppress_contact", "request_human_followup", "transferCall", "endCall"], callsPlaced: 0 });
+    return Response.json({ ok: true, action: input.action, assistantId: input.assistantId, phoneNumber: VOICE_BOOKING.callerNumber, ...(input.voiceChoice ? { voiceChoice: input.voiceChoice } : {}), voice: payload.voice ?? voice, currentClosing, timing: VOICE_TURN_TIMING, tools: ["nightwatch_availability", "nightwatch_book", "request_email_followup", "schedule_callback", "suppress_contact", "request_human_followup", "transferCall", "endCall"], callsPlaced: 0 });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Could not configure Vapi" }, { status: 400 });
   }

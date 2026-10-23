@@ -25,6 +25,8 @@ export function voiceAssistantPayload(value: unknown, secret: string, voiceChoic
     ...(voiceChoice ? { voice: VOICE_CHOICES[voiceChoice] } : {}),
     firstMessage: "Hi, this is Alex with Nine Six Seven. Am I speaking with the person who handles this workflow?",
     maxDurationSeconds: 300,
+    endCallMessage: "Thanks for your time. Goodbye.",
+    endCallPhrases: [],
     backgroundSound: "off",
     ...VOICE_TURN_TIMING,
     voicemailMessage: "",
