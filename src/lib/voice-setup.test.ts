@@ -13,7 +13,7 @@ import { VOICE_BOOKING, VOICE_INSTRUCTIONS } from "./voice-booking.ts";
 const require = createRequire(import.meta.url);
 const assistantId = "5c23de70-09c0-47db-a265-8c88fc5c7cd7";
 const phoneNumberId = "2bfff64d-829e-4058-9875-7119785dd4c2";
-function route(number: string = VOICE_BOOKING.callerNumber) {
+function route(number: string = VOICE_BOOKING.callerNumber, voice?: Record<string, unknown>) {
   const exports: Record<string, unknown> = {}, requests: Array<{ path: string; method: string; body: unknown }> = [];
   runInNewContext(ts.transpileModule(readFileSync(new URL("../app/api/cron/voice/route.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
     exports, Response, Date, process: { env: { VAPI_ASSISTANT_ID: assistantId, VAPI_WEBHOOK_SECRET: "test-secret-that-is-long-enough-for-testing" } },
@@ -35,7 +35,7 @@ function route(number: string = VOICE_BOOKING.callerNumber) {
         vapiStatus: async () => ({ connected: true }),
         vapiRequest: async (path: string, method = "GET", body?: unknown) => {
           requests.push({ path, method, body });
-          if (path.startsWith("/assistant")) return { id: assistantId, model: { provider: "openai", model: "configured" } };
+          if (path.startsWith("/assistant")) return { id: assistantId, ...(voice ? { voice } : {}), model: { provider: "openai", model: "configured" } };
           if (path.startsWith("/phone-number")) return { number, assistantId };
           return { id: "test-call", status: "queued" };
         },
@@ -74,6 +74,15 @@ test("voice setup cannot reassign an unexpected originating phone number", async
   const hook = route("+15555550100");
   assert.equal((await hook.post(request("configure"))).status, 400);
   assert.equal(hook.requests.some(item => item.method !== "GET"), false);
+});
+test("preview accepts the string voice version returned by Vapi", async () => {
+  const hook = route(VOICE_BOOKING.callerNumber, { provider: "vapi", voiceId: "Elliot", version: "2", language: "en" });
+  const response = await hook.post(request("preview"));
+  assert.equal(response.status, 200);
+  const body = await response.json() as { voice: { voiceId: string; version: string } };
+  assert.equal(body.voice.voiceId, "Elliot");
+  assert.equal(body.voice.version, "2");
+  assert.equal(hook.requests.every(item => item.method === "GET"), true);
 });
 
 test("follow-up rehearsal attaches sent email but still only calls Josh", async () => {
