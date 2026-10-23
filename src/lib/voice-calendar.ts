@@ -28,15 +28,16 @@ export async function voiceAvailability(start: string, end: string, prospectRequ
   return { slots, timeZone: VOICE_BOOKING.timeZone, durationMinutes: VOICE_BOOKING.durationMinutes };
 }
 
-export async function voiceBook(input: { start: string; email: string; prospectRequested: boolean; confirmed: boolean }, callId: string) {
+export async function voiceBook(input: { start: string; email: string; prospectRequested: boolean; confirmed: boolean; internalTest?: boolean }, callId: string) {
   const end = new Date(Date.parse(input.start) + VOICE_BOOKING.durationMinutes * 60_000).toISOString();
   if (!input.confirmed) throw new Error("Confirm the prospect's email, date, time and time zone before booking.");
+  if (input.internalTest && input.email.toLowerCase() !== VOICE_BOOKING.calendar) throw new Error("Internal calendar tests cannot invite prospects.");
   if (!voiceSlotAllowed(input.start, end, input.prospectRequested)) throw new Error("That meeting conflicts with Suuchi's scheduling rules.");
   await calendarToken();
   return createInvite(VOICE_BOOKING.owner, {
-    summary: "Nine-67: workflow conversation with Suuchi", start: input.start, end,
+    summary: input.internalTest ? "TEST: Nine-67 voice booking" : "Nine-67: workflow conversation with executive team", start: input.start, end,
     timeZone: VOICE_BOOKING.timeZone, attendee: input.email,
-    description: "15-minute workflow conversation with Suuchi at Nine-67, arranged by Nine-67.",
+    description: input.internalTest ? "Internal Alex voice-agent calendar test. No prospect is invited. This is a real 15-minute test event." : "15-minute workflow conversation with the Nine-67 executive team, arranged by Nine-67.",
     bookingKey: `voice:${callId}:${input.start}:${input.email.toLowerCase()}`, bufferMinutes: 15,
   });
 }

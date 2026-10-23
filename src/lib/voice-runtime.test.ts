@@ -88,3 +88,23 @@ test("suppressed live calls cannot book or queue more outreach", async () => {
   await assert.rejects(h.tool({ ...attempt, mode: "pilot" }, "book", "nightwatch_book", { slot_id: slotId, email: "buyer@example.test", confirmed: true }), /suppression request/);
   assert.equal(h.bookings(), 0);
 });
+
+test("explicit live calendar rehearsal books only the internal address", async () => {
+  const h = harness({ voice_slots: [{ id: slotId, attempt_id: id, start_at: "2035-10-22T14:00:00Z", end_at: "2035-10-22T14:15:00Z", timezone: "America/New_York", prospect_requested: false, expires_at: "2035-10-21T00:00:00Z" }] });
+  const result = await h.tool({ ...attempt, context_snapshot: { ...attempt.context_snapshot, live_calendar_test: true } }, "live-test", "nightwatch_book", { slot_id: slotId, email: VOICE_BOOKING.calendar, confirmed: true });
+  assert.equal(result.status, "confirmed");
+  assert.equal(result.internal_test, true);
+  assert.equal(result.attendee_email, VOICE_BOOKING.calendar);
+  assert.equal(h.bookings(), 1);
+  assert.equal(h.tables.cadences?.length ?? 0, 0);
+  h.fail("voice_actions", "insert");
+  const repeated = await h.tool({ ...attempt, context_snapshot: { live_calendar_test: true } }, "retry-live-test", "nightwatch_book", { slot_id: slotId, email: VOICE_BOOKING.calendar, confirmed: true });
+  assert.equal(repeated.status, "confirmed");
+  assert.equal(h.bookings(), 1);
+});
+
+test("live calendar rehearsal cannot invite the roleplay prospect", async () => {
+  const h = harness({ voice_slots: [{ id: slotId, attempt_id: id, start_at: "2035-10-22T14:00:00Z", end_at: "2035-10-22T14:15:00Z", timezone: "America/New_York", prospect_requested: false, expires_at: "2035-10-21T00:00:00Z" }], voice_attempts: [{ id, status: "active" }] });
+  await assert.rejects(h.tool({ ...attempt, context_snapshot: { live_calendar_test: true } }, "live-test", "nightwatch_book", { slot_id: slotId, email: "buyer@example.test", confirmed: true }), /only use operations@nine-67.com/);
+  assert.equal(h.bookings(), 0);
+});

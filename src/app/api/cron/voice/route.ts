@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   }
 }
 
-const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), testVoicemail: z.boolean().optional(), testRecipient: z.enum(["josh", "suuchi"]).default("josh"), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
+const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), testVoicemail: z.boolean().optional(), liveCalendarTest: z.boolean().default(false), testRecipient: z.enum(["josh", "suuchi"]).default("josh"), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
 
 export async function POST(request: Request) {
   if (!cronAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -75,7 +75,12 @@ export async function POST(request: Request) {
       if (number.assistantId !== input.assistantId) throw new Error("Configure and assign the assistant before calling.");
       const testName = input.testRecipient === "suuchi" ? "Suuchi" : "Josh";
       const destination = input.testRecipient === "suuchi" ? "+19178090711" : VOICE_BOOKING.transferNumber;
-      const attemptId = await reserveInternalVoiceAttempt({ destination, taskId: followup?.taskId, personId: followup?.personId, context: followup?.context ?? { internal: true, contact: null }, attemptKey: input.attemptKey ?? `internal:${input.testRecipient}:${followup?.taskId ?? "audio"}:${Math.floor(Date.now() / 300_000)}` });
+      const testContext = { ...(followup?.context ?? { internal: true, contact: null }), live_calendar_test: input.liveCalendarTest };
+      if (input.liveCalendarTest) await voiceAvailability(new Date(Date.now() + 3_600_000).toISOString(), new Date(Date.now() + 7 * 86_400_000).toISOString(), false);
+      const bookingTestInstructions = input.liveCalendarTest
+        ? `This rehearsal has REAL calendar booking enabled. Availability comes from the connected executive team calendar. A confirmed booking creates a real event labelled TEST. The only allowed attendee is ${VOICE_BOOKING.calendar}; do not use the prospect address from the roleplay. Before booking, tell the tester it creates a real test event, confirm that internal email, the chosen slot and timezone, and get explicit agreement. Only confirm success after the tool returns confirmed. All other outreach actions remain simulated.`
+        : "Calendar availability is real, but booking is simulated: no calendar event or invitation is created.";
+      const attemptId = await reserveInternalVoiceAttempt({ destination, taskId: followup?.taskId, personId: followup?.personId, context: testContext, attemptKey: input.attemptKey ?? `internal:${input.testRecipient}:${followup?.taskId ?? "audio"}:${Math.floor(Date.now() / 300_000)}` });
       let result: unknown;
       try {
         result = await vapiRequest("/call", "POST", {
@@ -87,9 +92,9 @@ export async function POST(request: Request) {
           voicemailDetection: input.testVoicemail ? { provider: "vapi" } : "off",
           ...(input.testVoicemail ? { voicemailMessage: "Hi, this is Alex with Nine Six Seven, following up on an email from Nine Six Seven. You can reply to that email or call two zero one, five eight one, four three zero nine. Thank you." } : {}),
           ...(payload.voice ? { voice: payload.voice } : {}),
-          variableValues: { first_name: followup?.context.first_name ?? testName, full_name: followup?.context.full_name ?? testName, call_context: JSON.stringify(followup?.context ?? { internal: true }) },
+          variableValues: { first_name: followup?.context.first_name ?? testName, full_name: followup?.context.full_name ?? testName, call_context: JSON.stringify(testContext) },
           firstMessage: followup?.firstMessage ?? `Hi, this is Alex with Nine Six Seven. Can you hear me clearly?`,
-          model: { ...payload.model, messages: [{ role: "system", content: `${VOICE_INSTRUCTIONS}\n${followup ? followup.instructions + `\nThis is an internal roleplay with ${testName} acting as the named prospect. Use the supplied email context for the roleplay. No prospect is being called. If asked, explain that this is a rehearsal.` : `This is an internal test with ${testName}, not a prospect call. No prospect email or company history is provided. Say so if asked.`} Help ${testName} test natural conversation and calendar availability. Do not transfer during this internal rehearsal. Do not create a calendar event unless the tester explicitly requests a test invitation and confirms the attendee email and time.` }] },
+          model: { ...payload.model, messages: [{ role: "system", content: `${VOICE_INSTRUCTIONS}\n${followup ? followup.instructions + `\nThis is an internal roleplay with ${testName} acting as the named prospect. Use the supplied email context for the roleplay. No prospect is being called. If asked, explain that this is a rehearsal.` : `This is an internal test with ${testName}, not a prospect call. No prospect email or company history is provided. Say so if asked.`} The tester is ${testName}. If they identify themselves by their own name instead of the roleplay prospect name, acknowledge that this is the rehearsal and continue; do not record a wrong number. Help them test natural conversation and calendar availability. Do not transfer during this internal rehearsal. ${bookingTestInstructions}` }] },
         },
       });
       } catch (error) {
@@ -98,7 +103,7 @@ export async function POST(request: Request) {
       }
       const call = z.object({ id: z.string(), status: z.string().optional() }).parse(result);
       await attachVoiceCall(attemptId, call.id);
-      return Response.json({ ok: true, call, destination, ...(followup ? { taskId: followup.taskId, mode: "internal-followup-rehearsal" } : {}) });
+      return Response.json({ ok: true, call, destination, liveCalendarTest: input.liveCalendarTest, ...(followup ? { taskId: followup.taskId, mode: "internal-followup-rehearsal" } : {}) });
     }
     if (input.action === "configure") {
       const audit = await admin().from("voice_attempts").select("id").limit(1);

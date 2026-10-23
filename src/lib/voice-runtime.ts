@@ -74,7 +74,11 @@ export async function executeVoiceTool(attempt: VoiceAttempt, toolId: string, na
       if (read.error || !read.data) throw new Error("Choose a slot offered for this call.");
       const slot = slotSchema.parse(read.data);
       if (Date.parse(slot.expires_at) <= Date.now() || Date.parse(slot.start_at) <= Date.now()) throw new Error("That offered slot expired. Ask for a fresh availability check.");
-      if (attempt.mode === "internal") result = { status: "simulated", invitation_sent: false, attendee_email: booking.email, attendee_email_spoken: spokenEmailAddress(booking.email), start_at: slot.start_at, timezone: slot.timezone, message: "Rehearsal booking recorded. No calendar event or invitation was created. Confirm this test result, ask if anything else is needed and wait for the caller to finish before ending." };
+      if (attempt.mode === "internal" && attempt.context_snapshot.live_calendar_test === true) {
+        if (booking.email.toLowerCase() !== VOICE_BOOKING.calendar) throw new Error("Live calendar tests can only use operations@nine-67.com. No prospect invitation was sent.");
+        const invite = await voiceBook({ start: slot.start_at, email: VOICE_BOOKING.calendar, confirmed: true, prospectRequested: slot.prospect_requested, internalTest: true }, attempt.id);
+        result = { status: "confirmed", internal_test: true, invite_status: "sent", ...invite, attendee_email: VOICE_BOOKING.calendar, attendee_email_spoken: spokenEmailAddress(VOICE_BOOKING.calendar), start_at: slot.start_at, end_at: slot.end_at, timezone: slot.timezone, message: "The real calendar test event was created on the connected executive team calendar. No prospect was invited. Confirm the returned time, then wait for the caller before ending." };
+      } else if (attempt.mode === "internal") result = { status: "simulated", invitation_sent: false, attendee_email: booking.email, attendee_email_spoken: spokenEmailAddress(booking.email), start_at: slot.start_at, timezone: slot.timezone, message: "Rehearsal booking recorded. No calendar event or invitation was created. Confirm this test result, ask if anything else is needed and wait for the caller to finish before ending." };
       else {
         const contact = z.object({ email: z.email() }).parse(attempt.context_snapshot.contact);
         if (booking.email.toLowerCase() !== contact.email.toLowerCase()) throw new Error("A changed attendee email requires human review.");

@@ -136,3 +136,17 @@ test("internal rehearsal supports Suuchi only through the named test recipient",
   assert.match(call.assistantOverrides.model.messages[0].content, /roleplay with Suuchi/);
   assert.match(call.assistantOverrides.model.messages[0].content, /Do not transfer during this internal rehearsal/);
 });
+
+test("explicit calendar rehearsal supplies real-booking instructions and the internal attendee restriction", async () => {
+  const hook = route();
+  const response = await hook.post(new Request("https://example.com/api/cron/voice", {
+    method: "POST", headers: { authorization: "Bearer test-cron", "content-type": "application/json" },
+    body: JSON.stringify({ action: "test-followup", assistantId, phoneNumberId, testRecipient: "suuchi", liveCalendarTest: true }),
+  }));
+  assert.equal(response.status, 200);
+  const call = hook.requests.find(item => item.path === "/call")?.body as { assistantOverrides: { variableValues: { call_context: string }; model: { messages: Array<{ content: string }> } } };
+  assert.equal(JSON.parse(call.assistantOverrides.variableValues.call_context).live_calendar_test, true);
+  assert.match(call.assistantOverrides.model.messages[0].content, /REAL calendar booking enabled/);
+  assert.match(call.assistantOverrides.model.messages[0].content, /only allowed attendee is operations@nine-67.com/);
+  assert.match(call.assistantOverrides.model.messages[0].content, /do not record a wrong number/);
+});
