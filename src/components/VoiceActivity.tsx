@@ -1,4 +1,5 @@
 import { CallActivityRefresh } from "@/components/CallActivityRefresh";
+import { operationalVoiceOutcome } from "@/lib/voice-policy";
 import { z } from "zod";
 import { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
@@ -23,16 +24,22 @@ export async function VoiceActivity({ owner }: { owner: Owner }) {
 
       const contact = z.object({ name: z.string() }).safeParse(attempt.context_snapshot.contact);
       const operational = z.object({ operational: z.object({ outcome: z.string().nullable() }) }).safeParse(attempt.report);
+      const report = z.object({ analysis: z.unknown(), transcript: z.string().optional() }).safeParse(attempt.report);
+      const previous = operational.success ? operational.data.operational.outcome : null;
+      const outcome = report.success && previous === "no_answer" ? operationalVoiceOutcome(report.data.analysis, { meetingConfirmed: false, suppressed: false, callbackSaved: false, emailQueued: false }, { transcript: report.data.transcript, endedReason: attempt.ended_reason ?? undefined }).outcome : previous;
+      const summary = z.object({ summary: z.string() }).safeParse(report.success ? report.data.analysis : null);
       return <details key={attempt.id} className="mt-3 rounded-lg border border-stone-200 p-3">
         <summary className="cursor-pointer text-sm"><strong>{contact.success ? contact.data.name : "Audio test"}</strong> · {typeof attempt.context_snapshot.company_name === "string" ? attempt.context_snapshot.company_name : "Internal test"} · {attempt.status === "creating" ? "Connecting" : attempt.status === "active" ? "In progress" : attempt.status === "queued" ? "Scheduled" : attempt.status === "ended" ? "Call ended" : attempt.status}{attempt.review_required ? " · Needs review" : ""}<span className="ml-3 text-stone-500">{formatCallPhone(attempt.destination)}</span></summary>
-        <p className="mt-2 text-xs text-stone-500">{attempt.dispatched_at ? `Called ${time(attempt.dispatched_at)}` : attempt.scheduled_at ? `Scheduled ${time(attempt.scheduled_at)}` : `Added ${time(attempt.created_at)}`}{attempt.ended_reason ? ` · ${attempt.ended_reason}` : ""}{operational.success && operational.data.operational.outcome ? ` · ${operational.data.operational.outcome.replaceAll("_", " ")}` : ""}</p>
+        <p className="mt-2 text-xs text-stone-500">{attempt.dispatched_at ? `Called ${time(attempt.dispatched_at)}` : attempt.scheduled_at ? `Scheduled ${time(attempt.scheduled_at)}` : `Added ${time(attempt.created_at)}`}{attempt.ended_reason ? ` · ${attempt.ended_reason}` : ""}{outcome ? ` · ${outcome.replaceAll("_", " ")}` : ""}</p>
+        <details className="mt-3 text-sm"><summary className="cursor-pointer font-medium text-emerald-700">View transcript</summary><div className="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded-lg bg-stone-50 p-4 leading-relaxed text-stone-800">{report.success && report.data.transcript ? report.data.transcript.replace(/^AI:/gm, "Alex:").replace(/^User:/gm, "Other party:") : "No transcript has been received for this call yet."}</div></details>
+        {summary.success && <p className="mt-2 text-sm text-stone-600">{summary.data.summary}</p>}
         {actions.error && <p className="mt-2 text-sm text-amber-700">Follow-up requests could not be loaded. Refresh before taking action.</p>}
         {records.success && records.data.filter(action => action.attempt_id === attempt.id).map(action => <div key={action.id} className="mt-2 rounded-md bg-stone-50 p-3 text-sm"><strong>{action.kind.replaceAll("_", " ")}</strong> · {action.status}<p className="mt-1 whitespace-pre-wrap text-stone-600">{typeof action.details.reason === "string" ? action.details.reason : "Review the saved action details."}</p>{typeof action.details.expressed_words === "string" && <p className="mt-1 text-stone-500">Prospect words: {action.details.expressed_words}</p>}{typeof action.details.start === "string" && <p className="mt-1 text-stone-600">Requested callback: {action.details.start} · {typeof action.details.timezone === "string" ? action.details.timezone : "Timezone needs review"}</p>}</div>)}
-        <details className="mt-3 text-sm"><summary className="cursor-pointer text-stone-600">Email context and conversation</summary>
+        <details className="mt-3 text-sm"><summary className="cursor-pointer text-stone-600">View sent email</summary>
           <p className="mt-2 text-stone-600">{typeof attempt.context_snapshot.company_name === "string" ? attempt.context_snapshot.company_name : "Internal audio test"}</p>
           {typeof attempt.context_snapshot.email_sent_at === "string" && <p className="mt-1 text-xs text-stone-500">Email sent {new Date(attempt.context_snapshot.email_sent_at).toLocaleString("en-US", { timeZone: "America/New_York", timeZoneName: "short" })}</p>}
           {typeof attempt.context_snapshot.email_body === "string" && <p className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-stone-50 p-3 text-sm">{attempt.context_snapshot.email_body}</p>}
-          <p className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-stone-50 p-3 text-sm">{z.object({ transcript: z.string() }).safeParse(attempt.report).success ? z.object({ transcript: z.string() }).parse(attempt.report).transcript || "No conversation transcript yet." : "No conversation transcript yet."}</p>
+
         </details>
       </details>;
   };

@@ -118,7 +118,7 @@ export async function POST(request: Request) {
     }
     const currentClosing = z.object({ endCallMessage: z.string().optional(), endCallPhrases: z.array(z.string()).optional() }).parse(assistant);
     const voice = z.object({ voice: z.object({ provider: z.string(), voiceId: z.string(), version: z.union([z.number(), z.string()]).optional(), language: z.string().optional() }).optional() }).parse(assistant).voice;
-    return Response.json({ ok: true, action: input.action, assistantId: input.assistantId, phoneNumber: VOICE_BOOKING.callerNumber, ...(input.voiceChoice ? { voiceChoice: input.voiceChoice } : {}), voice: payload.voice ?? voice, currentClosing, timing: VOICE_TURN_TIMING, tools: ["nightwatch_availability", "nightwatch_book", "request_email_followup", "schedule_callback", "suppress_contact", "request_human_followup", "transferCall", "endCall"], callsPlaced: 0 });
+    return Response.json({ ok: true, action: input.action, assistantId: input.assistantId, phoneNumber: VOICE_BOOKING.callerNumber, ...(input.voiceChoice ? { voiceChoice: input.voiceChoice } : {}), voice: payload.voice ?? voice, currentClosing, timing: VOICE_TURN_TIMING, tools: ["nightwatch_availability", "nightwatch_book", "request_email_followup", "schedule_callback", "suppress_contact", "request_human_followup", "transferCall", "dtmf", "endCall"], callsPlaced: 0 });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Could not configure Vapi" }, { status: 400 });
   }

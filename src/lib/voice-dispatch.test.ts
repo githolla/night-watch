@@ -69,11 +69,12 @@ test("uncertain provider response is held without a blind retry", async () => {
   assert.equal(h.metrics().held, 1);
 });
 
-test("company lines ask reception for the contact without exposing the sent email", async () => {
+test("company lines let the model distinguish menus from reception before speaking", async () => {
   const h = harness({ phoneKind: "company" });
   assert.equal((await h.run()).callsPlaced, 1);
   const body = h.metrics().callPayload as { assistantOverrides: { firstMessage: string; model: { messages: Array<{ content: string }> } } };
-  assert.equal(body.assistantOverrides.firstMessage, "Hi, this is Alex with Nine Six Seven. Could I speak with Morgan?");
+  assert.equal(body.assistantOverrides.firstMessage, "");
+  assert.match(body.assistantOverrides.model.messages[0].content, /Use the dtmf tool/);
   assert.doesNotMatch(body.assistantOverrides.firstMessage, /shipping|email|handoffs/i);
   assert.match(body.assistantOverrides.model.messages[0].content, /After a new person answers, briefly introduce yourself and confirm their identity/);
   assert.match(body.assistantOverrides.model.messages[0].content, /Never pitch a workflow or offer a meeting to reception/);

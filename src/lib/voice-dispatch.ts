@@ -57,7 +57,7 @@ export async function dispatchVoicePilot() {
         endCallMessage: payload.endCallMessage, endCallPhrases: payload.endCallPhrases,
         voicemailDetection: payload.voicemailDetection,
         server: payload.server, serverMessages: payload.serverMessages,
-        firstMessage: task.plan.phone?.kind === "company" ? `Hi, this is Alex with Nine Six Seven. Could I speak with ${task.name}?` : followup.firstMessage,
+        firstMessage: task.plan.phone?.kind === "company" ? "" : followup.firstMessage,
         voicemailMessage: followup.voicemailMessage,
         variableValues: { first_name: followup.context.first_name, full_name: task.name, call_context: JSON.stringify(followup.context) },
         model: { ...payload.model, messages: [{ role: "system", content: `${VOICE_INSTRUCTIONS}\n${followup.instructions}\nThis is a live approved follow-up, not an internal rehearsal. Use real availability and booking tools. Do not mention internal tests or test addresses.` }] },

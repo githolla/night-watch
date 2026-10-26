@@ -18,7 +18,7 @@ export function voiceAssistantPayload(value: unknown, secret: string, voiceChoic
   if (Array.isArray(current.model.toolIds) && current.model.toolIds.length) throw new Error("Assistant has saved tools; review them before replacing its calendar integration.");
   const tools = z.array(tool).parse(current.model.tools ?? []);
   if (tools.some(item => item.type === "function" && !calendarNames.includes(item.function?.name ?? ""))) throw new Error("Assistant has unrelated function tools; review them before changing its callback.");
-  const retained = tools.filter(item => !item.type.startsWith("google.calendar.") && !["transferCall", "endCall"].includes(item.type) && !calendarNames.includes(item.function?.name ?? ""));
+  const retained = tools.filter(item => !item.type.startsWith("google.calendar.") && !["transferCall", "endCall", "dtmf"].includes(item.type) && !calendarNames.includes(item.function?.name ?? ""));
   const date = { type: "string", description: "ISO 8601 date and time with explicit UTC offset" };
   return {
     name: "Alex | Nine-67",
@@ -45,6 +45,7 @@ export function voiceAssistantPayload(value: unknown, secret: string, voiceChoic
           { name: "request_human_followup", description: "Save an actionable human task. Use category decline to stop the current sequence, wrong_number to hold voice, referral to record a correction, question for unknown details, or suppression_failure for an urgent opt-out problem.", extra: { category: { type: "string", enum: ["question", "decline", "wrong_number", "referral", "suppression_failure"] } }, required: ["category"] },
         ].map(item => ({ type: "function", messages: [{ type: "request-start", content: "" }], function: { name: item.name, description: item.description, parameters: { type: "object", properties: { reason: { type: "string" }, expressed_words: { type: "string", description: "Actual prospect words supporting this request" }, ...item.extra }, required: ["reason", "expressed_words", ...item.required] } } })),
         { type: "transferCall", destinations: [{ type: "number", number: VOICE_BOOKING.transferNumber, description: "Transfer to Josh only after the caller asks to speak with a person and agrees. Never transfer a test call already connected to Josh's own number.", message: "I'll try connecting you with Josh now.", transferPlan: { mode: "blind-transfer" } }] },
+        { type: "dtmf" },
         { type: "endCall" },
       ],
     },

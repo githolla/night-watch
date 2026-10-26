@@ -31,3 +31,12 @@ test("model summary cannot establish a booking, suppression or callback", () => 
   assert.equal(operationalVoiceOutcome({ ...analysis, outcome: "interested_followup" }, { ...facts, suppressed: true }).outcome, "do_not_contact");
   assert.deepEqual(operationalVoiceOutcome({}, facts), { outcome: null, reviewRequired: true });
 });
+
+test("menu loops and receptionist connections are not labeled unanswered", () => {
+  const facts = { meetingConfirmed: false, suppressed: false, callbackSaved: false, emailQueued: false };
+  const analysis = { outcome: "no_answer", reached_intended_person: false, workflow_discussed: null, pain_point: null, interest_level: null, meeting_requested: false, callback_requested: false, email_followup_requested: false, do_not_contact_requested: false, referral_name: null, human_followup_reason: null, summary: "Reached an automated phone menu. No live person answered." };
+  assert.deepEqual(operationalVoiceOutcome(analysis, facts), { outcome: "phone_menu_unresolved", reviewRequired: true });
+  assert.equal(operationalVoiceOutcome({ ...analysis, summary: "Reached a receptionist but not the intended contact." }, facts).outcome, "receptionist_reached");
+  assert.equal(operationalVoiceOutcome({ ...analysis, summary: "No conversation occurred." }, facts, { endedReason: "exceeded-max-duration" }).outcome, "technical_failure");
+  assert.equal(operationalVoiceOutcome(analysis, { ...facts, meetingConfirmed: true }).outcome, "meeting_booked");
+});

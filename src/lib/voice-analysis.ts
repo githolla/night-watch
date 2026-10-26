@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { voiceAnalysis } from "./voice-policy.ts";
 import { vapiRequest } from "./vapi.ts";
-export const VOICE_OUTPUT_NAME = "Nightwatch email follow-up outcome v2";
+export const VOICE_OUTPUT_NAME = "Nightwatch email follow-up outcome v3";
 export function voiceStructuredResult(artifact: unknown): unknown {
   const parsed = z.object({ structuredOutputs: z.record(z.string(), z.object({ name: z.string().optional(), result: z.unknown().optional() })).optional() }).safeParse(artifact);
   if (!parsed.success) return null;
@@ -16,7 +16,7 @@ export async function ensureVoiceStructuredOutput() {
   const schema = z.toJSONSchema(voiceAnalysis);
   const created = z.object({ id: z.uuid() }).parse(await vapiRequest("/structured-output", "POST", {
     name: VOICE_OUTPUT_NAME, type: "ai", schema,
-    description: "Extract explicit prospect statements only. Use null for unknowns, not friendliness as interest. A request is not a confirmed action. Never infer an invitation was sent from the conversation. Meeting, suppression, callback and email results are reconciled against Nightwatch operational records. Internal roleplay is not a real prospect outcome.",
+    description: "Distinguish phone_menu_unresolved (automated menu, no intended contact), receptionist_reached (live gatekeeper but not intended contact), no_answer (no conversation or menu), voicemail, and technical_failure. A receptionist is not the intended person. Timeout is not proof of no answer. Extract explicit prospect statements only. Use null for unknowns, not friendliness as interest. A request is not a confirmed action. Never infer an invitation was sent from the conversation. Meeting, suppression, callback and email results are reconciled against Nightwatch operational records. Internal roleplay is not a real prospect outcome.",
   }));
   return created.id;
 }

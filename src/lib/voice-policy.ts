@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const VOICE_PROMPT_VERSION = "email-followup-v17";
-export const voiceOutcome = z.enum(["meeting_booked", "interested_followup", "callback_requested", "referral", "not_interested", "do_not_contact", "wrong_number", "voicemail", "no_answer", "technical_failure"]);
+export const VOICE_PROMPT_VERSION = "email-followup-v18";
+export const voiceOutcome = z.enum(["meeting_booked", "interested_followup", "callback_requested", "referral", "not_interested", "do_not_contact", "wrong_number", "voicemail", "phone_menu_unresolved", "receptionist_reached", "no_answer", "technical_failure"]);
 export function validVoiceTimezone(zone: string | null | undefined): zone is string {
   try { if (!zone) return false; new Intl.DateTimeFormat("en", { timeZone: zone }).format(); return true; } catch { return false; }
 }
@@ -42,12 +42,18 @@ export function voiceEligibility(input: VoiceEligibility, now = new Date(), dela
   return { allowed: reasons.length === 0, reasons };
 }
 export const voiceAnalysis = z.object({ outcome: voiceOutcome.nullable(), reached_intended_person: z.boolean().nullable(), workflow_discussed: z.string().max(1000).nullable(), pain_point: z.string().max(2000).nullable(), interest_level: z.enum(["low","medium","high"]).nullable(), meeting_requested: z.boolean(), callback_requested: z.boolean(), email_followup_requested: z.boolean(), do_not_contact_requested: z.boolean(), referral_name: z.string().max(300).nullable(), human_followup_reason: z.string().max(2000).nullable(), summary: z.string().max(4000) });
-export function operationalVoiceOutcome(proposed: unknown, facts: { meetingConfirmed: boolean; suppressed: boolean; callbackSaved: boolean; emailQueued: boolean }) {
+export function operationalVoiceOutcome(proposed: unknown, facts: { meetingConfirmed: boolean; suppressed: boolean; callbackSaved: boolean; emailQueued: boolean }, call?: { transcript?: string; endedReason?: string }) {
   const parsed = voiceAnalysis.safeParse(proposed);
   if (!parsed.success) return { outcome: facts.suppressed ? "do_not_contact" : facts.meetingConfirmed ? "meeting_booked" : facts.callbackSaved ? "callback_requested" : facts.emailQueued ? "interested_followup" : null, reviewRequired: true };
-  const outcome = facts.suppressed ? "do_not_contact" : facts.meetingConfirmed ? "meeting_booked" : facts.callbackSaved ? "callback_requested" : facts.emailQueued ? "interested_followup" : parsed.data.outcome;
+  let outcome = facts.suppressed ? "do_not_contact" : facts.meetingConfirmed ? "meeting_booked" : facts.callbackSaved ? "callback_requested" : facts.emailQueued ? "interested_followup" : parsed.data.outcome;
+  if (outcome === "no_answer" && parsed.data.reached_intended_person === false) {
+    const summary = parsed.data.summary;
+    if (/receptionist|gatekeeper/i.test(summary) && /reached|answered|spoke/i.test(summary)) outcome = "receptionist_reached";
+    else if (/automated (?:phone )?menu|phone menu|IVR/i.test(summary)) outcome = "phone_menu_unresolved";
+    else if (call?.endedReason === "exceeded-max-duration" || call?.endedReason === "silence-timed-out") outcome = "technical_failure";
+  }
   const unsupported = (outcome === "meeting_booked" && !facts.meetingConfirmed) || (outcome === "do_not_contact" && !facts.suppressed) || (outcome === "callback_requested" && !facts.callbackSaved);
-  return { outcome: unsupported ? null : outcome, reviewRequired: unsupported || parsed.data.do_not_contact_requested };
+  return { outcome: unsupported ? null : outcome, reviewRequired: unsupported || parsed.data.do_not_contact_requested || outcome === "phone_menu_unresolved" || outcome === "technical_failure" };
 }
 
 export function nextVoiceCallAt(sentAt: string, timezone: string, businessDays = 1): string {

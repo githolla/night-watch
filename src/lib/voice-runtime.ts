@@ -134,7 +134,7 @@ export async function saveVoiceReport(attempt: VoiceAttempt, message: { endedRea
   const actions = await db.from("voice_actions").select("kind,status").eq("attempt_id", attempt.id);
   if (actions.error) throw new Error("Could not reconcile the call's operational actions.");
   const confirmed = (kind: string, status: string) => (actions.data ?? []).some(action => action.kind === kind && action.status === status);
-  const truth = operationalVoiceOutcome(message.analysis, { meetingConfirmed: confirmed("nightwatch_book", "confirmed"), suppressed: confirmed("suppress_contact", "confirmed"), callbackSaved: confirmed("schedule_callback", "queued"), emailQueued: confirmed("request_email_followup", "queued") });
+  const truth = operationalVoiceOutcome(message.analysis, { meetingConfirmed: confirmed("nightwatch_book", "confirmed"), suppressed: confirmed("suppress_contact", "confirmed"), callbackSaved: confirmed("schedule_callback", "queued"), emailQueued: confirmed("request_email_followup", "queued") }, message);
   const transcript = (message.transcript ?? "").slice(0, 100_000);
   const possibleOptOut = /\b(stop calling|remove me|take me off|do not contact|don't contact)\b/i.test(transcript);
   if (possibleOptOut && attempt.mode !== "internal") {

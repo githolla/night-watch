@@ -66,3 +66,12 @@ test("setup replaces inherited appointment-confirmation closing and hangup phras
   assert.deepEqual(payload.endCallPhrases, []);
   assert.doesNotMatch(JSON.stringify(payload), /Wellness Partners/);
 });
+
+test("phone menus have exactly one keypad tool and bounded navigation instructions", () => {
+  const first = voiceAssistantPayload(assistant, secret);
+  const second = voiceAssistantPayload({ ...first, id: assistant.id }, secret);
+  assert.equal(second.model.tools.filter(tool => tool.type === "dtmf").length, 1);
+  assert.match(first.model.messages[0].content, /only options actually announced/);
+  assert.match(first.model.messages[0].content, /at most four keypad actions/);
+  assert.match(first.model.messages[0].content, /Even if you already asked the recording/);
+});
