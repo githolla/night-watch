@@ -28,8 +28,8 @@ export async function VoiceActivity({ owner }: { owner: Owner }) {
       const previous = operational.success ? operational.data.operational.outcome : null;
       const outcome = report.success && previous === "no_answer" ? operationalVoiceOutcome(report.data.analysis, { meetingConfirmed: false, suppressed: false, callbackSaved: false, emailQueued: false }, { transcript: report.data.transcript, endedReason: attempt.ended_reason ?? undefined }).outcome : previous;
       const summary = z.object({ summary: z.string() }).safeParse(report.success ? report.data.analysis : null);
-      return <details key={attempt.id} className="mt-3 rounded-lg border border-stone-200 p-3">
-        <summary className="cursor-pointer text-sm"><strong>{contact.success ? contact.data.name : "Audio test"}</strong> · {typeof attempt.context_snapshot.company_name === "string" ? attempt.context_snapshot.company_name : "Internal test"} · {attempt.status === "creating" ? "Connecting" : attempt.status === "active" ? "In progress" : attempt.status === "queued" ? "Scheduled" : attempt.status === "ended" ? "Call ended" : attempt.status}{attempt.review_required ? " · Needs review" : ""}<span className="ml-3 text-stone-500">{formatCallPhone(attempt.destination)}</span></summary>
+      return <article key={attempt.id} className="mt-3 rounded-lg border border-stone-200 p-3">
+        <div className="text-sm"><strong>{contact.success ? contact.data.name : "Audio test"}</strong> · {typeof attempt.context_snapshot.company_name === "string" ? attempt.context_snapshot.company_name : "Internal test"} · {attempt.status === "creating" ? "Connecting" : attempt.status === "active" ? "In progress" : attempt.status === "queued" ? "Scheduled" : attempt.status === "ended" ? "Call ended" : attempt.status}{attempt.review_required ? " · Needs review" : ""}<span className="ml-3 text-stone-500">{formatCallPhone(attempt.destination)}</span></div>
         <p className="mt-2 text-xs text-stone-500">{attempt.dispatched_at ? `Called ${time(attempt.dispatched_at)}` : attempt.scheduled_at ? `Scheduled ${time(attempt.scheduled_at)}` : `Added ${time(attempt.created_at)}`}{attempt.ended_reason ? ` · ${attempt.ended_reason}` : ""}{outcome ? ` · ${outcome.replaceAll("_", " ")}` : ""}</p>
         <details className="mt-3 text-sm"><summary className="cursor-pointer font-medium text-emerald-700">View transcript</summary><div className="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded-lg bg-stone-50 p-4 leading-relaxed text-stone-800">{report.success && report.data.transcript ? report.data.transcript.replace(/^AI:/gm, "Alex:").replace(/^User:/gm, "Other party:") : "No transcript has been received for this call yet."}</div></details>
         {summary.success && <p className="mt-2 text-sm text-stone-600">{summary.data.summary}</p>}
@@ -41,7 +41,7 @@ export async function VoiceActivity({ owner }: { owner: Owner }) {
           {typeof attempt.context_snapshot.email_body === "string" && <p className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-stone-50 p-3 text-sm">{attempt.context_snapshot.email_body}</p>}
 
         </details>
-      </details>;
+      </article>;
   };
   return <section className="my-5 space-y-4">
     <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl font-semibold text-stone-900">Automatic calls</h2><p className="mt-1 text-sm text-stone-500">Alex’s prospect calls, separate from internal tests. All times Eastern.</p></div><CallActivityRefresh /></div>
@@ -52,7 +52,7 @@ export async function VoiceActivity({ owner }: { owner: Owner }) {
       ["Needs attention", live.filter(attempt => attempt.review_required || attempt.status === "held").length],
     ].map(([label, count]) => <div key={label} className="rounded-xl border border-stone-200 bg-white p-4"><p className="text-xs font-medium text-stone-500">{label}</p><p className="mt-1 text-2xl font-semibold text-stone-900">{count}</p></div>)}</div>
     <div className="grid gap-4 xl:grid-cols-2">{groups.map(group => <section key={group.title} className="rounded-xl border border-stone-200 bg-white p-4"><h3 className="font-semibold text-stone-900">{group.title} <span className="ml-2 text-sm font-normal text-stone-500">{group.items.length}</span></h3>{!group.items.length && <p className="py-5 text-sm text-stone-500">{group.empty}</p>}{group.items.map(renderAttempt)}</section>)}</div>
-    <p className="text-xs text-stone-500">Scheduled times are targets. Calls run one at a time during approved local calling hours. Expand a call to see the sent email, transcript and follow-up requests. Showing up to 200 recent records.</p>
+    <p className="text-xs text-stone-500">Scheduled times are targets. Calls run one at a time during approved local calling hours. Use View transcript beneath a call to read the conversation, or View sent email for its context. Showing up to 200 recent records.</p>
     {tests.length > 0 && <details className="rounded-xl border border-stone-200 bg-white p-4"><summary className="cursor-pointer text-sm font-medium text-stone-600">Internal test calls ({tests.length})</summary>{tests.map(renderAttempt)}</details>}
   </section>;
 }
