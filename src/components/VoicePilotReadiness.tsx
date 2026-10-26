@@ -14,10 +14,10 @@ export async function VoicePilotReadiness({ tasks, now }: { tasks: CallTask[]; n
     return (approvals.data ?? []).some(approval => approval.person_id === task.personId && approval.approved_number === number && approval.approval_basis && approval.approval_evidence?.trim() && approval.timezone_source?.trim() && Date.parse(approval.approved_until) > now);
   }).length;
   const checksPassed = config.data?.booking_test_passed && config.data?.voicemail_test_passed && config.data?.optout_test_passed;
-  const active = Boolean(!config.error && config.data?.enabled && checksPassed && now < Date.parse(config.data.ends_at));
+  const active = Boolean(!config.error && config.data?.enabled && checksPassed && now >= Date.parse(config.data.starts_at) && now < Date.parse(config.data.ends_at));
   const date = new Date(config.data?.starts_at ?? "2026-10-26T13:00:00Z").toLocaleDateString("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" });
   return <section className="my-4 rounded-xl border border-stone-200 bg-white p-5">
-    <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold text-stone-900">Alex calling pilot</h2><span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">{active ? "Automatic follow-up scheduled" : config.data?.enabled ? "Launch checks pending" : "Not activated"}</span></div>
+    <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold text-stone-900">Alex calling pilot</h2><span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">{active ? "Automatic calling on" : config.data?.enabled ? "Launch checks pending" : "Not activated"}</span></div>
     <p className="mt-2 text-sm text-stone-600">{date} · Up to {config.data?.daily_limit ?? 5} calls · One at a time · 9am to 5pm in the recipient’s timezone.</p>
     <p className="mt-2 text-sm text-stone-600">No per-call approval. By default, Alex follows the first sent email at 10am on the next business day in the recipient’s timezone.</p>
     <p className="mt-2 text-sm text-stone-700">{pending.length} pending follow-ups · {approvals.error ? "Eligibility checks unavailable" : `${ready} eligible for automatic calling`}.</p>

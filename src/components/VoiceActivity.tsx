@@ -1,27 +1,31 @@
+import { CallActivityRefresh } from "@/components/CallActivityRefresh";
 import { z } from "zod";
 import { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
 import { formatCallPhone } from "@/lib/call-plan";
 
-const row = z.object({ id: z.string(), created_at: z.string(), mode: z.string(), status: z.string(), destination: z.string(), review_required: z.boolean(), ended_reason: z.string().nullable(), context_snapshot: z.record(z.string(), z.unknown()), report: z.unknown().nullable() });
+const row = z.object({ id: z.string(), created_at: z.string(), scheduled_at: z.string().nullable(), dispatched_at: z.string().nullable(), mode: z.string(), status: z.string(), destination: z.string(), review_required: z.boolean(), ended_reason: z.string().nullable(), context_snapshot: z.record(z.string(), z.unknown()), report: z.unknown().nullable() });
 export async function VoiceActivity({ owner }: { owner: Owner }) {
   const db = admin();
-  const result = await db.from("voice_attempts").select("id,created_at,mode,status,destination,review_required,ended_reason,context_snapshot,report").eq("owner", owner).order("created_at", { ascending: false }).limit(12);
-  if (result.error) return <section className="rounded-xl border border-stone-200 bg-white p-4 text-sm text-stone-600">AI follow-up is in internal testing. Your manual call queue is available below.</section>;
+  const result = await db.from("voice_attempts").select("id,created_at,scheduled_at,dispatched_at,mode,status,destination,review_required,ended_reason,context_snapshot,report").eq("owner", owner).order("created_at", { ascending: false }).limit(200);
+  if (result.error) return <section className="rounded-xl border border-stone-200 bg-white p-4 text-sm text-stone-600">Call activity could not be loaded. Refresh to try again. Your call prep is available below.</section>;
   const attempts = z.array(row).safeParse(result.data);
   if (!attempts.success) return null;
   const actions = attempts.data.length ? await db.from("voice_actions").select("id,attempt_id,kind,status,details,result").in("attempt_id", attempts.data.map(item => item.id)).order("created_at", { ascending: false }).limit(60) : { data: [], error: null };
   const records = z.array(z.object({ id: z.string(), attempt_id: z.string(), kind: z.string(), status: z.string(), details: z.record(z.string(), z.unknown()), result: z.unknown().nullable() })).safeParse(actions.data);
-  return <details className="my-4 rounded-xl border border-stone-200 bg-white p-4">
-    <summary className="cursor-pointer font-medium text-stone-900">AI follow-up activity <span className="ml-2 text-sm font-normal text-stone-500">Call records and follow-up tasks</span></summary>
-    <p className="mt-2 text-sm text-stone-600">Review what Alex knew, what happened, and which requests need a person. Rehearsal outreach actions are simulated. Explicit live-calendar tests create a real event labelled TEST.</p>
-    {!attempts.data.length && <p className="mt-3 text-sm text-stone-500">No recorded AI call attempts yet.</p>}
-    {attempts.data.map(attempt => {
+  const live = attempts.data.filter(attempt => attempt.mode === "pilot");
+  const upcoming = live.filter(attempt => ["queued", "creating", "active"].includes(attempt.status)).sort((a, b) => Date.parse(a.scheduled_at ?? a.created_at) - Date.parse(b.scheduled_at ?? b.created_at));
+  const history = live.filter(attempt => !["queued", "creating", "active"].includes(attempt.status)).sort((a, b) => Date.parse(b.dispatched_at ?? b.created_at) - Date.parse(a.dispatched_at ?? a.created_at));
+  const tests = attempts.data.filter(attempt => attempt.mode === "internal");
+  const groups = [{ title: "Upcoming calls", items: upcoming, empty: "No calls are currently queued. Eligible follow-ups will appear here automatically." }, { title: "Call history", items: history, empty: "No completed prospect calls yet." }];
+  const time = (value: string) => new Date(value).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+  const renderAttempt = (attempt: z.infer<typeof row>) => {
+
       const contact = z.object({ name: z.string() }).safeParse(attempt.context_snapshot.contact);
       const operational = z.object({ operational: z.object({ outcome: z.string().nullable() }) }).safeParse(attempt.report);
       return <details key={attempt.id} className="mt-3 rounded-lg border border-stone-200 p-3">
-        <summary className="cursor-pointer text-sm"><strong>{contact.success ? contact.data.name : "Audio test"}</strong> · {attempt.mode === "internal" ? "Rehearsal" : "Pilot queue"} · {attempt.status}{attempt.review_required ? " · Needs review" : ""}<span className="ml-3 text-stone-500">{formatCallPhone(attempt.destination)}</span></summary>
-        <p className="mt-2 text-xs text-stone-500">{new Date(attempt.created_at).toLocaleString("en-US", { timeZone: "America/New_York", timeZoneName: "short" })}{attempt.ended_reason ? ` · ${attempt.ended_reason}` : ""}{operational.success && operational.data.operational.outcome ? ` · ${operational.data.operational.outcome.replaceAll("_", " ")}` : ""}</p>
+        <summary className="cursor-pointer text-sm"><strong>{contact.success ? contact.data.name : "Audio test"}</strong> · {typeof attempt.context_snapshot.company_name === "string" ? attempt.context_snapshot.company_name : "Internal test"} · {attempt.status === "creating" ? "Connecting" : attempt.status === "active" ? "In progress" : attempt.status === "queued" ? "Scheduled" : attempt.status === "ended" ? "Call ended" : attempt.status}{attempt.review_required ? " · Needs review" : ""}<span className="ml-3 text-stone-500">{formatCallPhone(attempt.destination)}</span></summary>
+        <p className="mt-2 text-xs text-stone-500">{attempt.dispatched_at ? `Called ${time(attempt.dispatched_at)}` : attempt.scheduled_at ? `Scheduled ${time(attempt.scheduled_at)}` : `Added ${time(attempt.created_at)}`}{attempt.ended_reason ? ` · ${attempt.ended_reason}` : ""}{operational.success && operational.data.operational.outcome ? ` · ${operational.data.operational.outcome.replaceAll("_", " ")}` : ""}</p>
         {actions.error && <p className="mt-2 text-sm text-amber-700">Follow-up requests could not be loaded. Refresh before taking action.</p>}
         {records.success && records.data.filter(action => action.attempt_id === attempt.id).map(action => <div key={action.id} className="mt-2 rounded-md bg-stone-50 p-3 text-sm"><strong>{action.kind.replaceAll("_", " ")}</strong> · {action.status}<p className="mt-1 whitespace-pre-wrap text-stone-600">{typeof action.details.reason === "string" ? action.details.reason : "Review the saved action details."}</p>{typeof action.details.expressed_words === "string" && <p className="mt-1 text-stone-500">Prospect words: {action.details.expressed_words}</p>}{typeof action.details.start === "string" && <p className="mt-1 text-stone-600">Requested callback: {action.details.start} · {typeof action.details.timezone === "string" ? action.details.timezone : "Timezone needs review"}</p>}</div>)}
         <details className="mt-3 text-sm"><summary className="cursor-pointer text-stone-600">Email context and conversation</summary>
@@ -31,6 +35,17 @@ export async function VoiceActivity({ owner }: { owner: Owner }) {
           <p className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-stone-50 p-3 text-sm">{z.object({ transcript: z.string() }).safeParse(attempt.report).success ? z.object({ transcript: z.string() }).parse(attempt.report).transcript || "No conversation transcript yet." : "No conversation transcript yet."}</p>
         </details>
       </details>;
-    })}
-  </details>;
+  };
+  return <section className="my-5 space-y-4">
+    <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl font-semibold text-stone-900">Automatic calls</h2><p className="mt-1 text-sm text-stone-500">Alex’s prospect calls, separate from internal tests. All times Eastern.</p></div><CallActivityRefresh /></div>
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{[
+      ["Calls made", live.filter(attempt => attempt.dispatched_at).length],
+      ["In progress", upcoming.filter(attempt => attempt.status !== "queued").length],
+      ["Upcoming", upcoming.filter(attempt => attempt.status === "queued").length],
+      ["Needs attention", live.filter(attempt => attempt.review_required || attempt.status === "held").length],
+    ].map(([label, count]) => <div key={label} className="rounded-xl border border-stone-200 bg-white p-4"><p className="text-xs font-medium text-stone-500">{label}</p><p className="mt-1 text-2xl font-semibold text-stone-900">{count}</p></div>)}</div>
+    <div className="grid gap-4 xl:grid-cols-2">{groups.map(group => <section key={group.title} className="rounded-xl border border-stone-200 bg-white p-4"><h3 className="font-semibold text-stone-900">{group.title} <span className="ml-2 text-sm font-normal text-stone-500">{group.items.length}</span></h3>{!group.items.length && <p className="py-5 text-sm text-stone-500">{group.empty}</p>}{group.items.map(renderAttempt)}</section>)}</div>
+    <p className="text-xs text-stone-500">Scheduled times are targets. Calls run one at a time during approved local calling hours. Expand a call to see the sent email, transcript and follow-up requests. Showing up to 200 recent records.</p>
+    {tests.length > 0 && <details className="rounded-xl border border-stone-200 bg-white p-4"><summary className="cursor-pointer text-sm font-medium text-stone-600">Internal test calls ({tests.length})</summary>{tests.map(renderAttempt)}</details>}
+  </section>;
 }
