@@ -13,7 +13,7 @@ import { VOICE_BOOKING, VOICE_INSTRUCTIONS } from "./voice-booking.ts";
 const require = createRequire(import.meta.url);
 const assistantId = "5c23de70-09c0-47db-a265-8c88fc5c7cd7";
 const phoneNumberId = "2bfff64d-829e-4058-9875-7119785dd4c2";
-function route(number: string = VOICE_BOOKING.callerNumber, voice?: Record<string, unknown>) {
+function route(number: string = VOICE_BOOKING.callerNumber, voice?: Record<string, unknown>, companyLine = false) {
   const exports: Record<string, unknown> = {}, requests: Array<{ path: string; method: string; body: unknown }> = [];
   runInNewContext(ts.transpileModule(readFileSync(new URL("../app/api/cron/voice/route.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
     exports, Response, Date, process: { env: { VAPI_ASSISTANT_ID: assistantId, VAPI_WEBHOOK_SECRET: "test-secret-that-is-long-enough-for-testing" } },
@@ -25,7 +25,7 @@ function route(number: string = VOICE_BOOKING.callerNumber, voice?: Record<strin
       if (name === "@/lib/voice-runtime") return { reserveInternalVoiceAttempt: async () => "attempt-1", attachVoiceCall: async () => undefined, holdVoiceAttempt: async () => undefined };
       if (name === "@/lib/voice-sent-context") return { currentVoiceFollowup: async (task: Parameters<typeof voiceFollowup>[0]) => voiceFollowup(task) };
       if (name === "@/lib/supabase/admin") return { admin: () => ({}) };
-      if (name === "@/lib/call-tasks") return { loadCallTasks: async () => [{ id: "task", owner: "suuchi", name: "Sam Jones", title: "COO", company: "Example", domain: "example.test", email: "sam@example.test", emailBody: "Shipping handoffs", why: "Growing", bounced: false, plan: newCallPlan("2026-10-21T14:00:00Z") }] };
+      if (name === "@/lib/call-tasks") return { loadCallTasks: async () => [{ id: "task", owner: "suuchi", name: "Sam Jones", title: "COO", company: "Example", domain: "example.test", email: "sam@example.test", emailBody: "Shipping handoffs", why: "Growing", bounced: false, plan: { ...newCallPlan("2026-10-21T14:00:00Z"), phone: companyLine ? { number: "+15555550100", kind: "company", sourceUrl: "https://example.test/contact", checkedAt: "2026-10-21T14:00:00Z", notes: "Company office" } : null } }] };
       if (name === "@/lib/voice-followup") return { voiceFollowup };
       if (name === "@/lib/auth") return { cronAuthorized: (request: Request) => request.headers.get("authorization") === "Bearer test-cron" };
       if (name === "@/lib/voice-assistant") return { voiceAssistantPayload };
@@ -100,6 +100,18 @@ test("follow-up preview never places a call", async () => {
   const hook = route();
   assert.equal((await hook.post(request("followup-preview"))).status, 200);
   assert.equal(hook.requests.every(item => item.method === "GET"), true);
+});
+test("company-line rehearsal keeps receptionist greetings in the call scenario", async () => {
+  const hook = route(VOICE_BOOKING.callerNumber, undefined, true);
+  assert.equal((await hook.post(request("test-followup"))).status, 200);
+  const call = hook.requests.find(item => item.path === "/call")?.body as { customer: { number: string }; assistantOverrides: { firstMessage: string; model: { messages: Array<{ content: string }> } } };
+  assert.equal(call.customer.number, VOICE_BOOKING.transferNumber);
+  assert.equal(call.assistantOverrides.firstMessage, "Hi, this is Alex with Nine Six Seven. Could I speak with Sam Jones?");
+  const prompt = call.assistantOverrides.model.messages[0].content;
+  assert.match(prompt, /A company-name greeting means reception has answered/);
+  assert.match(prompt, /Do not volunteer that this is a test, roleplay or rehearsal/);
+  assert.match(prompt, /If explicitly asked whether this is a test, answer truthfully/);
+  assert.doesNotMatch(prompt, /acknowledge that this is the rehearsal and continue/);
 });
 test("internal booking rehearsals have enough time to finish confirmation", async () => {
   const hook = route();
