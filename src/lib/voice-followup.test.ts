@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { voiceFollowup } from "./voice-followup.ts";
 import { newCallPlan } from "./call-plan.ts";
+import { VOICE_BOOKING } from "./voice-booking.ts";
 import type { CallTask } from "./call-tasks.ts";
 
 const task: CallTask = { id: "task", cardId: "card", personId: "person", owner: "suuchi", name: "Sam Jones", title: "COO", company: "Example Manufacturing", domain: "example.test", email: "sam@example.test", emailBody: "Could we help connect production orders to shipping paperwork?", emailSubject: "Mutable draft subject", bounced: false, why: "Multiple production sites", plan: newCallPlan("2026-10-21T14:00:00Z") };
@@ -27,4 +28,13 @@ test("voice follow-up refuses bounced, missing, completed or future email contex
   assert.throws(() => voiceFollowup({ ...task, plan: { ...task.plan, status: "completed" } }, now));
   assert.throws(() => voiceFollowup({ ...task, owner: "josh" }, now));
   assert.throws(() => voiceFollowup({ ...task, plan: newCallPlan("2026-10-23T14:00:00Z") }, now));
+});
+
+test("reception message includes the real callback number without exposing email details", () => {
+  const result = voiceFollowup({ ...task, plan: { ...task.plan, phone: { number: "+15555550100", kind: "company", sourceUrl: "https://example.test/contact", checkedAt: "2026-10-21T14:00:00Z", notes: "Office" } } }, new Date("2026-10-22T14:00:00Z"));
+  assert.equal(result.context.callback_number, VOICE_BOOKING.callerNumber);
+  assert.equal(result.context.gatekeeper_message, "Sure. Please let Sam know Alex with Nine Six Seven called. The callback number is two zero one, five eight one, four three zero nine.");
+  assert.doesNotMatch(result.context.gatekeeper_message, /production|shipping|email|fifteen|meeting|workflow/i);
+  assert.match(result.instructions, /including its callback number, then pause for acknowledgement/);
+  assert.match(result.instructions, /Only after confirming you reached Sam Jones/);
 });

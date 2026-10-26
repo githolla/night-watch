@@ -76,5 +76,5 @@ test("company lines ask reception for the contact without exposing the sent emai
   assert.equal(body.assistantOverrides.firstMessage, "Hi, this is Alex with Nine Six Seven. Could I speak with Morgan?");
   assert.doesNotMatch(body.assistantOverrides.firstMessage, /shipping|email|handoffs/i);
   assert.match(body.assistantOverrides.model.messages[0].content, /After a new person answers, briefly introduce yourself and confirm their identity/);
-  assert.match(body.assistantOverrides.model.messages[0].content, /Do not pitch or offer a meeting to the receptionist/);
+  assert.match(body.assistantOverrides.model.messages[0].content, /Never pitch a workflow or offer a meeting to reception/);
 });
