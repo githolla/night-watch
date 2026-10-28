@@ -53,7 +53,7 @@ export async function dispatchVoicePilot() {
         firstMessageMode: payload.firstMessageMode,
         firstMessageInterruptionsEnabled: payload.firstMessageInterruptionsEnabled,
         startSpeakingPlan: payload.startSpeakingPlan, stopSpeakingPlan: payload.stopSpeakingPlan,
-        maxDurationSeconds: payload.maxDurationSeconds, backgroundSound: payload.backgroundSound,
+        silenceTimeoutSeconds: payload.silenceTimeoutSeconds, maxDurationSeconds: payload.maxDurationSeconds, backgroundSound: payload.backgroundSound,
         endCallMessage: payload.endCallMessage, endCallPhrases: payload.endCallPhrases,
         voicemailDetection: payload.voicemailDetection,
         server: payload.server, serverMessages: payload.serverMessages,

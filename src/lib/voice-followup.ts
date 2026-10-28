@@ -1,3 +1,4 @@
+import { directoryDigits } from "./phone-directory.ts";
 import type { CallTask } from "./call-tasks.ts";
 import { voiceVoicemail } from "./voice-voicemail.ts";
 import { emailSentSpoken } from "./voice-policy.ts";
@@ -27,6 +28,8 @@ export function voiceFollowup(task: CallTask, now = new Date(), metadata: { time
     approved_offer: "A conversation about the workflow and whether a practical tool would be useful.",
     approved_claims: ["Nine-67 learns a specific workflow, builds a practical AI tool and helps the team adopt it."],
     callback_number_spoken: "two zero one, five eight one, four three zero nine",
+    directory_first_name_digits: directoryDigits(task.name.split(/\s+/)[0]),
+    directory_last_name_digits: directoryDigits(task.name.trim().split(/\s+/).at(-1) ?? ""),
     gatekeeper_message: `Sure. Please let ${task.name.split(/\s+/)[0]} know Alex with Nine Six Seven called. The callback number is two zero one, five eight one, four three zero nine.`,
     callback_number: VOICE_BOOKING.callerNumber,
     context_generated_at: now.toISOString(),

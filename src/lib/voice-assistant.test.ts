@@ -75,3 +75,11 @@ test("phone menus have exactly one keypad tool and bounded navigation instructio
   assert.match(first.model.messages[0].content, /at most four keypad actions/);
   assert.match(first.model.messages[0].content, /Even if you already asked the recording/);
 });
+
+test("switchboard holds have enough silence time and use silent output rather than narration", () => {
+  const payload = voiceAssistantPayload(assistant, secret);
+  assert.equal(payload.silenceTimeoutSeconds, 90);
+  assert.match(payload.model.messages[0].content, /single space character/);
+  assert.match(payload.model.messages[0].content, /directory_last_name_digits/);
+  assert.match(payload.model.messages[0].content, /remaining digits/);
+});

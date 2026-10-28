@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const VOICE_PROMPT_VERSION = "email-followup-v19";
+export const VOICE_PROMPT_VERSION = "email-followup-v20";
 export const voiceOutcome = z.enum(["meeting_booked", "interested_followup", "callback_requested", "referral", "not_interested", "do_not_contact", "wrong_number", "voicemail", "phone_menu_unresolved", "receptionist_reached", "no_answer", "technical_failure"]);
 export function validVoiceTimezone(zone: string | null | undefined): zone is string {
   try { if (!zone) return false; new Intl.DateTimeFormat("en", { timeZone: zone }).format(); return true; } catch { return false; }

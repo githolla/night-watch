@@ -66,6 +66,10 @@
     {
       "path": "/api/cron/voice-pilot",
       "schedule": "*/15 13-23 * * 1-5"
+    },
+    {
+      "path": "/api/cron/activity-summary",
+      "schedule": "*/10 0-3 * * 2-6"
     }
   ]
 }
