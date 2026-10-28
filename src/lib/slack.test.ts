@@ -41,3 +41,23 @@ test("a full morning desk stays inside Slack's 50-block message limit", () => {
   const blocks = buildDeskBlocks(Array.from({ length: 20 }, (_, index) => ({ ...card, id: `${card.id.slice(0, -2)}${String(index).padStart(2, "0")}` })));
   assert.ok(blocks.length <= 50);
 });
+
+test("Slack status tests the deployed credential instead of treating presence as connection", async () => {
+  const { slackConnectionStatus } = await import("./slack.ts");
+  const token = process.env.SLACK_BOT_TOKEN, channel = process.env.SLACK_CHANNEL_ID;
+  process.env.SLACK_BOT_TOKEN = "test-token"; process.env.SLACK_CHANNEL_ID = "C_TEST";
+  try {
+    const failed = await slackConnectionStatus(async () => Response.json({ ok: false, error: "invalid_auth" }));
+    assert.deepEqual(failed, { connected: false, error: "invalid_auth" });
+    const calls: string[] = [];
+    const connected = await slackConnectionStatus(async input => {
+      calls.push(String(input));
+      return Response.json(String(input).endsWith("auth.test") ? { ok: true, team: "Nine-67", team_id: "T_TEST" } : { ok: true, channel: { name: "nightwatch" } });
+    });
+    assert.equal(connected.connected, true); assert.equal(connected.channelName, "nightwatch"); assert.equal(calls.length, 2);
+    assert.equal(JSON.stringify(connected).includes("test-token"), false);
+  } finally {
+    if (token === undefined) delete process.env.SLACK_BOT_TOKEN; else process.env.SLACK_BOT_TOKEN = token;
+    if (channel === undefined) delete process.env.SLACK_CHANNEL_ID; else process.env.SLACK_CHANNEL_ID = channel;
+  }
+});

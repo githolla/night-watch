@@ -246,3 +246,20 @@ export async function sendReplySlack(reply: {
     return { delivered: false, reason: error instanceof Error ? error.message : "post failed" };
   }
 }
+
+export async function slackConnectionStatus(fetcher: typeof fetch = fetch) {
+  const token = process.env.SLACK_BOT_TOKEN;
+  const channel = slackChannelId();
+  if (!token || !channel) return { connected: false, error: "Slack bot token or channel is missing on this deployment." };
+  const request = async (method: string, body: Record<string, unknown>) => {
+    const response = await fetcher(`https://slack.com/api/${method}`, { method: "POST", headers: { authorization: `Bearer ${token}`, "content-type": "application/json; charset=utf-8" }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000) });
+    const value: unknown = await response.json();
+    if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Slack returned an invalid status response.");
+    return value as Record<string, unknown>;
+  };
+  const auth = await request("auth.test", {});
+  if (auth.ok !== true) return { connected: false, error: typeof auth.error === "string" ? auth.error : "Slack authentication failed." };
+  const info = await request("conversations.info", { channel });
+  const detail = info.channel && typeof info.channel === "object" && !Array.isArray(info.channel) ? info.channel as Record<string, unknown> : {};
+  return { connected: true, workspace: typeof auth.team === "string" ? auth.team : null, teamId: typeof auth.team_id === "string" ? auth.team_id : null, channelId: channel, channelName: typeof detail.name === "string" ? detail.name : null, channelLookupError: info.ok === true ? null : typeof info.error === "string" ? info.error : "Channel lookup failed." };
+}
