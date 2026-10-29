@@ -7,7 +7,7 @@ import { z } from "zod";
 export async function prepareVoiceQueue() {
   const db = admin();
   const [tasks, approvals, suppressions] = await Promise.all([
-    loadCallTasks(db, "suuchi"),
+    loadCallTasks(db),
     db.from("voice_eligibility").select("*"),
     db.from("voice_suppressions").select("person_id"),
   ]);

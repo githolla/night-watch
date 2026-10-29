@@ -8,7 +8,7 @@ import { VOICE_BOOKING, VOICE_INSTRUCTIONS } from "./voice-booking.ts";
 import { attachVoiceCall, holdVoiceAttempt } from "./voice-runtime.ts";
 import { vapiRequest } from "./vapi.ts";
 
-const claimed = z.object({ id: z.uuid(), task_id: z.uuid(), person_id: z.uuid(), destination: z.string(), eligibility_expires_at: z.string() });
+const claimed = z.object({ id: z.uuid(), task_id: z.uuid(), person_id: z.uuid(), owner: z.enum(["josh", "suuchi"]), destination: z.string(), eligibility_expires_at: z.string() });
 const approvalSchema = z.object({ timezone: z.string(), approved_until: z.string(), approved_number: z.string(), approval_basis: z.enum(["written_consent", "reviewed_business_landline"]), approval_evidence: z.string().trim().min(1), delay_business_days: z.number().int() });
 
 export async function dispatchVoicePilot() {
@@ -24,8 +24,8 @@ export async function dispatchVoicePilot() {
   if (!attempts.length) return { callsPlaced: 0, blocked: "No due eligible call, daily cap reached, or another call is active." };
   const attempt = attempts[0];
   try {
-    const tasks = await loadCallTasks(db, "suuchi");
-    const task = tasks.find(item => item.id === attempt.task_id && item.personId === attempt.person_id && item.plan.status === "pending");
+    const tasks = await loadCallTasks(db);
+    const task = tasks.find(item => item.id === attempt.task_id && item.personId === attempt.person_id && item.owner === attempt.owner && item.plan.status === "pending");
     if (!task) throw new Error("Contact is no longer eligible: reply, bounce, meeting, opt-out or changed call plan.");
     const read = await db.from("voice_eligibility").select("*").eq("person_id", attempt.person_id).single();
     if (read.error) throw new Error("Could not refresh automated-calling eligibility.");

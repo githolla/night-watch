@@ -182,11 +182,12 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     const cardPatch: Record<string, unknown> = recipient.id === card.person_id
       ? { status: "sent", email_subject: subject, email_body: body }
       : { status: "sent", email_subject: subject };
+    const firstSentAt = new Date().toISOString();
     let saveWarning = "";
     try {
     const { error: cardError } = await db.from("cards").update(cardPatch).eq("id", id);
     if (cardError) saveWarning = "The draft status could not be updated.";
-    const { error: touchError } = await db.from("touches").insert({ id:reservationId, card_id: id, person_id: recipient.id, channel: "email", sent_at: new Date().toISOString(), sent_by: owner, gmail_thread_id: result.threadId, body: deliveredBody, experiment_variant_id: versionId });
+    const { error: touchError } = await db.from("touches").insert({ id:reservationId, card_id: id, person_id: recipient.id, channel: "email", sent_at: firstSentAt, sent_by: owner, gmail_thread_id: result.threadId, body: deliveredBody, experiment_variant_id: versionId });
     if (touchError) saveWarning += " History could not be saved.";
     if(!saveWarning){
       const {error:receiptError}=await db.from('message_experiments').update({status:'sent',context:JSON.stringify({delivery:{state:'sent',kind:'initial',messageId:result.id,threadId:result.threadId}})}).eq('id',reservationId);
@@ -199,7 +200,7 @@ export async function sendCardEmail(db: Db, input: CardSendInput) {
     try {
       const focused = allFocus().find((row) => row.domain.toLowerCase() === String(card.accounts?.domain ?? "").toLowerCase());
       await ensureFollowupCadence(db, {
-        cardId: id, personId: recipient.id, owner, touchedChannel: "email",
+        cardId: id, personId: recipient.id, owner, touchedChannel: "email", firstSentAt,
         firstName: (recipient.full_name ?? "").trim().split(/\s+/)[0] || "there",
         baseSubject: subject, ...followupContext(card, focused),
       });

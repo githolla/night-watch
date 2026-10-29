@@ -23,7 +23,7 @@ export async function auditVoicePhones(phone: unknown, taskId?: string) {
   const token = process.env.TWILIO_AUTH_TOKEN || imported.twilioAuthToken;
   if (!sid || !token || !/^AC[a-f0-9]{32}$/i.test(sid)) throw new Error("Twilio credentials are unavailable for line-type checks. No eligibility was changed.");
   const db = admin();
-  const tasks = (await loadCallTasks(db, "suuchi")).filter(task => task.plan.status === "pending" && task.plan.phone && (!taskId || task.id === taskId));
+  const tasks = (await loadCallTasks(db)).filter(task => task.plan.status === "pending" && task.plan.phone && (!taskId || task.id === taskId));
   const due = tasks.filter(task => taskId || !task.plan.phoneAudit || Date.now() - Date.parse(task.plan.phoneAudit.checkedAt) > 7 * 86_400_000).slice(0, 5);
   const checked: Array<{ taskId: string; name: string; company: string; number: string; lineType: string; companySourceVerified: boolean }> = [];
   const errors: Array<{ taskId: string; reason: string }> = [];

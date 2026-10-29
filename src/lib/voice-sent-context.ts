@@ -1,16 +1,18 @@
 import { z } from "zod";
 import type { CallTask } from "./call-tasks.ts";
 import { admin } from "./supabase/admin.ts";
+import { senderProfile } from "./sender.ts";
 import { thread } from "./gmail.ts";
 import { voiceFollowup } from "./voice-followup.ts";
 import { allFocus } from "./focus-data.ts";
 
 export async function currentVoiceFollowup(task: CallTask, timezone?: string) {
   const db = admin();
-  const [sender, person, history] = await Promise.all([
+  const [sender, person, history, profile] = await Promise.all([
     db.from("gmail_connections").select("email").eq("owner", task.owner).single(),
     db.from("people").select("account_id").eq("id", task.personId).single(),
     db.from("touches").select("sent_at,gmail_thread_id,body,bounced_at,reply_at,reply_classification").eq("person_id", task.personId).eq("sent_by", task.owner).eq("channel", "email").not("sent_at", "is", null).order("sent_at", { ascending: true }).limit(100),
+    senderProfile(db, task.owner),
   ]);
   if (sender.error || person.error || history.error) throw new Error("Could not verify current sender and email history.");
   const touches = z.array(z.object({ sent_at: z.string(), gmail_thread_id: z.string().nullable(), body: z.string().nullable(), bounced_at: z.string().nullable(), reply_at: z.string().nullable(), reply_classification: z.string().nullable() })).parse(history.data);
@@ -35,5 +37,5 @@ export async function currentVoiceFollowup(task: CallTask, timezone?: string) {
     subject = matched?.payload.headers.find(header => header.name.toLowerCase() === "subject")?.value;
   }
   const row = allFocus().find(item => item.domain.toLowerCase() === task.domain.toLowerCase());
-  return voiceFollowup({ ...task, emailBody: first.body }, new Date(), { timezone, senderAddress: String(sender.data.email), subject, companyId: String(person.data.account_id), industry: row?.sector });
+  return voiceFollowup({ ...task, emailBody: first.body }, new Date(), { timezone, senderAddress: String(sender.data.email), senderName: profile.fromName, senderTitle: profile.title, subject, companyId: String(person.data.account_id), industry: row?.sector });
 }

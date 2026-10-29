@@ -10,4 +10,5 @@ psql -h "$voice_test_dir" -p 55439 -d postgres -v ON_ERROR_STOP=1 \
   -f supabase/migrations/0035_voice_followup.sql \
   -f supabase/tests/voice_followup.sql \
   -f supabase/migrations/0036_voice_pilot.sql \
+  -f supabase/migrations/0037_voice_both_owners.sql \
   -f supabase/tests/voice_pilot.sql

@@ -11,7 +11,7 @@ import { voiceAssistantPayload } from "./voice-assistant.ts";
 const require = createRequire(import.meta.url);
 const id = "10000000-0000-4000-8000-000000000001", personId = "10000000-0000-4000-8000-000000000002";
 const config = { id: true, enabled: true, starts_at: "2020-01-01T00:00:00Z", ends_at: "2035-01-01T00:00:00Z", booking_test_passed: true, voicemail_test_passed: true, optout_test_passed: true };
-function harness(options: { config?: Record<string, unknown> | null; eligible?: boolean; failure?: boolean; phoneKind?: "direct" | "company" } = {}) {
+function harness(options: { config?: Record<string, unknown> | null; eligible?: boolean; failure?: boolean; phoneKind?: "direct" | "company"; owner?: "josh" | "suuchi"; taskOwner?: "josh" | "suuchi" } = {}) {
   const memory = queryDb({ voice_pilot_config: options.config === null ? [] : [options.config ?? config], voice_eligibility: [{ person_id: personId, timezone: "America/New_York", approved_until: "2035-01-01T00:00:00Z", approved_number: "+15555550100", approval_basis: "written_consent", approval_evidence: "Documented permission", delay_business_days: 1 }], voice_attempts: [{ id, status: "creating" }] });
   let claims = 0, calls = 0, attached = 0, held = 0;
   let callPayload: unknown;
@@ -19,8 +19,8 @@ function harness(options: { config?: Record<string, unknown> | null; eligible?: 
   runInNewContext(ts.transpileModule(readFileSync(new URL("./voice-dispatch.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
     exports, Date, process: { env: { VAPI_ASSISTANT_ID: "assistant-1", VAPI_WEBHOOK_SECRET: "test-secret-that-is-long-enough-for-testing" } },
     require: (name: string) => {
-      if (name === "./supabase/admin.ts") return { admin: () => ({ ...memory.db, rpc: async () => { claims++; return { data: [{ id, task_id: id, person_id: personId, destination: "+15555550100", eligibility_expires_at: "2035-01-01T00:00:00Z" }], error: null }; } }) };
-      if (name === "./call-tasks.ts") return { loadCallTasks: async () => options.eligible === false ? [] : [{ id, personId, name: "Morgan", bounced: false, plan: { status: "pending", firstEmailAt: "2026-10-21T14:00:00Z", phone: { number: "+15555550100", kind: options.phoneKind ?? "direct" } } }] };
+      if (name === "./supabase/admin.ts") return { admin: () => ({ ...memory.db, rpc: async () => { claims++; return { data: [{ id, task_id: id, person_id: personId, owner: options.owner ?? "suuchi", destination: "+15555550100", eligibility_expires_at: "2035-01-01T00:00:00Z" }], error: null }; } }) };
+      if (name === "./call-tasks.ts") return { loadCallTasks: async (_db: unknown, owner: unknown) => { assert.equal(owner, undefined); return options.eligible === false ? [] : [{ id, personId, owner: options.taskOwner ?? options.owner ?? "suuchi", name: "Morgan", bounced: false, plan: { status: "pending", firstEmailAt: "2026-10-21T14:00:00Z", phone: { number: "+15555550100", kind: options.phoneKind ?? "direct" } } }]; } };
       if (name === "./voice-sent-context.ts") return { currentVoiceFollowup: async () => ({ context: { first_name: "Morgan", email_body: "Actual sent email", email_subject: "shipping handoffs", context_generated_at: new Date().toISOString() }, firstMessage: "Hi Morgan", instructions: "Use actual email", voicemailMessage: "Approved voicemail" }) };
       if (name === "./voice-policy.ts") return { VOICE_PROMPT_VERSION: "test", voiceEligibility: () => ({ allowed: true, reasons: [] }) };
       if (name === "./voice-assistant.ts") return { voiceAssistantPayload };
@@ -78,4 +78,12 @@ test("company lines let the model distinguish menus from reception before speaki
   assert.doesNotMatch(body.assistantOverrides.firstMessage, /shipping|email|handoffs/i);
   assert.match(body.assistantOverrides.model.messages[0].content, /After a new person answers, briefly introduce yourself and confirm their identity/);
   assert.match(body.assistantOverrides.model.messages[0].content, /Never pitch a workflow or offer a meeting to reception/);
+});
+
+test("Josh calls dispatch under Josh and a mismatched owner is held", async () => {
+  const josh = harness({ owner: "josh" });
+  assert.equal((await josh.run()).callsPlaced, 1);
+  const mismatch = harness({ owner: "josh", taskOwner: "suuchi" });
+  await assert.rejects(mismatch.run(), /no longer eligible/);
+  assert.equal(mismatch.metrics().calls, 0);
 });

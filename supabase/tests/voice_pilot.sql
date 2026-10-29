@@ -5,7 +5,7 @@ update voice_pilot_config set enabled=false, starts_at=now()-interval '1 hour', 
 insert into voice_eligibility(person_id,timezone,timezone_source,approved_until,approved_by,delay_business_days,approval_basis,approval_evidence,approved_number)
 select '00000000-0000-4000-8000-000000000001',name,'Isolated test',now()+interval '1 day','test',1,'written_consent','Test fixture','+15555550100' from pg_timezone_names where extract(isodow from now() at time zone name) between 1 and 5 and extract(hour from now() at time zone name) between 9 and 16 limit 1;
 insert into voice_attempts(id,person_id,owner,mode,destination,attempt_key,status,eligibility_expires_at,scheduled_at,context_snapshot,prompt_version)
-values ('00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000001','suuchi','pilot','+15555550100','test-claim','queued',now()+interval '1 day',now()-interval '1 day','{}','test');
+values ('00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000001','josh','pilot','+15555550100','test-claim','queued',now()+interval '1 day',now()-interval '1 day','{}','test');
 do $$ begin
   if exists(select 1 from claim_voice_pilot()) then raise exception 'Disabled pilot claimed a call'; end if;
   update voice_pilot_config set enabled=true;
@@ -27,5 +27,7 @@ do $$ begin
   insert into voice_eligibility select '00000000-0000-4000-8000-000000000003',timezone,timezone_source,approved_until,approved_by,delay_business_days,approval_basis,approval_evidence,'+15555550101' from voice_eligibility limit 1;
   insert into voice_attempts(id,person_id,owner,mode,destination,attempt_key,status,eligibility_expires_at,scheduled_at,context_snapshot,prompt_version) values('00000000-0000-4000-8000-000000000004','00000000-0000-4000-8000-000000000003','suuchi','pilot','+15555550101','test-second','queued',now()+interval '1 day',now()-interval '1 day','{}','test');
   if exists(select 1 from claim_voice_pilot()) then raise exception 'Daily limit allowed another call'; end if;
+  update voice_pilot_config set daily_limit=5;
+  if (select count(*) from claim_voice_pilot() where owner='suuchi')<>1 then raise exception 'Suuchi call was not claimed after Josh'; end if;
 end $$;
 rollback;

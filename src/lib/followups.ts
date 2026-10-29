@@ -1,4 +1,4 @@
-import { newCallPlan } from "./call-plan.ts";
+import { newCallPlan, nextCallDate } from "./call-plan.ts";
 import { enrollCadence, CadenceExists } from "./cadence-enrollment.ts";
 import type { admin } from "@/lib/supabase/admin";
 import type { Owner } from "@/lib/types";
@@ -43,18 +43,11 @@ export function refreshLegacyFollowup(body: string, ctx: {firstName:string;compa
   return legacy ? steps[Math.max(0,Math.min(steps.length-1,ctx.step >= 3 ? steps.length-1 : ctx.step-1))].body : body;
 }
 
-/** Add N business days from now and land it mid-morning (roughly 10–11am US Eastern) so reminders come due on a workday. */
-function scheduleBusinessDays(days: number): string {
-  const cursor = new Date();
-  let remaining = days;
-  while (remaining > 0) { cursor.setUTCDate(cursor.getUTCDate() + 1); if (![0, 6].includes(cursor.getUTCDay())) remaining--; }
-  while ([0, 6].includes(cursor.getUTCDay())) cursor.setUTCDate(cursor.getUTCDate() + 1);
-  // Land at a random minute inside ~9am–5pm US Eastern (13:00–21:00 UTC) instead of a fixed time, so
-  // a batch of follow-ups doesn't all fire on the same minute (which reads as automated to spam filters).
-  const hour = 13 + Math.floor(Math.random() * 8);
-  const minute = Math.floor(Math.random() * 60);
-  cursor.setUTCHours(hour, minute, 0, 0);
-  return cursor.toISOString();
+export function scheduleFollowupAt(firstSentAt: string, businessDays: number): string {
+  if (!Number.isInteger(businessDays) || businessDays < 1 || businessDays > 30) throw new Error("Choose one to thirty business days.");
+  let scheduledAt = firstSentAt;
+  for (let day = 0; day < businessDays; day++) scheduledAt = nextCallDate(scheduledAt);
+  return scheduledAt;
 }
 
 /** After the first touch is recorded, stand up the next three follow-ups as a manual cadence on the same channel.
@@ -65,6 +58,7 @@ export async function ensureFollowupCadence(
 ): Promise<{ created: boolean; steps: number }> {
   const channel: FollowupChannel = ctx.touchedChannel === "email" ? "email" : "linkedin_message";
   const steps = buildFollowups(channel, { firstName: ctx.firstName, company: ctx.company, baseSubject: ctx.baseSubject, task: ctx.task, metric: ctx.metric });
+  const firstSentAt = ctx.firstSentAt ?? new Date().toISOString();
   const rows = steps.map((step, index) => ({
     step_number: index + 1,
     channel: step.channel,
@@ -76,10 +70,10 @@ export async function ensureFollowupCadence(
     subject: step.subject,
     body: step.body,
     status: "pending" as const,
-    scheduled_at: scheduleBusinessDays(step.day),
+    scheduled_at: scheduleFollowupAt(firstSentAt, step.day),
   }));
   try {
-    const cadence=await enrollCadence(db,{cardId:ctx.cardId,personId:ctx.personId,owner:ctx.owner,mode:'manual',rules:{stop_on_reply:true,weekdays_only:true,time_zone:'America/New_York',origin:'touch',...(ctx.touchedChannel==='email'?{call:newCallPlan(ctx.firstSentAt??new Date().toISOString())}:{})},steps:rows});
+    const cadence=await enrollCadence(db,{cardId:ctx.cardId,personId:ctx.personId,owner:ctx.owner,mode:'manual',rules:{stop_on_reply:true,weekdays_only:true,time_zone:'America/New_York',origin:'touch',...(ctx.touchedChannel==='email'?{call:newCallPlan(firstSentAt)}:{})},steps:rows});
     return {created:true,steps:cadence.steps};
   }catch(error){if(error instanceof CadenceExists)return {created:false,steps:0};throw error;}
 }

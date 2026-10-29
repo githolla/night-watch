@@ -5,8 +5,9 @@ import { emailSentSpoken } from "./voice-policy.ts";
 import { VOICE_BOOKING } from "./voice-booking.ts";
 import { buildCompanyIntel } from "./call-intel.ts";
 
-export function voiceFollowup(task: CallTask, now = new Date(), metadata: { timezone?: string; senderAddress?: string; subject?: string; industry?: string; companyId?: string } = {}) {
-  if (task.owner !== "suuchi" || task.bounced || task.plan.status !== "pending" || !task.emailBody.trim()) throw new Error("A pending Suuchi call with an actual sent email is required.");
+export function voiceFollowup(task: CallTask, now = new Date(), metadata: { timezone?: string; senderAddress?: string; subject?: string; industry?: string; companyId?: string; senderName?: string; senderTitle?: string } = {}) {
+  if (task.bounced || task.plan.status !== "pending" || !task.emailBody.trim()) throw new Error("A pending call with an actual sent email is required.");
+  const senderName = metadata.senderName?.trim() || (task.owner === "josh" ? "Josh" : "Suuchi");
   const sent = new Date(task.plan.firstEmailAt);
   if (!Number.isFinite(sent.getTime()) || sent > now) throw new Error("A valid past email send date is required.");
   const sentDate = sent.toLocaleDateString("en-US", { timeZone: "America/New_York", month: "long", day: "numeric", year: "numeric" });
@@ -18,12 +19,12 @@ export function voiceFollowup(task: CallTask, now = new Date(), metadata: { time
     company_name: task.company, industry: metadata.industry ?? null,
     contact_timezone: metadata.timezone ?? null,
     current_local_datetime: metadata.timezone ? now.toLocaleString("en-US", { timeZone: metadata.timezone, timeZoneName: "long" }) : null,
-    email_sender_name: "Suuchi", email_sender_name_spoken: "Nine Six Seven", email_sender_role: "CEO", email_sender_address: metadata.senderAddress ?? null,
+    email_sender_name: senderName, email_sender_name_spoken: "Nine Six Seven", email_sender_role: metadata.senderTitle?.trim() || null, email_sender_address: metadata.senderAddress ?? null,
     email_sent_at: task.plan.firstEmailAt, email_sent_spoken: emailSentSpoken(task.plan.firstEmailAt, metadata.timezone ?? null, now),
     email_subject: metadata.subject ?? null, email_body: task.emailBody, email_summary: null,
     email_delivery_status: "sent", latest_reply_status: "no recorded non-OOO reply",
     workflow_hypothesis: task.why, unverified_assumptions: ["We do not know whether this workflow is a problem for the team.", "Sent does not mean delivered or read."],
-    prior_interactions: [{ type: "email", sender: "Suuchi", at: task.plan.firstEmailAt }],
+    prior_interactions: [{ type: "email", sender: senderName, at: task.plan.firstEmailAt }],
     meeting_host: "Suuchi", meeting_host_spoken: "our executive team", meeting_duration_minutes: VOICE_BOOKING.durationMinutes,
     approved_offer: "A conversation about the workflow and whether a practical tool would be useful.",
     approved_claims: ["Nine-67 learns a specific workflow, builds a practical AI tool and helps the team adopt it."],
@@ -36,7 +37,7 @@ export function voiceFollowup(task: CallTask, now = new Date(), metadata: { time
     company: { name: task.company, domain: task.domain, overview: intel.overview, products: intel.products, operations: intel.operations, source: intel.sourceUrl, checkedAt: intel.checkedAt },
     verified_company_facts: intel.sourceUrl ? [{ overview: intel.overview, products: intel.products, operations: intel.operations, source: intel.sourceUrl, checkedAt: intel.checkedAt }] : [],
     reasonForOutreach: task.why,
-    sentEmail: { sender: "Suuchi", sentAt: task.plan.firstEmailAt, sentDateEastern: sentDate, body: task.emailBody },
+    sentEmail: { sender: senderName, sentAt: task.plan.firstEmailAt, sentDateEastern: sentDate, body: task.emailBody },
   };
   return {
     taskId: task.id, personId: task.personId, context,

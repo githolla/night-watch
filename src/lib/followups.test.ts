@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildFollowups, refreshLegacyFollowup } from "./followups.ts";
+import { buildFollowups, refreshLegacyFollowup, scheduleFollowupAt } from "./followups.ts";
 
 const ctx = { firstName: "Marc", company: "Eliassen", baseSubject: "automate instead of hire" };
 
@@ -62,4 +62,10 @@ test("legacy follow-up text still maps to the current generic wording", () => {
   const legacy = refreshLegacyFollowup("Floating this back up in case it slipped by", { ...ctx, step: 1, channel: "email" });
   assert.equal(legacy, buildFollowups("email", ctx)[0].body);
   assert.equal(refreshLegacyFollowup("A personal note.", { ...ctx, step: 1, channel: "email" }), "A personal note.");
+});
+
+test("email follow-ups stay anchored to the actual send across weekends and DST", () => {
+  assert.equal(scheduleFollowupAt("2026-10-30T15:00:00Z", 3), "2026-11-04T15:00:00.000Z");
+  assert.equal(scheduleFollowupAt("2026-10-30T15:00:00Z", 10), "2026-11-13T15:00:00.000Z");
+  assert.throws(() => scheduleFollowupAt("invalid", 3));
 });

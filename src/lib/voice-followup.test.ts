@@ -10,7 +10,7 @@ test("voice follow-up uses actual email body and date instead of mutable draft s
   const result = voiceFollowup(task, new Date("2026-10-22T14:00:00Z"));
   assert.equal(result.firstMessage, "Hi, this is Alex with Nine Six Seven. Am I speaking with Sam?");
   assert.ok(result.instructions.includes(task.emailBody));
-  assert.equal(result.context.email_sender_role, "CEO");
+  assert.equal(result.context.email_sender_role, null);
   assert.equal(result.context.email_sender_name, "Suuchi");
   assert.equal(result.context.email_sender_name_spoken, "Nine Six Seven");
   assert.equal(result.context.meeting_host_spoken, "our executive team");
@@ -26,7 +26,7 @@ test("voice follow-up refuses bounced, missing, completed or future email contex
   assert.throws(() => voiceFollowup({ ...task, bounced: true }, now));
   assert.throws(() => voiceFollowup({ ...task, emailBody: "" }, now));
   assert.throws(() => voiceFollowup({ ...task, plan: { ...task.plan, status: "completed" } }, now));
-  assert.throws(() => voiceFollowup({ ...task, owner: "josh" }, now));
+
   assert.throws(() => voiceFollowup({ ...task, plan: newCallPlan("2026-10-23T14:00:00Z") }, now));
 });
 
@@ -37,4 +37,18 @@ test("reception message includes the real callback number without exposing email
   assert.doesNotMatch(result.context.gatekeeper_message, /production|shipping|email|fifteen|meeting|workflow/i);
   assert.match(result.instructions, /including its callback number, then pause for acknowledgement/);
   assert.match(result.instructions, /Only after confirming you reached Sam Jones/);
+});
+
+test("both owners retain their actual sender identity and the shared executive calendar", () => {
+  for (const owner of ["josh", "suuchi"] as const) {
+    const senderName = owner === "josh" ? "Josh Lee" : "Suuchi Ramesh";
+    const result = voiceFollowup({ ...task, owner }, new Date("2026-10-22T14:00:00Z"), { senderName, senderTitle: "Founder", senderAddress: `${owner}@example.test`, subject: `${owner} sent this` });
+    assert.equal(result.context.email_sender_name, senderName);
+    assert.equal(result.context.email_sender_role, "Founder");
+    assert.equal(result.context.prior_interactions[0].sender, senderName);
+    assert.equal(result.context.sentEmail.sender, senderName);
+    assert.equal(result.context.email_sender_address, `${owner}@example.test`);
+    assert.equal(result.context.email_subject, `${owner} sent this`);
+    assert.equal(result.context.meeting_host, "Suuchi");
+  }
 });
