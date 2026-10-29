@@ -1,10 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { addressCheck } from "./address-history.ts";
-import { newCallPlan, readCallPlan, type CallPlan, type PhoneEvidence } from "./call-plan.ts";
+import { newCallPlan, phoneEvidence, readCallPlan, type CallPlan, type PhoneEvidence } from "./call-plan.ts";
 import type { Owner } from "./types.ts";
 
 export type CallTask = { id: string; cardId: string; personId: string; owner: Owner; name: string; title: string; company: string; domain: string; email: string | null; emailBody: string; emailSubject: string; bounced: boolean; why: string; plan: CallPlan };
-type Row = { id: string; card_id: string; person_id: string; owner: Owner; status: string; rules: unknown; people: { full_name: string; title: string; phone: string | null; email: string | null; do_not_contact: boolean } | null; cards: { status: string; why_now: string; email_subject: string | null; accounts: { name: string; domain: string; status: string } | null } | null };
+type Row = { id: string; card_id: string; person_id: string; owner: Owner; status: string; rules: unknown; people: { full_name: string; title: string; phone: string | null; email: string | null; email_check?: unknown; do_not_contact: boolean } | null; cards: { status: string; why_now: string; email_subject: string | null; accounts: { name: string; domain: string; status: string } | null } | null };
 type Touch = { card_id: string; person_id: string; sent_by: Owner; sent_at: string; body: string | null; reply_at: string | null; reply_classification: string | null; bounced_at: string | null };
 export function buildCallTasks(rows: Row[], touches: Touch[]): CallTask[] {
   const seen = new Set<string>();
@@ -19,12 +19,14 @@ export function buildCallTasks(rows: Row[], touches: Touch[]): CallTask[] {
     seen.add(key);
     const plan = readCallPlan(addressCheck(row.rules).call) ?? newCallPlan(first.sent_at);
     plan.firstEmailAt = new Date(first.sent_at).toISOString();
+    const importedPhone = phoneEvidence.safeParse(addressCheck(p.email_check).companyPhone);
+    if (!plan.phone && importedPhone.success && importedPhone.data.kind === "company" && importedPhone.data.number === p.phone) plan.phone = importedPhone.data;
     if (!plan.phone && p.phone) plan.phone = { number: p.phone, kind: "contact", sourceUrl: null, checkedAt: first.sent_at, notes: "Existing contact number. Source and direct-line status have not been recorded." };
     return [{ id: row.id, cardId: row.card_id, personId: row.person_id, owner: row.owner, name: p.full_name, title: p.title, company: account.name, domain: account.domain, email: p.email, emailBody: first.body ?? "", emailSubject: card.email_subject ?? "", bounced: Boolean(first.bounced_at), why: card.why_now, plan }];
   }).sort((a, b) => a.plan.scheduledAt.localeCompare(b.plan.scheduledAt));
 }
 export async function loadCallTasks(db: SupabaseClient, owner?: Owner): Promise<CallTask[]> {
-  let query = db.from("cadences").select("id,card_id,person_id,owner,status,rules,people(full_name,title,phone,email,do_not_contact),cards(status,why_now,email_subject,accounts(name,domain,status))").in("status", ["active", "completed"]).order("created_at", { ascending: false }).limit(1000);
+  let query = db.from("cadences").select("id,card_id,person_id,owner,status,rules,people(full_name,title,phone,email,email_check,do_not_contact),cards(status,why_now,email_subject,accounts(name,domain,status))").in("status", ["active", "completed"]).order("created_at", { ascending: false }).limit(1000);
   if (owner) query = query.eq("owner", owner);
   const rows = await query;
   if (rows.error) throw new Error("Could not load call tasks.");

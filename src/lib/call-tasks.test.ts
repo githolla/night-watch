@@ -44,3 +44,13 @@ test("call edits preserve sequence rules and recorded outcomes", async () => {
   assert.equal(rules.enrollment_steps[0].body, "Personal followup");
   assert.equal(rules.call.notes, "Discuss their current tools");
 });
+
+test("imported company phone evidence follows the sent email without becoming a direct line", () => {
+  const phone = { number: "7175550100", kind: "company", sourceUrl: "https://acme.test/contact", checkedAt: touch.sent_at, notes: "Company switchboard, ask for Sam." };
+  const imported = { ...row, people: { ...row.people, phone: phone.number, email_check: { companyPhone: phone } } };
+  assert.equal(buildCallTasks([imported], []).length, 0);
+  assert.deepEqual(buildCallTasks([imported], [touch])[0].plan.phone, phone);
+  const changed = { ...imported, people: { ...imported.people, phone: "7175550199" } };
+  assert.equal(buildCallTasks([changed], [touch])[0].plan.phone?.kind, "contact");
+  assert.equal(buildCallTasks([changed], [touch])[0].plan.phone?.sourceUrl, null);
+});
