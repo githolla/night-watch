@@ -1,3 +1,4 @@
+import { OutreachNav } from "@/components/OutreachNav";
 import { LinkedInTasks } from "@/components/LinkedInTasks";
 import { PageHead, seatName } from "@/components/PageHead";
 import { requireUser } from "@/lib/auth";
@@ -22,6 +23,7 @@ export default async function LinkedInPage({ searchParams }: { searchParams: Pro
         <PageHead title={yours ? "LinkedIn tasks" : `${name}'s LinkedIn tasks`} seats={isAdmin ? { current: owner, href: (seat) => `/linkedin?owner=${seat}`, label: "Whose LinkedIn tasks" } : undefined}>
           LinkedIn messages are sent by hand. For each one: copy the message, open their profile and send it there, then mark it sent here so follow-ups and history stay right.
         </PageHead>
+        <OutreachNav owner={owner} active="linkedin" />
         <LinkedInTasks key={owner} tasks={tasks} done={done} canSend={yours} seat={name} />
       </div>
     </main>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DraftWorkspace } from "@/components/DraftWorkspace";
 import { loadNightlyLists } from "@/lib/nightly-lists";
@@ -51,15 +52,21 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
   return (
     <main className="workspace-page drafts-page dw-page">
       <div className="feature-center drafts-shell">
-        <PageHead title={yours ? "Review your drafts" : `Review ${name}'s drafts`} seats={isAdmin ? { current: owner, href: (seat) => `/drafts?owner=${seat}`, label: "Whose drafts" } : undefined}>
+        <PageHead title="Email drafts" seats={isAdmin ? { current: owner, href: (seat) => `/drafts?owner=${seat}`, label: "Whose drafts" } : undefined}>
           {name}&rsquo;s {summary.unsent} total unsent drafts across all lists. {workspace.plan ? `${workspace.plan.going} eligible for the next send window. ` : ""}{summary.sentToday} sent today.
         </PageHead>
         <DraftsTabs owner={owner} active="edit" />
+        <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">{[
+          ["Draft backlog", summary.unsent, "All unsent list emails", `/drafts?owner=${owner}`],
+          ["Next send window", workspace.plan?.going ?? 0, workspace.plan?.dayLabel ?? "Schedule unavailable", `/auto-send?owner=${owner}`],
+          ["Held by you", workspace.drafts.filter(d => d.held).length, "Excluded from auto-send", `/drafts?owner=${owner}&tab=held`],
+          ["Needs an address", summary.noAddress, "Not ready to send", `/drafts?owner=${owner}&tab=missing`],
+        ].map(([label, count, hint, href]) => <Link key={String(label)} href={String(href)} className="rounded-xl border border-stone-200 bg-white p-4"><span className="text-xs text-stone-500">{label}</span><strong className="my-2 block text-3xl font-semibold tracking-tight text-stone-900">{count}</strong><span className="text-xs text-stone-400">{hint}</span></Link>)}</div>
 
-        <div id="review" className="drafts-review-anchor"><DraftWorkspace key={owner} drafts={workspace.drafts} plan={workspace.plan} owner={owner} sender={sender} optOut={optOutLine()} listHref={listHref} canAct={isAdmin || owner === user.owner} startTab={params.tab} /></div>
+        <div id="review" className="drafts-review-anchor"><DraftWorkspace key={`${owner}-${params.tab ?? "default"}`} drafts={workspace.drafts} plan={workspace.plan} owner={owner} sender={sender} optOut={optOutLine()} listHref={listHref} canAct={isAdmin || owner === user.owner} startTab={params.tab} /></div>
 
-        <section id="setup" className="dw-bulk-edit" aria-label="Change all drafts at once">
-          <h2 className="drafts-section-title">Change all drafts at once</h2>
+        <details id="setup" className="dw-bulk-edit" aria-label="Change all drafts at once">
+          <summary className="drafts-section-title cursor-pointer">Bulk editing & email settings</summary>
           <p className="dw-scope">Changes here apply to all <b>{summary.unsent}</b> unsent drafts for {yours ? "you" : name}: {tally.review} in Needs review, {tally.approved} approved, {tally.held} held{summary.noAddress ? `, and ${summary.noAddress} with no address yet` : ""}. Sent emails are never touched, and {isAdmin ? (owner === "josh" ? "Suuchi's" : "Josh's") : "the other seat's"} drafts are not changed.</p>
           <DraftSetup owner={owner} unsent={summary.unsent} samples={samples} listHref={listHref} current={templates} sender={sender} optOut={optOutLine()} />
           <details className="drafts-advanced">
@@ -67,7 +74,7 @@ export default async function Drafts({ searchParams }: { searchParams: Promise<{
             <p className="drafts-scope">Bigger changes, for when something looks wrong across the whole list. They change {yours ? "your" : `${name}'s`} unsent emails only; sent emails are never touched.</p>
             <RewriteDrafts owner={owner} />
           </details>
-        </section>
+        </details>
       </div>
     </main>
   );

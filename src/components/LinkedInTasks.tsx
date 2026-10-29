@@ -54,6 +54,7 @@ function TaskCard({ task, canSend, onSent }: { task: LinkedInTask; canSend: bool
         <span className="li-who"><b>{task.name}</b><small>{[task.title, task.company].filter(Boolean).join(" · ")}</small></span>
         <span className={`li-dot ${task.kind === "followup" ? "is-due" : ""}`}>{what(task)}{task.kind === "followup" ? ` · due ${day(task.dueAt)}` : ""}</span>
       </div>
+      <details className="li-task-detail"><summary>Read message & send <span>Open prep</span></summary>
       {task.subject && <p className="li-subject"><span>Subject</span>{task.subject}</p>}
       <blockquote className="li-message">{task.message}</blockquote>
       <ol className="li-steps">
@@ -76,6 +77,7 @@ function TaskCard({ task, canSend, onSent }: { task: LinkedInTask; canSend: bool
         </li>
       </ol>
       {error && <p className="li-error" role="alert">{error}</p>}
+      </details>
     </li>
   );
 }
@@ -85,6 +87,9 @@ export function LinkedInTasks({ tasks: initial, done, canSend, seat }: { tasks: 
   const router = useRouter();
   const [tasks, setTasks] = useState(initial);
   const [tab, setTab] = useState<Tab>("todo");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const [kind, setKind] = useState("all");
   const [note, setNote] = useState<string | null>(null);
 
   function sent(task: LinkedInTask) {
@@ -93,23 +98,31 @@ export function LinkedInTasks({ tasks: initial, done, canSend, seat }: { tasks: 
     router.refresh();
   }
 
+  const query = search.toLowerCase();
+  const filteredTasks = tasks.filter(t => `${t.name} ${t.company}`.toLowerCase().includes(query) && (kind === "all" || t.kind === kind));
+  const filteredDone = done.filter(t => `${t.name} ${t.company}`.toLowerCase().includes(query));
+  const count = tab === "todo" ? filteredTasks.length : filteredDone.length;
+  const currentPage = Math.min(page, Math.max(0, Math.ceil(count / 12) - 1));
+  const visibleTasks = filteredTasks.slice(currentPage * 12, currentPage * 12 + 12);
+  const visibleDone = filteredDone.slice(currentPage * 12, currentPage * 12 + 12);
   return (
     <div className="li">
       <div className="li-bar">
         <div className="li-seg" role="tablist" aria-label="Show">
-          <button type="button" role="tab" aria-selected={tab === "todo"} className={tab === "todo" ? "is-on" : ""} onClick={() => setTab("todo")}>To do <span>{tasks.length}</span></button>
-          <button type="button" role="tab" aria-selected={tab === "done"} className={tab === "done" ? "is-on" : ""} onClick={() => setTab("done")}>Done recently <span>{done.length}</span></button>
+          <button type="button" role="tab" aria-selected={tab === "todo"} className={tab === "todo" ? "is-on" : ""} onClick={() => { setTab("todo"); setPage(0); }}>To do <span>{tasks.length}</span></button>
+          <button type="button" role="tab" aria-selected={tab === "done"} className={tab === "done" ? "is-on" : ""} onClick={() => { setTab("done"); setPage(0); }}>Done recently <span>{done.length}</span></button>
         </div>
         {!canSend && <p className="li-hint">Only {seat} can mark these sent, since they go out from {seat}&rsquo;s LinkedIn.</p>}
       </div>
+      <div className="li-list-controls"><label><span className="sr-only">Search LinkedIn tasks</span><input placeholder="Find a company or contact…" value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} /></label>{tab === "todo" && <select aria-label="LinkedIn task type" value={kind} onChange={e => { setKind(e.target.value); setPage(0); }}><option value="all">All tasks</option><option value="first">First messages</option><option value="followup">Follow-ups</option></select>}<span>Manual outreach only. Copying a message does not mark it sent.</span></div>
       {note && <p className="li-note" role="status">{note}</p>}
 
-      {tab === "todo" && (tasks.length
-        ? <ol className="li-list">{tasks.map((task) => <TaskCard key={task.key} task={task} canSend={canSend} onSent={sent} />)}</ol>
-        : <p className="li-empty">Nothing to send on LinkedIn right now. New messages show up here when a draft is LinkedIn first, and follow-ups show up on the day they are due.</p>)}
+      {tab === "todo" && (filteredTasks.length
+        ? <ol className="li-list">{visibleTasks.map((task) => <TaskCard key={task.key} task={task} canSend={canSend} onSent={sent} />)}</ol>
+        : <p className="li-empty">{tasks.length ? "No tasks match these filters. Try another company name or task type." : "Nothing to send on LinkedIn right now. First messages and due follow-ups appear here."}</p>)}
 
-      {tab === "done" && (done.length
-        ? <ol className="li-list is-done">{done.map((item) => (
+      {tab === "done" && (filteredDone.length
+        ? <ol className="li-list is-done">{visibleDone.map((item) => (
             <li key={item.id} className="li-task is-done">
               <div className="li-task-head">
                 <span className="li-avatar is-done" aria-hidden="true"><Check size={16} /></span>
@@ -119,7 +132,8 @@ export function LinkedInTasks({ tasks: initial, done, canSend, seat }: { tasks: 
               {item.message && <blockquote className="li-message is-quiet">{item.message}</blockquote>}
             </li>
           ))}</ol>
-        : <p className="li-empty">No LinkedIn messages marked sent in the last 14 days.</p>)}
+        : <p className="li-empty">{done.length ? "No recorded messages match your search." : "No LinkedIn messages marked sent in the last 14 days."}</p>)}
+      <div className="li-pagination"><span>{count ? `${currentPage * 12 + 1} to ${Math.min(currentPage * 12 + 12, count)} of ${count}` : "No matching records"}</span><button disabled={!currentPage} onClick={() => setPage(currentPage - 1)}>Previous</button><button disabled={(currentPage + 1) * 12 >= count} onClick={() => setPage(currentPage + 1)}>Next</button></div>
     </div>
   );
 }

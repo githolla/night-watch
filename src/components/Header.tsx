@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { ArrowsClockwise, Briefcase, CaretDown, ChartBar, ChatCircleText, ChatTeardropText, ClockCounterClockwise, GearSix, House, Lifebuoy, LinkedinLogo, List, ListChecks, MagnifyingGlass, PaperPlaneTilt, Phone, PencilSimpleLine, PlayCircle, SidebarSimple, SignOut, TrendUp, UserSwitch, Users, type Icon } from "@phosphor-icons/react";
+import { ArrowsClockwise, Briefcase, CaretDown, ChartBar, ChatCircleText, ChatTeardropText, GearSix, House, Lifebuoy, LinkedinLogo, List, ListChecks, MagnifyingGlass, Phone, PencilSimpleLine, PlayCircle, SidebarSimple, SignOut, TrendUp, UserSwitch, Users, type Icon } from "@phosphor-icons/react";
 import { Walkthrough } from "./Walkthrough";
 import { FeedbackWidget } from "./FeedbackWidget";
 
@@ -21,17 +21,14 @@ const navGroups: Array<{ title: string | null; label?: string; items: NavItem[] 
     { href: "/targets", label: "Discover companies", hint: "Search, add or remove companies", icon: MagnifyingGlass },
   ] },
   { title: null, label: "Outreach", items: [
-    { href: "/drafts", label: "Drafts", hint: "Review, edit and approve your emails", icon: PencilSimpleLine },
-    { href: "/auto-send", label: "Auto-send", hint: "What sends next, when, and what is blocked", icon: PaperPlaneTilt },
-    { href: "/activity", label: "Send history", hint: "Everything sent, and every reply", icon: ClockCounterClockwise },
-  ] },
-  { title: null, items: [
+    { href: "/engagement", label: "Outreach overview", hint: "Sent, scheduled, voicemail, outcomes and analytics in one place", icon: ChartBar },
+    { href: "/drafts", label: "Emails", hint: "Drafts, the next send window and email history", icon: PencilSimpleLine },
+    { href: "/calls", label: "Calls", hint: "Alex’s queue, transcripts, call outcomes and manual prep", icon: Phone },
+    { href: "/linkedin", label: "LinkedIn", hint: "Search manual outreach tasks and recorded sends", icon: LinkedinLogo },
     { href: "/replies", label: "Replies", hint: "Everyone who wrote back, and what to do next", icon: ChatCircleText },
-    { href: "/calls", label: "Calls & prep", hint: "Call the day after the first email, with research and a script", icon: Phone },
-    { href: "/linkedin", label: "LinkedIn tasks", hint: "Messages to send by hand on LinkedIn", icon: LinkedinLogo },
-    { href: "/stats", label: "Results", hint: "Replies, meetings and what's working", icon: ChartBar },
   ] },
   { title: "More", items: [
+    { href: "/stats", label: "Message analytics", hint: "Message versions, experiments and list performance", icon: ChartBar },
     { href: "/followups", label: "Follow-ups", hint: "What goes out after each first email", icon: ArrowsClockwise },
     { href: "/pipeline", label: "Pipeline", hint: "Conversations turning into deals", icon: TrendUp },
     { href: "/people", label: "People", hint: "Every contact on file", icon: Users },
@@ -45,7 +42,7 @@ const bottomItems: NavItem[] = [
   { href: "/delivery-recovery", label: "Unsure sends", hint: "Check emails that may not have sent", icon: Lifebuoy, adminOnly: true },
 ];
 /** Wide pages start with the sidebar folded to icons; anywhere else it is open unless she folded it. */
-const FOLD_BY_DEFAULT = [/^\/outreach/, /^\/accounts\//];
+const FOLD_BY_DEFAULT = [/^\/outreach(?:\/|$)/, /^\/accounts\//];
 const FOLD_KEY = "nw-sidebar-folded";
 const FOLD_EVENT = "nw-sidebar-fold";
 function readFold(): boolean | null {
@@ -120,10 +117,13 @@ export function Header({showTour=true}:{showTour?:boolean}) {
   const meInitials = me?.name ? me.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") : "";
 
 
-  const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/auto-send" ? counts?.queued : href === "/drafts" ? counts?.drafts : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : href === "/calls" ? counts?.calls : href === "/linkedin" ? counts?.linkedin : undefined;
+  const countFor = (href: string) => href === "/outreach" ? counts?.today : href === "/auto-send" ? counts?.queued : href === "/followups" ? counts?.followups : href === "/replies" ? counts?.replies : undefined;
   // A member's Results are her own sent stats; the full analytics page is for the admin.
-  const hrefFor = (item: NavItem) => item.href === "/stats" && me && me.role !== "admin" ? "/drafts/sent?days=30" : item.href;
-  const isActive = (item: NavItem) => active(item.href);
+  const hrefFor = (item: NavItem) => {
+    const href = item.href === "/stats" && me && me.role !== "admin" ? "/drafts/sent?days=30" : item.href;
+    return selectedOwner === "josh" || selectedOwner === "suuchi" ? `${href}${href.includes("?") ? "&" : "?"}${item.href === "/outreach" ? "list" : "owner"}=${selectedOwner}` : href;
+  };
+  const isActive = (item: NavItem) => active(item.href) || item.href === "/drafts" && pathname === "/auto-send";
   const link = (item: NavItem) => {
     const Icon = item.icon;
     const count = countFor(item.href);

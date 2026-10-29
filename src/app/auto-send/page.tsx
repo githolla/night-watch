@@ -1,3 +1,4 @@
+import { OutreachNav } from "@/components/OutreachNav";
 import { AutoSendView } from "@/components/AutoSendView";
 import { requireUser } from "@/lib/auth";
 import { loadAutoSendView } from "@/lib/autosend-view";
@@ -30,6 +31,7 @@ export default async function AutoSendPage({ searchParams }: { searchParams: Pro
         <PageHead title={yours ? "Auto-send" : `${name}'s auto-send`} seats={isAdmin ? { current: owner, href: (seat) => `/auto-send?owner=${seat}`, label: "Whose auto-send" } : undefined}>
           Night Watch can send {yours ? "your" : `${name}'s`} ready emails each weekday morning, from {yours ? "your" : "their"} own Gmail. Here is what it will do and who it will email.
         </PageHead>
+        <OutreachNav owner={owner} active="queue" />
         {view
           ? <AutoSendView key={owner} owner={owner} plan={view.plan} emails={view.emails} control={view.control} health={view.health} canChange={isAdmin || owner === user.owner} listHref={`/outreach?list=${owner}`} sender={{ fromName: profile.fromName, signature: profile.signature, postalAddress: profile.postalAddress }} optOut={optOutLine()} />
           : <p className="as-empty">Auto-send could not be read just now. Reload the page to try again.</p>}

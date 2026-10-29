@@ -15,11 +15,15 @@ type Draft = { notes: string; outcome: string; reschedule: string };
 const outcomes = [["connected", "Connected"], ["voicemail", "Voicemail"], ["no_answer", "No answer"], ["wrong_number", "Wrong number"], ["not_interested", "Not interested"]] as const;
 const date = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" });
 
-export function CallQueue({ tasks, canComplete, canEdit, seat, now }: { tasks: Task[]; canComplete: boolean; canEdit: boolean; seat: string; now: number }) {
+export function CallQueue({ tasks, canComplete, canEdit, seat, now, initialTaskId }: { initialTaskId?: string; tasks: Task[]; canComplete: boolean; canEdit: boolean; seat: string; now: number }) {
   const router = useRouter();
-  const [view, setView] = useState(tasks.some(task => task.plan.status === "pending" && Date.parse(task.plan.scheduledAt) <= now) ? "due" : "upcoming");
+  const [view, setView] = useState(() => {
+    const target = tasks.find(task => task.id === initialTaskId);
+    if (target) return target.plan.status !== "pending" ? "completed" : !target.plan.phone ? "missing" : Date.parse(target.plan.scheduledAt) <= now ? "due" : "upcoming";
+    return tasks.some(task => task.plan.status === "pending" && Date.parse(task.plan.scheduledAt) <= now) ? "due" : "upcoming";
+  });
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState(tasks[0]?.id ?? "");
+  const [selected, setSelected] = useState(initialTaskId ?? tasks[0]?.id ?? "");
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
   const [failed, setFailed] = useState(false);

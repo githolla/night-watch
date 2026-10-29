@@ -38,11 +38,12 @@ const hostLabel = (url: string) => { try { return new URL(url).hostname.replace(
 /** Every unsent list email for a seat, once per real person, with the research and send position each needs. */
 export async function loadDraftWorkspace(owner: Owner): Promise<{ drafts: WorkspaceDraft[]; plan: WorkspacePlan | null }> {
   const db = admin();
-  const [{ data }, plan] = await Promise.all([
+  const [{ data, error }, plan] = await Promise.all([
     db.from("cards").select("id,person_id,status,updated_at,email_subject,email_body,auto_send_hold,linkedin_message,accounts(name,domain,vertical),people(full_name,title,email,email_status,email_source,email_check,do_not_contact,linkedin_url),signals!inner(hash)")
       .eq("assigned_to", owner).like("signals.hash", LIST_DRAFT_HASH).in("status", ["new", "edited", "approved"]).not("email_body", "is", null).order("updated_at", { ascending: false }).limit(500),
     loadSendPlan(db, owner).catch(() => null),
   ]);
+  if (error) throw new Error("Could not load email drafts. Refresh to try again.");
   const seen = new Set<string>();
   const rows = ((data ?? []) as unknown as Row[]).filter((row) => row.people && !row.people.do_not_contact && isLikelyPersonName(row.people.full_name) && !seen.has(row.person_id) && Boolean(seen.add(row.person_id)));
 
