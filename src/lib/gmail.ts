@@ -1,3 +1,4 @@
+import { gmailThreadRequest } from './gmail-thread-request.ts';
 import { gmailSendRequest } from './delivery-state.ts';
 import { emailMime } from "./email-mime.ts";
 import { emailStyle } from "./email-style.ts";
@@ -54,4 +55,4 @@ export async function sendEmail(owner:Owner,from:string,to:string,subject:string
   const token=await accessToken(owner);
   return gmailSendRequest(token, Buffer.from(mime).toString("base64url"), threadId);
 }
-export async function thread(owner:Owner,id:string){const token=await accessToken(owner);const response=await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/threads/${id}?format=full`,{signal:AbortSignal.timeout(20000),headers:{authorization:`Bearer ${token}`}});if(!response.ok)throw new Error(`Gmail thread read failed: ${response.status}`);return response.json() as Promise<{messages:Array<{id:string;internalDate:string;payload:{headers:Array<{name:string;value:string}>;body?:{data?:string};parts?:Array<{mimeType:string;body:{data?:string}}>}}>}>}
+export async function thread(owner:Owner,id:string){const token=await accessToken(owner);const response=await gmailThreadRequest(token,id);return response.json() as Promise<{messages:Array<{id:string;internalDate:string;payload:{headers:Array<{name:string;value:string}>;body?:{data?:string};parts?:Array<{mimeType:string;body:{data?:string}}>}}>}>}

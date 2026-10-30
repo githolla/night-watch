@@ -1,3 +1,4 @@
+import { excludedCompanyPhone } from "./company-phone-safety.ts";
 import { safeFetch, onDomain, type Fetcher, type Lookup } from "./evidence-grounding.ts";
 import { dialHref, type PhoneEvidence } from "./call-plan.ts";
 
@@ -22,7 +23,7 @@ export function publishedPhones(html: string, sourceUrl: string, now = new Date(
     if (/fax\s*:?\s*$/i.test(before) || !dialHref(match[0])) continue;
     numbers.push({ number: match[0], kind: "company", sourceUrl, checkedAt: now, notes: "Business telephone published on the company website; not a confirmed direct line." });
   }
-  return [...new Map(numbers.map(phone => [dialHref(phone.number), phone])).values()];
+  return [...new Map(numbers.filter(phone => !excludedCompanyPhone(phone.number)).map(phone => [dialHref(phone.number), phone])).values()];
 }
 
 export async function researchCompanyPhone(domain: string, deps: { fetcher?: Fetcher; lookup?: Lookup; signal?: AbortSignal } = {}): Promise<PhoneEvidence | null> {

@@ -1,3 +1,4 @@
+import { excludedCompanyPhone } from "./company-phone-safety.ts";
 import { normalizeVoicePhone } from "./voice-phone-audit.ts";
 import { z } from "zod";
 import { admin } from "./supabase/admin.ts";
@@ -32,6 +33,7 @@ export async function dispatchVoicePilot() {
     if (read.error) throw new Error("Could not refresh automated-calling eligibility.");
     const approval = approvalSchema.parse(read.data);
     const destination = normalizeVoicePhone(task.plan.phone?.number ?? "");
+    if (destination && excludedCompanyPhone(destination)) throw new Error("Public emergency or crisis service cannot be dialed for outreach.");
     if (approval.approved_number !== attempt.destination || destination !== attempt.destination) throw new Error("Phone number no longer matches the recorded eligibility evidence.");
     const followup = await currentVoiceFollowup(task, approval.timezone);
     const now = new Date();

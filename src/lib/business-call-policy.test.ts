@@ -19,3 +19,11 @@ test("company timezone requires an unambiguous published address", () => {
   assert.equal(companyPageTimezone('Tennessee, TN 37000'), null);
   assert.equal(companyPageTimezone('No published address'), null);
 });
+
+test("split-state offices require a matched city and reject conflicting office timezones", () => {
+ assert.equal(companyPageTimezone("Houston, Texas 77001"), "America/Chicago");
+ assert.equal(companyPageTimezone("Nashville, TN 37201"), "America/Chicago");
+ assert.equal(companyPageTimezone("Groveland, FL 34736"), "America/New_York");
+ assert.equal(companyPageTimezone("Houston, TX 77001 El Paso, TX 79901"), null);
+ assert.equal(companyPageTimezone('{"addressRegion":"California"}'), "America/Los_Angeles");
+});

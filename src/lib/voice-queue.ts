@@ -1,3 +1,4 @@
+import { excludedCompanyPhone } from "./company-phone-safety.ts";
 import { balancedCallTasks, catchupCallAt } from "./call-queue-scheduling.ts";
 import { enrollBusinessCalls } from "./automatic-call-enrollment.ts";
 import { normalizeVoicePhone } from "./voice-phone-audit.ts";
@@ -26,7 +27,7 @@ export async function prepareVoiceQueue() {
     if (!profile || !validVoiceTimezone(profile.timezone) || !profile.timezone_source?.trim() || !Number.isFinite(Date.parse(profile.approved_until)) || Date.parse(profile.approved_until) <= Date.now()) { held.push({ taskId: task.id, name: task.name, reason: "Needs a sourced timezone and current automated-calling eligibility" }); continue; }
     if (suppressed.has(task.personId)) { held.push({ taskId: task.id, name: task.name, reason: "Voice suppressed" }); continue; }
     const destination = normalizeVoicePhone(task.plan.phone?.number ?? "");
-    if (!destination) { held.push({ taskId: task.id, name: task.name, reason: "Needs a valid US phone number" }); continue; }
+    if (!destination || excludedCompanyPhone(destination)) { held.push({ taskId: task.id, name: task.name, reason: "Needs a valid US phone number" }); continue; }
     if (!profile.approval_basis || !profile.approval_evidence?.trim() || profile.approved_number !== destination) { held.push({ taskId: task.id, name: task.name, reason: "Automated-calling eligibility evidence is missing for this phone number" }); continue; }
     try {
       const context = await currentVoiceFollowup(task, profile.timezone);
