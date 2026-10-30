@@ -1,3 +1,4 @@
+import { balancedCallTasks, catchupCallAt } from "./call-queue-scheduling.ts";
 import { enrollBusinessCalls } from "./automatic-call-enrollment.ts";
 import { normalizeVoicePhone } from "./voice-phone-audit.ts";
 import { admin } from "./supabase/admin.ts";
@@ -19,7 +20,8 @@ export async function prepareVoiceQueue() {
   const suppressed = new Set((suppressions.data ?? []).map(item => item.person_id));
   let queued = 0;
   const held: Array<{ taskId: string; name: string; reason: string }> = [];
-  for (const task of tasks.filter(item => item.plan.status === "pending")) {
+  let position = 0;
+  for (const task of balancedCallTasks(tasks.filter(item => item.plan.status === "pending"))) {
     const profile = profiles.find(item => item.person_id === task.personId);
     if (!profile || !validVoiceTimezone(profile.timezone) || !profile.timezone_source?.trim() || !Number.isFinite(Date.parse(profile.approved_until)) || Date.parse(profile.approved_until) <= Date.now()) { held.push({ taskId: task.id, name: task.name, reason: "Needs a sourced timezone and current automated-calling eligibility" }); continue; }
     if (suppressed.has(task.personId)) { held.push({ taskId: task.id, name: task.name, reason: "Voice suppressed" }); continue; }
@@ -29,7 +31,7 @@ export async function prepareVoiceQueue() {
     try {
       const context = await currentVoiceFollowup(task, profile.timezone);
       if (!context.context.email_subject) throw new Error("Exact sent subject could not be verified; hold for correction");
-      const scheduledAt = nextVoiceCallAt(task.plan.firstEmailAt, profile.timezone, profile.delay_business_days);
+      const scheduledAt = catchupCallAt(nextVoiceCallAt(task.plan.firstEmailAt, profile.timezone, profile.delay_business_days), profile.timezone, position++);
       const result = await db.from("voice_attempts").upsert({ task_id: task.id, person_id: task.personId, owner: task.owner, mode: "pilot", destination, attempt_key: `pilot:${task.id}:${task.plan.firstEmailAt}`, status: "queued", scheduled_at: scheduledAt, eligibility_expires_at: profile.approved_until, prompt_version: VOICE_PROMPT_VERSION, context_snapshot: { ...context.context, contact_timezone: profile.timezone, dispatch_enabled: false, refresh_required_before_dial: true } }, { onConflict: "attempt_key", ignoreDuplicates: true }).select("id");
       if (result.error) throw new Error("An active call or attempt already exists; review before retrying");
       queued += result.data?.length ?? 0;

@@ -23,11 +23,12 @@ export async function prepareAutomaticCallBatch() {
   tasks = await loadCallTasks(db);
   const errors: string[] = [];
   let found = 0;
-  const missing = tasks.filter(task => task.plan.status === "pending" && !task.plan.phone && (!task.plan.phoneSearchedAt || Date.now() - Date.parse(task.plan.phoneSearchedAt) > 86_400_000)).slice(0, 4);
+  const missing = tasks.filter(task => task.plan.status === "pending" && (!task.plan.phone || task.plan.phone.kind === "contact") && (!task.plan.phoneSearchedAt || Date.now() - Date.parse(task.plan.phoneSearchedAt) > 86_400_000)).slice(0, 4);
   for (const task of missing) {
     try {
       const phone = await researchCompanyPhone(task.domain, { signal: AbortSignal.timeout(15_000) });
-      await saveCallPhone(db, task, phone);
+      if (phone && task.plan.phone?.kind === "contact") await updateCallPlan(db, task.id, current => ({ ...(current ?? task.plan), phone, phoneSearchedAt: new Date().toISOString() }));
+      else await saveCallPhone(db, task, phone);
       if (phone) found++;
     } catch (error) { errors.push(`${task.company}: ${error instanceof Error ? error.message : "Phone research unavailable"}`); }
   }
