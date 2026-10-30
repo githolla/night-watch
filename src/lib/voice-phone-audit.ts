@@ -1,3 +1,4 @@
+import { companyPageTimezone } from "./business-call-policy.ts";
 import { z } from "zod";
 import { admin } from "./supabase/admin.ts";
 import { loadCallTasks, updateCallPlan } from "./call-tasks.ts";
@@ -24,7 +25,11 @@ export async function auditVoicePhones(phone: unknown, taskId?: string) {
   if (!sid || !token || !/^AC[a-f0-9]{32}$/i.test(sid)) throw new Error("Twilio credentials are unavailable for line-type checks. No eligibility was changed.");
   const db = admin();
   const tasks = (await loadCallTasks(db)).filter(task => task.plan.status === "pending" && task.plan.phone && (!taskId || task.id === taskId));
-  const due = tasks.filter(task => taskId || !task.plan.phoneAudit || Date.now() - Date.parse(task.plan.phoneAudit.checkedAt) > 7 * 86_400_000).slice(0, 5);
+  const due = tasks.filter(task => {
+    const audit = task.plan.phoneAudit;
+    const age = audit ? Date.now() - Date.parse(audit.checkedAt) : Infinity;
+    return taskId || !audit || age > 7 * 86_400_000 || ((!audit.timezone || !audit.companySourceVerified) && age > 3_600_000);
+  }).sort((a, b) => (a.plan.phoneAudit ? Date.parse(a.plan.phoneAudit.checkedAt) : 0) - (b.plan.phoneAudit ? Date.parse(b.plan.phoneAudit.checkedAt) : 0)).slice(0, 5);
   const checked: Array<{ taskId: string; name: string; company: string; number: string; lineType: string; companySourceVerified: boolean }> = [];
   const errors: Array<{ taskId: string; reason: string }> = [];
   for (const task of due) {
@@ -36,11 +41,14 @@ export async function auditVoicePhones(phone: unknown, taskId?: string) {
       const line = parsePhoneLine(await response.json(), number);
       const sourceUrl = task.plan.phone?.sourceUrl ?? null;
       let companySourceVerified = false;
+      let timezone: string | null = null;
+      let timezoneSource: string | null = null;
       if (sourceUrl && task.plan.phone?.kind === "company" && onDomain(sourceUrl, task.domain)) {
         const page = await safeFetch(sourceUrl, undefined, { signal: AbortSignal.timeout(7_000), maxBytes: 1_500_000 });
+        if (page.kind === "page" && page.status === 200 && onDomain(page.finalUrl, task.domain)) { timezone = companyPageTimezone(page.html); if (timezone) timezoneSource = page.finalUrl; }
         companySourceVerified = page.kind === "page" && page.status === 200 && onDomain(page.finalUrl, task.domain) && publishedPhones(page.html, page.finalUrl).some(item => normalizeVoicePhone(item.number) === number);
       }
-      const phoneAudit = { number, ...line, companySourceVerified, sourceUrl, checkedAt: new Date().toISOString() };
+      const phoneAudit = { number, ...line, companySourceVerified, timezone, timezoneSource, sourceUrl, checkedAt: new Date().toISOString() };
       await updateCallPlan(db, task.id, current => ({ ...(current ?? task.plan), phoneAudit }));
       checked.push({ taskId: task.id, name: task.name, company: task.company, number, lineType: line.lineType, companySourceVerified });
     } catch (error) {

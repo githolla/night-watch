@@ -1,3 +1,5 @@
+import { enrollBusinessCalls } from "./automatic-call-enrollment.ts";
+import { normalizeVoicePhone } from "./voice-phone-audit.ts";
 import { admin } from "./supabase/admin.ts";
 import { loadCallTasks } from "./call-tasks.ts";
 import { currentVoiceFollowup } from "./voice-sent-context.ts";
@@ -6,6 +8,7 @@ import { z } from "zod";
 
 export async function prepareVoiceQueue() {
   const db = admin();
+  const enrollment = await enrollBusinessCalls(db);
   const [tasks, approvals, suppressions] = await Promise.all([
     loadCallTasks(db),
     db.from("voice_eligibility").select("*"),
@@ -20,9 +23,8 @@ export async function prepareVoiceQueue() {
     const profile = profiles.find(item => item.person_id === task.personId);
     if (!profile || !validVoiceTimezone(profile.timezone) || !profile.timezone_source?.trim() || !Number.isFinite(Date.parse(profile.approved_until)) || Date.parse(profile.approved_until) <= Date.now()) { held.push({ taskId: task.id, name: task.name, reason: "Needs a sourced timezone and current automated-calling eligibility" }); continue; }
     if (suppressed.has(task.personId)) { held.push({ taskId: task.id, name: task.name, reason: "Voice suppressed" }); continue; }
-    const digits = task.plan.phone?.number.replace(/\D/g, "") ?? "";
-    if (!/^(1\d{10}|\d{10})$/.test(digits)) { held.push({ taskId: task.id, name: task.name, reason: "Needs a valid US phone number" }); continue; }
-    const destination = `+${digits.length === 10 ? "1" : ""}${digits}`;
+    const destination = normalizeVoicePhone(task.plan.phone?.number ?? "");
+    if (!destination) { held.push({ taskId: task.id, name: task.name, reason: "Needs a valid US phone number" }); continue; }
     if (!profile.approval_basis || !profile.approval_evidence?.trim() || profile.approved_number !== destination) { held.push({ taskId: task.id, name: task.name, reason: "Automated-calling eligibility evidence is missing for this phone number" }); continue; }
     try {
       const context = await currentVoiceFollowup(task, profile.timezone);
@@ -33,5 +35,5 @@ export async function prepareVoiceQueue() {
       queued += result.data?.length ?? 0;
     } catch (error) { held.push({ taskId: task.id, name: task.name, reason: error instanceof Error ? error.message : "Context verification failed" }); }
   }
-  return { queued, held, externalDispatchEnabled: false, message: "Queue only. No prospect calls are placed by this operation." };
+  return { queued, held, enrollment, externalDispatchEnabled: false, message: "Queue only. No prospect calls are placed by this operation." };
 }

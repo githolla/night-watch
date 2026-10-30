@@ -1,12 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { backfillCallPlans } from "./call-backfill.ts";
-import { memoryDb } from "./testing/memory-db.ts";
+import { queryDb } from "./testing/query-db.ts";
 const row = { channel: "email", card_id: "card", person_id: "person", sent_by: "josh", sent_at: new Date().toISOString(), people: { do_not_contact: false }, cards: { status: "sent", assigned_to: "josh", accounts: { status: "active" } } };
 function harness(cadences: Record<string, unknown>[] = []) {
-  const h = memoryDb({ touches: [row], cadences });
-  const original = h.db.from.bind(h.db);
-  h.db.from = ((table: string) => { const q = original(table); return Object.assign(q, { order: () => q, gte: () => q }); }) as typeof h.db.from;
+  const h = queryDb({ touches: [row], cadences });
   return h;
 }
 test("backfilling creates only a call plan and never automatic follow-up emails", async () => {

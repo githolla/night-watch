@@ -1,3 +1,4 @@
+import { researchedSendAuthorized } from './bulk-sendable';
 import { authoredSenderDraft } from './authored-sender';
 import { firstTouchErrors } from './first-touch';
 import { refreshLegacyFollowup } from './followups';
@@ -64,7 +65,8 @@ export async function sendFollowup(db: Db, raw: unknown, viewer?: Owner, actor?:
   const domain = cadence.cards?.accounts?.domain ?? to.email.split('@')[1];
   const recipientCheck = await checkRecipient(db,to,{id:cadence.cards?.account_id ?? '',domain});
   await recordRecipientCheck(db,to,recipientCheck);
-  if (!recipientAllowed(recipientCheck,!viewer)) throw new Error(`${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ''}${!viewer && recipientCheck.level === 'risky' ? ' Automatic follow-ups need a confirmed address; send this one by hand.' : ''}`);
+  const authorizedResearch = recipientCheck.level === 'risky' && researchedSendAuthorized(to);
+  if (!recipientAllowed(recipientCheck,!viewer) && !authorizedResearch) throw new Error(`${recipientCheck.reason}${recipientCheck.suggestion ? ` Try ${recipientCheck.suggestion}.` : ''}${!viewer && recipientCheck.level === 'risky' ? ' Automatic follow-ups need a confirmed address; send this one by hand.' : ''}`);
   const {data:previous,error:historyError} = await db.from('touches').select('gmail_thread_id,sent_at').eq('card_id',cadence.card_id).eq('person_id',to.id).eq('sent_by',cadence.owner).eq('channel','email').not('gmail_thread_id','is',null).order('sent_at',{ascending:true}).limit(1).maybeSingle();
   const scheduledInitial = step.step_number === 1 && step.title === 'Intro email';
   if (historyError || (!previous && !scheduledInitial)) throw new Error('Could not confirm the original conversation. Review History before sending.');

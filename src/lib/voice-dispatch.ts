@@ -1,3 +1,4 @@
+import { normalizeVoicePhone } from "./voice-phone-audit.ts";
 import { z } from "zod";
 import { admin } from "./supabase/admin.ts";
 import { loadCallTasks } from "./call-tasks.ts";
@@ -30,8 +31,7 @@ export async function dispatchVoicePilot() {
     const read = await db.from("voice_eligibility").select("*").eq("person_id", attempt.person_id).single();
     if (read.error) throw new Error("Could not refresh automated-calling eligibility.");
     const approval = approvalSchema.parse(read.data);
-    const digits = task.plan.phone?.number.replace(/\D/g, "") ?? "";
-    const destination = `+${digits.length === 10 ? "1" : ""}${digits}`;
+    const destination = normalizeVoicePhone(task.plan.phone?.number ?? "");
     if (approval.approved_number !== attempt.destination || destination !== attempt.destination) throw new Error("Phone number no longer matches the recorded eligibility evidence.");
     const followup = await currentVoiceFollowup(task, approval.timezone);
     const now = new Date();

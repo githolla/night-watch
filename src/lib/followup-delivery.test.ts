@@ -6,10 +6,12 @@ import ts from 'typescript';
 import {DeliveryError,deliveryReservationId} from './delivery-state.ts';
 import * as bounce from './bounce.ts';
 import {recipientAllowed} from './recipient-verification.ts';
+import {researchedSendAuthorized} from './bulk-sendable.ts';
 function harness(options:{suppressed?:boolean|Error;countError?:boolean;reply?:boolean;bounce?:boolean;recipient?:'deliverable'|'risky'|'undeliverable';historyError?:boolean;transportError?:Error;noPrevious?:boolean;senderConflict?:boolean}={}) {
  let sends=0,reserved=false,releases=0,bounced=0,unsubscribe:unknown=null;
  const db={from(table:string){let count=false,write=false,del=false;const q={select(_s?:string,o?:{head?:boolean}){count=!!o?.head;return q},eq(){return q},in(){return q},is(){return q},not(){return q},gte(){return q},order(){return q},limit(){return q},update(){write=true;return q},insert(){write=true;return q},delete(){del=true;return q},maybeSingle:async()=>({data:table==='gmail_connections'?{email:'suuchi@example.com',created_at:'2020-01-01'}:options.noPrevious?null:{gmail_thread_id:'thread',sent_at:'2026-01-01'}}),then(resolve:(v:unknown)=>unknown){if(del){reserved=false;releases++;}return Promise.resolve(resolve(count?{count:options.countError?null:0,error:options.countError?{}:null}:table==='gmail_connections'?{data:[{email:'suuchi@example.com'}]}:{data:[{id:'step'}],error:write&&table==='touches'&&options.historyError?{}:null}))}};return q}};
  const mocks:Record<string,unknown>={
+ './bulk-sendable':{researchedSendAuthorized},
  './authored-sender':{authoredSenderDraft:({body}:{body:string})=>({body,senderConflict:options.senderConflict?'Draft introduces Josh but sender is Suuchi':null})},'./first-touch':{firstTouchErrors:()=>[]},'./followups':{refreshLegacyFollowup:(s:string)=>s},'./delivery-state':{DeliveryError,deliveryReservationId},'./mailbox-quota':{withMailboxQuota:async(_db:unknown,_input:unknown,fn:()=>unknown)=>fn()},
  './version-tracking':{trackEmailVersion:async()=>{if(reserved)throw new DeliveryError('delivery_reserved','Reserved');reserved=true;return 'variant'}},
  './gmail':{thread:async()=>({messages:options.reply?[{internalDate:String(Date.parse('2026-02-01')),payload:{headers:[{name:'From',value:'buyer@example.com'}]}}]:options.bounce?[{internalDate:String(Date.parse('2026-02-01')),payload:{headers:[{name:'From',value:'Mail Delivery Subsystem <mailer-daemon@googlemail.com>'},{name:'Subject',value:'Delivery Status Notification (Failure)'}]}}]:[]}),sendEmail:async(...args:unknown[])=>{sends++;unsubscribe=args[8];if(options.transportError)throw options.transportError;return {id:'message',threadId:'thread'}}},
@@ -43,3 +45,13 @@ test('a known-bad address is refused even by hand',async()=>{const h=harness({re
 test('a follow-up to an address opted out on another record is refused before Gmail',async()=>{const h=harness({suppressed:true});await assert.rejects(h.send(),/opted out/);assert.equal(h.stats().sends,0)});
 test('a follow-up is refused when the opt-out check cannot run',async()=>{const h=harness({suppressed:new Error('Could not check the opt-out list. Nothing was sent.')});await assert.rejects(h.send(),/Nothing was sent/);assert.equal(h.stats().sends,0)});
 test('follow-ups carry a one-click List-Unsubscribe link',async()=>{const h=harness();await h.send();assert.match(String(h.stats().unsubscribe),/\/api\/unsubscribe\?t=/)});
+
+test('automatic follow-up honors exact-address research authorization but never a negative check',async()=>{
+ const h=harness({recipient:'risky'});
+ Object.assign(h.step.cadences.people,{email_check:{outreachAuthorization:{email:'buyer@example.com',authorizedAt:'2026-10-29T20:00:00Z'}}});
+ assert.equal((await h.send(undefined)).ok,true);
+ const bad=harness({recipient:'undeliverable'});
+ Object.assign(bad.step.cadences.people,{email_check:{outreachAuthorization:{email:'buyer@example.com',authorizedAt:'2026-10-29T20:00:00Z'}}});
+ await assert.rejects(bad.send(undefined),/undeliverable/);
+ assert.equal(bad.stats().sends,0);
+});
