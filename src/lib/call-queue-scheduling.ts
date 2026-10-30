@@ -17,3 +17,14 @@ export function catchupCallAt(originalDue: string, timezone: string, position: n
     : Date.parse(nextVoiceCallAt(now.toISOString(), timezone, 1));
   return new Date(start + position * 60_000).toISOString();
 }
+
+export function nextCapacitySlot(earliest: string, timezone: string, counts: ReadonlyMap<string, number>, dailyLimit: number) {
+  if (!Number.isInteger(dailyLimit) || dailyLimit < 1) throw new Error("A positive calling limit is required.");
+  let candidate = earliest;
+  for (let day = 0; day < 366; day++) {
+    const date = localParts(new Date(candidate), "America/New_York").date;
+    if ((counts.get(date) ?? 0) < dailyLimit) return candidate;
+    candidate = nextVoiceCallAt(candidate, timezone, 1);
+  }
+  throw new Error("No calling capacity is available in the planning window.");
+}
