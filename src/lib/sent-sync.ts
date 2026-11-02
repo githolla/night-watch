@@ -1,19 +1,16 @@
+import { internalOutreachContact, mailboxAddresses } from "./outreach-mailbox-scope.ts";
 import { admin } from "./supabase/admin.ts";
 import { listSent, messageMeta, messageBody, ownerAccessToken } from "./gmail.ts";
 import type { Owner } from "./types.ts";
-
-/** Pull the email address out of a "Name <email>" (or bare) To header. */
-function addressOf(value: string): string {
-  const m = value.match(/<([^>]+)>/);
-  return (m ? m[1] : value).split(",")[0].trim().toLowerCase();
-}
 
 /** Track emails composed directly in Gmail: read each connected seat's Sent folder, match the
  *  recipient to a known contact, and log it to History — so outreach is recorded whether it went
  *  out from Night Watch or from Gmail. Deduped against sends already logged. */
 export async function runSentSync(): Promise<{ scanned: number; logged: number }> {
   const db = admin();
-  const { data: conns } = await db.from("gmail_connections").select("owner");
+  const { data: conns, error: connectionError } = await db.from("gmail_connections").select("owner,email");
+  if (connectionError) throw new Error("Could not identify team mailboxes; sent sync was held.");
+  const ownEmails = new Set<string>((conns ?? []).map(conn => String(conn.email ?? "").trim().toLowerCase()).filter(Boolean));
   let scanned = 0;
   let logged = 0;
 
@@ -30,14 +27,17 @@ export async function runSentSync(): Promise<{ scanned: number; logged: number }
       try { meta = await messageMeta(token, msg.id); } catch { continue; }
       // Self-tests must never be imported as prospect outreach.
       if (meta.subject.startsWith("[Night Watch test] ")) continue;
-      const to = addressOf(meta.to);
+      const to = mailboxAddresses(meta.to)[0] ?? "";
+      if (internalOutreachContact(to, null, ownEmails)) continue;
       if (!to || !to.includes("@")) continue;
 
       // Only track sends to a known contact who has a card (so History can show company/person).
       // Escape LIKE wildcards so a "%"/"_" in the address matches literally (not as a wildcard) while
       // keeping ilike's case-insensitivity for email matching.
-      const { data: person } = await db.from("people").select("id").ilike("email", to.replace(/[\\%_]/g, "\\$&")).maybeSingle();
+      const { data: person } = await db.from("people").select("id,accounts(domain)").ilike("email", to.replace(/[\\%_]/g, "\\$&")).maybeSingle();
       if (!person) continue;
+      const account = person.accounts as unknown as { domain: string | null } | null;
+      if (internalOutreachContact(to, account?.domain, ownEmails)) continue;
       const { data: card } = await db.from("cards").select("id").eq("person_id", person.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (!card) continue;
 

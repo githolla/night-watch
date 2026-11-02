@@ -1,3 +1,4 @@
+import { internalOutreachContact, prospectReplySender } from "@/lib/outreach-mailbox-scope";
 import { processReplyEvent } from "@/lib/reply-event";
 import { bounceReport, isBounce, markTouchBounced, prioritizeThreads } from "@/lib/bounce";
 import { isOptOutReply, optOutPerson } from "@/lib/email-suppression";
@@ -67,6 +68,10 @@ export async function GET(request:Request){
     if(seenThreads.has(`${touch.sent_by}:${touch.gmail_thread_id}`))continue;
     seenThreads.add(`${touch.sent_by}:${touch.gmail_thread_id}`);
     try{
+      const contact = await db.from("people").select("email,accounts(domain)").eq("id", touch.person_id).single();
+      if (contact.error) throw new Error("Could not verify the reply contact.");
+      const account = contact.data.accounts as unknown as { domain: string | null } | null;
+      if (internalOutreachContact(contact.data.email, account?.domain, ourEmails)) continue;
       const value=await thread(touch.sent_by,touch.gmail_thread_id);
       // A genuine reply is a thread message AFTER our send that is NOT from one of our own seat mailboxes.
       const inbound=value.messages.filter(message=>Number(message.internalDate)>new Date(touch.sent_at).getTime()&&!ourEmails.has(fromAddress(message.payload.headers)));
@@ -75,7 +80,7 @@ export async function GET(request:Request){
         const related = [...new Map(candidates.filter((candidate) => candidate.sent_by === touch.sent_by && candidate.gmail_thread_id === touch.gmail_thread_id).map((candidate) => [candidate.person_id, candidate])).values()];
         for (const candidate of related) if (await markTouchBounced(db,candidate,new Date(),report)) bounces++;
       }
-      const messages=inbound.filter(message=>!isBounce(message.payload.headers));
+      const messages=inbound.filter(message=>!isBounce(message.payload.headers) && prospectReplySender(message.payload.headers.find(header => header.name.toLowerCase() === "from")?.value ?? "", contact.data.email, ourEmails));
       if(!messages.length)continue;
       seenThreads.add(`${touch.sent_by}:${touch.gmail_thread_id}`);
       for(const message of [...messages].sort((a,b)=>Number(a.internalDate)-Number(b.internalDate))){
@@ -96,7 +101,7 @@ export async function GET(request:Request){
               const skipped=await db.from('cadence_steps').update({status:'skipped'}).eq('cadence_id',cadence.id).in('status',['pending','ready','failed']).is('sent_at',null);
               if(skipped.error)throw new Error('Could not close unsent sequence steps.');
             }
-            const history=await db.from('touches').update({reply_at:replyAt,reply_classification:state.classification}).eq('gmail_thread_id',touch.gmail_thread_id).eq('sent_by',touch.sent_by).lte('sent_at',replyAt);
+            const history=await db.from('touches').update({reply_at:replyAt,reply_classification:state.classification}).eq('gmail_thread_id',touch.gmail_thread_id).eq('sent_by',touch.sent_by).eq('person_id',touch.person_id).lte('sent_at',replyAt);
             if(history.error)throw new Error('Could not save reply history.');
             // "No thanks" opts the address out everywhere: every row with it, every card's sequence.
             if(isOptOutReply(body,state.classification))await optOutPerson(db,touch.person_id);

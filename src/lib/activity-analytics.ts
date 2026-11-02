@@ -22,13 +22,14 @@ export function activityDayWindow(day: string) {
   return { start: midnight(date), end: midnight(new Date(date.getTime() + 86400000)) };
 }
 
-export function activityAnalytics(touches: ActivityTouch[], calls: ActivityCall[], day: string) {
+export function activityAnalytics(touches: ActivityTouch[], calls: ActivityCall[], day: string, endDay?: string) {
+  const inPeriod = (at: string | null) => endDay ? Boolean(at && Number.isFinite(Date.parse(at)) && localParts(new Date(at), "America/New_York").date >= day && localParts(new Date(at), "America/New_York").date < endDay) : onDay(at, day);
   return seats.map(owner => {
-    const sent = touches.filter(t => t.sent_by === owner && onDay(t.sent_at, day));
-    const replies = touches.filter(t => t.sent_by === owner && onDay(t.reply_at, day) && !["ooo", "none"].includes(t.reply_classification ?? "none"));
-    const bounces = touches.filter(t => t.sent_by === owner && onDay(t.bounced_at, day));
+    const sent = touches.filter(t => t.sent_by === owner && inPeriod(t.sent_at));
+    const replies = touches.filter(t => t.sent_by === owner && inPeriod(t.reply_at) && !["ooo", "none"].includes(t.reply_classification ?? "none"));
+    const bounces = touches.filter(t => t.sent_by === owner && inPeriod(t.bounced_at));
     const live = calls.filter(c => c.owner === owner && c.mode === "pilot");
-    const made = live.filter(c => onDay(c.dispatched_at, day));
+    const made = live.filter(c => inPeriod(c.dispatched_at));
     const outcomes = made.map(c => ({ ...c, operational: record(record(c.report).operational), analysis: record(record(c.report).analysis), transcript: record(c.report).transcript }));
     const count = (outcome: string) => outcomes.filter(c => c.operational.outcome === outcome).length;
     const mailboxes = outcomes.filter(c => c.operational.outcome === "voicemail");
@@ -40,7 +41,7 @@ export function activityAnalytics(touches: ActivityTouch[], calls: ActivityCall[
       receptionists: count("receptionist_reached"), voicemailReached: mailboxes.length,
       voicemailMessagesAttempted: mailboxes.filter(c => typeof c.transcript === "string" && /^(?:AI|Alex):\s*.+(?:callback|call|reply|email)/im.test(c.transcript)).length,
       meetingsConfirmed: count("meeting_booked"), switchboardBlocked: count("phone_menu_unresolved"),
-      technicalFailures: count("technical_failure"), active: live.filter(c => ["creating", "active"].includes(c.status)).length,
+      technicalFailures: count("technical_failure"), noAnswer: count("no_answer"), wrongNumber: count("wrong_number"), declined: count("not_interested"), optedOut: count("do_not_contact"), active: live.filter(c => ["creating", "active"].includes(c.status)).length,
       queued: live.filter(c => c.status === "queued").length,
       needsReview: made.filter(c => c.review_required || c.status === "held").length,
     };

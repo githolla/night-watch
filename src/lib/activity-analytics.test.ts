@@ -24,3 +24,10 @@ test("test calls, undialed queues and voicemail detections do not inflate call o
 test("dial by name handles standard keypad letters, accents and apostrophes", () => {
   assert.equal(directoryDigits("Keller"), "535537"); assert.equal(directoryDigits("O’Néil"), "66345"); assert.equal(directoryDigits("123"), null);
 });
+
+test("weekly activity counts unique replying contacts across the entire period", () => {
+  const touch: ActivityTouch = { id: "a", person_id: "same", sent_by: "josh", sent_at: "2026-10-26T15:00:00Z", reply_at: "2026-10-27T16:00:00Z", bounced_at: null, reply_classification: "interested" };
+  const stats = activityAnalytics([touch, { ...touch, id: "b", reply_at: "2026-10-29T16:00:00Z" }, { ...touch, id: "outside", person_id: "other", sent_at: "2026-11-02T05:00:00Z", reply_at: "2026-11-02T05:00:00Z" }], [], "2026-10-26", "2026-11-02");
+  assert.equal(stats[0].emailsSent, 2);
+  assert.equal(stats[0].replies, 1);
+});
