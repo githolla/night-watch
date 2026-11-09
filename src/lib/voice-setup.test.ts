@@ -21,6 +21,7 @@ function route(number: string = VOICE_BOOKING.callerNumber, voice?: Record<strin
       if (name === "@/lib/automatic-call-preparation") return { prepareAutomaticCallBatch: async () => ({ backfilled: 0 }) };
       if (name === "@/lib/voice-phone-audit") return { auditVoicePhones: async () => ({ checked: [], errors: [] }) };
       if (name === "@/lib/voice-conversation") return { VOICE_TEST_DURATION_SECONDS, VOICE_TURN_TIMING };
+      if (name === "@/lib/gmail") return { ownerAccessToken: async () => "test-access" };
       if (name === "@/lib/voice-queue") return { prepareVoiceQueue: async () => ({ queued: 0, held: [], externalDispatchEnabled: false }) };
       if (name === "@/lib/voice-analysis") return { ensureVoiceStructuredOutput: async () => "output-1", voiceStructuredResult: () => null };
       if (name === "@/lib/voice-runtime") return { reserveInternalVoiceAttempt: async () => "attempt-1", attachVoiceCall: async () => undefined, holdVoiceAttempt: async () => undefined };

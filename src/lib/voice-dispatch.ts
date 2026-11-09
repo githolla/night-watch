@@ -1,3 +1,4 @@
+import { holdVoicePreflight, voiceFailureDisposition } from "./voice-preflight.ts";
 import { excludedCompanyPhone } from "./company-phone-safety.ts";
 import { normalizeVoicePhone } from "./voice-phone-audit.ts";
 import { z } from "zod";
@@ -25,6 +26,7 @@ export async function dispatchVoicePilot() {
   const attempts = z.array(claimed).parse(reservation.data ?? []);
   if (!attempts.length) return { callsPlaced: 0, blocked: "No due eligible call, daily cap reached, or another call is active." };
   const attempt = attempts[0];
+  let providerRequestStarted = false;
   try {
     const tasks = await loadCallTasks(db);
     const task = tasks.find(item => item.id === attempt.task_id && item.personId === attempt.person_id && item.owner === attempt.owner && item.plan.status === "pending");
@@ -49,6 +51,7 @@ export async function dispatchVoicePilot() {
     const payload = voiceAssistantPayload(assistant, process.env.VAPI_WEBHOOK_SECRET ?? "");
     const refreshed = await db.from("voice_attempts").update({ context_snapshot: { ...followup.context, dispatch_enabled: true, live_calendar_test: false }, prompt_version: VOICE_PROMPT_VERSION, eligibility_expires_at: approval.approved_until }).eq("id", attempt.id).eq("status", "creating").select("id");
     if (refreshed.error || !refreshed.data?.length) throw new Error("Call canceled during final checks.");
+    providerRequestStarted = true;
     const call = z.object({ id: z.string() }).parse(await vapiRequest("/call", "POST", {
       assistantId: phone.assistantId, phoneNumberId, customer: { number: attempt.destination, name: task.name },
       assistantOverrides: {
@@ -68,7 +71,12 @@ export async function dispatchVoicePilot() {
     await attachVoiceCall(attempt.id, call.id);
     return { callsPlaced: 1, callId: call.id, attemptId: attempt.id };
   } catch (error) {
-    await holdVoiceAttempt(attempt.id, error instanceof Error ? error.message : "Call creation uncertain. Reconcile before retrying.");
+    const reason = error instanceof Error ? error.message : "Call creation uncertain. Reconcile before retrying.";
+    if (voiceFailureDisposition(providerRequestStarted) === "contact_only") {
+      await holdVoicePreflight(db, attempt.id, reason);
+      return { callsPlaced: 0, heldAttemptId: attempt.id, blocked: reason, queueCanContinue: true };
+    }
+    await holdVoiceAttempt(attempt.id, reason);
     throw error;
   }
 }

@@ -1,3 +1,4 @@
+import { gmailTokenRequest } from "./gmail-token-request.ts";
 import { gmailThreadRequest } from './gmail-thread-request.ts';
 import { gmailSendRequest } from './delivery-state.ts';
 import { emailMime } from "./email-mime.ts";
@@ -22,7 +23,7 @@ export async function exchangeCode(code:string){const response=await fetch("http
 // real sender address and pre-fill their signature name on connect.
 export async function googleProfile(accessToken:string):Promise<{email:string|null;name:string|null}>{const response=await fetch("https://openidconnect.googleapis.com/v1/userinfo",{headers:{authorization:`Bearer ${accessToken}`}});if(!response.ok)return {email:null,name:null};const data=await response.json() as {email?:string;name?:string};return {email:data.email??null,name:data.name??null}}
 export async function googleEmail(accessToken:string){return (await googleProfile(accessToken)).email}
-async function accessToken(owner:Owner){const {data}=await admin().from("gmail_connections").select("refresh_token_ciphertext").eq("owner",owner).single();if(!data)throw new Error(`Gmail is not connected for ${owner}`);const response=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:new URLSearchParams({...config(),refresh_token:decrypt(data.refresh_token_ciphertext),grant_type:"refresh_token"})});if(!response.ok)throw new Error("Unable to refresh Gmail access");return (await response.json() as {access_token:string}).access_token}
+async function accessToken(owner:Owner){const {data}=await admin().from("gmail_connections").select("refresh_token_ciphertext").eq("owner",owner).single();if(!data)throw new Error(`Gmail is not connected for ${owner}`);return gmailTokenRequest(new URLSearchParams({...config(),refresh_token:decrypt(data.refresh_token_ciphertext),grant_type:"refresh_token"}));}
 // Exposed so the calendar helpers can call Google APIs with the same refreshed token.
 export async function ownerAccessToken(owner:Owner){return accessToken(owner)}
 // List recent messages in the sender's Sent mailbox (for tracking emails composed directly in Gmail).

@@ -1,3 +1,4 @@
+import { ownerAccessToken } from "@/lib/gmail";
 import { prepareAutomaticCallBatch } from "@/lib/automatic-call-preparation";
 import { auditVoicePhones } from "@/lib/voice-phone-audit";
 import { VOICE_TEST_DURATION_SECONDS, VOICE_TURN_TIMING } from "@/lib/voice-conversation";
@@ -28,13 +29,25 @@ export async function GET(request: Request) {
   }
 }
 
-const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh", "phone-audit", "prepare-cadence"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), testVoicemail: z.boolean().optional(), liveCalendarTest: z.boolean().default(false), testRecipient: z.enum(["josh", "suuchi"]).default("josh"), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
+const setup = z.object({ action: z.enum(["preview", "configure", "calendar-check", "test-call", "call-status", "transport-check", "enable-us-calling", "followup-preview", "test-followup", "reconcile-call", "queue-refresh", "phone-audit", "prepare-cadence", "mailbox-check"]), assistantId: z.uuid(), phoneNumberId: z.uuid(), callId: z.uuid().optional(), taskId: z.uuid().optional(), attemptKey: z.uuid().optional(), testVoicemail: z.boolean().optional(), liveCalendarTest: z.boolean().default(false), testRecipient: z.enum(["josh", "suuchi"]).default("josh"), voiceChoice: z.enum(["clara", "sid", "savannah", "jess", "elliot"]).optional() });
 
 export async function POST(request: Request) {
   if (!cronAuthorized(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const input = setup.parse(await request.json());
     if (input.assistantId !== process.env.VAPI_ASSISTANT_ID) throw new Error("Assistant does not match the configured Nightwatch assistant.");
+    if (input.action === "mailbox-check") {
+      const mailboxes = await Promise.all((["josh", "suuchi"] as const).map(async owner => {
+        try {
+          const token = await ownerAccessToken(owner);
+          const response = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/profile", { headers: { authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(15_000) });
+          if (!response.ok) throw new Error(`Gmail profile read failed (${response.status}).`);
+          const profile = z.object({ emailAddress: z.email() }).parse(await response.json());
+          return { owner, connected: true, email: profile.emailAddress };
+        } catch (error) { return { owner, connected: false, error: error instanceof Error ? error.message : "Mailbox check failed" }; }
+      }));
+      return Response.json({ mailboxes, callsPlaced: 0 });
+    }
     if (input.action === "prepare-cadence") return Response.json({ ok: true, preparation: await prepareAutomaticCallBatch(), ...await prepareVoiceQueue(), callsPlaced: 0 });
     if (input.action === "queue-refresh") return Response.json({ ok: true, ...await prepareVoiceQueue() });
     if (input.action === "reconcile-call") {

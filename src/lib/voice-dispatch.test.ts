@@ -11,9 +11,9 @@ import { voiceAssistantPayload } from "./voice-assistant.ts";
 const require = createRequire(import.meta.url);
 const id = "10000000-0000-4000-8000-000000000001", personId = "10000000-0000-4000-8000-000000000002";
 const config = { id: true, enabled: true, starts_at: "2020-01-01T00:00:00Z", ends_at: "2035-01-01T00:00:00Z", booking_test_passed: true, voicemail_test_passed: true, optout_test_passed: true };
-function harness(options: { config?: Record<string, unknown> | null; eligible?: boolean; failure?: boolean; phoneKind?: "direct" | "company"; owner?: "josh" | "suuchi"; taskOwner?: "josh" | "suuchi" } = {}) {
+function harness(options: { config?: Record<string, unknown> | null; eligible?: boolean; gmailFailure?: boolean; failure?: boolean; phoneKind?: "direct" | "company"; owner?: "josh" | "suuchi"; taskOwner?: "josh" | "suuchi" } = {}) {
   const memory = queryDb({ voice_pilot_config: options.config === null ? [] : [options.config ?? config], voice_eligibility: [{ person_id: personId, timezone: "America/New_York", approved_until: "2035-01-01T00:00:00Z", approved_number: "+15555550100", approval_basis: "written_consent", approval_evidence: "Documented permission", delay_business_days: 1 }], voice_attempts: [{ id, status: "creating" }] });
-  let claims = 0, calls = 0, attached = 0, held = 0;
+  let claims = 0, calls = 0, attached = 0, held = 0, preflightHeld = 0;
   let callPayload: unknown;
   const exports: Record<string, unknown> = {};
   runInNewContext(ts.transpileModule(readFileSync(new URL("./voice-dispatch.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
@@ -21,10 +21,11 @@ function harness(options: { config?: Record<string, unknown> | null; eligible?: 
     require: (name: string) => {
       if (name === "./supabase/admin.ts") return { admin: () => ({ ...memory.db, rpc: async () => { claims++; return { data: [{ id, task_id: id, person_id: personId, owner: options.owner ?? "suuchi", destination: "+15555550100", eligibility_expires_at: "2035-01-01T00:00:00Z" }], error: null }; } }) };
       if (name === "./call-tasks.ts") return { loadCallTasks: async (_db: unknown, owner: unknown) => { assert.equal(owner, undefined); return options.eligible === false ? [] : [{ id, personId, owner: options.taskOwner ?? options.owner ?? "suuchi", name: "Morgan", bounced: false, plan: { status: "pending", firstEmailAt: "2026-10-21T14:00:00Z", phone: { number: "+15555550100", kind: options.phoneKind ?? "direct" } } }]; } };
-      if (name === "./voice-sent-context.ts") return { currentVoiceFollowup: async () => ({ context: { first_name: "Morgan", email_body: "Actual sent email", email_subject: "shipping handoffs", context_generated_at: new Date().toISOString() }, firstMessage: "Hi Morgan", instructions: "Use actual email", voicemailMessage: "Approved voicemail" }) };
+      if (name === "./voice-sent-context.ts") return { currentVoiceFollowup: async () => { if (options.gmailFailure) throw new Error("Unable to refresh Gmail access"); return ({ context: { first_name: "Morgan", email_body: "Actual sent email", email_subject: "shipping handoffs", context_generated_at: new Date().toISOString() }, firstMessage: "Hi Morgan", instructions: "Use actual email", voicemailMessage: "Approved voicemail" }); } };
       if (name === "./voice-policy.ts") return { VOICE_PROMPT_VERSION: "test", voiceEligibility: () => ({ allowed: true, reasons: [] }) };
       if (name === "./voice-assistant.ts") return { voiceAssistantPayload };
       if (name === "./voice-booking.ts") return { VOICE_BOOKING, VOICE_INSTRUCTIONS };
+      if (name === "./voice-preflight.ts") return { voiceFailureDisposition: (started: boolean) => started ? "reconcile_provider" : "contact_only", holdVoicePreflight: async () => { preflightHeld++; } };
       if (name === "./voice-runtime.ts") return { attachVoiceCall: async () => { attached++; }, holdVoiceAttempt: async () => { held++; } };
       if (name === "./vapi.ts") return { vapiRequest: async (path: string, _method?: string, body?: unknown) => {
         if (path === "/call") { calls++; callPayload = body; if (options.failure) throw new Error("Provider timeout"); return { id: "call-1" }; }
@@ -35,7 +36,7 @@ function harness(options: { config?: Record<string, unknown> | null; eligible?: 
       return require(name);
     },
   });
-  return { ...memory, run: exports.dispatchVoicePilot as () => Promise<Record<string, unknown>>, metrics: () => ({ claims, calls, attached, held, callPayload }) };
+  return { ...memory, run: exports.dispatchVoicePilot as () => Promise<Record<string, unknown>>, metrics: () => ({ claims, calls, attached, held, preflightHeld, callPayload }) };
 }
 
 test("pilot stays off with missing setup, disabled switch, unpassed tests or future dates", async () => {
@@ -48,9 +49,12 @@ test("pilot stays off with missing setup, disabled switch, unpassed tests or fut
 });
 test("pilot refresh prevents dialing a contact removed by reply, bounce, meeting or opt-out", async () => {
   const h = harness({ eligible: false });
-  await assert.rejects(h.run(), /no longer eligible/);
+  const result = await h.run();
+  assert.match(String(result.blocked), /no longer eligible/);
+  assert.equal(result.queueCanContinue, true);
   assert.equal(h.metrics().calls, 0);
-  assert.equal(h.metrics().held, 1);
+  assert.equal(h.metrics().preflightHeld, 1);
+  assert.equal(h.metrics().held, 0);
 });
 test("pilot places one real follow-up with approved voicemail and saves its provider ID", async () => {
   const h = harness();
@@ -84,6 +88,16 @@ test("Josh calls dispatch under Josh and a mismatched owner is held", async () =
   const josh = harness({ owner: "josh" });
   assert.equal((await josh.run()).callsPlaced, 1);
   const mismatch = harness({ owner: "josh", taskOwner: "suuchi" });
-  await assert.rejects(mismatch.run(), /no longer eligible/);
+  assert.match(String((await mismatch.run()).blocked), /no longer eligible/);
   assert.equal(mismatch.metrics().calls, 0);
+});
+
+ test("Gmail failure never reaches provider creation or takes down the shared queue", async () => {
+  const h = harness({ gmailFailure: true });
+  const result = await h.run();
+  assert.equal(result.callsPlaced, 0);
+  assert.equal(result.queueCanContinue, true);
+  assert.equal(h.metrics().preflightHeld, 1);
+  assert.equal(h.metrics().held, 0);
+  assert.equal(h.metrics().calls, 0);
 });
