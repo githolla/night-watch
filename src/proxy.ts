@@ -13,6 +13,12 @@ function isAuthenticated(token: string | undefined) {
 }
 
 export function proxy(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  if (!path.startsWith("/api/unsubscribe") && path !== "/api/cron/shutdown") {
+    if (path.startsWith("/api/")) return NextResponse.json({ disabled: true, message: "Nightwatch is turned off." }, { status: 503 });
+    return new NextResponse("<!doctype html><html><head><title>Nightwatch is off</title></head><body style='font-family:Arial,sans-serif;padding:64px;color:#242424'><h1>Nightwatch is turned off.</h1><p>Automated outreach, calls, research and notifications are disabled.</p></body></html>", { status: 503, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
+  }
+
   const authenticated = isAuthenticated(request.cookies.get(SESSION_COOKIE)?.value);
   if (request.nextUrl.pathname === "/login") {
     return authenticated ? NextResponse.redirect(new URL("/", request.url)) : NextResponse.next();
